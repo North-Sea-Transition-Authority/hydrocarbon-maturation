@@ -10,7 +10,7 @@ services:
       - db-volume:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: dev
-      POSTGRES_USER: hydrocarbonmaturation
+      POSTGRES_USER: hydrocarbon_maturation
 
 volumes:
   db-volume:
