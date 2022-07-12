@@ -28,13 +28,13 @@ steps:
     environment:
       BITBUCKET_SSH_KEY:
         from_secret: bitbucket_ssh_key
-#
-#  - name: build-frontend
-#    image: node:10
-#    commands:
-#      - cd fivium-design-system-core && npm install && npx gulp build && cd ..
-#      - npm install
-#      - npx gulp buildAll
+
+  - name: build-frontend
+    image: node:10
+    commands:
+      - cd fivium-design-system-core && npm install && npx gulp build && cd ..
+      - npm install
+      - npx gulp buildAll
 
   - name: build-backend
     image: eclipse-temurin:17-jdk
@@ -180,7 +180,7 @@ data: 3AfT+MPy2inIIbFK635uz30e9DTHH5ePU0WGKVWvFxixURAGNOQqRL64HqGlqG+n53HlLz9MzH
 
 kind: secret
 name: sonarcloud_token
-data: AX0doQ9+r2vQnqeO0yk/veD+CK9yKsdjQRB/Lhwuvt+iUJ4Rim6jjFIFQBn7wzyMCwW3GAtpXJqD8K9ygTDWcJFBB9E=
+data: lB55z7ACRk8uC4pB8nqHZ6HtjoUO+OFdx6oSiVR1RakYchtVVEibjoYn4XTJaH4+Uo8bBAR9AMR9Hw/UMX40E5bDLEA=
 
 ---
 
