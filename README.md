@@ -4,7 +4,7 @@
 
 The Hydrocarbon Maturation service is used to track the life cycle of oil and gas resources
 from it being a potential hydrocarbon deposit (Prospect), into Discovery where the resource
-is appraised for commercial viability. From there a development plan can be put together by
+is appraised for commercial viability. From there a development plans can be put together by
 operators which are reviewed by NSTA. If agreed then the plans are put into action and the
 operator will move into the Production phase where oil and / or gas is extracted. Finally
 production will end when the field is no longer economically viable and the field will be
