@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class HydrocarbonMaturationApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(HydrocarbonMaturationApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(HydrocarbonMaturationApplication.class, args);
+  }
 
 }
