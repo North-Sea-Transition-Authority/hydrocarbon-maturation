@@ -180,7 +180,7 @@ data: 3AfT+MPy2inIIbFK635uz30e9DTHH5ePU0WGKVWvFxixURAGNOQqRL64HqGlqG+n53HlLz9MzH
 
 kind: secret
 name: sonarcloud_token
-data: lB55z7ACRk8uC4pB8nqHZ6HtjoUO+OFdx6oSiVR1RakYchtVVEibjoYn4XTJaH4+Uo8bBAR9AMR9Hw/UMX40E5bDLEA=
+data: 07f0fe94a9d814f5c82ff80a2d3d05a46165878c
 
 ---
 
