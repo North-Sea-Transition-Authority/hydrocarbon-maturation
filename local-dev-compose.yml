@@ -11,6 +11,7 @@ services:
     environment:
       POSTGRES_PASSWORD: dev
       POSTGRES_USER: hydrocarbon_maturation
+      POSTGRES_DB: hydrocarbon_maturation
 
 volumes:
   db-volume:
