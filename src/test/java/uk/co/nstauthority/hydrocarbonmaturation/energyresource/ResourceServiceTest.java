@@ -3,10 +3,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,21 +17,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ResourceServiceTest {
 
+  private static final Instant INSTANT = Instant.now();
+
   @Mock
   private ResourceRepository resourceRepository;
 
-  @Mock
-  private Clock clock;
-
   private ResourceService resourceService;
-
-  private Instant instant;
 
   @BeforeEach
   void setUp() {
+    Clock clock = Clock.fixed(Instant.from(INSTANT), ZoneId.systemDefault());
     resourceService = new ResourceService(resourceRepository, clock);
-    instant = Instant.now();
-    when(clock.instant()).thenReturn(instant);
   }
 
   @Test
@@ -43,6 +39,6 @@ class ResourceServiceTest {
 
     var createdResource = resourceArgumentCaptor.getValue();
     assertThat(createdResource.getType()).isEqualTo(ResourceType.PROSPECT);
-    assertThat(createdResource.getCreatedTimestamp()).isEqualTo(instant);
+    assertThat(createdResource.getCreatedTimestamp()).isEqualTo(INSTANT);
   }
 }
