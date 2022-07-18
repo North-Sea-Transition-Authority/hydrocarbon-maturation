@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector;
 
-public final class SearchSelectablePrefix {
+final class SearchSelectablePrefix {
 
   public static final String FREE_TEXT_PREFIX = "FT_";
 
