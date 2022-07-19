@@ -13,7 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigur
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ControllerAdvice
-class DefaultPageControllerAdvice {
+public class DefaultPageControllerAdvice {
 
   private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
 
