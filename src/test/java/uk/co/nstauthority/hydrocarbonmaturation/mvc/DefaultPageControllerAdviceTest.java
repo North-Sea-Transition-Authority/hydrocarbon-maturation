@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
     DefaultPageControllerAdvice.class,
     TopNavigationService.class
 })
+@WithMockUser
 class DefaultPageControllerAdviceTest {
 
   @Autowired
