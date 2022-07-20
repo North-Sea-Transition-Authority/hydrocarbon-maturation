@@ -38,8 +38,9 @@ public class Breadcrumbs {
       return this;
     }
 
-    public BreadcrumbsBuilder addTaskListBreadcrumb(String taskListUrl) {
-      breadcrumbs.add(new BreadcrumbItem("Task list", taskListUrl));
+    public BreadcrumbsBuilder addTaskListBreadcrumb() {
+      // TODO HM-49: replace with actual task list URL
+      breadcrumbs.add(new BreadcrumbItem("Task list", "#"));
       return this;
     }
 

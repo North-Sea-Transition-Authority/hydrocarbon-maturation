@@ -16,14 +16,13 @@ class BreadcrumbsUtilTest {
   @Test
   void buildIntoModelAndView_whenBuilderMethodsApplied_assertCrumbListInRightOrder() {
     var modelAndView = new ModelAndView();
-    var taskListUrl = "/task-list";
     var currentPage = "My current page";
     var breadcrumbPrompt = "Other page name";
     var breadcrumbEndpoint = "Other page URL";
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(currentPage)
         .addWorkAreaBreadcrumb()
-        .addTaskListBreadcrumb(taskListUrl)
+        .addTaskListBreadcrumb()
         .addBreadcrumb(breadcrumbPrompt, breadcrumbEndpoint)
         .build();
 
@@ -31,7 +30,7 @@ class BreadcrumbsUtilTest {
 
     Map<String, String> expectedCrumbList = new LinkedHashMap<>();
     expectedCrumbList.put(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), "Work area");
-    expectedCrumbList.put(taskListUrl, "Task list");
+    expectedCrumbList.put("#", "Task list");
     expectedCrumbList.put(breadcrumbEndpoint, breadcrumbPrompt);
 
     assertThat(modelAndView.getModelMap()).containsOnlyKeys(
