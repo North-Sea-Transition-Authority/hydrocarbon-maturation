@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.DefaultModelAttributeTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -35,13 +36,7 @@ class DefaultPageControllerAdviceTest extends AbstractControllerTest {
 
     var modelMap = modelAndView.getModel();
 
-    assertThat(modelMap).containsOnlyKeys(
-        "customerBranding",
-        "org.springframework.validation.BindingResult.customerBranding",
-        "serviceBranding",
-        "org.springframework.validation.BindingResult.serviceBranding",
-        "serviceHomeUrl"
-    );
+    assertThat(modelMap.keySet()).isEqualTo(DefaultModelAttributeTestUtils.withDefaultKeys());
 
     assertThat((CustomerConfigurationProperties) modelMap.get("customerBranding")).hasNoNullFieldsOrProperties();
     assertThat((ServiceConfigurationProperties) modelMap.get("serviceBranding")).hasNoNullFieldsOrProperties();
