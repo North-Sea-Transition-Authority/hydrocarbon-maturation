@@ -1,7 +1,9 @@
 <#include '../layout/layout.ftl'>
 
-<#assign pageTitle = "Work area" />
+<#-- @ftlvariable name="pageTitle" type="String" -->
 <#-- @ftlvariable name="startSubmissionUrl" type="String" -->
+
+<#assign pageTitle = "${pageTitle}" />
 
 <@defaultPage
   htmlTitle=pageTitle

@@ -5,24 +5,34 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.DefaultModelAttributeTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
+
 @WebMvcTest
+@ActiveProfiles("test")
+@IncludeServiceBrandingConfigurationProperties
 @ContextConfiguration(classes = {
     DefaultPageControllerAdviceTest.TestController.class,
-    DefaultPageControllerAdvice.class
+    DefaultPageControllerAdvice.class,
+    TopNavigationService.class
 })
-class DefaultPageControllerAdviceTest extends AbstractControllerTest {
+class DefaultPageControllerAdviceTest {
+
+  @Autowired
+  protected MockMvc mockMvc;
 
   @Test
   void addDefaultModelAttributes_verifyDefaultAttributes() throws Exception {
@@ -36,7 +46,15 @@ class DefaultPageControllerAdviceTest extends AbstractControllerTest {
 
     var modelMap = modelAndView.getModel();
 
-    assertThat(modelMap.keySet()).isEqualTo(DefaultModelAttributeTestUtils.withDefaultKeys());
+    assertThat(modelMap).containsOnlyKeys(
+        "customerBranding",
+        "org.springframework.validation.BindingResult.customerBranding",
+        "serviceBranding",
+        "org.springframework.validation.BindingResult.serviceBranding",
+        "serviceHomeUrl",
+        "navigationItems",
+        "currentEndPoint"
+    );
 
     assertThat((CustomerConfigurationProperties) modelMap.get("customerBranding")).hasNoNullFieldsOrProperties();
     assertThat((ServiceConfigurationProperties) modelMap.get("serviceBranding")).hasNoNullFieldsOrProperties();

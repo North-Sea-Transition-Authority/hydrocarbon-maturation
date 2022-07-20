@@ -9,7 +9,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationServi
 @ContextConfiguration(classes = {
     DefaultPageControllerAdvice.class,
     TopNavigationService.class
-
 })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WithDefaultPageControllerAdvice {
