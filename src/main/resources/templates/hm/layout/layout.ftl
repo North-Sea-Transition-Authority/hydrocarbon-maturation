@@ -12,6 +12,7 @@
   errorItems=[]
   pageSize=PageSize.TWO_THIRDS_COLUMN
   backLinkUrl=""
+  breadcrumbsMap={}
 >
     <#local serviceName = serviceBranding.name() />
     <#local customerMnemonic = customerBranding.mnemonic() />
@@ -38,6 +39,11 @@
         <#assign twoThirdsColumn=true/>
     </#if>
 
+    <#assign useBreadCrumbs=false>
+    <#if breadcrumbsMap?has_content>
+        <#assign useBreadCrumbs=true>
+    </#if>
+
     <#assign backLink = false>
     <#if backLinkUrl?has_content>
         <#assign backLink=true/>
@@ -62,6 +68,8 @@
       errorItems=errorItems
       backLink=backLink
       backLinkUrl=backLinkUrl
+      breadcrumbs=useBreadCrumbs
+      breadcrumbsList=breadcrumbsMap
     >
         <#nested />
     </@fdsDefaultPageTemplate>
