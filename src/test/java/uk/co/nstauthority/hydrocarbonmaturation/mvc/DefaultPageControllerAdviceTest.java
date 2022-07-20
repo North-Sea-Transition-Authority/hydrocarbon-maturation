@@ -7,8 +7,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +17,17 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
+
 @WebMvcTest
-@AutoConfigureMockMvc
+@ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
 @ContextConfiguration(classes = {
     DefaultPageControllerAdviceTest.TestController.class,
-    DefaultPageControllerAdvice.class
+    DefaultPageControllerAdvice.class,
+    TopNavigationService.class
 })
 class DefaultPageControllerAdviceTest {
 
@@ -48,7 +51,9 @@ class DefaultPageControllerAdviceTest {
         "org.springframework.validation.BindingResult.customerBranding",
         "serviceBranding",
         "org.springframework.validation.BindingResult.serviceBranding",
-        "serviceHomeUrl"
+        "serviceHomeUrl",
+        "navigationItems",
+        "currentEndPoint"
     );
 
     assertThat((CustomerConfigurationProperties) modelMap.get("customerBranding")).hasNoNullFieldsOrProperties();

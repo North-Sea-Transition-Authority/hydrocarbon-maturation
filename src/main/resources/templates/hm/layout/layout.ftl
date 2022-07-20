@@ -9,7 +9,9 @@
   htmlTitle
   pageHeading=""
   phaseBanner=true
+  errorItems=[]
   pageSize=PageSize.TWO_THIRDS_COLUMN
+  backLinkUrl=""
 >
     <#local serviceName = serviceBranding.name() />
     <#local customerMnemonic = customerBranding.mnemonic() />
@@ -36,6 +38,11 @@
         <#assign twoThirdsColumn=true/>
     </#if>
 
+    <#assign backLink = false>
+    <#if backLinkUrl?has_content>
+        <#assign backLink=true/>
+    </#if>
+
     <@fdsDefaultPageTemplate
       htmlTitle=htmlTitle
       serviceName=serviceName
@@ -52,6 +59,9 @@
       twoThirdsColumn=twoThirdsColumn
       twoThirdsOneThirdColumn=twoThirdsOneThirdColumn
       oneQuarterColumn=oneQuarterColumn
+      errorItems=errorItems
+      backLink=backLink
+      backLinkUrl=backLinkUrl
     >
         <#nested />
     </@fdsDefaultPageTemplate>

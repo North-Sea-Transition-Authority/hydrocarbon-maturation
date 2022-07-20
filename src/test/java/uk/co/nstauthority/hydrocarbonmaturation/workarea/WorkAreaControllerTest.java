@@ -8,12 +8,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 
-@WebMvcTest
 @ContextConfiguration(
     classes = WorkAreaController.class
 )
@@ -26,8 +25,7 @@ class WorkAreaControllerTest extends AbstractControllerTest {
         )
         .andExpect(status().isOk())
         .andExpect(view().name("hm/workarea/workArea"))
-        //TODO swap submission url with correct controller and method
-        .andExpect(model().attribute("startSubmissionUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea())));
+        .andExpect(model().attribute("startSubmissionUrl", ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose())));
 
   }
 }
