@@ -30,7 +30,7 @@ public class OpportunityDetailsFormValidator implements SmartValidator {
           "Provide the type of opportunity for this opportunity detail");
     }
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "keyEvaluationWorkCarriedOut", "opportunityComments.required",
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "keyEvaluationWorkCarriedOut", "keyEvaluationWorkCarriedOut.required",
         "Provide the key evaluation work being carried out for this opportunity detail");
 
   }

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -106,8 +107,5 @@ class GeneralDetailsFormValidatorTest {
 
     generalDetailsFormValidator.validate(form, bindingResult);
     return bindingResult;
-  }
-
-  private static class NonSupportedClass {
   }
 }
