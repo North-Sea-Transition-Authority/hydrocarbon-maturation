@@ -29,13 +29,13 @@ public class OpportunityDetailsController {
   }
 
   @GetMapping("/opportunity-details")
-  public ModelAndView getOpportunityDetailsPage() {
+  public ModelAndView getOpportunityDetails() {
     return opportunityDetailsService.getOpportunityDetailsModelAndView(new OpportunityDetailsForm());
   }
 
   @PostMapping("/opportunity-details")
-  public ModelAndView saveOpportunityDetailsPage(@ModelAttribute("form") OpportunityDetailsForm form,
-                                                 BindingResult bindingResult) {
+  public ModelAndView saveOpportunityDetails(@ModelAttribute("form") OpportunityDetailsForm form,
+                                             BindingResult bindingResult) {
     bindingResult = opportunityDetailsService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         opportunityDetailsService.getOpportunityDetailsModelAndView(form),

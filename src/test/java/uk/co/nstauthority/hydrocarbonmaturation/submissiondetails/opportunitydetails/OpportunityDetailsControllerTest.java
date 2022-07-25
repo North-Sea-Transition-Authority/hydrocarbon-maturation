@@ -5,6 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -12,8 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
@@ -22,7 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-@WebMvcTest
+@WithMockUser
 @ContextConfiguration(classes = OpportunityDetailsController.class)
 class OpportunityDetailsControllerTest extends AbstractControllerTest {
 
@@ -32,14 +33,12 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
   @Test
   void getOpportunityDetailsPage_assertStatusOk() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetailsPage())))
+        get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails())))
         .andExpect(status().isOk());
   }
 
   @Test
   void saveOpportunityDetailsPage_whenValidForm_assertRedirection() throws Exception {
-    //TODO when task list is created assert redirection
-
     var form = new OpportunityDetailsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var modelAndView = new ModelAndView();
@@ -48,7 +47,8 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     when(opportunityDetailsService.getOpportunityDetailsModelAndView(form)).thenReturn(modelAndView);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetailsPage(form, bindingResult))))
+        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(form, bindingResult)))
+            .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))); //TODO redirect to task list
 
@@ -66,7 +66,8 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     when(opportunityDetailsService.getOpportunityDetailsModelAndView(any(OpportunityDetailsForm.class))).thenReturn(modelAndView);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetailsPage(form, bindingResult))))
+        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(form, bindingResult)))
+            .with(csrf()))
         .andExpect(status().isOk());
 
     verify(opportunityDetailsService, never()).saveOpportunityDetails(any(OpportunityDetailsForm.class));
