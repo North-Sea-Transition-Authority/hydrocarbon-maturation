@@ -40,7 +40,10 @@ public class StartSubmissionController {
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getSubmissionTypeModelAndView(form),
-        () -> ReverseRouter.redirect(on(StartProspectController.class).getStartPage()));
+        () -> switch (form.getSubmissionType()) {
+          case CREATE_PROSPECT -> ReverseRouter.redirect(on(StartProspectController.class).getStartPage());
+          case PROSPECT_UPDATE -> getSubmissionTypeModelAndView(form);
+        });
   }
 
   ModelAndView getSubmissionTypeModelAndView(SubmissionTypeSelectForm submissionTypeSelectForm) {

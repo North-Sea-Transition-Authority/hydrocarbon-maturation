@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -47,6 +48,7 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
             .with(csrf())
+            .param("submissionType", SubmissionType.CREATE_PROSPECT.name())
     ).andExpect(status().is3xxRedirection())
     .andExpect(redirectedUrl(ReverseRouter.route(on(StartProspectController.class).getStartPage())));
 
