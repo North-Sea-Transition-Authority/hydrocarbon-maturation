@@ -18,7 +18,8 @@ public class OpportunityDetailsController {
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
-  public OpportunityDetailsController(OpportunityDetailsService opportunityDetailsService, ControllerHelperService controllerHelperService) {
+  public OpportunityDetailsController(OpportunityDetailsService opportunityDetailsService,
+                                      ControllerHelperService controllerHelperService) {
     this.opportunityDetailsService = opportunityDetailsService;
     this.controllerHelperService = controllerHelperService;
   }
@@ -29,12 +30,11 @@ public class OpportunityDetailsController {
   }
 
   @PostMapping("/opportunity-details")
-  public ModelAndView saveOpportunityDetailsPage(@ModelAttribute("form") OpportunityDetailsForm form, BindingResult bindingResult) {
+  public ModelAndView saveOpportunityDetailsPage(@ModelAttribute("form") OpportunityDetailsForm form,
+                                                 BindingResult bindingResult) {
     bindingResult = opportunityDetailsService.validate(form, bindingResult);
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         opportunityDetailsService.getOpportunityDetailsModelAndView(form),
-        () -> opportunityDetailsService.getOpportunityDetailsModelAndView(form)
-    );
+        () -> opportunityDetailsService.getOpportunityDetailsModelAndView(form));
   }
 }

@@ -20,7 +20,7 @@ public class OpportunityDetailsService {
         .addObject("opportunityTypes", OpportunityType.getOpportunityType())
         .addObject("form", form)
         .addObject("actionUrl", "#")
-        .addObject("backLinkUrl", "#");// TODO add back link to task list
+        .addObject("backLinkUrl", "#"); // TODO add back link to task list
   }
 
   BindingResult validate(OpportunityDetailsForm form, BindingResult bindingResult) {
