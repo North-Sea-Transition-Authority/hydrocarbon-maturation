@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 
@@ -16,12 +17,15 @@ import org.springframework.validation.BeanPropertyBindingResult;
 class OpportunityDetailsServiceTest {
 
   private static OpportunityDetailsFormValidator opportunityDetailsFormValidator;
+  private static OpportunityDetailsRepository opportunityDetailsRepository;
   private static OpportunityDetailsService opportunityDetailsService;
 
   @BeforeAll
   static void setup() {
     opportunityDetailsFormValidator = mock(OpportunityDetailsFormValidator.class);
-    opportunityDetailsService = new OpportunityDetailsService(opportunityDetailsFormValidator);
+    opportunityDetailsRepository = mock(OpportunityDetailsRepository.class);
+
+    opportunityDetailsService = new OpportunityDetailsService(opportunityDetailsFormValidator, opportunityDetailsRepository);
   }
 
   @Test
@@ -44,5 +48,38 @@ class OpportunityDetailsServiceTest {
         entry("actionUrl", "#"),
         entry("backLinkUrl", "#")
     );
+  }
+
+  @Test
+  void saveOpportunityDetails_whenGivenAForm_verifyCreatedEntity() {
+    var form = new OpportunityDetailsForm();
+    form.setOpportunityType(OpportunityType.OTHER);
+    form.setOtherTypeOfOpportunity("Other type");
+    form.setOpportunityComments("Comments");
+    form.setKeyEvaluationWorkCarriedOut("Key evluation");
+    form.setKeyWorkRequiredForFurtherMaturation("Key work");
+
+    var opportunityDetailsArgumentCaptor = ArgumentCaptor.forClass(OpportunityDetail.class);
+
+    opportunityDetailsService.saveOpportunityDetails(form);
+
+    verify(opportunityDetailsRepository, times(1)).save(opportunityDetailsArgumentCaptor.capture());
+    var savedOpportunityDetail = (OpportunityDetail) opportunityDetailsArgumentCaptor.getValue();
+
+    assertThat(savedOpportunityDetail)
+        .extracting(
+            OpportunityDetail::getOpportunityType,
+            OpportunityDetail::getOtherTypeOfOpportunity,
+            OpportunityDetail::getOpportunityComments,
+            OpportunityDetail::getKeyEvaluationWorkCarriedOut,
+            OpportunityDetail::getKeyWorkRequiredForFurtherMaturation
+        )
+        .containsExactly(
+            form.getOpportunityType(),
+            form.getOtherTypeOfOpportunity(),
+            form.getOpportunityComments(),
+            form.getKeyEvaluationWorkCarriedOut(),
+            form.getKeyWorkRequiredForFurtherMaturation()
+        );
   }
 }

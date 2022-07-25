@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -9,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
 @RequestMapping("/prospect")
@@ -35,6 +39,10 @@ public class OpportunityDetailsController {
     bindingResult = opportunityDetailsService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         opportunityDetailsService.getOpportunityDetailsModelAndView(form),
-        () -> opportunityDetailsService.getOpportunityDetailsModelAndView(form));
+        () -> {
+          opportunityDetailsService.saveOpportunityDetails(form);
+          return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea()); //TODO redirect to task list
+          // TODO add flash message
+        });
   }
 }

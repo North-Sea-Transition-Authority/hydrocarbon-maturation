@@ -1,9 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -16,6 +20,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @WebMvcTest
 @ContextConfiguration(classes = OpportunityDetailsController.class)
@@ -44,11 +49,14 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetailsPage(form, bindingResult))))
-        .andExpect(status().isOk());
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))); //TODO redirect to task list
+
+    verify(opportunityDetailsService, times(1)).saveOpportunityDetails(any(OpportunityDetailsForm.class));
   }
 
   @Test
-  void saveOpportunityDetailsPage_whenInValidForm_assertStatusOk() throws Exception {
+  void saveOpportunityDetailsPage_whenInvalidForm_assertStatusOk() throws Exception {
     var form = new OpportunityDetailsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var modelAndView = new ModelAndView();
@@ -60,6 +68,8 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetailsPage(form, bindingResult))))
         .andExpect(status().isOk());
+
+    verify(opportunityDetailsService, never()).saveOpportunityDetails(any(OpportunityDetailsForm.class));
   }
 
 }

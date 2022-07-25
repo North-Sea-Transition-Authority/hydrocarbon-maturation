@@ -9,10 +9,13 @@ import org.springframework.web.servlet.ModelAndView;
 public class OpportunityDetailsService {
 
   private final OpportunityDetailsFormValidator opportunityDetailsFormValidator;
+  private final OpportunityDetailsRepository opportunityDetailsRepository;
 
   @Autowired
-  public OpportunityDetailsService(OpportunityDetailsFormValidator opportunityDetailsFormValidator) {
+  public OpportunityDetailsService(OpportunityDetailsFormValidator opportunityDetailsFormValidator,
+                                   OpportunityDetailsRepository opportunityDetailsRepository) {
     this.opportunityDetailsFormValidator = opportunityDetailsFormValidator;
+    this.opportunityDetailsRepository = opportunityDetailsRepository;
   }
 
   ModelAndView getOpportunityDetailsModelAndView(OpportunityDetailsForm form) {
@@ -26,5 +29,16 @@ public class OpportunityDetailsService {
   BindingResult validate(OpportunityDetailsForm form, BindingResult bindingResult) {
     opportunityDetailsFormValidator.validate(form, bindingResult);
     return bindingResult;
+  }
+
+  void saveOpportunityDetails(OpportunityDetailsForm form) {
+    var opportunityDetail = new OpportunityDetail();
+    opportunityDetail.setOpportunityType(form.getOpportunityType());
+    opportunityDetail.setOtherTypeOfOpportunity(form.getOtherTypeOfOpportunity());
+    opportunityDetail.setOpportunityComments(form.getOpportunityComments());
+    opportunityDetail.setKeyEvaluationWorkCarriedOut(form.getKeyEvaluationWorkCarriedOut());
+    opportunityDetail.setKeyWorkRequiredForFurtherMaturation(form.getKeyWorkRequiredForFurtherMaturation());
+
+    opportunityDetailsRepository.save(opportunityDetail);
   }
 }
