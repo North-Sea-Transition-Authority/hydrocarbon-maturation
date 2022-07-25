@@ -39,7 +39,7 @@ class OpportunityDetailsServiceTest {
     var model = opportunityDetailsService.getOpportunityDetailsModelAndView(form);
 
     assertThat(model.getModelMap()).containsExactly(
-        entry("opportunityType", OpportunityType.getOpportunityType()),
+        entry("opportunityTypes", OpportunityType.getOpportunityType()),
         entry("form", form),
         entry("actionUrl", "#"),
         entry("backLinkUrl", "#")
