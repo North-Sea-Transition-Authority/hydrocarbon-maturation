@@ -23,10 +23,11 @@ errorItems=errorList>
       <@fdsRadio.radioGroup path="form.prospectLocatedInUkcs" labelText="Is the prospect wholly located within UKCS?" hiddenContent=true>
           <@fdsRadio.radioYes path="form.prospectLocatedInUkcs"/>
           <@fdsRadio.radioNo path="form.prospectLocatedInUkcs">
-              <@fdsTextInput.textInput path="form.percentageLocatedInUkcs"
+              <@fdsTextInput.textInput path="form.percentageLocatedInUkcs.decimalInputValue"
                 labelText="What percentage of the hydrocarbon volume is located within the UKCS?"
                 suffix="%"
                 suffixScreenReaderPrompt="percent"
+                hintText="Must be between 0 and 100"
                 inputClass="govuk-!-width-one-third"
                 nestingPath="form.prospectLocatedInUkcs"/>
           </@fdsRadio.radioNo>

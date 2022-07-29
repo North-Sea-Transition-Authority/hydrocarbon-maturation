@@ -1,10 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 
 @Service
 class GeneralDetailsFormValidator implements SmartValidator {
@@ -29,16 +31,19 @@ class GeneralDetailsFormValidator implements SmartValidator {
         "Select whether the prospect is wholly located within UKCS");
 
     if (BooleanUtils.isFalse(form.getProspectLocatedInUkcs())) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "percentageLocatedInUkcs", "percentageLocatedInUkcs.required",
-          "Enter the percentage of the hydrocarbon volume that is located within the UKCS");
+      new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(errors, "percentageLocatedInUkcs.decimalInputValue",
+          "The hydrocarbon volume percentage", form.getPercentageLocatedInUkcs())
+          .setMaxDecimalPlaces(2)
+          .setMinValue(0)
+          .setMaxValue(100)
+          .validate();
     }
 
     ValidationUtils.rejectIfEmpty(errors, "informationSource", "informationSource.required", "Select the source of information");
 
-    if (form.getInformationSource() != null && form.getInformationSource().equals(InformationSource.OTHER)) {
+    if (Objects.equals(form.getInformationSource(), InformationSource.OTHER)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherSourceOfInformation", "otherSourceOfInformation.required",
           "Enter the source of information for this prospect submission");
     }
   }
-
 }

@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInput;
+
 class GeneralDetailsForm {
 
   private String prospectName;
@@ -8,7 +10,7 @@ class GeneralDetailsForm {
 
   private Boolean prospectLocatedInUkcs;
 
-  private String percentageLocatedInUkcs;
+  private DecimalInput percentageLocatedInUkcs;
 
   private InformationSource informationSource;
 
@@ -38,11 +40,11 @@ class GeneralDetailsForm {
     this.prospectLocatedInUkcs = prospectLocatedInUkcs;
   }
 
-  public String getPercentageLocatedInUkcs() {
+  public DecimalInput getPercentageLocatedInUkcs() {
     return percentageLocatedInUkcs;
   }
 
-  public void setPercentageLocatedInUkcs(String percentageLocatedInUkcs) {
+  public void setPercentageLocatedInUkcs(DecimalInput percentageLocatedInUkcs) {
     this.percentageLocatedInUkcs = percentageLocatedInUkcs;
   }
 

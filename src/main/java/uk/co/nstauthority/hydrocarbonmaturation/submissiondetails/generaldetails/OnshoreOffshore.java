@@ -1,11 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 
 public enum OnshoreOffshore implements Displayable {
   OFFSHORE("Offshore", 10),
@@ -20,12 +17,7 @@ public enum OnshoreOffshore implements Displayable {
   }
 
   static Map<String, String> getOnshoreOffshore() {
-    return Arrays.stream(OnshoreOffshore.values())
-        .sorted(Comparator.comparing(OnshoreOffshore::getDisplayOrder))
-        .collect(Collectors.toMap(
-            OnshoreOffshore::name,
-            OnshoreOffshore::getDisplayName,
-            (v1, v2) -> v1, LinkedHashMap::new));
+    return DisplayableEnumOptionUtil.getDisplayableOptions(OnshoreOffshore.class);
   }
 
   @Override
@@ -36,5 +28,10 @@ public enum OnshoreOffshore implements Displayable {
   @Override
   public int getDisplayOrder() {
     return this.displayOrder;
+  }
+
+  @Override
+  public String getEnumName() {
+    return this.name();
   }
 }
