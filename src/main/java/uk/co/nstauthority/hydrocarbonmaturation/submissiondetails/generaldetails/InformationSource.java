@@ -1,11 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 
 public enum InformationSource implements Displayable {
   LICENCE_APPLICATION("Licence application", 10),
@@ -22,12 +19,7 @@ public enum InformationSource implements Displayable {
   }
 
   static Map<String, String> getInformationSource() {
-    return Arrays.stream(InformationSource.values())
-        .sorted(Comparator.comparing(InformationSource::getDisplayOrder))
-        .collect(Collectors.toMap(
-            InformationSource::name,
-            InformationSource::getDisplayName,
-            (v1, v2) -> v1, LinkedHashMap::new));
+    return DisplayableEnumOptionUtil.getDisplayableOptions(InformationSource.class);
   }
 
   @Override
@@ -38,5 +30,10 @@ public enum InformationSource implements Displayable {
   @Override
   public int getDisplayOrder() {
     return this.displayOrder;
+  }
+
+  @Override
+  public String getEnumName() {
+    return this.name();
   }
 }

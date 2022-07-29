@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -29,13 +28,6 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
 
   @MockBean
   SubmissionTypeSelectService submissionTypeSelectService;
-
-  @Test
-  void getSubmissionPurpose_assertStatusOk() throws Exception {
-    mockMvc.perform(
-        get(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose())))
-        .andExpect(status().isOk());
-  }
 
   @Test
   void startSubmission_whenValidForm_assertRedirection() throws Exception {

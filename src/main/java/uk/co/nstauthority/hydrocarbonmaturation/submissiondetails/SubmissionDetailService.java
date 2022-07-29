@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.UUID;
+import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -27,6 +28,11 @@ public class SubmissionDetailService {
 
   public Optional<SubmissionDetail> getSubmissionDetailForId(UUID id) {
     return getSubmissionDetail(id);
+  }
+
+  public SubmissionDetail getSubmissionDetailForIdOrError(UUID id) {
+    return getSubmissionDetail(id)
+        .orElseThrow(() -> new EntityNotFoundException("Submission detail with id %s not found".formatted(id)));
   }
 
   SubmissionDetail createInitialSubmissionDetail(Resource resource, SubmissionType submissionType) {
