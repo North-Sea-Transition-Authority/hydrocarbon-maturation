@@ -53,7 +53,8 @@ public class OpportunityDetailsController {
           return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId));
         });
   }
-   ModelAndView getOpportunityDetailsModelAndView(OpportunityDetailsForm form, UUID submissionDetailId) {
+
+  private ModelAndView getOpportunityDetailsModelAndView(OpportunityDetailsForm form, UUID submissionDetailId) {
     return new ModelAndView("hm/submissiondetails/opportunityDetails")
         .addObject("opportunityTypes", OpportunityType.getOpportunityType())
         .addObject("form", form)
