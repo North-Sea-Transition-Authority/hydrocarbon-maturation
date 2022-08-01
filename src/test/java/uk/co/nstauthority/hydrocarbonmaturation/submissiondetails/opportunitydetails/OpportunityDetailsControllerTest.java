@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunityde
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -30,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 
 @WithMockUser
 @ContextConfiguration(classes = OpportunityDetailsController.class)
@@ -37,6 +39,9 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
 
   @MockBean
   OpportunityDetailsService opportunityDetailsService;
+
+  @MockBean
+  SubmissionDetailService submissionDetailService;
 
   private OpportunityDetailsForm form;
   private BindingResult bindingResult;
@@ -63,6 +68,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
   @Test
   void saveOpportunityDetailsPage_whenValidForm_assertRedirection() throws Exception {
     when(opportunityDetailsService.validate(any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult)))
@@ -96,9 +102,9 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
         .andReturn()
         .getModelAndView()).getModelMap();
 
-    assertThat(modelMap).containsExactly(
+    assertEquals(OpportunityDetailsForm.class, modelMap.get("form").getClass());
+    assertThat(modelMap).contains(
         entry("opportunityTypes", OpportunityType.getOpportunityType()),
-        entry("form", form),
         entry("actionUrl", "#"),
         entry("backLinkUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)))
     );

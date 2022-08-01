@@ -68,13 +68,13 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
 
   @Test
   void saveGeneralDetails_whenValidForm_assertRedirection() throws Exception {
-    //TODO when task list is created assert redirection
     when(generalDetailsService.validate(any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, form, bindingResult)))
             .with(csrf()))
-        .andExpect(status().is3xxRedirection());
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
   }
 
   @Test
