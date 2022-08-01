@@ -2,11 +2,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunityde
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
-public class OpportunityDetailsService {
+class OpportunityDetailsService {
 
   private final OpportunityDetailsFormValidator opportunityDetailsFormValidator;
   private final OpportunityDetailsRepository opportunityDetailsRepository;
@@ -18,21 +19,15 @@ public class OpportunityDetailsService {
     this.opportunityDetailsRepository = opportunityDetailsRepository;
   }
 
-  ModelAndView getOpportunityDetailsModelAndView(OpportunityDetailsForm form) {
-    return new ModelAndView("hm/submissiondetails/opportunityDetails")
-        .addObject("opportunityTypes", OpportunityType.getOpportunityType())
-        .addObject("form", form)
-        .addObject("actionUrl", "#")
-        .addObject("backLinkUrl", "#"); // TODO add back link to task list
-  }
-
   BindingResult validate(OpportunityDetailsForm form, BindingResult bindingResult) {
     opportunityDetailsFormValidator.validate(form, bindingResult);
     return bindingResult;
   }
 
-  void saveOpportunityDetails(OpportunityDetailsForm form) {
+  @Transactional
+  public void saveOpportunityDetails(OpportunityDetailsForm form, SubmissionDetail submissionDetail) {
     var opportunityDetail = new OpportunityDetail();
+    opportunityDetail.setSubmissionDetail(submissionDetail);
     opportunityDetail.setOpportunityType(form.getOpportunityType());
     opportunityDetail.setOtherTypeOfOpportunity(form.getOtherTypeOfOpportunity());
     opportunityDetail.setOpportunityComments(form.getOpportunityComments());

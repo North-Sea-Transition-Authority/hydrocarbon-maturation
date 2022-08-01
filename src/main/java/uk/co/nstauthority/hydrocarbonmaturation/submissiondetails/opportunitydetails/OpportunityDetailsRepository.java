@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface OpportunityDetailsRepository extends CrudRepository<OpportunityDetail, UUID> {
+interface OpportunityDetailsRepository extends CrudRepository<OpportunityDetail, UUID> {
 }

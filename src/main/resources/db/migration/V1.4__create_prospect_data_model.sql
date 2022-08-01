@@ -1,6 +1,6 @@
 CREATE TABLE hydrocarbon_maturation.opportunity_details (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
-  submission_detail_id UUID,
+  submission_detail_id UUID NOT NULL,
   opportunity_type TEXT NOT NULL,
   other_type_of_opportunity TEXT,
   opportunity_comments TEXT,

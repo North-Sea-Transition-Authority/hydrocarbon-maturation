@@ -1,6 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,16 +15,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Objects;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @WithMockUser
 @ContextConfiguration(classes = OpportunityDetailsController.class)
@@ -30,47 +38,70 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
   @MockBean
   OpportunityDetailsService opportunityDetailsService;
 
+  private OpportunityDetailsForm form;
+  private BindingResult bindingResult;
+  private UUID submissionDetailId;
+  private SubmissionDetail submissionDetail;
+
+  @BeforeEach
+  void setUp() {
+    form = new OpportunityDetailsForm();
+    bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    submissionDetailId = UUID.randomUUID();
+    submissionDetail = new SubmissionDetail();
+    submissionDetail.setId(submissionDetailId);
+  }
+
   @Test
   void getOpportunityDetailsPage_assertStatusOk() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails())))
+        get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form))))
         .andExpect(status().isOk());
   }
 
   @Test
   void saveOpportunityDetailsPage_whenValidForm_assertRedirection() throws Exception {
-    var form = new OpportunityDetailsForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var modelAndView = new ModelAndView();
-
     when(opportunityDetailsService.validate(any(), any())).thenReturn(bindingResult);
-    when(opportunityDetailsService.getOpportunityDetailsModelAndView(form)).thenReturn(modelAndView);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(form, bindingResult)))
+        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult)))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))); //TODO redirect to task list
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(opportunityDetailsService, times(1)).saveOpportunityDetails(any(OpportunityDetailsForm.class));
+    verify(opportunityDetailsService, times(1)).saveOpportunityDetails(any(OpportunityDetailsForm.class), eq(submissionDetail));
   }
 
   @Test
   void saveOpportunityDetailsPage_whenInvalidForm_assertStatusOk() throws Exception {
-    var form = new OpportunityDetailsForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var modelAndView = new ModelAndView();
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(opportunityDetailsService.validate(any(), any())).thenReturn(bindingResult);
-    when(opportunityDetailsService.getOpportunityDetailsModelAndView(any(OpportunityDetailsForm.class))).thenReturn(modelAndView);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(form, bindingResult)))
+        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult)))
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(opportunityDetailsService, never()).saveOpportunityDetails(any(OpportunityDetailsForm.class));
+    verify(opportunityDetailsService, never()).saveOpportunityDetails(any(OpportunityDetailsForm.class), eq(submissionDetail));
+  }
+
+
+
+  @Test
+  void getOpportunityDetailsModelAndView_assertModelProperties() throws Exception {
+    ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form))))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap).containsExactly(
+        entry("opportunityTypes", OpportunityType.getOpportunityType()),
+        entry("form", form),
+        entry("actionUrl", "#"),
+        entry("backLinkUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)))
+    );
   }
 
 }

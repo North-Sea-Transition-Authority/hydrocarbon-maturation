@@ -7,11 +7,11 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 
 <@defaultPage
-htmlTitle=pageTitle
-pageHeading=pageTitle
-pageSize=PageSize.TWO_THIRDS_COLUMN
-backLinkUrl=springUrl(backLinkUrl)
-errorItems=errorList>
+  htmlTitle=pageTitle
+  pageHeading=pageTitle
+  pageSize=PageSize.TWO_THIRDS_COLUMN
+  backLinkUrl=springUrl(backLinkUrl)
+  errorItems=errorList>
 
     <@fdsForm.htmlForm actionUrl=actionUrl>
 

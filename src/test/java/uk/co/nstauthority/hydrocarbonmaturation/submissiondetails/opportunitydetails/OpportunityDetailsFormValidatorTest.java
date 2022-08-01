@@ -6,28 +6,23 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
+@ExtendWith(MockitoExtension.class)
 class OpportunityDetailsFormValidatorTest {
 
-  private OpportunityDetailsFormValidator opportunityDetailsFormValidator;
+  private static OpportunityDetailsFormValidator opportunityDetailsFormValidator;
 
-  @BeforeEach
-  void setup() {
+  @BeforeAll
+  static void beforeAll() {
     opportunityDetailsFormValidator = new OpportunityDetailsFormValidator();
-  }
-
-  private OpportunityDetailsForm getValidOpportunityDetailsForm() {
-    var form = new OpportunityDetailsForm();
-    form.setOpportunityType(OpportunityType.LEAD);
-    form.setKeyEvaluationWorkCarriedOut("Work being carried out");
-    form.setKeyWorkRequiredForFurtherMaturation("Key work");
-    return form;
   }
 
   @Test
@@ -111,4 +106,11 @@ class OpportunityDetailsFormValidatorTest {
     return bindingResult;
   }
 
+  private OpportunityDetailsForm getValidOpportunityDetailsForm() {
+    var form = new OpportunityDetailsForm();
+    form.setOpportunityType(OpportunityType.LEAD);
+    form.setKeyEvaluationWorkCarriedOut("Work being carried out");
+    form.setKeyWorkRequiredForFurtherMaturation("Key work");
+    return form;
+  }
 }

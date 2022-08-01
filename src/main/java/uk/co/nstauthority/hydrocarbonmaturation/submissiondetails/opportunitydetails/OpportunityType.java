@@ -1,39 +1,39 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 
-public enum OpportunityType {
+public enum OpportunityType implements Displayable {
   LEAD("Lead", 10),
   PROSPECT("Prospect", 20),
   DRILL_READY_PROSPECT("Drill-ready prospect", 30),
   OTHER("Other", 40);
 
-  private final String selectionDisplayName;
-  private final int selectionDisplayOrder;
+  private final String displayName;
+  private final int displayOrder;
 
-  OpportunityType(String selectionDisplayName, int selectionDisplayOrder) {
-    this.selectionDisplayName = selectionDisplayName;
-    this.selectionDisplayOrder = selectionDisplayOrder;
-  }
-
-  public String getSelectionDisplayName() {
-    return selectionDisplayName;
-  }
-
-  public int getSelectionDisplayOrder() {
-    return selectionDisplayOrder;
+  OpportunityType(String displayName, int displayOrder) {
+    this.displayName = displayName;
+    this.displayOrder = displayOrder;
   }
 
   static Map<String, String> getOpportunityType() {
-    return Arrays.stream(OpportunityType.values())
-        .sorted(Comparator.comparing(OpportunityType::getSelectionDisplayOrder))
-        .collect(Collectors.toMap(
-            OpportunityType::name,
-            OpportunityType::getSelectionDisplayName,
-            (v1, v2) -> v1, LinkedHashMap::new));
+    return DisplayableEnumOptionUtil.getDisplayableOptions(OpportunityType.class);
+  }
+
+  @Override
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  @Override
+  public int getDisplayOrder() {
+    return displayOrder;
+  }
+
+  @Override
+  public String getEnumName() {
+    return this.name();
   }
 }

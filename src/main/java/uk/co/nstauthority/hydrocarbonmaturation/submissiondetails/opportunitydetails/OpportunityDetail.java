@@ -6,17 +6,24 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Entity
 @Table(name = "opportunity_details")
-public class OpportunityDetail {
+class OpportunityDetail {
 
   @Id
   @GeneratedValue(generator = "uuid")
   @GenericGenerator(name = "uuid", strategy = "uuid2")
   private UUID id;
+
+  @ManyToOne
+  @JoinColumn(name = "submission_detail_id")
+  private SubmissionDetail submissionDetail;
 
   @Enumerated(EnumType.STRING)
   private OpportunityType opportunityType;
@@ -38,6 +45,14 @@ public class OpportunityDetail {
 
   public void setId(UUID id) {
     this.id = id;
+  }
+
+  public SubmissionDetail getSubmissionDetail() {
+    return submissionDetail;
+  }
+
+  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
+    this.submissionDetail = submissionDetail;
   }
 
   public OpportunityType getOpportunityType() {

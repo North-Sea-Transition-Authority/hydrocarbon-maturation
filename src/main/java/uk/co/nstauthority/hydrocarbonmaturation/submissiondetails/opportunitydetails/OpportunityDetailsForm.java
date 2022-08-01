@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
-public class OpportunityDetailsForm {
+class OpportunityDetailsForm {
 
   private OpportunityType opportunityType;
   private String otherTypeOfOpportunity;
