@@ -8,43 +8,43 @@ class OpportunityDetailsForm {
   private String keyEvaluationWorkCarriedOut;
   private String keyWorkRequiredForFurtherMaturation;
 
-  public OpportunityType getOpportunityType() {
+  OpportunityType getOpportunityType() {
     return opportunityType;
   }
 
-  public void setOpportunityType(OpportunityType opportunityType) {
+  void setOpportunityType(OpportunityType opportunityType) {
     this.opportunityType = opportunityType;
   }
 
-  public String getOtherTypeOfOpportunity() {
+  String getOtherTypeOfOpportunity() {
     return otherTypeOfOpportunity;
   }
 
-  public void setOtherTypeOfOpportunity(String otherTypeOfOpportunity) {
+  void setOtherTypeOfOpportunity(String otherTypeOfOpportunity) {
     this.otherTypeOfOpportunity = otherTypeOfOpportunity;
   }
 
-  public String getOpportunityComments() {
+  String getOpportunityComments() {
     return opportunityComments;
   }
 
-  public void setOpportunityComments(String opportunityComments) {
+  void setOpportunityComments(String opportunityComments) {
     this.opportunityComments = opportunityComments;
   }
 
-  public String getKeyEvaluationWorkCarriedOut() {
+  String getKeyEvaluationWorkCarriedOut() {
     return keyEvaluationWorkCarriedOut;
   }
 
-  public void setKeyEvaluationWorkCarriedOut(String keyEvaluationWorkCarriedOut) {
+  void setKeyEvaluationWorkCarriedOut(String keyEvaluationWorkCarriedOut) {
     this.keyEvaluationWorkCarriedOut = keyEvaluationWorkCarriedOut;
   }
 
-  public String getKeyWorkRequiredForFurtherMaturation() {
+  String getKeyWorkRequiredForFurtherMaturation() {
     return keyWorkRequiredForFurtherMaturation;
   }
 
-  public void setKeyWorkRequiredForFurtherMaturation(String keyWorkRequiredForFurtherMaturation) {
+  void setKeyWorkRequiredForFurtherMaturation(String keyWorkRequiredForFurtherMaturation) {
     this.keyWorkRequiredForFurtherMaturation = keyWorkRequiredForFurtherMaturation;
   }
 }

@@ -36,9 +36,6 @@ class OpportunityDetail {
 
   private String keyWorkRequiredForFurtherMaturation;
 
-  public OpportunityDetail() {
-  }
-
   public UUID getId() {
     return id;
   }

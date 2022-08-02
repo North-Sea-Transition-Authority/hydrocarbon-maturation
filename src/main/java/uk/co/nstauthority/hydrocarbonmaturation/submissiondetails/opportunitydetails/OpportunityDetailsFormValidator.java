@@ -2,16 +2,11 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunityde
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
 
 @Service
-class OpportunityDetailsFormValidator implements SmartValidator {
-
-  @Override
-  public void validate(Object target, Errors errors, Object... validationHints) {
-    validate(target, errors);
-  }
+class OpportunityDetailsFormValidator implements Validator {
 
   @Override
   public boolean supports(Class<?> clazz) {

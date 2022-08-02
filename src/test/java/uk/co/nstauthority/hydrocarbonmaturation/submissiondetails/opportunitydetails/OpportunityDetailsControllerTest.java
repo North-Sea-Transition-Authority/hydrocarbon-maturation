@@ -90,7 +90,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(opportunityDetailsService, never()).saveOpportunityDetails(any(OpportunityDetailsForm.class), eq(submissionDetail));
+    verify(opportunityDetailsService, never()).saveOpportunityDetails(any(), eq(submissionDetail));
   }
 
   @Test
@@ -103,7 +103,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     assertEquals(OpportunityDetailsForm.class, modelMap.get("form").getClass());
     assertThat(modelMap).contains(
         entry("opportunityTypes", OpportunityType.getOpportunityType()),
-        entry("actionUrl", "#"),
+        entry("actionUrl", ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, null))),
         entry("backLinkUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)))
     );
   }

@@ -58,7 +58,8 @@ public class OpportunityDetailsController {
     return new ModelAndView("hm/submissiondetails/opportunityDetails")
         .addObject("opportunityTypes", OpportunityType.getOpportunityType())
         .addObject("form", form)
-        .addObject("actionUrl", "#")
+        .addObject("actionUrl",
+            ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, null)))
         .addObject("backLinkUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)));
   }
 }
