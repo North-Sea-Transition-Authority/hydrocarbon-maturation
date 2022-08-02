@@ -95,4 +95,17 @@ class OpportunityDetail {
   public void setKeyWorkRequiredForFurtherMaturation(String keyWorkRequiredForFurtherMaturation) {
     this.keyWorkRequiredForFurtherMaturation = keyWorkRequiredForFurtherMaturation;
   }
+
+  @Override
+  public String toString() {
+    return "OpportunityDetail{" +
+        "id=" + id +
+        ", submissionDetail=" + submissionDetail +
+        ", opportunityType=" + opportunityType +
+        ", otherTypeOfOpportunity='" + otherTypeOfOpportunity + '\'' +
+        ", opportunityComments='" + opportunityComments + '\'' +
+        ", keyEvaluationWorkCarriedOut='" + keyEvaluationWorkCarriedOut + '\'' +
+        ", keyWorkRequiredForFurtherMaturation='" + keyWorkRequiredForFurtherMaturation + '\'' +
+        '}';
+  }
 }

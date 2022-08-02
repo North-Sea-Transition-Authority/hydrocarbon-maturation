@@ -1,10 +1,10 @@
 CREATE TABLE hydrocarbon_maturation.opportunity_details (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
+  id UUID PRIMARY KEY,
   submission_detail_id UUID NOT NULL,
-  opportunity_type TEXT NOT NULL,
+  opportunity_type TEXT,
   other_type_of_opportunity TEXT,
   opportunity_comments TEXT,
-  key_evaluation_work_carried_out TEXT NOT NULL,
+  key_evaluation_work_carried_out TEXT,
   key_work_required_for_further_maturation TEXT,
   CONSTRAINT opportunity_details_fk FOREIGN KEY (submission_detail_id) REFERENCES hydrocarbon_maturation.submission_details (id)
 );

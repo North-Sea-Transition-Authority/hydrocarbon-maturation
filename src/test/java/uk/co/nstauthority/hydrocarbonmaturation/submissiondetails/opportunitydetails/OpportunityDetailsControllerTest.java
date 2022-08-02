@@ -93,8 +93,6 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     verify(opportunityDetailsService, never()).saveOpportunityDetails(any(OpportunityDetailsForm.class), eq(submissionDetail));
   }
 
-
-
   @Test
   void getOpportunityDetailsModelAndView_assertModelProperties() throws Exception {
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
