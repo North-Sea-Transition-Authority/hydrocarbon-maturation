@@ -80,7 +80,7 @@ class GeneralDetailsFormValidatorTest {
   @Test
   void validate_whenInValidForm_noPercentageEntered_thenValidationErrors() {
     var form = getValidForm();
-    form.setPercentageLocatedInUkcs(null);
+    form.setPercentageLocatedInUkcs(new DecimalInput(null));
 
     var bindingResult = validateGeneralDetailsForm(form);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);

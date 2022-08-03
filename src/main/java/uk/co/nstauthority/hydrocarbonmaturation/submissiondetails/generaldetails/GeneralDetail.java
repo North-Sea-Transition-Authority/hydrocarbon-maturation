@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -32,7 +33,7 @@ public class GeneralDetail {
 
   private Boolean prospectLocatedInUkcs;
 
-  private Double percentageLocatedInUkcs;
+  private BigDecimal percentageLocatedInUkcs;
 
   @Enumerated(EnumType.STRING)
   private InformationSource informationSource;
@@ -89,11 +90,11 @@ public class GeneralDetail {
     return this;
   }
 
-  public Double getPercentageLocatedInUkcs() {
+  public BigDecimal getPercentageLocatedInUkcs() {
     return percentageLocatedInUkcs;
   }
 
-  public GeneralDetail setPercentageLocatedInUkcs(Double percentageLocatedInUkcs) {
+  public GeneralDetail setPercentageLocatedInUkcs(BigDecimal percentageLocatedInUkcs) {
     this.percentageLocatedInUkcs = percentageLocatedInUkcs;
     return this;
   }

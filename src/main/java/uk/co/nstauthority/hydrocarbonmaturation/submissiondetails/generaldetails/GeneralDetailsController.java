@@ -36,7 +36,7 @@ public class GeneralDetailsController {
   }
 
   @GetMapping
-  public ModelAndView getGeneralDetailsPage(@PathVariable("submissionDetailId") UUID submissionDetailId,
+  public ModelAndView getGeneralDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                             @ModelAttribute("form") GeneralDetailsForm form) {
     return getGeneralDetailsModelAndView(form);
   }

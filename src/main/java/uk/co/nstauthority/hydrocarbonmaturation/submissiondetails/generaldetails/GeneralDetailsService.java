@@ -1,11 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInput;
 
 @Service
 public class GeneralDetailsService {
@@ -32,16 +32,14 @@ public class GeneralDetailsService {
         .setProspectName(form.getProspectName())
         .setOnshoreOffshore(form.getOnshoreOffshore())
         .setProspectLocatedInUkcs(form.getProspectLocatedInUkcs())
-        .setPercentageLocatedInUkcs(convertToDouble(form.getPercentageLocatedInUkcs()))
         .setInformationSource(form.getInformationSource())
         .setOtherInformationSource(form.getOtherSourceOfInformation());
-    generalDetailsRepository.save(generalDetail);
-  }
 
-  private Double convertToDouble(DecimalInput value) {
-    if (value != null && !value.getDecimalInputValue().isEmpty()) {
-      return Double.parseDouble(value.getDecimalInputValue());
+    if (!form.getProspectLocatedInUkcs()) {
+      var decimalPercentage = form.getPercentageLocatedInUkcs().getDecimalInputValue();
+      generalDetail.setPercentageLocatedInUkcs(new BigDecimal(decimalPercentage));
     }
-    return null;
+
+    generalDetailsRepository.save(generalDetail);
   }
 }

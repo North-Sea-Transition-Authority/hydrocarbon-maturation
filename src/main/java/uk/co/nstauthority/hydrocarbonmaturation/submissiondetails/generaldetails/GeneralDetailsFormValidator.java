@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
@@ -31,12 +32,12 @@ class GeneralDetailsFormValidator implements SmartValidator {
         "Select whether the prospect is wholly located within UKCS");
 
     if (BooleanUtils.isFalse(form.getProspectLocatedInUkcs())) {
-      new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(errors, "percentageLocatedInUkcs.decimalInputValue",
-          "The hydrocarbon volume percentage", form.getPercentageLocatedInUkcs())
-          .setMaxDecimalPlaces(2)
-          .setMinValue(0)
-          .setMaxValue(100)
-          .validate();
+      DecimalInputValidator.configureValidator(errors, "percentageLocatedInUkcs.decimalInputValue",
+            "The hydrocarbon volume percentage", form.getPercentageLocatedInUkcs())
+            .setMaxDecimalPlaces(2)
+            .setMinValue(BigDecimal.ZERO)
+            .setMaxValue(BigDecimal.valueOf(100))
+            .validate();
     }
 
     ValidationUtils.rejectIfEmpty(errors, "informationSource", "informationSource.required", "Select the source of information");

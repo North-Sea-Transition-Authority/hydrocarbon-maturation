@@ -7,7 +7,8 @@ CREATE TABLE hydrocarbon_maturation.general_details (
     percentage_located_in_ukcs DECIMAL,
     information_source TEXT,
     other_information_source TEXT,
-    licence_application_info_source TEXT
+    licence_application_info_source TEXT,
+    CONSTRAINT general_details_fk FOREIGN KEY (submission_detail_id) REFERENCES hydrocarbon_maturation.submission_details (id)
 );
 
 CREATE INDEX general_details_idx1 ON hydrocarbon_maturation.general_details(submission_detail_id);

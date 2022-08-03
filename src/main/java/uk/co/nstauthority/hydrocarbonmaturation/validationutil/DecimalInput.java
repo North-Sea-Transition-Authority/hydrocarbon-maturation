@@ -1,8 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.validationutil;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DecimalInput {
 
   private String decimalInputValue;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DecimalInput.class);
 
   public DecimalInput(String decimalInputValue) {
     this.decimalInputValue = decimalInputValue;
@@ -18,6 +25,28 @@ public class DecimalInput {
 
   public void setDecimalInputValue(String decimalInputValue) {
     this.decimalInputValue = decimalInputValue;
+  }
+
+  /**
+   * BigDecimal(String) allows exponents. This method counts any input containing e/E as invalid
+   */
+  public Optional<BigDecimal> asBigDecimal() throws NumberFormatException {
+    if (decimalInputValue != null && decimalInputValue.toLowerCase().contains("e")) {
+      LOGGER.debug("Could not convert the input value to a valid DecimalInput for value: " + decimalInputValue);
+      return Optional.empty();
+    }
+
+    try {
+      return Optional.ofNullable(decimalInputValue)
+          .map(BigDecimal::new);
+
+    } catch (NumberFormatException e) {
+      return Optional.empty();
+    }
+  }
+
+  public boolean hasContent() {
+    return decimalInputValue != null && !decimalInputValue.isBlank();
   }
 
   @Override
