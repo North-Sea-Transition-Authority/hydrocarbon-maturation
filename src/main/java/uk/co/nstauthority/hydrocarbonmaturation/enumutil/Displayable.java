@@ -10,4 +10,6 @@ public interface Displayable {
   default int getDisplayOrder() {
     return 0;
   }
+
+  String getEnumName();
 }

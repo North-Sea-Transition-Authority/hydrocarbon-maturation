@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="submissionType" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.offshoresafetydirective.fds.ErrorItem>" -->
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 
 <@defaultPage
 htmlTitle=pageTitle
