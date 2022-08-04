@@ -1,17 +1,18 @@
 <#include '../layout/layout.ftl'>
 
-<#assign pageTitle = "Opportunity details" />
+<#-- @ftlvariable name="pageTitle" type="String" -->
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="opportunityTypes" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
+<#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 
 <@defaultPage
   htmlTitle=pageTitle
   pageHeading=pageTitle
   pageSize=PageSize.TWO_THIRDS_COLUMN
-  backLinkUrl=springUrl(backLinkUrl)
-  errorItems=errorList>
+  errorItems=errorList
+  breadcrumbsMap=breadcrumbsMap>
 
     <@fdsForm.htmlForm actionUrl=actionUrl>
 

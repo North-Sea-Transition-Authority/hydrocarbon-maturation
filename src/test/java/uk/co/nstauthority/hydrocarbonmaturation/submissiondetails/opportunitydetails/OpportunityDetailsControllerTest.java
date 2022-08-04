@@ -103,9 +103,10 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     assertEquals(OpportunityDetailsForm.class, modelMap.get("form").getClass());
     assertThat(modelMap).contains(
         entry("opportunityTypes", OpportunityType.getOpportunityType()),
-        entry("actionUrl", ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, null))),
-        entry("backLinkUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)))
-    );
+        entry("pageTitle", OpportunityDetailsController.PAGE_NAME),
+        entry("actionUrl", ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, null)))
+    )
+    .containsKey("breadcrumbsMap");
   }
 
 }
