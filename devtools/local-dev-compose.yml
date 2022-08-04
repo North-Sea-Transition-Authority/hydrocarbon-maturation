@@ -2,16 +2,19 @@ version: '3.9'
 
 services:
 
-  db:
+  local-db:
     image: postgres:14.3-alpine
     ports:
       - "5432:5432"
     volumes:
       - db-volume:/var/lib/postgresql/data
+      - source: ./create_db_user.sh
+        target: /docker-entrypoint-initdb.d/create_db_user.sh
+        type: bind
     environment:
+      POSTGRES_USER: root
       POSTGRES_PASSWORD: dev
-      POSTGRES_USER: hydrocarbon_maturation
-      POSTGRES_DB: hydrocarbon_maturation
+      POSTGRES_DB: remi
 
 volumes:
   db-volume:
