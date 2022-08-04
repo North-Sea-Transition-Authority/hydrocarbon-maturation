@@ -1,8 +1,8 @@
-# Hydrocarbon Maturation
+# Resource Maturation Interface
 
 ## Background
 
-The Hydrocarbon Maturation service is used to track the life cycle of oil and gas resources
+The Resource Maturation Interface (ReMI) is used to track the life cycle of oil and gas resources
 from it being a potential hydrocarbon deposit (Prospect), into Discovery where the resource
 is appraised for commercial viability. From there a development plans can be put together by
 operators which are reviewed by NSTA. If agreed then the plans are put into action and the
@@ -43,12 +43,12 @@ track changes over time.
 
 | Environment Variable | Description                                                                                        |
 |----------------------|----------------------------------------------------------------------------------------------------|
-| HM_DATABASE_URL      | The URL to the database the service connect to                                                     |
-| HM_DATABASE_PASSWORD | Database schema password for the `hydrocarbon_maturation` user                                     |
-| HM_SAML_ENTITY_ID    | Fox instance URL (dev: https://itportal.dev.fivium.local/engedudev1/fox)                           |
-| HM_SAML_CERTIFICATE  | The x509 certificate string                                                                        |
-| HM_SAML_LOGIN_URL    | The URL to hit the `login` entry theme of the SAML login module                                    |
-| HM_SAML_BASE_URL     | The url prior to the `/${serverContext}` part of the url  (E.G: https://itportal.dev.fivium.local) |
+| REMI_DATABASE_URL      | The URL to the database the service connect to                                                     |
+| REMI_DATABASE_PASSWORD | Database schema password for the `hydrocarbon_maturation` user                                     |
+| REMI_SAML_ENTITY_ID    | Fox instance URL (dev: https://itportal.dev.fivium.local/engedudev1/fox)                           |
+| REMI_SAML_CERTIFICATE  | The x509 certificate string                                                                        |
+| REMI_SAML_LOGIN_URL    | The URL to hit the `login` entry theme of the SAML login module                                    |
+| REMI_SAML_BASE_URL     | The url prior to the `/${serverContext}` part of the url  (E.G: https://itportal.dev.fivium.local) |
 
 ### 3. Initialise the Fivium Design System
 - `git submodule update --init --recursive`

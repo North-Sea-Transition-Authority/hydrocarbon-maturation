@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.configuration;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -11,15 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfiguration {
 
   private final SamlProperties samlProperties;
 
@@ -28,9 +27,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     this.samlProperties = samlProperties;
   }
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
+  @Bean
+  protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    httpSecurity
         .authorizeHttpRequests()
         .mvcMatchers("/assets/**")
         .permitAll()
@@ -38,6 +37,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         .authenticated()
         .and()
         .saml2Login();
+
+    return httpSecurity.build();
   }
 
   @Bean
@@ -47,7 +48,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  public RelyingPartyRegistration getRelyingPartyRegistration() throws CertificateException, IOException {
+  public RelyingPartyRegistration getRelyingPartyRegistration() throws CertificateException {
 
     var certificateStream = new ByteArrayInputStream(samlProperties.getCertificate().getBytes(StandardCharsets.UTF_8));
 
