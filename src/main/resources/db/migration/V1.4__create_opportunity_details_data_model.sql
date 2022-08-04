@@ -1,4 +1,4 @@
-CREATE TABLE hydrocarbon_maturation.opportunity_details (
+CREATE TABLE opportunity_details (
   id UUID PRIMARY KEY,
   submission_detail_id UUID NOT NULL,
   opportunity_type TEXT,
@@ -6,7 +6,7 @@ CREATE TABLE hydrocarbon_maturation.opportunity_details (
   opportunity_comments TEXT,
   key_evaluation_work_carried_out TEXT,
   key_work_required_for_further_maturation TEXT,
-  CONSTRAINT opportunity_details_fk FOREIGN KEY (submission_detail_id) REFERENCES hydrocarbon_maturation.submission_details (id)
+  CONSTRAINT opportunity_details_fk FOREIGN KEY (submission_detail_id) REFERENCES submission_details (id)
 );
 
-CREATE INDEX opportunity_details_idx1 ON hydrocarbon_maturation.opportunity_details(submission_detail_id);
+CREATE INDEX opportunity_details_idx1 ON opportunity_details(submission_detail_id);
