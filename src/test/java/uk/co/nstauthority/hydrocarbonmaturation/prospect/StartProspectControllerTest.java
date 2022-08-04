@@ -51,7 +51,7 @@ class StartProspectControllerTest extends AbstractControllerTest {
         post(ReverseRouter.route(on(StartProspectController.class).startProspect()))
             .with(csrf()))
     .andExpect(status().is3xxRedirection())
-    .andExpect(redirectedUrl(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetailsPage(submissionDetail.getId(), null))));
+    .andExpect(redirectedUrl(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetail.getId(), null))));
 
     verify(startProspectService, times(1)).createInitialProspect();
   }

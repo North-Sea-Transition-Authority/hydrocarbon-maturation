@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.math.BigDecimal;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,10 +24,10 @@ class DecimalInputValidatorTest {
   void setMaxDecimalPlaces_valid() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error",
-        new DecimalInput("12.22"))
-        .setMaxDecimalPlaces(2)
-        .validate();
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+      new DecimalInput("12.22"))
+      .setMaxDecimalPlaces(2)
+      .validate();
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -35,10 +36,10 @@ class DecimalInputValidatorTest {
   void setMaxDecimalPlaces_tooManyDecimalPlaces() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error",
-        new DecimalInput("12.221"))
-        .setMaxDecimalPlaces(2)
-        .validate();
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+      new DecimalInput("12.221"))
+      .setMaxDecimalPlaces(2)
+      .validate();
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -52,10 +53,10 @@ class DecimalInputValidatorTest {
   void setMaxValue_valid_exactlyMaxValue() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error",
-        new DecimalInput("100"))
-        .setMaxValue(100)
-        .validate();
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+      new DecimalInput("100"))
+      .setMaxValue(BigDecimal.valueOf(100))
+      .validate();
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -64,10 +65,10 @@ class DecimalInputValidatorTest {
   void setMaxValue_valid() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error",
-        new DecimalInput("22"))
-        .setMaxValue(100)
-        .validate();
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+      new DecimalInput("22"))
+      .setMaxValue(BigDecimal.valueOf(100))
+      .validate();
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -76,10 +77,10 @@ class DecimalInputValidatorTest {
   void setMaxValue_valueMoreThanMaxValue() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error",
-        new DecimalInput("101"))
-        .setMaxValue(100)
-        .validate();
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+      new DecimalInput("101"))
+      .setMaxValue(BigDecimal.valueOf(100))
+      .validate();
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -93,10 +94,10 @@ class DecimalInputValidatorTest {
   void setMinValue_valid_exactlyMinValue() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error",
-        new DecimalInput("0"))
-        .setMinValue(0)
-        .validate();
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+      new DecimalInput("0"))
+      .setMinValue(BigDecimal.ZERO)
+      .validate();
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -105,10 +106,10 @@ class DecimalInputValidatorTest {
   void setMinValue_valid() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error",
-        new DecimalInput("50"))
-        .setMinValue(0)
-        .validate();
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+      new DecimalInput("50"))
+      .setMinValue(BigDecimal.ZERO)
+      .validate();
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -117,10 +118,10 @@ class DecimalInputValidatorTest {
   void setMinValue_valueLessThanMinValue() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error",
-        new DecimalInput("-1"))
-        .setMinValue(0)
-        .validate();
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+      new DecimalInput("-1"))
+      .setMinValue(BigDecimal.ZERO)
+      .validate();
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -134,9 +135,9 @@ class DecimalInputValidatorTest {
   void validate_valid() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error",
-        new DecimalInput("22"))
-        .validate();
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+      new DecimalInput("22"))
+      .validate();
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -145,7 +146,7 @@ class DecimalInputValidatorTest {
   void validate_nullValue() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error", null)
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error", new DecimalInput(null))
         .validate();
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -160,9 +161,9 @@ class DecimalInputValidatorTest {
   void validate_nonNumericValue() {
     var bindingResult = getBindingResult();
 
-    new DecimalInputValidator.DecimalInputValidatorInvocationBuilder(bindingResult, "stringField", "error",
-        new DecimalInput("abcd"))
-        .validate();
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+      new DecimalInput("abcd"))
+      .validate();
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -170,6 +171,30 @@ class DecimalInputValidatorTest {
         .containsExactly(
             entry("stringField", Set.of("stringField.notNumeric"))
         );
+  }
+
+  @Test
+  void validate_isOptional_valid() {
+    var bindingResult = getBindingResult();
+
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+        new DecimalInput("22"))
+        .isOptional()
+        .validate();
+
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @Test
+  void validate_isOptional_nullValue() {
+    var bindingResult = getBindingResult();
+
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+        new DecimalInput(null))
+        .isOptional()
+        .validate();
+
+    assertFalse(bindingResult.hasErrors());
   }
 
   private BindingResult getBindingResult() {

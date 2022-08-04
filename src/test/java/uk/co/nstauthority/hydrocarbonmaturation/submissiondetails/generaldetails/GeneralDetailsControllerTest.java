@@ -59,26 +59,15 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void getGeneralDetailsPage_assertStatusOk() throws Exception {
+  void getGeneralDetails_assertStatusOk() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetailsPage(submissionDetailId, null))))
+        get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null))))
         .andExpect(status().isOk())
         .andExpect(view().name("hm/submissiondetails/generalDetails"));
   }
 
   @Test
   void saveGeneralDetails_whenValidForm_assertRedirection() throws Exception {
-    when(generalDetailsService.validate(any(), any())).thenReturn(bindingResult);
-
-    mockMvc.perform(
-        post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, form, bindingResult)))
-            .with(csrf()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
-  }
-
-  @Test
-  void saveGeneralDetailsPage_whenValidForm_assertRedirection() throws Exception {
     when(generalDetailsService.validate(any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
@@ -110,7 +99,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
   @Test
   void getGeneralDetailsModelAndView_assertModelProperties() throws Exception {
     var modelMap =     Objects.requireNonNull(mockMvc.perform(
-        get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetailsPage(submissionDetailId, null))))
+        get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null))))
         .andReturn()
         .getModelAndView()).getModelMap();
 

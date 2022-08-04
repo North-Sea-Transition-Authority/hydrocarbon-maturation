@@ -33,6 +33,6 @@ public class StartProspectController {
   @PostMapping
   public ModelAndView startProspect() {
     var submissionDetail =  startProspectService.createInitialProspect();
-    return ReverseRouter.redirect(on(GeneralDetailsController.class).getGeneralDetailsPage(submissionDetail.getId(), null));
+    return ReverseRouter.redirect(on(GeneralDetailsController.class).getGeneralDetails(submissionDetail.getId(), null));
   }
 }

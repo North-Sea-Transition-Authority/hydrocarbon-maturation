@@ -34,18 +34,22 @@ public class Breadcrumbs {
     }
 
     public BreadcrumbsBuilder addWorkAreaBreadcrumb() {
-      breadcrumbs.add(new BreadcrumbItem("Work area", ReverseRouter.route(on(WorkAreaController.class).getWorkArea())));
-      return this;
-    }
-
-    public BreadcrumbsBuilder addTaskListBreadcrumb() {
-      // TODO HM-49: replace with actual task list URL
-      breadcrumbs.add(new BreadcrumbItem("Task list", "#"));
+      breadcrumbs.add(
+          new BreadcrumbItem(
+              WorkAreaController.WORK_AREA_TITLE,
+              ReverseRouter.route(on(WorkAreaController.class).getWorkArea())
+          )
+      );
       return this;
     }
 
     public BreadcrumbsBuilder addBreadcrumb(String prompt, String endpoint) {
       breadcrumbs.add(new BreadcrumbItem(prompt, endpoint));
+      return this;
+    }
+
+    public BreadcrumbsBuilder addBreadcrumb(BreadcrumbItem breadcrumbItem) {
+      breadcrumbs.add(breadcrumbItem);
       return this;
     }
 
