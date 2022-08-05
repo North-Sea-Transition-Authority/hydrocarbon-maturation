@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectTaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 
@@ -67,6 +68,7 @@ public class OpportunityDetailsController {
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
         .addWorkAreaBreadcrumb()
+        .addBreadcrumb(ProspectTaskListBreadcrumbUtil.getProspectTaskListBreadcrumb(submissionDetailId))
         .build();
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
 

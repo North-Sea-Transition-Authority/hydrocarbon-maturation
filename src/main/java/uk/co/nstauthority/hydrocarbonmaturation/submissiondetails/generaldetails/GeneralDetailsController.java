@@ -38,7 +38,7 @@ public class GeneralDetailsController {
   @GetMapping
   public ModelAndView getGeneralDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                             @ModelAttribute("form") GeneralDetailsForm form) {
-    return getGeneralDetailsModelAndView(form);
+    return getGeneralDetailsModelAndView(form, submissionDetailId);
   }
 
   @PostMapping
@@ -47,7 +47,7 @@ public class GeneralDetailsController {
     bindingResult = generalDetailsService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getGeneralDetailsModelAndView(form),
+        getGeneralDetailsModelAndView(form, submissionDetailId),
         () -> {
           var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           generalDetailsService.saveGeneralDetails(form, submissionDetail);
@@ -56,12 +56,13 @@ public class GeneralDetailsController {
     );
   }
 
-  private ModelAndView getGeneralDetailsModelAndView(GeneralDetailsForm form) {
+  private ModelAndView getGeneralDetailsModelAndView(GeneralDetailsForm form, UUID submissionDetailId) {
     return new ModelAndView("hm/submissiondetails/generalDetails")
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("informationSources", InformationSource.getInformationSource())
         .addObject("form", form)
-        .addObject("actionUrl", "#")
+        .addObject("actionUrl", ReverseRouter.route(on(GeneralDetailsController.class)
+            .saveGeneralDetails(submissionDetailId, null, null)))
         .addObject("backLinkUrl", ReverseRouter.route(on(StartProspectController.class).getStartPage()));
   }
 }

@@ -11,6 +11,8 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/prospect/{submissionId}/task-list")
 public class ProspectTaskListController {
 
+  public static final String PAGE_NAME = "Task list";
+
   @GetMapping
   public ModelAndView getTaskList(@PathVariable("submissionId") UUID submissionId) {
     return null;

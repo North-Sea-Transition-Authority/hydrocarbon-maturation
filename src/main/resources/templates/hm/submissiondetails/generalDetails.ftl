@@ -1,6 +1,6 @@
 <#include '../layout/layout.ftl'>
 
-<#assign pageTitle = "General Details" />
+<#assign pageTitle = "General details" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="onshoreOffshore" type="java.util.Map<String, String>" -->
@@ -14,7 +14,7 @@ pageSize=PageSize.TWO_THIRDS_COLUMN
 backLinkUrl=springUrl(backLinkUrl)
 errorItems=errorList>
 
-    <@fdsForm.htmlForm actionUrl=actionUrl>
+    <@fdsForm.htmlForm actionUrl=springUrl(actionUrl)>
 
       <@fdsTextInput.textInput path="form.prospectName" labelText="Prospect name"/>
 

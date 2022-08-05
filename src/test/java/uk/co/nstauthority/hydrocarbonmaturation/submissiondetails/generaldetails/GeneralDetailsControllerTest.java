@@ -106,7 +106,8 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
     assertThat(modelMap.get("onshoreOffshore")).isEqualTo(OnshoreOffshore.getOnshoreOffshore());
     assertThat(modelMap.get("informationSources")).isEqualTo(InformationSource.getInformationSource());
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
-    assertThat(modelMap.get("actionUrl")).isEqualTo("#");
+    assertThat(modelMap.get("actionUrl")).isEqualTo(ReverseRouter.route(on(GeneralDetailsController.class)
+        .saveGeneralDetails(submissionDetailId, null, null)));
     assertThat(modelMap.get("backLinkUrl")).isEqualTo(ReverseRouter.route(on(StartProspectController.class).getStartPage()));
   }
 }
