@@ -14,7 +14,7 @@
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>
 
-    <@fdsForm.htmlForm actionUrl=actionUrl>
+    <@fdsForm.htmlForm actionUrl=springUrl(actionUrl)>
 
       <@fdsRadio.radioGroup path="form.opportunityType" labelText="Opportunity type" hiddenContent=true>
           <#assign firstItem=true/>
