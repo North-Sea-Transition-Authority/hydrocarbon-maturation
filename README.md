@@ -44,7 +44,7 @@ track changes over time.
 | Environment Variable | Description                                                                                        |
 |----------------------|----------------------------------------------------------------------------------------------------|
 | REMI_DATABASE_URL      | The URL to the database the service connect to                                                     |
-| REMI_DATABASE_PASSWORD | Database schema password for the `hydrocarbon_maturation` user                                     |
+| REMI_DATABASE_PASSWORD | Database schema password                                    |
 | REMI_SAML_ENTITY_ID    | Fox instance URL (dev: https://itportal.dev.fivium.local/engedudev1/fox)                           |
 | REMI_SAML_CERTIFICATE  | The x509 certificate string                                                                        |
 | REMI_SAML_LOGIN_URL    | The URL to hit the `login` entry theme of the SAML login module                                    |
@@ -61,7 +61,7 @@ track changes over time.
 ### 5. Run the app
 Create a run configuration for the Spring app and start the application.
 
-The application will be running on `localhost:8080/hm/<endpoint>`
+The application will be running on `localhost:8080/remi/<endpoint>`
 
 ## Development setup
 
