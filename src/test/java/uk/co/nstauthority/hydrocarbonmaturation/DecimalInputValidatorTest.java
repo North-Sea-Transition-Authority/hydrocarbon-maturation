@@ -197,6 +197,18 @@ class DecimalInputValidatorTest {
     assertFalse(bindingResult.hasErrors());
   }
 
+  @Test
+  void validate_overrideErrorMessage() {
+    var bindingResult = getBindingResult();
+
+    DecimalInputValidator.configureValidator(bindingResult, "stringField", "error",
+        new DecimalInput(null))
+        .overrideDefaultErrorMessage("")
+        .validate();
+
+    assertThat(bindingResult.getAllErrors().get(0).getDefaultMessage()).isEqualTo("");
+  }
+
   private BindingResult getBindingResult() {
     var form = new TypeMismatchTestForm();
     return new BeanPropertyBindingResult(form, "form");

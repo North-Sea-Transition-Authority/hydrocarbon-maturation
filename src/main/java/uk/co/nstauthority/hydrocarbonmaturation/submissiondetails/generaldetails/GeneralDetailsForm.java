@@ -5,15 +5,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInput;
 class GeneralDetailsForm {
 
   private String prospectName;
-
+  //TODO HM-129
   private OnshoreOffshore onshoreOffshore;
-
   private Boolean prospectLocatedInUkcs;
-
   private DecimalInput percentageLocatedInUkcs;
-
+  //TODO HM-129
   private InformationSource informationSource;
-
   private String otherSourceOfInformation;
 
   public String getProspectName() {

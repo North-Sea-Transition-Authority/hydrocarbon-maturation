@@ -14,6 +14,11 @@ public class DecimalInputValidator {
   private final String errorMessagePrefix;
   private final DecimalInput decimalInput;
   private boolean isMandatory = true;
+  private boolean useDefaultErrorMessage = true;
+  private String overriddenErrorMessage;
+  private BigDecimal minValue = null;
+  private BigDecimal maxValue = null;
+  private Integer decimalPlacesExpected = null;
 
   private DecimalInputValidator(Errors errors, String fieldId, String errorMessagePrefix,
                                DecimalInput decimalInput) {
@@ -29,37 +34,28 @@ public class DecimalInputValidator {
   }
 
   public DecimalInputValidator setMaxDecimalPlaces(int decimalPlacesExpected) {
-    validators.add((value) -> {
-      if (value.scale() > decimalPlacesExpected) {
-        errors.rejectValue(fieldId, "%s.incorrectDecimalPlaces".formatted(fieldId),
-            "%s must have no more than %d decimal places".formatted(errorMessagePrefix, decimalPlacesExpected));
-      }
-    });
+    this.decimalPlacesExpected = decimalPlacesExpected;
     return this;
   }
 
   public DecimalInputValidator setMaxValue(BigDecimal maxValue) {
-    validators.add((value) -> {
-      if (value.compareTo(maxValue) > 0) {
-        errors.rejectValue(fieldId, "%s.moreThanMaxValue".formatted(fieldId),
-            "%s must be %s or less".formatted(errorMessagePrefix, maxValue.toString()));
-      }
-    });
+    this.maxValue = maxValue;
     return this;
   }
 
   public DecimalInputValidator setMinValue(BigDecimal minValue) {
-    validators.add((value) -> {
-      if (value.compareTo(minValue) < 0) {
-        errors.rejectValue(fieldId, "%s.lessThanMinValue".formatted(fieldId),
-            "%s must be %s or more".formatted(errorMessagePrefix, minValue.toString()));
-      }
-    });
+    this.minValue = minValue;
     return this;
   }
 
   public DecimalInputValidator isOptional() {
     isMandatory = false;
+    return this;
+  }
+
+  public DecimalInputValidator overrideDefaultErrorMessage(String errorMessage) {
+    useDefaultErrorMessage = false;
+    overriddenErrorMessage = errorMessage;
     return this;
   }
 
@@ -72,14 +68,86 @@ public class DecimalInputValidator {
     var decimalValue = decimalInput.asBigDecimal();
 
     if (decimalInput.hasContent() && decimalValue.isEmpty()) {
-      errors.rejectValue(fieldId, "%s.notNumeric".formatted(fieldId), "%s must be a number".formatted(
-          errorMessagePrefix));
+      rejectNonNumericValue();
     } else if (decimalValue.isEmpty() && isMandatory) {
-      var errorMessage = Introspector.decapitalize(errorMessagePrefix);
-      errors.rejectValue(fieldId, "%s.required".formatted(fieldId), "Enter %s".formatted(errorMessage));
+      rejectNullValue();
+    } else {
+      if (minValue != null) {
+        rejectMinValue(minValue);
+      }
+      if (maxValue != null) {
+        rejectMaxValue(maxValue);
+      }
+      if (decimalPlacesExpected != null) {
+        rejectDecimalPlaces(decimalPlacesExpected);
+      }
     }
 
     decimalValue.ifPresent(this::executeValidators);
+  }
+
+
+  private void rejectNonNumericValue() {
+    var errorMessage = "%s must be a number".formatted(errorMessagePrefix);
+
+    if (!useDefaultErrorMessage) {
+      errorMessage = overriddenErrorMessage;
+    }
+    errors.rejectValue(fieldId, "%s.notNumeric".formatted(fieldId), errorMessage);
+  }
+
+  private void rejectNullValue() {
+    var errorMessage = "Enter %s".formatted(Introspector.decapitalize(errorMessagePrefix));
+
+    if (!useDefaultErrorMessage) {
+      errorMessage = overriddenErrorMessage;
+    }
+    errors.rejectValue(fieldId, "%s.required".formatted(fieldId), errorMessage);
+  }
+
+  private void rejectMinValue(BigDecimal minValue) {
+    validators.add((value) -> {
+      var errorMessage = "%s must be %s or more".formatted(errorMessagePrefix, minValue.toString());
+
+      if (!useDefaultErrorMessage) {
+        errorMessage = overriddenErrorMessage;
+      }
+
+      if (value.compareTo(minValue) < 0) {
+        errors.rejectValue(fieldId, "%s.lessThanMinValue".formatted(fieldId), errorMessage);
+      }
+    });
+  }
+
+  private void rejectMaxValue(BigDecimal maxValue) {
+    validators.add((value) -> {
+
+      var errorMessage = "%s must be %s or less".formatted(errorMessagePrefix, maxValue.toString());
+      if (!useDefaultErrorMessage) {
+        errorMessage = overriddenErrorMessage;
+      }
+
+      if (value.compareTo(maxValue) > 0) {
+        errors.rejectValue(fieldId, "%s.moreThanMaxValue".formatted(fieldId), errorMessage);
+      }
+    });
+  }
+
+  private void rejectDecimalPlaces(int decimalPlacesExpected) {
+    validators.add((value) -> {
+      var bigDecimal = value.stripTrailingZeros();
+      var errorMessage = "%s must have no more than %d decimal places".formatted(errorMessagePrefix, decimalPlacesExpected);
+
+      if (decimalPlacesExpected == 0) {
+        errorMessage = "%s must have no decimal places".formatted(errorMessagePrefix);
+      } else if (!useDefaultErrorMessage) {
+        errorMessage = overriddenErrorMessage;
+      }
+
+      if (bigDecimal.scale() > decimalPlacesExpected) {
+        errors.rejectValue(fieldId, "%s.incorrectDecimalPlaces".formatted(fieldId), errorMessage);
+      }
+    });
   }
 
   private void executeValidators(BigDecimal value) {

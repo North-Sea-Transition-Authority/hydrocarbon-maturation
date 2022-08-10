@@ -30,7 +30,6 @@ class GeneralDetailsServiceTest {
     generalDetailsRepository = mock(GeneralDetailsRepository.class);
     generalDetailsService = new GeneralDetailsService(generalDetailsFormValidator, generalDetailsRepository);
 
-
     submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);

@@ -27,6 +27,11 @@ public class DecimalInput {
     this.decimalInputValue = decimalInputValue;
   }
 
+  public BigDecimal createBigDecimalOrNull() {
+    return this.asBigDecimal()
+        .orElse(null);
+  }
+
   /**
    * BigDecimal(String) allows exponents. This method counts any input containing e/E as invalid
    */
