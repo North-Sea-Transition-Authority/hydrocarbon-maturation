@@ -3,6 +3,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @WithMockUser
@@ -36,6 +41,12 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
 
   @MockBean
   ReservoirPropertiesFormService reservoirPropertiesFormService;
+
+  @MockBean
+  ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
+
+  @MockBean
+  SubmissionDetailService submissionDetailService;
 
   private ReservoirPropertiesForm form;
   private BindingResult bindingResult;
@@ -58,6 +69,9 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
 
   @Test
   void getReservoirProperties_assertStatusOk() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(new ReservoirPropertiesForm());
+
     mockMvc.perform(
         get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId))))
         .andExpect(status().isOk())
@@ -67,12 +81,16 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
   @Test
   void saveSourceAndSealDetails_whenValidForm_assertRedirection() throws Exception {
     when(reservoirPropertiesFormService.validate(any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult)))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
+
+    verify(reservoirPropertiesPersistenceService, times(1))
+        .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(submissionDetail));
   }
 
   @Test
@@ -84,10 +102,16 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
         post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult)))
             .with(csrf()))
         .andExpect(status().isOk());
+
+    verify(reservoirPropertiesPersistenceService, never())
+        .saveReservoirProperty(any(), any());
   }
 
   @Test
   void getReservoirPropertiesModelAndView_assertModelProperties() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(new ReservoirPropertiesForm());
+
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId))))

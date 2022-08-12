@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectTaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/reservoir-properties")
@@ -25,19 +26,27 @@ public class ReservoirPropertiesController {
 
   private final ControllerHelperService controllerHelperService;
   private final ReservoirPropertiesFormService reservoirPropertiesFormService;
+  private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
+  private final SubmissionDetailService submissionDetailService;
 
   static final String PAGE_NAME = "Reservoir details";
 
   @Autowired
   public ReservoirPropertiesController(ControllerHelperService controllerHelperService,
-                                       ReservoirPropertiesFormService reservoirPropertiesFormService) {
+                                       ReservoirPropertiesFormService reservoirPropertiesFormService,
+                                       ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
+                                       SubmissionDetailService submissionDetailService) {
     this.controllerHelperService = controllerHelperService;
     this.reservoirPropertiesFormService = reservoirPropertiesFormService;
+    this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
+    this.submissionDetailService = submissionDetailService;
   }
 
   @GetMapping
   public ModelAndView getReservoirProperties(@PathVariable("submissionDetailId") UUID submissionDetailId) {
-    return getReservoirPropertiesModelAndView(new ReservoirPropertiesForm(), submissionDetailId);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    return getReservoirPropertiesModelAndView(
+        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail), submissionDetailId);
   }
 
   @PostMapping
@@ -48,7 +57,11 @@ public class ReservoirPropertiesController {
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getReservoirPropertiesModelAndView(form, submissionDetailId),
-        () -> ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId))
+        () -> {
+          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+          reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+          return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId));
+        }
     );
   }
 
