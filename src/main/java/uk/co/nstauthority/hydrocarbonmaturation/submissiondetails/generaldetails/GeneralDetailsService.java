@@ -6,9 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class GeneralDetailsService {
+public class GeneralDetailsService implements SubmissionFormService {
 
   private final GeneralDetailsFormValidator generalDetailsFormValidator;
   private final GeneralDetailsRepository generalDetailsRepository;
@@ -20,8 +22,9 @@ public class GeneralDetailsService {
     this.generalDetailsRepository = generalDetailsRepository;
   }
 
-  BindingResult validate(GeneralDetailsForm form, BindingResult bindingResult) {
-    generalDetailsFormValidator.validate(form, bindingResult);
+  @Override
+  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
+    generalDetailsFormValidator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
 

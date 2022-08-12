@@ -14,7 +14,7 @@ pageSize=PageSize.TWO_THIRDS_COLUMN
 backLinkUrl=springUrl(backLinkUrl)
 errorItems=errorList>
 
-    <@fdsForm.htmlForm actionUrl=springUrl(actionUrl)>
+    <@fdsForm.htmlForm>
 
       <@fdsTextInput.textInput path="form.prospectName" labelText="Prospect name"/>
 
@@ -46,6 +46,6 @@ errorItems=errorList>
           </#list>
       </@fdsRadio.radioGroup>
 
-      <@fdsAction.submitButtons primaryButtonText="Save and complete" secondaryButtonText="Save and complete later"/>
+      <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>

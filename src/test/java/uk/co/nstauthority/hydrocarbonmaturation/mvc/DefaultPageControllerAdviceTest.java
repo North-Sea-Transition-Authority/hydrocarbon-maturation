@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,14 +55,16 @@ class DefaultPageControllerAdviceTest {
         "org.springframework.validation.BindingResult.serviceBranding",
         "serviceHomeUrl",
         "navigationItems",
-        "currentEndPoint"
+        "currentEndPoint",
+        "submitPrimaryButtonText",
+        "submitSecondaryButtonText"
     );
 
     assertThat((CustomerConfigurationProperties) modelMap.get("customerBranding")).hasNoNullFieldsOrProperties();
     assertThat((ServiceConfigurationProperties) modelMap.get("serviceBranding")).hasNoNullFieldsOrProperties();
-    assertThat(modelMap.get("serviceHomeUrl")).isEqualTo(
-        ReverseRouter.route(on(WorkAreaController.class).getWorkArea())
-    );
+    assertThat(modelMap.get("serviceHomeUrl")).isEqualTo(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+    assertThat(modelMap.get("submitPrimaryButtonText")).isEqualTo("Save and complete");
+    assertThat(modelMap.get("submitSecondaryButtonText")).isEqualTo("Save and complete later");
   }
 
   // Dummy application to stop the @WebMvcTest loading more than it needs

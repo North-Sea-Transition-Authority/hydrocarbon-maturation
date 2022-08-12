@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsServiceTest {
@@ -39,9 +40,9 @@ class GeneralDetailsServiceTest {
   void validate_verifyMethodCall() {
     var form = new GeneralDetailsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    generalDetailsService.validate(form, bindingResult);
-    verify(generalDetailsFormValidator, times(1)).validate(form, bindingResult);
+    var validationType = ValidationType.FULL;
+    generalDetailsService.validate(form, bindingResult, validationType);
+    verify(generalDetailsFormValidator, times(1)).validate(form, bindingResult, validationType);
   }
 
   @Test

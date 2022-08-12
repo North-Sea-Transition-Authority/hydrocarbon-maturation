@@ -1,8 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInput;
 
-class GeneralDetailsForm {
+class GeneralDetailsForm extends SubmissionForm {
 
   private String prospectName;
   //TODO HM-129

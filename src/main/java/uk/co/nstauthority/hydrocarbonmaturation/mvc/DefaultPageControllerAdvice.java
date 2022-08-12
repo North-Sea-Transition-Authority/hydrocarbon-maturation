@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ControllerAdvice
@@ -32,6 +33,7 @@ public class DefaultPageControllerAdvice {
     addBrandingAttributes(model);
     addCommonUrls(model);
     addTopNavigationItems(model, request);
+    addSubmitButtonText(model);
   }
 
   @InitBinder
@@ -58,5 +60,10 @@ public class DefaultPageControllerAdvice {
 
   private void addCommonUrls(Model model) {
     model.addAttribute("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+  }
+
+  private void addSubmitButtonText(Model model) {
+    model.addAttribute("submitPrimaryButtonText", ValidationType.FULL.getButtonText());
+    model.addAttribute("submitSecondaryButtonText", ValidationType.PARTIAL.getButtonText());
   }
 }

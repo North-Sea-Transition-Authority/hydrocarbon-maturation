@@ -14,6 +14,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsFormValidatorTest {
@@ -43,7 +44,7 @@ class GeneralDetailsFormValidatorTest {
     form.setInformationSource(InformationSource.OTHER);
     form.setOtherSourceOfInformation("Other information");
 
-    var bindingResult = validateGeneralDetailsForm(form);
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -51,7 +52,7 @@ class GeneralDetailsFormValidatorTest {
   @Test
   void validate_whenInValidForm_thenValidationErrors() {
     var form = new GeneralDetailsForm();
-    var bindingResult = validateGeneralDetailsForm(form);
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -68,7 +69,7 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setInformationSource(InformationSource.OTHER);
 
-    var bindingResult = validateGeneralDetailsForm(form);
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -82,7 +83,7 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setPercentageLocatedInUkcs(new DecimalInput(null));
 
-    var bindingResult = validateGeneralDetailsForm(form);
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -96,7 +97,7 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setPercentageLocatedInUkcs(new DecimalInput("abcde"));
 
-    var bindingResult = validateGeneralDetailsForm(form);
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -110,7 +111,7 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setPercentageLocatedInUkcs(new DecimalInput("-5"));
 
-    var bindingResult = validateGeneralDetailsForm(form);
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -124,7 +125,7 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setPercentageLocatedInUkcs(new DecimalInput("101"));
 
-    var bindingResult = validateGeneralDetailsForm(form);
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -138,7 +139,7 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setPercentageLocatedInUkcs(new DecimalInput("10.567"));
 
-    var bindingResult = validateGeneralDetailsForm(form);
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -147,10 +148,50 @@ class GeneralDetailsFormValidatorTest {
         );
   }
 
-  private BindingResult validateGeneralDetailsForm(GeneralDetailsForm form) {
+  @Test
+  void partialValidation_withValidForm() {
+    var form = new GeneralDetailsForm();
+    form.setProspectName("Prospect name");
+    form.setProspectLocatedInUkcs(false);
+    form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
+
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.PARTIAL);
+
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @Test
+  void partialValidation_noProspectName() {
+    var form = new GeneralDetailsForm();
+
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.PARTIAL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("prospectName", Set.of("prospectName.required"))
+        );
+  }
+
+  @Test
+  void partialValidation_prospectLocatedInUkcs_invalidPercentage() {
+    var form = new GeneralDetailsForm();
+    form.setProspectName("Prospect name");
+    form.setProspectLocatedInUkcs(false);
+    form.setPercentageLocatedInUkcs(new DecimalInput("abc"));
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.PARTIAL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("percentageLocatedInUkcs.decimalInputValue", Set.of("percentageLocatedInUkcs.decimalInputValue.notNumeric"))
+        );
+  }
+
+  private BindingResult validateGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    generalDetailsFormValidator.validate(form, bindingResult);
+    generalDetailsFormValidator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
 

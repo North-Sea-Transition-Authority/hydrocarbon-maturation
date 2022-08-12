@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/general-details")
@@ -37,14 +38,16 @@ public class GeneralDetailsController {
 
   @GetMapping
   public ModelAndView getGeneralDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                            @ModelAttribute("form") GeneralDetailsForm form) {
+                                        @ModelAttribute("form") GeneralDetailsForm form) {
     return getGeneralDetailsModelAndView(form, submissionDetailId);
   }
 
   @PostMapping
   public ModelAndView saveGeneralDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                         @ModelAttribute("form") GeneralDetailsForm form, BindingResult bindingResult) {
-    bindingResult = generalDetailsService.validate(form, bindingResult);
+                                         @ModelAttribute("form") GeneralDetailsForm form,
+                                         BindingResult bindingResult,
+                                         ValidationType validationType) {
+    bindingResult = generalDetailsService.validate(form, bindingResult, validationType);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getGeneralDetailsModelAndView(form, submissionDetailId),
@@ -61,8 +64,6 @@ public class GeneralDetailsController {
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("informationSources", InformationSource.getInformationSource())
         .addObject("form", form)
-        .addObject("actionUrl", ReverseRouter.route(on(GeneralDetailsController.class)
-            .saveGeneralDetails(submissionDetailId, null, null)))
         .addObject("backLinkUrl", ReverseRouter.route(on(StartProspectController.class).getStartPage()));
   }
 }
