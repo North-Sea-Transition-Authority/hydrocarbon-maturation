@@ -24,37 +24,41 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 @RequestMapping("/submission-details/{submissionDetailId}/trap-properties")
 public class TrapPropertiesController {
 
-  private final TrapPropertiesService trapPropertiesService;
+  private final TrapPropertiesFormService trapPropertiesFormService;
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
+  private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
   static final String PAGE_NAME = "Trap properties";
 
   @Autowired
-  public TrapPropertiesController(TrapPropertiesService trapPropertiesService,
+  public TrapPropertiesController(TrapPropertiesFormService trapPropertiesFormService,
                                   ControllerHelperService controllerHelperService,
-                                  SubmissionDetailService submissionDetailService) {
-    this.trapPropertiesService = trapPropertiesService;
+                                  SubmissionDetailService submissionDetailService,
+                                  TrapPropertiesPersistenceService trapPropertiesPersistenceService) {
+    this.trapPropertiesFormService = trapPropertiesFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
+    this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getTrapProperties(@PathVariable("submissionDetailId") UUID submissionDetailId) {
-    return getTrapPropertiesModelAndView(new TrapPropertiesForm(), submissionDetailId);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    return getTrapPropertiesModelAndView(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail), submissionDetailId);
   }
 
   @PostMapping
   public ModelAndView saveTrapProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                          @ModelAttribute("form") TrapPropertiesForm form, BindingResult bindingResult) {
 
-    bindingResult = trapPropertiesService.validate(form, bindingResult);
+    bindingResult = trapPropertiesFormService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
       bindingResult,
       getTrapPropertiesModelAndView(form, submissionDetailId),
       () -> {
         var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-        trapPropertiesService.saveTrapProperties(form, submissionDetail);
+        trapPropertiesPersistenceService.saveTrapProperties(form, submissionDetail);
         return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId));
       }
     );

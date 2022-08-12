@@ -39,10 +39,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 class TrapPropertiesControllerTest extends AbstractControllerTest {
 
   @MockBean
-  TrapPropertiesService trapPropertiesService;
+  TrapPropertiesFormService trapPropertiesFormService;
 
   @MockBean
   SubmissionDetailService submissionDetailService;
+
+  @MockBean
+  TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
   private static TrapPropertiesForm form;
   private static UUID submissionDetailId;
@@ -61,6 +64,9 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
 
   @Test
   void getTrapProperties_assertOK() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
+
     mockMvc.perform(
         get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetailId))))
         .andExpect(status().isOk())
@@ -70,7 +76,7 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
 
   @Test
   void saveTrapProperties_whenValidForm_assertRedirection() throws Exception {
-    when(trapPropertiesService.validate(any(), any())).thenReturn(bindingResult);
+    when(trapPropertiesFormService.validate(any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -79,25 +85,28 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(trapPropertiesService, times(1)).saveTrapProperties(any(TrapPropertiesForm.class), eq(submissionDetail));
+    verify(trapPropertiesPersistenceService, times(1)).saveTrapProperties(any(TrapPropertiesForm.class), eq(submissionDetail));
   }
 
   @Test
   void saveTrapProperties_whenInValidForm_assertStatusOk() throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(trapPropertiesService.validate(any(), any())).thenReturn(bindingResult);
+    when(trapPropertiesFormService.validate(any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(TrapPropertiesController.class).saveTrapProperties(submissionDetailId, form, bindingResult)))
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(trapPropertiesService, never()).saveTrapProperties(any(TrapPropertiesForm.class), any());
+    verify(trapPropertiesPersistenceService, never()).saveTrapProperties(any(TrapPropertiesForm.class), any());
   }
 
   @Test
   void getGeneralDetailsModelAndView_assertModelProperties() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
+
     var modelMap =     Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetailId))))
         .andReturn()
