@@ -67,7 +67,7 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
   @Test
   void getSourceAndSealDetails_assertStatusOk() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetailId, null))))
+        get(ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetailId))))
         .andExpect(status().isOk())
         .andExpect(view().name("hm/submissiondetails/sourceAndSeal"));
   }
@@ -103,7 +103,7 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
   void getSourceAndSealModelAndView_assertModelProperties() throws Exception {
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
-                get(ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetailId, null))))
+                get(ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetailId))))
             .andReturn()
             .getModelAndView())
         .getModelMap();

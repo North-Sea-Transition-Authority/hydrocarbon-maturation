@@ -27,7 +27,7 @@ errorItems=errorList>
                 labelText="What percentage of the hydrocarbon volume is located within the UKCS?"
                 suffix="%"
                 suffixScreenReaderPrompt="percent"
-                hintText="Must be between 0 and 100"
+                hintText="Must be between 0.1 and 100"
                 inputClass="govuk-!-width-one-third"
                 nestingPath="form.prospectLocatedInUkcs"/>
           </@fdsRadio.radioNo>

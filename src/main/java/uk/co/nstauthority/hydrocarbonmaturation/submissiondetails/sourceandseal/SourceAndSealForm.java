@@ -3,15 +3,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal
 class SourceAndSealForm {
 
   private String sourceFormationName;
-
   private String sourceAgeStage;
-
   private String sourceLithology;
-
   private String topSealFormationName;
-
   private String topSealAgeStage;
-
   private String topSealLithology;
 
   public String getSourceFormationName() {

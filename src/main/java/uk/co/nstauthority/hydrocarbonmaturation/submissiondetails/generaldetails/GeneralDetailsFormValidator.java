@@ -65,7 +65,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
     fullValidationPercentageLocatedInUkcs(generalDetailsForm, errors);
 
-    if (Objects.equals(generalDetailsForm.getInformationSource(), InformationSource.OTHER)) {
+    if (generalDetailsForm.getInformationSource() == InformationSource.OTHER) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherSourceOfInformation", "otherSourceOfInformation.required",
           "Enter the source of information for this prospect submission");
     }
