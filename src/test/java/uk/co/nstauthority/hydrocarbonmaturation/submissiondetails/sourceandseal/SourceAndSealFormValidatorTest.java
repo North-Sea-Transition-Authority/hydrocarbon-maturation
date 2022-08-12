@@ -47,7 +47,7 @@ class SourceAndSealFormValidatorTest {
   }
 
   @Test
-  void validate_whenInValidForm_thenNoValidationErrors() {
+  void validate_whenInValidForm_thenValidationErrors() {
     var form = new SourceAndSealForm();
     var bindingResult = validateSourceAndSealForm(form);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);

@@ -52,7 +52,6 @@ public class SourceAndSealController {
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getSourceAndSealModelAndView(form, submissionDetailId),
-        //TODO when HM-103 redirect to task list & add route to task list
         () -> {
           var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           sourceAndSealService.saveSourceAndSealDetails(form, submissionDetail);

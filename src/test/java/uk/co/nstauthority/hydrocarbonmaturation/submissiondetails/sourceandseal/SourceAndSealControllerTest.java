@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -20,7 +21,6 @@ import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -73,19 +73,17 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  @Disabled
   void saveSourceAndSealDetails_whenValidForm_assertRedirection() throws Exception {
-    //TODO HM-103 when task list is created assert redirection
     when(sourceAndSealService.validate(any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(SourceAndSealController.class).saveSourceAndSealDetails(submissionDetailId, form, bindingResult)))
             .with(csrf()))
-        .andExpect(status().is3xxRedirection());
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
 
     verify(sourceAndSealService, times(1)).saveSourceAndSealDetails(any(SourceAndSealForm.class), eq(submissionDetail));
-
   }
 
   @Test

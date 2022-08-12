@@ -1,7 +1,6 @@
 <#include '../layout/layout.ftl'>
 
 <#assign pageTitle = "Source and seal" />
-<#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
