@@ -23,37 +23,40 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @RequestMapping("/submission-details/{submissionDetailId}/general-details")
 public class GeneralDetailsController {
 
-  private final GeneralDetailsService generalDetailsService;
+  private final GeneralDetailsFormService generalDetailsFormService;
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
+  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   @Autowired
-  public GeneralDetailsController(GeneralDetailsService generalDetailsService,
+  public GeneralDetailsController(GeneralDetailsFormService generalDetailsFormService,
                                   ControllerHelperService controllerHelperService,
-                                  SubmissionDetailService submissionDetailService) {
-    this.generalDetailsService = generalDetailsService;
+                                  SubmissionDetailService submissionDetailService,
+                                  GeneralDetailsPersistenceService generalDetailsPersistenceService) {
+    this.generalDetailsFormService = generalDetailsFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
+    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getGeneralDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                        @ModelAttribute("form") GeneralDetailsForm form) {
-    return getGeneralDetailsModelAndView(form, submissionDetailId);
+                                            @ModelAttribute("form") GeneralDetailsForm form) {
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    return getGeneralDetailsModelAndView(generalDetailsFormService.getGeneralDetailsForm(submissionDetail), submissionDetailId);
   }
 
   @PostMapping
   public ModelAndView saveGeneralDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                         @ModelAttribute("form") GeneralDetailsForm form,
-                                         BindingResult bindingResult,
+                                         @ModelAttribute("form") GeneralDetailsForm form, BindingResult bindingResult,
                                          ValidationType validationType) {
-    bindingResult = generalDetailsService.validate(form, bindingResult, validationType);
+    bindingResult = generalDetailsFormService.validate(form, bindingResult, validationType);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getGeneralDetailsModelAndView(form, submissionDetailId),
         () -> {
           var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-          generalDetailsService.saveGeneralDetails(form, submissionDetail);
+          generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
           return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId));
         }
     );

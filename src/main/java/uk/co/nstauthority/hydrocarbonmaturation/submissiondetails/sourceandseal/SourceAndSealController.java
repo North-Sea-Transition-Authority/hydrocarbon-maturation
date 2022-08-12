@@ -22,36 +22,40 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 @RequestMapping("/submission-details/{submissionDetailId}/source-and-seal")
 public class SourceAndSealController {
 
-  private final SourceAndSealService sourceAndSealService;
+  private final SourceAndSealFormService sourceAndSealFormService;
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
+  private final SourceAndSealPersistenceService sourceAndSealPersistenceService;
 
   static final String PAGE_NAME = "Source and seal";
 
   @Autowired
-  public SourceAndSealController(SourceAndSealService sourceAndSealService,
+  public SourceAndSealController(SourceAndSealFormService sourceAndSealFormService,
                                  ControllerHelperService controllerHelperService,
-                                 SubmissionDetailService submissionDetailService) {
-    this.sourceAndSealService = sourceAndSealService;
+                                 SubmissionDetailService submissionDetailService,
+                                 SourceAndSealPersistenceService sourceAndSealPersistenceService) {
+    this.sourceAndSealFormService = sourceAndSealFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
+    this.sourceAndSealPersistenceService = sourceAndSealPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getSourceAndSealDetails(@PathVariable("submissionDetailId") UUID submissionDetailId) {
-    return getSourceAndSealModelAndView(new SourceAndSealForm(), submissionDetailId);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    return getSourceAndSealModelAndView(sourceAndSealFormService.getSourceAndSealForm(submissionDetail), submissionDetailId);
   }
 
   @PostMapping
   public ModelAndView saveSourceAndSealDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                @ModelAttribute("form") SourceAndSealForm form, BindingResult bindingResult) {
-    bindingResult = sourceAndSealService.validate(form, bindingResult);
+    bindingResult = sourceAndSealFormService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getSourceAndSealModelAndView(form, submissionDetailId),
         () -> {
           var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-          sourceAndSealService.saveSourceAndSealDetails(form, submissionDetail);
+          sourceAndSealPersistenceService.saveSourceAndSealDetails(form, submissionDetail);
           return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId));
         }
     );

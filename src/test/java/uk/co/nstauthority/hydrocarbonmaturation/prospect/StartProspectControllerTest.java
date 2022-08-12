@@ -22,14 +22,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsFormService;
 
 @ContextConfiguration(classes = StartProspectController.class)
 @WithMockUser
 class StartProspectControllerTest extends AbstractControllerTest {
 
   @MockBean
-  GeneralDetailsService generalDetailsService;
+  GeneralDetailsFormService generalDetailsFormService;
 
   @MockBean
   StartProspectService startProspectService;

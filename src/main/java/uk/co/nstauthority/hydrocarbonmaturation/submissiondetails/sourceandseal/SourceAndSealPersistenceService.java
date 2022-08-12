@@ -1,32 +1,25 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
-class SourceAndSealService {
+class SourceAndSealPersistenceService {
 
-  private final SourceAndSealFormValidator sourceAndSealFormValidator;
   private final SourceAndSealRepository sourceAndSealRepository;
 
   @Autowired
-  public SourceAndSealService(SourceAndSealFormValidator sourceAndSealFormValidator,
-                              SourceAndSealRepository sourceAndSealRepository) {
-    this.sourceAndSealFormValidator = sourceAndSealFormValidator;
+  public SourceAndSealPersistenceService(SourceAndSealRepository sourceAndSealRepository) {
     this.sourceAndSealRepository = sourceAndSealRepository;
   }
 
-  BindingResult validate(SourceAndSealForm form, BindingResult bindingResult) {
-    sourceAndSealFormValidator.validate(form, bindingResult);
-    return bindingResult;
-  }
-
   @Transactional
-  void saveSourceAndSealDetails(SourceAndSealForm form, SubmissionDetail submissionDetail) {
-    var sourceAndSeal = new SourceAndSeal()
+  public void saveSourceAndSealDetails(SourceAndSealForm form, SubmissionDetail submissionDetail) {
+
+    var sourceAndSeal = getSourceAndSeal(submissionDetail).orElse(new SourceAndSeal())
         .setSubmissionDetail(submissionDetail)
         .setSourceFormationName(form.getSourceFormationName())
         .setSourceAgeStage(form.getSourceAgeStage())
@@ -36,5 +29,9 @@ class SourceAndSealService {
         .setTopSealLithology(form.getTopSealLithology());
 
     sourceAndSealRepository.save(sourceAndSeal);
+  }
+
+  Optional<SourceAndSeal> getSourceAndSeal(SubmissionDetail submissionDetail) {
+    return sourceAndSealRepository.findBySubmissionDetail(submissionDetail);
   }
 }

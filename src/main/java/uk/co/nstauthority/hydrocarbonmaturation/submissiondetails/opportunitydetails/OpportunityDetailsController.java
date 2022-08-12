@@ -23,35 +23,40 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 public class OpportunityDetailsController {
 
   public static final String PAGE_NAME = "Opportunity details";
-  private final OpportunityDetailsService opportunityDetailsService;
+  private final OpportunityDetailsFormService opportunityDetailsFormService;
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
+  private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
 
   @Autowired
-  public OpportunityDetailsController(OpportunityDetailsService opportunityDetailsService,
+  public OpportunityDetailsController(OpportunityDetailsFormService opportunityDetailsFormService,
                                       ControllerHelperService controllerHelperService,
-                                      SubmissionDetailService submissionDetailService) {
-    this.opportunityDetailsService = opportunityDetailsService;
+                                      SubmissionDetailService submissionDetailService,
+                                      OpportunityDetailsPersistenceService opportunityDetailsPersistenceService) {
+    this.opportunityDetailsFormService = opportunityDetailsFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
+    this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getOpportunityDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                             @ModelAttribute("form") OpportunityDetailsForm form) {
-    return getOpportunityDetailsModelAndView(new OpportunityDetailsForm(), submissionDetailId);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    return getOpportunityDetailsModelAndView(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail),
+        submissionDetailId);
   }
 
   @PostMapping
   public ModelAndView saveOpportunityDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                              @ModelAttribute("form") OpportunityDetailsForm form,
                                              BindingResult bindingResult) {
-    bindingResult = opportunityDetailsService.validate(form, bindingResult);
+    bindingResult = opportunityDetailsFormService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getOpportunityDetailsModelAndView(form, submissionDetailId),
         () -> {
           var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-          opportunityDetailsService.saveOpportunityDetails(form, submissionDetail);
+          opportunityDetailsPersistenceService.saveOpportunityDetails(form, submissionDetail);
           return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId));
         });
   }

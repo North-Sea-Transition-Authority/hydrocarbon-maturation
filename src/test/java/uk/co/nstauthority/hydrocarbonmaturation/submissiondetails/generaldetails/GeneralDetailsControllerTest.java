@@ -24,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -39,11 +40,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 class GeneralDetailsControllerTest extends AbstractControllerTest {
 
   @MockBean
-  GeneralDetailsService generalDetailsService;
+  GeneralDetailsFormService generalDetailsFormService;
 
   @MockBean
   SubmissionDetailService submissionDetailService;
 
+  @MockBean
+  GeneralDetailsPersistenceService generalDetailsPersistenceService;
+
+  private static GeneralDetailsForm form;
+  private static BindingResult bindingResult;
   private static UUID submissionDetailId;
   private static SubmissionDetail submissionDetail;
 
@@ -56,6 +62,8 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
 
   @Test
   void getGeneralDetails_assertStatusOk() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(new GeneralDetailsForm());
     mockMvc.perform(
         get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null))))
         .andExpect(status().isOk())
@@ -66,7 +74,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
   void saveGeneralDetails_partialValidation_whenValidForm_assertSaveAndRedirection() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
-    when(generalDetailsService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(generalDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
@@ -75,8 +83,8 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(generalDetailsService, times(1)).validate(any(), any(), eq(ValidationType.PARTIAL));
-    verify(generalDetailsService, times(1)).saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail));
+    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(ValidationType.PARTIAL));
+    verify(generalDetailsPersistenceService, times(1)).saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail));
   }
 
   @Test
@@ -84,7 +92,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(generalDetailsService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(generalDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
@@ -93,15 +101,15 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk())
         .andExpect(view().name("hm/submissiondetails/generalDetails"));
 
-    verify(generalDetailsService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
-    verify(generalDetailsService, never()).saveGeneralDetails(any(), any());
+    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
+    verify(generalDetailsPersistenceService, never()).saveGeneralDetails(any(), any());
   }
 
   @Test
   void saveGeneralDetailsPage_fullValidation_whenValidForm_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
-    when(generalDetailsService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(generalDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
@@ -110,16 +118,21 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(generalDetailsService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
-    verify(generalDetailsService, times(1)).saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail));
+    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
+    verify(generalDetailsPersistenceService, times(1)).saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail));
   }
 
   @Test
   void getGeneralDetailsModelAndView_assertModelProperties() throws Exception {
-    var modelMap =     Objects.requireNonNull(mockMvc.perform(
-        get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null))))
-        .andReturn()
-        .getModelAndView()).getModelMap();
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(new GeneralDetailsForm());
+
+    var modelMap = Objects.requireNonNull(
+        mockMvc.perform(
+            get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null))))
+            .andReturn()
+            .getModelAndView())
+        .getModelMap();
 
     assertThat(modelMap.get("onshoreOffshore")).isEqualTo(OnshoreOffshore.getOnshoreOffshore());
     assertThat(modelMap.get("informationSources")).isEqualTo(InformationSource.getInformationSource());

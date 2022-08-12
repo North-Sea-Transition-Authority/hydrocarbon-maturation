@@ -1,46 +1,35 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @ExtendWith(MockitoExtension.class)
-class OpportunityDetailsServiceTest {
+class OpportunityDetailsPersistenceServiceTest {
 
-  private static OpportunityDetailsFormValidator opportunityDetailsFormValidator;
+  @Mock
   private static OpportunityDetailsRepository opportunityDetailsRepository;
-  private static OpportunityDetailsService opportunityDetailsService;
+
+  private static OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
+
   private static SubmissionDetail submissionDetail;
 
-  @BeforeAll
-  static void setup() {
-    opportunityDetailsFormValidator = mock(OpportunityDetailsFormValidator.class);
-    opportunityDetailsRepository = mock(OpportunityDetailsRepository.class);
+  @BeforeEach
+  void setup() {
+    opportunityDetailsPersistenceService = new OpportunityDetailsPersistenceService(opportunityDetailsRepository);
 
-    opportunityDetailsService = new OpportunityDetailsService(opportunityDetailsFormValidator, opportunityDetailsRepository);
-
-    UUID submissionDetailId = UUID.randomUUID();
+    var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
-  }
-
-  @Test
-  void validate_verifyMethodCall() {
-    var form = new OpportunityDetailsForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    opportunityDetailsService.validate(form, bindingResult);
-    verify(opportunityDetailsFormValidator, times(1)).validate(form, bindingResult);
   }
 
   @Test
@@ -54,7 +43,7 @@ class OpportunityDetailsServiceTest {
 
     var opportunityDetailsArgumentCaptor = ArgumentCaptor.forClass(OpportunityDetail.class);
 
-    opportunityDetailsService.saveOpportunityDetails(form, submissionDetail);
+    opportunityDetailsPersistenceService.saveOpportunityDetails(form, submissionDetail);
 
     verify(opportunityDetailsRepository, times(1)).save(opportunityDetailsArgumentCaptor.capture());
     var savedOpportunityDetail = (OpportunityDetail) opportunityDetailsArgumentCaptor.getValue();
@@ -74,5 +63,11 @@ class OpportunityDetailsServiceTest {
             form.getKeyEvaluationWorkCarriedOut(),
             form.getKeyWorkRequiredForFurtherMaturation()
         );
+  }
+
+  @Test
+  void getOpportunityDetail_verifyMethodCall() {
+    opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail);
+    verify(opportunityDetailsRepository, times(1)).findBySubmissionDetail(submissionDetail);
   }
 }

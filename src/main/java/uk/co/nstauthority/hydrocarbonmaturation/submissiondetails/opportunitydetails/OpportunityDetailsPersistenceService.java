@@ -1,32 +1,25 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
-class OpportunityDetailsService {
+class OpportunityDetailsPersistenceService {
 
-  private final OpportunityDetailsFormValidator opportunityDetailsFormValidator;
   private final OpportunityDetailsRepository opportunityDetailsRepository;
 
   @Autowired
-  public OpportunityDetailsService(OpportunityDetailsFormValidator opportunityDetailsFormValidator,
-                                   OpportunityDetailsRepository opportunityDetailsRepository) {
-    this.opportunityDetailsFormValidator = opportunityDetailsFormValidator;
+  OpportunityDetailsPersistenceService(OpportunityDetailsRepository opportunityDetailsRepository) {
     this.opportunityDetailsRepository = opportunityDetailsRepository;
-  }
-
-  BindingResult validate(OpportunityDetailsForm form, BindingResult bindingResult) {
-    opportunityDetailsFormValidator.validate(form, bindingResult);
-    return bindingResult;
   }
 
   @Transactional
   public void saveOpportunityDetails(OpportunityDetailsForm form, SubmissionDetail submissionDetail) {
-    var opportunityDetail = new OpportunityDetail();
+    var opportunityDetail = getOpportunityDetail(submissionDetail).orElse(new OpportunityDetail());
+
     opportunityDetail.setSubmissionDetail(submissionDetail);
     opportunityDetail.setOpportunityType(form.getOpportunityType());
     opportunityDetail.setOtherTypeOfOpportunity(form.getOtherTypeOfOpportunity());
@@ -35,5 +28,9 @@ class OpportunityDetailsService {
     opportunityDetail.setKeyWorkRequiredForFurtherMaturation(form.getKeyWorkRequiredForFurtherMaturation());
 
     opportunityDetailsRepository.save(opportunityDetail);
+  }
+
+  Optional<OpportunityDetail> getOpportunityDetail(SubmissionDetail submissionDetail) {
+    return opportunityDetailsRepository.findBySubmissionDetail(submissionDetail);
   }
 }

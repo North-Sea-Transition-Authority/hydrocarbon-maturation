@@ -38,7 +38,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 class OpportunityDetailsControllerTest extends AbstractControllerTest {
 
   @MockBean
-  OpportunityDetailsService opportunityDetailsService;
+  OpportunityDetailsFormService opportunityDetailsFormService;
+
+  @MockBean
+  OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
 
   @MockBean
   SubmissionDetailService submissionDetailService;
@@ -60,6 +63,9 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
 
   @Test
   void getOpportunityDetailsPage_assertStatusOk() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
+
     mockMvc.perform(
         get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form))))
         .andExpect(status().isOk());
@@ -67,7 +73,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
 
   @Test
   void saveOpportunityDetailsPage_whenValidForm_assertRedirection() throws Exception {
-    when(opportunityDetailsService.validate(any(), any())).thenReturn(bindingResult);
+    when(opportunityDetailsFormService.validate(any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -76,25 +82,28 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(opportunityDetailsService, times(1)).saveOpportunityDetails(any(OpportunityDetailsForm.class), eq(submissionDetail));
+    verify(opportunityDetailsPersistenceService, times(1)).saveOpportunityDetails(any(OpportunityDetailsForm.class), eq(submissionDetail));
   }
 
   @Test
   void saveOpportunityDetailsPage_whenInvalidForm_assertStatusOk() throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(opportunityDetailsService.validate(any(), any())).thenReturn(bindingResult);
+    when(opportunityDetailsFormService.validate(any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult)))
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(opportunityDetailsService, never()).saveOpportunityDetails(any(), eq(submissionDetail));
+    verify(opportunityDetailsPersistenceService, never()).saveOpportunityDetails(any(), eq(submissionDetail));
   }
 
   @Test
   void getOpportunityDetailsModelAndView_assertModelProperties() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
+
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form))))
         .andReturn()

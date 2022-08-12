@@ -40,10 +40,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 class SourceAndSealControllerTest extends AbstractControllerTest {
 
   @MockBean
-  SourceAndSealService sourceAndSealService;
+  SourceAndSealFormService sourceAndSealFormService;
 
   @MockBean
   SubmissionDetailService submissionDetailService;
+
+  @MockBean
+  SourceAndSealPersistenceService sourceAndSealPersistenceService;
 
   private SourceAndSealForm form;
   private BindingResult bindingResult;
@@ -66,6 +69,9 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
 
   @Test
   void getSourceAndSealDetails_assertStatusOk() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(new SourceAndSealForm());
+
     mockMvc.perform(
         get(ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetailId))))
         .andExpect(status().isOk())
@@ -74,7 +80,7 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
 
   @Test
   void saveSourceAndSealDetails_whenValidForm_assertRedirection() throws Exception {
-    when(sourceAndSealService.validate(any(), any())).thenReturn(bindingResult);
+    when(sourceAndSealFormService.validate(any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -83,24 +89,28 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(sourceAndSealService, times(1)).saveSourceAndSealDetails(any(SourceAndSealForm.class), eq(submissionDetail));
+    verify(sourceAndSealPersistenceService, times(1)).saveSourceAndSealDetails(any(SourceAndSealForm.class), eq(submissionDetail));
+
   }
 
   @Test
   void saveSourceAndSealDetails_whenInvalidForm_assertStatusOk() throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(sourceAndSealService.validate(any(), any())).thenReturn(bindingResult);
+    when(sourceAndSealFormService.validate(any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(SourceAndSealController.class).saveSourceAndSealDetails(submissionDetailId, form, bindingResult)))
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(sourceAndSealService, never()).saveSourceAndSealDetails(any(), any());
+    verify(sourceAndSealPersistenceService, never()).saveSourceAndSealDetails(any(), any());
   }
 
   @Test
   void getSourceAndSealModelAndView_assertModelProperties() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(new SourceAndSealForm());
+
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                 get(ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetailId))))
