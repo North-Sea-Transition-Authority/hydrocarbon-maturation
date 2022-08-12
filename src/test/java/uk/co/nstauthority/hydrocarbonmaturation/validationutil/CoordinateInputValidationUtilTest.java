@@ -380,7 +380,7 @@ class CoordinateInputValidationUtilTest {
                 Set.of("coordinateInput.seconds.decimalInputValue.moreThanMaxValue"))
         );
 
-    assertThat(bindingResult.getAllErrors().get(0).getDefaultMessage()).isEqualTo("The coordinate seconds must be 59 or less");
+    assertThat(bindingResult.getAllErrors().get(0).getDefaultMessage()).isEqualTo("The coordinate seconds must be 59.999 or less");
   }
 
   @Test
@@ -389,7 +389,7 @@ class CoordinateInputValidationUtilTest {
 
     coordinateInput.setDegrees(new DecimalInput("15"));
     coordinateInput.setMinutes(new DecimalInput("15"));
-    coordinateInput.setSeconds(new DecimalInput("59"));
+    coordinateInput.setSeconds(new DecimalInput("59.999"));
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
     var bindingResult = validateCoordinateInput(form, coordinateInput);

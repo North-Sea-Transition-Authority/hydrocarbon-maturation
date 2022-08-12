@@ -137,12 +137,12 @@ public class CoordinateInputValidationUtil {
 
     var degreesValidator =
         DecimalInputValidator.configureValidator(errors, "%s.%s".formatted(fieldIdPrefix, DEGREES_FIELD_SUFFIX),
-          "The %s degrees".formatted(displayPrefix), degrees)
-          .setMaxValue(displayPrefix.equals("latitude") ? UKCS_LATITUDE_MAX_DEGREES : UKCS_LONGITUDE_MAX_DEGREES)
-          .setMinValue(displayPrefix.equals("latitude") ? UKCS_LATITUDE_MIN_DEGREES : UKCS_LONGITUDE_MIN_DEGREES)
-          .setMaxDecimalPlaces(0);
+            "The %s degrees".formatted(displayPrefix), degrees)
+            .setMaxValue(displayPrefix.equals("latitude") ? UKCS_LATITUDE_MAX_DEGREES : UKCS_LONGITUDE_MAX_DEGREES)
+            .setMinValue(displayPrefix.equals("latitude") ? UKCS_LATITUDE_MIN_DEGREES : UKCS_LONGITUDE_MIN_DEGREES)
+            .setMaxDecimalPlaces(0);
 
-    if (!degrees.hasContent() && overrideErrorMessage.equals(OverrideErrorMessage.TRUE)) {
+    if (!degrees.hasContent() || overrideErrorMessage.equals(OverrideErrorMessage.TRUE)) {
       degreesValidator.overrideDefaultErrorMessage("");
     }
 
@@ -166,16 +166,16 @@ public class CoordinateInputValidationUtil {
 
     var minutesValidator =
         DecimalInputValidator.configureValidator(errors, "%s.%s".formatted(fieldIdPrefix, MINUTES_FIELD_SUFFIX),
-          "The %s minutes".formatted(displayPrefix), minutes)
+            "The %s minutes".formatted(displayPrefix), minutes)
           .setMaxValue(new BigDecimal("59"))
           .setMinValue(new BigDecimal("0"))
           .setMaxDecimalPlaces(0);
 
-    if (errors.getFieldErrorCount("%s.degrees.decimalInputValue".formatted(fieldIdPrefix)) != 0 && !minutes.hasContent()
-        && overrideErrorMessage.equals(OverrideErrorMessage.TRUE)) {
+    if (errors.hasFieldErrors("%s.degrees.decimalInputValue".formatted(fieldIdPrefix)) || !minutes.hasContent()
+        || overrideErrorMessage.equals(OverrideErrorMessage.TRUE)) {
+
       minutesValidator.overrideDefaultErrorMessage("");
     }
-
     minutesValidator.validate();
   }
 
@@ -196,17 +196,17 @@ public class CoordinateInputValidationUtil {
 
     var secondsValidator =
         DecimalInputValidator.configureValidator(errors, "%s.%s".formatted(fieldIdPrefix, SECONDS_FIELD_SUFFIX),
-          "The %s seconds".formatted(displayPrefix), seconds)
-          .setMaxValue(new BigDecimal("59"))
-          .setMinValue(new BigDecimal("0"))
-          .setMaxDecimalPlaces(3);
+            "The %s seconds".formatted(displayPrefix), seconds)
+            .setMaxValue(new BigDecimal("59.999"))
+            .setMinValue(new BigDecimal("0"))
+            .setMaxDecimalPlaces(3);
 
-    if (errors.getFieldErrorCount("%s.minutes.decimalInputValue".formatted(fieldIdPrefix)) != 0
-        && errors.getFieldErrorCount("%s.degrees.decimalInputValue".formatted(fieldIdPrefix)) != 0
-        && seconds.hasContent() && overrideErrorMessage.equals(OverrideErrorMessage.TRUE)) {
+    if (errors.hasFieldErrors("%s.minutes.decimalInputValue".formatted(fieldIdPrefix))
+        || errors.hasFieldErrors("%s.degrees.decimalInputValue".formatted(fieldIdPrefix))
+        || !seconds.hasContent() || overrideErrorMessage.equals(OverrideErrorMessage.TRUE)) {
+
       secondsValidator.overrideDefaultErrorMessage("");
     }
-
     secondsValidator.validate();
   }
 

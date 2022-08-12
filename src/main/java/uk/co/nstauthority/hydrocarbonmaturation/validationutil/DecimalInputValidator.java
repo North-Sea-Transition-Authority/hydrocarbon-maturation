@@ -138,10 +138,10 @@ public class DecimalInputValidator {
       var bigDecimal = value.stripTrailingZeros();
       var errorMessage = "%s must have no more than %d decimal places".formatted(errorMessagePrefix, decimalPlacesExpected);
 
-      if (decimalPlacesExpected == 0) {
-        errorMessage = "%s must have no decimal places".formatted(errorMessagePrefix);
-      } else if (!useDefaultErrorMessage) {
+      if (!useDefaultErrorMessage) {
         errorMessage = overriddenErrorMessage;
+      } else if (decimalPlacesExpected == 0) {
+        errorMessage = "%s must have no decimal places".formatted(errorMessagePrefix);
       }
 
       if (bigDecimal.scale() > decimalPlacesExpected) {

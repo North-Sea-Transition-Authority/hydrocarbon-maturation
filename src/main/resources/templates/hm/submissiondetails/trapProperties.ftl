@@ -18,7 +18,7 @@ breadcrumbsMap=breadcrumbsMap>
 
   <@fdsForm.htmlForm actionUrl=springUrl(actionUrl)>
       <@fdsTextInput.textInput path="form.trapDescription" labelText="Trap description"
-        hintText="For example, Upper Jurassic (Solan) turbidite sandstones, enclosed withing and oil sourced by the lower portion of the Kimmeridge Clay Formation"/>
+        hintText="For example, Upper Jurassic (Solan) turbidite sandstones, enclosed within and oil sourced by the lower portion of the Kimmeridge Clay Formation"/>
 
       <@fdsRadio.radioGroup path="form.trapType" labelText="Trap type" hiddenContent=true>
           <#assign firstItem=true/>
