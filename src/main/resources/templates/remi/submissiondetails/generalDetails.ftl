@@ -6,13 +6,14 @@
 <#-- @ftlvariable name="onshoreOffshore" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="informationSources" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
+<#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 
 <@defaultPage
 htmlTitle=pageTitle
 pageHeading=pageTitle
 pageSize=PageSize.TWO_THIRDS_COLUMN
-backLinkUrl=springUrl(backLinkUrl)
-errorItems=errorList>
+errorItems=errorList
+breadcrumbsMap=breadcrumbsMap>
 
     <@fdsForm.htmlForm>
 

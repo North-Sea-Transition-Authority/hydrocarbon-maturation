@@ -22,7 +22,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 @RequestMapping("/submission-details/{submissionDetailId}/hydrocarbon-case")
 public class HydrocarbonCaseController {
 
-  static final String PAGE_NAME = "Hydrocarbon case";
+  public static final String PAGE_NAME = "Hydrocarbon case";
+
   private final HydrocarbonCaseFormService hydrocarbonCaseFormService;
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;

@@ -27,7 +27,7 @@ public class SourceAndSealController {
   private final SubmissionDetailService submissionDetailService;
   private final SourceAndSealPersistenceService sourceAndSealPersistenceService;
 
-  static final String PAGE_NAME = "Source and seal";
+  public static final String PAGE_NAME = "Source and seal";
 
   @Autowired
   public SourceAndSealController(SourceAndSealFormService sourceAndSealFormService,

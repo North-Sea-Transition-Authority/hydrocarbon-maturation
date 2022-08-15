@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -27,6 +27,8 @@ public class GeneralDetailsController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
+
+  public static final String PAGE_NAME = "General details";
 
   @Autowired
   public GeneralDetailsController(GeneralDetailsFormService generalDetailsFormService,
@@ -63,10 +65,12 @@ public class GeneralDetailsController {
   }
 
   private ModelAndView getGeneralDetailsModelAndView(GeneralDetailsForm form, UUID submissionDetailId) {
-    return new ModelAndView("remi/submissiondetails/generalDetails")
+    var modelAndView =  new ModelAndView("remi/submissiondetails/generalDetails")
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("informationSources", InformationSource.getInformationSource())
-        .addObject("form", form)
-        .addObject("backLinkUrl", ReverseRouter.route(on(StartProspectController.class).getStartPage()));
+        .addObject("form", form);
+
+    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    return modelAndView;
   }
 }

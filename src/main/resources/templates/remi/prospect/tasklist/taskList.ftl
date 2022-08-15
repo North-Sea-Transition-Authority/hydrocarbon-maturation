@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 
-<#assign pageTitle = "${serviceBranding.mnemonic()} prospect" />
+<#assign pageTitle = "Prospect" />
 
 <@defaultPage
   htmlTitle=pageTitle

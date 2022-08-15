@@ -27,7 +27,7 @@ public class TrapPropertiesController {
   private final SubmissionDetailService submissionDetailService;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
-  static final String PAGE_NAME = "Trap properties";
+  public static final String PAGE_NAME = "Trap properties";
 
   @Autowired
   public TrapPropertiesController(TrapPropertiesFormService trapPropertiesFormService,
