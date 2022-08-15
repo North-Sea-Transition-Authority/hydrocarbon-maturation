@@ -10,3 +10,5 @@ CVE-2020-13959
 CVE-2020-15522
 #temporarily ignoring vulnerability from eclipse base image
 CVE-2022-30065
+#postgres CVE August 2022
+CVE-2022-31197
