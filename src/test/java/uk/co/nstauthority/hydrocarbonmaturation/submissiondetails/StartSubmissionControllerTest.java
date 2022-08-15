@@ -32,7 +32,6 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
   @Test
   void startSubmission_whenValidForm_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
-    form.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -49,7 +48,6 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
   @Test
   void startSubmission_whenInValidForm_assertStatusOk() throws Exception {
     var form = new SubmissionTypeSelectForm();
-    form.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 

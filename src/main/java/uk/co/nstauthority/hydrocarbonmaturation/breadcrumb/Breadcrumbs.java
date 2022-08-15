@@ -25,6 +25,10 @@ public class Breadcrumbs {
     return currentPageName;
   }
 
+  public static BreadcrumbsBuilder builder(String currentPageName) {
+    return new BreadcrumbsBuilder(currentPageName);
+  }
+
   public static class BreadcrumbsBuilder {
     private final String currentPage;
     private final Set<BreadcrumbItem> breadcrumbs = new LinkedHashSet<>();

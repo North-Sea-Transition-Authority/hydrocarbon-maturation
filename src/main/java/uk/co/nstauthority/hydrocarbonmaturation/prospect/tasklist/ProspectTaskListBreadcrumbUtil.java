@@ -18,7 +18,7 @@ public class ProspectTaskListBreadcrumbUtil {
 
   public static ModelAndView addTaskListAndWorkAreaToModelAndView(ModelAndView modelAndView, String pageName,
                                                                   UUID submissionDetailId) {
-    var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(pageName)
+    var breadcrumbs = Breadcrumbs.builder(pageName)
         .addWorkAreaBreadcrumb()
         .addBreadcrumb(ProspectTaskListBreadcrumbUtil.getProspectTaskListBreadcrumb(submissionDetailId))
         .build();
