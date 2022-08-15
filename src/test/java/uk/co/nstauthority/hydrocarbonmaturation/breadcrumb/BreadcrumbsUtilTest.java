@@ -23,7 +23,7 @@ class BreadcrumbsUtilTest {
     var secondBreadcrumbItem = new BreadcrumbItem("second page name", "second page url");
     var thirdBreadcrumbItem = new BreadcrumbItem("third page name", "third page url");
 
-    var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(currentPage)
+    var breadcrumbs = Breadcrumbs.builder(currentPage)
         .addWorkAreaBreadcrumb()
         .addBreadcrumb(secondBreadcrumbItem.prompt(), secondBreadcrumbItem.url())
         .addBreadcrumb(thirdBreadcrumbItem)
