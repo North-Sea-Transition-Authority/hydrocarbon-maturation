@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,8 +28,8 @@ class GeneralDetailsPersistenceService {
         .setOtherInformationSource(form.getOtherSourceOfInformation());
 
     if (form.getProspectLocatedInUkcs() !=  null && !form.getProspectLocatedInUkcs()) {
-      var decimalPercentage = form.getPercentageLocatedInUkcs().getDecimalInputValue();
-      generalDetail.setPercentageLocatedInUkcs(new BigDecimal(decimalPercentage));
+      var decimalPercentage = form.getPercentageLocatedInUkcs().createBigDecimalOrNull();
+      generalDetail.setPercentageLocatedInUkcs(decimalPercentage);
     }
 
     generalDetailsRepository.save(generalDetail);

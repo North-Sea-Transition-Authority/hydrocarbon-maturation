@@ -36,7 +36,9 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     form.setOtherSourceOfInformation(generalDetail.getOtherInformationSource());
 
     if (generalDetail.getProspectLocatedInUkcs() != null && !generalDetail.getProspectLocatedInUkcs()) {
-      var decimalPercentage = new DecimalInput(generalDetail.getPercentageLocatedInUkcs().toString());
+
+      var decimalPercentage = generalDetail.getPercentageLocatedInUkcs() == null
+          ? new DecimalInput() : new DecimalInput(generalDetail.getPercentageLocatedInUkcs().toString());
       form.setPercentageLocatedInUkcs(decimalPercentage);
     }
 
