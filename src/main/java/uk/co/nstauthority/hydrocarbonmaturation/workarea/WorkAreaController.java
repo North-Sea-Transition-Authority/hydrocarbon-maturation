@@ -17,7 +17,7 @@ public class WorkAreaController {
 
   @GetMapping
   public ModelAndView getWorkArea() {
-    return new ModelAndView("hm/workarea/workArea")
+    return new ModelAndView("remi/workarea/workArea")
         .addObject("startSubmissionUrl", ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()))
         .addObject("pageTitle", WORK_AREA_TITLE);
   }

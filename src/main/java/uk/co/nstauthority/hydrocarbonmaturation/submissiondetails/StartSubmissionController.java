@@ -47,7 +47,7 @@ public class StartSubmissionController {
   }
 
   ModelAndView getSubmissionTypeModelAndView(SubmissionTypeSelectForm submissionTypeSelectForm) {
-    return new ModelAndView("hm/submissiondetails/startSubmission")
+    return new ModelAndView("remi/submissiondetails/startSubmission")
         .addObject("submissionType", SubmissionType.getSubmissionTypes())
         .addObject("form", submissionTypeSelectForm)
         .addObject("actionUrl", ReverseRouter.route(on(StartSubmissionController.class).startSubmission(null, null)))

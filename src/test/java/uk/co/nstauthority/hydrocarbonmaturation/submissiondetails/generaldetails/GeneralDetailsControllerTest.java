@@ -67,7 +67,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null))))
         .andExpect(status().isOk())
-        .andExpect(view().name("hm/submissiondetails/generalDetails"));
+        .andExpect(view().name("remi/submissiondetails/generalDetails"));
   }
 
   @Test
@@ -99,7 +99,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
                 .params(ControllerTestUtils.fullValidationPostParams())
                 .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("hm/submissiondetails/generalDetails"));
+        .andExpect(view().name("remi/submissiondetails/generalDetails"));
 
     verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
     verify(generalDetailsPersistenceService, never()).saveGeneralDetails(any(), any());

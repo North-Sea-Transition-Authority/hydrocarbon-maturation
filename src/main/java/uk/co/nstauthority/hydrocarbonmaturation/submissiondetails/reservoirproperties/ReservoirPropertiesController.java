@@ -64,7 +64,7 @@ public class ReservoirPropertiesController {
   }
 
   private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form, UUID submissionDetailId) {
-    var modelAndView = new ModelAndView("hm/submissiondetails/reservoirProperties")
+    var modelAndView = new ModelAndView("remi/submissiondetails/reservoirProperties")
         .addObject("form", form);
 
     ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);

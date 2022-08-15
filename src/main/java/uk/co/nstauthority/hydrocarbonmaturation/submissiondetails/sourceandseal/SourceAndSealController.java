@@ -62,7 +62,7 @@ public class SourceAndSealController {
   }
 
   private ModelAndView getSourceAndSealModelAndView(SourceAndSealForm form, UUID submissionDetailId) {
-    var modelAndView = new ModelAndView("hm/submissiondetails/sourceAndSeal")
+    var modelAndView = new ModelAndView("remi/submissiondetails/sourceAndSeal")
         .addObject("form", form)
         .addObject("actionUrl", ReverseRouter.route(on(SourceAndSealController.class)
             .saveSourceAndSealDetails(submissionDetailId, null, null)));

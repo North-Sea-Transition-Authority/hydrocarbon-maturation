@@ -75,7 +75,7 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         get(ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetailId))))
         .andExpect(status().isOk())
-        .andExpect(view().name("hm/submissiondetails/sourceAndSeal"));
+        .andExpect(view().name("remi/submissiondetails/sourceAndSeal"));
   }
 
   @Test

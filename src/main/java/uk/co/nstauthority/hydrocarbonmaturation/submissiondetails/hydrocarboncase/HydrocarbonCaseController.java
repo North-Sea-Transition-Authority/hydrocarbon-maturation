@@ -63,7 +63,7 @@ public class HydrocarbonCaseController {
   }
 
   private ModelAndView getHydrocarbonCaseModelAndView(HydrocarbonCaseForm form, UUID submissionDetailId) {
-    var modelAndView = new ModelAndView("hm/submissiondetails/hydrocarbonCase")
+    var modelAndView = new ModelAndView("remi/submissiondetails/hydrocarbonCase")
         .addObject("form", form);
     return ProspectTaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);

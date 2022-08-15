@@ -70,7 +70,7 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetailId))))
         .andExpect(status().isOk())
-        .andExpect(view().name("hm/submissiondetails/trapProperties"));
+        .andExpect(view().name("remi/submissiondetails/trapProperties"));
   }
 
 

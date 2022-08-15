@@ -63,7 +63,7 @@ public class GeneralDetailsController {
   }
 
   private ModelAndView getGeneralDetailsModelAndView(GeneralDetailsForm form, UUID submissionDetailId) {
-    return new ModelAndView("hm/submissiondetails/generalDetails")
+    return new ModelAndView("remi/submissiondetails/generalDetails")
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("informationSources", InformationSource.getInformationSource())
         .addObject("form", form)

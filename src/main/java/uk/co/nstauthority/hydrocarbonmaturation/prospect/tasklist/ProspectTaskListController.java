@@ -37,7 +37,7 @@ public class ProspectTaskListController {
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionId);
 
-    var modelAndView = new ModelAndView("hm/prospect/tasklist/taskList")
+    var modelAndView = new ModelAndView("remi/prospect/tasklist/taskList")
         .addObject(
             "taskListSections",
             TaskListSectionUtil.createSectionViews(

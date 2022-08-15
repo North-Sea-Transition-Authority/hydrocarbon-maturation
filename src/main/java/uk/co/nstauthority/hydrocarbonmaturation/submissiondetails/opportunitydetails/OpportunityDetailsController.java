@@ -62,7 +62,7 @@ public class OpportunityDetailsController {
   }
 
   private ModelAndView getOpportunityDetailsModelAndView(OpportunityDetailsForm form, UUID submissionDetailId) {
-    ModelAndView modelAndView = new ModelAndView("hm/submissiondetails/opportunityDetails")
+    ModelAndView modelAndView = new ModelAndView("remi/submissiondetails/opportunityDetails")
         .addObject("opportunityTypes", OpportunityType.getOpportunityType())
         .addObject("form", form)
         .addObject("pageTitle", PAGE_NAME)

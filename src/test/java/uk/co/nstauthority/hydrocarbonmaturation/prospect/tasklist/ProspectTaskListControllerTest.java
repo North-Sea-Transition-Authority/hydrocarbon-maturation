@@ -82,7 +82,7 @@ class ProspectTaskListControllerTest extends AbstractControllerTest {
         mockMvc.perform(
             get(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))))
             .andExpect(status().isOk())
-            .andExpect(view().name("hm/prospect/tasklist/taskList"))
+            .andExpect(view().name("remi/prospect/tasklist/taskList"))
             .andReturn()
             .getModelAndView();
 

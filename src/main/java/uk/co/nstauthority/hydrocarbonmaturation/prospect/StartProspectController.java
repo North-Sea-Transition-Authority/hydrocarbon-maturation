@@ -25,7 +25,7 @@ public class StartProspectController {
 
   @GetMapping
   public ModelAndView getStartPage() {
-    return new ModelAndView("/hm/prospect/startProspect")
+    return new ModelAndView("/remi/prospect/startProspect")
         .addObject("actionUrl", ReverseRouter.route(on(StartProspectController.class).startProspect()))
         .addObject("backLinkUrl", ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()));
   }

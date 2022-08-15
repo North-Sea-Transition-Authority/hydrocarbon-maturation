@@ -26,7 +26,7 @@ class WorkAreaControllerTest extends AbstractControllerTest {
             get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
         )
         .andExpect(status().isOk())
-        .andExpect(view().name("hm/workarea/workArea"))
+        .andExpect(view().name("remi/workarea/workArea"))
         .andExpect(model().attribute("startSubmissionUrl", ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose())));
 
   }

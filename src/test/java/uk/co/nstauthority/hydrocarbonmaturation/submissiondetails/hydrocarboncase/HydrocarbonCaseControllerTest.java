@@ -71,7 +71,7 @@ class HydrocarbonCaseControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         get(ReverseRouter.route(on(HydrocarbonCaseController.class).getHydrocarbonCase(submissionDetailId))))
         .andExpect(status().isOk())
-        .andExpect(view().name("hm/submissiondetails/hydrocarbonCase"));
+        .andExpect(view().name("remi/submissiondetails/hydrocarbonCase"));
   }
 
   @Test

@@ -75,7 +75,7 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId))))
         .andExpect(status().isOk())
-        .andExpect(view().name("hm/submissiondetails/reservoirProperties"));
+        .andExpect(view().name("remi/submissiondetails/reservoirProperties"));
   }
 
   @Test

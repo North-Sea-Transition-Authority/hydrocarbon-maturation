@@ -64,7 +64,7 @@ public class TrapPropertiesController {
 
   private ModelAndView getTrapPropertiesModelAndView(TrapPropertiesForm form, UUID submissionDetailId) {
 
-    var modelAndView = new ModelAndView("hm/submissiondetails/trapProperties")
+    var modelAndView = new ModelAndView("remi/submissiondetails/trapProperties")
         .addObject("form", form)
         .addObject("trapTypes", TrapType.getTrapTypes())
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
