@@ -5,5 +5,5 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 public interface SubmissionFormService {
 
-  BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType);
+  BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType);
 }
