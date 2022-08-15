@@ -4,7 +4,7 @@ import java.util.Map;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 
-enum SubmissionType implements Displayable {
+public enum SubmissionType implements Displayable {
   CREATE_PROSPECT("Create a new prospect", 10),
   PROSPECT_UPDATE("Update an existing prospect", 20);
 
