@@ -22,10 +22,16 @@ class OpportunityDetailsPersistenceService {
 
     opportunityDetail.setSubmissionDetail(submissionDetail);
     opportunityDetail.setOpportunityType(form.getOpportunityType());
-    opportunityDetail.setOtherTypeOfOpportunity(form.getOtherTypeOfOpportunity());
     opportunityDetail.setOpportunityComments(form.getOpportunityComments());
     opportunityDetail.setKeyEvaluationWorkCarriedOut(form.getKeyEvaluationWorkCarriedOut());
     opportunityDetail.setKeyWorkRequiredForFurtherMaturation(form.getKeyWorkRequiredForFurtherMaturation());
+
+    if (form.getOpportunityType() == OpportunityType.OTHER) {
+      opportunityDetail.setOtherTypeOfOpportunity(form.getOtherTypeOfOpportunity());
+    } else {
+      opportunityDetail.setOtherTypeOfOpportunity(null);
+    }
+
 
     opportunityDetailsRepository.save(opportunityDetail);
   }

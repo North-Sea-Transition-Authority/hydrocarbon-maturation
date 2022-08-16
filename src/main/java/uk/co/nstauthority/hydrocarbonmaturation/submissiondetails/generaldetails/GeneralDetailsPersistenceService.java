@@ -24,12 +24,19 @@ class GeneralDetailsPersistenceService {
         .setProspectName(form.getProspectName())
         .setOnshoreOffshore(form.getOnshoreOffshore())
         .setProspectLocatedInUkcs(form.getProspectLocatedInUkcs())
-        .setInformationSource(form.getInformationSource())
-        .setOtherInformationSource(form.getOtherSourceOfInformation());
+        .setInformationSource(form.getInformationSource());
 
     if (form.getProspectLocatedInUkcs() !=  null && !form.getProspectLocatedInUkcs()) {
       var decimalPercentage = form.getPercentageLocatedInUkcs().createBigDecimalOrNull();
       generalDetail.setPercentageLocatedInUkcs(decimalPercentage);
+    } else {
+      generalDetail.setPercentageLocatedInUkcs(null);
+    }
+
+    if (form.getInformationSource() == InformationSource.OTHER) {
+      generalDetail.setOtherInformationSource(form.getOtherSourceOfInformation());
+    } else {
+      generalDetail.setOtherInformationSource(null);
     }
 
     generalDetailsRepository.save(generalDetail);

@@ -22,7 +22,6 @@ public class TrapPropertiesPersistenceService {
         .setSubmissionDetail(submissionDetail)
         .setTrapDescription(form.getTrapDescription())
         .setTrapType(form.getTrapType())
-        .setOtherTrapType(form.getOtherTrapType())
         .setLatitudeDegrees(form.getLatitudeCoordinates().getDegrees().createBigDecimalOrNull())
         .setLatitudeMinutes(form.getLatitudeCoordinates().getMinutes().createBigDecimalOrNull())
         .setLatitudeSeconds(form.getLatitudeCoordinates().getSeconds().createBigDecimalOrNull())
@@ -30,6 +29,12 @@ public class TrapPropertiesPersistenceService {
         .setLongitudeMinutes(form.getLongitudeCoordinates().getMinutes().createBigDecimalOrNull())
         .setLongitudeSeconds(form.getLongitudeCoordinates().getSeconds().createBigDecimalOrNull())
         .setLongitudeHemisphere(form.getLongitudeHemisphere());
+
+    if (form.getTrapType() == TrapType.OTHER) {
+      trapProperty.setOtherTrapType(form.getOtherTrapType());
+    } else {
+      trapProperty.setOtherTrapType(null);
+    }
 
     trapPropertiesRepository.save(trapProperty);
   }

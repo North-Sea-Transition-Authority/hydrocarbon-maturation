@@ -22,12 +22,30 @@ class HydrocarbonCasePersistenceService {
     hydrocarbonCase.setOilOnly(form.getOilOnlyCaseType());
     hydrocarbonCase.setGasOnly(form.getGasOnlyCaseType());
     hydrocarbonCase.setOilAndGas(form.getOilAndGasCaseType());
-    hydrocarbonCase.setOilOnlyProbability(form.getOilOnlyProbability().createBigDecimalOrNull());
-    hydrocarbonCase.setGasOnlyProbability(form.getGasOnlyProbability().createBigDecimalOrNull());
-    hydrocarbonCase.setOilAndGasProbability(form.getOilAndGasProbability().createBigDecimalOrNull());
-    hydrocarbonCase.setOilOnlyComments(form.getOilOnlyComments());
-    hydrocarbonCase.setGasOnlyComments(form.getGasOnlyComments());
-    hydrocarbonCase.setOilAndGasComments(form.getOilAndGasComments());
+
+    if (form.getOilOnlyCaseType() != null && form.getOilOnlyCaseType()) {
+      hydrocarbonCase.setOilOnlyComments(form.getOilOnlyComments());
+      hydrocarbonCase.setOilOnlyProbability(form.getOilOnlyProbability().createBigDecimalOrNull());
+    } else {
+      hydrocarbonCase.setOilOnlyComments(null);
+      hydrocarbonCase.setOilOnlyProbability(null);
+    }
+
+    if (form.getGasOnlyCaseType() != null && form.getGasOnlyCaseType()) {
+      hydrocarbonCase.setGasOnlyComments(form.getGasOnlyComments());
+      hydrocarbonCase.setGasOnlyProbability(form.getGasOnlyProbability().createBigDecimalOrNull());
+    } else {
+      hydrocarbonCase.setGasOnlyComments(null);
+      hydrocarbonCase.setGasOnlyProbability(null);
+    }
+
+    if (form.getOilAndGasCaseType() != null && form.getOilAndGasCaseType()) {
+      hydrocarbonCase.setOilAndGasComments(form.getOilAndGasComments());
+      hydrocarbonCase.setOilAndGasProbability(form.getOilAndGasProbability().createBigDecimalOrNull());
+    } else {
+      hydrocarbonCase.setOilAndGasComments(null);
+      hydrocarbonCase.setOilAndGasProbability(null);
+    }
 
     hydrocarbonCaseRepository.save(hydrocarbonCase);
   }
