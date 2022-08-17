@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -21,7 +22,7 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
   }
 
   @Override
-  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
+  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
     reservoirPropertiesFormValidator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
