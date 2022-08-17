@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
-class ReservoirPropertiesForm {
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+
+class ReservoirPropertiesForm extends SubmissionForm {
 
   private String formationName;
   private String ageStageOrSeries;

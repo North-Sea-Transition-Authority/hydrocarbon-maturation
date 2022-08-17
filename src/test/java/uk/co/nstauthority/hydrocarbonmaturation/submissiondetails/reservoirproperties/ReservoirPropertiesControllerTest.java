@@ -33,6 +33,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @WithMockUser
@@ -79,30 +81,71 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void saveSourceAndSealDetails_whenValidForm_assertRedirection() throws Exception {
-    when(reservoirPropertiesFormService.validate(any(), any())).thenReturn(bindingResult);
+  void saveReservoirProperties_partialValidation_whenValidForm_assertSaveAndRedirection() throws Exception {
+    when(reservoirPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, null)))
+            .params(ControllerTestUtils.partialValidationPostParams())
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
 
     verify(reservoirPropertiesPersistenceService, times(1))
         .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(submissionDetail));
+    verify(reservoirPropertiesFormService, times(1))
+        .validate(any(), any(), eq(ValidationType.PARTIAL));
   }
 
   @Test
-  void saveSourceAndSealDetails_whenInvalidForm_assertStatusOk() throws Exception {
-    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(reservoirPropertiesFormService.validate(any(), any())).thenReturn(bindingResult);
+  void saveReservoirProperties_fullValidation_whenValidForm_assertSaveAndRedirection() throws Exception {
+    when(reservoirPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, null)))
+            .params(ControllerTestUtils.fullValidationPostParams())
+            .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
+
+    verify(reservoirPropertiesPersistenceService, times(1))
+        .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(submissionDetail));
+    verify(reservoirPropertiesFormService, times(1))
+        .validate(any(), any(), eq(ValidationType.FULL));
+  }
+
+  @Test
+  void saveReservoirProperties_partialValidation_whenInvalidForm_assertStatusOk() throws Exception {
+    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
+    when(reservoirPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
+            .params(ControllerTestUtils.partialValidationPostParams())
             .with(csrf()))
         .andExpect(status().isOk());
 
+    verify(reservoirPropertiesFormService, times(1))
+        .validate(any(), any(), eq(ValidationType.PARTIAL));
+    verify(reservoirPropertiesPersistenceService, never())
+        .saveReservoirProperty(any(), any());
+  }
+
+  @Test
+  void saveReservoirProperties_fullValidation_whenInvalidForm_assertStatusOk() throws Exception {
+    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
+    when(reservoirPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, ValidationType.FULL)))
+            .params(ControllerTestUtils.fullValidationPostParams())
+            .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(reservoirPropertiesFormService, times(1))
+        .validate(any(), any(), eq(ValidationType.FULL));
     verify(reservoirPropertiesPersistenceService, never())
         .saveReservoirProperty(any(), any());
   }

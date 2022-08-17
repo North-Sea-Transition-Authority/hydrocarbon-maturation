@@ -14,6 +14,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesFormValidatorTest {
@@ -39,12 +40,12 @@ class ReservoirPropertiesFormValidatorTest {
 
 
   @Test
-  void validate_whenValidForm_thenNoValidationErrors() {
+  void validate_fullValidation_whenValidForm_thenNoValidationErrors() {
     var form = new ReservoirPropertiesForm();
     form.setFormationName("source formation name");
     form.setAgeStageOrSeries("age stage");
     form.setLithology("lithology");
-    var bindingResult = validateReservoirProperties(form);
+    var bindingResult = validateReservoirProperties(form, ValidationType.FULL);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -52,7 +53,7 @@ class ReservoirPropertiesFormValidatorTest {
   @Test
   void validate_whenInValidForm_thenValidationErrors() {
     var form = new ReservoirPropertiesForm();
-    var bindingResult = validateReservoirProperties(form);
+    var bindingResult = validateReservoirProperties(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -63,10 +64,18 @@ class ReservoirPropertiesFormValidatorTest {
         );
   }
 
-  private BindingResult validateReservoirProperties(ReservoirPropertiesForm form) {
+  @Test
+  void partialValidation_withValidForm() {
+    var form = new ReservoirPropertiesForm();
+    var bindingResult = validateReservoirProperties(form, ValidationType.PARTIAL);
+
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  private BindingResult validateReservoirProperties(ReservoirPropertiesForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    reservoirPropertiesFormValidator.validate(form, bindingResult);
+    reservoirPropertiesFormValidator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
 }

@@ -18,11 +18,11 @@ class OpportunityTaskListSectionTest {
 
   @Test
   void getSectionName() {
-    assertThat(opportunityTaskListSection.getSectionName()).isEqualTo("Opportunity");
+    assertThat(opportunityTaskListSection.getSectionName()).isEqualTo(OpportunityTaskListSection.SECTION_NAME);
   }
 
   @Test
   void getDisplayOrder() {
-    assertThat(opportunityTaskListSection.getDisplayOrder()).isEqualTo(20);
+    assertThat(opportunityTaskListSection.getDisplayOrder()).isEqualTo(OpportunityTaskListSection.SECTION_DISPLAY_ORDER);
   }
 }

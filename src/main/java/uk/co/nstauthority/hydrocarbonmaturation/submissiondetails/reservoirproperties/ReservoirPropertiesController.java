@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/reservoir-properties")
@@ -27,7 +28,7 @@ public class ReservoirPropertiesController {
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
 
-  static final String PAGE_NAME = "Reservoir details";
+  public static final String PAGE_NAME = "Reservoir properties";
 
   @Autowired
   public ReservoirPropertiesController(ControllerHelperService controllerHelperService,
@@ -49,9 +50,10 @@ public class ReservoirPropertiesController {
 
   @PostMapping
   public ModelAndView saveReservoirProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                              @ModelAttribute("form") ReservoirPropertiesForm form, BindingResult bindingResult) {
+                                              @ModelAttribute("form") ReservoirPropertiesForm form,
+                                              BindingResult bindingResult, ValidationType validationType) {
 
-    bindingResult = reservoirPropertiesFormService.validate(form, bindingResult);
+    bindingResult = reservoirPropertiesFormService.validate(form, bindingResult, validationType);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getReservoirPropertiesModelAndView(form, submissionDetailId),

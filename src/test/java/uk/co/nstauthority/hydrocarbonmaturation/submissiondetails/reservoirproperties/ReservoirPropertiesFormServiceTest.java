@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesFormServiceTest {
@@ -43,8 +44,8 @@ class ReservoirPropertiesFormServiceTest {
     var form = new ReservoirPropertiesForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    reservoirPropertiesFormService.validate(form, bindingResult);
-    verify(reservoirPropertiesFormValidator, times(1)).validate(form, bindingResult);
+    reservoirPropertiesFormService.validate(form, bindingResult, ValidationType.FULL);
+    verify(reservoirPropertiesFormValidator, times(1)).validate(form, bindingResult, ValidationType.FULL);
   }
 
   @Test

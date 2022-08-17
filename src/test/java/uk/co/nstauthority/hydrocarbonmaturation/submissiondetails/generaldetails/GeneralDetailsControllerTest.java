@@ -108,7 +108,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void saveGeneralDetailsPage_fullValidation_whenValidForm_assertStatusOk() throws Exception {
+  void saveGeneralDetailsPage_fullValidation_whenValidForm_assertSaveAndRedirection() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
     when(generalDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);

@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -10,6 +9,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -28,7 +28,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
-    var validationType = (ValidationType) validationHints[0];
+    var validationType = SubmissionFormValidationUtils.extractValidationTypeFromHints(validationHints);
     var form = (GeneralDetailsForm) target;
 
     validateAlways(form, errors);
