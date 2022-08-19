@@ -1,18 +1,23 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItem;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSection;
 
 @Component
 class TrapPropertiesTaskListItem implements ProspectTaskListItem {
 
+  static final String ITEM_NAME = TrapPropertiesController.PAGE_NAME;
+  static final int ITEM_DISPLAY_ORDER = 20;
+
   @Override
   public String getItemDisplayText() {
-    return TrapPropertiesController.PAGE_NAME;
+    return TrapPropertiesTaskListItem.ITEM_NAME;
   }
 
   @Override
@@ -23,7 +28,7 @@ class TrapPropertiesTaskListItem implements ProspectTaskListItem {
 
   @Override
   public int getDisplayOrder() {
-    return 20;
+    return TrapPropertiesTaskListItem.ITEM_DISPLAY_ORDER;
   }
 
   @Override

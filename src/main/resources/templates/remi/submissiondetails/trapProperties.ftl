@@ -20,36 +20,36 @@ breadcrumbsMap=breadcrumbsMap>
       <@fdsTextInput.textInput path="form.trapDescription" labelText="Trap description"
         hintText="For example, Upper Jurassic (Solan) turbidite sandstones, enclosed within and oil sourced by the lower portion of the Kimmeridge Clay Formation"/>
 
-      <@fdsRadio.radioGroup path="form.trapType" labelText="Trap type" hiddenContent=true>
-          <#assign firstItem=true/>
-          <#list trapTypes as key, value>
-              <@fdsRadio.radioItem path="form.trapType" itemMap={key : value} isFirstItem=firstItem>
-                  <#if key == "OTHER">
-                      <@fdsTextInput.textInput path="form.otherTrapType" labelText="Provide the trap type" nestingPath="form.trapType"/>
-                  </#if>
-                  <#assign firstItem=false/>
-              </@fdsRadio.radioItem>
-          </#list>
-      </@fdsRadio.radioGroup>
+    <@fdsRadio.radioGroup path="form.trapType" labelText="Trap type" hiddenContent=true>
+        <#assign firstItem=true/>
+        <#list trapTypes as key, value>
+            <@fdsRadio.radioItem path="form.trapType" itemMap={key : value} isFirstItem=firstItem>
+                <#if key == "OTHER">
+                    <@fdsTextInput.textInput path="form.otherTrapType" labelText="Provide the trap type" nestingPath="form.trapType"/>
+                </#if>
+                <#assign firstItem=false/>
+            </@fdsRadio.radioItem>
+        </#list>
+    </@fdsRadio.radioGroup>
 
-      <@coordinateInput.coordinateInput
-        degreesLocationPath="form.latitudeCoordinates.degrees.decimalInputValue"
-        minutesLocationPath="form.latitudeCoordinates.minutes.decimalInputValue"
-        secondsLocationPath="form.latitudeCoordinates.seconds.decimalInputValue"
-        formId="latitude"
-        labelText="Latitude"/>
+    <@coordinateInput.coordinateInput
+      degreesLocationPath="form.latitudeCoordinates.degrees.decimalInputValue"
+      minutesLocationPath="form.latitudeCoordinates.minutes.decimalInputValue"
+      secondsLocationPath="form.latitudeCoordinates.seconds.decimalInputValue"
+      formId="latitude"
+      labelText="Latitude"/>
 
-      <@coordinateInput.coordinateInput
-        degreesLocationPath="form.longitudeCoordinates.degrees.decimalInputValue"
-        minutesLocationPath="form.longitudeCoordinates.minutes.decimalInputValue"
-        secondsLocationPath="form.longitudeCoordinates.seconds.decimalInputValue"
-        formId="longitude"
-        direction="EW"
-        directionPath="form.longitudeHemisphere"
-        directionList=longitudeHemisphere
-        labelText="Longitude"
-        hintText="From 0 to 30 for degrees, 0 to 59 for minutes, and 0 to 59.999 for seconds"/>
+    <@coordinateInput.coordinateInput
+      degreesLocationPath="form.longitudeCoordinates.degrees.decimalInputValue"
+      minutesLocationPath="form.longitudeCoordinates.minutes.decimalInputValue"
+      secondsLocationPath="form.longitudeCoordinates.seconds.decimalInputValue"
+      formId="longitude"
+      direction="EW"
+      directionPath="form.longitudeHemisphere"
+      directionList=longitudeHemisphere
+      labelText="Longitude"
+      hintText="From 0 to 30 for degrees, 0 to 59 for minutes, and 0 to 59.999 for seconds"/>
 
-      <@fdsAction.submitButtons primaryButtonText="Save and complete" secondaryButtonText="Save and complete later"/>
+    <@fdsAction.submitButtons primaryButtonText="Save and complete" secondaryButtonText="Save and complete later"/>
   </@fdsForm.htmlForm>
 </@defaultPage>

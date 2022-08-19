@@ -28,6 +28,6 @@
             </@fdsCheckbox.checkboxItem>
         </@fdsCheckbox.checkboxGroup>
       </@fdsCheckbox.checkboxFieldset.fieldset>
-    <@fdsAction.submitButtons primaryButtonText="Save and complete" secondaryButtonText="Save and complete later"/>
+      <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>
 </@defaultPage>

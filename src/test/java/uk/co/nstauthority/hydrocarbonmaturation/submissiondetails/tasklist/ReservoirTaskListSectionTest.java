@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

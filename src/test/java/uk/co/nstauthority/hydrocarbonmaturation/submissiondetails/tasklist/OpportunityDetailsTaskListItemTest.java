@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -6,13 +6,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
 
-@ExtendWith(MockitoExtension.class)
 class OpportunityDetailsTaskListItemTest {
 
   private static OpportunityDetailsTaskListItem opportunityDetailsTaskListItem;
@@ -29,7 +27,7 @@ class OpportunityDetailsTaskListItemTest {
 
   @Test
   void getItemDisplayText() {
-    assertThat(opportunityDetailsTaskListItem.getItemDisplayText()).isEqualTo(OpportunityDetailsController.PAGE_NAME);
+    assertThat(opportunityDetailsTaskListItem.getItemDisplayText()).isEqualTo(OpportunityDetailsTaskListItem.ITEM_NAME);
   }
 
   @Test
@@ -40,7 +38,7 @@ class OpportunityDetailsTaskListItemTest {
 
   @Test
   void getDisplayOrder() {
-    assertThat(opportunityDetailsTaskListItem.getDisplayOrder()).isEqualTo(10);
+    assertThat(opportunityDetailsTaskListItem.getDisplayOrder()).isEqualTo(OpportunityDetailsTaskListItem.ITEM_DISPLAY_ORDER);
   }
 
   @Test

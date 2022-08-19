@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSectionUtil;
 
 @Controller
-@RequestMapping("/prospect/{submissionId}/task-list")
+@RequestMapping("/submission-details/{submissionDetailId}/prospect-task-list")
 public class ProspectTaskListController {
 
   public static final String PAGE_NAME = "Task list";
@@ -33,7 +33,7 @@ public class ProspectTaskListController {
   }
 
   @GetMapping
-  public ModelAndView getTaskList(@PathVariable("submissionId") UUID submissionId) {
+  public ModelAndView getTaskList(@PathVariable("submissionDetailId") UUID submissionId) {
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionId);
 

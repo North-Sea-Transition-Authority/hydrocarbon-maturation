@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 
 @WebMvcTest
 @Import(value = {WebMvcConfiguration.class, AbstractControllerTest.TestConfig.class})
@@ -29,6 +30,10 @@ public abstract class AbstractControllerTest {
       return new ControllerHelperService();
     }
 
+    @Bean
+    public SubmissionTaskListRedirectionService submissionTaskListRedirectionService() {
+      return new SubmissionTaskListRedirectionService();
+    }
   }
 
 }

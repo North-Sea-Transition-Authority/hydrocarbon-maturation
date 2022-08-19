@@ -35,6 +35,6 @@
 
       <@fdsTextarea.textarea path="form.keyWorkRequiredForFurtherMaturation" labelText="Key work required for further maturation" optionalLabel=true/>
 
-      <@fdsAction.button buttonText="Save and continue"/>
+      <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>

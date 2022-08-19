@@ -30,9 +30,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -58,9 +59,8 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
 
   @BeforeAll
   static void setUp() {
-    submissionDetailId = UUID.randomUUID();
-    submissionDetail = new SubmissionDetail();
-    submissionDetail.setId(submissionDetailId);
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetailId = submissionDetail.getId();
   }
 
   @BeforeEach
@@ -87,7 +87,7 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, null)))
-            .params(ControllerTestUtils.partialValidationPostParams())
+            .params(ControllerTestUtils.validationPostParams(ValidationType.PARTIAL))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
@@ -105,7 +105,7 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, null)))
-            .params(ControllerTestUtils.fullValidationPostParams())
+            .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
@@ -123,7 +123,7 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
-            .params(ControllerTestUtils.partialValidationPostParams())
+            .params(ControllerTestUtils.validationPostParams(ValidationType.PARTIAL))
             .with(csrf()))
         .andExpect(status().isOk());
 
@@ -140,7 +140,7 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, ValidationType.FULL)))
-            .params(ControllerTestUtils.fullValidationPostParams())
+            .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
             .with(csrf()))
         .andExpect(status().isOk());
 

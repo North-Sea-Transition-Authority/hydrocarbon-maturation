@@ -1,6 +1,7 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import org.springframework.stereotype.Component;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListSection;
 
 @Component
 class ReservoirTaskListSection implements ProspectTaskListSection {

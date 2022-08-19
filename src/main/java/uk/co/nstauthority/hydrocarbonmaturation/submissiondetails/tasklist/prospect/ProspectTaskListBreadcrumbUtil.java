@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -27,7 +27,7 @@ public class ProspectTaskListBreadcrumbUtil {
     return modelAndView;
   }
 
-  static BreadcrumbItem getProspectTaskListBreadcrumb(UUID submissionDetailsId) {
+  private static BreadcrumbItem getProspectTaskListBreadcrumb(UUID submissionDetailsId) {
     return new BreadcrumbItem(
         ProspectTaskListController.PAGE_NAME,
         ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailsId))

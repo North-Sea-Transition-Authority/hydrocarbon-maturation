@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect;
 
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
@@ -7,5 +7,5 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
  * properties that methods in the task list implementation require.
  * @param submissionDetail The submission detail that is being accessed
  */
-record ProspectTaskListItemType(SubmissionDetail submissionDetail) {
+public record ProspectTaskListItemType(SubmissionDetail submissionDetail) {
 }

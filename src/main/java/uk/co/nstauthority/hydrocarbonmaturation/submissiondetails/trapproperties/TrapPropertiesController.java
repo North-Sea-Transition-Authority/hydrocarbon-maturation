@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListBreadcrumbUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -27,6 +27,7 @@ public class TrapPropertiesController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
+  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
 
   public static final String PAGE_NAME = "Trap properties";
 
@@ -34,11 +35,13 @@ public class TrapPropertiesController {
   public TrapPropertiesController(TrapPropertiesFormService trapPropertiesFormService,
                                   ControllerHelperService controllerHelperService,
                                   SubmissionDetailService submissionDetailService,
-                                  TrapPropertiesPersistenceService trapPropertiesPersistenceService) {
+                                  TrapPropertiesPersistenceService trapPropertiesPersistenceService,
+                                  SubmissionTaskListRedirectionService submissionTaskListRedirectionService) {
     this.trapPropertiesFormService = trapPropertiesFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
+    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
   }
 
   @GetMapping
@@ -59,7 +62,7 @@ public class TrapPropertiesController {
       () -> {
         var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
         trapPropertiesPersistenceService.saveTrapProperties(form, submissionDetail);
-        return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId));
+        return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
       }
     );
   }

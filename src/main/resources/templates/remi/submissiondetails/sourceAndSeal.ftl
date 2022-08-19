@@ -25,6 +25,6 @@
         <@fdsTextInput.textInput path="form.topSealLithology" labelText="Lithology" optionalLabel=true/>
     </@fdsFieldset.fieldset>
 
-    <@fdsAction.submitButtons primaryButtonText="Save and complete" secondaryButtonText="Save and complete later"/>
+    <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>
 </@defaultPage>

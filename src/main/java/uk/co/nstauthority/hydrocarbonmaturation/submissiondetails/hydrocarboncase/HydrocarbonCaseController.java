@@ -1,7 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,10 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListBreadcrumbUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/hydrocarbon-case")
@@ -28,16 +25,19 @@ public class HydrocarbonCaseController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
 
   @Autowired
   public HydrocarbonCaseController(HydrocarbonCaseFormService hydrocarbonCaseFormService,
                                    ControllerHelperService controllerHelperService,
                                    SubmissionDetailService submissionDetailService,
-                                   HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService) {
+                                   HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
+                                   SubmissionTaskListRedirectionService submissionTaskListRedirectionService) {
     this.hydrocarbonCaseFormService = hydrocarbonCaseFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
+    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
   }
 
   @GetMapping
@@ -58,7 +58,7 @@ public class HydrocarbonCaseController {
         () -> {
           var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
-          return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId));
+          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         }
     );
   }

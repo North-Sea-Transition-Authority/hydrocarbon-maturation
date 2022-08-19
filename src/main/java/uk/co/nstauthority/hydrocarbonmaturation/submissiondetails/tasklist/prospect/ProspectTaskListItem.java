@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect;
 
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListItem;
 
@@ -6,7 +6,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListItem;
  * Interface to represent a task list item on the prospect form task list. Applies sensible defaults
  * specific to the prospect task list implementation.
  */
-interface ProspectTaskListItem extends TaskListItem<ProspectTaskListItemType> {
+public interface ProspectTaskListItem extends TaskListItem<ProspectTaskListItemType> {
 
   @Override
   default boolean isVisible(ProspectTaskListItemType target) {

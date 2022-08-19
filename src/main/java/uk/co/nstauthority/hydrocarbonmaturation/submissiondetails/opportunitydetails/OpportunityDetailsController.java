@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListBreadcrumbUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/opportunity-details")
@@ -27,16 +27,19 @@ public class OpportunityDetailsController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
+  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
 
   @Autowired
   public OpportunityDetailsController(OpportunityDetailsFormService opportunityDetailsFormService,
                                       ControllerHelperService controllerHelperService,
                                       SubmissionDetailService submissionDetailService,
-                                      OpportunityDetailsPersistenceService opportunityDetailsPersistenceService) {
+                                      OpportunityDetailsPersistenceService opportunityDetailsPersistenceService,
+                                      SubmissionTaskListRedirectionService submissionTaskListRedirectionService) {
     this.opportunityDetailsFormService = opportunityDetailsFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
+    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
   }
 
   @GetMapping
@@ -57,7 +60,7 @@ public class OpportunityDetailsController {
         () -> {
           var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           opportunityDetailsPersistenceService.saveOpportunityDetails(form, submissionDetail);
-          return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId));
+          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         });
   }
 

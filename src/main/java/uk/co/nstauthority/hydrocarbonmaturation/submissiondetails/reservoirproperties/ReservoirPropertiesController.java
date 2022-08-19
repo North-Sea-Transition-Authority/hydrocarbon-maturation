@@ -1,7 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,10 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListBreadcrumbUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -27,6 +24,7 @@ public class ReservoirPropertiesController {
   private final ReservoirPropertiesFormService reservoirPropertiesFormService;
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
+  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
 
   public static final String PAGE_NAME = "Reservoir properties";
 
@@ -34,11 +32,13 @@ public class ReservoirPropertiesController {
   public ReservoirPropertiesController(ControllerHelperService controllerHelperService,
                                        ReservoirPropertiesFormService reservoirPropertiesFormService,
                                        ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
-                                       SubmissionDetailService submissionDetailService) {
+                                       SubmissionDetailService submissionDetailService,
+                                       SubmissionTaskListRedirectionService submissionTaskListRedirectionService) {
     this.controllerHelperService = controllerHelperService;
     this.reservoirPropertiesFormService = reservoirPropertiesFormService;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.submissionDetailService = submissionDetailService;
+    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
   }
 
   @GetMapping
@@ -60,7 +60,7 @@ public class ReservoirPropertiesController {
         () -> {
           var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
-          return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId));
+          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         }
     );
   }

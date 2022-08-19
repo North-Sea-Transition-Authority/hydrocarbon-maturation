@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -6,13 +6,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesController;
 
-@ExtendWith(MockitoExtension.class)
 class TrapPropertiesTaskListItemTest {
 
   private static TrapPropertiesTaskListItem trapPropertiesTaskListItem;
@@ -29,7 +27,7 @@ class TrapPropertiesTaskListItemTest {
 
   @Test
   void getItemDisplayText() {
-    assertThat(trapPropertiesTaskListItem.getItemDisplayText()).isEqualTo(TrapPropertiesController.PAGE_NAME);
+    assertThat(trapPropertiesTaskListItem.getItemDisplayText()).isEqualTo(TrapPropertiesTaskListItem.ITEM_NAME);
   }
 
   @Test
@@ -41,7 +39,7 @@ class TrapPropertiesTaskListItemTest {
 
   @Test
   void getDisplayOrder() {
-    assertThat(trapPropertiesTaskListItem.getDisplayOrder()).isEqualTo(20);
+    assertThat(trapPropertiesTaskListItem.getDisplayOrder()).isEqualTo(TrapPropertiesTaskListItem.ITEM_DISPLAY_ORDER);
   }
 
   @Test
