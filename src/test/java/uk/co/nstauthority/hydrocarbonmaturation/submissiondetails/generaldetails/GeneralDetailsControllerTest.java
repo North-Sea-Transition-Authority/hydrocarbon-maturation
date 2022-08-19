@@ -80,7 +80,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
-            .params(ControllerTestUtils.partialValidationPostParams())
+            .params(ControllerTestUtils.validationPostParams(ValidationType.PARTIAL))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
@@ -98,7 +98,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
-                .params(ControllerTestUtils.fullValidationPostParams())
+                .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
                 .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/generalDetails"));
@@ -115,7 +115,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
-                .params(ControllerTestUtils.fullValidationPostParams())
+                .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));

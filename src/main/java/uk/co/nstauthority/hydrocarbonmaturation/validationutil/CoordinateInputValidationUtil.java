@@ -24,28 +24,71 @@ public class CoordinateInputValidationUtil {
     throw new IllegalStateException("CoordinateInputValidationUtil is a util class and should not be instantiated");
   }
 
-  public static void validateCoordinateInput(Errors errors, CoordinateInput coordinateInput, String fieldIdPrefix,
+  public static void validateMandatoryCoordinateInputWithHemisphere(Errors errors, CoordinateInput coordinateInput,
+                                                                    String fieldIdPrefix, String displayPrefix,
+                                                                    Hemisphere hemisphere, String hemisphereFieldPrefix) {
+
+    validateCoordinateInputWithHemisphere(errors, coordinateInput, fieldIdPrefix, displayPrefix, hemisphere,
+        hemisphereFieldPrefix);
+  }
+
+  public static void validateMandatoryCoordinateInputNoHemisphere(Errors errors, CoordinateInput coordinateInput,
+                                                                  String fieldIdPrefix, String displayPrefix) {
+
+    validateCoordinateInput(errors, coordinateInput, fieldIdPrefix, displayPrefix);
+  }
+
+  public static void validateOptionalCoordinateInput(Errors errors, CoordinateInput coordinateInput, String fieldIdPrefix,
+                                                      String displayPrefix) {
+
+    validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.FALSE,
+        OptionalMandatory.OPTIONAL);
+  }
+
+  /**
+   * Validates a coordinate input: degrees, minutes and seconds.
+   * @param errors The Errors object to add rejection codes and messages to
+   * @param coordinateInput The value input by the user for coordinate degrees, minutes, seconds
+   * @param fieldIdPrefix The prefix of the form coordinate fields. E.g. longitudeCoordinates. It's used to bind the errors
+   *                      to the form field
+   * @param displayPrefix The display version prefix of the form coordinate fields. E.g. for longitudeCoordinates it would be
+   *                      longitude. It's used to format the error messages
+   */
+  private static void validateCoordinateInput(Errors errors, CoordinateInput coordinateInput, String fieldIdPrefix,
                                              String displayPrefix) {
 
     var degrees = coordinateInput.getDegrees().getDecimalInputValue();
     var minutes = coordinateInput.getMinutes().getDecimalInputValue();
     var seconds = coordinateInput.getSeconds().getDecimalInputValue();
 
+
     if (ObjectUtils.allNull(degrees, minutes, seconds)) {
       addAllNullValidationErrors(errors, fieldIdPrefix, degrees, minutes, seconds, displayPrefix);
 
     } else if (ObjectUtils.anyNull(degrees, minutes, seconds)) {
       addPartialNullValidationErrors(errors, fieldIdPrefix, degrees, minutes, seconds, displayPrefix);
-      validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.TRUE);
-
+      validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.TRUE,
+          OptionalMandatory.MANDATORY);
     } else {
-      validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.FALSE);
+      validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.FALSE,
+          OptionalMandatory.MANDATORY);
     }
   }
 
-  public static void validateCoordinateInputWithHemisphere(Errors errors, CoordinateInput coordinateInput, String fieldIdPrefix,
+  /**
+   * Validates a coordinate input: degrees, minutes, seconds and hemisphere.
+   * @param errors The Errors object to add rejection codes and messages to
+   * @param coordinateInput The value input by the user for coordinate degrees, minutes, seconds
+   * @param fieldIdPrefix The prefix of the form coordinate fields. E.g. longitudeCoordinates. It's used to bind the errors
+   *                      to the form field
+   * @param displayPrefix The display version prefix of the form coordinate fields. E.g. for longitudeCoordinates it would be
+   *                      longitude. It's used to format the error messages
+   * @param hemisphere The value input by the user for coordinate hemisphere
+   * @param hemisphereFieldPrefix The prefix of the form hemisphere field.
+   */
+  private static void validateCoordinateInputWithHemisphere(Errors errors, CoordinateInput coordinateInput, String fieldIdPrefix,
                                                            String displayPrefix, Hemisphere hemisphere,
-                                                           String hemisphereFieldSuffix) {
+                                                           String hemisphereFieldPrefix) {
 
     var degrees = coordinateInput.getDegrees().getDecimalInputValue();
     var minutes = coordinateInput.getMinutes().getDecimalInputValue();
@@ -53,46 +96,49 @@ public class CoordinateInputValidationUtil {
 
     if (ObjectUtils.allNull(degrees, minutes, seconds)) {
       addAllNullValidationErrors(errors, fieldIdPrefix, degrees, minutes, seconds, displayPrefix);
-      validateHemisphere(hemisphere, errors, fieldIdPrefix, hemisphereFieldSuffix,
+      validateHemisphere(hemisphere, errors, fieldIdPrefix, hemisphereFieldPrefix,
           displayPrefix);
 
     } else if (ObjectUtils.anyNull(degrees, minutes, seconds)) {
       addPartialNullValidationErrors(errors, fieldIdPrefix, degrees, minutes, seconds, displayPrefix);
-      validateHemisphere(hemisphere, errors, fieldIdPrefix, hemisphereFieldSuffix,
+      validateHemisphere(hemisphere, errors, fieldIdPrefix, hemisphereFieldPrefix,
           displayPrefix);
-      validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.TRUE);
+      validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.TRUE,
+          OptionalMandatory.MANDATORY);
 
     } else {
-      validateHemisphere(hemisphere, errors, fieldIdPrefix, hemisphereFieldSuffix,
+      validateHemisphere(hemisphere, errors, fieldIdPrefix, hemisphereFieldPrefix,
           displayPrefix);
       validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput,
-          OverrideErrorMessage.getFromBoolean(errors.getFieldErrorCount(hemisphereFieldSuffix) != 0));
+          OverrideErrorMessage.getFromBoolean(errors.getFieldErrorCount(hemisphereFieldPrefix) != 0),
+          OptionalMandatory.MANDATORY);
     }
   }
 
   private static void validateDegreesMinutesSeconds(Errors errors, String fieldIdPrefix, String displayPrefix,
-                                                    CoordinateInput coordinateInput, OverrideErrorMessage overrideErrorMessage) {
+                                                    CoordinateInput coordinateInput, OverrideErrorMessage overrideErrorMessage,
+                                                    OptionalMandatory optionalMandatory) {
 
-    validateDegrees(errors, fieldIdPrefix, displayPrefix, coordinateInput.getDegrees(), overrideErrorMessage);
-    validateMinutes(errors, fieldIdPrefix, displayPrefix, coordinateInput.getMinutes(), overrideErrorMessage);
-    validateSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput.getSeconds(), overrideErrorMessage);
+    validateDegrees(errors, fieldIdPrefix, displayPrefix, coordinateInput.getDegrees(), overrideErrorMessage, optionalMandatory);
+    validateMinutes(errors, fieldIdPrefix, displayPrefix, coordinateInput.getMinutes(), overrideErrorMessage, optionalMandatory);
+    validateSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput.getSeconds(), overrideErrorMessage, optionalMandatory);
   }
 
-  private static void validateHemisphere(Hemisphere hemisphere, Errors errors, String fieldIdPrefix, String hemisphereFieldSuffix,
+  private static void validateHemisphere(Hemisphere hemisphere, Errors errors, String fieldIdPrefix, String hemisphereFieldPrefix,
                                          String displayPrefix) {
     if (hemisphere == null) {
       if (errors.getFieldErrorCount("%s.minutes.decimalInputValue".formatted(fieldIdPrefix)) == 0
           && errors.getFieldErrorCount("%s.degrees.decimalInputValue".formatted(fieldIdPrefix)) == 0
           && errors.getFieldErrorCount("%s.degrees.decimalInputValue".formatted(fieldIdPrefix)) == 0) {
         errors.rejectValue(
-            hemisphereFieldSuffix,
-            "%s.required".formatted(hemisphereFieldSuffix),
+            hemisphereFieldPrefix,
+            "%s.required".formatted(hemisphereFieldPrefix),
             HEMISPHERE_REQUIRED_ERROR_MESSAGE.formatted(displayPrefix)
         );
       } else {
         errors.rejectValue(
-            hemisphereFieldSuffix,
-            "%s.required".formatted(hemisphereFieldSuffix),
+            hemisphereFieldPrefix,
+            "%s.required".formatted(hemisphereFieldPrefix),
             ""
         );
       }
@@ -123,17 +169,18 @@ public class CoordinateInputValidationUtil {
 
   /**
    * Validates the individual degrees field for coordinate inputs.
-   *
-   * @param errors The Errors object to add rejection codes and messages to
+   *  @param errors The Errors object to add rejection codes and messages to
    * @param fieldIdPrefix The prefix of the form coordinate fields. E.g. longitudeCoordinates. It's used to bind the errors
    *                      to the form field
    * @param displayPrefix The display version prefix of the form coordinate fields. E.g. for longitudeCoordinates it would be
-   *                      longitude. It's used to format the error messages
+ *                      longitude. It's used to format the error messages
    * @param degrees       The value input by the user for coordinate degrees
    * @param overrideErrorMessage A boolean to determine whether the error message should be overridden.
+   * @param optionalMandatory Determines whether the degrees are optional or mandatory
    */
   private static void validateDegrees(Errors errors, String fieldIdPrefix, String displayPrefix, DecimalInput degrees,
-                                      OverrideErrorMessage overrideErrorMessage) {
+                                      OverrideErrorMessage overrideErrorMessage,
+                                      OptionalMandatory optionalMandatory) {
 
     var degreesValidator =
         DecimalInputValidator.configureValidator(errors, "%s.%s".formatted(fieldIdPrefix, DEGREES_FIELD_SUFFIX),
@@ -146,23 +193,28 @@ public class CoordinateInputValidationUtil {
       degreesValidator.overrideDefaultErrorMessage("");
     }
 
+    if (optionalMandatory == OptionalMandatory.OPTIONAL) {
+      degreesValidator.isOptional();
+    }
+
     degreesValidator.validate();
   }
 
   /**
    * Validates the individual minutes field for coordinate inputs. It checks whether the degrees fields have errors to
    * determine what the appropriate error message should be.
-   *
-   * @param errors The Errors object to add rejection codes and messages to
+   *  @param errors The Errors object to add rejection codes and messages to
    * @param fieldIdPrefix The prefix of the form coordinate fields. E.g. longitudeCoordinates. It's used to bind the errors
    *                      to the form field
    * @param displayPrefix The display version prefix of the form coordinate fields. E.g. for longitudeCoordinates it would be
-   *                      longitude. It's used to format the error messages
+ *                      longitude. It's used to format the error messages
    * @param minutes       The value input by the user for coordinate minutes
    * @param overrideErrorMessage A boolean to determine whether the error message should be overridden.
+   * @param optionalMandatory Determines whether the minutes are optional or mandatory
    */
   private static void validateMinutes(Errors errors, String fieldIdPrefix, String displayPrefix, DecimalInput minutes,
-                                      OverrideErrorMessage overrideErrorMessage) {
+                                      OverrideErrorMessage overrideErrorMessage,
+                                      OptionalMandatory optionalMandatory) {
 
     var minutesValidator =
         DecimalInputValidator.configureValidator(errors, "%s.%s".formatted(fieldIdPrefix, MINUTES_FIELD_SUFFIX),
@@ -176,23 +228,29 @@ public class CoordinateInputValidationUtil {
 
       minutesValidator.overrideDefaultErrorMessage("");
     }
+
+    if (optionalMandatory == OptionalMandatory.OPTIONAL) {
+      minutesValidator.isOptional();
+    }
+
     minutesValidator.validate();
   }
 
   /**
    *  Validates the individual seconds field for coordinate inputs. It checks whether the degrees and minutes fields have errors
    *  to determine what the appropriate error message should be.
-   *
-   * @param errors The Errors object to add rejection codes and messages to
+   *  @param errors The Errors object to add rejection codes and messages to
    * @param fieldIdPrefix The prefix of the form coordinate fields. E.g. longitudeCoordinates. It's used to bind the errors
    *                      to the form field
    * @param displayPrefix The display version prefix of the form coordinate fields. E.g. for longitudeCoordinates it would be
-   *                      longitude. It's used to format the error messages
+ *                      longitude. It's used to format the error messages
    * @param seconds       The value input by the user for coordinate seconds
    * @param overrideErrorMessage A boolean to determine whether the error message should be overridden.
+   * @param optionalMandatory Determines whether the seconds are optional or mandatory
    */
   private static void validateSeconds(Errors errors, String fieldIdPrefix, String displayPrefix, DecimalInput seconds,
-                                      OverrideErrorMessage overrideErrorMessage) {
+                                      OverrideErrorMessage overrideErrorMessage,
+                                      OptionalMandatory optionalMandatory) {
 
     var secondsValidator =
         DecimalInputValidator.configureValidator(errors, "%s.%s".formatted(fieldIdPrefix, SECONDS_FIELD_SUFFIX),
@@ -207,6 +265,11 @@ public class CoordinateInputValidationUtil {
 
       secondsValidator.overrideDefaultErrorMessage("");
     }
+
+    if (optionalMandatory == OptionalMandatory.OPTIONAL) {
+      secondsValidator.isOptional();
+    }
+
     secondsValidator.validate();
   }
 

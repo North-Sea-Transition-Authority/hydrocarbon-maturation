@@ -20,7 +20,7 @@ class CoordinateInputValidationUtilTest {
   @Test
   void validateCoordinate_allNull() {
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(new CoordinateInput(), null);
-    var bindingResult = validateCoordinateInput(form, new CoordinateInput());
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, new CoordinateInput());
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
@@ -50,7 +50,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -65,7 +65,7 @@ class CoordinateInputValidationUtilTest {
   @Test
   void validateCoordinate_allNull_withHemisphere() {
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(new CoordinateInput(), null);
-    var bindingResult = validateCoordinateInputWithHemisphere(form, new CoordinateInput(), null);
+    var bindingResult = validateMandatoryCoordinateInputWithHemisphere(form, new CoordinateInput(), null);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
@@ -92,7 +92,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInputWithHemisphere(form, coordinateInput, null);
+    var bindingResult = validateMandatoryCoordinateInputWithHemisphere(form, coordinateInput, null);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -116,7 +116,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -131,7 +131,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, Hemisphere.EAST);
 
-    var bindingResult = validateCoordinateInputWithHemisphere(form, coordinateInput, Hemisphere.EAST);
+    var bindingResult = validateMandatoryCoordinateInputWithHemisphere(form, coordinateInput, Hemisphere.EAST);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -146,7 +146,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -167,7 +167,7 @@ class CoordinateInputValidationUtilTest {
     coordinateInput.setSeconds(new DecimalInput("56"));
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -183,7 +183,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -204,7 +204,7 @@ class CoordinateInputValidationUtilTest {
     coordinateInput.setSeconds(new DecimalInput("56"));
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -219,7 +219,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -241,7 +241,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -262,7 +262,7 @@ class CoordinateInputValidationUtilTest {
     coordinateInput.setSeconds(new DecimalInput("56"));
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -277,7 +277,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -298,7 +298,7 @@ class CoordinateInputValidationUtilTest {
     coordinateInput.setSeconds(new DecimalInput("56"));
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -313,7 +313,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -335,7 +335,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -356,7 +356,7 @@ class CoordinateInputValidationUtilTest {
     coordinateInput.setSeconds(new DecimalInput("0"));
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -371,7 +371,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -392,7 +392,7 @@ class CoordinateInputValidationUtilTest {
     coordinateInput.setSeconds(new DecimalInput("59.999"));
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -407,7 +407,7 @@ class CoordinateInputValidationUtilTest {
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
 
-    var bindingResult = validateCoordinateInput(form, coordinateInput);
+    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -420,18 +420,71 @@ class CoordinateInputValidationUtilTest {
         .isEqualTo("The coordinate seconds must have no more than 3 decimal places");
   }
 
-  private BindingResult validateCoordinateInput(CoordinateInputValidationTestForm form, CoordinateInput coordinateInput) {
+  @Test
+  void validateCoordinate_optional_nullCoordinates_valid() {
+    var coordinateInput = new CoordinateInput();
+
+    var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
+    var bindingResult = validateOptionalCoordinateInput(form, coordinateInput);
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  void validateCoordinate_optional_valid() {
+    var coordinateInput = new CoordinateInput();
+    coordinateInput.setDegrees(new DecimalInput("20"));
+    coordinateInput.setSeconds(new DecimalInput("10"));
+
+    var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
+    var bindingResult = validateOptionalCoordinateInput(form, coordinateInput);
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  void validateCoordinate_optional_invalidCoordinates() {
+    var coordinateInput = new CoordinateInput();
+
+    coordinateInput.setDegrees(new DecimalInput("dsazfvsfa"));
+    coordinateInput.setMinutes(new DecimalInput("123"));
+    coordinateInput.setSeconds(new DecimalInput("54.1234"));
+
+    var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
+
+    var bindingResult = validateOptionalCoordinateInput(form, coordinateInput);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("coordinateInput.degrees.decimalInputValue",
+                Set.of("coordinateInput.degrees.decimalInputValue.notNumeric")),
+            entry("coordinateInput.minutes.decimalInputValue",
+                Set.of("coordinateInput.minutes.decimalInputValue.moreThanMaxValue")),
+            entry("coordinateInput.seconds.decimalInputValue",
+                Set.of("coordinateInput.seconds.decimalInputValue.incorrectDecimalPlaces"))
+        );
+  }
+
+  private BindingResult validateOptionalCoordinateInput(CoordinateInputValidationTestForm form, CoordinateInput coordinateInput) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    CoordinateInputValidationUtil.validateCoordinateInput(bindingResult, coordinateInput,
+    CoordinateInputValidationUtil.validateOptionalCoordinateInput(bindingResult, coordinateInput,
         "coordinateInput", "coordinate");
     return bindingResult;
   }
 
-  private BindingResult validateCoordinateInputWithHemisphere(CoordinateInputValidationTestForm form,
-                                                              CoordinateInput coordinateInput, Hemisphere hemisphere) {
+  private BindingResult validateMandatoryCoordinateInputNoHemisphere(CoordinateInputValidationTestForm form, CoordinateInput coordinateInput) {
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    CoordinateInputValidationUtil.validateMandatoryCoordinateInputNoHemisphere(bindingResult, coordinateInput,
+        "coordinateInput", "coordinate");
+    return bindingResult;
+  }
+
+  private BindingResult validateMandatoryCoordinateInputWithHemisphere(CoordinateInputValidationTestForm form,
+                                                                       CoordinateInput coordinateInput, Hemisphere hemisphere) {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    CoordinateInputValidationUtil.validateCoordinateInputWithHemisphere(bindingResult, coordinateInput,
+    CoordinateInputValidationUtil.validateMandatoryCoordinateInputWithHemisphere(bindingResult, coordinateInput,
         "coordinateInput", "coordinate", hemisphere, "hemisphere");
     return bindingResult;
   }

@@ -1,14 +1,18 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class TrapPropertiesFormService {
+class TrapPropertiesFormService implements SubmissionFormService {
 
   private final TrapPropertiesFormValidator trapPropertiesFormValidator;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
@@ -20,8 +24,9 @@ class TrapPropertiesFormService {
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
   }
 
-  BindingResult validate(TrapPropertiesForm form, BindingResult bindingResult) {
-    trapPropertiesFormValidator.validate(form, bindingResult);
+  @Override
+  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
+    trapPropertiesFormValidator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
 
@@ -37,20 +42,30 @@ class TrapPropertiesFormService {
     form.setTrapDescription(trapProperty.getTrapDescription());
     form.setOtherTrapType(trapProperty.getOtherTrapType());
 
-    var latitudeCoordinates = new CoordinateInput();
-    latitudeCoordinates.setDegrees(new DecimalInput(trapProperty.getLatitudeDegrees().toString()));
-    latitudeCoordinates.setMinutes(new DecimalInput(trapProperty.getLatitudeMinutes().toString()));
-    latitudeCoordinates.setSeconds(new DecimalInput(trapProperty.getLatitudeSeconds().toString()));
+    var latitudeCoordinates = createCoordinateInputForEntity(trapProperty.getLatitudeDegrees(),
+        trapProperty.getLatitudeMinutes(), trapProperty.getLatitudeSeconds());
 
-    var longitudeCoordinates = new CoordinateInput();
-    longitudeCoordinates.setDegrees(new DecimalInput(trapProperty.getLongitudeDegrees().toString()));
-    longitudeCoordinates.setMinutes(new DecimalInput(trapProperty.getLongitudeMinutes().toString()));
-    longitudeCoordinates.setSeconds(new DecimalInput(trapProperty.getLongitudeSeconds().toString()));
+    var longitudeCoordinates = createCoordinateInputForEntity(trapProperty.getLongitudeDegrees(),
+        trapProperty.getLongitudeMinutes(), trapProperty.getLongitudeSeconds());
 
     form.setLatitudeCoordinates(latitudeCoordinates);
     form.setLongitudeCoordinates(longitudeCoordinates);
     form.setLongitudeHemisphere(trapProperty.getLongitudeHemisphere());
 
     return form;
+  }
+
+  private CoordinateInput createCoordinateInputForEntity(BigDecimal degrees, BigDecimal minutes, BigDecimal seconds) {
+    var coordinateInput = new CoordinateInput();
+
+    var degreesCoordinate = degrees == null ? new DecimalInput() : new DecimalInput(degrees.toString());
+    var minutesCoordinate = minutes == null ? new DecimalInput() : new DecimalInput(minutes.toString());
+    var secondsCoordinate = seconds == null ? new DecimalInput() : new DecimalInput(seconds.toString());
+
+    coordinateInput.setDegrees(degreesCoordinate);
+    coordinateInput.setMinutes(minutesCoordinate);
+    coordinateInput.setSeconds(secondsCoordinate);
+
+    return coordinateInput;
   }
 }

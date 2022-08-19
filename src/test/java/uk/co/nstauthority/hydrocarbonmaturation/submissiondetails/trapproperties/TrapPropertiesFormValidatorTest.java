@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class TrapPropertiesFormValidatorTest {
@@ -116,7 +117,7 @@ class TrapPropertiesFormValidatorTest {
 
   private BindingResult validateTrapPropertiesForm(TrapPropertiesForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    trapPropertiesFormValidator.validate(form, bindingResult);
+    trapPropertiesFormValidator.validate(form, bindingResult, ValidationType.FULL);
     return bindingResult;
   }
 

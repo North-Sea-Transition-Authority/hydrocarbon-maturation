@@ -16,7 +16,7 @@ pageSize=PageSize.TWO_THIRDS_COLUMN
 errorItems=errorList
 breadcrumbsMap=breadcrumbsMap>
 
-  <@fdsForm.htmlForm actionUrl=springUrl(actionUrl)>
+  <@fdsForm.htmlForm>
       <@fdsTextInput.textInput path="form.trapDescription" labelText="Trap description"
         hintText="For example, Upper Jurassic (Solan) turbidite sandstones, enclosed within and oil sourced by the lower portion of the Kimmeridge Clay Formation"/>
 

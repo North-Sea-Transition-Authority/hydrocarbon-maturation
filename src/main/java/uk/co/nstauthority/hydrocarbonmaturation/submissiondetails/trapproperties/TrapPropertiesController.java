@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.tasklist.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/trap-properties")
@@ -48,9 +49,10 @@ public class TrapPropertiesController {
 
   @PostMapping
   public ModelAndView saveTrapProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                         @ModelAttribute("form") TrapPropertiesForm form, BindingResult bindingResult) {
+                                         @ModelAttribute("form") TrapPropertiesForm form, BindingResult bindingResult,
+                                         ValidationType validationType) {
 
-    bindingResult = trapPropertiesFormService.validate(form, bindingResult);
+    bindingResult = trapPropertiesFormService.validate(form, bindingResult, validationType);
     return controllerHelperService.checkErrorsAndRedirect(
       bindingResult,
       getTrapPropertiesModelAndView(form, submissionDetailId),
@@ -67,9 +69,7 @@ public class TrapPropertiesController {
     var modelAndView = new ModelAndView("remi/submissiondetails/trapProperties")
         .addObject("form", form)
         .addObject("trapTypes", TrapType.getTrapTypes())
-        .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
-        .addObject("actionUrl", ReverseRouter.route(on(TrapPropertiesController.class)
-            .saveTrapProperties(submissionDetailId, null, null)));
+        .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere());
 
     ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
     return modelAndView;

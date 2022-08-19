@@ -70,15 +70,9 @@ public class ControllerTestUtils {
     when(service.validate(any(), any(), eq(validationType))).thenReturn(new BeanPropertyBindingResult(form, "form"));
   }
 
-  public static MultiValueMap<String, String> fullValidationPostParams() {
+  public static MultiValueMap<String, String> validationPostParams(ValidationType validationType) {
     return new LinkedMultiValueMap<>(){{
-      add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
-    }};
-  }
-
-  public static MultiValueMap<String, String> partialValidationPostParams() {
-    return new LinkedMultiValueMap<>(){{
-      add(ValidationType.PARTIAL.getButtonText(), ValidationType.PARTIAL.getButtonText());
+      add(validationType.getButtonText(), validationType.getButtonText());
     }};
   }
 }

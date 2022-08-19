@@ -1,8 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
-public class TrapPropertiesForm {
+public class TrapPropertiesForm extends SubmissionForm {
 
   private String trapDescription;
   //TODO HM-129

@@ -3,12 +3,16 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trappropertie
 import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.CoordinateInputValidationUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class TrapPropertiesFormValidator implements Validator {
+class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -17,7 +21,39 @@ class TrapPropertiesFormValidator implements Validator {
 
   @Override
   public void validate(Object target, Errors errors) {
+    throw new ActionNotAllowedException("Incorrect parameters provided for validation");
+  }
+
+  @Override
+  public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (TrapPropertiesForm) target;
+    var validationType = (ValidationType) validationHints[0];
+
+    switch (validationType) {
+      case FULL -> validateFull(form, errors);
+      case PARTIAL -> validatePartial(form, errors);
+      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
+    }
+  }
+
+  @Override
+  public void validateAlways(SubmissionForm form, Errors errors) {
+
+  }
+
+  @Override
+  public void validatePartial(SubmissionForm form, Errors errors) {
+    var trapPropertiesForm = (TrapPropertiesForm) form;
+
+    CoordinateInputValidationUtil.validateOptionalCoordinateInput(errors, trapPropertiesForm.getLatitudeCoordinates(),
+        "latitudeCoordinates", "latitude");
+
+    CoordinateInputValidationUtil.validateOptionalCoordinateInput(errors,
+        trapPropertiesForm.getLongitudeCoordinates(), "longitudeCoordinates", "longitude");
+  }
+
+  @Override
+  public void validateFull(SubmissionForm form, Errors errors) {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "trapDescription", "trapDescription.required",
         "Enter a trap description");
@@ -25,15 +61,17 @@ class TrapPropertiesFormValidator implements Validator {
     ValidationUtils.rejectIfEmpty(errors, "trapType", "trapType.required",
         "Select a trap type");
 
-    if (Objects.equals(form.getTrapType(), TrapType.OTHER)) {
+    var trapPropertiesForm = (TrapPropertiesForm) form;
+    if (Objects.equals(trapPropertiesForm.getTrapType(), TrapType.OTHER)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherTrapType", "otherTrapType.required",
           "Enter an alternative trap type");
     }
 
-    CoordinateInputValidationUtil.validateCoordinateInput(errors, form.getLatitudeCoordinates(),
-        "latitudeCoordinates", "latitude");
+    CoordinateInputValidationUtil.validateMandatoryCoordinateInputNoHemisphere(errors,
+        trapPropertiesForm.getLatitudeCoordinates(), "latitudeCoordinates", "latitude");
 
-    CoordinateInputValidationUtil.validateCoordinateInputWithHemisphere(errors, form.getLongitudeCoordinates(),
-        "longitudeCoordinates", "longitude", form.getLongitudeHemisphere(), "longitudeHemisphere");
+    CoordinateInputValidationUtil.validateMandatoryCoordinateInputWithHemisphere(errors,
+        trapPropertiesForm.getLongitudeCoordinates(), "longitudeCoordinates", "longitude",
+        trapPropertiesForm.getLongitudeHemisphere(), "longitudeHemisphere");
   }
 }
