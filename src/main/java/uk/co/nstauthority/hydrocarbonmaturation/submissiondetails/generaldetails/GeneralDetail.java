@@ -49,81 +49,74 @@ public class GeneralDetail {
     return id;
   }
 
-  public GeneralDetail setId(UUID id) {
+  public void setId(UUID id) {
     this.id = id;
-    return this;
   }
 
   public SubmissionDetail getSubmissionDetail() {
     return submissionDetail;
   }
 
-  public GeneralDetail setSubmissionDetail(SubmissionDetail submissionDetail) {
+  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
-    return this;
   }
 
   public String getProspectName() {
     return prospectName;
   }
 
-  public GeneralDetail setProspectName(String prospectName) {
+  public void setProspectName(String prospectName) {
     this.prospectName = prospectName;
-    return this;
   }
 
   public OnshoreOffshore getOnshoreOffshore() {
     return onshoreOffshore;
   }
 
-  public GeneralDetail setOnshoreOffshore(OnshoreOffshore onshoreOffshore) {
+  public void setOnshoreOffshore(
+      OnshoreOffshore onshoreOffshore) {
     this.onshoreOffshore = onshoreOffshore;
-    return this;
   }
 
   public Boolean getProspectLocatedInUkcs() {
     return prospectLocatedInUkcs;
   }
 
-  public GeneralDetail setProspectLocatedInUkcs(Boolean prospectLocatedInUkcs) {
+  public void setProspectLocatedInUkcs(Boolean prospectLocatedInUkcs) {
     this.prospectLocatedInUkcs = prospectLocatedInUkcs;
-    return this;
   }
 
   public BigDecimal getPercentageLocatedInUkcs() {
     return percentageLocatedInUkcs;
   }
 
-  public GeneralDetail setPercentageLocatedInUkcs(BigDecimal percentageLocatedInUkcs) {
+  public void setPercentageLocatedInUkcs(BigDecimal percentageLocatedInUkcs) {
     this.percentageLocatedInUkcs = percentageLocatedInUkcs;
-    return this;
   }
 
   public InformationSource getInformationSource() {
     return informationSource;
   }
 
-  public GeneralDetail setInformationSource(InformationSource informationSource) {
+  public void setInformationSource(
+      InformationSource informationSource) {
     this.informationSource = informationSource;
-    return this;
   }
 
   public String getOtherInformationSource() {
     return otherInformationSource;
   }
 
-  public GeneralDetail setOtherInformationSource(String otherInformationSource) {
+  public void setOtherInformationSource(String otherInformationSource) {
     this.otherInformationSource = otherInformationSource;
-    return this;
   }
 
   public String getLicenceApplicationInfoSource() {
     return licenceApplicationInfoSource;
   }
 
-  public GeneralDetail setLicenceApplicationInfoSource(String licenceApplicationInfoSource) {
+  public void setLicenceApplicationInfoSource(String licenceApplicationInfoSource) {
     this.licenceApplicationInfoSource = licenceApplicationInfoSource;
-    return this;
   }
 
   @Override

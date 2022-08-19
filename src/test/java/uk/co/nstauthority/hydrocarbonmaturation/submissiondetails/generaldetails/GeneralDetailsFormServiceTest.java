@@ -93,11 +93,13 @@ class GeneralDetailsFormServiceTest {
   }
 
   private GeneralDetail getGeneralDetail(SubmissionDetail submissionDetail) {
-    return new GeneralDetail()
-        .setSubmissionDetail(submissionDetail)
-        .setProspectName("prospect name")
-        .setOnshoreOffshore(OnshoreOffshore.OFFSHORE)
-        .setProspectLocatedInUkcs(true)
-        .setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
+    var generalDetail = new GeneralDetail();
+    generalDetail.setSubmissionDetail(submissionDetail);
+    generalDetail.setProspectName("prospect name");
+    generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    generalDetail.setProspectLocatedInUkcs(true);
+    generalDetail.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
+
+    return generalDetail;
   }
 }

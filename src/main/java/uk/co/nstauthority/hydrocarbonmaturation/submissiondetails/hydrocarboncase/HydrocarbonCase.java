@@ -38,98 +38,87 @@ public class HydrocarbonCase {
     return id;
   }
 
-  public HydrocarbonCase setId(UUID id) {
+  public void setId(UUID id) {
     this.id = id;
-    return this;
   }
 
   public SubmissionDetail getSubmissionDetail() {
     return submissionDetail;
   }
 
-  public HydrocarbonCase setSubmissionDetail(SubmissionDetail submissionDetail) {
+  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
-    return this;
   }
 
   public Boolean getOilOnly() {
     return oilOnly;
   }
 
-  public HydrocarbonCase setOilOnly(Boolean oilOnly) {
+  public void setOilOnly(Boolean oilOnly) {
     this.oilOnly = oilOnly;
-    return this;
   }
 
   public BigDecimal getOilOnlyProbability() {
     return oilOnlyProbability;
   }
 
-  public HydrocarbonCase setOilOnlyProbability(BigDecimal oilOnlyProbability) {
+  public void setOilOnlyProbability(BigDecimal oilOnlyProbability) {
     this.oilOnlyProbability = oilOnlyProbability;
-    return this;
   }
 
   public String getOilOnlyComments() {
     return oilOnlyComments;
   }
 
-  public HydrocarbonCase setOilOnlyComments(String oilOnlyComments) {
+  public void setOilOnlyComments(String oilOnlyComments) {
     this.oilOnlyComments = oilOnlyComments;
-    return this;
   }
 
   public Boolean getGasOnly() {
     return gasOnly;
   }
 
-  public HydrocarbonCase setGasOnly(Boolean gasOnly) {
+  public void setGasOnly(Boolean gasOnly) {
     this.gasOnly = gasOnly;
-    return this;
   }
 
   public BigDecimal getGasOnlyProbability() {
     return gasOnlyProbability;
   }
 
-  public HydrocarbonCase setGasOnlyProbability(BigDecimal gasOnlyProbability) {
+  public void setGasOnlyProbability(BigDecimal gasOnlyProbability) {
     this.gasOnlyProbability = gasOnlyProbability;
-    return this;
   }
 
   public String getGasOnlyComments() {
     return gasOnlyComments;
   }
 
-  public HydrocarbonCase setGasOnlyComments(String gasOnlyComments) {
+  public void setGasOnlyComments(String gasOnlyComments) {
     this.gasOnlyComments = gasOnlyComments;
-    return this;
   }
 
   public Boolean getOilAndGas() {
     return oilAndGas;
   }
 
-  public HydrocarbonCase setOilAndGas(Boolean oilAndGas) {
+  public void setOilAndGas(Boolean oilAndGas) {
     this.oilAndGas = oilAndGas;
-    return this;
   }
 
   public BigDecimal getOilAndGasProbability() {
     return oilAndGasProbability;
   }
 
-  public HydrocarbonCase setOilAndGasProbability(BigDecimal oilAndGasProbability) {
+  public void setOilAndGasProbability(BigDecimal oilAndGasProbability) {
     this.oilAndGasProbability = oilAndGasProbability;
-    return this;
   }
 
   public String getOilAndGasComments() {
     return oilAndGasComments;
   }
 
-  public HydrocarbonCase setOilAndGasComments(String oilAndGasComments) {
+  public void setOilAndGasComments(String oilAndGasComments) {
     this.oilAndGasComments = oilAndGasComments;
-    return this;
   }
 }

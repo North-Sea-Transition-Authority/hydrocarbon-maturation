@@ -20,11 +20,11 @@ class GeneralDetailsPersistenceService {
   public void saveGeneralDetails(GeneralDetailsForm form, SubmissionDetail submissionDetail) {
     var generalDetail = getGeneralDetail(submissionDetail).orElse(new GeneralDetail());
 
-    generalDetail.setSubmissionDetail(submissionDetail)
-        .setProspectName(form.getProspectName())
-        .setOnshoreOffshore(form.getOnshoreOffshore())
-        .setProspectLocatedInUkcs(form.getProspectLocatedInUkcs())
-        .setInformationSource(form.getInformationSource());
+    generalDetail.setSubmissionDetail(submissionDetail);
+    generalDetail.setProspectName(form.getProspectName());
+    generalDetail.setOnshoreOffshore(form.getOnshoreOffshore());
+    generalDetail.setProspectLocatedInUkcs(form.getProspectLocatedInUkcs());
+    generalDetail.setInformationSource(form.getInformationSource());
 
     if (form.getProspectLocatedInUkcs() !=  null && !form.getProspectLocatedInUkcs()) {
       var decimalPercentage = form.getPercentageLocatedInUkcs().createBigDecimalOrNull();

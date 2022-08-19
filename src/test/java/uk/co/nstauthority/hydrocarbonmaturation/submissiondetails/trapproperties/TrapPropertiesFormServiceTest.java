@@ -110,16 +110,18 @@ class TrapPropertiesFormServiceTest {
   }
 
   private TrapProperty getTrapProperty(SubmissionDetail submissionDetail) {
-    return new TrapProperty()
-        .setSubmissionDetail(submissionDetail)
-        .setTrapType(TrapType.COMBINATION)
-        .setTrapDescription("description")
-        .setLatitudeDegrees(BigDecimal.valueOf(45))
-        .setLatitudeMinutes(BigDecimal.valueOf(4))
-        .setLatitudeSeconds(BigDecimal.valueOf(14))
-        .setLongitudeDegrees(BigDecimal.valueOf(5))
-        .setLongitudeMinutes(BigDecimal.valueOf(6))
-        .setLongitudeSeconds(BigDecimal.valueOf(40))
-        .setLongitudeHemisphere(Hemisphere.EAST);
+    var trapProperty = new TrapProperty();
+    trapProperty.setSubmissionDetail(submissionDetail);
+    trapProperty.setTrapType(TrapType.COMBINATION);
+    trapProperty.setTrapDescription("description");
+    trapProperty.setLatitudeDegrees(BigDecimal.valueOf(45));
+    trapProperty.setLatitudeMinutes(BigDecimal.valueOf(4));
+    trapProperty.setLatitudeSeconds(BigDecimal.valueOf(14));
+    trapProperty.setLongitudeDegrees(BigDecimal.valueOf(5));
+    trapProperty.setLongitudeMinutes(BigDecimal.valueOf(6));
+    trapProperty.setLongitudeSeconds(BigDecimal.valueOf(40));
+    trapProperty.setLongitudeHemisphere(Hemisphere.EAST);
+
+    return trapProperty;
   }
 }

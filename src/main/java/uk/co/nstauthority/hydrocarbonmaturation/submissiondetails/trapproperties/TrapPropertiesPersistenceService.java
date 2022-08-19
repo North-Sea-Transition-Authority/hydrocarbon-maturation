@@ -18,17 +18,17 @@ public class TrapPropertiesPersistenceService {
 
   @Transactional
   public void saveTrapProperties(TrapPropertiesForm form, SubmissionDetail submissionDetail) {
-    var trapProperty = getTrapProperty(submissionDetail).orElse(new TrapProperty())
-        .setSubmissionDetail(submissionDetail)
-        .setTrapDescription(form.getTrapDescription())
-        .setTrapType(form.getTrapType())
-        .setLatitudeDegrees(form.getLatitudeCoordinates().getDegrees().createBigDecimalOrNull())
-        .setLatitudeMinutes(form.getLatitudeCoordinates().getMinutes().createBigDecimalOrNull())
-        .setLatitudeSeconds(form.getLatitudeCoordinates().getSeconds().createBigDecimalOrNull())
-        .setLongitudeDegrees(form.getLongitudeCoordinates().getDegrees().createBigDecimalOrNull())
-        .setLongitudeMinutes(form.getLongitudeCoordinates().getMinutes().createBigDecimalOrNull())
-        .setLongitudeSeconds(form.getLongitudeCoordinates().getSeconds().createBigDecimalOrNull())
-        .setLongitudeHemisphere(form.getLongitudeHemisphere());
+    var trapProperty = getTrapProperty(submissionDetail).orElse(new TrapProperty());
+    trapProperty.setSubmissionDetail(submissionDetail);
+    trapProperty.setTrapDescription(form.getTrapDescription());
+    trapProperty.setTrapType(form.getTrapType());
+    trapProperty.setLatitudeDegrees(form.getLatitudeCoordinates().getDegrees().createBigDecimalOrNull());
+    trapProperty.setLatitudeMinutes(form.getLatitudeCoordinates().getMinutes().createBigDecimalOrNull());
+    trapProperty.setLatitudeSeconds(form.getLatitudeCoordinates().getSeconds().createBigDecimalOrNull());
+    trapProperty.setLongitudeDegrees(form.getLongitudeCoordinates().getDegrees().createBigDecimalOrNull());
+    trapProperty.setLongitudeMinutes(form.getLongitudeCoordinates().getMinutes().createBigDecimalOrNull());
+    trapProperty.setLongitudeSeconds(form.getLongitudeCoordinates().getSeconds().createBigDecimalOrNull());
+    trapProperty.setLongitudeHemisphere(form.getLongitudeHemisphere());
 
     if (form.getTrapType() == TrapType.OTHER) {
       trapProperty.setOtherTrapType(form.getOtherTrapType());

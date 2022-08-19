@@ -19,14 +19,14 @@ class SourceAndSealPersistenceService {
   @Transactional
   public void saveSourceAndSealDetails(SourceAndSealForm form, SubmissionDetail submissionDetail) {
 
-    var sourceAndSeal = getSourceAndSeal(submissionDetail).orElse(new SourceAndSeal())
-        .setSubmissionDetail(submissionDetail)
-        .setSourceFormationName(form.getSourceFormationName())
-        .setSourceAgeStage(form.getSourceAgeStage())
-        .setSourceLithology(form.getSourceLithology())
-        .setTopSealFormationName(form.getTopSealFormationName())
-        .setTopSealAgeStage(form.getTopSealAgeStage())
-        .setTopSealLithology(form.getTopSealLithology());
+    var sourceAndSeal = getSourceAndSeal(submissionDetail).orElse(new SourceAndSeal());
+    sourceAndSeal.setSubmissionDetail(submissionDetail);
+    sourceAndSeal.setSourceFormationName(form.getSourceFormationName());
+    sourceAndSeal.setSourceAgeStage(form.getSourceAgeStage());
+    sourceAndSeal.setSourceLithology(form.getSourceLithology());
+    sourceAndSeal.setTopSealFormationName(form.getTopSealFormationName());
+    sourceAndSeal.setTopSealAgeStage(form.getTopSealAgeStage());
+    sourceAndSeal.setTopSealLithology(form.getTopSealLithology());
 
     sourceAndSealRepository.save(sourceAndSeal);
   }

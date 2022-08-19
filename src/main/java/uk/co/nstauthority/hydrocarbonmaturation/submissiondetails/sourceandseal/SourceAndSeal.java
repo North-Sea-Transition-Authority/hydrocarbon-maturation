@@ -39,72 +39,63 @@ class SourceAndSeal {
     return id;
   }
 
-  public SourceAndSeal setId(UUID id) {
+  public void setId(UUID id) {
     this.id = id;
-    return this;
   }
 
   public SubmissionDetail getSubmissionDetail() {
     return submissionDetail;
   }
 
-  public SourceAndSeal setSubmissionDetail(SubmissionDetail submissionDetail) {
+  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
-    return this;
   }
 
   public String getSourceFormationName() {
     return sourceFormationName;
   }
 
-  public SourceAndSeal setSourceFormationName(String sourceFormationName) {
+  public void setSourceFormationName(String sourceFormationName) {
     this.sourceFormationName = sourceFormationName;
-    return this;
   }
 
   public String getSourceAgeStage() {
     return sourceAgeStage;
   }
 
-  public SourceAndSeal setSourceAgeStage(String sourceAgeStage) {
+  public void setSourceAgeStage(String sourceAgeStage) {
     this.sourceAgeStage = sourceAgeStage;
-    return this;
   }
 
   public String getSourceLithology() {
     return sourceLithology;
   }
 
-  public SourceAndSeal setSourceLithology(String sourceLithology) {
+  public void setSourceLithology(String sourceLithology) {
     this.sourceLithology = sourceLithology;
-    return this;
   }
 
   public String getTopSealFormationName() {
     return topSealFormationName;
   }
 
-  public SourceAndSeal setTopSealFormationName(String topSealFormationName) {
+  public void setTopSealFormationName(String topSealFormationName) {
     this.topSealFormationName = topSealFormationName;
-    return this;
   }
 
   public String getTopSealAgeStage() {
     return topSealAgeStage;
   }
 
-  public SourceAndSeal setTopSealAgeStage(String topSealAgeStage) {
+  public void setTopSealAgeStage(String topSealAgeStage) {
     this.topSealAgeStage = topSealAgeStage;
-    return this;
   }
 
   public String getTopSealLithology() {
     return topSealLithology;
   }
 
-  public SourceAndSeal setTopSealLithology(String topSealLithology) {
+  public void setTopSealLithology(String topSealLithology) {
     this.topSealLithology = topSealLithology;
-    return this;
   }
-
 }

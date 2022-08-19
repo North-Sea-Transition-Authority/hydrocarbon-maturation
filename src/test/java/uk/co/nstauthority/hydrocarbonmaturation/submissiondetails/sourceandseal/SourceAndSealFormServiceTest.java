@@ -94,9 +94,11 @@ class SourceAndSealFormServiceTest {
   }
 
   private SourceAndSeal getSourceAndSeal(SubmissionDetail submissionDetail) {
-    return new SourceAndSeal()
-        .setSubmissionDetail(submissionDetail)
-        .setSourceFormationName("formation name")
-        .setTopSealFormationName("formation name");
+    var sourceAndSeal = new SourceAndSeal();
+    sourceAndSeal.setSubmissionDetail(submissionDetail);
+    sourceAndSeal.setSourceFormationName("formation name");
+    sourceAndSeal.setTopSealFormationName("formation name");
+
+    return sourceAndSeal;
   }
 }
