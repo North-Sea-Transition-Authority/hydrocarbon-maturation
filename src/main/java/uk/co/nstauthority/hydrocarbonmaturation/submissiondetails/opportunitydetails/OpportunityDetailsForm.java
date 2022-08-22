@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
-class OpportunityDetailsForm {
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+
+class OpportunityDetailsForm extends SubmissionForm {
   //TODO HM-129
   private OpportunityType opportunityType;
   private String otherTypeOfOpportunity;

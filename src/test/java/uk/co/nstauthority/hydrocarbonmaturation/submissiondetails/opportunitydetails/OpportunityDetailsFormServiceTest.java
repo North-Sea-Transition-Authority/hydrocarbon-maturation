@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class OpportunityDetailsFormServiceTest {
@@ -39,8 +40,8 @@ class OpportunityDetailsFormServiceTest {
     var form = new OpportunityDetailsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    opportunityDetailsFormService.validate(form, bindingResult);
-    verify(opportunityDetailsFormValidator, times(1)).validate(form, bindingResult);
+    opportunityDetailsFormService.validate(form, bindingResult, ValidationType.FULL);
+    verify(opportunityDetailsFormValidator, times(1)).validate(form, bindingResult, ValidationType.FULL);
   }
 
   @Test

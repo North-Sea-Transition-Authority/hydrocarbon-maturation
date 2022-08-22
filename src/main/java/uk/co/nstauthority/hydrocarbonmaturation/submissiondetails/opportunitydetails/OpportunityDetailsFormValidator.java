@@ -3,11 +3,15 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunityde
 import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class OpportunityDetailsFormValidator implements Validator {
+class OpportunityDetailsFormValidator implements SmartValidator, SubmissionFormValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -16,11 +20,38 @@ class OpportunityDetailsFormValidator implements Validator {
 
   @Override
   public void validate(Object target, Errors errors) {
-    var form = (OpportunityDetailsForm) target;
+    throw new ActionNotAllowedException("Incorrect parameters provided for validation");
+  }
 
+  @Override
+  public void validate(Object target, Errors errors, Object... validationHints) {
+    var form = (OpportunityDetailsForm) target;
+    var validationType = (ValidationType) validationHints[0];
+
+    switch (validationType) {
+      case FULL -> validateFull(form, errors);
+      case PARTIAL -> validatePartial(form, errors);
+      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
+    }
+  }
+
+  @Override
+  public void validateAlways(SubmissionForm form, Errors errors) {
+
+  }
+
+  @Override
+  public void validatePartial(SubmissionForm form, Errors errors) {
+
+  }
+
+  @Override
+  public void validateFull(SubmissionForm form, Errors errors) {
     ValidationUtils.rejectIfEmpty(errors, "opportunityType", "opportunityType.required", "Select an opportunity type");
 
-    if (Objects.equals(form.getOpportunityType(), OpportunityType.OTHER)) {
+    var opportunityDetailsForm = (OpportunityDetailsForm) form;
+
+    if (Objects.equals(opportunityDetailsForm.getOpportunityType(), OpportunityType.OTHER)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherTypeOfOpportunity", "otherTypeOfOpportunity.required",
           "Enter the other opportunity type");
     }

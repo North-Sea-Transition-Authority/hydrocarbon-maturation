@@ -20,6 +20,8 @@ import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,6 +35,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @WithMockUser
 @ContextConfiguration(classes = OpportunityDetailsController.class)
@@ -71,13 +75,15 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
   }
 
-  @Test
-  void saveOpportunityDetailsPage_whenValidForm_assertRedirection() throws Exception {
-    when(opportunityDetailsFormService.validate(any(), any())).thenReturn(bindingResult);
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveOpportunityDetailsPage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    when(opportunityDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null)))
+            .params(ControllerTestUtils.validationPostParams(validationType))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
@@ -85,14 +91,16 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     verify(opportunityDetailsPersistenceService, times(1)).saveOpportunityDetails(any(OpportunityDetailsForm.class), eq(submissionDetail));
   }
 
-  @Test
-  void saveOpportunityDetailsPage_whenInvalidForm_assertStatusOk() throws Exception {
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveOpportunityDetailsPage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(opportunityDetailsFormService.validate(any(), any())).thenReturn(bindingResult);
+    when(opportunityDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null)))
+            .params(ControllerTestUtils.validationPostParams(validationType))
             .with(csrf()))
         .andExpect(status().isOk());
 
@@ -112,8 +120,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     assertEquals(OpportunityDetailsForm.class, modelMap.get("form").getClass());
     assertThat(modelMap).contains(
         entry("opportunityTypes", OpportunityType.getOpportunityType()),
-        entry("pageTitle", OpportunityDetailsController.PAGE_NAME),
-        entry("actionUrl", ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, null)))
+        entry("pageTitle", OpportunityDetailsController.PAGE_NAME)
     )
     .containsKey("breadcrumbsMap");
   }

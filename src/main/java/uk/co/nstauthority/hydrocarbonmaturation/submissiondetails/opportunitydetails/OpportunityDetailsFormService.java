@@ -4,9 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class OpportunityDetailsFormService {
+class OpportunityDetailsFormService implements SubmissionFormService {
 
   private final OpportunityDetailsFormValidator opportunityDetailsFormValidator;
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
@@ -16,11 +19,6 @@ class OpportunityDetailsFormService {
                                        OpportunityDetailsPersistenceService opportunityDetailsPersistenceService) {
     this.opportunityDetailsFormValidator = opportunityDetailsFormValidator;
     this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
-  }
-
-  BindingResult validate(OpportunityDetailsForm form, BindingResult bindingResult) {
-    opportunityDetailsFormValidator.validate(form, bindingResult);
-    return bindingResult;
   }
 
   OpportunityDetailsForm getOpportunityDetailsForm(SubmissionDetail submissionDetail) {
@@ -37,5 +35,11 @@ class OpportunityDetailsFormService {
     form.setKeyEvaluationWorkCarriedOut(opportunityDetail.getKeyEvaluationWorkCarriedOut());
     form.setKeyWorkRequiredForFurtherMaturation(opportunityDetail.getKeyWorkRequiredForFurtherMaturation());
     return form;
+  }
+
+  @Override
+  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
+    opportunityDetailsFormValidator.validate(form, bindingResult, validationType);
+    return bindingResult;
   }
 }

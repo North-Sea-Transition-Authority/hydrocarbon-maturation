@@ -14,6 +14,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class OpportunityDetailsFormValidatorTest {
@@ -41,15 +42,14 @@ class OpportunityDetailsFormValidatorTest {
   void validate_whenValidForm_thenNoValidationErrors() {
     OpportunityDetailsForm form = getValidOpportunityDetailsForm();
 
-    var bindingResult = validateOpportunityDetailsForm(form);
-
+    var bindingResult = validateOpportunityDetailsForm_fullValidation(form);
     assertFalse(bindingResult.hasErrors());
   }
 
   @Test
   void validate_whenEmptyForm_thenValidationErrors() {
     var form = new OpportunityDetailsForm();
-    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm(form));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm_fullValidation(form));
 
     assertThat(extractedErrors)
         .containsExactly(
@@ -63,7 +63,7 @@ class OpportunityDetailsFormValidatorTest {
     var form = getValidOpportunityDetailsForm();
     form.setOpportunityType(null);
 
-    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm(form));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm_fullValidation(form));
 
     assertThat(extractedErrors)
         .containsExactly(
@@ -77,7 +77,7 @@ class OpportunityDetailsFormValidatorTest {
     form.setOpportunityType(OpportunityType.OTHER);
     form.setOtherTypeOfOpportunity("");
 
-    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm(form));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm_fullValidation(form));
 
     assertThat(extractedErrors)
         .containsExactly(
@@ -90,7 +90,7 @@ class OpportunityDetailsFormValidatorTest {
     var form = getValidOpportunityDetailsForm();
     form.setKeyEvaluationWorkCarriedOut("");
 
-    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm(form));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm_fullValidation(form));
 
     assertThat(extractedErrors)
         .containsExactly(
@@ -98,10 +98,25 @@ class OpportunityDetailsFormValidatorTest {
         );
   }
 
-  private BindingResult validateOpportunityDetailsForm(OpportunityDetailsForm form) {
+  @Test
+  void validate_whenEmptyFormAndPartialValidation_thenNoValidationErrors() {
+    var form = new OpportunityDetailsForm();
+    var bindingResult = validateOpportunityDetailsForm_partialValidation(form);
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  private BindingResult validateOpportunityDetailsForm_fullValidation(OpportunityDetailsForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    opportunityDetailsFormValidator.validate(form, bindingResult);
+    opportunityDetailsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+
+    return bindingResult;
+  }
+
+  private BindingResult validateOpportunityDetailsForm_partialValidation(OpportunityDetailsForm form) {
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    opportunityDetailsFormValidator.validate(form, bindingResult, ValidationType.PARTIAL);
 
     return bindingResult;
   }
