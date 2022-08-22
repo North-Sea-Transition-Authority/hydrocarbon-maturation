@@ -22,6 +22,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
@@ -80,14 +82,15 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
         .andExpect(view().name("remi/submissiondetails/reservoirProperties"));
   }
 
-  @Test
-  void saveReservoirProperties_partialValidation_whenValidForm_assertSaveAndRedirection() throws Exception {
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveReservoirProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(reservoirPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, null)))
-            .params(ControllerTestUtils.validationPostParams(ValidationType.PARTIAL))
+            .params(ControllerTestUtils.validationPostParams(validationType))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
@@ -95,57 +98,23 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
     verify(reservoirPropertiesPersistenceService, times(1))
         .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(submissionDetail));
     verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(ValidationType.PARTIAL));
+        .validate(any(), any(), eq(validationType));
   }
 
-  @Test
-  void saveReservoirProperties_fullValidation_whenValidForm_assertSaveAndRedirection() throws Exception {
-    when(reservoirPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-
-    mockMvc.perform(
-        post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, null)))
-            .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
-            .with(csrf()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
-
-    verify(reservoirPropertiesPersistenceService, times(1))
-        .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(submissionDetail));
-    verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(ValidationType.FULL));
-  }
-
-  @Test
-  void saveReservoirProperties_partialValidation_whenInvalidForm_assertStatusOk() throws Exception {
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveReservoirProperties_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(reservoirPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
-            .params(ControllerTestUtils.validationPostParams(ValidationType.PARTIAL))
+            .params(ControllerTestUtils.validationPostParams(validationType))
             .with(csrf()))
         .andExpect(status().isOk());
 
     verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(ValidationType.PARTIAL));
-    verify(reservoirPropertiesPersistenceService, never())
-        .saveReservoirProperty(any(), any());
-  }
-
-  @Test
-  void saveReservoirProperties_fullValidation_whenInvalidForm_assertStatusOk() throws Exception {
-    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(reservoirPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
-
-    mockMvc.perform(
-        post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, ValidationType.FULL)))
-            .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
-            .with(csrf()))
-        .andExpect(status().isOk());
-
-    verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(ValidationType.FULL));
+        .validate(any(), any(), eq(validationType));
     verify(reservoirPropertiesPersistenceService, never())
         .saveReservoirProperty(any(), any());
   }

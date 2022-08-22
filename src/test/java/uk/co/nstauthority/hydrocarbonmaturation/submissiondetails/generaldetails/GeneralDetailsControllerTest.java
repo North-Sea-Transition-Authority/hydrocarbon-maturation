@@ -22,6 +22,8 @@ import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
@@ -69,56 +71,41 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
         .andExpect(view().name("remi/submissiondetails/generalDetails"));
   }
 
-  @Test
-  void saveGeneralDetails_partialValidation_whenValidForm_assertSaveAndRedirection() throws Exception {
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveGeneralDetailsPage_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
     when(generalDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
-            .params(ControllerTestUtils.validationPostParams(ValidationType.PARTIAL))
-            .with(csrf()))
+            post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(ValidationType.PARTIAL));
+    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(validationType));
     verify(generalDetailsPersistenceService, times(1)).saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail));
   }
 
-  @Test
-  void saveGeneralDetailsPage_fullValidation_whenInvalidForm_assertStatusOk() throws Exception {
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveGeneralDetailsPage_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+
     var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(generalDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
-                .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
-                .with(csrf()))
-        .andExpect(status().isOk())
-        .andExpect(view().name("remi/submissiondetails/generalDetails"));
+        post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
+            .params(ControllerTestUtils.validationPostParams(validationType))
+            .with(csrf()))
+        .andExpect(status().isOk());
 
-    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
+    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(validationType));
     verify(generalDetailsPersistenceService, never()).saveGeneralDetails(any(), any());
-  }
-
-  @Test
-  void saveGeneralDetailsPage_fullValidation_whenValidForm_assertSaveAndRedirection() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
-    when(generalDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
-
-    mockMvc.perform(
-            post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
-                .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
-                .with(csrf()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
-
-    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
-    verify(generalDetailsPersistenceService, times(1)).saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail));
   }
 
   @Test
