@@ -14,6 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/hydrocarbon-case")
@@ -49,8 +50,9 @@ public class HydrocarbonCaseController {
 
   @PostMapping
   public ModelAndView saveHydrocarbonCase(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                          @ModelAttribute("form") HydrocarbonCaseForm form, BindingResult bindingResult) {
-    bindingResult = hydrocarbonCaseFormService.validate(form, bindingResult);
+                                          @ModelAttribute("form") HydrocarbonCaseForm form, BindingResult bindingResult,
+                                          ValidationType validationType) {
+    bindingResult = hydrocarbonCaseFormService.validate(form, bindingResult, validationType);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,

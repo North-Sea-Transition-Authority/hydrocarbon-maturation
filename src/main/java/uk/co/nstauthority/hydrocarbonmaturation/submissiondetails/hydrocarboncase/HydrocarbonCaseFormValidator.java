@@ -4,11 +4,16 @@ import java.math.BigDecimal;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+import org.springframework.validation.SmartValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class HydrocarbonCaseFormValidator implements Validator {
+class HydrocarbonCaseFormValidator implements SmartValidator, SubmissionFormValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -17,39 +22,87 @@ class HydrocarbonCaseFormValidator implements Validator {
 
   @Override
   public void validate(Object target, Errors errors) {
-    var form = (HydrocarbonCaseForm) target;
+    throw new ActionNotAllowedException("Incorrect parameters provided for validation");
+  }
 
-    if (ObjectUtils.allNull(form.getOilOnlyCaseType(), form.getGasOnlyCaseType(), form.getOilAndGasCaseType())) {
+  @Override
+  public void validate(Object target, Errors errors, Object... validationHints) {
+    var form = (HydrocarbonCaseForm) target;
+    var validationType = (ValidationType) validationHints[0];
+
+    switch (validationType) {
+      case FULL -> validateFull(form, errors);
+      case PARTIAL -> validatePartial(form, errors);
+      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
+    }
+  }
+
+  @Override
+  public void validateAlways(SubmissionForm form, Errors errors) {
+
+  }
+
+  @Override
+  public void validatePartial(SubmissionForm form, Errors errors) {
+    var hydrocarbonCaseForm = (HydrocarbonCaseForm) form;
+
+    if (hydrocarbonCaseForm.getOilOnlyCaseType() != null && hydrocarbonCaseForm.getOilOnlyCaseType()) {
+      validatePercentage(hydrocarbonCaseForm.getOilOnlyProbability(), "oilOnlyProbability.decimalInputValue",
+          "The oil only probability", errors)
+          .isOptional()
+          .validate();
+    }
+
+    if (hydrocarbonCaseForm.getGasOnlyCaseType() != null && hydrocarbonCaseForm.getGasOnlyCaseType()) {
+      validatePercentage(hydrocarbonCaseForm.getGasOnlyProbability(), "gasOnlyProbability.decimalInputValue",
+          "The gas only probability", errors)
+          .isOptional()
+          .validate();
+    }
+
+    if (hydrocarbonCaseForm.getOilAndGasCaseType() != null && hydrocarbonCaseForm.getOilAndGasCaseType()) {
+      validatePercentage(hydrocarbonCaseForm.getOilAndGasProbability(), "oilAndGasProbability.decimalInputValue",
+          "The oil and gas probability", errors)
+          .isOptional()
+          .validate();
+    }
+  }
+
+  @Override
+  public void validateFull(SubmissionForm form, Errors errors) {
+    var hydrocarbonCaseForm = (HydrocarbonCaseForm) form;
+
+    if (ObjectUtils.allNull(hydrocarbonCaseForm.getOilOnlyCaseType(),
+        hydrocarbonCaseForm.getGasOnlyCaseType(), hydrocarbonCaseForm.getOilAndGasCaseType())) {
       errors.rejectValue("oilOnlyCaseType", "oilOnlyCaseType.required", "Select a hydrocarbon case type");
       errors.rejectValue("gasOnlyCaseType", "gasOnlyCaseType.required", "");
       errors.rejectValue("oilAndGasCaseType", "oilAndGasCaseType.required", "");
     }
 
-    if (form.getOilOnlyCaseType() != null && form.getOilOnlyCaseType()) {
-      DecimalInputValidator.configureValidator(errors, "oilOnlyProbability.decimalInputValue", "The oil only probability",
-          form.getOilOnlyProbability())
-          .setMinValue(BigDecimal.ONE)
-          .setMaxValue(BigDecimal.valueOf(100))
-          .setMaxDecimalPlaces(0)
+    if (hydrocarbonCaseForm.getOilOnlyCaseType() != null && hydrocarbonCaseForm.getOilOnlyCaseType()) {
+      validatePercentage(hydrocarbonCaseForm.getOilOnlyProbability(), "oilOnlyProbability.decimalInputValue",
+          "The oil only probability", errors)
           .validate();
     }
 
-    if (form.getGasOnlyCaseType() != null && form.getGasOnlyCaseType()) {
-      DecimalInputValidator.configureValidator(errors, "gasOnlyProbability.decimalInputValue", "The gas only probability",
-          form.getGasOnlyProbability())
-          .setMinValue(BigDecimal.ONE)
-          .setMaxValue(BigDecimal.valueOf(100))
-          .setMaxDecimalPlaces(0)
+    if (hydrocarbonCaseForm.getGasOnlyCaseType() != null && hydrocarbonCaseForm.getGasOnlyCaseType()) {
+      validatePercentage(hydrocarbonCaseForm.getGasOnlyProbability(), "gasOnlyProbability.decimalInputValue",
+          "The gas only probability", errors)
           .validate();
     }
 
-    if (form.getOilAndGasCaseType() != null && form.getOilAndGasCaseType()) {
-      DecimalInputValidator.configureValidator(errors, "oilAndGasProbability.decimalInputValue", "The oil and gas probability",
-          form.getOilAndGasProbability())
-          .setMinValue(BigDecimal.ONE)
-          .setMaxValue(BigDecimal.valueOf(100))
-          .setMaxDecimalPlaces(0)
+    if (hydrocarbonCaseForm.getOilAndGasCaseType() != null && hydrocarbonCaseForm.getOilAndGasCaseType()) {
+      validatePercentage(hydrocarbonCaseForm.getOilAndGasProbability(), "oilAndGasProbability.decimalInputValue",
+          "The oil and gas probability", errors)
           .validate();
     }
+  }
+
+  private DecimalInputValidator validatePercentage(DecimalInput percentage, String fieldId, String errorMessagePrefix,
+                                                   Errors errors) {
+    return DecimalInputValidator.configureValidator(errors, fieldId, errorMessagePrefix, percentage)
+        .setMinValue(BigDecimal.ONE)
+        .setMaxValue(BigDecimal.valueOf(100))
+        .setMaxDecimalPlaces(0);
   }
 }

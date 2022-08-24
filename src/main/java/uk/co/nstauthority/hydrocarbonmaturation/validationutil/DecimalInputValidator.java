@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.springframework.validation.Errors;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 
 public class DecimalInputValidator {
   private final Errors errors;

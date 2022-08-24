@@ -3,11 +3,14 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarbonca
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class HydrocarbonCaseFormService {
+class HydrocarbonCaseFormService implements SubmissionFormService {
 
   private final HydrocarbonCaseFormValidator hydrocarbonCaseFormValidator;
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
@@ -19,8 +22,9 @@ class HydrocarbonCaseFormService {
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
   }
 
-  BindingResult validate(HydrocarbonCaseForm form, BindingResult bindingResult) {
-    hydrocarbonCaseFormValidator.validate(form, bindingResult);
+  @Override
+  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
+    hydrocarbonCaseFormValidator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
 
@@ -40,15 +44,19 @@ class HydrocarbonCaseFormService {
     form.setOilAndGasComments(hydrocarbonCaseDetail.getOilAndGasComments());
 
     if (hydrocarbonCaseDetail.getGasOnly() != null && hydrocarbonCaseDetail.getGasOnly()) {
-      form.setGasOnlyProbability(new DecimalInput(hydrocarbonCaseDetail.getGasOnlyProbability().toString()));
+      form.setGasOnlyProbability(DecimalInput.createDecimalInput(hydrocarbonCaseDetail.getGasOnlyProbability()));
     }
+
     if (hydrocarbonCaseDetail.getOilOnly() != null && hydrocarbonCaseDetail.getOilOnly()) {
-      form.setOilOnlyProbability(new DecimalInput(hydrocarbonCaseDetail.getOilOnlyProbability().toString()));
+      form.setOilOnlyProbability(DecimalInput.createDecimalInput(hydrocarbonCaseDetail.getOilOnlyProbability()));
     }
+
     if (hydrocarbonCaseDetail.getOilAndGas() != null && hydrocarbonCaseDetail.getOilAndGas()) {
-      form.setOilAndGasProbability(new DecimalInput(hydrocarbonCaseDetail.getOilAndGasProbability().toString()));
+      form.setOilAndGasProbability(DecimalInput.createDecimalInput(hydrocarbonCaseDetail.getOilAndGasProbability()));
     }
 
     return form;
   }
+
+
 }

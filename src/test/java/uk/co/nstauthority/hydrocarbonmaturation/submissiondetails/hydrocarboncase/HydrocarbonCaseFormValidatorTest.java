@@ -12,9 +12,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class HydrocarbonCaseFormValidatorTest {
@@ -42,7 +43,7 @@ class HydrocarbonCaseFormValidatorTest {
   @Test
   void validate_whenValidForm_thenNoValidationErrors() {
     var form = getValidForm();
-    var bindingResult = validateHydrocarbonCaseForm(form);
+    var bindingResult = validateHydrocarbonCaseForm_fullValidation(form);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -50,7 +51,7 @@ class HydrocarbonCaseFormValidatorTest {
   @Test
   void validate_whenCaseTypesAllNull_thenValidationErrors() {
     var form = new HydrocarbonCaseForm();
-    var bindingResult = validateHydrocarbonCaseForm(form);
+    var bindingResult = validateHydrocarbonCaseForm_fullValidation(form);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -62,7 +63,7 @@ class HydrocarbonCaseFormValidatorTest {
   }
 
   @Test
-  void validate_whenProbabilityIsNull_thenValidationErrors() {
+  void validate_whenProbabilityIsNullAndFullValidation_thenValidationErrors() {
     var form = new HydrocarbonCaseForm();
     form.setOilAndGasCaseType(true);
     form.setOilAndGasProbability(new DecimalInput());
@@ -71,7 +72,7 @@ class HydrocarbonCaseFormValidatorTest {
     form.setOilOnlyCaseType(true);
     form.setOilOnlyProbability(new DecimalInput());
 
-    var bindingResult = validateHydrocarbonCaseForm(form);
+    var bindingResult = validateHydrocarbonCaseForm_fullValidation(form);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -82,14 +83,58 @@ class HydrocarbonCaseFormValidatorTest {
         );
   }
 
-  private BindingResult validateHydrocarbonCaseForm(HydrocarbonCaseForm form) {
+
+  @Test
+  void validate_whenProbabilityIsNullAndPartialValidation_thenNoValidationErrors() {
+    var form = new HydrocarbonCaseForm();
+    form.setOilAndGasCaseType(true);
+    form.setOilAndGasProbability(new DecimalInput());
+    form.setGasOnlyCaseType(true);
+    form.setGasOnlyProbability(new DecimalInput());
+    form.setOilOnlyCaseType(true);
+    form.setOilOnlyProbability(new DecimalInput());
+
+    var bindingResult = validateHydrocarbonCaseForm_partialValidation(form);
+
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @Test
+  void validate_partialValidationInvalidForm_thenValidationErrors() {
+    var form = new HydrocarbonCaseForm();
+    form.setOilAndGasCaseType(true);
+    form.setOilAndGasProbability(new DecimalInput("200"));
+    form.setGasOnlyCaseType(true);
+    form.setGasOnlyProbability(new DecimalInput("-10"));
+    form.setOilOnlyCaseType(true);
+    form.setOilOnlyProbability(new DecimalInput("aflhlkasjf"));
+
+    var bindingResult = validateHydrocarbonCaseForm_partialValidation(form);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("oilOnlyProbability.decimalInputValue", Set.of("oilOnlyProbability.decimalInputValue.notNumeric")),
+            entry("gasOnlyProbability.decimalInputValue", Set.of("gasOnlyProbability.decimalInputValue.lessThanMinValue")),
+            entry("oilAndGasProbability.decimalInputValue", Set.of("oilAndGasProbability.decimalInputValue.moreThanMaxValue"))
+        );
+  }
+
+  private BindingResult validateHydrocarbonCaseForm_fullValidation(HydrocarbonCaseForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    hydrocarbonCaseFormValidator.validate(form, bindingResult);
+    hydrocarbonCaseFormValidator.validate(form, bindingResult, ValidationType.FULL);
     return bindingResult;
   }
 
-  private HydrocarbonCaseForm getValidForm() {
+  private BindingResult validateHydrocarbonCaseForm_partialValidation(HydrocarbonCaseForm form) {
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    hydrocarbonCaseFormValidator.validate(form, bindingResult, ValidationType.PARTIAL);
+    return bindingResult;
+  }
+
+    private HydrocarbonCaseForm getValidForm() {
     var form = new HydrocarbonCaseForm();
     form.setOilOnlyCaseType(true);
     form.setOilOnlyProbability(new DecimalInput("10"));

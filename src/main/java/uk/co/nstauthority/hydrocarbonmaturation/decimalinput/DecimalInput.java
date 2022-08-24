@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.validationutil;
+package uk.co.nstauthority.hydrocarbonmaturation.decimalinput;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -17,6 +17,10 @@ public class DecimalInput {
 
   public DecimalInput() {
 
+  }
+
+  public static DecimalInput createDecimalInput(BigDecimal decimalInputValue) {
+    return decimalInputValue == null ? new DecimalInput() : new DecimalInput(decimalInputValue.toString());
   }
 
   public String getDecimalInputValue() {
