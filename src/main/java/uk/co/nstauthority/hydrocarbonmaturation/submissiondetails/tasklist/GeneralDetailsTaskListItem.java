@@ -2,8 +2,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItem;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
@@ -14,6 +16,13 @@ class GeneralDetailsTaskListItem implements ProspectTaskListItem {
 
   static final String ITEM_NAME = GeneralDetailsController.PAGE_NAME;
   static final int ITEM_DISPLAY_ORDER = 10;
+
+  private final GeneralDetailSubmissionService generalDetailSubmissionService;
+
+  @Autowired
+  GeneralDetailsTaskListItem(GeneralDetailSubmissionService generalDetailSubmissionService) {
+    this.generalDetailSubmissionService = generalDetailSubmissionService;
+  }
 
   @Override
   public String getItemDisplayText() {
@@ -33,5 +42,10 @@ class GeneralDetailsTaskListItem implements ProspectTaskListItem {
   @Override
   public Class<? extends TaskListSection<ProspectTaskListItemType>> getTaskListSection() {
     return GeneralDetailsTaskListSection.class;
+  }
+
+  @Override
+  public boolean isValid(ProspectTaskListItemType target) {
+    return generalDetailSubmissionService.isSectionSubmittable(target.submissionDetail());
   }
 }

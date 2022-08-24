@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
 
 class OpportunityDetailsTaskListItemTest {
@@ -17,9 +19,12 @@ class OpportunityDetailsTaskListItemTest {
   private static final UUID SUBMISSION_DETAIL_ID = UUID.randomUUID();
   private static ProspectTaskListItemType prospectTaskListItemType;
 
-  @BeforeAll
-  static void setUp() {
-    opportunityDetailsTaskListItem = new OpportunityDetailsTaskListItem();
+  @Mock
+  private OpportunityDetailsSubmissionService opportunityDetailsSubmissionService;
+
+  @BeforeEach
+  void setUp() {
+    opportunityDetailsTaskListItem = new OpportunityDetailsTaskListItem(opportunityDetailsSubmissionService);
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setId(SUBMISSION_DETAIL_ID);
     prospectTaskListItemType = new ProspectTaskListItemType(submissionDetail);

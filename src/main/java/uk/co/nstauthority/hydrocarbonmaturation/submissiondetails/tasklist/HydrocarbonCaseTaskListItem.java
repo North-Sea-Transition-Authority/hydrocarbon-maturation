@@ -2,9 +2,11 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItem;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSection;
@@ -14,6 +16,13 @@ class HydrocarbonCaseTaskListItem implements ProspectTaskListItem {
 
   static final String ITEM_NAME = HydrocarbonCaseController.PAGE_NAME;
   static final int ITEM_DISPLAY_ORDER = 40;
+
+  private final HydrocarbonCaseSubmissionService hydrocarbonCaseSubmissionService;
+
+  @Autowired
+  HydrocarbonCaseTaskListItem(HydrocarbonCaseSubmissionService hydrocarbonCaseSubmissionService) {
+    this.hydrocarbonCaseSubmissionService = hydrocarbonCaseSubmissionService;
+  }
 
   @Override
   public String getItemDisplayText() {
@@ -34,5 +43,10 @@ class HydrocarbonCaseTaskListItem implements ProspectTaskListItem {
   @Override
   public Class<? extends TaskListSection<ProspectTaskListItemType>> getTaskListSection() {
     return OpportunityTaskListSection.class;
+  }
+
+  @Override
+  public boolean isValid(ProspectTaskListItemType target) {
+    return hydrocarbonCaseSubmissionService.isSectionSubmittable(target.submissionDetail());
   }
 }

@@ -4,10 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
 
@@ -17,9 +19,12 @@ class GeneralDetailsTaskListItemTest {
   private static final UUID SUBMISSION_DETAIL_ID = UUID.randomUUID();
   private static ProspectTaskListItemType prospectTaskListItemType;
 
-  @BeforeAll
-  static void setUp() {
-    generalDetailsTaskListItem = new GeneralDetailsTaskListItem();
+  @Mock
+  private GeneralDetailSubmissionService generalDetailSubmissionService;
+
+  @BeforeEach
+  void setUp() {
+    generalDetailsTaskListItem = new GeneralDetailsTaskListItem(generalDetailSubmissionService);
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setId(SUBMISSION_DETAIL_ID);
     prospectTaskListItemType = new ProspectTaskListItemType(submissionDetail);
