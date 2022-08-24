@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
 
 class ReservoirPropertiesTaskListItemTest {
@@ -17,9 +19,12 @@ class ReservoirPropertiesTaskListItemTest {
   private static final UUID SUBMISSION_DETAIL_ID = UUID.randomUUID();
   private static ProspectTaskListItemType prospectTaskListItemType;
 
-  @BeforeAll
-  static void setUp() {
-    reservoirPropertiesTaskListItem = new ReservoirPropertiesTaskListItem();
+  @Mock
+  private ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
+
+  @BeforeEach
+  void setUp() {
+    reservoirPropertiesTaskListItem = new ReservoirPropertiesTaskListItem(reservoirPropertiesSubmissionService);
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setId(SUBMISSION_DETAIL_ID);
     prospectTaskListItemType = new ProspectTaskListItemType(submissionDetail);

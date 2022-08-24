@@ -4,12 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSubmissionService;
 
 class TrapPropertiesTaskListItemTest {
 
@@ -17,9 +19,12 @@ class TrapPropertiesTaskListItemTest {
   private static final UUID SUBMISSION_DETAIL_ID = UUID.randomUUID();
   private static ProspectTaskListItemType prospectTaskListItemType;
 
-  @BeforeAll
-  static void setUp() {
-    trapPropertiesTaskListItem = new TrapPropertiesTaskListItem();
+  @Mock
+  private TrapPropertiesSubmissionService trapPropertiesSubmissionService;
+
+  @BeforeEach
+  void setUp() {
+    trapPropertiesTaskListItem = new TrapPropertiesTaskListItem(trapPropertiesSubmissionService);
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setId(SUBMISSION_DETAIL_ID);
     prospectTaskListItemType = new ProspectTaskListItemType(submissionDetail);
