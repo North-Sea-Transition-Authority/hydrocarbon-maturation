@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class SourceAndSealFormValidatorTest {
@@ -41,7 +42,7 @@ class SourceAndSealFormValidatorTest {
     var form = new SourceAndSealForm();
     form.setSourceFormationName("source formation name");
     form.setTopSealFormationName("top seal formation name");
-    var bindingResult = validateSourceAndSealForm(form);
+    var bindingResult = validateSourceAndSealForm_fullValidation(form);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -49,7 +50,7 @@ class SourceAndSealFormValidatorTest {
   @Test
   void validate_whenInValidForm_thenValidationErrors() {
     var form = new SourceAndSealForm();
-    var bindingResult = validateSourceAndSealForm(form);
+    var bindingResult = validateSourceAndSealForm_fullValidation(form);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -59,10 +60,26 @@ class SourceAndSealFormValidatorTest {
         );
   }
 
-  private BindingResult validateSourceAndSealForm(SourceAndSealForm form) {
+  @Test
+  void validate_whenInValidFormAndPartialValidation_thenNoValidationErrors() {
+    var form = new SourceAndSealForm();
+    var bindingResult = validateSourceAndSealForm_partialValidation(form);
+
+    assertFalse(bindingResult.hasErrors());
+  }
+
+
+  private BindingResult validateSourceAndSealForm_fullValidation(SourceAndSealForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    sourceAndSealFormValidator.validate(form, bindingResult);
+    sourceAndSealFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    return bindingResult;
+  }
+
+  private BindingResult validateSourceAndSealForm_partialValidation(SourceAndSealForm form) {
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    sourceAndSealFormValidator.validate(form, bindingResult, ValidationType.PARTIAL);
     return bindingResult;
   }
 

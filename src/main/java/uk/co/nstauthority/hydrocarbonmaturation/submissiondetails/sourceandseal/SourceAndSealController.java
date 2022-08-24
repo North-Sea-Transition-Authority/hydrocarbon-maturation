@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/source-and-seal")
@@ -51,8 +52,9 @@ public class SourceAndSealController {
 
   @PostMapping
   public ModelAndView saveSourceAndSealDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                               @ModelAttribute("form") SourceAndSealForm form, BindingResult bindingResult) {
-    bindingResult = sourceAndSealFormService.validate(form, bindingResult);
+                                               @ModelAttribute("form") SourceAndSealForm form, BindingResult bindingResult,
+                                               ValidationType validationType) {
+    bindingResult = sourceAndSealFormService.validate(form, bindingResult, validationType);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getSourceAndSealModelAndView(form, submissionDetailId),
@@ -66,9 +68,7 @@ public class SourceAndSealController {
 
   private ModelAndView getSourceAndSealModelAndView(SourceAndSealForm form, UUID submissionDetailId) {
     var modelAndView = new ModelAndView("remi/submissiondetails/sourceAndSeal")
-        .addObject("form", form)
-        .addObject("actionUrl", ReverseRouter.route(on(SourceAndSealController.class)
-            .saveSourceAndSealDetails(submissionDetailId, null, null)));
+        .addObject("form", form);
 
     return ProspectTaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class SourceAndSealFormServiceTest {
@@ -42,8 +43,8 @@ class SourceAndSealFormServiceTest {
     var form = new SourceAndSealForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    sourceAndSealFormService.validate(form, bindingResult);
-    verify(sourceAndSealFormValidator, times(1)).validate(form, bindingResult);
+    sourceAndSealFormService.validate(form, bindingResult, ValidationType.FULL);
+    verify(sourceAndSealFormValidator, times(1)).validate(form, bindingResult, ValidationType.FULL);
   }
 
   @Test

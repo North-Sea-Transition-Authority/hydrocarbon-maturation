@@ -12,7 +12,7 @@
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>
 
-  <@fdsForm.htmlForm actionUrl=springUrl(actionUrl)>
+  <@fdsForm.htmlForm>
     <@fdsFieldset.fieldset legendHeading="Source">
       <@fdsTextInput.textInput path="form.sourceFormationName" labelText="Formation name"/>
       <@fdsTextInput.textInput path="form.sourceAgeStage" labelText="Age stage or series" optionalLabel=true/>

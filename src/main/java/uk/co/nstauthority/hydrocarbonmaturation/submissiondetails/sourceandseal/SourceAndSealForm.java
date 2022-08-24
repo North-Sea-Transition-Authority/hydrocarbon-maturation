@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal;
 
-class SourceAndSealForm {
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+
+class SourceAndSealForm extends SubmissionForm {
 
   private String sourceFormationName;
   private String sourceAgeStage;

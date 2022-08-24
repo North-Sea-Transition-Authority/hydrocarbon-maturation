@@ -4,9 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class SourceAndSealFormService {
+class SourceAndSealFormService implements SubmissionFormService {
 
   private final SourceAndSealFormValidator sourceAndSealFormValidator;
   private final SourceAndSealPersistenceService sourceAndSealPersistenceService;
@@ -18,8 +21,9 @@ class SourceAndSealFormService {
     this.sourceAndSealPersistenceService = sourceAndSealPersistenceService;
   }
 
-  BindingResult validate(SourceAndSealForm form, BindingResult bindingResult) {
-    sourceAndSealFormValidator.validate(form, bindingResult);
+  @Override
+  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
+    sourceAndSealFormValidator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
 
