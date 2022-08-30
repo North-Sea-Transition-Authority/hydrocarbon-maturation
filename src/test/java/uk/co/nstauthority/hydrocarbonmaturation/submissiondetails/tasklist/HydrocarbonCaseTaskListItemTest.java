@@ -30,7 +30,6 @@ class HydrocarbonCaseTaskListItemTest {
     prospectTaskListItemType = new ProspectTaskListItemType(submissionDetail);
   }
 
-
   @Test
   void getItemDisplayText() {
     assertThat(hydrocarbonCaseTaskListItem.getItemDisplayText()).isEqualTo(HydrocarbonCaseTaskListItem.ITEM_NAME);

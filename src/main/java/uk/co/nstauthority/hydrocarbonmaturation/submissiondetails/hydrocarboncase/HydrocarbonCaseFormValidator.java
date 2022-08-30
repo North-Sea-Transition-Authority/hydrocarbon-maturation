@@ -1,14 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase;
 
-import java.math.BigDecimal;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PercentageValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -47,22 +45,22 @@ class HydrocarbonCaseFormValidator implements SmartValidator, SubmissionFormVali
     var hydrocarbonCaseForm = (HydrocarbonCaseForm) form;
 
     if (hydrocarbonCaseForm.getOilOnlyCaseType() != null && hydrocarbonCaseForm.getOilOnlyCaseType()) {
-      validatePercentage(hydrocarbonCaseForm.getOilOnlyProbability(), "oilOnlyProbability.decimalInputValue",
-          "The oil only probability", errors)
+      PercentageValidationUtils.configurePercentageValidator(hydrocarbonCaseForm.getOilOnlyProbability(),
+          "oilOnlyProbability.decimalInputValue", "The oil only probability", errors)
           .isOptional()
           .validate();
     }
 
     if (hydrocarbonCaseForm.getGasOnlyCaseType() != null && hydrocarbonCaseForm.getGasOnlyCaseType()) {
-      validatePercentage(hydrocarbonCaseForm.getGasOnlyProbability(), "gasOnlyProbability.decimalInputValue",
-          "The gas only probability", errors)
+      PercentageValidationUtils.configurePercentageValidator(hydrocarbonCaseForm.getGasOnlyProbability(),
+          "gasOnlyProbability.decimalInputValue", "The gas only probability", errors)
           .isOptional()
           .validate();
     }
 
     if (hydrocarbonCaseForm.getOilAndGasCaseType() != null && hydrocarbonCaseForm.getOilAndGasCaseType()) {
-      validatePercentage(hydrocarbonCaseForm.getOilAndGasProbability(), "oilAndGasProbability.decimalInputValue",
-          "The oil and gas probability", errors)
+      PercentageValidationUtils.configurePercentageValidator(hydrocarbonCaseForm.getOilAndGasProbability(),
+          "oilAndGasProbability.decimalInputValue", "The oil and gas probability", errors)
           .isOptional()
           .validate();
     }
@@ -80,29 +78,22 @@ class HydrocarbonCaseFormValidator implements SmartValidator, SubmissionFormVali
     }
 
     if (hydrocarbonCaseForm.getOilOnlyCaseType() != null && hydrocarbonCaseForm.getOilOnlyCaseType()) {
-      validatePercentage(hydrocarbonCaseForm.getOilOnlyProbability(), "oilOnlyProbability.decimalInputValue",
-          "The oil only probability", errors)
+      PercentageValidationUtils.configurePercentageValidator(hydrocarbonCaseForm.getOilOnlyProbability(),
+          "oilOnlyProbability.decimalInputValue", "The oil only probability", errors)
           .validate();
     }
 
     if (hydrocarbonCaseForm.getGasOnlyCaseType() != null && hydrocarbonCaseForm.getGasOnlyCaseType()) {
-      validatePercentage(hydrocarbonCaseForm.getGasOnlyProbability(), "gasOnlyProbability.decimalInputValue",
-          "The gas only probability", errors)
+      PercentageValidationUtils.configurePercentageValidator(hydrocarbonCaseForm.getGasOnlyProbability(),
+          "gasOnlyProbability.decimalInputValue", "The gas only probability", errors)
           .validate();
     }
 
     if (hydrocarbonCaseForm.getOilAndGasCaseType() != null && hydrocarbonCaseForm.getOilAndGasCaseType()) {
-      validatePercentage(hydrocarbonCaseForm.getOilAndGasProbability(), "oilAndGasProbability.decimalInputValue",
-          "The oil and gas probability", errors)
+      PercentageValidationUtils.configurePercentageValidator(hydrocarbonCaseForm.getOilAndGasProbability(),
+          "oilAndGasProbability.decimalInputValue", "The oil and gas probability", errors)
           .validate();
     }
   }
 
-  private DecimalInputValidator validatePercentage(DecimalInput percentage, String fieldId, String errorMessagePrefix,
-                                                   Errors errors) {
-    return DecimalInputValidator.configureValidator(errors, fieldId, errorMessagePrefix, percentage)
-        .setMinValue(BigDecimal.ONE)
-        .setMaxValue(BigDecimal.valueOf(100))
-        .setMaxDecimalPlaces(0);
-  }
 }
