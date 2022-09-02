@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
@@ -54,11 +53,6 @@ class ChanceOfSuccessFormValidator implements SmartValidator, SubmissionFormVali
   @Override
   public void validate(Object target, Errors errors) {
     throw new ActionNotAllowedException("Incorrect parameters provided for validation");
-  }
-
-  @Override
-  public void validateAlways(SubmissionForm form, Errors errors) {
-
   }
 
   @Override
@@ -130,36 +124,41 @@ class ChanceOfSuccessFormValidator implements SmartValidator, SubmissionFormVali
 
   private void setupDecimalInputValidators(ChanceOfSuccessForm form, Errors errors) {
     playSourceValidator = PercentageValidationUtils.configurePercentageValidator(
-        new DecimalInput(form.getPlayChanceOfSuccess().getSourcePercentage()),
-        "playChanceOfSuccess.sourcePercentage", "The play source", errors);
+        form.getPlayChanceOfSuccess().getSourcePercentage(),
+        "playChanceOfSuccess.sourcePercentage.decimalInputValue", "The play source", errors);
 
     playReservoirValidator = PercentageValidationUtils.configurePercentageValidator(
-        new DecimalInput(form.getPlayChanceOfSuccess().getReservoirPercentage()),
-        "playChanceOfSuccess.reservoirPercentage", "The play reservoir", errors);
+        form.getPlayChanceOfSuccess().getReservoirPercentage(),
+        "playChanceOfSuccess.reservoirPercentage.decimalInputValue", "The play reservoir", errors);
 
     playTopSealValidator = PercentageValidationUtils.configurePercentageValidator(
-        new DecimalInput(form.getPlayChanceOfSuccess().getTopSealPercentage()),
-        "playChanceOfSuccess.topSealPercentage", "The play top seal", errors);
+        form.getPlayChanceOfSuccess().getTopSealPercentage(),
+        "playChanceOfSuccess.topSealPercentage.decimalInputValue", "The play top seal", errors);
 
     prospectSpecificSourceValidator = PercentageValidationUtils.configurePercentageValidator(
-        new DecimalInput(form.getProspectSpecificChanceOfSuccess().getSourcePercentage()),
-        "prospectSpecificChanceOfSuccess.sourcePercentage", "The prospect specific source", errors);
+        form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourcePercentage(),
+        "prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
+        "The prospect specific source", errors);
 
     prospectSpecificReservoirValidator = PercentageValidationUtils.configurePercentageValidator(
-        new DecimalInput(form.getProspectSpecificChanceOfSuccess().getReservoirPercentage()),
-        "prospectSpecificChanceOfSuccess.reservoirPercentage", "The prospect specific reservoir", errors);
+        form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirPercentage(),
+        "prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
+        "The prospect specific reservoir", errors);
 
     prospectSpecificTopSealValidator = PercentageValidationUtils.configurePercentageValidator(
-        new DecimalInput(form.getProspectSpecificChanceOfSuccess().getTopSealPercentage()),
-        "prospectSpecificChanceOfSuccess.topSealPercentage", "The prospect specific top seal", errors);
+        form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealPercentage(),
+        "prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
+        "The prospect specific top seal", errors);
 
     prospectSpecificTrapValidator = PercentageValidationUtils.configurePercentageValidator(
-        new DecimalInput(form.getProspectSpecificChanceOfSuccess().getTrapPercentage()),
-        "prospectSpecificChanceOfSuccess.trapPercentage", "The prospect specific trap", errors);
+        form.getProspectSpecificChanceOfSuccess().getTrapPercentage(),
+        "prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
+        "The prospect specific trap", errors);
 
     prospectSpecificMigrationValidator = PercentageValidationUtils.configurePercentageValidator(
-        new DecimalInput(form.getProspectSpecificChanceOfSuccess().getMigrationPercentage()),
-        "prospectSpecificChanceOfSuccess.migrationPercentage", "The prospect specific migration", errors);
+        form.getProspectSpecificChanceOfSuccess().getMigrationPercentage(),
+        "prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
+        "The prospect specific migration", errors);
   }
 
 }

@@ -57,23 +57,81 @@ class ChanceOfSuccessFormServiceTest {
         .hasAllNullFieldsOrPropertiesExcept("playChanceOfSuccess", "prospectSpecificChanceOfSuccess");
 
     assertThat(chanceOfSuccessForm.getPlayChanceOfSuccess())
-        .isInstanceOf(ChanceOfSuccessDetails.class)
-        .hasAllNullFieldsOrProperties();
+        .isInstanceOf(ChanceOfSuccessDetailsForm.class)
+        .hasAllNullFieldsOrPropertiesExcept("sourcePercentage", "reservoirPercentage", "topSealPercentage");
 
     assertThat(chanceOfSuccessForm.getProspectSpecificChanceOfSuccess())
-        .isInstanceOf(ProspectSpecificChanceOfSuccess.class)
-        .hasAllNullFieldsOrProperties();
+        .isInstanceOf(ProspectSpecificChanceOfSuccessForm.class)
+        .hasAllNullFieldsOrPropertiesExcept("trapPercentage", "migrationPercentage", "chanceOfSuccessDetailsForm");
   }
 
   @Test
-  void generalDetailEntityToForm_existingEntity_thenPopulatedForm() {
-    var chanceOfSuccess = getChanceOfSuccess(submissionDetail);
+  void chanceOfSuccessEntityToForm_existingEntity_thenPopulatedForm() {
+    var chanceOfSuccess = ChanceOfSuccessTestUtil.createChanceOfSuccess(submissionDetail);
+    when(chanceOfSuccessPersistenceService.getChanceOfSuccess(submissionDetail)).thenReturn(Optional.of(chanceOfSuccess));
+
+    ChanceOfSuccessForm form = chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail);
+    assertThat(form)
+        .extracting(
+            chanceOfSuccessForm -> chanceOfSuccessForm.getPlayChanceOfSuccess().getSourcePercentage().getDecimalInputValue(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getPlayChanceOfSuccess().getSourceComments(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getPlayChanceOfSuccess().getReservoirPercentage().getDecimalInputValue(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getPlayChanceOfSuccess().getReservoirComments(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getPlayChanceOfSuccess().getTopSealPercentage().getDecimalInputValue(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getPlayChanceOfSuccess().getTopSealComments(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getProspectSpecificChanceOfSuccess().getTrapPercentage().getDecimalInputValue(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getProspectSpecificChanceOfSuccess().getTrapComments(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getProspectSpecificChanceOfSuccess().getMigrationPercentage().getDecimalInputValue(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getProspectSpecificChanceOfSuccess().getMigrationComments(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourcePercentage().getDecimalInputValue(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourceComments(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirPercentage().getDecimalInputValue(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirComments(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealPercentage().getDecimalInputValue(),
+            chanceOfSuccessForm -> chanceOfSuccessForm.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealComments(),
+            ChanceOfSuccessForm::getGeophysicallyModified,
+            chanceOfSuccessForm -> chanceOfSuccessForm.getGeophysicallyModifiedPercentage().getDecimalInputValue(),
+            ChanceOfSuccessForm::getGeophysicallyModifiedComments,
+            ChanceOfSuccessForm::getRelatedToSpecificWellLocation,
+            chanceOfSuccessForm -> chanceOfSuccessForm.getWellModifiedPercentage().getDecimalInputValue(),
+            ChanceOfSuccessForm::getWellModifiedComments
+        )
+        .containsExactly(
+            chanceOfSuccess.getSourcePercentage().toString(),
+            chanceOfSuccess.getSourceComments(),
+            chanceOfSuccess.getReservoirPercentage().toString(),
+            chanceOfSuccess.getReservoirComments(),
+            chanceOfSuccess.getTopSealPercentage().toString(),
+            chanceOfSuccess.getTopSealComments(),
+            chanceOfSuccess.getProspectTrapPercentage().toString(),
+            chanceOfSuccess.getProspectTrapComments(),
+            chanceOfSuccess.getProspectMigrationPercentage().toString(),
+            chanceOfSuccess.getProspectMigrationComments(),
+            chanceOfSuccess.getProspectSourcePercentage().toString(),
+            chanceOfSuccess.getProspectSourceComments(),
+            chanceOfSuccess.getProspectReservoirPercentage().toString(),
+            chanceOfSuccess.getProspectReservoirComments(),
+            chanceOfSuccess.getProspectTopSealPercentage().toString(),
+            chanceOfSuccess.getProspectTopSealComments(),
+            chanceOfSuccess.getGeophysicallyModified(),
+            chanceOfSuccess.getGeophysicallyModifiedPercentage().toString(),
+            chanceOfSuccess.getGeophysicallyModifiedComments(),
+            chanceOfSuccess.getRelatedToSpecificWellLocation(),
+            chanceOfSuccess.getWellModifiedPercentage().toString(),
+            chanceOfSuccess.getWellModifiedComments()
+        );
+  }
+
+
+  @Test
+  void chanceOfSuccessEntityToForm_whenGeophysicallyModifiedAndSpecificWellLocationAreFalse() {
+    var chanceOfSuccess = ChanceOfSuccessTestUtil.createChanceOfSuccess(submissionDetail);
+    chanceOfSuccess.setGeophysicallyModified(false);
+    chanceOfSuccess.setRelatedToSpecificWellLocation(false);
     when(chanceOfSuccessPersistenceService.getChanceOfSuccess(submissionDetail)).thenReturn(Optional.of(chanceOfSuccess));
 
     assertThat(chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail))
         .extracting(
-            ChanceOfSuccessForm::getPlayChanceOfSuccess,
-            ChanceOfSuccessForm::getProspectSpecificChanceOfSuccess,
             ChanceOfSuccessForm::getGeophysicallyModified,
             ChanceOfSuccessForm::getGeophysicallyModifiedPercentage,
             ChanceOfSuccessForm::getGeophysicallyModifiedComments,
@@ -82,25 +140,12 @@ class ChanceOfSuccessFormServiceTest {
             ChanceOfSuccessForm::getWellModifiedComments
         )
         .containsExactly(
-            chanceOfSuccess.getPlayChanceOfSuccess(),
-            chanceOfSuccess.getProspectSpecificChanceOfSuccess(),
             chanceOfSuccess.getGeophysicallyModified(),
-            chanceOfSuccess.getGeophysicallyModifiedPercentage(),
-            chanceOfSuccess.getGeophysicallyModifiedComments(),
+            null,
+            null,
             chanceOfSuccess.getRelatedToSpecificWellLocation(),
-            chanceOfSuccess.getWellModifiedPercentage(),
-            chanceOfSuccess.getWellModifiedComments()
+            null,
+            null
         );
-  }
-
-  private ChanceOfSuccess getChanceOfSuccess(SubmissionDetail submissionDetail) {
-    var chanceOfSuccess = new ChanceOfSuccess();
-    chanceOfSuccess.setSubmissionDetail(submissionDetail);
-    chanceOfSuccess.setPlayChanceOfSuccess(new ChanceOfSuccessDetails());
-    chanceOfSuccess.setProspectSpecificChanceOfSuccess(new ProspectSpecificChanceOfSuccess());
-    chanceOfSuccess.setGeophysicallyModified(false);
-    chanceOfSuccess.setRelatedToSpecificWellLocation(false);
-
-    return chanceOfSuccess;
   }
 }

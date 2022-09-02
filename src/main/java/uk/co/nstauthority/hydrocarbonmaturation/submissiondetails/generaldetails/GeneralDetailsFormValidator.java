@@ -43,7 +43,6 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   }
 
-  @Override
   public void validateAlways(SubmissionForm form, Errors errors) {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "prospectName", "prospectName.required", "Enter the prospect name");
   }

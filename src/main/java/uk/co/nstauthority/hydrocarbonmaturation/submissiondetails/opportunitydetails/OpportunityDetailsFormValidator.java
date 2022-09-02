@@ -36,11 +36,6 @@ class OpportunityDetailsFormValidator implements SmartValidator, SubmissionFormV
   }
 
   @Override
-  public void validateAlways(SubmissionForm form, Errors errors) {
-
-  }
-
-  @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
 
   }

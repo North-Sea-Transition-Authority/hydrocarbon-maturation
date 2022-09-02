@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,19 +39,33 @@ class ChanceOfSuccessPersistenceServiceTest {
 
   @Test
   void saveChanceOfSuccess_whenGivenAForm_verifyCreatedEntity() {
-    var form = getChanceOfSuccess();
+    var form = ChanceOfSuccessTestUtil.createChanceOfSuccessForm();
 
     var chanceOfSuccessArgumentCaptor = ArgumentCaptor.forClass(ChanceOfSuccess.class);
 
     chanceOfSuccessPersistenceService.saveChanceOfSuccess(form, submissionDetail);
 
     verify(chanceOfSuccessRepository, times(1)).save(chanceOfSuccessArgumentCaptor.capture());
-    var savedHydrocarbonCase = (ChanceOfSuccess) chanceOfSuccessArgumentCaptor.getValue();
+    var savedChanceOfSuccess = (ChanceOfSuccess) chanceOfSuccessArgumentCaptor.getValue();
 
-    assertThat(savedHydrocarbonCase)
+    assertThat(savedChanceOfSuccess)
         .extracting(
-            ChanceOfSuccess::getPlayChanceOfSuccess,
-            ChanceOfSuccess::getProspectSpecificChanceOfSuccess,
+            ChanceOfSuccess::getSourcePercentage,
+            ChanceOfSuccess::getSourceComments,
+            ChanceOfSuccess::getReservoirPercentage,
+            ChanceOfSuccess::getReservoirComments,
+            ChanceOfSuccess::getTopSealPercentage,
+            ChanceOfSuccess::getTopSealComments,
+            ChanceOfSuccess::getProspectTrapPercentage,
+            ChanceOfSuccess::getProspectTrapComments,
+            ChanceOfSuccess::getProspectMigrationPercentage,
+            ChanceOfSuccess::getProspectMigrationComments,
+            ChanceOfSuccess::getProspectSourcePercentage,
+            ChanceOfSuccess::getProspectSourceComments,
+            ChanceOfSuccess::getProspectReservoirPercentage,
+            ChanceOfSuccess::getProspectReservoirComments,
+            ChanceOfSuccess::getProspectTopSealPercentage,
+            ChanceOfSuccess::getProspectTopSealComments,
             ChanceOfSuccess::getGeophysicallyModified,
             ChanceOfSuccess::getGeophysicallyModifiedPercentage,
             ChanceOfSuccess::getGeophysicallyModifiedComments,
@@ -61,8 +74,22 @@ class ChanceOfSuccessPersistenceServiceTest {
             ChanceOfSuccess::getWellModifiedComments
         )
         .containsExactly(
-            form.getPlayChanceOfSuccess(),
-            form.getProspectSpecificChanceOfSuccess(),
+            form.getPlayChanceOfSuccess().getSourcePercentage().createBigDecimalOrNull(),
+            form.getPlayChanceOfSuccess().getSourceComments(),
+            form.getPlayChanceOfSuccess().getReservoirPercentage().createBigDecimalOrNull(),
+            form.getPlayChanceOfSuccess().getReservoirComments(),
+            form.getPlayChanceOfSuccess().getTopSealPercentage().createBigDecimalOrNull(),
+            form.getPlayChanceOfSuccess().getTopSealComments(),
+            form.getProspectSpecificChanceOfSuccess().getTrapPercentage().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getTrapComments(),
+            form.getProspectSpecificChanceOfSuccess().getMigrationPercentage().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getMigrationComments(),
+            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourcePercentage().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourceComments(),
+            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirPercentage().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirComments(),
+            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealPercentage().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealComments(),
             form.getGeophysicallyModified(),
             form.getGeophysicallyModifiedPercentage().createBigDecimalOrNull(),
             form.getGeophysicallyModifiedComments(),
@@ -72,18 +99,36 @@ class ChanceOfSuccessPersistenceServiceTest {
         );
   }
 
-  private ChanceOfSuccessForm getChanceOfSuccess() {
-    var form = new ChanceOfSuccessForm();
+  @Test
+  void saveChanceOfSuccess_whenGeophysicallyModifiedAndSpecificWellLocationAreFalse() {
+    var form = ChanceOfSuccessTestUtil.createChanceOfSuccessForm();
 
-    form.setProspectSpecificChanceOfSuccess(new ProspectSpecificChanceOfSuccess());
-    form.setPlayChanceOfSuccess(new ChanceOfSuccessDetails());
     form.setGeophysicallyModified(false);
-    form.setGeophysicallyModifiedPercentage(new DecimalInput());
-    form.setGeophysicallyModifiedComments(null);
     form.setRelatedToSpecificWellLocation(false);
-    form.setWellModifiedPercentage(new DecimalInput());
-    form.setWellModifiedComments(null);
 
-    return form;
+    var chanceOfSuccessArgumentCaptor = ArgumentCaptor.forClass(ChanceOfSuccess.class);
+
+    chanceOfSuccessPersistenceService.saveChanceOfSuccess(form, submissionDetail);
+
+    verify(chanceOfSuccessRepository, times(1)).save(chanceOfSuccessArgumentCaptor.capture());
+    var savedChanceOfSuccess = (ChanceOfSuccess) chanceOfSuccessArgumentCaptor.getValue();
+
+    assertThat(savedChanceOfSuccess)
+        .extracting(
+            ChanceOfSuccess::getGeophysicallyModified,
+            ChanceOfSuccess::getGeophysicallyModifiedPercentage,
+            ChanceOfSuccess::getGeophysicallyModifiedComments,
+            ChanceOfSuccess::getRelatedToSpecificWellLocation,
+            ChanceOfSuccess::getWellModifiedPercentage,
+            ChanceOfSuccess::getWellModifiedComments
+        )
+        .containsExactly(
+            form.getGeophysicallyModified(),
+            null,
+            null,
+            form.getRelatedToSpecificWellLocation(),
+            null,
+            null
+        );
   }
 }

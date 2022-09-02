@@ -21,20 +21,20 @@ class ChanceOfSuccessFormValidatorTest {
   private final ChanceOfSuccessFormValidator chanceOfSuccessFormValidator = new ChanceOfSuccessFormValidator();
 
   @Test
-  void supports_whenGeneralDetailsFormClass_thenTrue() {
+  void supports_whenChanceOfSuccessFormClass_thenTrue() {
     var supportedClass = ChanceOfSuccessForm.class;
     assertTrue(chanceOfSuccessFormValidator.supports(supportedClass));
   }
 
   @Test
-  void supports_whenNotGeneralDetailsFormClass_thenFalse() {
+  void supports_whenNotChanceOfSuccessFormClass_thenFalse() {
     var nonSupportedClass = NonSupportedClass.class;
     assertFalse(chanceOfSuccessFormValidator.supports(nonSupportedClass));
   }
 
   @Test
   void validate_whenValidForm_thenNoValidationErrors() {
-    var form = getValidForm();
+    var form = ChanceOfSuccessTestUtil.createChanceOfSuccessForm();
 
     var bindingResultFullValidation = validateChanceOfSuccessForm(form, ValidationType.FULL);
     var bindingResultPartialValidation = validateChanceOfSuccessForm(form, ValidationType.PARTIAL);
@@ -45,9 +45,7 @@ class ChanceOfSuccessFormValidatorTest {
 
   @Test
   void validate_whenEmptyForm_thenNoValidationErrors_onPartialValidation() {
-    var form = new ChanceOfSuccessForm();
-    form.setPlayChanceOfSuccess(new ChanceOfSuccessDetails());
-    form.setProspectSpecificChanceOfSuccess(new ProspectSpecificChanceOfSuccess());
+    var form = ChanceOfSuccessTestUtil.createEmptyChanceOfSuccessForm();
     var bindingResult = validateChanceOfSuccessForm(form, ValidationType.PARTIAL);
 
     assertFalse(bindingResult.hasErrors());
@@ -55,47 +53,55 @@ class ChanceOfSuccessFormValidatorTest {
 
   @Test
   void validate_whenInValidForm_thenValidationErrors_onFullValidation() {
-    var form = new ChanceOfSuccessForm();
-    form.setPlayChanceOfSuccess(new ChanceOfSuccessDetails());
-    form.setProspectSpecificChanceOfSuccess(new ProspectSpecificChanceOfSuccess());
+    var form = ChanceOfSuccessTestUtil.createEmptyChanceOfSuccessForm();
 
     var bindingResult = validateChanceOfSuccessForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("playChanceOfSuccess.sourcePercentage", Set.of("playChanceOfSuccess.sourcePercentage.required")),
-            entry("playChanceOfSuccess.reservoirPercentage", Set.of("playChanceOfSuccess.reservoirPercentage.required")),
-            entry("playChanceOfSuccess.topSealPercentage", Set.of("playChanceOfSuccess.topSealPercentage.required")),
-            entry("prospectSpecificChanceOfSuccess.sourcePercentage", Set.of("prospectSpecificChanceOfSuccess.sourcePercentage.required")),
-            entry("prospectSpecificChanceOfSuccess.reservoirPercentage", Set.of("prospectSpecificChanceOfSuccess.reservoirPercentage.required")),
-            entry("prospectSpecificChanceOfSuccess.topSealPercentage", Set.of("prospectSpecificChanceOfSuccess.topSealPercentage.required")),
-            entry("prospectSpecificChanceOfSuccess.trapPercentage", Set.of("prospectSpecificChanceOfSuccess.trapPercentage.required")),
-            entry("prospectSpecificChanceOfSuccess.migrationPercentage", Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.required")),
-            entry("geophysicallyModified", Set.of("geophysicallyModified.required")),
-            entry("relatedToSpecificWellLocation", Set.of("relatedToSpecificWellLocation.required"))
+            entry("playChanceOfSuccess.sourcePercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.sourcePercentage.decimalInputValue.required")),
+            entry("playChanceOfSuccess.reservoirPercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.reservoirPercentage.decimalInputValue.required")),
+            entry("playChanceOfSuccess.topSealPercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.topSealPercentage.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue.required")),
+            entry("geophysicallyModified",
+                Set.of("geophysicallyModified.required")),
+            entry("relatedToSpecificWellLocation",
+                Set.of("relatedToSpecificWellLocation.required"))
         );
   }
 
   @ParameterizedTest
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void validate_whenInValidForm_thenValidationErrors_maxValueExceeded(ValidationType validationType) {
-    var form = new ChanceOfSuccessForm();
-    var playChanceOfSuccess = new ChanceOfSuccessDetails();
-    var prospectSpecific = new ProspectSpecificChanceOfSuccess();
+    var form = ChanceOfSuccessTestUtil.createEmptyChanceOfSuccessForm();
 
-    playChanceOfSuccess.setSourcePercentage("101");
-    playChanceOfSuccess.setReservoirPercentage("101");
-    playChanceOfSuccess.setTopSealPercentage("101");
+    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput("101"));
+    chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput("101"));
+    chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput("101"));
 
-    prospectSpecific.setSourcePercentage("101");
-    prospectSpecific.setReservoirPercentage("101");
-    prospectSpecific.setTopSealPercentage("101");
-    prospectSpecific.setTrapPercentage("101");
-    prospectSpecific.setMigrationPercentage("101");
+    form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
 
-    form.setPlayChanceOfSuccess(playChanceOfSuccess);
-    form.setProspectSpecificChanceOfSuccess(prospectSpecific);
+    var prospectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
+    prospectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
+    prospectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput("101"));
+    prospectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput("101"));
+
+    form.setProspectSpecificChanceOfSuccess(prospectSpecificChanceOfSuccessForm);
+
     form.setGeophysicallyModified(true);
     form.setGeophysicallyModifiedPercentage(new DecimalInput("101"));
     form.setRelatedToSpecificWellLocation(true);
@@ -106,38 +112,48 @@ class ChanceOfSuccessFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("playChanceOfSuccess.sourcePercentage", Set.of("playChanceOfSuccess.sourcePercentage.moreThanMaxValue")),
-            entry("playChanceOfSuccess.reservoirPercentage", Set.of("playChanceOfSuccess.reservoirPercentage.moreThanMaxValue")),
-            entry("playChanceOfSuccess.topSealPercentage", Set.of("playChanceOfSuccess.topSealPercentage.moreThanMaxValue")),
-            entry("prospectSpecificChanceOfSuccess.sourcePercentage", Set.of("prospectSpecificChanceOfSuccess.sourcePercentage.moreThanMaxValue")),
-            entry("prospectSpecificChanceOfSuccess.reservoirPercentage", Set.of("prospectSpecificChanceOfSuccess.reservoirPercentage.moreThanMaxValue")),
-            entry("prospectSpecificChanceOfSuccess.topSealPercentage", Set.of("prospectSpecificChanceOfSuccess.topSealPercentage.moreThanMaxValue")),
-            entry("prospectSpecificChanceOfSuccess.trapPercentage", Set.of("prospectSpecificChanceOfSuccess.trapPercentage.moreThanMaxValue")),
-            entry("prospectSpecificChanceOfSuccess.migrationPercentage", Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.moreThanMaxValue")),
-            entry("geophysicallyModifiedPercentage.decimalInputValue", Set.of("geophysicallyModifiedPercentage.decimalInputValue.moreThanMaxValue")),
-            entry("wellModifiedPercentage.decimalInputValue", Set.of("wellModifiedPercentage.decimalInputValue.moreThanMaxValue"))
+            entry("playChanceOfSuccess.sourcePercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.sourcePercentage.decimalInputValue.moreThanMaxValue")),
+            entry("playChanceOfSuccess.reservoirPercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.reservoirPercentage.decimalInputValue.moreThanMaxValue")),
+            entry("playChanceOfSuccess.topSealPercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.topSealPercentage.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue.moreThanMaxValue")),
+            entry("geophysicallyModifiedPercentage.decimalInputValue",
+                Set.of("geophysicallyModifiedPercentage.decimalInputValue.moreThanMaxValue")),
+            entry("wellModifiedPercentage.decimalInputValue",
+                Set.of("wellModifiedPercentage.decimalInputValue.moreThanMaxValue"))
         );
   }
 
   @ParameterizedTest
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void validate_whenInValidForm_thenValidationErrors_minValueExceeded(ValidationType validationType) {
-    var form = new ChanceOfSuccessForm();
-    var playChanceOfSuccess = new ChanceOfSuccessDetails();
-    var prospectSpecific = new ProspectSpecificChanceOfSuccess();
+    var form = ChanceOfSuccessTestUtil.createEmptyChanceOfSuccessForm();
 
-    playChanceOfSuccess.setSourcePercentage("0");
-    playChanceOfSuccess.setReservoirPercentage("0");
-    playChanceOfSuccess.setTopSealPercentage("0");
+    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput("0"));
+    chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput("0"));
+    chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput("0"));
 
-    prospectSpecific.setSourcePercentage("0");
-    prospectSpecific.setReservoirPercentage("0");
-    prospectSpecific.setTopSealPercentage("0");
-    prospectSpecific.setTrapPercentage("0");
-    prospectSpecific.setMigrationPercentage("0");
+    form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
 
-    form.setPlayChanceOfSuccess(playChanceOfSuccess);
-    form.setProspectSpecificChanceOfSuccess(prospectSpecific);
+    var prospectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
+    prospectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
+    prospectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput("0"));
+    prospectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput("0"));
+
+    form.setProspectSpecificChanceOfSuccess(prospectSpecificChanceOfSuccessForm);
+
     form.setGeophysicallyModified(true);
     form.setGeophysicallyModifiedPercentage(new DecimalInput("0"));
     form.setRelatedToSpecificWellLocation(true);
@@ -148,38 +164,48 @@ class ChanceOfSuccessFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("playChanceOfSuccess.sourcePercentage", Set.of("playChanceOfSuccess.sourcePercentage.lessThanMinValue")),
-            entry("playChanceOfSuccess.reservoirPercentage", Set.of("playChanceOfSuccess.reservoirPercentage.lessThanMinValue")),
-            entry("playChanceOfSuccess.topSealPercentage", Set.of("playChanceOfSuccess.topSealPercentage.lessThanMinValue")),
-            entry("prospectSpecificChanceOfSuccess.sourcePercentage", Set.of("prospectSpecificChanceOfSuccess.sourcePercentage.lessThanMinValue")),
-            entry("prospectSpecificChanceOfSuccess.reservoirPercentage", Set.of("prospectSpecificChanceOfSuccess.reservoirPercentage.lessThanMinValue")),
-            entry("prospectSpecificChanceOfSuccess.topSealPercentage", Set.of("prospectSpecificChanceOfSuccess.topSealPercentage.lessThanMinValue")),
-            entry("prospectSpecificChanceOfSuccess.trapPercentage", Set.of("prospectSpecificChanceOfSuccess.trapPercentage.lessThanMinValue")),
-            entry("prospectSpecificChanceOfSuccess.migrationPercentage", Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.lessThanMinValue")),
-            entry("geophysicallyModifiedPercentage.decimalInputValue", Set.of("geophysicallyModifiedPercentage.decimalInputValue.lessThanMinValue")),
-            entry("wellModifiedPercentage.decimalInputValue", Set.of("wellModifiedPercentage.decimalInputValue.lessThanMinValue"))
+            entry("playChanceOfSuccess.sourcePercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.sourcePercentage.decimalInputValue.lessThanMinValue")),
+            entry("playChanceOfSuccess.reservoirPercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.reservoirPercentage.decimalInputValue.lessThanMinValue")),
+            entry("playChanceOfSuccess.topSealPercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.topSealPercentage.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue.lessThanMinValue")),
+            entry("geophysicallyModifiedPercentage.decimalInputValue",
+                Set.of("geophysicallyModifiedPercentage.decimalInputValue.lessThanMinValue")),
+            entry("wellModifiedPercentage.decimalInputValue",
+                Set.of("wellModifiedPercentage.decimalInputValue.lessThanMinValue"))
         );
   }
 
   @ParameterizedTest
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void validate_whenInValidForm_thenValidationErrors_wrongDecimalPlaces(ValidationType validationType) {
-    var form = new ChanceOfSuccessForm();
-    var playChanceOfSuccess = new ChanceOfSuccessDetails();
-    var prospectSpecific = new ProspectSpecificChanceOfSuccess();
+    var form = ChanceOfSuccessTestUtil.createEmptyChanceOfSuccessForm();
 
-    playChanceOfSuccess.setSourcePercentage("1.1");
-    playChanceOfSuccess.setReservoirPercentage("1.1");
-    playChanceOfSuccess.setTopSealPercentage("1.1");
+    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput("1.1"));
+    chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput("1.1"));
+    chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput("1.1"));
 
-    prospectSpecific.setSourcePercentage("1.1");
-    prospectSpecific.setReservoirPercentage("1.1");
-    prospectSpecific.setTopSealPercentage("1.1");
-    prospectSpecific.setTrapPercentage("1.1");
-    prospectSpecific.setMigrationPercentage("1.1");
+    form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
 
-    form.setPlayChanceOfSuccess(playChanceOfSuccess);
-    form.setProspectSpecificChanceOfSuccess(prospectSpecific);
+    var prospectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
+    prospectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
+    prospectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput("1.1"));
+    prospectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput("1.1"));
+
+    form.setProspectSpecificChanceOfSuccess(prospectSpecificChanceOfSuccessForm);
+
     form.setGeophysicallyModified(true);
     form.setGeophysicallyModifiedPercentage(new DecimalInput("1.1"));
     form.setRelatedToSpecificWellLocation(true);
@@ -190,16 +216,78 @@ class ChanceOfSuccessFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("playChanceOfSuccess.sourcePercentage", Set.of("playChanceOfSuccess.sourcePercentage.incorrectDecimalPlaces")),
-            entry("playChanceOfSuccess.reservoirPercentage", Set.of("playChanceOfSuccess.reservoirPercentage.incorrectDecimalPlaces")),
-            entry("playChanceOfSuccess.topSealPercentage", Set.of("playChanceOfSuccess.topSealPercentage.incorrectDecimalPlaces")),
-            entry("prospectSpecificChanceOfSuccess.sourcePercentage", Set.of("prospectSpecificChanceOfSuccess.sourcePercentage.incorrectDecimalPlaces")),
-            entry("prospectSpecificChanceOfSuccess.reservoirPercentage", Set.of("prospectSpecificChanceOfSuccess.reservoirPercentage.incorrectDecimalPlaces")),
-            entry("prospectSpecificChanceOfSuccess.topSealPercentage", Set.of("prospectSpecificChanceOfSuccess.topSealPercentage.incorrectDecimalPlaces")),
-            entry("prospectSpecificChanceOfSuccess.trapPercentage", Set.of("prospectSpecificChanceOfSuccess.trapPercentage.incorrectDecimalPlaces")),
-            entry("prospectSpecificChanceOfSuccess.migrationPercentage", Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.incorrectDecimalPlaces")),
-            entry("geophysicallyModifiedPercentage.decimalInputValue", Set.of("geophysicallyModifiedPercentage.decimalInputValue.incorrectDecimalPlaces")),
-            entry("wellModifiedPercentage.decimalInputValue", Set.of("wellModifiedPercentage.decimalInputValue.incorrectDecimalPlaces"))
+            entry("playChanceOfSuccess.sourcePercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.sourcePercentage.decimalInputValue.incorrectDecimalPlaces")),
+            entry("playChanceOfSuccess.reservoirPercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.reservoirPercentage.decimalInputValue.incorrectDecimalPlaces")),
+            entry("playChanceOfSuccess.topSealPercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.topSealPercentage.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue.incorrectDecimalPlaces")),
+            entry("geophysicallyModifiedPercentage.decimalInputValue",
+                Set.of("geophysicallyModifiedPercentage.decimalInputValue.incorrectDecimalPlaces")),
+            entry("wellModifiedPercentage.decimalInputValue",
+                Set.of("wellModifiedPercentage.decimalInputValue.incorrectDecimalPlaces"))
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void validate_whenInValidForm_thenValidationErrors_notNumeric(ValidationType validationType) {
+    var form = ChanceOfSuccessTestUtil.createEmptyChanceOfSuccessForm();
+
+    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput("a"));
+    chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput("a"));
+    chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput("a"));
+
+    form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
+
+    var prospectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
+    prospectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
+    prospectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput("a"));
+    prospectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput("a"));
+
+    form.setProspectSpecificChanceOfSuccess(prospectSpecificChanceOfSuccessForm);
+
+    form.setGeophysicallyModified(true);
+    form.setGeophysicallyModifiedPercentage(new DecimalInput("a"));
+    form.setRelatedToSpecificWellLocation(true);
+    form.setWellModifiedPercentage(new DecimalInput("a"));
+
+    var bindingResult = validateChanceOfSuccessForm(form, validationType);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("playChanceOfSuccess.sourcePercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.sourcePercentage.decimalInputValue.notNumeric")),
+            entry("playChanceOfSuccess.reservoirPercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.reservoirPercentage.decimalInputValue.notNumeric")),
+            entry("playChanceOfSuccess.topSealPercentage.decimalInputValue",
+                Set.of("playChanceOfSuccess.topSealPercentage.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue.notNumeric")),
+            entry("geophysicallyModifiedPercentage.decimalInputValue",
+                Set.of("geophysicallyModifiedPercentage.decimalInputValue.notNumeric")),
+            entry("wellModifiedPercentage.decimalInputValue",
+                Set.of("wellModifiedPercentage.decimalInputValue.notNumeric"))
         );
   }
 
@@ -210,26 +298,5 @@ class ChanceOfSuccessFormValidatorTest {
     return bindingResult;
   }
 
-  private ChanceOfSuccessForm getValidForm() {
-    var form = new ChanceOfSuccessForm();
-    var playChanceOfSuccess = new ChanceOfSuccessDetails();
-    var prospectSpecific = new ProspectSpecificChanceOfSuccess();
 
-    playChanceOfSuccess.setSourcePercentage("1");
-    playChanceOfSuccess.setReservoirPercentage("1");
-    playChanceOfSuccess.setTopSealPercentage("1");
-
-    prospectSpecific.setSourcePercentage("1");
-    prospectSpecific.setReservoirPercentage("1");
-    prospectSpecific.setTopSealPercentage("1");
-    prospectSpecific.setTrapPercentage("1");
-    prospectSpecific.setMigrationPercentage("1");
-
-    form.setPlayChanceOfSuccess(playChanceOfSuccess);
-    form.setProspectSpecificChanceOfSuccess(prospectSpecific);
-    form.setGeophysicallyModified(false);
-    form.setRelatedToSpecificWellLocation(false);
-
-    return form;
-  }
 }

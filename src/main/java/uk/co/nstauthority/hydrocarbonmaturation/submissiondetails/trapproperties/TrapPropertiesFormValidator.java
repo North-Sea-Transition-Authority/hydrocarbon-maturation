@@ -37,11 +37,6 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
   }
 
   @Override
-  public void validateAlways(SubmissionForm form, Errors errors) {
-
-  }
-
-  @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
     var trapPropertiesForm = (TrapPropertiesForm) form;
 

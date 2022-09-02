@@ -1,24 +1,21 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess;
 
-import javax.persistence.Embeddable;
-import javax.persistence.MappedSuperclass;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 
-@Embeddable
-@MappedSuperclass
-class ChanceOfSuccessDetails {
+public class ChanceOfSuccessDetailsForm {
 
-  private String sourcePercentage;
+  private DecimalInput sourcePercentage;
   private String sourceComments;
-  private String reservoirPercentage;
+  private DecimalInput reservoirPercentage;
   private String reservoirComments;
-  private String topSealPercentage;
+  private DecimalInput topSealPercentage;
   private String topSealComments;
 
-  public String getSourcePercentage() {
+  public DecimalInput getSourcePercentage() {
     return sourcePercentage;
   }
 
-  public void setSourcePercentage(String sourcePercentage) {
+  public void setSourcePercentage(DecimalInput sourcePercentage) {
     this.sourcePercentage = sourcePercentage;
   }
 
@@ -30,11 +27,11 @@ class ChanceOfSuccessDetails {
     this.sourceComments = sourceComments;
   }
 
-  public String getReservoirPercentage() {
+  public DecimalInput getReservoirPercentage() {
     return reservoirPercentage;
   }
 
-  public void setReservoirPercentage(String reservoirPercentage) {
+  public void setReservoirPercentage(DecimalInput reservoirPercentage) {
     this.reservoirPercentage = reservoirPercentage;
   }
 
@@ -46,11 +43,11 @@ class ChanceOfSuccessDetails {
     this.reservoirComments = reservoirComments;
   }
 
-  public String getTopSealPercentage() {
+  public DecimalInput getTopSealPercentage() {
     return topSealPercentage;
   }
 
-  public void setTopSealPercentage(String topSealPercentage) {
+  public void setTopSealPercentage(DecimalInput topSealPercentage) {
     this.topSealPercentage = topSealPercentage;
   }
 

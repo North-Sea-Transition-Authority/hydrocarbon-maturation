@@ -5,8 +5,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 
 class ChanceOfSuccessForm extends SubmissionForm {
 
-  private ChanceOfSuccessDetails playChanceOfSuccess;
-  private ProspectSpecificChanceOfSuccess prospectSpecificChanceOfSuccess;
+  private ChanceOfSuccessDetailsForm playChanceOfSuccess;
+  private ProspectSpecificChanceOfSuccessForm prospectSpecificChanceOfSuccess;
   private Boolean geophysicallyModified;
   private DecimalInput geophysicallyModifiedPercentage;
   private String geophysicallyModifiedComments;
@@ -14,21 +14,21 @@ class ChanceOfSuccessForm extends SubmissionForm {
   private DecimalInput wellModifiedPercentage;
   private String wellModifiedComments;
 
-  public ChanceOfSuccessDetails getPlayChanceOfSuccess() {
+  public ChanceOfSuccessDetailsForm getPlayChanceOfSuccess() {
     return playChanceOfSuccess;
   }
 
   public void setPlayChanceOfSuccess(
-      ChanceOfSuccessDetails playChanceOfSuccess) {
+      ChanceOfSuccessDetailsForm playChanceOfSuccess) {
     this.playChanceOfSuccess = playChanceOfSuccess;
   }
 
-  public ProspectSpecificChanceOfSuccess getProspectSpecificChanceOfSuccess() {
+  public ProspectSpecificChanceOfSuccessForm getProspectSpecificChanceOfSuccess() {
     return prospectSpecificChanceOfSuccess;
   }
 
   public void setProspectSpecificChanceOfSuccess(
-      ProspectSpecificChanceOfSuccess prospectSpecificChanceOfSuccess) {
+      ProspectSpecificChanceOfSuccessForm prospectSpecificChanceOfSuccess) {
     this.prospectSpecificChanceOfSuccess = prospectSpecificChanceOfSuccess;
   }
 

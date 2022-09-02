@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess;
 
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -30,13 +29,33 @@ public class ChanceOfSuccessFormService implements SubmissionFormService {
   }
 
   ChanceOfSuccessForm getChanceOfSuccessForm(SubmissionDetail submissionDetail) {
-    var newChanceOfSuccessForm = new ChanceOfSuccessForm();
-    newChanceOfSuccessForm.setPlayChanceOfSuccess(new ChanceOfSuccessDetails());
-    newChanceOfSuccessForm.setProspectSpecificChanceOfSuccess(new ProspectSpecificChanceOfSuccess());
+    var newChanceOfSuccessForm = createNewChanceOfSuccessForm();
 
     return chanceOfSuccessPersistenceService.getChanceOfSuccess(submissionDetail)
         .map(this::chanceOfSuccessEntityToForm)
         .orElse(newChanceOfSuccessForm);
+  }
+
+  ChanceOfSuccessForm createNewChanceOfSuccessForm() {
+    var newChanceOfSuccessForm = new ChanceOfSuccessForm();
+
+    newChanceOfSuccessForm.setPlayChanceOfSuccess(createChanceOfSuccessDetailsForm());
+
+    var newProspectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
+    newProspectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(createChanceOfSuccessDetailsForm());
+    newProspectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput());
+    newChanceOfSuccessForm.setProspectSpecificChanceOfSuccess(newProspectSpecificChanceOfSuccessForm);
+
+    return newChanceOfSuccessForm;
+  }
+
+  ChanceOfSuccessDetailsForm createChanceOfSuccessDetailsForm() {
+    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput());
+    chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput());
+    chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput());
+    return chanceOfSuccessDetailsForm;
   }
 
   private ChanceOfSuccessForm chanceOfSuccessEntityToForm(ChanceOfSuccess chanceOfSuccess) {
@@ -49,25 +68,70 @@ public class ChanceOfSuccessFormService implements SubmissionFormService {
     form.setRelatedToSpecificWellLocation(chanceOfSuccess.getRelatedToSpecificWellLocation());
 
     if (chanceOfSuccess.getGeophysicallyModified() != null && chanceOfSuccess.getGeophysicallyModified()) {
-      form.setGeophysicallyModifiedPercentage(new DecimalInput(chanceOfSuccess.getGeophysicallyModifiedPercentage()));
+      form.setGeophysicallyModifiedPercentage(chanceOfSuccess.getGeophysicallyModifiedPercentage() != null
+          ? new DecimalInput(chanceOfSuccess.getGeophysicallyModifiedPercentage().toString())
+          : new DecimalInput());
       form.setGeophysicallyModifiedComments(chanceOfSuccess.getGeophysicallyModifiedComments());
     }
 
     if (chanceOfSuccess.getRelatedToSpecificWellLocation() != null && chanceOfSuccess.getRelatedToSpecificWellLocation()) {
-      form.setWellModifiedPercentage(new DecimalInput(chanceOfSuccess.getWellModifiedPercentage()));
+      form.setWellModifiedPercentage(chanceOfSuccess.getWellModifiedPercentage() != null
+          ? new DecimalInput(chanceOfSuccess.getWellModifiedPercentage().toString())
+          : new DecimalInput());
       form.setWellModifiedComments(chanceOfSuccess.getWellModifiedComments());
     }
 
     return form;
   }
 
-  private ChanceOfSuccessDetails getPlayChanceOfSuccessFromEntity(ChanceOfSuccess chanceOfSuccess) {
-    return Optional.ofNullable(chanceOfSuccess.getPlayChanceOfSuccess())
-        .orElse(new ChanceOfSuccessDetails());
+  private ChanceOfSuccessDetailsForm getPlayChanceOfSuccessFromEntity(ChanceOfSuccess chanceOfSuccess) {
+    ChanceOfSuccessDetailsForm form = new ChanceOfSuccessDetailsForm();
+    form.setSourcePercentage(chanceOfSuccess.getSourcePercentage() != null
+        ? new DecimalInput(chanceOfSuccess.getSourcePercentage().toString())
+        : new DecimalInput());
+    form.setSourceComments(chanceOfSuccess.getSourceComments());
+    form.setTopSealPercentage(chanceOfSuccess.getTopSealPercentage() != null
+        ? new DecimalInput(chanceOfSuccess.getTopSealPercentage().toString())
+        : new DecimalInput()
+    );
+    form.setTopSealComments(chanceOfSuccess.getTopSealComments());
+    form.setReservoirPercentage(chanceOfSuccess.getReservoirPercentage() != null
+        ? new DecimalInput(chanceOfSuccess.getReservoirPercentage().toString())
+        : new DecimalInput());
+    form.setReservoirComments(chanceOfSuccess.getReservoirComments());
+    return form;
   }
 
-  private ProspectSpecificChanceOfSuccess getProspectSpecificChanceOfSuccessFromEntity(ChanceOfSuccess chanceOfSuccess) {
-    return Optional.ofNullable(chanceOfSuccess.getProspectSpecificChanceOfSuccess())
-        .orElse(new ProspectSpecificChanceOfSuccess());
+  private ProspectSpecificChanceOfSuccessForm getProspectSpecificChanceOfSuccessFromEntity(ChanceOfSuccess chanceOfSuccess) {
+    ProspectSpecificChanceOfSuccessForm form = new ProspectSpecificChanceOfSuccessForm();
+
+    ChanceOfSuccessDetailsForm chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    chanceOfSuccessDetailsForm.setSourcePercentage(
+        chanceOfSuccess.getProspectSourcePercentage() != null
+        ? new DecimalInput(chanceOfSuccess.getProspectSourcePercentage().toString())
+        : new DecimalInput());
+    chanceOfSuccessDetailsForm.setSourceComments(chanceOfSuccess.getProspectSourceComments());
+    chanceOfSuccessDetailsForm.setTopSealPercentage(
+        chanceOfSuccess.getProspectTopSealPercentage() != null
+        ? new DecimalInput(chanceOfSuccess.getProspectTopSealPercentage().toString())
+        : new DecimalInput()
+    );
+    chanceOfSuccessDetailsForm.setTopSealComments(chanceOfSuccess.getProspectTopSealComments());
+    chanceOfSuccessDetailsForm.setReservoirPercentage(
+        chanceOfSuccess.getProspectReservoirPercentage() != null
+        ? new DecimalInput(chanceOfSuccess.getProspectReservoirPercentage().toString())
+        : new DecimalInput());
+    chanceOfSuccessDetailsForm.setReservoirComments(chanceOfSuccess.getProspectReservoirComments());
+    form.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
+
+    form.setTrapPercentage(chanceOfSuccess.getProspectTrapPercentage() != null
+        ? new DecimalInput(chanceOfSuccess.getProspectTrapPercentage().toString())
+        : new DecimalInput());
+    form.setTrapComments(chanceOfSuccess.getProspectTrapComments());
+    form.setMigrationPercentage(chanceOfSuccess.getProspectMigrationPercentage() != null
+        ? new DecimalInput(chanceOfSuccess.getProspectMigrationPercentage().toString())
+        : new DecimalInput());
+    form.setMigrationComments(chanceOfSuccess.getProspectMigrationComments());
+    return form;
   }
 }

@@ -35,11 +35,6 @@ class SourceAndSealFormValidator implements SmartValidator, SubmissionFormValida
   }
 
   @Override
-  public void validateAlways(SubmissionForm form, Errors errors) {
-
-  }
-
-  @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
 
   }

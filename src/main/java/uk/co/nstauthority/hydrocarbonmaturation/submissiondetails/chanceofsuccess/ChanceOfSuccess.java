@@ -1,10 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess;
 
+import java.math.BigDecimal;
 import java.util.UUID;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -27,38 +25,60 @@ public class ChanceOfSuccess {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
-  @Embedded
-  @AttributeOverrides(
-      {
-          @AttributeOverride(name = "sourcePercentage", column = @Column(name = "play_source_percentage")),
-          @AttributeOverride(name = "sourceComments", column = @Column(name = "play_source_comments")),
-          @AttributeOverride(name = "reservoirPercentage", column = @Column(name = "play_reservoir_percentage")),
-          @AttributeOverride(name = "reservoirComments", column = @Column(name = "play_reservoir_comments")),
-          @AttributeOverride(name = "topSealPercentage", column = @Column(name = "play_top_seal_percentage")),
-          @AttributeOverride(name = "topSealComments", column = @Column(name = "play_top_seal_comments"))
-      }
-  )
-  private ChanceOfSuccessDetails playChanceOfSuccess;
+  @Column(name = "play_source_percentage")
+  private BigDecimal sourcePercentage;
 
-  @Embedded
-  @AttributeOverrides(
-      {
-          @AttributeOverride(name = "sourcePercentage", column = @Column(name = "prospect_specific_source_percentage")),
-          @AttributeOverride(name = "sourceComments", column = @Column(name = "prospect_specific_source_comments")),
-          @AttributeOverride(name = "reservoirPercentage", column = @Column(name = "prospect_specific_reservoir_percentage")),
-          @AttributeOverride(name = "reservoirComments", column = @Column(name = "prospect_specific_reservoir_comments")),
-          @AttributeOverride(name = "topSealPercentage", column = @Column(name = "prospect_specific_top_seal_percentage")),
-          @AttributeOverride(name = "topSealComments", column = @Column(name = "prospect_specific_top_seal_comments"))
-      }
-  )
-  private ProspectSpecificChanceOfSuccess prospectSpecificChanceOfSuccess;
+  @Column(name = "play_source_comments")
+  private String sourceComments;
+
+  @Column(name = "play_reservoir_percentage")
+  private BigDecimal reservoirPercentage;
+
+  @Column(name = "play_reservoir_comments")
+  private String reservoirComments;
+
+  @Column(name = "play_top_seal_percentage")
+  private BigDecimal topSealPercentage;
+
+  @Column(name = "play_top_seal_comments")
+  private String topSealComments;
+
+  @Column(name = "prospect_specific_trap_percentage")
+  private BigDecimal prospectTrapPercentage;
+
+  @Column(name = "prospect_specific_trap_comments")
+  private String prospectTrapComments;
+
+  @Column(name = "prospect_specific_migration_percentage")
+  private BigDecimal prospectMigrationPercentage;
+
+  @Column(name = "prospect_specific_migration_comments")
+  private String prospectMigrationComments;
+
+  @Column(name = "prospect_specific_source_percentage")
+  private BigDecimal prospectSourcePercentage;
+
+  @Column(name = "prospect_specific_source_comments")
+  private String prospectSourceComments;
+
+  @Column(name = "prospect_specific_reservoir_percentage")
+  private BigDecimal prospectReservoirPercentage;
+
+  @Column(name = "prospect_specific_reservoir_comments")
+  private String prospectReservoirComments;
+
+  @Column(name = "prospect_specific_top_seal_percentage")
+  private BigDecimal prospectTopSealPercentage;
+
+  @Column(name = "prospect_specific_top_seal_comments")
+  private String prospectTopSealComments;
 
   private Boolean geophysicallyModified;
-  private String geophysicallyModifiedPercentage;
+  private BigDecimal geophysicallyModifiedPercentage;
   private String geophysicallyModifiedComments;
 
   private Boolean relatedToSpecificWellLocation;
-  private String wellModifiedPercentage;
+  private BigDecimal wellModifiedPercentage;
   private String wellModifiedComments;
 
   public ChanceOfSuccess() {
@@ -80,22 +100,132 @@ public class ChanceOfSuccess {
     this.submissionDetail = submissionDetail;
   }
 
-  public ChanceOfSuccessDetails getPlayChanceOfSuccess() {
-    return playChanceOfSuccess;
+  public BigDecimal getSourcePercentage() {
+    return sourcePercentage;
   }
 
-  public void setPlayChanceOfSuccess(
-      ChanceOfSuccessDetails playChanceOfSuccess) {
-    this.playChanceOfSuccess = playChanceOfSuccess;
+  public void setSourcePercentage(BigDecimal sourcePercentage) {
+    this.sourcePercentage = sourcePercentage;
   }
 
-  public ProspectSpecificChanceOfSuccess getProspectSpecificChanceOfSuccess() {
-    return prospectSpecificChanceOfSuccess;
+  public String getSourceComments() {
+    return sourceComments;
   }
 
-  public void setProspectSpecificChanceOfSuccess(
-      ProspectSpecificChanceOfSuccess prospectSpecificChanceOfSuccess) {
-    this.prospectSpecificChanceOfSuccess = prospectSpecificChanceOfSuccess;
+  public void setSourceComments(String sourceComments) {
+    this.sourceComments = sourceComments;
+  }
+
+  public BigDecimal getReservoirPercentage() {
+    return reservoirPercentage;
+  }
+
+  public void setReservoirPercentage(BigDecimal reservoirPercentage) {
+    this.reservoirPercentage = reservoirPercentage;
+  }
+
+  public String getReservoirComments() {
+    return reservoirComments;
+  }
+
+  public void setReservoirComments(String reservoirComments) {
+    this.reservoirComments = reservoirComments;
+  }
+
+  public BigDecimal getTopSealPercentage() {
+    return topSealPercentage;
+  }
+
+  public void setTopSealPercentage(BigDecimal topSealPercentage) {
+    this.topSealPercentage = topSealPercentage;
+  }
+
+  public String getTopSealComments() {
+    return topSealComments;
+  }
+
+  public void setTopSealComments(String topSealComments) {
+    this.topSealComments = topSealComments;
+  }
+
+  public BigDecimal getProspectTrapPercentage() {
+    return prospectTrapPercentage;
+  }
+
+  public void setProspectTrapPercentage(BigDecimal trapPercentage) {
+    this.prospectTrapPercentage = trapPercentage;
+  }
+
+  public String getProspectTrapComments() {
+    return prospectTrapComments;
+  }
+
+  public void setProspectTrapComments(String trapComments) {
+    this.prospectTrapComments = trapComments;
+  }
+
+  public BigDecimal getProspectMigrationPercentage() {
+    return prospectMigrationPercentage;
+  }
+
+  public void setProspectMigrationPercentage(BigDecimal migrationPercentage) {
+    this.prospectMigrationPercentage = migrationPercentage;
+  }
+
+  public String getProspectMigrationComments() {
+    return prospectMigrationComments;
+  }
+
+  public void setProspectMigrationComments(String migrationComments) {
+    this.prospectMigrationComments = migrationComments;
+  }
+
+  public BigDecimal getProspectSourcePercentage() {
+    return prospectSourcePercentage;
+  }
+
+  public void setProspectSourcePercentage(BigDecimal prospectSourcePercentage) {
+    this.prospectSourcePercentage = prospectSourcePercentage;
+  }
+
+  public String getProspectSourceComments() {
+    return prospectSourceComments;
+  }
+
+  public void setProspectSourceComments(String prospectSourceComments) {
+    this.prospectSourceComments = prospectSourceComments;
+  }
+
+  public BigDecimal getProspectReservoirPercentage() {
+    return prospectReservoirPercentage;
+  }
+
+  public void setProspectReservoirPercentage(BigDecimal prospectReservoirPercentage) {
+    this.prospectReservoirPercentage = prospectReservoirPercentage;
+  }
+
+  public String getProspectReservoirComments() {
+    return prospectReservoirComments;
+  }
+
+  public void setProspectReservoirComments(String prospectReservoirComments) {
+    this.prospectReservoirComments = prospectReservoirComments;
+  }
+
+  public BigDecimal getProspectTopSealPercentage() {
+    return prospectTopSealPercentage;
+  }
+
+  public void setProspectTopSealPercentage(BigDecimal prospectTopSealPercentage) {
+    this.prospectTopSealPercentage = prospectTopSealPercentage;
+  }
+
+  public String getProspectTopSealComments() {
+    return prospectTopSealComments;
+  }
+
+  public void setProspectTopSealComments(String prospectTopSealComments) {
+    this.prospectTopSealComments = prospectTopSealComments;
   }
 
   public Boolean getGeophysicallyModified() {
@@ -106,11 +236,11 @@ public class ChanceOfSuccess {
     this.geophysicallyModified = geophysicallyModified;
   }
 
-  public String getGeophysicallyModifiedPercentage() {
+  public BigDecimal getGeophysicallyModifiedPercentage() {
     return geophysicallyModifiedPercentage;
   }
 
-  public void setGeophysicallyModifiedPercentage(String geophysicallyModifiedPercentage) {
+  public void setGeophysicallyModifiedPercentage(BigDecimal geophysicallyModifiedPercentage) {
     this.geophysicallyModifiedPercentage = geophysicallyModifiedPercentage;
   }
 
@@ -130,11 +260,11 @@ public class ChanceOfSuccess {
     this.relatedToSpecificWellLocation = relatedToSpecificWellLocation;
   }
 
-  public String getWellModifiedPercentage() {
+  public BigDecimal getWellModifiedPercentage() {
     return wellModifiedPercentage;
   }
 
-  public void setWellModifiedPercentage(String wellModifiedPercentage) {
+  public void setWellModifiedPercentage(BigDecimal wellModifiedPercentage) {
     this.wellModifiedPercentage = wellModifiedPercentage;
   }
 

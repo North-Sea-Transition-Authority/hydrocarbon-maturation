@@ -36,11 +36,6 @@ class HydrocarbonCaseFormValidator implements SmartValidator, SubmissionFormVali
   }
 
   @Override
-  public void validateAlways(SubmissionForm form, Errors errors) {
-
-  }
-
-  @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
     var hydrocarbonCaseForm = (HydrocarbonCaseForm) form;
 
