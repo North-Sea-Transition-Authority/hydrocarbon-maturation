@@ -1,6 +1,5 @@
 <#include '../../fds/layout.ftl'>
 <#import '_pageSizes.ftl' as PageSize>
-<#import '../tasklist/standardTaskList.ftl' as taskList>
 
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->

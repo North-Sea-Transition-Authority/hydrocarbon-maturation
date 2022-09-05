@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-public class NormalBehaviour implements TypeBehaviour {
+public class NormalBehaviour implements ProbabilityDistributionTypeBehaviour {
 
   @Override
   public boolean isMinAvailable() {

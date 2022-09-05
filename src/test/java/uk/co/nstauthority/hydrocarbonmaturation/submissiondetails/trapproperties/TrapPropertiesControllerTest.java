@@ -31,6 +31,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -52,6 +53,9 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
   @MockBean
   TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
+  @MockBean
+  ProbabilityDistributionService probabilityDistributionService;
+
   private static TrapPropertiesForm form;
   private static UUID submissionDetailId;
   private static SubmissionDetail submissionDetail;
@@ -70,6 +74,7 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
   void getTrapProperties_assertOK() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
+    when(probabilityDistributionService.getProbabilityDistributionTemplateForInstance(any())).thenCallRealMethod();
 
     mockMvc.perform(
         get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetailId))))
@@ -82,6 +87,7 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
   void saveTrapProperties_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
     when(trapPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(probabilityDistributionService.getProbabilityDistributionTemplateForInstance(any())).thenCallRealMethod();
 
     mockMvc.perform(
         post(ReverseRouter.route(on(TrapPropertiesController.class).saveTrapProperties(submissionDetailId, form, bindingResult, null)))
@@ -96,6 +102,7 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveTrapProperties_partialValidation_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    when(probabilityDistributionService.getProbabilityDistributionTemplateForInstance(any())).thenCallRealMethod();
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(trapPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
@@ -113,6 +120,7 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
   void getGeneralDetailsModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
+    when(probabilityDistributionService.getProbabilityDistributionTemplateForInstance(any())).thenCallRealMethod();
 
     var modelMap =     Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetailId))))

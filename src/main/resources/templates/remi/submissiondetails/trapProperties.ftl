@@ -1,5 +1,6 @@
 <#include '../layout/layout.ftl'>
 <#import '../coordinates/coordinateInput.ftl' as coordinateInput/>
+<#import '../probabilitydistribution/probabilitydistribution.ftl' as probabilityDistribution>
 
 <#assign pageTitle = "Trap properties" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
@@ -8,16 +9,19 @@
 <#-- @ftlvariable name="longitudeHemisphere" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="depthToCrestTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
+<#-- @ftlvariable name="depthToSpillPointTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
+<#-- @ftlvariable name="productiveAreaTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
 
 <@defaultPage
 htmlTitle=pageTitle
 pageHeading=pageTitle
-pageSize=PageSize.TWO_THIRDS_COLUMN
+pageSize=PageSize.FULL_WIDTH
 errorItems=errorList
 breadcrumbsMap=breadcrumbsMap>
 
   <@fdsForm.htmlForm>
-      <@fdsTextInput.textInput path="form.trapDescription" labelText="Trap description"
+      <@fdsTextarea.textarea path="form.trapDescription" labelText="Trap description"
         hintText="For example, Upper Jurassic (Solan) turbidite sandstones, enclosed within and oil sourced by the lower portion of the Kimmeridge Clay Formation"/>
 
     <@fdsRadio.radioGroup path="form.trapType" labelText="Trap type" hiddenContent=true>
@@ -50,6 +54,24 @@ breadcrumbsMap=breadcrumbsMap>
       labelText="Longitude"
       hintText="From 0 to 30 for degrees, 0 to 59 for minutes, and 0 to 59.999 for seconds"/>
 
-    <@fdsAction.submitButtons primaryButtonText="Save and complete" secondaryButtonText="Save and complete later"/>
+    <@probabilityDistribution.probabilityDistributionTemplate
+        path="form.depthToCrest.probabilityDistributionType"
+        labelText="Depth to crest distribution used"
+        formId="depthToCrestId"
+        template=depthToCrestTemplate/>
+
+    <@probabilityDistribution.probabilityDistributionTemplate
+      path="form.depthToSpillPoint.probabilityDistributionType"
+      labelText="Depth to spill-point distribution used"
+      formId="depthToSpillPointId"
+      template=depthToSpillPointTemplate/>
+
+    <@probabilityDistribution.probabilityDistributionTemplate
+      path="form.productiveArea.probabilityDistributionType"
+      labelText="Productive area distribution used"
+      formId="productiveAreaId"
+      template=productiveAreaTemplate/>
+
+      <@fdsAction.submitButtons primaryButtonText="Save and complete" secondaryButtonText="Save and complete later"/>
   </@fdsForm.htmlForm>
 </@defaultPage>

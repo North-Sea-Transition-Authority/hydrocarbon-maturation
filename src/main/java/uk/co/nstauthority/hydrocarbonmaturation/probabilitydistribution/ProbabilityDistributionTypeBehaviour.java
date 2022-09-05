@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-public interface TypeBehaviour {
+public interface ProbabilityDistributionTypeBehaviour {
   boolean isMinAvailable();
 
   boolean isMinRequired();

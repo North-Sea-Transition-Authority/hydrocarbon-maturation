@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 public class TrapPropertiesForm extends SubmissionForm {
@@ -13,6 +14,12 @@ public class TrapPropertiesForm extends SubmissionForm {
   private CoordinateInput longitudeCoordinates = new CoordinateInput();
   //TODO HM-129
   private Hemisphere longitudeHemisphere;
+
+  private ProbabilityDistributionForm depthToCrest;
+
+  private ProbabilityDistributionForm depthToSpillPoint;
+
+  private ProbabilityDistributionForm productiveArea;
 
   public String getTrapDescription() {
     return trapDescription;
@@ -60,5 +67,32 @@ public class TrapPropertiesForm extends SubmissionForm {
 
   public void setLongitudeHemisphere(Hemisphere longitudeHemisphere) {
     this.longitudeHemisphere = longitudeHemisphere;
+  }
+
+  public ProbabilityDistributionForm getDepthToCrest() {
+    return depthToCrest;
+  }
+
+  public void setDepthToCrest(
+      ProbabilityDistributionForm depthToCrest) {
+    this.depthToCrest = depthToCrest;
+  }
+
+  public ProbabilityDistributionForm getDepthToSpillPoint() {
+    return depthToSpillPoint;
+  }
+
+  public void setDepthToSpillPoint(
+      ProbabilityDistributionForm depthToSpillPoint) {
+    this.depthToSpillPoint = depthToSpillPoint;
+  }
+
+  public ProbabilityDistributionForm getProductiveArea() {
+    return productiveArea;
+  }
+
+  public void setProductiveArea(
+      ProbabilityDistributionForm productiveArea) {
+    this.productiveArea = productiveArea;
   }
 }
