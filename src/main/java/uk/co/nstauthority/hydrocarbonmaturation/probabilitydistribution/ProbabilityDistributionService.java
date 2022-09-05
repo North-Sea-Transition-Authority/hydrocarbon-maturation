@@ -33,7 +33,7 @@ public class ProbabilityDistributionService {
 
       if (behaviour.isP99Available()) {
         var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.P99, behaviour.isP99Available()
+            ProbabilityOfExceedanceType.P99, behaviour.isP99Required()
         );
         probabilityDistributionTypeInputs.add(input);
       }
