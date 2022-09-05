@@ -12,7 +12,7 @@ public class PercentageValidationUtils {
 
   public static DecimalInputValidator configurePercentageValidator(DecimalInput percentage, String fieldId,
                                                                    String errorMessagePrefix, Errors errors) {
-    return DecimalInputValidator.configureValidator(errors, fieldId, errorMessagePrefix, percentage)
+    return DecimalInputValidator.configureValidator(errors, fieldId, errorMessagePrefix + " percentage", percentage)
         .setMinValue(BigDecimal.ONE)
         .setMaxValue(BigDecimal.valueOf(100))
         .setMaxDecimalPlaces(0);

@@ -28,7 +28,7 @@ class ChanceOfSuccessFormValidator implements SmartValidator, SubmissionFormVali
       = "The geophysically-modified chance of success";
 
   private static final String WELL_MODIFIED_PERCENTAGE_ERROR_MESSAGE_PREFIX =
-      "The chance of success quoted in relation to a specific well location";
+      "The well-modified chance of success";
 
 
   @Override
@@ -71,7 +71,10 @@ class ChanceOfSuccessFormValidator implements SmartValidator, SubmissionFormVali
 
     if (chanceOfSuccessForm.getGeophysicallyModified() != null && chanceOfSuccessForm.getGeophysicallyModified()) {
       PercentageValidationUtils.configurePercentageValidator(chanceOfSuccessForm.getGeophysicallyModifiedPercentage(),
-          "geophysicallyModifiedPercentage.decimalInputValue", GEOPHYSICALLY_MODIFIED_PERCENTAGE_ERROR_MESSAGE_PREFIX, errors)
+          "geophysicallyModifiedPercentage.decimalInputValue",
+              GEOPHYSICALLY_MODIFIED_PERCENTAGE_ERROR_MESSAGE_PREFIX,
+              errors
+          )
           .isOptional()
           .validate();
     }
@@ -81,7 +84,9 @@ class ChanceOfSuccessFormValidator implements SmartValidator, SubmissionFormVali
 
       PercentageValidationUtils.configurePercentageValidator(chanceOfSuccessForm.getWellModifiedPercentage(),
           "wellModifiedPercentage.decimalInputValue",
-          WELL_MODIFIED_PERCENTAGE_ERROR_MESSAGE_PREFIX, errors)
+          WELL_MODIFIED_PERCENTAGE_ERROR_MESSAGE_PREFIX,
+              errors
+          )
           .isOptional()
           .validate();
     }
@@ -102,16 +107,16 @@ class ChanceOfSuccessFormValidator implements SmartValidator, SubmissionFormVali
     var chanceOfSuccessForm = (ChanceOfSuccessForm) form;
 
     ValidationUtils.rejectIfEmpty(errors, "geophysicallyModified", "geophysicallyModified.required",
-        "Select the geophysically-modified chance of success");
-
-    ValidationUtils.rejectIfEmpty(errors, "relatedToSpecificWellLocation", "relatedToSpecificWellLocation.required",
-        "Select yes if the chance of success is quoted in relation to a specific well location");
+        "Select yes if there is a geophysically-modified chance of success");
 
     if (chanceOfSuccessForm.getGeophysicallyModified() != null && chanceOfSuccessForm.getGeophysicallyModified()) {
       PercentageValidationUtils.configurePercentageValidator(chanceOfSuccessForm.getGeophysicallyModifiedPercentage(),
-          "geophysicallyModifiedPercentage.decimalInputValue", GEOPHYSICALLY_MODIFIED_PERCENTAGE_ERROR_MESSAGE_PREFIX, errors)
+              "geophysicallyModifiedPercentage.decimalInputValue", GEOPHYSICALLY_MODIFIED_PERCENTAGE_ERROR_MESSAGE_PREFIX, errors)
           .validate();
     }
+
+    ValidationUtils.rejectIfEmpty(errors, "relatedToSpecificWellLocation", "relatedToSpecificWellLocation.required",
+        "Select yes if the chance of success is quoted in relation to a specific well location");
 
     if (chanceOfSuccessForm.getRelatedToSpecificWellLocation() != null
         && chanceOfSuccessForm.getRelatedToSpecificWellLocation()) {
