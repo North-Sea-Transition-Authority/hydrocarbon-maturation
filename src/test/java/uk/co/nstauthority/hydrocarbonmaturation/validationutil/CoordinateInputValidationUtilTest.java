@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -159,20 +161,6 @@ class CoordinateInputValidationUtilTest {
     assertThat(bindingResult.getAllErrors().get(0).getDefaultMessage()).isEqualTo("The coordinate degrees must be 0 or more");
   }
 
-  @Test
-  void validateCoordinate_degreesEqualToMin() {
-    var coordinateInput = new CoordinateInput();
-
-    coordinateInput.setDegrees(new DecimalInput("0"));
-    coordinateInput.setMinutes(new DecimalInput("56"));
-    coordinateInput.setSeconds(new DecimalInput("56"));
-
-    var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
-
-    assertThat(bindingResult.hasErrors()).isFalse();
-  }
-
 
   @Test
   void validateCoordinate_degreesMoreThanMax() {
@@ -194,20 +182,6 @@ class CoordinateInputValidationUtilTest {
         );
 
     assertThat(bindingResult.getAllErrors().get(0).getDefaultMessage()).isEqualTo("The coordinate degrees must be 30 or less");
-  }
-
-  @Test
-  void validateCoordinate_degreesEqualToMax() {
-    var coordinateInput = new CoordinateInput();
-
-    coordinateInput.setDegrees(new DecimalInput("30"));
-    coordinateInput.setMinutes(new DecimalInput("56"));
-    coordinateInput.setSeconds(new DecimalInput("56"));
-
-    var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
-
-    assertThat(bindingResult.hasErrors()).isFalse();
   }
 
   @Test
@@ -255,20 +229,6 @@ class CoordinateInputValidationUtilTest {
   }
 
   @Test
-  void validateCoordinate_minutesEqualToMin() {
-    var coordinateInput = new CoordinateInput();
-
-    coordinateInput.setDegrees(new DecimalInput("15"));
-    coordinateInput.setMinutes(new DecimalInput("0"));
-    coordinateInput.setSeconds(new DecimalInput("56"));
-
-    var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
-
-    assertThat(bindingResult.hasErrors()).isFalse();
-  }
-
-  @Test
   void validateCoordinate_minutesMoreThanMax() {
     var coordinateInput = new CoordinateInput();
 
@@ -290,13 +250,21 @@ class CoordinateInputValidationUtilTest {
     assertThat(bindingResult.getAllErrors().get(0).getDefaultMessage()).isEqualTo("The coordinate minutes must be 59 or less");
   }
 
-  @Test
-  void validateCoordinate_minutesEqualToMax() {
+  @ParameterizedTest
+  @CsvSource({
+      "15, 59, 56",
+      "15, 15, 0",
+      "15, 59, 59.999",
+      "15, 0, 56",
+      "30, 56, 56",
+      "0, 56, 56",
+  })
+  void validateCoordinate_withValidInputs(String degrees, String minutes, String seconds) {
     var coordinateInput = new CoordinateInput();
 
-    coordinateInput.setDegrees(new DecimalInput("15"));
-    coordinateInput.setMinutes(new DecimalInput("59"));
-    coordinateInput.setSeconds(new DecimalInput("56"));
+    coordinateInput.setDegrees(new DecimalInput(degrees));
+    coordinateInput.setMinutes(new DecimalInput(minutes));
+    coordinateInput.setSeconds(new DecimalInput(seconds));
 
     var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
     var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
@@ -349,20 +317,6 @@ class CoordinateInputValidationUtilTest {
   }
 
   @Test
-  void validateCoordinate_secondsEqualToMin() {
-    var coordinateInput = new CoordinateInput();
-
-    coordinateInput.setDegrees(new DecimalInput("15"));
-    coordinateInput.setMinutes(new DecimalInput("15"));
-    coordinateInput.setSeconds(new DecimalInput("0"));
-
-    var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
-
-    assertThat(bindingResult.hasErrors()).isFalse();
-  }
-
-  @Test
   void validateCoordinate_secondsMoreThanMax() {
     var coordinateInput = new CoordinateInput();
 
@@ -382,20 +336,6 @@ class CoordinateInputValidationUtilTest {
         );
 
     assertThat(bindingResult.getAllErrors().get(0).getDefaultMessage()).isEqualTo("The coordinate seconds must be 59.999 or less");
-  }
-
-  @Test
-  void validateCoordinate_secondsEqualToMax() {
-    var coordinateInput = new CoordinateInput();
-
-    coordinateInput.setDegrees(new DecimalInput("15"));
-    coordinateInput.setMinutes(new DecimalInput("15"));
-    coordinateInput.setSeconds(new DecimalInput("59.999"));
-
-    var form = new CoordinateInputValidationUtilTest.CoordinateInputValidationTestForm(coordinateInput, null);
-    var bindingResult = validateMandatoryCoordinateInputNoHemisphere(form, coordinateInput);
-
-    assertThat(bindingResult.hasErrors()).isFalse();
   }
 
   @Test

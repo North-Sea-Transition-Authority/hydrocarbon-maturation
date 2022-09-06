@@ -6,9 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -78,74 +82,32 @@ class GeneralDetailsFormValidatorTest {
         );
   }
 
-  @Test
-  void validate_whenInValidForm_noPercentageEntered_thenValidationErrors() {
+  @ParameterizedTest
+  @MethodSource("invalidPercentageArguments")
+  void validate_whenInvalidForm_thenValidationErrors(
+      String decimalInputValue,
+      String errorCode)
+  {
     var form = getValidForm();
-    form.setPercentageLocatedInUkcs(new DecimalInput(null));
+    form.setPercentageLocatedInUkcs(new DecimalInput(decimalInputValue));
 
     var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("percentageLocatedInUkcs.decimalInputValue", Set.of("percentageLocatedInUkcs.decimalInputValue.required"))
+            entry("percentageLocatedInUkcs.decimalInputValue", Set.of(errorCode))
         );
   }
 
-  @Test
-  void percentageValidation_invalidType_thenValidationErrors() {
-    var form = getValidForm();
-    form.setPercentageLocatedInUkcs(new DecimalInput("abcde"));
-
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("percentageLocatedInUkcs.decimalInputValue", Set.of("percentageLocatedInUkcs.decimalInputValue.notNumeric"))
-        );
-  }
-
-  @Test
-  void percentageValidation_minValueLessThanZero_thenValidationErrors() {
-    var form = getValidForm();
-    form.setPercentageLocatedInUkcs(new DecimalInput("-5"));
-
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("percentageLocatedInUkcs.decimalInputValue", Set.of("percentageLocatedInUkcs.decimalInputValue.lessThanMinValue"))
-        );
-  }
-
-  @Test
-  void percentageValidation_maxValueMoreThan100_thenValidationErrors() {
-    var form = getValidForm();
-    form.setPercentageLocatedInUkcs(new DecimalInput("101"));
-
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("percentageLocatedInUkcs.decimalInputValue", Set.of("percentageLocatedInUkcs.decimalInputValue.moreThanMaxValue"))
-        );
-  }
-
-  @Test
-  void percentageValidation_moreThanTwoDecimalPlaces_thenValidationErrors() {
-    var form = getValidForm();
-    form.setPercentageLocatedInUkcs(new DecimalInput("10.567"));
-
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("percentageLocatedInUkcs.decimalInputValue", Set.of("percentageLocatedInUkcs.decimalInputValue.incorrectDecimalPlaces"))
-        );
+  private static Stream<Arguments> invalidPercentageArguments() {
+    return Stream.of(
+        Arguments.of(null, "percentageLocatedInUkcs.decimalInputValue.required"),
+        Arguments.of("abcde", "percentageLocatedInUkcs.decimalInputValue.notNumeric"),
+        Arguments.of("-5", "percentageLocatedInUkcs.decimalInputValue.lessThanMinValue"),
+        Arguments.of("101", "percentageLocatedInUkcs.decimalInputValue.moreThanMaxValue"),
+        Arguments.of("10.567", "percentageLocatedInUkcs.decimalInputValue.incorrectDecimalPlaces")
+    );
   }
 
   @Test
