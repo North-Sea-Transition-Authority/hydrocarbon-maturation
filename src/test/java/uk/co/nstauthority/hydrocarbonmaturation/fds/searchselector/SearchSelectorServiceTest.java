@@ -23,7 +23,7 @@ public class SearchSelectorServiceTest {
   }
 
   @Test
-  public void search_NoMatch() {
+  void search_NoMatch() {
     List<SearchItem> searchableResults = List.of(
         new SearchItem(1, "fieldname")
     );
@@ -32,14 +32,14 @@ public class SearchSelectorServiceTest {
   }
 
   @Test
-  public void search_SearchableEmpty() {
+  void search_SearchableEmpty() {
     List<SearchSelectable> searchableResults = List.of();
     List<RestSearchItem> result = searchSelectorService.search("should not match", searchableResults);
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void search_Match() {
+  void search_Match() {
     SearchItem searchItem = new SearchItem(1, "fieldname");
     List<SearchItem> searchableResults = List.of(searchItem);
     List<RestSearchItem> result = searchSelectorService.search("fie", searchableResults);
@@ -48,21 +48,21 @@ public class SearchSelectorServiceTest {
   }
 
   @Test
-  public void addManualEntry() {
+  void addManualEntry() {
     List<RestSearchItem> searchableResults = searchSelectorService.addManualEntry("free_text", new ArrayList<>());
     assertThat(searchableResults).extracting(RestSearchItem::id)
         .containsExactly(SearchSelectablePrefix.FREE_TEXT_PREFIX + "free_text");
   }
 
   @Test
-  public void addManualEntry_noFreeText() {
+  void addManualEntry_noFreeText() {
     List<RestSearchItem> searchableResults = searchSelectorService.addManualEntry("free_text", new ArrayList<>(), ManualEntryAttribute.NO_FREE_TEXT_PREFIX);
     assertThat(searchableResults).extracting(RestSearchItem::id)
         .containsExactly("free_text");
   }
 
   @Test
-  public void buildPrepopulatedSelections() {
+  void buildPrepopulatedSelections() {
     String prefix = SearchSelectablePrefix.FREE_TEXT_PREFIX;
     List<String> selections = List.of(prefix + "Test", "1", "2");
     Map<String, String> resolvedMap = new HashMap<String, String>(){{
@@ -78,7 +78,7 @@ public class SearchSelectorServiceTest {
   }
 
   @Test
-  public void removePrefix() {
+  void removePrefix() {
     String str = SearchSelectablePrefix.FREE_TEXT_PREFIX + "Test";
     assertThat(SearchSelectorService.removePrefix(str)).isEqualTo("Test");
   }
@@ -92,7 +92,7 @@ public class SearchSelectorServiceTest {
 //  }
 
   @Test
-  public void isManualEntry() {
+  void isManualEntry() {
     String manualEntry = SearchSelectablePrefix.FREE_TEXT_PREFIX + "manual_Entry";
     String notManualEntry = "123";
     assertThat(SearchSelectorService.isManualEntry(manualEntry)).isTrue();
@@ -100,21 +100,21 @@ public class SearchSelectorServiceTest {
   }
 
   @Test
-  public void getValueWithManualEntryPrefix() {
+  void getValueWithManualEntryPrefix() {
     String manualEntry = "manual entry";
     String result = SearchSelectorService.getValueWithManualEntryPrefix(manualEntry);
     assertThat(result).isEqualTo(SearchSelectablePrefix.FREE_TEXT_PREFIX + manualEntry);
   }
 
   @Test
-  public void getManualOrStandardSelection_withManualEntry() {
+  void getManualOrStandardSelection_withManualEntry() {
     String manual = "manual";
     String output = searchSelectorService.getManualOrStandardSelection(manual, null);
     assertThat(output).isEqualTo(SearchSelectorService.getValueWithManualEntryPrefix(manual));
   }
 
   @Test
-  public void getManualOrStandardSelection_withStandardEntry() {
+  void getManualOrStandardSelection_withStandardEntry() {
     SearchSelectable standardEntry = new SearchSelectable() {
       @Override
       public String getSelectionId() {

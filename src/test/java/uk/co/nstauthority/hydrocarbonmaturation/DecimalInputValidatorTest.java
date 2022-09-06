@@ -206,7 +206,7 @@ class DecimalInputValidatorTest {
         .overrideDefaultErrorMessage("")
         .validate();
 
-    assertThat(bindingResult.getAllErrors().get(0).getDefaultMessage()).isEqualTo("");
+    assertThat(bindingResult.getAllErrors().get(0).getDefaultMessage()).isEmpty();
   }
 
   private BindingResult getBindingResult() {

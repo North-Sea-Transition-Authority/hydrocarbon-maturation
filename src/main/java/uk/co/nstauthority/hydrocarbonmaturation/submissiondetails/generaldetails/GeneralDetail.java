@@ -42,9 +42,6 @@ public class GeneralDetail {
 
   private String licenceApplicationInfoSource;
 
-  public GeneralDetail() {
-  }
-
   public UUID getId() {
     return id;
   }

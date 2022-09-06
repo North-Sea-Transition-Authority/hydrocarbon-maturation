@@ -81,9 +81,6 @@ public class ChanceOfSuccess {
   private BigDecimal wellModifiedPercentage;
   private String wellModifiedComments;
 
-  public ChanceOfSuccess() {
-  }
-
   public UUID getId() {
     return id;
   }

@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-interface QuadrantBlockRepository extends CrudRepository<QuadrantBlock, UUID> {
+interface QuadrantBlockRepository extends CrudRepository<QuadrantAndBlock, UUID> {
 }

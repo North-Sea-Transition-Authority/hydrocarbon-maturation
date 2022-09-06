@@ -36,7 +36,7 @@ class SourceAndSealFormValidator implements SmartValidator, SubmissionFormValida
 
   @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
-
+    //no fields require partial validation
   }
 
   @Override

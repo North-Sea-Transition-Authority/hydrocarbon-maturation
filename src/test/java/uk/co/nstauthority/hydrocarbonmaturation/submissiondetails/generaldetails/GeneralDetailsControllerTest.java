@@ -120,8 +120,8 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
             .getModelAndView())
         .getModelMap();
 
-    assertThat(modelMap.get("onshoreOffshore")).isEqualTo(OnshoreOffshore.getOnshoreOffshore());
-    assertThat(modelMap.get("informationSources")).isEqualTo(InformationSource.getInformationSource());
+    assertThat(modelMap).containsEntry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore());
+    assertThat(modelMap).containsEntry("informationSources", InformationSource.getInformationSource());
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 
     @SuppressWarnings(value="unchecked")

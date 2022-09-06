@@ -1,8 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.validationutil;
 
 import java.util.Arrays;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 
 public class SubmissionFormValidationUtils {
+
+  private SubmissionFormValidationUtils() {
+    throw new IllegalUtilClassInstantiationException(this.getClass());
+  }
 
   public static ValidationType extractValidationTypeFromHints(Object[] validationHints) {
     return Arrays.stream(validationHints)

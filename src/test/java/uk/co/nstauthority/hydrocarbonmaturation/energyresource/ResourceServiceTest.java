@@ -31,7 +31,7 @@ class ResourceServiceTest {
   }
 
   @Test
-  public void createResource() {
+  void createResource() {
     var resourceType = ResourceType.PROSPECT;
     var resourceArgumentCaptor = ArgumentCaptor.forClass(Resource.class);
     var resource = resourceService.createResource(resourceType);

@@ -36,7 +36,7 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
 
   @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
-
+    //no fields require partial validation
   }
 
   @Override

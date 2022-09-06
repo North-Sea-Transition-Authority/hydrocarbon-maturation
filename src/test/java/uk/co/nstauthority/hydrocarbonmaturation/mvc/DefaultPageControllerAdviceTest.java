@@ -62,9 +62,9 @@ class DefaultPageControllerAdviceTest {
 
     assertThat((CustomerConfigurationProperties) modelMap.get("customerBranding")).hasNoNullFieldsOrProperties();
     assertThat((ServiceConfigurationProperties) modelMap.get("serviceBranding")).hasNoNullFieldsOrProperties();
-    assertThat(modelMap.get("serviceHomeUrl")).isEqualTo(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
-    assertThat(modelMap.get("submitPrimaryButtonText")).isEqualTo("Save and complete");
-    assertThat(modelMap.get("submitSecondaryButtonText")).isEqualTo("Save and complete later");
+    assertThat(modelMap).containsEntry("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+    assertThat(modelMap).containsEntry("submitPrimaryButtonText", "Save and complete");
+    assertThat(modelMap).containsEntry("submitSecondaryButtonText", "Save and complete later");
   }
 
   // Dummy application to stop the @WebMvcTest loading more than it needs

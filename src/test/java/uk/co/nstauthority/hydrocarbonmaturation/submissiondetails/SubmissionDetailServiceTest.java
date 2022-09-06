@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 
 @ExtendWith(MockitoExtension.class)
-public class SubmissionDetailServiceTest {
+class SubmissionDetailServiceTest {
 
   private static final Instant INSTANT = Instant.now();
   @Mock
@@ -31,7 +31,7 @@ public class SubmissionDetailServiceTest {
   }
 
   @Test
-  public void createInitialSubmissionDetail() {
+  void createInitialSubmissionDetail() {
     var submissionType = SubmissionType.CREATE_PROSPECT;
     var resource = new Resource();
     var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);

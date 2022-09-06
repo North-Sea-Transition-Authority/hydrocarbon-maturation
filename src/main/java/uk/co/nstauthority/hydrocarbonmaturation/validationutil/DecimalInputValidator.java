@@ -107,7 +107,7 @@ public class DecimalInputValidator {
   }
 
   private void rejectMinValue(BigDecimal minValue) {
-    validators.add((value) -> {
+    validators.add(value -> {
       var errorMessage = "%s must be %s or more".formatted(errorMessagePrefix, minValue.toString());
 
       if (!useDefaultErrorMessage) {
@@ -121,7 +121,7 @@ public class DecimalInputValidator {
   }
 
   private void rejectMaxValue(BigDecimal maxValue) {
-    validators.add((value) -> {
+    validators.add(value -> {
 
       var errorMessage = "%s must be %s or less".formatted(errorMessagePrefix, maxValue.toString());
       if (!useDefaultErrorMessage) {
@@ -135,7 +135,7 @@ public class DecimalInputValidator {
   }
 
   private void rejectDecimalPlaces(int decimalPlacesExpected) {
-    validators.add((value) -> {
+    validators.add(value -> {
       var bigDecimal = value.stripTrailingZeros();
       var errorMessage = "%s must have no more than %d decimal places".formatted(errorMessagePrefix, decimalPlacesExpected);
 

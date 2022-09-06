@@ -11,7 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "quadrant_blocks")
-class QuadrantBlock {
+class QuadrantAndBlock {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -24,7 +24,7 @@ class QuadrantBlock {
 
   private String quadrantBlock;
 
-  public QuadrantBlock() {
+  public QuadrantAndBlock() {
   }
 
   public UUID getId() {

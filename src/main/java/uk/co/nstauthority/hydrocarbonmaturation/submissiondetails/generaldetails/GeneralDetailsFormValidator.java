@@ -31,7 +31,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     var validationType = SubmissionFormValidationUtils.extractValidationTypeFromHints(validationHints);
     var form = (GeneralDetailsForm) target;
 
-    validateAlways(form, errors);
+    validateAlways(errors);
 
     if (validationType.equals(ValidationType.PARTIAL)) {
       validatePartial(form, errors);
@@ -43,7 +43,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   }
 
-  public void validateAlways(SubmissionForm form, Errors errors) {
+  public void validateAlways(Errors errors) {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "prospectName", "prospectName.required", "Enter the prospect name");
   }
 
