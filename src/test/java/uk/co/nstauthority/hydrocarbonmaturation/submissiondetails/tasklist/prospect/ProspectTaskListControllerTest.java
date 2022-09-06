@@ -97,7 +97,7 @@ class ProspectTaskListControllerTest extends AbstractControllerTest {
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE)
         );
 
-    assertEquals(modelAndView.getModel().get("currentPage"), ProspectTaskListController.PAGE_NAME);
+    assertEquals(ProspectTaskListController.PAGE_NAME, modelAndView.getModel().get("currentPage"));
 
     assertThat(taskListSectionViews)
         .extracting(

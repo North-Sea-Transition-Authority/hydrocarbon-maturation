@@ -39,7 +39,7 @@ class CoordinateInputValidationUtilTest {
     assertThat(errorList.get(0).getDefaultMessage()).isEqualTo("Enter a coordinate");
     assertThat(errorList.get(1).getDefaultMessage()).isEmpty();
     assertThat(errorList.get(2).getDefaultMessage()).isEmpty();
-    assertThat(errorList.size()).isEqualTo(3);
+    assertThat(errorList).hasSize(3);
   }
 
   @Test

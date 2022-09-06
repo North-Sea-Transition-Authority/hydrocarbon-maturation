@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -130,9 +131,11 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
     @SuppressWarnings(value="unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
+    Map<String, Object> modelMapExpected = new HashMap<>();
+    modelMapExpected.put("trapTypes", TrapType.getTrapTypes());
+    modelMapExpected.put("longitudeHemisphere", Hemisphere.getLongitudeHemisphere());
+    assertThat(modelMap).containsAllEntriesOf(modelMapExpected);
     assertThat(modelMap.get("form").getClass()).isEqualTo(TrapPropertiesForm.class);
-    assertThat(modelMap.get("trapTypes")).isEqualTo(TrapType.getTrapTypes());
-    assertThat(modelMap.get("longitudeHemisphere")).isEqualTo( Hemisphere.getLongitudeHemisphere());
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)), ProspectTaskListController.PAGE_NAME)

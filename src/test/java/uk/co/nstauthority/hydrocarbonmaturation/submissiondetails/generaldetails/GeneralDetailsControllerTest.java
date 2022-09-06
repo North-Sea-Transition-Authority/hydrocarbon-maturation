@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -120,8 +121,10 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
             .getModelAndView())
         .getModelMap();
 
-    assertThat(modelMap).containsEntry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore());
-    assertThat(modelMap).containsEntry("informationSources", InformationSource.getInformationSource());
+    Map<String, Object> modelMapExpected = new HashMap<>();
+    modelMapExpected.put("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore());
+    modelMapExpected.put("informationSources", InformationSource.getInformationSource());
+    assertThat(modelMap).containsAllEntriesOf(modelMapExpected);
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 
     @SuppressWarnings(value="unchecked")

@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -62,9 +64,12 @@ class DefaultPageControllerAdviceTest {
 
     assertThat((CustomerConfigurationProperties) modelMap.get("customerBranding")).hasNoNullFieldsOrProperties();
     assertThat((ServiceConfigurationProperties) modelMap.get("serviceBranding")).hasNoNullFieldsOrProperties();
-    assertThat(modelMap).containsEntry("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
-    assertThat(modelMap).containsEntry("submitPrimaryButtonText", "Save and complete");
-    assertThat(modelMap).containsEntry("submitSecondaryButtonText", "Save and complete later");
+
+    Map<String, Object> commonPropertiesMap = new HashMap<>();
+    commonPropertiesMap.put("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+    commonPropertiesMap.put("submitPrimaryButtonText", "Save and complete");
+    commonPropertiesMap.put("submitSecondaryButtonText", "Save and complete later");
+    assertThat(modelMap).containsAllEntriesOf(commonPropertiesMap);
   }
 
   // Dummy application to stop the @WebMvcTest loading more than it needs

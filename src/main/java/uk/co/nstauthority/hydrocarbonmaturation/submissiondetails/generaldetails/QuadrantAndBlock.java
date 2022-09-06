@@ -24,9 +24,6 @@ class QuadrantAndBlock {
 
   private String quadrantBlock;
 
-  public QuadrantAndBlock() {
-  }
-
   public UUID getId() {
     return id;
   }
