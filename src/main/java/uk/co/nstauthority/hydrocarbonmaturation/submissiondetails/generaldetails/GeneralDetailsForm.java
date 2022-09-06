@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
-class GeneralDetailsForm extends SubmissionForm {
+class GeneralDetailsForm implements SubmissionForm {
 
   private String prospectName;
   //TODO HM-129

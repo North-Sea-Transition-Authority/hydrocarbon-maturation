@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -24,14 +23,14 @@ public class SearchSelectorService {
                 .toLowerCase()
                 .contains(StringUtils.defaultIfBlank(searchQuery, "").toLowerCase()))
         .map(item -> new RestSearchItem(item.getSelectionId(), item.getSelectionText()))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public RestSearchResult getSearchResultsWithManualEntry(String searchTerm, List<? extends SearchSelectable> searchableList) {
     List<RestSearchItem> results = search(searchTerm, searchableList)
         .stream()
         .sorted(Comparator.comparing(RestSearchItem::text))
-        .collect(Collectors.toList());
+        .toList();
     addManualEntry(searchTerm, results);
     return new RestSearchResult(results);
   }

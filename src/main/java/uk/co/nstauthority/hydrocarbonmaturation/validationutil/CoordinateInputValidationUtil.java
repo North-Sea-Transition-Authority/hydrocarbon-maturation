@@ -130,7 +130,7 @@ public class CoordinateInputValidationUtil {
     if (hemisphere == null) {
       if (errors.getFieldErrorCount("%s.minutes.decimalInputValue".formatted(fieldIdPrefix)) == 0
           && errors.getFieldErrorCount("%s.degrees.decimalInputValue".formatted(fieldIdPrefix)) == 0
-          && errors.getFieldErrorCount("%s.degrees.decimalInputValue".formatted(fieldIdPrefix)) == 0) {
+          && errors.getFieldErrorCount("%s.seconds.decimalInputValue".formatted(fieldIdPrefix)) == 0) {
         errors.rejectValue(
             hemisphereFieldPrefix,
             "%s.required".formatted(hemisphereFieldPrefix),

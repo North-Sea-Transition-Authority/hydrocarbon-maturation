@@ -41,7 +41,8 @@ public class DecimalInput {
    */
   public Optional<BigDecimal> asBigDecimal() throws NumberFormatException {
     if (decimalInputValue != null && decimalInputValue.toLowerCase().contains("e")) {
-      LOGGER.debug("Could not convert the input value to a valid DecimalInput for value: " + decimalInputValue);
+      decimalInputValue = decimalInputValue.replaceAll("[\n\r\t]", "_");
+      LOGGER.debug("Could not convert the input value to a valid DecimalInput for value: {}", decimalInputValue);
       return Optional.empty();
     }
 

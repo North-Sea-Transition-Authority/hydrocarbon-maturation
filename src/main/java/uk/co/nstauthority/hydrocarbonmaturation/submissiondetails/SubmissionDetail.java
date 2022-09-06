@@ -38,9 +38,6 @@ public class SubmissionDetail {
 
   private Integer versionNumber;
 
-  public SubmissionDetail() {
-  }
-
   public UUID getId() {
     return id;
   }

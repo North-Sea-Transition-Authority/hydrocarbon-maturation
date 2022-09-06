@@ -24,75 +24,75 @@ public class ProbabilityDistributionService {
 
       var behaviour = type.newInstance();
 
-      if (behaviour.isMinAvailable()) {
-        var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.MIN, behaviour.isMinRequired()
-        );
-        probabilityDistributionTypeInputs.add(input);
-      }
+      checkAvailabilityAndAddProbabilityInputs(
+          behaviour.isMinAvailable(),
+          behaviour.isMinRequired(),
+          ProbabilityOfExceedanceType.MIN,
+          probabilityDistributionTypeInputs
+      );
 
-      if (behaviour.isP99Available()) {
-        var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.P99, behaviour.isP99Required()
-        );
-        probabilityDistributionTypeInputs.add(input);
-      }
+      checkAvailabilityAndAddProbabilityInputs(
+          behaviour.isP99Available(),
+          behaviour.isP99Required(),
+          ProbabilityOfExceedanceType.P99,
+          probabilityDistributionTypeInputs
+      );
 
-      if (behaviour.isP90Available()) {
-        var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.P90, behaviour.isP90Required()
-        );
-        probabilityDistributionTypeInputs.add(input);
-      }
+      checkAvailabilityAndAddProbabilityInputs(
+          behaviour.isP90Available(),
+          behaviour.isP90Required(),
+          ProbabilityOfExceedanceType.P90,
+          probabilityDistributionTypeInputs
+      );
 
-      if (behaviour.isModeAvailable()) {
-        var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.MODE, behaviour.isModeRequired()
-        );
-        probabilityDistributionTypeInputs.add(input);
-      }
+      checkAvailabilityAndAddProbabilityInputs(
+          behaviour.isModeAvailable(),
+          behaviour.isModeRequired(),
+          ProbabilityOfExceedanceType.MODE,
+          probabilityDistributionTypeInputs
+      );
 
-      if (behaviour.isP50Available()) {
-        var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.P50, behaviour.isP50Required()
-        );
-        probabilityDistributionTypeInputs.add(input);
-      }
+      checkAvailabilityAndAddProbabilityInputs(
+          behaviour.isP50Available(),
+          behaviour.isP50Required(),
+          ProbabilityOfExceedanceType.P50,
+          probabilityDistributionTypeInputs
+      );
 
-      if (behaviour.isMeanAvailable()) {
-        var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.MEAN, behaviour.isMeanRequired()
-        );
-        probabilityDistributionTypeInputs.add(input);
-      }
+      checkAvailabilityAndAddProbabilityInputs(
+          behaviour.isMeanAvailable(),
+          behaviour.isMeanRequired(),
+          ProbabilityOfExceedanceType.MEAN,
+          probabilityDistributionTypeInputs
+      );
 
-      if (behaviour.isP10Available()) {
-        var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.P10, behaviour.isP10Required()
-        );
-        probabilityDistributionTypeInputs.add(input);
-      }
+      checkAvailabilityAndAddProbabilityInputs(
+          behaviour.isP10Available(),
+          behaviour.isP10Required(),
+          ProbabilityOfExceedanceType.P10,
+          probabilityDistributionTypeInputs
+      );
 
-      if (behaviour.isP1Available()) {
-        var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.P1, behaviour.isP1Required()
-        );
-        probabilityDistributionTypeInputs.add(input);
-      }
+      checkAvailabilityAndAddProbabilityInputs(
+          behaviour.isP1Available(),
+          behaviour.isP1Required(),
+          ProbabilityOfExceedanceType.P1,
+          probabilityDistributionTypeInputs
+      );
 
-      if (behaviour.isMaxAvailable()) {
-        var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.MAX, behaviour.isMaxRequired()
-        );
-        probabilityDistributionTypeInputs.add(input);
-      }
+      checkAvailabilityAndAddProbabilityInputs(
+          behaviour.isMaxAvailable(),
+          behaviour.isMaxRequired(),
+          ProbabilityOfExceedanceType.MAX,
+          probabilityDistributionTypeInputs
+      );
 
-      if (behaviour.isConstantAvailable()) {
-        var input = createProbabilityDistributionTypeInput(
-            ProbabilityOfExceedanceType.CONSTANT, behaviour.isConstantRequired()
-        );
-        probabilityDistributionTypeInputs.add(input);
-      }
+      checkAvailabilityAndAddProbabilityInputs(
+          behaviour.isConstantAvailable(),
+          behaviour.isConstantRequired(),
+          ProbabilityOfExceedanceType.CONSTANT,
+          probabilityDistributionTypeInputs
+      );
 
       probabilityDistributionTypeWithInputs.setProbabilityDistributionTypeInputs(probabilityDistributionTypeInputs);
 
@@ -104,6 +104,20 @@ public class ProbabilityDistributionService {
     probabilityDistributionTemplate.setProbabilityDistributionTypeWithInputsList(probabilityDistributionTypeWithInputsList);
     return probabilityDistributionTemplate;
 
+  }
+
+  private void checkAvailabilityAndAddProbabilityInputs(
+      boolean isAvailable,
+      boolean isRequired,
+      ProbabilityOfExceedanceType probabilityOfExceedanceType,
+      List<ProbabilityDistributionTypeInput> probabilityDistributionTypeInputs
+  ) {
+    if (isAvailable) {
+      var input = createProbabilityDistributionTypeInput(
+          probabilityOfExceedanceType, isRequired
+      );
+      probabilityDistributionTypeInputs.add(input);
+    }
   }
 
   private ProbabilityDistributionTypeInput createProbabilityDistributionTypeInput(

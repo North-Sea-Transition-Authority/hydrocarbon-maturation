@@ -42,7 +42,7 @@ public class WebSecurityConfiguration {
   }
 
   @Bean
-  protected RelyingPartyRegistrationRepository relyingPartyRegistrations() throws Exception {
+  protected RelyingPartyRegistrationRepository relyingPartyRegistrations() throws CertificateException {
     RelyingPartyRegistration registration = getRelyingPartyRegistration();
     return new InMemoryRelyingPartyRegistrationRepository(registration);
   }

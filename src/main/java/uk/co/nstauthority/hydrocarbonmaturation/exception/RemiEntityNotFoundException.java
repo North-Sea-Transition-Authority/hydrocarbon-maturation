@@ -5,9 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "The entity could not be found")
-public class HydrocarbonMaturationEntityNotFoundException extends EntityNotFoundException {
+public class RemiEntityNotFoundException extends EntityNotFoundException {
 
-  public HydrocarbonMaturationEntityNotFoundException(String message) {
+  public RemiEntityNotFoundException(String message) {
     super(message);
   }
 

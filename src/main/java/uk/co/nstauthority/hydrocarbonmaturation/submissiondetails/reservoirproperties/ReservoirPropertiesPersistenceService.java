@@ -17,7 +17,7 @@ class ReservoirPropertiesPersistenceService {
   }
 
   @Transactional
-  void saveReservoirProperty(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
+  public void saveReservoirProperty(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
     var reservoirProperty = getReservoirProperty(submissionDetail).orElse(new ReservoirProperty());
     reservoirProperty.setSubmissionDetail(submissionDetail);
     reservoirProperty.setFormationName(form.getFormationName());

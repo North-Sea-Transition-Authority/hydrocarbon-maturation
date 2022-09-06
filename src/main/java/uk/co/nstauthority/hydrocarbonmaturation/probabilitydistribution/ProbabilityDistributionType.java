@@ -66,7 +66,7 @@ public enum ProbabilityDistributionType implements Displayable {
     try {
       return ReflectionUtils.accessibleConstructor(this.getPresetBehaviour()).newInstance();
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new RuntimeException(e);
+      throw new ProbabilityDistributionException(e);
     }
   }
 }

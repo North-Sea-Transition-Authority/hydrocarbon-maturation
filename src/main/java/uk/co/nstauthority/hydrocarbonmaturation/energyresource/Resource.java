@@ -24,9 +24,6 @@ public class Resource {
 
   private Instant createdTimestamp;
 
-  public Resource() {
-  }
-
   public UUID getId() {
     return id;
   }

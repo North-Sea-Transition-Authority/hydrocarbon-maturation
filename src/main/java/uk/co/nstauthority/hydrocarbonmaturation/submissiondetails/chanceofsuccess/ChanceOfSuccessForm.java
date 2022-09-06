@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsucce
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
-class ChanceOfSuccessForm extends SubmissionForm {
+class ChanceOfSuccessForm implements SubmissionForm {
 
   private ChanceOfSuccessDetailsForm playChanceOfSuccess;
   private ProspectSpecificChanceOfSuccessForm prospectSpecificChanceOfSuccess;
