@@ -48,28 +48,25 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
         trapPropertiesForm.getLongitudeCoordinates(), "longitudeCoordinates", "longitude");
 
     var depthToCrestForm = trapPropertiesForm.getDepthToCrest();
-    ProbabilityDistributionValidationUtil.validate(
+    ProbabilityDistributionValidationUtil.validatePartial(
         depthToCrestForm,
         errors,
         "depthToCrest",
-        "Depth to crest",
-        ValidationType.PARTIAL);
+        "Depth to crest");
 
     var depthToSpillPointForm = trapPropertiesForm.getDepthToSpillPoint();
-    ProbabilityDistributionValidationUtil.validate(
+    ProbabilityDistributionValidationUtil.validatePartial(
         depthToSpillPointForm,
         errors,
         "depthToSpillPoint",
-        "Depth to spill-point",
-        ValidationType.PARTIAL);
+        "Depth to spill-point");
 
     var productiveAreaForm = trapPropertiesForm.getProductiveArea();
-    ProbabilityDistributionValidationUtil.validate(
+    ProbabilityDistributionValidationUtil.validatePartial(
         productiveAreaForm,
         errors,
         "productiveArea",
-        "Productive area",
-        ValidationType.PARTIAL
+        "Productive area"
     );
   }
 
@@ -100,12 +97,11 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
         "Select a depth to crest distribution used");
 
     var depthToCrestForm = trapPropertiesForm.getDepthToCrest();
-    ProbabilityDistributionValidationUtil.validate(
+    ProbabilityDistributionValidationUtil.validateFull(
         depthToCrestForm,
         errors,
         "depthToCrest",
-        "Depth to crest",
-        ValidationType.FULL
+        "Depth to crest"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "depthToSpillPoint.probabilityDistributionType",
@@ -113,12 +109,11 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
         "Select a depth to spill-point distribution used");
 
     var depthToSpillPointForm = trapPropertiesForm.getDepthToSpillPoint();
-    ProbabilityDistributionValidationUtil.validate(
+    ProbabilityDistributionValidationUtil.validateFull(
         depthToSpillPointForm,
         errors,
         "depthToSpillPoint",
-        "Depth to spill-point",
-        ValidationType.FULL
+        "Depth to spill-point"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "productiveArea.probabilityDistributionType",
@@ -126,12 +121,11 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
         "Select a productive area distribution used");
 
     var productiveAreaForm = trapPropertiesForm.getProductiveArea();
-    ProbabilityDistributionValidationUtil.validate(
+    ProbabilityDistributionValidationUtil.validateFull(
         productiveAreaForm,
         errors,
         "productiveArea",
-        "Productive area",
-        ValidationType.FULL
+        "Productive area"
     );
   }
 }

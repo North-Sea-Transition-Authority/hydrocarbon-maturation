@@ -18,11 +18,25 @@ public class ProbabilityDistributionValidationUtil {
     throw new IllegalStateException("ProbabilityDistributionValidationUtil is a util class and should not be instantiated");
   }
 
-  public static void validate(ProbabilityDistributionForm probabilityDistributionForm,
-                       Errors errors,
-                       String formField,
-                       String label,
-                       ValidationType validationType
+  public static void validatePartial(ProbabilityDistributionForm probabilityDistributionForm,
+                                     Errors errors,
+                                     String formField,
+                                     String label) {
+    validate(probabilityDistributionForm, errors, formField, label, ValidationType.PARTIAL);
+  }
+
+  public static void validateFull(ProbabilityDistributionForm probabilityDistributionForm,
+                                  Errors errors,
+                                  String formField,
+                                  String label) {
+    validate(probabilityDistributionForm, errors, formField, label, ValidationType.FULL);
+  }
+
+  private static void validate(ProbabilityDistributionForm probabilityDistributionForm,
+                               Errors errors,
+                               String formField,
+                               String label,
+                               ValidationType validationType
   ) {
     int errorCountBefore = errors.getErrorCount();
     if (!Objects.isNull(probabilityDistributionForm.getProbabilityDistributionType())) {
