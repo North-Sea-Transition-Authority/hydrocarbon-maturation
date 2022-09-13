@@ -10,15 +10,18 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="depthToCrestTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
+<#-- @ftlvariable name="depthToCrestError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 <#-- @ftlvariable name="depthToSpillPointTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
+<#-- @ftlvariable name="depthToSpillPointError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 <#-- @ftlvariable name="productiveAreaTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
+<#-- @ftlvariable name="productiveAreaError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 
 <@defaultPage
-htmlTitle=pageTitle
-pageHeading=pageTitle
-pageSize=PageSize.FULL_WIDTH
-errorItems=errorList
-breadcrumbsMap=breadcrumbsMap>
+  htmlTitle=pageTitle
+  pageHeading=pageTitle
+  pageSize=PageSize.FULL_WIDTH
+  errorItems=errorList
+  breadcrumbsMap=breadcrumbsMap>
 
   <@fdsForm.htmlForm>
       <@fdsTextarea.textarea path="form.trapDescription" labelText="Trap description"
@@ -55,22 +58,25 @@ breadcrumbsMap=breadcrumbsMap>
       hintText="From 0 to 30 for degrees, 0 to 59 for minutes, and 0 to 59.999 for seconds"/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-        path="form.depthToCrest.probabilityDistributionType"
+        probabilityDistributionTypePath="form.depthToCrest.probabilityDistributionType"
         labelText="Depth to crest distribution used"
-        formId="depthToCrestId"
-        template=depthToCrestTemplate/>
+        formId="depthToCrest"
+        template=depthToCrestTemplate
+        error=depthToCrestError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      path="form.depthToSpillPoint.probabilityDistributionType"
-      labelText="Depth to spill-point distribution used"
-      formId="depthToSpillPointId"
-      template=depthToSpillPointTemplate/>
+        probabilityDistributionTypePath="form.depthToSpillPoint.probabilityDistributionType"
+        labelText="Depth to spill-point distribution used"
+        formId="depthToSpillPoint"
+        template=depthToSpillPointTemplate
+        error=depthToSpillPointError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      path="form.productiveArea.probabilityDistributionType"
-      labelText="Productive area distribution used"
-      formId="productiveAreaId"
-      template=productiveAreaTemplate/>
+        probabilityDistributionTypePath="form.productiveArea.probabilityDistributionType"
+        labelText="Productive area distribution used"
+        formId="productiveArea"
+        template=productiveAreaTemplate
+        error=productiveAreaError/>
 
       <@fdsAction.submitButtons primaryButtonText="Save and complete" secondaryButtonText="Save and complete later"/>
   </@fdsForm.htmlForm>
