@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.VirtualFolder;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
@@ -26,18 +28,21 @@ public class OpportunityDetailsController {
   private final SubmissionDetailService submissionDetailService;
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
   private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
+  private final FileUploadService fileUploadService;
 
   @Autowired
   public OpportunityDetailsController(OpportunityDetailsFormService opportunityDetailsFormService,
                                       ControllerHelperService controllerHelperService,
                                       SubmissionDetailService submissionDetailService,
                                       OpportunityDetailsPersistenceService opportunityDetailsPersistenceService,
-                                      SubmissionTaskListRedirectionService submissionTaskListRedirectionService) {
+                                      SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
+                                      FileUploadService fileUploadService) {
     this.opportunityDetailsFormService = opportunityDetailsFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
     this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
+    this.fileUploadService = fileUploadService;
   }
 
   @GetMapping
@@ -66,7 +71,8 @@ public class OpportunityDetailsController {
     ModelAndView modelAndView = new ModelAndView("remi/submissiondetails/opportunityDetails")
         .addObject("opportunityTypes", OpportunityType.getOpportunityType())
         .addObject("form", form)
-        .addObject("pageTitle", PAGE_NAME);
+        .addObject("pageTitle", PAGE_NAME)
+        .addObject("mapOfOpportunityTemplate", fileUploadService.buildFileUploadTemplate(VirtualFolder.SUPPORTING_DOCUMENTS));
 
     return ProspectTaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);

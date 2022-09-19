@@ -6,6 +6,7 @@
 <#-- @ftlvariable name="opportunityTypes" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="mapOfOpportunityTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -34,6 +35,18 @@
       <@fdsTextarea.textarea path="form.keyEvaluationWorkCarriedOut" labelText="Key evaluation work carried out"/>
 
       <@fdsTextarea.textarea path="form.keyWorkRequiredForFurtherMaturation" labelText="Key work required for further maturation" optionalLabel=true/>
+
+      <@fdsFieldset.fieldset legendHeading="Map of Opportunity" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--m">
+        <@fdsFileUpload.fileUpload
+          id="mapOfOpportunity"
+          path="form.mapOfOpportunity"
+          downloadUrl=mapOfOpportunityTemplate.downloadUrl()
+          uploadUrl=mapOfOpportunityTemplate.uploadUrl()
+          deleteUrl=mapOfOpportunityTemplate.deleteUrl()
+          maxAllowedSize=mapOfOpportunityTemplate.maxAllowedSize()
+          allowedExtensions=mapOfOpportunityTemplate.allowedExtensions()
+        />
+      </@fdsFieldset.fieldset>
 
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
