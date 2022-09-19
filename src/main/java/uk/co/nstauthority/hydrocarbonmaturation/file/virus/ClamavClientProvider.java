@@ -8,7 +8,7 @@ import xyz.capybara.clamav.ClamavClient;
 class ClamavClientProvider {
 
   @Bean
-  ClamavClient s3Client(ClamavConfig clamavConfig) {
+  ClamavClient clamavClient(ClamavConfig clamavConfig) {
     return new ClamavClient(clamavConfig.getHost(), clamavConfig.getPort());
   }
 }

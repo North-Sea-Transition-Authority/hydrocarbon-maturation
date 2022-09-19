@@ -1,9 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file.virus;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 public interface VirusCheckService {
 
-  boolean hasVirus(File file);
+  boolean hasVirus(InputStream inputStream) throws IOException;
 
 }

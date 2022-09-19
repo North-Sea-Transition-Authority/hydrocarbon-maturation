@@ -1,9 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
-import java.io.File;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import java.io.InputStream;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,7 @@ public class S3ClientService {
     this.s3Config = s3Config;
   }
 
-  String getDefaultBucketName() {
+  public String getDefaultBucketName() {
     return s3Config.getDefaultBucketName();
   }
 
@@ -31,15 +30,12 @@ public class S3ClientService {
     return s3Client.doesObjectExist(bucketName, s3Key);
   }
 
-  public String storeFile(S3Folder s3Folder, File file) {
-    String s3Key = createNewS3Key(s3Folder);
-    s3Client.putObject(getDefaultBucketName(), s3Key, file);
-
-    return s3Key;
+  public void storeFile(String s3Key, InputStream fileInputStream, ObjectMetadata objectMetadata) {
+    s3Client.putObject(getDefaultBucketName(), s3Key, fileInputStream, objectMetadata);
   }
 
   public InputStream fetchFile(String s3Key) {
-    String defaultBucketName = getDefaultBucketName();
+    var defaultBucketName = getDefaultBucketName();
     doesObjectExistOrThrow(defaultBucketName, s3Key);
 
     return s3Client.getObject(defaultBucketName, s3Key).getObjectContent();
@@ -53,14 +49,9 @@ public class S3ClientService {
     s3Client.deleteObject(bucketName, s3Key);
   }
 
-  private String createNewS3Key(S3Folder s3Folder) {
-    return s3Folder + "/" + UUID.randomUUID();
-  }
-
   private void doesObjectExistOrThrow(String bucketName, String s3Key) {
     if (!doesObjectExist(bucketName, s3Key)) {
       throw new IllegalStateException("Could not find file stored with path " + s3Key);
     }
   }
-
 }

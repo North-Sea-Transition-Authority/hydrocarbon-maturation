@@ -8,23 +8,27 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
-import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3Folder;
 
 @Entity
-@Table(name = "files")
+@Table(name = "uploaded_files")
 class UploadedFile {
   @Id
   @GeneratedValue(generator = "uuid")
   @GenericGenerator(name = "uuid", strategy = "uuid2")
   private UUID id;
 
-  @Column(name = "s3_folder")
-  private S3Folder s3Folder;
-
   @Column(name = "s3_key")
   private String s3Key;
 
+  private String bucketName;
+
+  private VirtualFolder virtualFolder;
+
   private String filename;
+
+  private String fileContentType;
+
+  private long fileSizeBytes;
 
   private Instant uploadedTimeStamp;
 
@@ -36,14 +40,6 @@ class UploadedFile {
     this.id = id;
   }
 
-  public S3Folder getS3Folder() {
-    return s3Folder;
-  }
-
-  public void setS3Folder(S3Folder s3Folder) {
-    this.s3Folder = s3Folder;
-  }
-
   public String getS3Key() {
     return s3Key;
   }
@@ -52,12 +48,44 @@ class UploadedFile {
     this.s3Key = s3Key;
   }
 
+  public String getBucketName() {
+    return bucketName;
+  }
+
+  public void setBucketName(String bucketName) {
+    this.bucketName = bucketName;
+  }
+
+  public VirtualFolder getVirtualFolder() {
+    return virtualFolder;
+  }
+
+  public void setVirtualFolder(VirtualFolder virtualFolder) {
+    this.virtualFolder = virtualFolder;
+  }
+
   public String getFilename() {
     return filename;
   }
 
   public void setFilename(String filename) {
     this.filename = filename;
+  }
+
+  public String getFileContentType() {
+    return fileContentType;
+  }
+
+  public void setFileContentType(String fileContentType) {
+    this.fileContentType = fileContentType;
+  }
+
+  public long getFileSizeBytes() {
+    return fileSizeBytes;
+  }
+
+  public void setFileSizeBytes(long fileSizeBytes) {
+    this.fileSizeBytes = fileSizeBytes;
   }
 
   public Instant getUploadedTimeStamp() {

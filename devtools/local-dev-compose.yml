@@ -16,7 +16,7 @@ services:
       POSTGRES_PASSWORD: dev
       POSTGRES_DB: remi
 
-  s3mock: s3mock
+  s3mock:
     image: adobe/s3mock:2.1.28
     ports:
       - "9090:9090"

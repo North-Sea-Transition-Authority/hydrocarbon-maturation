@@ -8,17 +8,20 @@ import org.springframework.context.annotation.Configuration;
 class ClamavConfig {
   private String host;
   private int port;
-  private int timeout;
 
   public String getHost() {
     return host;
+  }
+
+  public void setHost(String host) {
+    this.host = host;
   }
 
   public int getPort() {
     return port;
   }
 
-  public int getTimeout() {
-    return timeout;
+  public void setPort(int port) {
+    this.port = port;
   }
 }
