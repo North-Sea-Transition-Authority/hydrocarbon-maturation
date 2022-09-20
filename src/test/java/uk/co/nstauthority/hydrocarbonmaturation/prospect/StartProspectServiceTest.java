@@ -8,17 +8,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionWorkflowService;
 
 @ExtendWith(MockitoExtension.class)
 class StartProspectServiceTest {
 
-  private static SubmissionCreateService submissionCreateService;
+  private static SubmissionWorkflowService submissionCreateService;
   private static StartProspectService startProspectService;
 
   @BeforeAll
   static void setup() {
-    submissionCreateService = mock(SubmissionCreateService.class);
+    submissionCreateService = mock(SubmissionWorkflowService.class);
     startProspectService = new StartProspectService(submissionCreateService);
   }
 

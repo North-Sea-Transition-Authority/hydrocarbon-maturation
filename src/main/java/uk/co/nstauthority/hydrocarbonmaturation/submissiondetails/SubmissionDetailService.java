@@ -48,4 +48,8 @@ public class SubmissionDetailService {
     return submissionDetail;
   }
 
+  void completeSubmission(SubmissionDetail submissionDetail) {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetailRepository.save(submissionDetail);
+  }
 }

@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
+public
 class GeneralDetailsPersistenceService {
 
   private final GeneralDetailsRepository generalDetailsRepository;
@@ -42,7 +43,7 @@ class GeneralDetailsPersistenceService {
     generalDetailsRepository.save(generalDetail);
   }
 
-  Optional<GeneralDetail> getGeneralDetail(SubmissionDetail submissionDetail) {
+  public Optional<GeneralDetail> getGeneralDetail(SubmissionDetail submissionDetail) {
     return generalDetailsRepository.findBySubmissionDetail(submissionDetail);
   }
 }
