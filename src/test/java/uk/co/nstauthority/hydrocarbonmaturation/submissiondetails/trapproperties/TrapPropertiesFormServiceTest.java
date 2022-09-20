@@ -14,6 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -23,6 +27,7 @@ class TrapPropertiesFormServiceTest {
   private static TrapPropertiesFormValidator trapPropertiesFormValidator;
   private static TrapPropertiesFormService trapPropertiesFormService;
   private static TrapPropertiesPersistenceService trapPropertiesPersistenceService;
+  private static ProbabilityDistributionFormService probabilityDistributionFormService;
 
   private static SubmissionDetail submissionDetail;
 
@@ -31,7 +36,11 @@ class TrapPropertiesFormServiceTest {
   static void setup() {
     trapPropertiesFormValidator = mock(TrapPropertiesFormValidator.class);
     trapPropertiesPersistenceService = mock(TrapPropertiesPersistenceService.class);
-    trapPropertiesFormService = new TrapPropertiesFormService(trapPropertiesFormValidator, trapPropertiesPersistenceService);
+    probabilityDistributionFormService = mock(ProbabilityDistributionFormService.class);
+    trapPropertiesFormService = new TrapPropertiesFormService(
+        trapPropertiesFormValidator,
+        trapPropertiesPersistenceService,
+        probabilityDistributionFormService);
 
     UUID submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
@@ -48,23 +57,37 @@ class TrapPropertiesFormServiceTest {
   }
 
   @Test
-  void sourceAndSealEntityToForm_newEntity_thenEmptyForm() {
+  void trapPropertiesEntityToForm_newEntity_thenEmptyForm() {
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail)).thenReturn(Optional.empty());
-
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY))
+        .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY))
+        .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA))
+        .thenReturn(new ProbabilityDistributionForm());
     assertThat(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail))
         .extracting(
             TrapPropertiesForm::getTrapType,
             TrapPropertiesForm::getOtherTrapType,
             TrapPropertiesForm::getTrapDescription,
-            (form) -> form.getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
-            (form) -> form.getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
-            (form) -> form.getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
-            (form) -> form.getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
-            (form) -> form.getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
-            (form) -> form.getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
-            TrapPropertiesForm::getLongitudeHemisphere
+            form -> form.getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            form -> form.getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            form -> form.getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            form -> form.getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            form -> form.getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            form -> form.getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            TrapPropertiesForm::getLongitudeHemisphere,
+            form -> form.getDepthToCrest().getProbabilityDistributionType(),
+            form -> form.getDepthToSpillPoint().getProbabilityDistributionType(),
+            form -> form.getProductiveArea().getProbabilityDistributionType()
         )
         .containsExactly(
+            null,
+            null,
+            null,
             null,
             null,
             null,
@@ -79,22 +102,43 @@ class TrapPropertiesFormServiceTest {
   }
 
   @Test
-  void sourceAndSealEntityToForm_existingEntity_thenPopulatedForm() {
+  void trapPropertiesEntityToForm_existingEntity_thenPopulatedForm() {
     var trapProperty = getTrapProperty(submissionDetail);
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail)).thenReturn(Optional.of(trapProperty));
-
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA))
+        .thenReturn(probabilityDistributionForm);
     assertThat(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail))
         .extracting(
             TrapPropertiesForm::getTrapType,
             TrapPropertiesForm::getOtherTrapType,
             TrapPropertiesForm::getTrapDescription,
-            (form) -> form.getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
-            (form) -> form.getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
-            (form) -> form.getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
-            (form) -> form.getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
-            (form) -> form.getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
-            (form) -> form.getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
-            TrapPropertiesForm::getLongitudeHemisphere
+            form -> form.getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            form -> form.getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            form -> form.getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            form -> form.getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            form -> form.getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            form -> form.getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            TrapPropertiesForm::getLongitudeHemisphere,
+            form -> form.getDepthToCrest().getProbabilityDistributionType(),
+            form -> form.getDepthToCrest().getNormal().getMin(),
+            form -> form.getDepthToCrest().getNormal().getP99(),
+            form -> form.getDepthToCrest().getNormal().getP90(),
+            form -> form.getDepthToCrest().getNormal().getMode(),
+            form -> form.getDepthToCrest().getNormal().getP50(),
+            form -> form.getDepthToCrest().getNormal().getMean(),
+            form -> form.getDepthToCrest().getNormal().getP10(),
+            form -> form.getDepthToCrest().getNormal().getP1(),
+            form -> form.getDepthToCrest().getNormal().getMax(),
+            form -> form.getDepthToCrest().getNormal().getConstant()
         )
         .containsExactly(
             trapProperty.getTrapType(),
@@ -106,7 +150,18 @@ class TrapPropertiesFormServiceTest {
             trapProperty.getLongitudeDegrees(),
             trapProperty.getLongitudeMinutes(),
             trapProperty.getLongitudeSeconds(),
-            trapProperty.getLongitudeHemisphere()
+            trapProperty.getLongitudeHemisphere(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getNormal().getMin(),
+            probabilityDistributionForm.getNormal().getP99(),
+            probabilityDistributionForm.getNormal().getP90(),
+            probabilityDistributionForm.getNormal().getMode(),
+            probabilityDistributionForm.getNormal().getP50(),
+            probabilityDistributionForm.getNormal().getMean(),
+            probabilityDistributionForm.getNormal().getP10(),
+            probabilityDistributionForm.getNormal().getP1(),
+            probabilityDistributionForm.getNormal().getMax(),
+            probabilityDistributionForm.getNormal().getConstant()
         );
   }
 

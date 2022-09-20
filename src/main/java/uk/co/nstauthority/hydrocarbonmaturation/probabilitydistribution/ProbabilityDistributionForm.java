@@ -4,17 +4,17 @@ public class ProbabilityDistributionForm {
 
   private ProbabilityDistributionType probabilityDistributionType;
 
-  private ProbabilityOfExceedanceForm normal;
+  private ProbabilityOfExceedanceForm normal = new ProbabilityOfExceedanceForm();
 
-  private ProbabilityOfExceedanceForm lognormal;
+  private ProbabilityOfExceedanceForm lognormal = new ProbabilityOfExceedanceForm();
 
-  private ProbabilityOfExceedanceForm beta;
+  private ProbabilityOfExceedanceForm beta = new ProbabilityOfExceedanceForm();
 
-  private ProbabilityOfExceedanceForm triangular;
+  private ProbabilityOfExceedanceForm triangular = new ProbabilityOfExceedanceForm();
 
-  private ProbabilityOfExceedanceForm rectangular;
+  private ProbabilityOfExceedanceForm rectangular = new ProbabilityOfExceedanceForm();
 
-  private ProbabilityOfExceedanceForm constant;
+  private ProbabilityOfExceedanceForm constant = new ProbabilityOfExceedanceForm();
 
   public ProbabilityDistributionType getProbabilityDistributionType() {
     return probabilityDistributionType;
@@ -75,5 +75,16 @@ public class ProbabilityDistributionForm {
   public void setConstant(
       ProbabilityOfExceedanceForm constant) {
     this.constant = constant;
+  }
+
+  public ProbabilityOfExceedanceForm getProbabilityOfExceedanceForm() {
+    return switch (probabilityDistributionType) {
+      case NORMAL -> normal;
+      case LOGNORMAL -> lognormal;
+      case BETA -> beta;
+      case TRIANGULAR -> triangular;
+      case RECTANGULAR -> rectangular;
+      case CONSTANT -> constant;
+    };
   }
 }

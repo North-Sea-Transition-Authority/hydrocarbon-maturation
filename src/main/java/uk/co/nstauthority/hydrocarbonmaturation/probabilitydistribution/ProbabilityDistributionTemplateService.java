@@ -2,10 +2,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 @Service
-public class ProbabilityDistributionService {
+public class ProbabilityDistributionTemplateService {
 
   public ProbabilityDistributionTemplate getProbabilityDistributionTemplateForInstance(
       ProbabilityDistributionFieldInstance instance
@@ -104,6 +106,33 @@ public class ProbabilityDistributionService {
     probabilityDistributionTemplate.setProbabilityDistributionTypeWithInputsList(probabilityDistributionTypeWithInputsList);
     return probabilityDistributionTemplate;
 
+  }
+
+  public ProbabilityDistributionTypeError getProbabilityDistributionTypeError(
+      BindingResult bindingResult,
+      String formName,
+      ProbabilityDistributionForm probabilityDistributionForm
+  ) {
+
+    if (Objects.isNull(probabilityDistributionForm.getProbabilityDistributionType())) {
+      return ProbabilityDistributionTypeError.emptyError();
+    }
+
+    var typePath = probabilityDistributionForm.getProbabilityDistributionType().getPath();
+    var errorPath = formName + "." + typePath + ".error";
+    var errorField = bindingResult.getFieldError(errorPath);
+
+    if (Objects.isNull(errorField)) {
+      return ProbabilityDistributionTypeError.emptyError();
+    }
+
+    boolean hasError = true;
+    return new ProbabilityDistributionTypeError(
+        hasError,
+        "form." + errorPath,
+        probabilityDistributionForm.getProbabilityDistributionType(),
+        formName + "-" + typePath
+    );
   }
 
   private void checkAvailabilityAndAddProbabilityInputs(
