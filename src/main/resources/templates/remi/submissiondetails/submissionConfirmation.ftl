@@ -1,7 +1,7 @@
 <#include '../layout/layout.ftl'>
 
 <#assign pageTitle = "Submission complete" />
-<#-- @ftlvariable name="workareaUrl" type="String" -->
+<#-- @ftlvariable name="workAreaUrl" type="String" -->
 <#-- @ftlvariable name="assetName" type="String" -->
 <#-- @ftlvariable name="typeOfUpdate" type="String" -->
 
@@ -18,7 +18,7 @@ pageSize=PageSize.TWO_THIRDS_COLUMN>
   <h2 class="govuk-heading-m">What happens next</h2>
 
   <p class="govuk-body">
-    The submission has been automatically approved. The information provided is now avaailble in the system of record.
+    The submission has been automatically approved. The information provided is now available in the system of record.
   </p>
 
   <p class="govuk-body">
@@ -26,7 +26,7 @@ pageSize=PageSize.TWO_THIRDS_COLUMN>
   </p>
 
   <p class="govuk-body">
-    <a href="${workareaUrl}" class="govuk-link">Back to work area</a>
+    <a href="${workAreaUrl}" class="govuk-link">Back to work area</a>
   </p>
 
 </@defaultPage>

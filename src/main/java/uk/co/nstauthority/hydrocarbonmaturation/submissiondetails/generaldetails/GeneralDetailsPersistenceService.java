@@ -46,4 +46,10 @@ class GeneralDetailsPersistenceService {
   public Optional<GeneralDetail> getGeneralDetail(SubmissionDetail submissionDetail) {
     return generalDetailsRepository.findBySubmissionDetail(submissionDetail);
   }
+
+  public GeneralDetail getGeneralDetailOrThrow(SubmissionDetail submissionDetail) {
+    return getGeneralDetail(submissionDetail)
+        .orElseThrow(() -> new IllegalStateException(
+            String.format("Could not find general detail for submission detail %s", submissionDetail.getId())));
+  }
 }

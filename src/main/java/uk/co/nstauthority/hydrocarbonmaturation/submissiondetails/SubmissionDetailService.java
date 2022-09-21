@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.Optional;
 import java.util.UUID;
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -48,7 +49,8 @@ public class SubmissionDetailService {
     return submissionDetail;
   }
 
-  void completeSubmission(SubmissionDetail submissionDetail) {
+  @Transactional
+  public void completeSubmission(SubmissionDetail submissionDetail) {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     submissionDetailRepository.save(submissionDetail);
   }
