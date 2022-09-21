@@ -7,8 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
-public
-class GeneralDetailsPersistenceService {
+public class GeneralDetailsPersistenceService {
 
   private final GeneralDetailsRepository generalDetailsRepository;
 
