@@ -54,21 +54,20 @@ Therefore, its convention to either use a random value as a prefix to the filena
 
 ### S3 Keys
 
-We can use a generated UUID for the key.
+We will use a generated UUID for the key.
+
+### Buckets
+
+We will use one bucket across our project for all uploaded files.
+
+### Folders
+
+We will use virtual folders to organise our uploads
 
 ### Virus Scanning
 
-
-
-### Presentation
-
-
-### Business logic
-
-
-### Validation
-
+We will use ClamavClient from xyz.capybara to scan our uploads before uploading them to AWS S3.
 
 ### Persistence
 
-
+We will store a reference to all uploaded file in a database table. The  

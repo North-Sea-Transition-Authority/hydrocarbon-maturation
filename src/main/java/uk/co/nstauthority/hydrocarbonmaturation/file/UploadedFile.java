@@ -32,6 +32,8 @@ class UploadedFile {
 
   private Instant uploadedTimeStamp;
 
+  private String description;
+
   public UUID getId() {
     return id;
   }
@@ -94,5 +96,13 @@ class UploadedFile {
 
   public void setUploadedTimeStamp(Instant uploadedTimeStamp) {
     this.uploadedTimeStamp = uploadedTimeStamp;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

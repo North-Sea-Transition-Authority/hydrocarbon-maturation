@@ -6,5 +6,6 @@ CREATE TABLE uploaded_files (
     filename TEXT,
     file_content_type TEXT,
     file_size_bytes NUMERIC,
-    uploaded_time_stamp TEXT NOT NULL
+    uploaded_time_stamp TIMESTAMP NOT NULL,
+    description TEXT
 );
