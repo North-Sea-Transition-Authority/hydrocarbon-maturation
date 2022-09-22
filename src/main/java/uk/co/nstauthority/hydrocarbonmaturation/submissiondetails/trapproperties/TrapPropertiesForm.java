@@ -15,11 +15,11 @@ class TrapPropertiesForm implements SubmissionForm {
   //TODO HM-129
   private Hemisphere longitudeHemisphere;
 
-  private ProbabilityDistributionForm depthToCrest;
+  private ProbabilityDistributionForm depthToCrest = new ProbabilityDistributionForm();
 
-  private ProbabilityDistributionForm depthToSpillPoint;
+  private ProbabilityDistributionForm depthToSpillPoint = new ProbabilityDistributionForm();
 
-  private ProbabilityDistributionForm productiveArea;
+  private ProbabilityDistributionForm productiveArea = new ProbabilityDistributionForm();
 
   public String getTrapDescription() {
     return trapDescription;

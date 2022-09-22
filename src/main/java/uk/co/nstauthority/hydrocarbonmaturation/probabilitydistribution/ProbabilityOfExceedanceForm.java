@@ -4,16 +4,27 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 
 public class ProbabilityOfExceedanceForm {
 
-  private DecimalInput min;
-  private DecimalInput p99;
-  private DecimalInput p90;
-  private DecimalInput mode;
-  private DecimalInput p50;
-  private DecimalInput mean;
-  private DecimalInput p10;
-  private DecimalInput p1;
-  private DecimalInput max;
-  private DecimalInput constant;
+
+  // error field is not used for input. It is used to bind the error message to.
+  private String error;
+  private DecimalInput min = new DecimalInput();
+  private DecimalInput p99 = new DecimalInput();
+  private DecimalInput p90 = new DecimalInput();
+  private DecimalInput mode = new DecimalInput();
+  private DecimalInput p50 = new DecimalInput();
+  private DecimalInput mean = new DecimalInput();
+  private DecimalInput p10 = new DecimalInput();
+  private DecimalInput p1 = new DecimalInput();
+  private DecimalInput max = new DecimalInput();
+  private DecimalInput constant = new DecimalInput();
+
+  public String getError() {
+    return error;
+  }
+
+  public void setError(String error) {
+    this.error = error;
+  }
 
   public DecimalInput getMin() {
     return min;

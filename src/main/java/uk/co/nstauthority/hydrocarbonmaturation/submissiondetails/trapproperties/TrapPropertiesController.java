@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
@@ -27,7 +28,7 @@ public class TrapPropertiesController {
   private final SubmissionDetailService submissionDetailService;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
-  private final ProbabilityDistributionService probabilityDistributionService;
+  private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
   public static final String PAGE_NAME = "Trap properties";
 
@@ -37,13 +38,13 @@ public class TrapPropertiesController {
                                   SubmissionDetailService submissionDetailService,
                                   TrapPropertiesPersistenceService trapPropertiesPersistenceService,
                                   SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
-                                  ProbabilityDistributionService probabilityDistributionService) {
+                                  ProbabilityDistributionTemplateService probabilityDistributionTemplateService) {
     this.trapPropertiesFormService = trapPropertiesFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
-    this.probabilityDistributionService = probabilityDistributionService;
+    this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
   }
 
   @GetMapping
@@ -59,13 +60,13 @@ public class TrapPropertiesController {
 
     bindingResult = trapPropertiesFormService.validate(form, bindingResult, validationType);
     return controllerHelperService.checkErrorsAndRedirect(
-      bindingResult,
-      getTrapPropertiesModelAndView(form, submissionDetailId),
-      () -> {
-        var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-        trapPropertiesPersistenceService.saveTrapProperties(form, submissionDetail);
-        return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
-      }
+        bindingResult,
+        getTrapPropertiesWithDistributionErrors(bindingResult, form, submissionDetailId),
+        () -> {
+          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+          trapPropertiesPersistenceService.saveTrapProperties(form, submissionDetail);
+          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
+        }
     );
   }
 
@@ -76,19 +77,46 @@ public class TrapPropertiesController {
         .addObject("trapTypes", TrapType.getTrapTypes())
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
         .addObject("depthToCrestTemplate",
-            probabilityDistributionService.getProbabilityDistributionTemplateForInstance(
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY
             ))
+        .addObject("depthToCrestError", ProbabilityDistributionTypeError.emptyError())
         .addObject("depthToSpillPointTemplate",
-            probabilityDistributionService.getProbabilityDistributionTemplateForInstance(
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY
             ))
+        .addObject("depthToSpillPointError", ProbabilityDistributionTypeError.emptyError())
         .addObject("productiveAreaTemplate",
-            probabilityDistributionService.getProbabilityDistributionTemplateForInstance(
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA
-            ));
+            ))
+        .addObject("productiveAreaError", ProbabilityDistributionTypeError.emptyError());
 
     ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    return modelAndView;
+  }
+
+  private ModelAndView getTrapPropertiesWithDistributionErrors(
+      BindingResult bindingResult, TrapPropertiesForm form, UUID submissionDetailId
+  ) {
+    var modelAndView = getTrapPropertiesModelAndView(form, submissionDetailId);
+    modelAndView
+        .addObject("depthToCrestError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              "depthToCrest",
+              form.getDepthToCrest()))
+        .addObject("depthToSpillPointError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "depthToSpillPoint",
+                form.getDepthToSpillPoint()))
+        .addObject("productiveAreaError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "productiveArea",
+                form.getProductiveArea()));
+
     return modelAndView;
   }
 }

@@ -6,6 +6,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.CoordinateInputValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
@@ -45,6 +46,28 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
 
     CoordinateInputValidationUtil.validateOptionalCoordinateInput(errors,
         trapPropertiesForm.getLongitudeCoordinates(), "longitudeCoordinates", "longitude");
+
+    var depthToCrestForm = trapPropertiesForm.getDepthToCrest();
+    ProbabilityDistributionValidationUtil.validatePartial(
+        depthToCrestForm,
+        errors,
+        "depthToCrest",
+        "Depth to crest");
+
+    var depthToSpillPointForm = trapPropertiesForm.getDepthToSpillPoint();
+    ProbabilityDistributionValidationUtil.validatePartial(
+        depthToSpillPointForm,
+        errors,
+        "depthToSpillPoint",
+        "Depth to spill-point");
+
+    var productiveAreaForm = trapPropertiesForm.getProductiveArea();
+    ProbabilityDistributionValidationUtil.validatePartial(
+        productiveAreaForm,
+        errors,
+        "productiveArea",
+        "Productive area"
+    );
   }
 
   @Override
@@ -68,5 +91,41 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
     CoordinateInputValidationUtil.validateMandatoryCoordinateInputWithHemisphere(errors,
         trapPropertiesForm.getLongitudeCoordinates(), "longitudeCoordinates", "longitude",
         trapPropertiesForm.getLongitudeHemisphere(), "longitudeHemisphere");
+
+    ValidationUtils.rejectIfEmpty(errors, "depthToCrest.probabilityDistributionType",
+        "depthToCrest.probabilityDistributionType.required",
+        "Select a depth to crest distribution used");
+
+    var depthToCrestForm = trapPropertiesForm.getDepthToCrest();
+    ProbabilityDistributionValidationUtil.validateFull(
+        depthToCrestForm,
+        errors,
+        "depthToCrest",
+        "Depth to crest"
+    );
+
+    ValidationUtils.rejectIfEmpty(errors, "depthToSpillPoint.probabilityDistributionType",
+        "depthToSpillPoint.probabilityDistributionType.required",
+        "Select a depth to spill-point distribution used");
+
+    var depthToSpillPointForm = trapPropertiesForm.getDepthToSpillPoint();
+    ProbabilityDistributionValidationUtil.validateFull(
+        depthToSpillPointForm,
+        errors,
+        "depthToSpillPoint",
+        "Depth to spill-point"
+    );
+
+    ValidationUtils.rejectIfEmpty(errors, "productiveArea.probabilityDistributionType",
+        "productiveArea.probabilityDistributionType.required",
+        "Select a productive area distribution used");
+
+    var productiveAreaForm = trapPropertiesForm.getProductiveArea();
+    ProbabilityDistributionValidationUtil.validateFull(
+        productiveAreaForm,
+        errors,
+        "productiveArea",
+        "Productive area"
+    );
   }
 }

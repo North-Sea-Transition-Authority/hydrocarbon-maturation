@@ -5,20 +5,12 @@
 <#macro probabilityDistributionFieldSet
     formId
     labelText
-    pathMin=""
-    pathP99=""
-    pathP90=""
-    pathMode=""
-    pathP50=""
-    pathMean=""
-    pathP10=""
-    pathP1=""
-    pathMax=""
-    pathConstant=""
+    nestingPath
+    error
+    probabilityDistributionType
     hintText=""
     optionalLabel=false
-    nestingPath=""
-    fieldsetHeadingSize="h2"
+    fieldsetHeadingSize="h3"
     fieldsetHeadingClass="govuk-fieldset__legend--s"
     formGroupClass=""
     caption=""
@@ -27,70 +19,13 @@
     noFieldsetHeadingSize="--s"
     moreNestedContent="">
 
-    <#if pathMin?has_content>
-        <@springFtl.bind pathMin/>
-        <#assign hasMinError=fdsUtil.hasSpringStatusErrors()>
+    <#if error.hasError() && error.probabilityDistributionType().name()==probabilityDistributionType.name()>
+        <@springFtl.bind error.fullErrorPath()/>
+        <#local hasError=springFtl.status.errorMessages[0]?has_content/>
+        <@springFtl.bind nestingPath/>
     <#else>
-        <#assign hasMinError=false>
+        <#local hasError=false/>
     </#if>
-    <#if pathP99?has_content>
-        <@springFtl.bind pathMin/>
-        <#assign hasP99Error=fdsUtil.hasSpringStatusErrors()>
-    <#else>
-        <#assign hasP99Error=false>
-    </#if>
-    <#if pathP90?has_content>
-        <@springFtl.bind pathMin/>
-        <#assign hasP90Error=fdsUtil.hasSpringStatusErrors()>
-    <#else>
-        <#assign hasP90Error=false>
-    </#if>
-    <#if pathMode?has_content>
-        <@springFtl.bind pathMin/>
-        <#assign hasModeError=fdsUtil.hasSpringStatusErrors()>
-    <#else>
-        <#assign hasModeError=false>
-    </#if>
-    <#if pathP50?has_content>
-        <@springFtl.bind pathMin/>
-        <#assign hasP50Error=fdsUtil.hasSpringStatusErrors()>
-    <#else>
-        <#assign hasP50Error=false>
-    </#if>
-    <#if pathMean?has_content>
-        <@springFtl.bind pathMin/>
-        <#assign hasMeanError=fdsUtil.hasSpringStatusErrors()>
-    <#else>
-        <#assign hasMeanError=false>
-    </#if>
-    <#if pathP10?has_content>
-        <@springFtl.bind pathMin/>
-        <#assign hasP10Error=fdsUtil.hasSpringStatusErrors()>
-    <#else>
-        <#assign hasP10Error=false>
-    </#if>
-    <#if pathP1?has_content>
-        <@springFtl.bind pathMin/>
-        <#assign hasP1Error=fdsUtil.hasSpringStatusErrors()>
-    <#else>
-        <#assign hasP1Error=false>
-    </#if>
-    <#if pathConstant?has_content>
-        <@springFtl.bind pathMin/>
-        <#assign hasConstantError=fdsUtil.hasSpringStatusErrors()>
-    <#else>
-        <#assign hasConstantError=false>
-    </#if>
-    <#local hasError =
-        hasMinError ||
-        hasP99Error ||
-        hasP90Error ||
-        hasModeError ||
-        hasP50Error ||
-        hasMeanError ||
-        hasP10Error ||
-        hasP1Error ||
-        hasConstantError>
 
   <div class="govuk-form-group ${formGroupClass} <#if hasError>govuk-form-group--error</#if>">
       <@fdsFieldset.fieldset
@@ -105,42 +40,6 @@
       formHasError=hasError
       showHeadingOnly=showLabelOnly
       noFieldsetHeadingSize=noFieldsetHeadingSize>
-          <#if hasMinError>
-              <@springFtl.bind pathMin/>
-              <@fdsError.inputError inputId="${formId}"/>
-          </#if>
-          <#if hasP99Error>
-              <@springFtl.bind pathP99/>
-              <@fdsError.inputError inputId="${formId}"/>
-          </#if>
-          <#if hasP90Error>
-              <@springFtl.bind pathP90/>
-              <@fdsError.inputError inputId="${formId}"/>
-          </#if>
-          <#if hasModeError>
-              <@springFtl.bind pathMode/>
-              <@fdsError.inputError inputId="${formId}"/>
-          </#if>
-          <#if hasP50Error>
-              <@springFtl.bind pathP50/>
-              <@fdsError.inputError inputId="${formId}"/>
-          </#if>
-          <#if hasMeanError>
-              <@springFtl.bind pathMean/>
-              <@fdsError.inputError inputId="${formId}"/>
-          </#if>
-          <#if hasP10Error>
-              <@springFtl.bind pathP10/>
-              <@fdsError.inputError inputId="${formId}"/>
-          </#if>
-          <#if hasP1Error>
-              <@springFtl.bind pathP1/>
-              <@fdsError.inputError inputId="${formId}"/>
-          </#if>
-          <#if hasConstantError>
-              <@springFtl.bind pathConstant/>
-              <@fdsError.inputError inputId="${formId}"/>
-          </#if>
 
           ${moreNestedContent}
 
@@ -162,7 +61,7 @@
 
     <#list probabilityDistributionInputs as input>
           <@probabilityDistributionInputItem
-                path=pathPrefix+"."+input.probabilityOfExceedanceType.path
+                path=pathPrefix+"."+input.probabilityOfExceedanceType.path+".decimalInputValue"
                 labelText=input.probabilityOfExceedanceType.displayName
                 required=input.required
           />
@@ -199,22 +98,35 @@
 
 
 <#macro probabilityDistributionTemplate
-    path
+    probabilityDistributionTypePath
     labelText
     formId
-    template>
+    template
+    error>
 
-    <@fdsRadio.radioGroup path=path labelText=labelText hiddenContent=true>
+    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=labelText hiddenContent=true>
         <#assign firstItem=true/>
         <#list template.probabilityDistributionTypeWithInputsList as inputs>
             <@fdsRadio.radioItem
-                path=path
+                path=probabilityDistributionTypePath
                 itemMap={inputs.probabilityDistributionType.name() : inputs.probabilityDistributionType.displayName}
                 isFirstItem=firstItem>
-                <@probabilityDistributionFieldSet formId=formId labelText="Probability of exceedance (${template.units})" nestingPath=path>
+                <@probabilityDistributionFieldSet
+                    formId=formId
+                    labelText="Probability of exceedance (${template.units})"
+                    nestingPath=probabilityDistributionTypePath
+                    error=error
+                    probabilityDistributionType=inputs.probabilityDistributionType>
+
+                    <#if error.hasError() && error.probabilityDistributionType().name()==inputs.probabilityDistributionType.name()>
+                        <@springFtl.bind error.fullErrorPath()/>
+                        <@fdsError.inputError inputId=error.errorId()/>
+                        <@springFtl.bind probabilityDistributionTypePath/>
+                    </#if>
+
                     <@probabilityDistributionInputList
                         probabilityDistributionInputs=inputs.probabilityDistributionTypeInputs
-                        pathPrefix=path?replace("probabilityDistributionType", "")+inputs.probabilityDistributionType.path/>
+                        pathPrefix=probabilityDistributionTypePath?replace("probabilityDistributionType", "")+inputs.probabilityDistributionType.path/>
                     <#assign firstItem=false/>
                 </@probabilityDistributionFieldSet>
             </@fdsRadio.radioItem>

@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,7 +21,11 @@ class TrapPropertiesPersistenceServiceTest {
 
   @Mock
   private TrapPropertiesRepository trapPropertiesRepository;
-  private static TrapPropertiesPersistenceService trapPropertiesPersistenceService;
+
+  @Mock
+  private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+
+  private TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
   private static SubmissionDetail submissionDetail;
   private static final CoordinateInput latitudeCoordinate = new CoordinateInput();
@@ -28,7 +33,9 @@ class TrapPropertiesPersistenceServiceTest {
 
   @BeforeEach
   void setup() {
-    trapPropertiesPersistenceService = new TrapPropertiesPersistenceService(trapPropertiesRepository);
+    trapPropertiesPersistenceService = new TrapPropertiesPersistenceService(
+        trapPropertiesRepository,
+        probabilityDistributionPersistenceService);
 
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
