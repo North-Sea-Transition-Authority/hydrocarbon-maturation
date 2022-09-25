@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file.virus;
 
-import java.io.IOException;
 import java.io.InputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,9 +17,9 @@ public class ClamAvVirusCheckService implements VirusCheckService {
   }
 
   @Override
-  public boolean hasVirus(InputStream inputStream) throws IOException {
-      var scanResult = client.scan(inputStream);
+  public boolean hasVirus(InputStream inputStream) {
+    var scanResult = client.scan(inputStream);
 
-      return scanResult instanceof ScanResult.VirusFound;
+    return scanResult instanceof ScanResult.VirusFound;
   }
 }
