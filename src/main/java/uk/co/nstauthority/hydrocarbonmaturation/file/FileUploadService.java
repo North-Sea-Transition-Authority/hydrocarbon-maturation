@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ClientService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3DeleteFileFailedException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ObjectNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @Service
 public class FileUploadService {
@@ -94,6 +97,16 @@ public class FileUploadService {
 
   InputStream downloadFile(UploadedFile uploadedFile) {
     return s3ClientService.fetchFile(uploadedFile.getS3Key());
+  }
+
+  public FileUploadTemplate buildFileUploadTemplate(VirtualFolder virtualFolder) {
+    return new FileUploadTemplate(
+        ReverseRouter.route(on(FileUploadsController.class).download(null)),
+        ReverseRouter.route(on(FileUploadsController.class).upload(virtualFolder.name(), null)),
+        ReverseRouter.route(on(FileUploadsController.class).delete(null)),
+        fileUploadConfig.getMaxAllowedSize().toString(),
+        fileUploadConfig.getAllowedExtensions()
+    );
   }
 
   private String createS3KeyWithPath(VirtualFolder virtualFolder) {

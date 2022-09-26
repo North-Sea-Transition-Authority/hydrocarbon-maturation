@@ -31,7 +31,7 @@ class FileUploadsControllerTest extends AbstractControllerTest {
 
     var multipartFile = Mockito.mock(MultipartFile.class);
     mockMvc.perform(
-            get(ReverseRouter.route(on(FileUploadsController.class).upload(VirtualFolder.SUPPORTING_DOCUMENTS, multipartFile))))
+            get(ReverseRouter.route(on(FileUploadsController.class).upload(VirtualFolder.SUPPORTING_DOCUMENTS.name(), multipartFile))))
         .andExpect(status().isOk());
   }
 
