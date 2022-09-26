@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 
 @WebMvcTest
@@ -33,6 +34,11 @@ public abstract class AbstractControllerTest {
     @Bean
     public SubmissionTaskListRedirectionService submissionTaskListRedirectionService() {
       return new SubmissionTaskListRedirectionService();
+    }
+
+    @Bean
+    public ProbabilityDistributionTemplateService probabilityDistributionService() {
+      return new ProbabilityDistributionTemplateService();
     }
   }
 

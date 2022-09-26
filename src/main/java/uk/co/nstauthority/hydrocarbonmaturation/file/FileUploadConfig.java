@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 class FileUploadConfig {
   private Integer maxAllowedSize;
   private String allowedExtensions;
+  private String fileNameFilter;
 
   public Integer getMaxAllowedSize() {
     return maxAllowedSize;
@@ -23,5 +24,13 @@ class FileUploadConfig {
 
   public void setAllowedExtensions(String allowedExtensions) {
     this.allowedExtensions = allowedExtensions;
+  }
+
+  public String getFileNameFilter() {
+    return fileNameFilter;
+  }
+
+  public void setFileNameFilter(String fileNameFilter) {
+    this.fileNameFilter = fileNameFilter;
   }
 }

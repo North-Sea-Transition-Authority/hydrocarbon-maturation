@@ -9,11 +9,16 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -69,7 +74,13 @@ class TrapPropertiesFormValidatorTest {
                 Set.of("longitudeCoordinates.minutes.decimalInputValue.required")),
             entry("longitudeCoordinates.seconds.decimalInputValue",
                 Set.of("longitudeCoordinates.seconds.decimalInputValue.required")),
-            entry("longitudeHemisphere", Set.of("longitudeHemisphere.required"))
+            entry("longitudeHemisphere", Set.of("longitudeHemisphere.required")),
+            entry("depthToCrest.probabilityDistributionType",
+                Set.of("depthToCrest.probabilityDistributionType.required")),
+            entry("depthToSpillPoint.probabilityDistributionType",
+                Set.of("depthToSpillPoint.probabilityDistributionType.required")),
+            entry("productiveArea.probabilityDistributionType",
+                Set.of("productiveArea.probabilityDistributionType.required"))
         );
   }
 
@@ -83,6 +94,44 @@ class TrapPropertiesFormValidatorTest {
     assertThat(extractedErrors)
         .containsExactly(
             entry("otherTrapType", Set.of("otherTrapType.required"))
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ProbabilityDistributionType.class
+  )
+  void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
+    var form = getFormWithEmptyDistributions(probabilityDistributionType);
+    var bindingResult = validateTrapPropertiesForm(form);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .contains(
+            entry("depthToCrest." + probabilityDistributionType.getPath() + ".error",
+                Set.of("depthToCrest." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("depthToSpillPoint." + probabilityDistributionType.getPath() + ".error",
+                Set.of("depthToSpillPoint." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("productiveArea." + probabilityDistributionType.getPath() + ".error",
+                Set.of("productiveArea." + probabilityDistributionType.getPath() + ".error.error"))
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ProbabilityDistributionType.class
+  )
+  void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
+    var form = getFormWithInvalidDistributions(probabilityDistributionType);
+    var bindingResult = validateTrapPropertiesForm(form);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .contains(
+            entry("depthToCrest." + probabilityDistributionType.getPath() + ".error",
+                Set.of("depthToCrest." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("depthToSpillPoint." + probabilityDistributionType.getPath() + ".error",
+                Set.of("depthToSpillPoint." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("productiveArea." + probabilityDistributionType.getPath() + ".error",
+                Set.of("productiveArea." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 
@@ -111,7 +160,33 @@ class TrapPropertiesFormValidatorTest {
     form.setLatitudeCoordinates(getValidLatitudeCoordinates());
     form.setLongitudeCoordinates(getValidLongitudeCoordinates());
     form.setLongitudeHemisphere(Hemisphere.EAST);
+    form.setDepthToCrest(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
+    form.setDepthToSpillPoint(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
+    form.setProductiveArea(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
+    return form;
+  }
 
+  private TrapPropertiesForm getFormWithEmptyDistributions(ProbabilityDistributionType probabilityDistributionType) {
+    var form = getValidForm();
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getFormWithExceedance(
+            probabilityDistributionType,
+            new ProbabilityOfExceedanceForm());
+    form.setDepthToCrest(probabilityDistributionForm);
+    form.setDepthToSpillPoint(probabilityDistributionForm);
+    form.setProductiveArea(probabilityDistributionForm);
+    return form;
+  }
+
+  private TrapPropertiesForm getFormWithInvalidDistributions(ProbabilityDistributionType probabilityDistributionType) {
+    var form = getValidForm();
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getFormWithExceedance(
+            probabilityDistributionType,
+            ProbabilityDistributionTestUtil.getInvalidProbabilityOfExceedanceForm());
+    form.setDepthToCrest(probabilityDistributionForm);
+    form.setDepthToSpillPoint(probabilityDistributionForm);
+    form.setProductiveArea(probabilityDistributionForm);
     return form;
   }
 

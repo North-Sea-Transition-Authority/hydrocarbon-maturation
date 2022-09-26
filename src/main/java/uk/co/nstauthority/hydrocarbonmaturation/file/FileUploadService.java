@@ -1,65 +1,65 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Clock;
-import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ClientService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.virus.VirusCheckService;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3DeleteFileFailedException;
+import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ObjectNotFoundException;
 
 @Service
 public class FileUploadService {
 
-  private final VirusCheckService virusCheckService;
   private final S3ClientService s3ClientService;
+  private final FileUploadValidationService fileUploadValidationService;
   private final UploadedFileRepository uploadedFileRepository;
   private final FileUploadConfig fileUploadConfig;
   private final Clock clock;
 
   @Autowired
-  public FileUploadService(VirusCheckService virusCheckService,
-                           S3ClientService s3ClientService,
+  public FileUploadService(S3ClientService s3ClientService,
+                           FileUploadValidationService fileUploadValidationService,
                            UploadedFileRepository uploadedFileRepository,
                            FileUploadConfig fileUploadConfig, Clock clock) {
-    this.virusCheckService = virusCheckService;
     this.s3ClientService = s3ClientService;
+    this.fileUploadValidationService = fileUploadValidationService;
     this.uploadedFileRepository = uploadedFileRepository;
     this.fileUploadConfig = fileUploadConfig;
     this.clock = clock;
   }
 
-  public FileUploadResult uploadFile(VirtualFolder virtualFolder, MultipartFile multipartFile) throws IOException {
+  FileUploadResult processFileUpload(VirtualFolder virtualFolder, MultipartFile multipartFile)  {
     var fileSize = multipartFile.getSize();
-    var filename = multipartFile.getOriginalFilename();
+    var filename = sanitiseFilename(Objects.requireNonNull(multipartFile.getOriginalFilename()));
     var contentType = multipartFile.getContentType();
 
-    if (virusCheckService.hasVirus(multipartFile.getInputStream())) {
-      return FileUploadResult.virusFound(filename, multipartFile);
+    UploadErrorType uploadErrorType = fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename);
+    if (uploadErrorType != null) {
+      return FileUploadResult.error(filename, multipartFile, uploadErrorType);
     }
 
-    if (!isFileExtensionAllowed(filename)) {
-      return FileUploadResult.extensionNotAllowed(filename, multipartFile);
-    }
+    UploadedFile uploadedFile = uploadFileAndSaveRecord(virtualFolder, multipartFile, fileSize, filename, contentType);
 
-    if (!isFileSizeAllowed(fileSize)) {
-      return FileUploadResult.maxFileSizeExceeded(filename, multipartFile);
-    }
+    return FileUploadResult.valid(uploadedFile.getId().toString(), filename, multipartFile);
+  }
 
+  UploadedFile uploadFileAndSaveRecord(VirtualFolder virtualFolder, MultipartFile multipartFile, long fileSize,
+                                       String filename, String contentType) {
     var objectMetadata = new ObjectMetadata();
     objectMetadata.setContentLength(fileSize);
     objectMetadata.setContentType(contentType);
 
     try (var fileInputStream = new BufferedInputStream(multipartFile.getInputStream())) {
-      var s3Key = createNewS3KeyInFolder(virtualFolder);
+      var s3Key = createS3KeyWithPath(virtualFolder);
       s3ClientService.storeFile(s3Key, fileInputStream, objectMetadata);
+
       var uploadedFile = createUploadedFile(
           s3ClientService.getDefaultBucketName(),
           virtualFolder,
@@ -67,45 +67,45 @@ public class FileUploadService {
           filename,
           contentType,
           fileSize);
-
       uploadedFileRepository.save(uploadedFile);
-      return FileUploadResult.valid(uploadedFile.getId(), filename, multipartFile);
 
+      return uploadedFile;
+    } catch (IOException e) {
+      throw new FileUploadException(multipartFile, e);
     }
   }
 
-  FileDeleteResult deleteFile(UUID uploadedFileId) {
-    var uploadedFile = findUploadedFileOrThrow(uploadedFileId);
-
-    s3ClientService.deleteFile(uploadedFile.getS3Key());
-    uploadedFileRepository.deleteById(uploadedFile.getId());
-
-    return FileDeleteResult.success(uploadedFileId.toString());
-  }
-
-  FileDownload downloadFile(UUID uploadedFileId) {
-    var uploadedFile = findUploadedFileOrThrow(uploadedFileId);
-    var inputStream = s3ClientService.fetchFile(uploadedFile.getS3Key());
-
-    return new FileDownload(uploadedFile, inputStream);
-  }
-
-  public FileUploadTemplate buildFileUploadTemplate(VirtualFolder virtualFolder) {
-    return new FileUploadTemplate(
-        ReverseRouter.route(on(FileUploadsController.class).download(null)),
-        ReverseRouter.route(on(FileUploadsController.class).upload(virtualFolder, null)),
-        ReverseRouter.route(on(FileUploadsController.class).delete(null)),
-        fileUploadConfig.getMaxAllowedSize().toString(),
-        fileUploadConfig.getAllowedExtensions()
-    );
-  }
-
-  private UploadedFile findUploadedFileOrThrow(UUID uploadedFileId) {
+  UploadedFile findUploadedFileOrThrow(UUID uploadedFileId) {
     return uploadedFileRepository.findById(uploadedFileId)
         .orElseThrow(() -> new IllegalStateException(String.format("Could not find file with ID %s", uploadedFileId)));
   }
 
-  private UploadedFile createUploadedFile(String bucketName, VirtualFolder virtualFolder, String s3Key, String filename, String contentType, long fileSize) {
+  FileDeleteResult deleteFile(UploadedFile uploadedFile) {
+    try {
+      s3ClientService.deleteFile(uploadedFile.getS3Key());
+    } catch (S3DeleteFileFailedException | S3ObjectNotFoundException e) {
+      return FileDeleteResult.error(uploadedFile.getId().toString());
+    }
+
+    uploadedFileRepository.deleteById(uploadedFile.getId());
+
+    return FileDeleteResult.success(uploadedFile.getId().toString());
+  }
+
+  InputStream downloadFile(UploadedFile uploadedFile) {
+    return s3ClientService.fetchFile(uploadedFile.getS3Key());
+  }
+
+  private String createS3KeyWithPath(VirtualFolder virtualFolder) {
+    return virtualFolder + "/" + UUID.randomUUID();
+  }
+
+  private UploadedFile createUploadedFile(String bucketName,
+                                          VirtualFolder virtualFolder,
+                                          String s3Key,
+                                          String filename,
+                                          String contentType,
+                                          long fileSize) {
 
     var uploadedFile = new UploadedFile();
     uploadedFile.setS3Key(s3Key);
@@ -119,18 +119,7 @@ public class FileUploadService {
     return uploadedFile;
   }
 
-  private boolean isFileExtensionAllowed(String filename) {
-    String lowercase = filename.toLowerCase();
-    return Arrays.stream(fileUploadConfig.getAllowedExtensions().split(","))
-        .map(String::trim)
-        .anyMatch(lowercase::endsWith);
-  }
-
-  private boolean isFileSizeAllowed(long fileSize) {
-    return fileSize <= fileUploadConfig.getMaxAllowedSize();
-  }
-
-  private String createNewS3KeyInFolder(VirtualFolder virtualFolder) {
-    return virtualFolder + "/" + UUID.randomUUID();
+  private String sanitiseFilename(String filename) {
+    return filename.replaceAll(fileUploadConfig.getFileNameFilter(), "_");
   }
 }

@@ -1,0 +1,112 @@
+package uk.co.nstauthority.hydrocarbonmaturation.file;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.InputStream;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.virus.VirusCheckService;
+
+@ExtendWith(MockitoExtension.class)
+class FileUploadValidationServiceTest {
+  static VirusCheckService virusCheckService;
+
+  static FileUploadConfig fileUploadConfig;
+
+  private static FileUploadValidationService fileUploadValidationService;
+  private static String allowedFilenameAndExtension;
+  private static long allowedFileSize;
+  private static MultipartFile multipartFile;
+
+  @BeforeAll
+  static void beforeAll() throws IOException {
+    virusCheckService = mock(VirusCheckService.class);
+    fileUploadConfig = mock(FileUploadConfig.class);
+
+    when(fileUploadConfig.getAllowedExtensions()).thenReturn(".txt, .jpg, .jpeg");
+    when(fileUploadConfig.getMaxAllowedSize()).thenReturn(1024);
+
+    multipartFile = Mockito.mock(MultipartFile.class);
+    when(multipartFile.getInputStream()).thenReturn(mock(InputStream.class));
+    allowedFilenameAndExtension = "text.txt";
+    allowedFileSize = 123L;
+
+    fileUploadValidationService = new FileUploadValidationService(virusCheckService,
+        fileUploadConfig);
+  }
+
+  @Test
+  void validateFileUpload_CheckFileExtensionAllowed_NotAllowed() {
+
+    long fileSize = allowedFileSize;
+    String filename = "text.exe";
+
+    UploadErrorType uploadErrorType = fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename);
+
+    assertThat(uploadErrorType).isEqualTo(UploadErrorType.EXTENSION_NOT_ALLOWED);
+  }
+
+  @Test
+  void validateFileUpload_CheckFileExtensionAllowed_IsAllowed() {
+
+    long fileSize = allowedFileSize;
+    String filename = allowedFilenameAndExtension;
+
+    UploadErrorType uploadErrorType = fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename);
+
+    assertThat(uploadErrorType).isNull();
+  }
+
+  @Test
+  void validateFileUpload_CheckFileSizeAllowed_NotAllowed() {
+
+    long fileSize = 1025L;
+    String filename = allowedFilenameAndExtension;
+
+    UploadErrorType uploadErrorType = fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename);
+
+    assertThat(uploadErrorType).isEqualTo(UploadErrorType.MAX_FILE_SIZE_EXCEEDED);
+  }
+
+  @Test
+  void validateFileUpload_CheckFileSizeAllowed_IsAllowed() {
+
+    long fileSize = allowedFileSize;
+    String filename = allowedFilenameAndExtension;
+
+    UploadErrorType uploadErrorType = fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename);
+
+    assertThat(uploadErrorType).isNull();
+  }
+
+  @Test
+  void validateFileUpload_CheckFileHasVirus_VirusFound() {
+    long fileSize = allowedFileSize;
+    String filename = allowedFilenameAndExtension;
+    when(virusCheckService.hasVirus(any(InputStream.class))).thenReturn(true);
+
+    UploadErrorType uploadErrorType = fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename);
+
+    assertThat(uploadErrorType).isEqualTo(UploadErrorType.VIRUS_FOUND_IN_FILE);
+  }
+
+  @Test
+  void validateFileUpload_CheckFileHasVirus_VirusNotFound() {
+
+    long fileSize = allowedFileSize;
+    String filename = allowedFilenameAndExtension;
+    when(virusCheckService.hasVirus(any(InputStream.class))).thenReturn(false);
+
+    UploadErrorType uploadErrorType = fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename);
+
+    assertThat(uploadErrorType).isNull();
+  }
+}

@@ -29,7 +29,7 @@ The primary benefits of using separate buckets are that you can assign separate 
 
 * Reduced redundancy to save on costs.
 * Versioning of changed contents
-* Automatic archival to backup services
+* Automatic archival to back-up services
 * Separate permissions
 
 For these reasons its common for people to use buckets for different file types (reports bucket, video bucket, etc.) or per project (project1 bucket, project2 bucket, etc.) or per environment (dev, pre-prod, production buckets) or a mix of all these approaches.
@@ -52,23 +52,27 @@ Therefore, its convention to either use a random value as a prefix to the filena
 
 ## Implementation
 
-### S3 Keys
+### Buckets
+We will use one bucket across our project for all uploaded files. There will however be one bucket per environment (production, pre-production, development, etc.)
 
-We can use a generated UUID for the key.
+### Keys
+We will use a generated UUID for the key.  
+
+### Virtual folders
+We will make use virtual folders to organise our uploads, and we will make use of a Java Enum to provide a store of available folders.
+Initially we will only have one folder, supporting-documents.   
 
 ### Virus Scanning
-
-
-
-### Presentation
-
-
-### Business logic
-
-
-### Validation
-
+We will use ClamavClient from xyz.capybara to scan our uploads before uploading them to AWS S3.
+We will scan uploaded files via Java InputStreams, thereby bypassing the need to copy uploaded files out of the temporary storage Spring Boot keeps Multi Part Files.
+Any uploaded files found to contain a virus will not be uploaded. 
 
 ### Persistence
-
-
+We will store a reference of all uploaded file in a database table. We will store the following information  per uploaded file:
+* S3 Key
+* Virtual Folder
+* File name
+* File content type
+* File size bytes
+* Uploaded timestamp
+* File description

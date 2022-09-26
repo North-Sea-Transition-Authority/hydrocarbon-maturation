@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
@@ -16,12 +18,15 @@ class TrapPropertiesFormService implements SubmissionFormService {
 
   private final TrapPropertiesFormValidator trapPropertiesFormValidator;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
+  private final ProbabilityDistributionFormService probabilityDistributionFormService;
 
   @Autowired
   TrapPropertiesFormService(TrapPropertiesFormValidator trapPropertiesFormValidator,
-                            TrapPropertiesPersistenceService trapPropertiesPersistenceService) {
+                            TrapPropertiesPersistenceService trapPropertiesPersistenceService,
+                            ProbabilityDistributionFormService probabilityDistributionFormService) {
     this.trapPropertiesFormValidator = trapPropertiesFormValidator;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
+    this.probabilityDistributionFormService = probabilityDistributionFormService;
   }
 
   @Override
@@ -51,6 +56,22 @@ class TrapPropertiesFormService implements SubmissionFormService {
     form.setLatitudeCoordinates(latitudeCoordinates);
     form.setLongitudeCoordinates(longitudeCoordinates);
     form.setLongitudeHemisphere(trapProperty.getLongitudeHemisphere());
+
+    var submissionDetail = trapProperty.getSubmissionDetail();
+    form.setDepthToCrest(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY
+    ));
+
+    form.setDepthToSpillPoint(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY
+    ));
+
+    form.setProductiveArea(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA
+    ));
 
     return form;
   }

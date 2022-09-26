@@ -5,6 +5,6 @@ import java.io.InputStream;
 
 public interface VirusCheckService {
 
-  boolean hasVirus(InputStream inputStream) throws IOException;
+  boolean hasVirus(InputStream inputStream);
 
 }

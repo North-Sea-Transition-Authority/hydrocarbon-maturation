@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
-import java.io.IOException;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -31,27 +30,28 @@ public class FileUploadsController {
   @ResponseBody
   public FileUploadResult upload(@PathVariable("virtualFolder") VirtualFolder virtualFolder,
                                  @RequestParam("file") MultipartFile multipartFile) {
-    try {
-      return fileUploadService.uploadFile(virtualFolder, multipartFile);
-    } catch (IOException e) {
-      throw new RuntimeException(String.format("Could not upload file %s", multipartFile.getOriginalFilename()), e);
-    }
+    return fileUploadService.processFileUpload(virtualFolder, multipartFile);
   }
 
   @GetMapping("download/{uploadedFileId}")
   @ResponseBody
   public ResponseEntity<InputStreamResource> download(@PathVariable("uploadedFileId") UUID uploadedFileId) {
-    var fileDownload = fileUploadService.downloadFile(uploadedFileId);
+    var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
+    var inputStream = fileUploadService.downloadFile(uploadedFile);
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
-        .contentLength(fileDownload.getUploadedFile().getFileSizeBytes())
-        .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", fileDownload.getUploadedFile().getFilename()))
-        .body(new InputStreamResource(fileDownload.getInputStream()));
+        .contentLength(uploadedFile.getFileSizeBytes())
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            String.format("attachment; filename=\"%s\"", uploadedFile.getFilename())
+        )
+        .body(new InputStreamResource(inputStream));
   }
 
   @PostMapping("delete/{uploadedFileId}")
   @ResponseBody
   public FileDeleteResult delete(@PathVariable("uploadedFileId") UUID uploadedFileId) {
-    return fileUploadService.deleteFile(uploadedFileId);
+    var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
+    return fileUploadService.deleteFile(uploadedFile);
   }
 }
