@@ -99,16 +99,6 @@ public class FileUploadService {
     return s3ClientService.fetchFile(uploadedFile.getS3Key());
   }
 
-  public FileUploadTemplate buildFileUploadTemplate(VirtualFolder virtualFolder) {
-    return new FileUploadTemplate(
-        ReverseRouter.route(on(FileUploadsController.class).download(null)),
-        ReverseRouter.route(on(FileUploadsController.class).upload(virtualFolder.name(), null)),
-        ReverseRouter.route(on(FileUploadsController.class).delete(null)),
-        fileUploadConfig.getMaxAllowedSize().toString(),
-        fileUploadConfig.getAllowedExtensions()
-    );
-  }
-
   private String createS3KeyWithPath(VirtualFolder virtualFolder) {
     return virtualFolder + "/" + UUID.randomUUID();
   }
