@@ -14,7 +14,7 @@ public class FileUploadResult {
   @Nullable
   private final UploadErrorType errorType;
 
-  private FileUploadResult(@Nullable String fileId, String fileName, MultipartFile multipartFile,
+  public FileUploadResult(@Nullable String fileId, String fileName, MultipartFile multipartFile,
                            @Nullable UploadErrorType errorType) {
     this.fileId = fileId;
     this.fileName = fileName;

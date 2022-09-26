@@ -28,9 +28,9 @@ public class FileUploadsController {
 
   @PostMapping("upload/{virtualFolder}")
   @ResponseBody
-  public FileUploadResult upload(@PathVariable("virtualFolder") VirtualFolder virtualFolder,
+  public FileUploadResult upload(@PathVariable("virtualFolder") String virtualFolder,
                                  @RequestParam("file") MultipartFile multipartFile) {
-    return fileUploadService.processFileUpload(virtualFolder, multipartFile);
+    return fileUploadService.processFileUpload(VirtualFolder.valueOf(virtualFolder), multipartFile);
   }
 
   @GetMapping("download/{uploadedFileId}")
