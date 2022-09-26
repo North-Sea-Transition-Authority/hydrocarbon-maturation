@@ -1,11 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
+import java.util.List;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -53,5 +55,13 @@ class OpportunityDetailsFormValidator implements SmartValidator, SubmissionFormV
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "keyEvaluationWorkCarriedOut", "keyEvaluationWorkCarriedOut.required",
         "Enter the key evaluation work being carried out for this opportunity");
+
+    List<FileUploadDetail> mapOfOpportunity = opportunityDetailsForm.getMapOfOpportunity();
+
+    for (int i = 0; i < mapOfOpportunity.size(); i++) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "mapOfOpportunity[%d].uploadedFileDescription".formatted(i),
+          "mapOfOpportunity[%d].uploadedFileDescription.required".formatted(i),
+          "Enter a description of this file");
+    }
   }
 }
