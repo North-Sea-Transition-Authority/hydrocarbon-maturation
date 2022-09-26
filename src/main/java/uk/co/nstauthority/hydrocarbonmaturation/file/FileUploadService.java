@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.file;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Clock;
 import java.util.Objects;
 import java.util.UUID;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ClientService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3DeleteFileFailedException;
+import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ObjectNotFoundException;
 
 @Service
 public class FileUploadService {
@@ -44,7 +47,7 @@ public class FileUploadService {
 
     UploadedFile uploadedFile = uploadFileAndSaveRecord(virtualFolder, multipartFile, fileSize, filename, contentType);
 
-    return FileUploadResult.valid(uploadedFile.getId(), filename, multipartFile);
+    return FileUploadResult.valid(uploadedFile.getId().toString(), filename, multipartFile);
   }
 
   UploadedFile uploadFileAndSaveRecord(VirtualFolder virtualFolder, MultipartFile multipartFile, long fileSize,
@@ -78,16 +81,23 @@ public class FileUploadService {
   }
 
   FileDeleteResult deleteFile(UploadedFile uploadedFile) {
-    s3ClientService.deleteFile(uploadedFile.getS3Key());
+    try {
+      s3ClientService.deleteFile(uploadedFile.getS3Key());
+    } catch (S3DeleteFileFailedException | S3ObjectNotFoundException e) {
+      return FileDeleteResult.error(uploadedFile.getId().toString());
+    }
+
     uploadedFileRepository.deleteById(uploadedFile.getId());
 
     return FileDeleteResult.success(uploadedFile.getId().toString());
   }
 
-  FileDownload downloadFile(UploadedFile uploadedFile) {
-    var inputStream = s3ClientService.fetchFile(uploadedFile.getS3Key());
+  InputStream downloadFile(UploadedFile uploadedFile) {
+    return s3ClientService.fetchFile(uploadedFile.getS3Key());
+  }
 
-    return new FileDownload(uploadedFile, inputStream);
+  private String createS3KeyWithPath(VirtualFolder virtualFolder) {
+    return virtualFolder + "/" + UUID.randomUUID();
   }
 
   private UploadedFile createUploadedFile(String bucketName,
@@ -107,10 +117,6 @@ public class FileUploadService {
     uploadedFile.setUploadedTimeStamp(clock.instant());
 
     return uploadedFile;
-  }
-
-  private String createS3KeyWithPath(VirtualFolder virtualFolder) {
-    return virtualFolder + "/" + UUID.randomUUID();
   }
 
   private String sanitiseFilename(String filename) {

@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
 import java.util.Optional;
-import java.util.UUID;
 import javax.annotation.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,8 +27,8 @@ public class FileUploadResult {
     return new FileUploadResult(null, fileName, multipartFile, errorType);
   }
 
-  public static FileUploadResult valid(UUID id, String fileName, MultipartFile multipartFile) {
-    return new FileUploadResult(id.toString(), fileName, multipartFile, null);
+  public static FileUploadResult valid(String fileId, String fileName, MultipartFile multipartFile) {
+    return new FileUploadResult(fileId, fileName, multipartFile, null);
   }
 
   public Optional<String> getFileId() {

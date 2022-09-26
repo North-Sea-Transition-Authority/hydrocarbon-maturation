@@ -38,14 +38,14 @@ public class FileUploadValidationService {
     return null;
   }
 
-  boolean isFileExtensionAllowed(String filename) {
+  private boolean isFileExtensionAllowed(String filename) {
     String lowercase = filename.toLowerCase();
     return Arrays.stream(fileUploadConfig.getAllowedExtensions().split(","))
         .map(String::trim)
         .anyMatch(lowercase::endsWith);
   }
 
-  boolean isFileSizeAllowed(long fileSize) {
+  private boolean isFileSizeAllowed(long fileSize) {
     return fileSize <= fileUploadConfig.getMaxAllowedSize();
   }
 }

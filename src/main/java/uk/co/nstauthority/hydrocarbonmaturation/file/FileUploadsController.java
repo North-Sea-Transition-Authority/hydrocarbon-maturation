@@ -37,7 +37,7 @@ public class FileUploadsController {
   @ResponseBody
   public ResponseEntity<InputStreamResource> download(@PathVariable("uploadedFileId") UUID uploadedFileId) {
     var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
-    var fileDownload = fileUploadService.downloadFile(uploadedFile);
+    var inputStream = fileUploadService.downloadFile(uploadedFile);
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .contentLength(uploadedFile.getFileSizeBytes())
@@ -45,7 +45,7 @@ public class FileUploadsController {
             HttpHeaders.CONTENT_DISPOSITION,
             String.format("attachment; filename=\"%s\"", uploadedFile.getFilename())
         )
-        .body(new InputStreamResource(fileDownload.getInputStream()));
+        .body(new InputStreamResource(inputStream));
   }
 
   @PostMapping("delete/{uploadedFileId}")

@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file.s3;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import java.io.InputStream;
@@ -46,12 +47,16 @@ public class S3ClientService {
 
     doesObjectExistOrThrow(bucketName, s3Key);
 
-    s3Client.deleteObject(bucketName, s3Key);
+    try {
+      s3Client.deleteObject(bucketName, s3Key);
+    } catch (SdkClientException e) {
+      throw new S3DeleteFileFailedException(bucketName, s3Key, e);
+    }
   }
 
   private void doesObjectExistOrThrow(String bucketName, String s3Key) {
     if (!doesObjectExist(bucketName, s3Key)) {
-      throw new IllegalStateException("Could not find file stored with path " + s3Key);
+      throw new S3ObjectNotFoundException(bucketName, s3Key);
     }
   }
 }
