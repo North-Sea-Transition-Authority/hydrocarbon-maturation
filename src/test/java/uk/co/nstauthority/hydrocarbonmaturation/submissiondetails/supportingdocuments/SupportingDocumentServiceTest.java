@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadErrorType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.VirtualFolder;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
@@ -46,7 +47,10 @@ class SupportingDocumentServiceTest {
 
   @BeforeAll
   static void beforeAll() throws IOException {
-    uploadedFile = createValidUploadedFile();
+    fileSize = 123L;
+    filename = "file.txt";
+    contentType = "text";
+    uploadedFile = UploadedFileTestUtil.createValidUploadedFile(filename, fileSize, contentType);
     multipartFile = createMultipartFile();
   }
 
@@ -107,21 +111,11 @@ class SupportingDocumentServiceTest {
     assertThat(fileDeleteResult.isValid()).isFalse();
   }
 
-  private static UploadedFile createValidUploadedFile() {
-    var uuid = UUID.randomUUID();
-    var uploadedFile = new UploadedFile();
-    var s3Key = "testKey";
-    uploadedFile.setId(uuid);
-    uploadedFile.setS3Key(s3Key);
 
-    return uploadedFile;
-  }
 
   private static MultipartFile createMultipartFile() throws IOException {
     var multipartFile = Mockito.mock(MultipartFile.class);
-    fileSize = 123L;
-    filename = "file.txt";
-    contentType = "text";
+
     when(multipartFile.getSize()).thenReturn(fileSize);
     when(multipartFile.getContentType()).thenReturn(contentType);
     when(multipartFile.getOriginalFilename()).thenReturn(filename);

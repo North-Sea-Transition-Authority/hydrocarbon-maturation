@@ -28,7 +28,7 @@ class FileUploadServiceTest {
 
   @BeforeAll
   static void beforeAll() {
-    uploadedFile = createValidUploadedFile();
+    uploadedFile = UploadedFileTestUtil.createValidUploadedFile();
   }
 
   @BeforeEach
@@ -85,15 +85,5 @@ class FileUploadServiceTest {
   void downloadFile_VerifyInteractions() {
     fileUploadService.downloadFile(uploadedFile);
     verify(s3ClientService).fetchFile(uploadedFile.getS3Key());
-  }
-
-  private static UploadedFile createValidUploadedFile() {
-    var uuid = UUID.randomUUID();
-    var uploadedFile = new UploadedFile();
-    var s3Key = "testKey";
-    uploadedFile.setId(uuid);
-    uploadedFile.setS3Key(s3Key);
-
-    return uploadedFile;
   }
 }
