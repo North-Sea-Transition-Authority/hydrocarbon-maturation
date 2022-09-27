@@ -37,7 +37,8 @@ public class SupportingDocumentService {
   }
 
   @Transactional
-  public FileUploadResult processFileUpload(SubmissionDetail submissionDetail, SupportingDocumentType supportingDocumentType, MultipartFile multipartFile) {
+  public FileUploadResult processFileUpload(SubmissionDetail submissionDetail, SupportingDocumentType supportingDocumentType,
+                                            MultipartFile multipartFile) {
     var fileSize = multipartFile.getSize();
     var filename = fileUploadService.sanitiseFilename(Objects.requireNonNull(multipartFile.getOriginalFilename()));
     var contentType = multipartFile.getContentType();
