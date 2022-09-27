@@ -9,28 +9,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/file-uploads")
-public class FileUploadsController {
+public class FileUploadsDownloadController {
 
   private final FileUploadService fileUploadService;
 
   @Autowired
-  public FileUploadsController(FileUploadService fileUploadService) {
+  public FileUploadsDownloadController(FileUploadService fileUploadService) {
     this.fileUploadService = fileUploadService;
-  }
-
-  @PostMapping("upload/{virtualFolder}")
-  @ResponseBody
-  public FileUploadResult upload(@PathVariable("virtualFolder") String virtualFolder,
-                                 @RequestParam("file") MultipartFile multipartFile) {
-    return fileUploadService.processFileUpload(VirtualFolder.valueOf(virtualFolder), multipartFile);
   }
 
   @GetMapping("download/{uploadedFileId}")
@@ -46,12 +36,5 @@ public class FileUploadsController {
             String.format("attachment; filename=\"%s\"", uploadedFile.getFilename())
         )
         .body(new InputStreamResource(inputStream));
-  }
-
-  @PostMapping("delete/{uploadedFileId}")
-  @ResponseBody
-  public FileDeleteResult delete(@PathVariable("uploadedFileId") UUID uploadedFileId) {
-    var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
-    return fileUploadService.deleteFile(uploadedFile);
   }
 }

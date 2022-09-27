@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,12 +24,15 @@ class OpportunityDetailsFormServiceTest {
   private static OpportunityDetailsFormService opportunityDetailsFormService;
   private static OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
   private static SubmissionDetail submissionDetail;
+  private static SupportingDocumentService supportingDocumentService;
 
   @BeforeAll
   static void setup() {
     opportunityDetailsFormValidator = mock(OpportunityDetailsFormValidator.class);
     opportunityDetailsPersistenceService = mock(OpportunityDetailsPersistenceService.class);
-    opportunityDetailsFormService = new OpportunityDetailsFormService(opportunityDetailsFormValidator, opportunityDetailsPersistenceService);
+    supportingDocumentService = mock(SupportingDocumentService.class);
+    opportunityDetailsFormService = new OpportunityDetailsFormService(opportunityDetailsFormValidator, opportunityDetailsPersistenceService,
+        supportingDocumentService);
 
     UUID submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();

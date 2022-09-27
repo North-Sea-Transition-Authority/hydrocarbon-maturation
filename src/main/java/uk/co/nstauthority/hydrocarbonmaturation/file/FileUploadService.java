@@ -7,7 +7,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Clock;
-import java.util.Objects;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,39 +21,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 public class FileUploadService {
 
   private final S3ClientService s3ClientService;
-  private final FileUploadValidationService fileUploadValidationService;
   private final UploadedFileRepository uploadedFileRepository;
   private final FileUploadConfig fileUploadConfig;
   private final Clock clock;
 
   @Autowired
   public FileUploadService(S3ClientService s3ClientService,
-                           FileUploadValidationService fileUploadValidationService,
                            UploadedFileRepository uploadedFileRepository,
-                           FileUploadConfig fileUploadConfig, Clock clock) {
+                           FileUploadConfig fileUploadConfig,
+                           Clock clock) {
     this.s3ClientService = s3ClientService;
-    this.fileUploadValidationService = fileUploadValidationService;
     this.uploadedFileRepository = uploadedFileRepository;
     this.fileUploadConfig = fileUploadConfig;
     this.clock = clock;
   }
 
-  FileUploadResult processFileUpload(VirtualFolder virtualFolder, MultipartFile multipartFile)  {
-    var fileSize = multipartFile.getSize();
-    var filename = sanitiseFilename(Objects.requireNonNull(multipartFile.getOriginalFilename()));
-    var contentType = multipartFile.getContentType();
-
-    UploadErrorType uploadErrorType = fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename);
-    if (uploadErrorType != null) {
-      return FileUploadResult.error(filename, multipartFile, uploadErrorType);
-    }
-
-    UploadedFile uploadedFile = uploadFileAndSaveRecord(virtualFolder, multipartFile, fileSize, filename, contentType);
-
-    return FileUploadResult.valid(uploadedFile.getId().toString(), filename, multipartFile);
-  }
-
-  UploadedFile uploadFileAndSaveRecord(VirtualFolder virtualFolder, MultipartFile multipartFile, long fileSize,
+  public UploadedFile uploadFileAndSaveRecord(VirtualFolder virtualFolder, MultipartFile multipartFile, long fileSize,
                                        String filename, String contentType) {
     var objectMetadata = new ObjectMetadata();
     objectMetadata.setContentLength(fileSize);
@@ -78,25 +61,35 @@ public class FileUploadService {
     }
   }
 
-  UploadedFile findUploadedFileOrThrow(UUID uploadedFileId) {
+  public UploadedFile findUploadedFileOrThrow(UUID uploadedFileId) {
     return uploadedFileRepository.findById(uploadedFileId)
         .orElseThrow(() -> new IllegalStateException(String.format("Could not find file with ID %s", uploadedFileId)));
   }
 
-  FileDeleteResult deleteFile(UploadedFile uploadedFile) {
+  public DeleteOutcome deleteFile(UploadedFile uploadedFile) {
     try {
       s3ClientService.deleteFile(uploadedFile.getS3Key());
     } catch (S3DeleteFileFailedException | S3ObjectNotFoundException e) {
-      return FileDeleteResult.error(uploadedFile.getId().toString());
+      return DeleteOutcome.INTERNAL_SERVER_ERROR;
     }
 
     uploadedFileRepository.deleteById(uploadedFile.getId());
 
-    return FileDeleteResult.success(uploadedFile.getId().toString());
+    return DeleteOutcome.SUCCESS;
   }
 
   InputStream downloadFile(UploadedFile uploadedFile) {
     return s3ClientService.fetchFile(uploadedFile.getS3Key());
+  }
+
+  public FileUploadTemplate buildFileUploadTemplate(String uploadUrl, String deleteUrl) {
+    return new FileUploadTemplate(
+        ReverseRouter.route(on(FileUploadsDownloadController.class).download(null)),
+        uploadUrl,
+        deleteUrl,
+        fileUploadConfig.getMaxAllowedSize().toString(),
+        fileUploadConfig.getAllowedExtensions()
+    );
   }
 
   private String createS3KeyWithPath(VirtualFolder virtualFolder) {
@@ -122,7 +115,16 @@ public class FileUploadService {
     return uploadedFile;
   }
 
-  private String sanitiseFilename(String filename) {
+  public String sanitiseFilename(String filename) {
     return filename.replaceAll(fileUploadConfig.getFileNameFilter(), "_");
+  }
+
+  public List<UploadedFile> getFileUploadsByIdList(List<UUID> uploadedFileIdList) {
+    return uploadedFileRepository.findAllByIdIn(uploadedFileIdList);
+  }
+
+  public void updateFileDescription(UploadedFile uploadedFile, String uploadedFileDescription) {
+    uploadedFile.setDescription(uploadedFileDescription);
+    uploadedFileRepository.save(uploadedFile);
   }
 }

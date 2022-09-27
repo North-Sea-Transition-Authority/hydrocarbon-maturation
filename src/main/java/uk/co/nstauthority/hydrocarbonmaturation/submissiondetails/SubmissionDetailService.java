@@ -47,5 +47,4 @@ public class SubmissionDetailService {
     submissionDetailRepository.save(submissionDetail);
     return submissionDetail;
   }
-
 }
