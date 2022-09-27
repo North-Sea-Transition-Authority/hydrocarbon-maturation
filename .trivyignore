@@ -14,3 +14,8 @@ CVE-2022-30065
 CVE-2022-31197
 #temporarily ignoring vulnerability from eclipse base image
 CVE-2022-25857
+#temporarily ignoring vulnerability from snakeyml which is fixed in spring 2.7.4
+CVE-2022-38749
+CVE-2022-38750
+CVE-2022-38751
+CVE-2022-38752
