@@ -30,10 +30,13 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -51,10 +54,14 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
   @MockBean
   SubmissionDetailService submissionDetailService;
 
+  @MockBean
+  SupportingDocumentService supportingDocumentService;
+
   private OpportunityDetailsForm form;
   private BindingResult bindingResult;
   private UUID submissionDetailId;
   private SubmissionDetail submissionDetail;
+  private FileUploadTemplate fileUploadTemplate;
 
   @BeforeEach
   void setUp() {
@@ -63,12 +70,15 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
 
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
+
+    fileUploadTemplate = new FileUploadTemplate("", "", "", "", "");
   }
 
   @Test
   void getOpportunityDetailsPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
+    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
 
     mockMvc.perform(
         get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form))))
@@ -97,6 +107,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(opportunityDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null)))
@@ -111,6 +122,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
   void getOpportunityDetailsModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
+    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form))))
@@ -122,7 +134,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
         entry("opportunityTypes", OpportunityType.getOpportunityType()),
         entry("pageTitle", OpportunityDetailsController.PAGE_NAME)
     )
-    .containsKey("breadcrumbsMap");
+    .containsKeys("breadcrumbsMap", "mapOfOpportunityTemplate");
   }
 
 }

@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunityde
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -58,10 +59,13 @@ class OpportunityDetailsFormValidator implements SmartValidator, SubmissionFormV
 
     List<FileUploadDetail> mapOfOpportunity = opportunityDetailsForm.getMapOfOpportunity();
 
-    for (int i = 0; i < mapOfOpportunity.size(); i++) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "mapOfOpportunity[%d].uploadedFileDescription".formatted(i),
-          "mapOfOpportunity[%d].uploadedFileDescription.required".formatted(i),
-          "Enter a description of this file");
+    if (mapOfOpportunity.size() == 0) {
+      errors.rejectValue("mapOfOpportunity", "mapOfOpportunity.required", "Upload a map of opportunity");
     }
+
+    IntStream.range(0, mapOfOpportunity.size()).forEachOrdered(
+        i -> ValidationUtils.rejectIfEmptyOrWhitespace(errors, "mapOfOpportunity[%d].uploadedFileDescription".formatted(i),
+            "mapOfOpportunity[%d].uploadedFileDescription.required".formatted(i),
+            "Enter a description of this file"));
   }
 }

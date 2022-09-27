@@ -99,6 +99,15 @@ public class SupportingDocumentService {
     };
   }
 
+  public void updateSupportingDocumentDescriptions(List<FileUploadDetail> fileUploadDetailList) {
+    fileUploadDetailList
+        .forEach(fileUploadDetail -> {
+          UUID uploadedFileId = UUID.fromString(fileUploadDetail.getUploadedFileId());
+          UploadedFile uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
+          fileUploadService.updateFileDescription(uploadedFile, fileUploadDetail.getUploadedFileDescription());
+        });
+  }
+
   private FileUploadView createFileUploadView(UploadedFile uploadedFile) {
     return new FileUploadView(
         uploadedFile.getId().toString(),
@@ -115,14 +124,5 @@ public class SupportingDocumentService {
     fileUploadDetail.setUploadedFileDescription(uploadedFile.getDescription());
     fileUploadDetail.setUploadedFileInstant(uploadedFile.getUploadedTimeStamp());
     return fileUploadDetail;
-  }
-
-  public void updateSupportingDocumentDescriptions(List<FileUploadDetail> fileUploadDetailList) {
-    fileUploadDetailList
-        .forEach(fileUploadDetail -> {
-          UUID uploadedFileId = UUID.fromString(fileUploadDetail.getUploadedFileId());
-          UploadedFile uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
-          fileUploadService.updateFileDescription(uploadedFile, fileUploadDetail.getUploadedFileDescription());
-        });
   }
 }
