@@ -1,8 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
-import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSection;
+import org.springframework.stereotype.Component;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListSection;
 
-public class VolumetricsTaskListSection implements TaskListSection {
+@Component
+public class VolumetricsTaskListSection implements ProspectTaskListSection {
 
   static final String SECTION_NAME = "Volumetrics";
 

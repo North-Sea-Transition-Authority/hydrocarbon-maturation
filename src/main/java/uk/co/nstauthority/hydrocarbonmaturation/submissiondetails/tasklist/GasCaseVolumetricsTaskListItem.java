@@ -1,11 +1,18 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItem;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSection;
 
+@Component
 class GasCaseVolumetricsTaskListItem implements ProspectTaskListItem {
 
   static final String ITEM_NAME = GasCaseVolumetricsController.PAGE_NAME;
@@ -13,9 +20,13 @@ class GasCaseVolumetricsTaskListItem implements ProspectTaskListItem {
 
   private final GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService;
 
+  private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+
   @Autowired
-  GasCaseVolumetricsTaskListItem(GasCaseVolumetricsTaskListItem gasCaseVolumetricsTaskListItem) {
-    this.gasCaseVolumetricsSubmissionService = gasCaseVolumetricsTaskListItem;
+  GasCaseVolumetricsTaskListItem(GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService,
+                                 HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService) {
+    this.gasCaseVolumetricsSubmissionService = gasCaseVolumetricsSubmissionService;
+    this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
   }
 
   @Override
@@ -39,7 +50,13 @@ class GasCaseVolumetricsTaskListItem implements ProspectTaskListItem {
   }
 
   @Override
+  public boolean isVisible(ProspectTaskListItemType target) {
+    return ProspectTaskListItem.super.isVisible(target)
+        && hydrocarbonCasePersistenceService.isGasPresent(target.submissionDetail());
+  }
+
+  @Override
   public boolean isValid(ProspectTaskListItemType target) {
-    return generalDetailSubmissionService.isSectionSubmittable(target.submissionDetail());
+    return gasCaseVolumetricsSubmissionService.isSectionSubmittable(target.submissionDetail());
   }
 }
