@@ -34,23 +34,14 @@ public class ProbabilityDistributionFormService {
     form.setProbabilityDistributionType(distributionType);
 
     var exceedanceForm = getExceedanceFormFromEntity(distributionForm);
-    if (distributionType.equals(ProbabilityDistributionType.NORMAL)) {
-      form.setNormal(exceedanceForm);
-    }
-    if (distributionType.equals(ProbabilityDistributionType.LOGNORMAL)) {
-      form.setLognormal(exceedanceForm);
-    }
-    if (distributionType.equals(ProbabilityDistributionType.BETA)) {
-      form.setBeta(exceedanceForm);
-    }
-    if (distributionType.equals(ProbabilityDistributionType.TRIANGULAR)) {
-      form.setTriangular(exceedanceForm);
-    }
-    if (distributionType.equals(ProbabilityDistributionType.RECTANGULAR)) {
-      form.setRectangular(exceedanceForm);
-    }
-    if (distributionType.equals(ProbabilityDistributionType.CONSTANT)) {
-      form.setConstant(exceedanceForm);
+    switch (distributionType) {
+      case NORMAL -> form.setNormal(exceedanceForm);
+      case LOGNORMAL -> form.setLognormal(exceedanceForm);
+      case BETA -> form.setBeta(exceedanceForm);
+      case TRIANGULAR -> form.setTriangular(exceedanceForm);
+      case RECTANGULAR -> form.setRectangular(exceedanceForm);
+      case CONSTANT -> form.setConstant(exceedanceForm);
+      case CUSTOM -> form.setCustom(exceedanceForm);
     }
 
     return form;

@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-public class BetaBehaviour implements ProbabilityDistributionTypeBehaviour {
+public class BetaBehaviour extends BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
 
   @Override
   public boolean isMinAvailable() {
@@ -59,16 +59,6 @@ public class BetaBehaviour implements ProbabilityDistributionTypeBehaviour {
 
   @Override
   public boolean isMeanRequired() {
-    return false;
-  }
-
-  @Override
-  public boolean isConstantAvailable() {
-    return false;
-  }
-
-  @Override
-  public boolean isConstantRequired() {
     return false;
   }
 

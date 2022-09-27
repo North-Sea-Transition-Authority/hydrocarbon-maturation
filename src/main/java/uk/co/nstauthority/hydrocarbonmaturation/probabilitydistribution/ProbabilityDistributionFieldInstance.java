@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.BETA;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.CONSTANT;
+import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.CUSTOM;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.LOGNORMAL;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.NORMAL;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.RECTANGULAR;
@@ -22,14 +23,12 @@ public enum ProbabilityDistributionFieldInstance {
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       "km2"
   ),
-
-  //TODO remove example custom enum value
-  DEPTH_TO_CREST_FIELD_SUBMISSION(CustomBehaviour.class),
+  OIL_CASE_OUTPUTS_OIL_IN_PLACE(OilInPlaceBehaviour.class, "mmstb"),
   ;
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
-  private List<ProbabilityDistributionType> presetTypes;
+  private final List<ProbabilityDistributionType> presetTypes;
 
-  private String units;
+  private final String units;
 
   private final Type type;
 
@@ -46,9 +45,12 @@ public enum ProbabilityDistributionFieldInstance {
     type = Type.PRESET_LIST;
   }
 
-  ProbabilityDistributionFieldInstance(Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour) {
+  ProbabilityDistributionFieldInstance(Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour,
+                                       String units) {
     this.customBehaviour = customBehaviour;
+    this.units = units;
 
+    this.presetTypes = List.of(CUSTOM);
     type = Type.CUSTOM;
   }
 
