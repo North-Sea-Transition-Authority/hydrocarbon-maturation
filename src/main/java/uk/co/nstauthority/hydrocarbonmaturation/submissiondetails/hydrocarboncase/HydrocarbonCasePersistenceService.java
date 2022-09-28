@@ -61,9 +61,9 @@ public class HydrocarbonCasePersistenceService {
         .stream().anyMatch(hydrocarbonCaseDetail ->
             (hydrocarbonCaseDetail.getGasOnly() != null
                 && hydrocarbonCaseDetail.getGasOnly()
-                && hydrocarbonCaseDetail.getGasOnlyProbability().compareTo(BigDecimal.ZERO) == 1)
+                && hydrocarbonCaseDetail.getGasOnlyProbability().compareTo(BigDecimal.ZERO) > 0)
                 || (hydrocarbonCaseDetail.getOilAndGas() != null
                 && hydrocarbonCaseDetail.getOilAndGas()
-                && hydrocarbonCaseDetail.getOilAndGasProbability().compareTo(BigDecimal.ZERO) == 1));
+                && hydrocarbonCaseDetail.getOilAndGasProbability().compareTo(BigDecimal.ZERO) > 0));
   }
 }

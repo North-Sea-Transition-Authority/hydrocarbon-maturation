@@ -2,7 +2,6 @@
 <#import '../probabilitydistribution/probabilitydistribution.ftl' as probabilityDistribution>
 
 <#assign pageTitle = "Gas case volumetrics" />
-<#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
@@ -20,7 +19,6 @@
   pageHeading=pageTitle
   pageSize=PageSize.TWO_THIRDS_COLUMN
   errorItems=errorList
-  backLinkUrl=backLinkUrl
   breadcrumbsMap=breadcrumbsMap>
   <@fdsForm.htmlForm>
 

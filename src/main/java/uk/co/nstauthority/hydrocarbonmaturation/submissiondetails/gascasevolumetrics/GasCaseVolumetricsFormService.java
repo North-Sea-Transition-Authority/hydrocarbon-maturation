@@ -16,7 +16,6 @@ public class GasCaseVolumetricsFormService implements SubmissionFormService {
   private final GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
 
-
   @Autowired
   public GasCaseVolumetricsFormService(
       GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator,
