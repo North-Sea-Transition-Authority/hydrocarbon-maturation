@@ -146,7 +146,7 @@ public class ProbabilityDistributionTestUtil {
       ProbabilityDistributionType probabilityDistributionType
   ) {
     var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
-    var behaviour = probabilityDistributionType.newInstance();
+    var behaviour = probabilityDistributionType.newPresetInstance();
     if (behaviour.isMinAvailable()) {
       probabilityOfExceedanceForm.setMin(DecimalInputTestUtil.getDecimalInput(1));
     }

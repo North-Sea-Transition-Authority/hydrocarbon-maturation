@@ -35,7 +35,8 @@ public class ProbabilityDistributionTemplateService {
   }
 
   private ProbabilityDistributionTypeBehaviour determineBehaviour(ProbabilityDistributionFieldInstance instance, ProbabilityDistributionType type) {
-    return instance.isCustomType() ? instance.newInstance() : type.newInstance();
+
+    return instance.isCustomType() ? ProbabilityDistributionTypeBehaviourUtil.newCustomBehaviourInstance(instance) : type.newPresetInstance();
   }
 
   private void addAddProbabilityInputsToList(List<ProbabilityDistributionTypeWithInputs> probabilityDistributionTypeWithInputsList,

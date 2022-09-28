@@ -1,7 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-import java.lang.reflect.InvocationTargetException;
-import org.springframework.util.ReflectionUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
 public enum ProbabilityDistributionType implements Displayable {
@@ -14,7 +12,7 @@ public enum ProbabilityDistributionType implements Displayable {
   CUSTOM("custom");
 
   private Class<? extends ProbabilityDistributionTypeBehaviour> presetBehaviour;
-  private final boolean hasPresetBehaviour;
+  private final boolean hasCustomBehaviour;
   private String displayName;
   private int displayOrder;
   private final String path;
@@ -28,20 +26,16 @@ public enum ProbabilityDistributionType implements Displayable {
     this.displayName = displayName;
     this.displayOrder = displayOrder;
     this.path = path;
-    this.hasPresetBehaviour = true;
+    this.hasCustomBehaviour = false;
   }
 
   ProbabilityDistributionType(String path) {
     this.path = path;
-    this.hasPresetBehaviour = false;
+    this.hasCustomBehaviour = true;
   }
 
   public Class<? extends ProbabilityDistributionTypeBehaviour> getPresetBehaviour() {
     return presetBehaviour;
-  }
-
-  public boolean hasPresetBehaviour() {
-    return hasPresetBehaviour;
   }
 
   @Override
@@ -63,11 +57,12 @@ public enum ProbabilityDistributionType implements Displayable {
     return this.name();
   }
 
-  public ProbabilityDistributionTypeBehaviour newInstance() {
-    try {
-      return ReflectionUtils.accessibleConstructor(this.getPresetBehaviour()).newInstance();
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new ProbabilityDistributionException(e);
+  public ProbabilityDistributionTypeBehaviour newPresetInstance() {
+    if (hasCustomBehaviour) {
+      throw new IllegalStateException(
+          "Cannot create instance of a ProbabilityDistributionTypeBehaviour that has custom behaviour");
     }
+
+    return ProbabilityDistributionTypeBehaviourUtil.newBehaviourInstance(this.getPresetBehaviour());
   }
 }

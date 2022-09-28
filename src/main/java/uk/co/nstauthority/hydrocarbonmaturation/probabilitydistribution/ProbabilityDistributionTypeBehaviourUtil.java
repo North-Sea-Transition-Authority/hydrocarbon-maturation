@@ -3,27 +3,36 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 import java.lang.reflect.InvocationTargetException;
 import org.springframework.util.ReflectionUtils;
 
-public class ProbabilityDistributionTypeBehaviourInstanceUtil {
+public class ProbabilityDistributionTypeBehaviourUtil {
 
-  private ProbabilityDistributionTypeBehaviourInstanceUtil() {
+  private ProbabilityDistributionTypeBehaviourUtil() {
   }
 
 
-  public static ProbabilityDistributionTypeBehaviour newInstance(
-      Class<? extends ProbabilityDistributionTypeBehaviour> presetBehaviour) {
+  public static ProbabilityDistributionTypeBehaviour newBehaviourInstance(
+      Class<? extends ProbabilityDistributionTypeBehaviour> behaviour) {
     try {
-      return ReflectionUtils.accessibleConstructor(presetBehaviour).newInstance();
+      return ReflectionUtils.accessibleConstructor(behaviour).newInstance();
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
       throw new ProbabilityDistributionException(e);
     }
   }
 
-  public static ProbabilityDistributionTypeBehaviour newInstance(ProbabilityDistributionFieldInstance instance) {
+  public static ProbabilityDistributionTypeBehaviour newCustomBehaviourInstance(ProbabilityDistributionFieldInstance instance) {
     if (!instance.isCustomType()) {
       throw new IllegalStateException(
           "Cannot create instance of a ProbabilityDistributionFieldInstance that does not have custom behaviour");
     }
 
-    return newInstance(instance.getCustomBehaviour());
+    return newBehaviourInstance(instance.getCustomBehaviour());
+  }
+
+  public static ProbabilityDistributionTypeBehaviour getBehaviour(
+      ProbabilityDistributionFieldInstance instance, ProbabilityDistributionType probabilityDistributionType) {
+    if (instance.isCustomType()) {
+      return newCustomBehaviourInstance(instance);
+    }
+
+    return probabilityDistributionType.newPresetInstance();
   }
 }

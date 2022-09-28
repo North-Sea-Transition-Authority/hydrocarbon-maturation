@@ -20,32 +20,43 @@ public class ProbabilityDistributionFormService {
       SubmissionDetail submissionDetail,
       ProbabilityDistributionFieldInstance instance
   ) {
-    var probabilityDistribution = probabilityDistributionPersistenceService.getProbabilityDistribution(
-        submissionDetail, instance
-    );
+    return probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance)
+        .map(probabilityDistribution -> {
+          var form = createProbabilityDistributionForm(instance, probabilityDistribution.getDistributionType());
+          var distributionType = form.getProbabilityDistributionType();
 
-    if (probabilityDistribution.isEmpty()) {
-      return new ProbabilityDistributionForm();
-    }
+          var exceedanceForm = getExceedanceFormFromEntity(probabilityDistribution);
+          switch (distributionType) {
+            case NORMAL -> form.setNormal(exceedanceForm);
+            case LOGNORMAL -> form.setLognormal(exceedanceForm);
+            case BETA -> form.setBeta(exceedanceForm);
+            case TRIANGULAR -> form.setTriangular(exceedanceForm);
+            case RECTANGULAR -> form.setRectangular(exceedanceForm);
+            case CONSTANT -> form.setConstant(exceedanceForm);
+            case CUSTOM -> form.setCustom(exceedanceForm);
+            default -> throw new IllegalStateException("Unexpected value: " + distributionType);
+          }
 
+          return form;
+        })
+        .orElseGet(() -> createProbabilityDistributionForm(instance));
+  }
+
+  private ProbabilityDistributionForm createProbabilityDistributionForm(ProbabilityDistributionFieldInstance instance,
+                                                                        ProbabilityDistributionType distributionType) {
     var form = new ProbabilityDistributionForm();
-    var distributionForm = probabilityDistribution.get();
-    var distributionType = distributionForm.getDistributionType();
+    form.setProbabilityDistributionFieldInstance(instance);
     form.setProbabilityDistributionType(distributionType);
 
-    var exceedanceForm = getExceedanceFormFromEntity(distributionForm);
-    switch (distributionType) {
-      case NORMAL -> form.setNormal(exceedanceForm);
-      case LOGNORMAL -> form.setLognormal(exceedanceForm);
-      case BETA -> form.setBeta(exceedanceForm);
-      case TRIANGULAR -> form.setTriangular(exceedanceForm);
-      case RECTANGULAR -> form.setRectangular(exceedanceForm);
-      case CONSTANT -> form.setConstant(exceedanceForm);
-      case CUSTOM -> form.setCustom(exceedanceForm);
-      default -> throw new IllegalStateException("Unexpected value: " + distributionType);
+    if (instance.isCustomType()) {
+      form.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
     }
 
     return form;
+  }
+
+  private ProbabilityDistributionForm createProbabilityDistributionForm(ProbabilityDistributionFieldInstance instance) {
+    return createProbabilityDistributionForm(instance, null);
   }
 
   private ProbabilityOfExceedanceForm getExceedanceFormFromEntity(

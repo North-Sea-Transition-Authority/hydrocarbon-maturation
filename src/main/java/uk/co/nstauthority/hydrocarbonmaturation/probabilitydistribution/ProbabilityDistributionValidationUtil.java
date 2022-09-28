@@ -40,9 +40,10 @@ public class ProbabilityDistributionValidationUtil {
   ) {
     int errorCountBefore = errors.getErrorCount();
     if (!Objects.isNull(probabilityDistributionForm.getProbabilityDistributionType())) {
+      var instance = probabilityDistributionForm.getProbabilityDistributionFieldInstance();
       var probabilityDistributionType = probabilityDistributionForm.getProbabilityDistributionType();
       var typePath = probabilityDistributionType.getPath();
-      var behaviour = probabilityDistributionType.newInstance();
+      var behaviour = ProbabilityDistributionTypeBehaviourUtil.getBehaviour(instance, probabilityDistributionType);
       var probabilityOfExceedanceForm = probabilityDistributionForm.getProbabilityOfExceedanceForm();
 
       // validate Min input
@@ -167,8 +168,7 @@ public class ProbabilityDistributionValidationUtil {
 
       int errorCountAfter = errors.getErrorCount();
       if (errorCountAfter > errorCountBefore) {
-        String exceedanceTypePath = probabilityDistributionForm.getProbabilityDistributionType().getPath();
-        String errorPath = formField + "." + exceedanceTypePath + ".error";
+        String errorPath = formField + "." + typePath + ".error";
         errorPath = errorPath.replaceAll("[\n\r\t]", "_");
         errors.rejectValue(
             errorPath,
