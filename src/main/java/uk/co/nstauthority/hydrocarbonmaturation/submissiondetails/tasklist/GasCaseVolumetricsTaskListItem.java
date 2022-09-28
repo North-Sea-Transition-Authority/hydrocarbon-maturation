@@ -16,7 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSection;
 class GasCaseVolumetricsTaskListItem implements ProspectTaskListItem {
 
   static final String ITEM_NAME = GasCaseVolumetricsController.PAGE_NAME;
-  static final int ITEM_DISPLAY_ORDER = 10;
+  static final int ITEM_DISPLAY_ORDER = 15;
 
   private final GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService;
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
