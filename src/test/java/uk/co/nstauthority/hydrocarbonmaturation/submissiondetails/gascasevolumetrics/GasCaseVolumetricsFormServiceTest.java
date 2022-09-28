@@ -61,8 +61,7 @@ class GasCaseVolumetricsFormServiceTest {
             form -> form.getGasHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getGasExpansionFactor().getProbabilityDistributionType(),
-            form -> form.getCondensateGasRatioLifeOfField().getProbabilityDistributionType()
-        )
+            form -> form.getCondensateGasRatioLifeOfField().getProbabilityDistributionType())
         .containsExactly(
             null,
             null,
