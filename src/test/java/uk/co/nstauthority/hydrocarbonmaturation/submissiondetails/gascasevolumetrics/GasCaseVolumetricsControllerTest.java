@@ -48,16 +48,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 class GasCaseVolumetricsControllerTest extends AbstractControllerTest {
 
   @MockBean
-  SubmissionDetailService submissionDetailService;
+  private SubmissionDetailService submissionDetailService;
 
   @MockBean
-  GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
+  private GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
 
   @MockBean
-  GasCaseVolumetricsPersistenceService gasCaseVolumetricsPersistenceService;
+  private GasCaseVolumetricsPersistenceService gasCaseVolumetricsPersistenceService;
 
   @Autowired
-  ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
+  private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
   private static GasCaseVolumetricsForm form;
   private static UUID submissionDetailId;

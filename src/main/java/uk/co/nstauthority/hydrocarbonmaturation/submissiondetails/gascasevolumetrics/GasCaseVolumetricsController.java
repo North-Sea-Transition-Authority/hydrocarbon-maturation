@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolume
 
 import java.util.UUID;
 import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +33,7 @@ public class GasCaseVolumetricsController {
 
   public static final String PAGE_NAME = "Gas case volumetrics";
 
+  @Autowired
   public GasCaseVolumetricsController(SubmissionDetailService submissionDetailService,
                                       ControllerHelperService controllerHelperService,
                                       SubmissionTaskListRedirectionService submissionTaskListRedirectionService,

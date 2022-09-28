@@ -7,9 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prosp
 public class VolumetricsTaskListSection implements ProspectTaskListSection {
 
   static final String SECTION_NAME = "Volumetrics";
-
   static final int SECTION_DISPLAY_ORDER = 40;
-
 
   @Override
   public String getSectionName() {

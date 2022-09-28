@@ -85,7 +85,6 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
         "gasExpansionFactor",
         "Gas expansion factor");
 
-
     ValidationUtils.rejectIfEmpty(errors, "gasRecoveryFactor.probabilityDistributionType",
         "gasRecoveryFactor.probabilityDistributionType.required",
         "Select a gas recovery factor distribution used");

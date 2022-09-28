@@ -18,7 +18,6 @@ public enum ProbabilityDistributionFieldInstance {
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       "ft tvdss"
   ),
-
   GAS_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       "%"

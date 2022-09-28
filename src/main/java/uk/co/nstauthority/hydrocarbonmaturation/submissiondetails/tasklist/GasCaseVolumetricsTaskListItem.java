@@ -19,7 +19,6 @@ class GasCaseVolumetricsTaskListItem implements ProspectTaskListItem {
   static final int ITEM_DISPLAY_ORDER = 10;
 
   private final GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService;
-
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   @Autowired
@@ -36,7 +35,8 @@ class GasCaseVolumetricsTaskListItem implements ProspectTaskListItem {
 
   @Override
   public String getActionUrl(ProspectTaskListItemType target) {
-    return ReverseRouter.route(on(GasCaseVolumetricsController.class).getGasCaseVolumetrics(target.submissionDetail().getId(), null));
+    return ReverseRouter.route(on(GasCaseVolumetricsController.class)
+        .getGasCaseVolumetrics(target.submissionDetail().getId(), null));
   }
 
   @Override
