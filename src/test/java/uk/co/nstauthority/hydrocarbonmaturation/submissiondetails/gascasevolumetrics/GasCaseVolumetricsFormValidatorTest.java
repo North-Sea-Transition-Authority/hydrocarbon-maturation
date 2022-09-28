@@ -61,14 +61,14 @@ class GasCaseVolumetricsFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("gasExpansionFactor.probabilityDistributionType",
-                Set.of("gasExpansionFactor.probabilityDistributionType.required")),
-            entry("gasRecoveryFactor.probabilityDistributionType",
-                Set.of("gasRecoveryFactor.probabilityDistributionType.required")),
             entry("gasHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("gasHydrocarbonSaturation.probabilityDistributionType.required")),
+            entry("gasExpansionFactor.probabilityDistributionType",
+                Set.of("gasExpansionFactor.probabilityDistributionType.required")),
             entry("condensateGasRatioLifeOfField.probabilityDistributionType",
-                Set.of("condensateGasRatioLifeOfField.probabilityDistributionType.required"))
+                Set.of("condensateGasRatioLifeOfField.probabilityDistributionType.required")),
+            entry("gasRecoveryFactor.probabilityDistributionType",
+                Set.of("gasRecoveryFactor.probabilityDistributionType.required"))
         );
   }
 

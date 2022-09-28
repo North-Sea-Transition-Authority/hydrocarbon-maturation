@@ -39,20 +39,6 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
   public void validatePartial(SubmissionForm form, Errors errors) {
     var gasCaseVolumetricsForm = (GasCaseVolumetricsForm) form;
 
-    var gasExpansionFactor = gasCaseVolumetricsForm.getGasExpansionFactor();
-    ProbabilityDistributionValidationUtil.validatePartial(
-        gasExpansionFactor,
-        errors,
-        "gasExpansionFactor",
-        "Gas expansion factor");
-
-    var gasRecoveryFactor = gasCaseVolumetricsForm.getGasRecoveryFactor();
-    ProbabilityDistributionValidationUtil.validatePartial(
-        gasRecoveryFactor,
-        errors,
-        "gasRecoveryFactor",
-        "Gas recovery factor");
-
     var gasHydrocarbonSaturation = gasCaseVolumetricsForm.getGasHydrocarbonSaturation();
     ProbabilityDistributionValidationUtil.validatePartial(
         gasHydrocarbonSaturation,
@@ -61,6 +47,13 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
         "Gas hydrocarbon saturation"
     );
 
+    var gasExpansionFactor = gasCaseVolumetricsForm.getGasExpansionFactor();
+    ProbabilityDistributionValidationUtil.validatePartial(
+        gasExpansionFactor,
+        errors,
+        "gasExpansionFactor",
+        "Gas expansion factor");
+
     var condensateGasRatioLifeOfField = gasCaseVolumetricsForm.getCondensateGasRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validatePartial(
         condensateGasRatioLifeOfField,
@@ -68,37 +61,22 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
         "condensateGasRatioLifeOfField",
         "Condensate-gas ratio, life-of-field"
     );
+
+    var gasRecoveryFactor = gasCaseVolumetricsForm.getGasRecoveryFactor();
+    ProbabilityDistributionValidationUtil.validatePartial(
+        gasRecoveryFactor,
+        errors,
+        "gasRecoveryFactor",
+        "Gas recovery factor");
   }
 
   @Override
   public void validateFull(SubmissionForm form, Errors errors) {
     var gasCaseVolumetricsForm = (GasCaseVolumetricsForm) form;
 
-    ValidationUtils.rejectIfEmpty(errors, "gasExpansionFactor.probabilityDistributionType",
-        "gasExpansionFactor.probabilityDistributionType.required",
-        "Select a gas expansion factor distribution used");
-
-    var gasExpansionFactor = gasCaseVolumetricsForm.getGasExpansionFactor();
-    ProbabilityDistributionValidationUtil.validateFull(
-        gasExpansionFactor,
-        errors,
-        "gasExpansionFactor",
-        "Gas expansion factor");
-
-    ValidationUtils.rejectIfEmpty(errors, "gasRecoveryFactor.probabilityDistributionType",
-        "gasRecoveryFactor.probabilityDistributionType.required",
-        "Select a gas recovery factor distribution used");
-
-    var gasRecoveryFactor = gasCaseVolumetricsForm.getGasRecoveryFactor();
-    ProbabilityDistributionValidationUtil.validateFull(
-        gasRecoveryFactor,
-        errors,
-        "gasRecoveryFactor",
-        "Gas recovery factor");
-
     ValidationUtils.rejectIfEmpty(errors, "gasHydrocarbonSaturation.probabilityDistributionType",
         "gasHydrocarbonSaturation.probabilityDistributionType.required",
-        "Select a gas hydrocarbon saturation");
+        "Select gas hydrocarbon saturation");
 
     var gasHydrocarbonSaturation = gasCaseVolumetricsForm.getGasHydrocarbonSaturation();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -108,9 +86,20 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
         "Gas hydrocarbon saturation"
     );
 
+    ValidationUtils.rejectIfEmpty(errors, "gasExpansionFactor.probabilityDistributionType",
+        "gasExpansionFactor.probabilityDistributionType.required",
+        "Select gas expansion factor distribution used");
+
+    var gasExpansionFactor = gasCaseVolumetricsForm.getGasExpansionFactor();
+    ProbabilityDistributionValidationUtil.validateFull(
+        gasExpansionFactor,
+        errors,
+        "gasExpansionFactor",
+        "Gas expansion factor");
+
     ValidationUtils.rejectIfEmpty(errors, "condensateGasRatioLifeOfField.probabilityDistributionType",
         "condensateGasRatioLifeOfField.probabilityDistributionType.required",
-        "Select a condensate-gas ratio, life-of-field distribution used");
+        "Select condensate-gas ratio, life-of-field distribution used");
 
     var condensateGasRatioLifeOfField = gasCaseVolumetricsForm.getCondensateGasRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -119,5 +108,16 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
         "condensateGasRatioLifeOfField",
         "Condensate-gas ratio, life-of-field"
     );
+
+    ValidationUtils.rejectIfEmpty(errors, "gasRecoveryFactor.probabilityDistributionType",
+        "gasRecoveryFactor.probabilityDistributionType.required",
+        "Select gas recovery factor distribution used");
+
+    var gasRecoveryFactor = gasCaseVolumetricsForm.getGasRecoveryFactor();
+    ProbabilityDistributionValidationUtil.validateFull(
+        gasRecoveryFactor,
+        errors,
+        "gasRecoveryFactor",
+        "Gas recovery factor");
   }
 }
