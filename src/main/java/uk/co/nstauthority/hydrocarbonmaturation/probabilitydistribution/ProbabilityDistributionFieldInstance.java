@@ -47,7 +47,7 @@ public enum ProbabilityDistributionFieldInstance {
       "%"
   ),
   ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
-      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
       "scf/stb"
   ),
   PRODUCTIVE_AREA(
