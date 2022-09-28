@@ -111,26 +111,62 @@
                 path=probabilityDistributionTypePath
                 itemMap={inputs.probabilityDistributionType.name() : inputs.probabilityDistributionType.displayName}
                 isFirstItem=firstItem>
-                <@probabilityDistributionFieldSet
+                <@probabilityDistributionSingle
+                    probabilityDistributionTypePath=probabilityDistributionTypePath
                     formId=formId
-                    labelText="Probability of exceedance (${template.units})"
-                    nestingPath=probabilityDistributionTypePath
+                    template=template
                     error=error
-                    probabilityDistributionType=inputs.probabilityDistributionType>
-
-                    <#if error.hasError() && error.probabilityDistributionType().name()==inputs.probabilityDistributionType.name()>
-                        <@springFtl.bind error.fullErrorPath()/>
-                        <@fdsError.inputError inputId=error.errorId()/>
-                        <@springFtl.bind probabilityDistributionTypePath/>
-                    </#if>
-
-                    <@probabilityDistributionInputList
-                        probabilityDistributionInputs=inputs.probabilityDistributionTypeInputs
-                        pathPrefix=probabilityDistributionTypePath?replace("probabilityDistributionType", "")+inputs.probabilityDistributionType.path/>
-                    <#assign firstItem=false/>
-                </@probabilityDistributionFieldSet>
+                    inputs=inputs/>
             </@fdsRadio.radioItem>
         </#list>
     </@fdsRadio.radioGroup>
+
+</#macro>
+
+
+
+<#macro probabilityDistributionSingle
+probabilityDistributionTypePath
+formId
+template
+error
+inputs>
+
+    <@probabilityDistributionFieldSet
+    formId=formId
+    labelText="Probability of exceedance (${template.units})"
+    nestingPath=probabilityDistributionTypePath
+    error=error
+    probabilityDistributionType=inputs.probabilityDistributionType>
+
+        <#if error.hasError() && error.probabilityDistributionType().name()==inputs.probabilityDistributionType.name()>
+            <@springFtl.bind error.fullErrorPath()/>
+            <@fdsError.inputError inputId=error.errorId()/>
+            <@springFtl.bind probabilityDistributionTypePath/>
+        </#if>
+
+        <@probabilityDistributionInputList
+        probabilityDistributionInputs=inputs.probabilityDistributionTypeInputs
+        pathPrefix=probabilityDistributionTypePath?replace("probabilityDistributionType", "")+inputs.probabilityDistributionType.path/>
+        <#assign firstItem=false/>
+    </@probabilityDistributionFieldSet>
+
+</#macro>
+
+
+
+<#macro probabilityDistributionCustomTemplate
+probabilityDistributionTypePath
+labelText
+formId
+template
+error>
+
+    <@probabilityDistributionSingle
+    probabilityDistributionTypePath=probabilityDistributionTypePath
+    formId=formId
+    template=template
+    error=error
+    inputs=template.probabilityDistributionTypeWithInputsList[0]/>
 
 </#macro>

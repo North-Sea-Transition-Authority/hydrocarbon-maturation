@@ -11,13 +11,13 @@ public enum ProbabilityDistributionType implements Displayable {
   TRIANGULAR(TriangularBehaviour.class, "Triangular", 4, "triangular"),
   RECTANGULAR(RectangularBehaviour.class, "Rectangular", 5, "rectangular"),
   CONSTANT(ConstantBehaviour.class, "Constant", 6, "constant"),
-  CUSTOM;
+  CUSTOM("custom");
 
   private Class<? extends ProbabilityDistributionTypeBehaviour> presetBehaviour;
   private final boolean hasPresetBehaviour;
   private String displayName;
   private int displayOrder;
-  private String path;
+  private final String path;
 
   ProbabilityDistributionType(
       Class<? extends ProbabilityDistributionTypeBehaviour> presetBehaviour,
@@ -31,7 +31,8 @@ public enum ProbabilityDistributionType implements Displayable {
     this.hasPresetBehaviour = true;
   }
 
-  ProbabilityDistributionType() {
+  ProbabilityDistributionType(String path) {
+    this.path = path;
     this.hasPresetBehaviour = false;
   }
 

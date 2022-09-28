@@ -8,7 +8,9 @@ import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.P
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.RECTANGULAR;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.TRIANGULAR;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import org.springframework.util.ReflectionUtils;
 
 public enum ProbabilityDistributionFieldInstance {
   DEPTH_TO_CREST_PROSPECT_DISCOVERY(
@@ -62,11 +64,19 @@ public enum ProbabilityDistributionFieldInstance {
     return presetTypes;
   }
 
-  public Type getType() {
-    return type;
-  }
-
   public String getUnits() {
     return units;
+  }
+
+  public boolean isCustomType() {
+    return type == Type.CUSTOM;
+  }
+
+  public ProbabilityDistributionTypeBehaviour newInstance() {
+    try {
+      return ReflectionUtils.accessibleConstructor(this.getCustomBehaviour()).newInstance();
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      throw new ProbabilityDistributionException(e);
+    }
   }
 }

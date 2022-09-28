@@ -42,6 +42,7 @@ public class ProbabilityDistributionFormService {
       case RECTANGULAR -> form.setRectangular(exceedanceForm);
       case CONSTANT -> form.setConstant(exceedanceForm);
       case CUSTOM -> form.setCustom(exceedanceForm);
+      default -> throw new IllegalStateException("Unexpected value: " + distributionType);
     }
 
     return form;
