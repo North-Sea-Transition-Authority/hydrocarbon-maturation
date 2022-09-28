@@ -63,4 +63,15 @@ public class HydrocarbonCasePersistenceService {
                 && hydrocarbonCaseDetail.getGasOnly()
                 && hydrocarbonCaseDetail.getGasOnlyProbability().compareTo(BigDecimal.ZERO) > 0);
   }
+
+  public boolean isOilPresent(SubmissionDetail submissionDetail) {
+    return getHydrocarbonCaseDetail(submissionDetail)
+        .stream().anyMatch(hydrocarbonCaseDetail ->
+            (hydrocarbonCaseDetail.getOilOnly() != null
+                && hydrocarbonCaseDetail.getOilOnly()
+                && hydrocarbonCaseDetail.getOilOnlyProbability().compareTo(BigDecimal.ZERO) > 0)
+                || (hydrocarbonCaseDetail.getOilAndGas() != null
+                && hydrocarbonCaseDetail.getOilAndGas()
+                && hydrocarbonCaseDetail.getOilAndGasProbability().compareTo(BigDecimal.ZERO) > 0));
+  }
 }
