@@ -58,21 +58,21 @@
       hintText="From 0 to 30 for degrees, 0 to 59 for minutes, and 0 to 59.999 for seconds"/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionTypePath="form.depthToCrest.probabilityDistributionType"
+        probabilityDistributionPath="form.depthToCrest"
         labelText="Depth to crest distribution used"
         formId="depthToCrest"
         template=depthToCrestTemplate
         error=depthToCrestError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionTypePath="form.depthToSpillPoint.probabilityDistributionType"
+        probabilityDistributionPath="form.depthToSpillPoint"
         labelText="Depth to spill-point distribution used"
         formId="depthToSpillPoint"
         template=depthToSpillPointTemplate
         error=depthToSpillPointError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionTypePath="form.productiveArea.probabilityDistributionType"
+        probabilityDistributionPath="form.productiveArea"
         labelText="Productive area distribution used"
         formId="productiveArea"
         template=productiveAreaTemplate

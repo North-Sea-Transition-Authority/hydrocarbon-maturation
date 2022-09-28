@@ -98,24 +98,23 @@
 
 
 <#macro probabilityDistributionTemplate
-    probabilityDistributionTypePath
-    probabilityDistributionFieldInstancePath
+    probabilityDistributionPath
     labelText
     formId
     template
     error>
 
-    <@springFtl.formHiddenInput path=probabilityDistributionFieldInstancePath/>
-    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=labelText hiddenContent=true>
+    <@springFtl.formHiddenInput path=probabilityDistributionPath+".probabilityDistributionFieldInstance"/>
+    <@fdsRadio.radioGroup path=probabilityDistributionPath+".probabilityDistributionType" labelText=labelText hiddenContent=true>
         <#assign firstItem=true/>
         <#list template.probabilityDistributionTypeWithInputsList as inputs>
             <@fdsRadio.radioItem
-                path=probabilityDistributionTypePath
+                path=probabilityDistributionPath+".probabilityDistributionType"
                 itemMap={inputs.probabilityDistributionType.name() : inputs.probabilityDistributionType.displayName}
                 isFirstItem=firstItem>
                 <@probabilityDistributionSingle
-                    probabilityDistributionTypePath=probabilityDistributionTypePath
-                    probabilityDistributionFieldInstancePath=probabilityDistributionFieldInstancePath
+                probabilityDistributionTypePath=probabilityDistributionPath+".probabilityDistributionType"
+                probabilityDistributionFieldInstancePath=probabilityDistributionPath+".probabilityDistributionFieldInstance"
                     formId=formId
                     template=template
                     error=error
@@ -160,18 +159,17 @@
 
 
 <#macro probabilityDistributionCustomTemplate
-    probabilityDistributionTypePath
-    probabilityDistributionFieldInstancePath
+    probabilityDistributionPath
     labelText
     formId
     template
     error>
 
-    <@springFtl.formHiddenInput path=probabilityDistributionTypePath/>
-    <@springFtl.formHiddenInput path=probabilityDistributionFieldInstancePath/>
+    <@springFtl.formHiddenInput path=probabilityDistributionPath+".probabilityDistributionType"/>
+    <@springFtl.formHiddenInput path=probabilityDistributionPath+".probabilityDistributionFieldInstance"/>
     <@probabilityDistributionSingle
-        probabilityDistributionTypePath=probabilityDistributionTypePath
-        probabilityDistributionFieldInstancePath=probabilityDistributionFieldInstancePath
+        probabilityDistributionTypePath=probabilityDistributionPath+".probabilityDistributionType"
+        probabilityDistributionFieldInstancePath=probabilityDistributionPath+".probabilityDistributionFieldInstance"
         formId=formId
         template=template
         error=error
