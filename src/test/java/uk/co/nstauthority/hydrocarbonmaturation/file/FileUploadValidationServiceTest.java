@@ -31,8 +31,8 @@ class FileUploadValidationServiceTest {
     virusCheckService = mock(VirusCheckService.class);
     fileUploadConfig = mock(FileUploadConfig.class);
 
-    when(fileUploadConfig.getAllowedExtensions()).thenReturn(".txt, .jpg, .jpeg");
-    when(fileUploadConfig.getMaxAllowedSize()).thenReturn(1024);
+    when(fileUploadConfig.allowedExtensions()).thenReturn(".txt, .jpg, .jpeg");
+    when(fileUploadConfig.maxAllowedSize()).thenReturn(1024);
 
     multipartFile = Mockito.mock(MultipartFile.class);
     when(multipartFile.getInputStream()).thenReturn(mock(InputStream.class));
@@ -88,7 +88,7 @@ class FileUploadValidationServiceTest {
   }
 
   @Test
-  void validateFileUpload_CheckFileHasVirus_VirusFound() {
+  void validateFileUpload_CheckFileHasVirus_VirusFound() throws IOException {
     long fileSize = allowedFileSize;
     String filename = allowedFilenameAndExtension;
     when(virusCheckService.hasVirus(any(InputStream.class))).thenReturn(true);
@@ -99,7 +99,7 @@ class FileUploadValidationServiceTest {
   }
 
   @Test
-  void validateFileUpload_CheckFileHasVirus_VirusNotFound() {
+  void validateFileUpload_CheckFileHasVirus_VirusNotFound() throws IOException {
 
     long fileSize = allowedFileSize;
     String filename = allowedFilenameAndExtension;

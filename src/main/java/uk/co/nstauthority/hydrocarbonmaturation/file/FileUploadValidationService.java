@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
-import java.io.IOException;
 import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ public class FileUploadValidationService {
       if (virusCheckService.hasVirus(multipartFile.getInputStream())) {
         return UploadErrorType.VIRUS_FOUND_IN_FILE;
       }
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new FileUploadException(multipartFile, e);
     }
 
@@ -40,12 +39,12 @@ public class FileUploadValidationService {
 
   private boolean isFileExtensionAllowed(String filename) {
     String lowercase = filename.toLowerCase();
-    return Arrays.stream(fileUploadConfig.getAllowedExtensions().split(","))
+    return Arrays.stream(fileUploadConfig.allowedExtensions().split(","))
         .map(String::trim)
         .anyMatch(lowercase::endsWith);
   }
 
   private boolean isFileSizeAllowed(long fileSize) {
-    return fileSize <= fileUploadConfig.getMaxAllowedSize();
+    return fileSize <= fileUploadConfig.maxAllowedSize();
   }
 }

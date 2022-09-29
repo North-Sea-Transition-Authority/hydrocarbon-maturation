@@ -33,8 +33,8 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-saml2-service-provider'
 	implementation 'org.springframework.session:spring-session-core'
 	implementation 'org.flywaydb:flyway-core'
-	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.296'
-	implementation 'xyz.capybara:clamav-client:2.1.2'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.307'
+	implementation 'fi.solita.clamav:clamav-client:1.0.1'
 
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 

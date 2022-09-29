@@ -20,7 +20,7 @@ public class S3ClientService {
   }
 
   public String getDefaultBucketName() {
-    return s3Config.getDefaultBucketName();
+    return s3Config.bucketName();
   }
 
   boolean doesBucketExist() {

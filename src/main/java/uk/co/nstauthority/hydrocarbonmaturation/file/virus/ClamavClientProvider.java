@@ -1,14 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file.virus;
 
+import fi.solita.clamav.ClamAVClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import xyz.capybara.clamav.ClamavClient;
 
 @Configuration
 class ClamavClientProvider {
 
   @Bean
-  ClamavClient clamavClient(ClamavConfig clamavConfig) {
-    return new ClamavClient(clamavConfig.getHost(), clamavConfig.getPort());
+  ClamAVClient clamavClient(ClamavConfig clamavConfig) {
+    return new ClamAVClient(clamavConfig.host(), clamavConfig.port());
   }
 }
