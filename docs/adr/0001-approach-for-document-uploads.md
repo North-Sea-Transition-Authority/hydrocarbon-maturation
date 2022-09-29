@@ -63,7 +63,7 @@ We will make use virtual folders to organise our uploads, and we will make use o
 Initially we will only have one folder, supporting-documents.   
 
 ### Virus Scanning
-We will use ClamavClient from xyz.capybara to scan our uploads before uploading them to AWS S3.
+We will use ClamAVClient from fi.solita.clamav to scan our uploads before uploading them to AWS S3.
 We will scan uploaded files via Java InputStreams, thereby bypassing the need to copy uploaded files out of the temporary storage Spring Boot keeps Multi Part Files.
 Any uploaded files found to contain a virus will not be uploaded. 
 
