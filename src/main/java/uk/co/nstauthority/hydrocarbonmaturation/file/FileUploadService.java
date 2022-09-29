@@ -87,8 +87,8 @@ public class FileUploadService {
         ReverseRouter.route(on(FileUploadsDownloadController.class).download(null)),
         uploadUrl,
         deleteUrl,
-        fileUploadConfig.getMaxAllowedSize().toString(),
-        fileUploadConfig.getAllowedExtensions()
+        fileUploadConfig.maxAllowedSize().toString(),
+        fileUploadConfig.allowedExtensions()
     );
   }
 
