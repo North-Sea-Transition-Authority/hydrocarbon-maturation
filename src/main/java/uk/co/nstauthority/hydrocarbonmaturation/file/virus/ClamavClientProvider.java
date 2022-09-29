@@ -9,6 +9,6 @@ class ClamavClientProvider {
 
   @Bean
   ClamavClient clamavClient(ClamavConfig clamavConfig) {
-    return new ClamavClient(clamavConfig.getHost(), clamavConfig.getPort());
+    return new ClamavClient(clamavConfig.host(), clamavConfig.port());
   }
 }

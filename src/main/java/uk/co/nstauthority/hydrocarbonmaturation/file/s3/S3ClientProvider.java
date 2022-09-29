@@ -13,13 +13,13 @@ class S3ClientProvider {
 
   @Bean
   AmazonS3 s3Client(S3Config s3Config) {
-    var credentials = new BasicAWSCredentials(s3Config.getAccessKey(),
-        s3Config.getSecretKey());
+    var credentials = new BasicAWSCredentials(s3Config.accessKey(),
+        s3Config.secretKey());
 
     var credentialsProvider = new AWSStaticCredentialsProvider(credentials);
 
     var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
-        s3Config.getEndpoint(), s3Config.getRegionName());
+        s3Config.endpoint(), s3Config.regionName());
 
     return AmazonS3ClientBuilder
         .standard()
