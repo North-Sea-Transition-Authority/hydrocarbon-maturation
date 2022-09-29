@@ -11,8 +11,14 @@ public class ProbabilityDistributionTestUtil {
       ProbabilityDistributionType probabilityDistributionType
   ) {
     var probabilityDistributionForm = new ProbabilityDistributionForm();
+
+    ProbabilityDistributionFieldInstance instance = probabilityDistributionType.equals(ProbabilityDistributionType.CUSTOM)
+        ? ProbabilityDistributionFieldInstance.OIL_IN_PLACE
+        : ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY;
+    probabilityDistributionForm.setProbabilityDistributionFieldInstance(instance);
+
     probabilityDistributionForm.setProbabilityDistributionType(probabilityDistributionType);
-    var probabilityOfExceedanceForm = getValidProbabilityOfExceedanceForm(probabilityDistributionType);
+    var probabilityOfExceedanceForm = getValidProbabilityOfExceedanceForm(instance, probabilityDistributionType);
 
     if (probabilityDistributionType.equals(ProbabilityDistributionType.NORMAL)) {
       probabilityDistributionForm.setNormal(probabilityOfExceedanceForm);
@@ -36,6 +42,11 @@ public class ProbabilityDistributionTestUtil {
 
     if (probabilityDistributionType.equals(ProbabilityDistributionType.CONSTANT)) {
       probabilityDistributionForm.setConstant(probabilityOfExceedanceForm);
+    }
+
+    if (probabilityDistributionType.equals(ProbabilityDistributionType.CUSTOM)) {
+      probabilityDistributionForm.setProbabilityDistributionFieldInstance(ProbabilityDistributionFieldInstance.OIL_IN_PLACE);
+      probabilityDistributionForm.setCustom(probabilityOfExceedanceForm);
     }
 
     return probabilityDistributionForm;
@@ -63,6 +74,10 @@ public class ProbabilityDistributionTestUtil {
 
   public static ProbabilityDistributionForm getValidConstantProbabilityDistributionForm() {
     return getValidProbabilityDistributionForm(ProbabilityDistributionType.CONSTANT);
+  }
+
+  public static ProbabilityDistributionForm getValidCustomProbabilityDistributionForm() {
+    return getValidProbabilityDistributionForm(ProbabilityDistributionType.CUSTOM);
   }
 
   public static ProbabilityDistributionForm getFormWithExceedance(
@@ -98,6 +113,11 @@ public class ProbabilityDistributionTestUtil {
       case CONSTANT -> {
         var validForm = getValidConstantProbabilityDistributionForm();
         validForm.setConstant(probabilityOfExceedanceForm);
+        return validForm;
+      }
+      case CUSTOM -> {
+        var validForm = getValidCustomProbabilityDistributionForm();
+        validForm.setCustom(probabilityOfExceedanceForm);
         return validForm;
       }
       default -> throw new ProbabilityDistributionException("Invalid probability distribution type provided");
@@ -143,10 +163,10 @@ public class ProbabilityDistributionTestUtil {
   }
 
   private static ProbabilityOfExceedanceForm getValidProbabilityOfExceedanceForm(
-      ProbabilityDistributionType probabilityDistributionType
+      ProbabilityDistributionFieldInstance instance, ProbabilityDistributionType probabilityDistributionType
   ) {
     var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
-    var behaviour = probabilityDistributionType.newPresetInstance();
+    var behaviour = ProbabilityDistributionTypeBehaviourUtil.getBehaviour(instance, probabilityDistributionType);
     if (behaviour.isMinAvailable()) {
       probabilityOfExceedanceForm.setMin(DecimalInputTestUtil.getDecimalInput(1));
     }

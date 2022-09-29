@@ -1,0 +1,113 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+
+@ExtendWith(MockitoExtension.class)
+class OilCaseOutputsFormServiceTest {
+
+  @Mock
+  private OilCaseOutputsFormValidator formValidator;
+
+  @Mock
+  private ProbabilityDistributionFormService probabilityDistributionFormService;
+
+  @InjectMocks
+  private OilCaseOutputsFormService oilCaseOutputsFormService;
+
+  private final SubmissionDetail submissionDetail = new SubmissionDetail();
+
+  @Test
+  void validate_verifyMethodCall() {
+    var form = new OilCaseOutputsForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    oilCaseOutputsFormService.validate(form, bindingResult, ValidationType.FULL);
+    verify(formValidator, times(1)).validate(form, bindingResult, ValidationType.FULL);
+  }
+
+  @Test
+  void getOilCaseOutputsForm_newEntity_thenEmptyForm() {
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_IN_PLACE))
+        .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERABLE_RESOURCES))
+        .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_RECOVERABLE_RESOURCES))
+        .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
+        .thenReturn(new ProbabilityDistributionForm());
+
+    assertThat(oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail))
+        .extracting(
+            form -> form.getOilInPlace().getProbabilityDistributionType(),
+            form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
+            form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
+            form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType()
+        ).containsExactly(
+            null,
+            null,
+            null,
+            null
+        );
+  }
+
+  @Test
+  void getOilCaseOutputsForm_existingEntity_thenPopulatedForm() {
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_IN_PLACE))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERABLE_RESOURCES))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_RECOVERABLE_RESOURCES))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
+        .thenReturn(probabilityDistributionForm);
+
+    Assertions.assertThat(oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail))
+        .extracting(
+            form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
+            form -> form.getOilEquivalentRecoverableResources().getCustom().getConstant(),
+            form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
+            form -> form.getOilRecoverableResources().getCustom().getConstant(),
+            form -> form.getOilInPlace().getProbabilityDistributionType(),
+            form -> form.getOilInPlace().getCustom().getConstant(),
+            form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
+            form -> form.getAssociatedGasRecoverableResources().getCustom().getConstant())
+        .containsExactly(
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getCustom().getConstant()
+        );
+  }
+}
