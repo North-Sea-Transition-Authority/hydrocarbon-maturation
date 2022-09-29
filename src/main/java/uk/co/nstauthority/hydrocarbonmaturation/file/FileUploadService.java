@@ -115,7 +115,7 @@ public class FileUploadService {
     return uploadedFile;
   }
 
-  private String sanitiseFilename(String filename) {
+  public String sanitiseFilename(String filename) {
     return filename.replaceAll(fileUploadConfig.filenameDisallowedCharactersRegex(), "_");
   }
 
