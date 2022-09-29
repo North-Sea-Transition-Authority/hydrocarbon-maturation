@@ -31,8 +31,8 @@ class FileUploadValidationServiceTest {
     virusCheckService = mock(VirusCheckService.class);
     fileUploadConfig = mock(FileUploadConfig.class);
 
-    when(fileUploadConfig.getAllowedExtensions()).thenReturn(".txt, .jpg, .jpeg");
-    when(fileUploadConfig.getMaxAllowedSize()).thenReturn(1024);
+    when(fileUploadConfig.allowedExtensions()).thenReturn(".txt, .jpg, .jpeg");
+    when(fileUploadConfig.maxAllowedSize()).thenReturn(1024);
 
     multipartFile = Mockito.mock(MultipartFile.class);
     when(multipartFile.getInputStream()).thenReturn(mock(InputStream.class));

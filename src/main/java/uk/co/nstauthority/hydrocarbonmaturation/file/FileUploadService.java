@@ -1,10 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.Clock;
 import java.util.Objects;
@@ -15,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ClientService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3DeleteFileFailedException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ObjectNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @Service
 public class FileUploadService {
@@ -59,23 +54,25 @@ public class FileUploadService {
     objectMetadata.setContentLength(fileSize);
     objectMetadata.setContentType(contentType);
 
-    try (var fileInputStream = new BufferedInputStream(multipartFile.getInputStream())) {
-      var s3Key = createS3KeyWithPath(virtualFolder);
-      s3ClientService.storeFile(s3Key, fileInputStream, objectMetadata);
+    var s3Key = createS3KeyWithPath(virtualFolder);
 
-      var uploadedFile = createUploadedFile(
-          s3ClientService.getDefaultBucketName(),
-          virtualFolder,
-          s3Key,
-          filename,
-          contentType,
-          fileSize);
-      uploadedFileRepository.save(uploadedFile);
+    var uploadedFile = createUploadedFile(
+        s3ClientService.getDefaultBucketName(),
+        virtualFolder,
+        s3Key,
+        filename,
+        contentType,
+        fileSize);
+    // Persist upload file record first, so if it fails, we don't upload. If upload fails, we will roll back
+    uploadedFileRepository.save(uploadedFile);
 
-      return uploadedFile;
-    } catch (IOException e) {
+    try {
+      s3ClientService.storeFile(s3Key, multipartFile.getInputStream(), objectMetadata);
+    } catch (Exception e) {
       throw new FileUploadException(multipartFile, e);
     }
+
+    return uploadedFile;
   }
 
   UploadedFile findUploadedFileOrThrow(UUID uploadedFileId) {
@@ -123,6 +120,6 @@ public class FileUploadService {
   }
 
   private String sanitiseFilename(String filename) {
-    return filename.replaceAll(fileUploadConfig.getFileNameFilter(), "_");
+    return filename.replaceAll(fileUploadConfig.filenameDisallowedCharactersRegex(), "_");
   }
 }

@@ -55,7 +55,7 @@ class FileUploadServiceTest {
     fileUploadValidationService = Mockito.mock(FileUploadValidationService.class);
     uploadedFileRepository = Mockito.mock(UploadedFileRepository.class);
     fileUploadConfig = Mockito.mock(FileUploadConfig.class);
-    when(fileUploadConfig.getFileNameFilter()).thenReturn("[/\\\\?%*:|\\\"<>]");
+    when(fileUploadConfig.filenameDisallowedCharactersRegex()).thenReturn("[/\\\\?%*:|\\\"<>]");
 
     clock = Mockito.mock(Clock.class);
 

@@ -53,7 +53,7 @@ Therefore, its convention to either use a random value as a prefix to the filena
 ## Implementation
 
 ### Buckets
-We will use one bucket across our project for all uploaded files. There will however be one bucket per environment (production, pre-production, development, etc.)
+Each project will have their own set of buckets. There will be one bucket per project and per environment (remi-production, remi-pre-production, remi-development, etc.) 
 
 ### Keys
 We will use a generated UUID for the key.  
