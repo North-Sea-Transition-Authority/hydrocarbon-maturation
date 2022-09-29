@@ -12,7 +12,6 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
@@ -33,7 +32,7 @@ public class SubmissionConfirmationController {
   @GetMapping
   public ModelAndView showSubmissionConfirmation(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    GeneralDetail generalDetail = generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail);
+    var generalDetail = generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail);
 
     return getSubmissionConfirmationModelAndView(generalDetail.getProspectName(), submissionDetail.getSubmissionType());
   }

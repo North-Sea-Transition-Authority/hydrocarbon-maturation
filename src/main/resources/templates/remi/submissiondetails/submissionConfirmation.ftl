@@ -26,7 +26,7 @@ pageSize=PageSize.TWO_THIRDS_COLUMN>
   </p>
 
   <p class="govuk-body">
-    <a href="${workAreaUrl}" class="govuk-link">Back to work area</a>
+    <a href="springUrl(${workAreaUrl})" class="govuk-link">Back to work area</a>
   </p>
 
 </@defaultPage>

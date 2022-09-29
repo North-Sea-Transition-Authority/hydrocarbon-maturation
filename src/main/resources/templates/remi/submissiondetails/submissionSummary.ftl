@@ -14,7 +14,11 @@ backLinkUrl=springUrl(backLinkUrl)>
 
   <@fdsForm.htmlForm>
 
-      <@fdsAction.submitButtons primaryButtonText="Submit" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl="${springUrl(backLinkUrl)}"/>
+    <@fdsAction.submitButtons
+      primaryButtonText="Submit"
+      secondaryLinkText="Cancel"
+      linkSecondaryAction=true
+      linkSecondaryActionUrl="${springUrl(backLinkUrl)}"/>
   </@fdsForm.htmlForm>
 
 </@defaultPage>

@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryController;
@@ -14,10 +13,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSection;
 class ReviewAndSubmitTaskListItem implements ProspectTaskListItem {
 
   static final int ITEM_DISPLAY_ORDER = 10;
-
-  @Autowired
-  ReviewAndSubmitTaskListItem() {
-  }
 
   @Override
   public String getItemDisplayText() {

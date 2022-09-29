@@ -50,7 +50,7 @@ class SubmissionDetailServiceTest {
 
   @Test
   void completeSubmission() {
-    SubmissionDetail submissionDetail = new SubmissionDetail();
+    var submissionDetail = new SubmissionDetail();
     submissionDetailService.completeSubmission(submissionDetail);
 
     assertThat(submissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.APPROVED);

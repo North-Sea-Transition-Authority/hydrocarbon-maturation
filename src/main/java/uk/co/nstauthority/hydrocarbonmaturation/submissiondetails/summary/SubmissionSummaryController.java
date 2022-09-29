@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 
@@ -33,7 +32,7 @@ public class SubmissionSummaryController {
 
   @PostMapping
   public ModelAndView processSubmission(@PathVariable("submissionDetailId") UUID submissionDetailId) {
-    SubmissionDetail submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     submissionDetailService.completeSubmission(submissionDetail);
 
     return ReverseRouter.redirect(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId));
