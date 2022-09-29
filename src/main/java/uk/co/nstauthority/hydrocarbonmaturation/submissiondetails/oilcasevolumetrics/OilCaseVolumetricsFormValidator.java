@@ -76,7 +76,7 @@ public class OilCaseVolumetricsFormValidator implements SmartValidator, Submissi
 
     ValidationUtils.rejectIfEmpty(errors, "formationVolumeFactor.probabilityDistributionType",
         "formationVolumeFactor.probabilityDistributionType.required",
-        "Select a formation volume factor distribution used");
+        "Select formation volume factor");
 
     var formationVolumeFactor = oilCaseVolumetricsForm.getFormationVolumeFactor();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -99,7 +99,7 @@ public class OilCaseVolumetricsFormValidator implements SmartValidator, Submissi
 
     ValidationUtils.rejectIfEmpty(errors, "associatedGasOilRatioLifeOfField.probabilityDistributionType",
         "associatedGasOilRatioLifeOfField.probabilityDistributionType.required",
-        "Select a gas-oil ratio, life-of-field distribution used");
+        "Select associated gas-oil ratio, life-of-field");
 
     var associatedGasOilRatioLifeOfField = oilCaseVolumetricsForm.getAssociatedGasOilRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -111,7 +111,7 @@ public class OilCaseVolumetricsFormValidator implements SmartValidator, Submissi
 
     ValidationUtils.rejectIfEmpty(errors, "oilRecoveryFactor.probabilityDistributionType",
         "oilRecoveryFactor.probabilityDistributionType.required",
-        "Select oil recovery factor distribution used");
+        "Select oil recovery factor");
 
     var gasRecoveryFactor = oilCaseVolumetricsForm.getOilRecoveryFactor();
     ProbabilityDistributionValidationUtil.validateFull(
