@@ -54,8 +54,7 @@ class FileUploadServiceTest {
     s3ClientService = Mockito.mock(S3ClientService.class);
     fileUploadValidationService = Mockito.mock(FileUploadValidationService.class);
     uploadedFileRepository = Mockito.mock(UploadedFileRepository.class);
-    fileUploadConfig = Mockito.mock(FileUploadConfig.class);
-    when(fileUploadConfig.filenameDisallowedCharactersRegex()).thenReturn("[/\\\\?%*:|\\\"<>]");
+    fileUploadConfig = new FileUploadConfig(1024, ".txt, .jpg, .jpeg", "[/\\\\?%*:|\\\"<>]");
 
     clock = Mockito.mock(Clock.class);
 

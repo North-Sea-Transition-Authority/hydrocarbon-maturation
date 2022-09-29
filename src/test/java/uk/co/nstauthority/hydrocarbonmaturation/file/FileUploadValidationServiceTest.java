@@ -29,10 +29,7 @@ class FileUploadValidationServiceTest {
   @BeforeAll
   static void beforeAll() throws IOException {
     virusCheckService = mock(VirusCheckService.class);
-    fileUploadConfig = mock(FileUploadConfig.class);
-
-    when(fileUploadConfig.allowedExtensions()).thenReturn(".txt, .jpg, .jpeg");
-    when(fileUploadConfig.maxAllowedSize()).thenReturn(1024);
+    fileUploadConfig = new FileUploadConfig(1024, ".txt, .jpg, .jpeg", "");
 
     multipartFile = Mockito.mock(MultipartFile.class);
     when(multipartFile.getInputStream()).thenReturn(mock(InputStream.class));
