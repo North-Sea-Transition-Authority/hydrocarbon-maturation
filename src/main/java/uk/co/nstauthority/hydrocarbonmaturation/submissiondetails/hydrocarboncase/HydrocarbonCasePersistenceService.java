@@ -64,25 +64,11 @@ public class HydrocarbonCasePersistenceService {
                 && hydrocarbonCaseDetail.getGasOnlyProbability().compareTo(BigDecimal.ZERO) > 0);
   }
 
-  public boolean isOilPresent(SubmissionDetail submissionDetail) {
+  public boolean isOilOnlyPresent(SubmissionDetail submissionDetail) {
     return getHydrocarbonCaseDetail(submissionDetail)
         .stream().anyMatch(hydrocarbonCaseDetail ->
-            (hydrocarbonCaseDetail.getOilOnly() != null
+            hydrocarbonCaseDetail.getOilOnly() != null
                 && hydrocarbonCaseDetail.getOilOnly()
-                && hydrocarbonCaseDetail.getOilOnlyProbability().compareTo(BigDecimal.ZERO) > 0)
-                || (hydrocarbonCaseDetail.getOilAndGas() != null
-                && hydrocarbonCaseDetail.getOilAndGas()
-                && hydrocarbonCaseDetail.getOilAndGasProbability().compareTo(BigDecimal.ZERO) > 0));
-  }
-
-  public boolean isOilPresent(SubmissionDetail submissionDetail) {
-    return getHydrocarbonCaseDetail(submissionDetail)
-        .stream().anyMatch(hydrocarbonCaseDetail ->
-            (hydrocarbonCaseDetail.getOilOnly() != null
-                && hydrocarbonCaseDetail.getOilOnly()
-                && hydrocarbonCaseDetail.getOilOnlyProbability().compareTo(BigDecimal.ZERO) > 0)
-                || (hydrocarbonCaseDetail.getOilAndGas() != null
-                && hydrocarbonCaseDetail.getOilAndGas()
-                && hydrocarbonCaseDetail.getOilAndGasProbability().compareTo(BigDecimal.ZERO) > 0));
+                && hydrocarbonCaseDetail.getOilOnlyProbability().compareTo(BigDecimal.ZERO) > 0);
   }
 }
