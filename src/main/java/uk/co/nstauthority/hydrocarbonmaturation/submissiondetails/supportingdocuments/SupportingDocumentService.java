@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadView;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
@@ -112,7 +113,7 @@ public class SupportingDocumentService {
     return new FileUploadView(
         uploadedFile.getId().toString(),
         uploadedFile.getFilename(),
-        String.valueOf(uploadedFile.getFileSizeBytes()),
+        FileUploadUtils.fileSizeFormatter(uploadedFile.getFileSizeBytes()),
         uploadedFile.getDescription(),
         uploadedFile.getUploadedTimeStamp()
     );
