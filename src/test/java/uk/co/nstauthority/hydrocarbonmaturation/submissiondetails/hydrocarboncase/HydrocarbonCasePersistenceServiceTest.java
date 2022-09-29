@@ -87,24 +87,24 @@ class HydrocarbonCasePersistenceServiceTest {
   }
 
   @Test
-  void isGasPresent_whenGasOnly_isTrue() {
+  void isGasOnlyPresent_whenGasOnly_isTrue() {
     hydrocarbonCase.setGasOnly(true);
     hydrocarbonCase.setGasOnlyProbability(BigDecimal.valueOf(25.5));
     when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertTrue(hydrocarbonCasePersistenceService.isGasPresent(submissionDetail));
+    assertTrue(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail));
   }
 
   @Test
-  void isGasPresent_whenOilAndGas_isTrue() {
+  void isGasOnlyPresent_whenOilAndGas_isFalse() {
     hydrocarbonCase.setOilAndGas(true);
     hydrocarbonCase.setOilAndGasProbability(BigDecimal.valueOf(1.5));
     when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertTrue(hydrocarbonCasePersistenceService.isGasPresent(submissionDetail));
+    assertFalse(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail));
   }
 
   @Test
-  void isGasPresent_whenNoGas_isFalse() {
+  void isGasOnlyPresent_whenNoGas_isFalse() {
     when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertFalse(hydrocarbonCasePersistenceService.isGasPresent(submissionDetail));
+    assertFalse(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail));
   }
 }

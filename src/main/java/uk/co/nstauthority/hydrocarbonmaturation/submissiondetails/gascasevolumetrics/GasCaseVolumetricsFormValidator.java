@@ -88,7 +88,7 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
 
     ValidationUtils.rejectIfEmpty(errors, "gasExpansionFactor.probabilityDistributionType",
         "gasExpansionFactor.probabilityDistributionType.required",
-        "Select gas expansion factor distribution used");
+        "Select gas expansion factor");
 
     var gasExpansionFactor = gasCaseVolumetricsForm.getGasExpansionFactor();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -99,7 +99,7 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
 
     ValidationUtils.rejectIfEmpty(errors, "condensateGasRatioLifeOfField.probabilityDistributionType",
         "condensateGasRatioLifeOfField.probabilityDistributionType.required",
-        "Select condensate-gas ratio, life-of-field distribution used");
+        "Select condensate-gas ratio, life-of-field");
 
     var condensateGasRatioLifeOfField = gasCaseVolumetricsForm.getCondensateGasRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -111,7 +111,7 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
 
     ValidationUtils.rejectIfEmpty(errors, "gasRecoveryFactor.probabilityDistributionType",
         "gasRecoveryFactor.probabilityDistributionType.required",
-        "Select gas recovery factor distribution used");
+        "Select gas recovery factor");
 
     var gasRecoveryFactor = gasCaseVolumetricsForm.getGasRecoveryFactor();
     ProbabilityDistributionValidationUtil.validateFull(
