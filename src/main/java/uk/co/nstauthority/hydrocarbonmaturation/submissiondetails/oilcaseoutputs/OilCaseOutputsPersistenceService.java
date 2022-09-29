@@ -48,7 +48,7 @@ public class OilCaseOutputsPersistenceService {
 
     if (oilCaseOutputsForm.getOilEquivalentRecoverableResources().getProbabilityDistributionType() != null) {
       var oilEquivalentRecoverableResources =
-          ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD;
+          ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES;
       probabilityDistributionPersistenceService.saveProbabilityDistribution(
           oilEquivalentRecoverableResources,
           oilCaseOutputsForm.getOilEquivalentRecoverableResources(),
