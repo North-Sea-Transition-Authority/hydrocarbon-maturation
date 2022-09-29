@@ -38,7 +38,7 @@ public enum ProbabilityDistributionFieldInstance {
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       "%"
   ),
-  FORMATION_VOLUME_FACTOR(
+  FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       "rb/stb"
   ),

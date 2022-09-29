@@ -84,7 +84,7 @@ public class OilCaseVolumetricsController {
                 ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
         .addObject("formationVolumeFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR))
+                ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
         .addObject("oilRecoveryFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR))

@@ -59,7 +59,7 @@ class OilCaseVolumetricsPersistenceServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistribution(
-            ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR,
+            ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
             form.getFormationVolumeFactor(),
             submissionDetail);
   }
