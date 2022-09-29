@@ -88,7 +88,7 @@ class FileUploadValidationServiceTest {
   }
 
   @Test
-  void validateFileUpload_CheckFileHasVirus_VirusFound() {
+  void validateFileUpload_CheckFileHasVirus_VirusFound() throws IOException {
     long fileSize = allowedFileSize;
     String filename = allowedFilenameAndExtension;
     when(virusCheckService.hasVirus(any(InputStream.class))).thenReturn(true);
@@ -99,7 +99,7 @@ class FileUploadValidationServiceTest {
   }
 
   @Test
-  void validateFileUpload_CheckFileHasVirus_VirusNotFound() {
+  void validateFileUpload_CheckFileHasVirus_VirusNotFound() throws IOException {
 
     long fileSize = allowedFileSize;
     String filename = allowedFilenameAndExtension;
