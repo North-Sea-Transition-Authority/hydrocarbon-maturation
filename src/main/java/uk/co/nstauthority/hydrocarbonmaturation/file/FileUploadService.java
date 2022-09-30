@@ -64,7 +64,8 @@ public class FileUploadService {
 
   public UploadedFile findUploadedFileOrThrow(UUID uploadedFileId) {
     return uploadedFileRepository.findById(uploadedFileId)
-        .orElseThrow(() -> new RemiEntityNotFoundException(String.format("Could not find uploaded file with ID %s", uploadedFileId)));
+        .orElseThrow(() -> new RemiEntityNotFoundException(
+            String.format("Could not find uploaded file with ID %s", uploadedFileId)));
   }
 
   public DeleteOutcome deleteFile(UploadedFile uploadedFile) {
