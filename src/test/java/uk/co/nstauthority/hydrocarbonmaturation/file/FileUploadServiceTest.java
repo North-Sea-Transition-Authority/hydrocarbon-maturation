@@ -16,6 +16,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.web.multipart.MultipartFile;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ClientService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3DeleteFileFailedException;
 
@@ -56,7 +58,7 @@ class FileUploadServiceTest {
     var uuid = UUID.randomUUID();
     when(uploadedFileRepository.findById(uuid)).thenReturn(Optional.empty());
 
-    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> {
+    assertThatExceptionOfType(RemiEntityNotFoundException.class).isThrownBy(() -> {
       var uploadedFile = fileUploadService.findUploadedFileOrThrow(uuid);
     });
   }
