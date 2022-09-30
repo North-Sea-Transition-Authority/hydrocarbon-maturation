@@ -52,7 +52,7 @@ class OilCaseOutputsTaskListItem implements ProspectTaskListItem {
   @Override
   public boolean isVisible(ProspectTaskListItemType target) {
     return ProspectTaskListItem.super.isVisible(target)
-        && hydrocarbonCasePersistenceService.isOilPresent(target.submissionDetail());
+        && hydrocarbonCasePersistenceService.isOilOnlyPresent(target.submissionDetail());
   }
 
   @Override
