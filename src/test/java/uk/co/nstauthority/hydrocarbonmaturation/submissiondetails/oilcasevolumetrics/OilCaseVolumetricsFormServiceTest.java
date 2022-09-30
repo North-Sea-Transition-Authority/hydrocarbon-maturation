@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,7 +54,7 @@ class OilCaseVolumetricsFormServiceTest {
         submissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR))
+        submissionDetail, ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
         .thenReturn(new ProbabilityDistributionForm());
 
     assertThat(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail))
@@ -87,7 +86,7 @@ class OilCaseVolumetricsFormServiceTest {
         submissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR))
+        submissionDetail, ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
 
     Assertions.assertThat(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail))

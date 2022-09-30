@@ -56,15 +56,20 @@ public class HydrocarbonCasePersistenceService {
   }
 
   //Checks if there is gas present in the hydrocarbon case
-  public boolean isGasPresent(SubmissionDetail submissionDetail) {
+  public boolean isGasOnlyPresent(SubmissionDetail submissionDetail) {
     return getHydrocarbonCaseDetail(submissionDetail)
         .stream().anyMatch(hydrocarbonCaseDetail ->
-            (hydrocarbonCaseDetail.getGasOnly() != null
+            hydrocarbonCaseDetail.getGasOnly() != null
                 && hydrocarbonCaseDetail.getGasOnly()
-                && hydrocarbonCaseDetail.getGasOnlyProbability().compareTo(BigDecimal.ZERO) > 0)
-                || (hydrocarbonCaseDetail.getOilAndGas() != null
-                && hydrocarbonCaseDetail.getOilAndGas()
-                && hydrocarbonCaseDetail.getOilAndGasProbability().compareTo(BigDecimal.ZERO) > 0));
+                && hydrocarbonCaseDetail.getGasOnlyProbability().compareTo(BigDecimal.ZERO) > 0);
+  }
+
+  public boolean isOilOnlyPresent(SubmissionDetail submissionDetail) {
+    return getHydrocarbonCaseDetail(submissionDetail)
+        .stream().anyMatch(hydrocarbonCaseDetail ->
+            hydrocarbonCaseDetail.getOilOnly() != null
+                && hydrocarbonCaseDetail.getOilOnly()
+                && hydrocarbonCaseDetail.getOilOnlyProbability().compareTo(BigDecimal.ZERO) > 0);
   }
 
   public boolean isOilPresent(SubmissionDetail submissionDetail) {

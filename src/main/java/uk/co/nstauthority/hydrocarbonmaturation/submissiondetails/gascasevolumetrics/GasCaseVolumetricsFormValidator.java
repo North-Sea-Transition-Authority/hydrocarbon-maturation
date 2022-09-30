@@ -2,37 +2,17 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolume
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
 
 @Service
-public class GasCaseVolumetricsFormValidator implements SmartValidator, SubmissionFormValidator {
+public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {
     return GasCaseVolumetricsForm.class.equals(clazz);
-  }
-
-  @Override
-  public void validate(Object target, Errors errors, Object... validationHints) {
-    var form = (GasCaseVolumetricsForm) target;
-    var validationType = (ValidationType) validationHints[0];
-
-    switch (validationType) {
-      case FULL -> validateFull(form, errors);
-      case PARTIAL -> validatePartial(form, errors);
-      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
-    }
-  }
-
-  @Override
-  public void validate(Object target, Errors errors) {
-    throw new ActionNotAllowedException("Incorrect parameters provided for validation");
   }
 
   @Override
@@ -88,7 +68,7 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
 
     ValidationUtils.rejectIfEmpty(errors, "gasExpansionFactor.probabilityDistributionType",
         "gasExpansionFactor.probabilityDistributionType.required",
-        "Select gas expansion factor distribution used");
+        "Select gas expansion factor");
 
     var gasExpansionFactor = gasCaseVolumetricsForm.getGasExpansionFactor();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -99,7 +79,7 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
 
     ValidationUtils.rejectIfEmpty(errors, "condensateGasRatioLifeOfField.probabilityDistributionType",
         "condensateGasRatioLifeOfField.probabilityDistributionType.required",
-        "Select condensate-gas ratio, life-of-field distribution used");
+        "Select condensate-gas ratio, life-of-field");
 
     var condensateGasRatioLifeOfField = gasCaseVolumetricsForm.getCondensateGasRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -111,7 +91,7 @@ public class GasCaseVolumetricsFormValidator implements SmartValidator, Submissi
 
     ValidationUtils.rejectIfEmpty(errors, "gasRecoveryFactor.probabilityDistributionType",
         "gasRecoveryFactor.probabilityDistributionType.required",
-        "Select gas recovery factor distribution used");
+        "Select gas recovery factor");
 
     var gasRecoveryFactor = gasCaseVolumetricsForm.getGasRecoveryFactor();
     ProbabilityDistributionValidationUtil.validateFull(

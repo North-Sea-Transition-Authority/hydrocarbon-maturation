@@ -30,7 +30,7 @@ public class OilCaseVolumetricsPersistenceService {
     }
 
     if (oilCaseVolumetricsForm.getFormationVolumeFactor().getProbabilityDistributionType() != null) {
-      var formationVolumeFactor = ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR;
+      var formationVolumeFactor = ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY;
       probabilityDistributionPersistenceService.saveProbabilityDistribution(
           formationVolumeFactor,
           oilCaseVolumetricsForm.getFormationVolumeFactor(),
