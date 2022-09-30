@@ -45,7 +45,6 @@ public class ProbabilityDistributionTestUtil {
     }
 
     if (probabilityDistributionType.equals(ProbabilityDistributionType.CUSTOM)) {
-      probabilityDistributionForm.setProbabilityDistributionFieldInstance(ProbabilityDistributionFieldInstance.OIL_IN_PLACE);
       probabilityDistributionForm.setCustom(probabilityOfExceedanceForm);
     }
 
