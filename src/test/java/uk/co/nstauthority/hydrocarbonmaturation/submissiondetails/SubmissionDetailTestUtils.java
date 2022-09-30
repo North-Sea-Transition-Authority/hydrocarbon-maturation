@@ -18,8 +18,8 @@ public class SubmissionDetailTestUtils {
   }
 
   private static SubmissionDetail createSubmissionDetail(SubmissionType submissionType) {
-    UUID submissionDetailId = UUID.randomUUID();
-    SubmissionDetail submissionDetail = new SubmissionDetail();
+    var submissionDetailId = UUID.randomUUID();
+    var submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
     submissionDetail.setSubmissionType(submissionType);
     return submissionDetail;

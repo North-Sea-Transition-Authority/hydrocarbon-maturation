@@ -47,4 +47,13 @@ class SubmissionDetailServiceTest {
     assertThat(createdSubmissionDetail.getVersionNumber()).isEqualTo(SubmissionDetailService.FIRST_VERSION);
 
   }
+
+  @Test
+  void completeSubmission() {
+    var submissionDetail = new SubmissionDetail();
+    submissionDetailService.completeSubmission(submissionDetail);
+
+    assertThat(submissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.APPROVED);
+    verify(submissionDetailRepository, times(1)).save(submissionDetail);
+  }
 }
