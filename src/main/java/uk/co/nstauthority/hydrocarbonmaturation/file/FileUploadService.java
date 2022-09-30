@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ClientService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3DeleteFileFailedException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ObjectNotFoundException;
@@ -63,7 +64,7 @@ public class FileUploadService {
 
   public UploadedFile findUploadedFileOrThrow(UUID uploadedFileId) {
     return uploadedFileRepository.findById(uploadedFileId)
-        .orElseThrow(() -> new IllegalStateException(String.format("Could not find file with ID %s", uploadedFileId)));
+        .orElseThrow(() -> new RemiEntityNotFoundException(String.format("Could not find uploaded file with ID %s", uploadedFileId)));
   }
 
   public DeleteOutcome deleteFile(UploadedFile uploadedFile) {

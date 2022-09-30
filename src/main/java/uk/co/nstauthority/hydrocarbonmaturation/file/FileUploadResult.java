@@ -1,58 +1,29 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
-public class FileUploadResult {
-
-  @Nullable
-  private final String fileId;
-  private final String fileName;
-  private final Long size;
-  private final String contentType;
-  @Nullable
-  private final UploadErrorType errorType;
-
-  public FileUploadResult(@Nullable String fileId, String fileName, MultipartFile multipartFile,
-                           @Nullable UploadErrorType errorType) {
-    this.fileId = fileId;
-    this.fileName = fileName;
-    this.size = multipartFile.getSize();
-    this.contentType = multipartFile.getContentType();
-    this.errorType = errorType;
+public record FileUploadResult(@Nullable String fileId, String fileName, Long size, String contentType,
+                               @Nullable UploadErrorType errorType) {
+  private static FileUploadResult fromMultipartFile(String fileId, String fileName, MultipartFile multipartFile,
+                                                    UploadErrorType errorType) {
+    return new FileUploadResult(fileId, fileName, multipartFile.getSize(), multipartFile.getContentType(), errorType);
   }
 
   public static FileUploadResult error(String fileName, MultipartFile multipartFile, UploadErrorType errorType) {
-    return new FileUploadResult(null, fileName, multipartFile, errorType);
+    return FileUploadResult.fromMultipartFile(null, fileName, multipartFile, errorType);
   }
 
   public static FileUploadResult valid(String fileId, String fileName, MultipartFile multipartFile) {
-    return new FileUploadResult(fileId, fileName, multipartFile, null);
+    return FileUploadResult.fromMultipartFile(fileId, fileName, multipartFile, null);
   }
 
-  public Optional<String> getFileId() {
-    return Optional.ofNullable(fileId);
-  }
+  public String getErrorMessage() {
+    if (errorType == null) {
+      return "";
+    }
 
-  public String getFileName() {
-    return fileName;
-  }
-
-  public Long getSize() {
-    return size;
-  }
-
-  public String getContentType() {
-    return contentType;
-  }
-
-  public Optional<UploadErrorType> getErrorType() {
-    return Optional.ofNullable(errorType);
-  }
-
-  public Optional<String> getErrorMessage() {
-    return getErrorType().map(UploadErrorType::getErrorMessage);
+    return errorType.getErrorMessage();
   }
 
   public boolean isValid() {
