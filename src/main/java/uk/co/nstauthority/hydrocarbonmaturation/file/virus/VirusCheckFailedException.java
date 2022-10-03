@@ -1,10 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file.virus;
 
-import java.io.File;
-import java.io.IOException;
+import org.springframework.web.multipart.MultipartFile;
 
 public class VirusCheckFailedException extends RuntimeException {
-  public VirusCheckFailedException(File file, IOException e) {
-    super(String.format("Failed to virus scan file %s", file.toString()), e);
+  public VirusCheckFailedException(MultipartFile multipartFile, Exception e) {
+    super(String.format("Failed to virus scan file %s", multipartFile.getOriginalFilename()), e);
   }
 }

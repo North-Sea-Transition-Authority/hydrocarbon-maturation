@@ -4,6 +4,7 @@ import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.virus.VirusCheckFailedException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.virus.VirusCheckService;
 
 @Service
@@ -31,7 +32,7 @@ public class FileUploadValidationService {
         return UploadErrorType.VIRUS_FOUND_IN_FILE;
       }
     } catch (Exception e) {
-      throw new FileUploadException(multipartFile, e);
+      throw new VirusCheckFailedException(multipartFile, e);
     }
 
     return null;
