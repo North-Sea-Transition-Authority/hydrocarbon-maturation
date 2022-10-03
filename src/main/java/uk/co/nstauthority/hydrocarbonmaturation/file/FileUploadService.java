@@ -54,7 +54,7 @@ public class FileUploadService {
     uploadedFileRepository.save(uploadedFile);
 
     try {
-      s3ClientService.storeFile(s3Key, multipartFile.getInputStream(), objectMetadata);
+      s3ClientService.storeFile(s3ClientService.getDefaultBucketName(), s3Key, multipartFile.getInputStream(), objectMetadata);
     } catch (Exception e) {
       throw new FileUploadException(multipartFile, e);
     }
@@ -70,7 +70,7 @@ public class FileUploadService {
 
   public DeleteOutcome deleteFile(UploadedFile uploadedFile) {
     try {
-      s3ClientService.deleteFile(uploadedFile.getS3Key());
+      s3ClientService.deleteFile(uploadedFile.getBucketName(), uploadedFile.getS3Key());
     } catch (S3DeleteFileFailedException | S3ObjectNotFoundException e) {
       return DeleteOutcome.INTERNAL_SERVER_ERROR;
     }
@@ -81,7 +81,7 @@ public class FileUploadService {
   }
 
   InputStream downloadFile(UploadedFile uploadedFile) {
-    return s3ClientService.fetchFile(uploadedFile.getS3Key());
+    return s3ClientService.fetchFile(uploadedFile.getBucketName(), uploadedFile.getS3Key());
   }
 
   public FileUploadTemplate buildFileUploadTemplate(String uploadUrl, String deleteUrl) {

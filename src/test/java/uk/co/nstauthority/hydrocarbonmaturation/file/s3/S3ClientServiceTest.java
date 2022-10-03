@@ -46,13 +46,13 @@ class S3ClientServiceTest {
   @Test
   void doesBucketExist_exists() {
     when(amazonS3Mock.doesBucketExistV2(BUCKET_NAME)).thenReturn(true);
-    assertThat(s3ClientService.doesBucketExist()).isTrue();
+    assertThat(s3ClientService.doesBucketExist(BUCKET_NAME)).isTrue();
   }
 
   @Test
   void doesBucketExist_doesntExist() {
     when(amazonS3Mock.doesBucketExistV2(BUCKET_NAME)).thenReturn(false);
-    assertThat(s3ClientService.doesBucketExist()).isFalse();
+    assertThat(s3ClientService.doesBucketExist(BUCKET_NAME)).isFalse();
   }
 
   @Test
@@ -71,7 +71,7 @@ class S3ClientServiceTest {
   void storeFile_VerifyInteractions() {
     var inputStream = mock(InputStream.class);
     ObjectMetadata objectMetadata = mock(ObjectMetadata.class);
-    s3ClientService.storeFile(s3Key, inputStream, objectMetadata);
+    s3ClientService.storeFile(BUCKET_NAME, s3Key, inputStream, objectMetadata);
     verify(amazonS3Mock).putObject(BUCKET_NAME, s3Key, inputStream, objectMetadata);
   }
 
@@ -84,7 +84,7 @@ class S3ClientServiceTest {
     when(s3Object.getObjectContent()).thenReturn(inputStream);
     when(amazonS3Mock.getObject(BUCKET_NAME, s3Key)).thenReturn(s3Object);
 
-    var file = s3ClientService.fetchFile(s3Key);
+    var file = s3ClientService.fetchFile(BUCKET_NAME, s3Key);
 
     assertThat(file).isEqualTo(inputStream);
   }
@@ -94,7 +94,7 @@ class S3ClientServiceTest {
     when(amazonS3Mock.doesObjectExist(BUCKET_NAME, s3Key)).thenReturn(false);
 
     assertThatExceptionOfType(S3ObjectNotFoundException.class).isThrownBy(() -> {
-      var file = s3ClientService.fetchFile(s3Key);
+      var file = s3ClientService.fetchFile(BUCKET_NAME, s3Key);
     });
   }
 
@@ -102,7 +102,7 @@ class S3ClientServiceTest {
   void deleteFile_FileFound() {
     when(amazonS3Mock.doesObjectExist(BUCKET_NAME, s3Key)).thenReturn(true);
 
-    s3ClientService.deleteFile(s3Key);
+    s3ClientService.deleteFile(BUCKET_NAME, s3Key);
     verify(amazonS3Mock).deleteObject(BUCKET_NAME, s3Key);
   }
 
@@ -111,7 +111,7 @@ class S3ClientServiceTest {
     when(amazonS3Mock.doesObjectExist(BUCKET_NAME, s3Key)).thenReturn(false);
 
     assertThatExceptionOfType(S3ObjectNotFoundException.class).isThrownBy(() -> {
-      s3ClientService.deleteFile(s3Key);
+      s3ClientService.deleteFile(BUCKET_NAME, s3Key);
     });
   }
 
@@ -121,7 +121,7 @@ class S3ClientServiceTest {
     doThrow(SdkClientException.class).when(amazonS3Mock).deleteObject(BUCKET_NAME, s3Key);
 
     assertThatExceptionOfType(S3DeleteFileFailedException.class).isThrownBy(() -> {
-      s3ClientService.deleteFile(s3Key);
+      s3ClientService.deleteFile(BUCKET_NAME, s3Key);
     });
   }
 }

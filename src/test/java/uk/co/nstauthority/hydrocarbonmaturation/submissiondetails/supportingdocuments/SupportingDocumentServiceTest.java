@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,25 +14,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.DeleteOutcome;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadResult;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadErrorType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.VirtualFolder;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @ExtendWith(MockitoExtension.class)
 class SupportingDocumentServiceTest {
 
-  private static String filename;
-  private static long fileSize;
-  private static String contentType;
   @Mock
   private FileUploadService fileUploadService;
   @Mock
@@ -42,16 +36,16 @@ class SupportingDocumentServiceTest {
   private SupportingDocumentRepository supportingDocumentRepository;
 
   private SupportingDocumentService supportingDocumentService;
+  private static final String filename = FileTestUtil.VALID_FILENAME;
+  private static final long fileSize = FileTestUtil.VALID_FILE_SIZE;
+  private static final String contentType = FileTestUtil.VALID_CONTENT_TYPE;
+  private static final VirtualFolder virtualFolder = FileTestUtil.VALID_VIRTUAL_FOLDER;
+  private static final UploadedFile uploadedFile = FileTestUtil.createValidUploadedFile();
   private static MultipartFile multipartFile;
-  private static UploadedFile uploadedFile;
 
   @BeforeAll
   static void beforeAll() throws IOException {
-    fileSize = 123L;
-    filename = "file.txt";
-    contentType = "text";
-    uploadedFile = UploadedFileTestUtil.createValidUploadedFile(filename, fileSize, contentType);
-    multipartFile = createMultipartFile();
+    multipartFile = FileTestUtil.createMultipartFileMock();
   }
 
   @BeforeEach
@@ -65,26 +59,25 @@ class SupportingDocumentServiceTest {
       value = UploadErrorType.class
   )
   void processFileUpload_FailsValidation_ReturnsInvalidResult(UploadErrorType uploadErrorType) {
-    SubmissionDetail submissionDetail = mock(SubmissionDetail.class);
+    var submissionDetail = mock(SubmissionDetail.class);
     when(fileUploadService.sanitiseFilename(filename)).thenReturn(filename);
     when(fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename))
         .thenReturn(uploadErrorType);
 
-    FileUploadResult fileUploadResult = supportingDocumentService.processFileUpload(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY, multipartFile);
+    var fileUploadResult = supportingDocumentService.processFileUpload(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY, multipartFile);
 
     assertThat(fileUploadResult.isValid()).isFalse();
   }
 
   @Test
   void processFileUpload_PassesValidationAndUploadsFile_VerifyInteractions() {
-    SubmissionDetail submissionDetail = mock(SubmissionDetail.class);
-    VirtualFolder virtualFolder = VirtualFolder.SUPPORTING_DOCUMENTS;
+    var submissionDetail = mock(SubmissionDetail.class);
     when(fileUploadService.sanitiseFilename(filename)).thenReturn(filename);
     doReturn(uploadedFile)
         .when(fileUploadService)
         .uploadFileAndSaveRecord(virtualFolder, multipartFile, fileSize, filename, contentType);
 
-    FileUploadResult fileUploadResult = supportingDocumentService.processFileUpload(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY, multipartFile);
+    var fileUploadResult = supportingDocumentService.processFileUpload(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY, multipartFile);
 
     assertThat(fileUploadResult.isValid()).isTrue();
   }
@@ -109,18 +102,5 @@ class SupportingDocumentServiceTest {
     var fileDeleteResult = supportingDocumentService.deleteFile(uuid);
 
     assertThat(fileDeleteResult.isValid()).isFalse();
-  }
-
-
-
-  private static MultipartFile createMultipartFile() throws IOException {
-    var multipartFile = Mockito.mock(MultipartFile.class);
-
-    when(multipartFile.getSize()).thenReturn(fileSize);
-    when(multipartFile.getContentType()).thenReturn(contentType);
-    when(multipartFile.getOriginalFilename()).thenReturn(filename);
-    when(multipartFile.getInputStream()).thenReturn(mock(InputStream.class));
-
-    return multipartFile;
   }
 }

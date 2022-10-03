@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Clock;
 import java.util.Optional;
@@ -19,7 +21,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.exceptions.base.MockitoException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
@@ -29,29 +30,28 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3DeleteFileFailedExcept
 class FileUploadServiceTest {
   private S3ClientService s3ClientService;
   private UploadedFileRepository uploadedFileRepository;
-  private FileUploadService fileUploadService;
   private Clock clock;
-  private static UploadedFile uploadedFile;
-
+  private FileUploadService fileUploadService;
   private static MultipartFile multipartFile;
-  private static long fileSize;
-  private static String contentType;
-  private static String filename;
-  private VirtualFolder virtualFolder;
+  private static final UploadedFile uploadedFile = FileTestUtil.createValidUploadedFile();
+  private static final long fileSize = FileTestUtil.VALID_FILE_SIZE;
+  private static final String contentType = FileTestUtil.VALID_CONTENT_TYPE;
+  private static final String filename = FileTestUtil.VALID_FILENAME;
+  private static final String bucketName = FileTestUtil.VALID_BUCKET_NAME;
+  private static final VirtualFolder virtualFolder = FileTestUtil.VALID_VIRTUAL_FOLDER;
 
   @BeforeAll
-  static void beforeAll() {
-    uploadedFile = UploadedFileTestUtil.createValidUploadedFile();
+  static void beforeAll() throws IOException {
+    multipartFile = FileTestUtil.createMultipartFileMock(filename, fileSize, contentType);
   }
 
   @BeforeEach
   void setUp() {
-    s3ClientService = Mockito.mock(S3ClientService.class);
-    uploadedFileRepository = Mockito.mock(UploadedFileRepository.class);
-    FileUploadConfig fileUploadConfig = new FileUploadConfig(1024, ".txt, .jpg, .jpeg", "[/\\\\?%*:|\\\"<>]");
-
-    clock = Mockito.mock(Clock.class);
-    virtualFolder = VirtualFolder.SUPPORTING_DOCUMENTS;
+    s3ClientService = mock(S3ClientService.class);
+    when(s3ClientService.getDefaultBucketName()).thenReturn(bucketName);
+    uploadedFileRepository = mock(UploadedFileRepository.class);
+    clock = mock(Clock.class);
+    var fileUploadConfig = FileTestUtil.validFileUploadConfig();
 
     fileUploadService =
         new FileUploadService(s3ClientService, uploadedFileRepository, fileUploadConfig, clock);
@@ -61,13 +61,13 @@ class FileUploadServiceTest {
   void uploadFileAndSaveRecord() {
     fileUploadService.uploadFileAndSaveRecord(virtualFolder, multipartFile, fileSize, filename, contentType);
     verify(uploadedFileRepository).save(any(UploadedFile.class));
-    verify(s3ClientService).storeFile(anyString(), any(InputStream.class), any(ObjectMetadata.class));
+    verify(s3ClientService).storeFile(eq(bucketName), anyString(), any(InputStream.class), any(ObjectMetadata.class));
   }
 
   @Test
   void uploadFileAndSaveRecord_UploadFailed() {
     doThrow(MockitoException.class).when(s3ClientService)
-        .storeFile(anyString(), any(InputStream.class), any(ObjectMetadata.class));
+        .storeFile(eq(bucketName), anyString(), any(InputStream.class), any(ObjectMetadata.class));
 
     assertThatExceptionOfType(FileUploadException.class).isThrownBy(() -> {
       fileUploadService.uploadFileAndSaveRecord(virtualFolder, multipartFile, fileSize, filename, contentType);
@@ -76,7 +76,6 @@ class FileUploadServiceTest {
 
   @Test
   void uploadFileAndSaveRecord_UploadedFileRecordSaved() {
-    String bucketName = "TEST-BUCKET";
     when(s3ClientService.getDefaultBucketName()).thenReturn(bucketName);
 
     var argumentCaptor = ArgumentCaptor.forClass(UploadedFile.class);
@@ -128,14 +127,15 @@ class FileUploadServiceTest {
   void deleteFile_FileDeleted_ReturnsValidResult() {
     DeleteOutcome deleteOutcome = fileUploadService.deleteFile(uploadedFile);
 
-    verify(s3ClientService).deleteFile(uploadedFile.getS3Key());
+    verify(s3ClientService).deleteFile(uploadedFile.getBucketName(), uploadedFile.getS3Key());
     verify(uploadedFileRepository).deleteById(uploadedFile.getId());
     assertThat(deleteOutcome).isEqualTo(DeleteOutcome.SUCCESS);
   }
 
   @Test
   void deleteFile_DeleteFileFailed_ReturnsNotValidResult() {
-    doThrow(S3DeleteFileFailedException.class).when(s3ClientService).deleteFile(uploadedFile.getS3Key());
+    doThrow(S3DeleteFileFailedException.class).when(s3ClientService)
+        .deleteFile(uploadedFile.getBucketName(), uploadedFile.getS3Key());
 
     DeleteOutcome deleteOutcome = fileUploadService.deleteFile(uploadedFile);
 
@@ -146,6 +146,6 @@ class FileUploadServiceTest {
   @Test
   void downloadFile_VerifyInteractions() {
     fileUploadService.downloadFile(uploadedFile);
-    verify(s3ClientService).fetchFile(uploadedFile.getS3Key());
+    verify(s3ClientService).fetchFile(uploadedFile.getBucketName(), uploadedFile.getS3Key());
   }
 }
