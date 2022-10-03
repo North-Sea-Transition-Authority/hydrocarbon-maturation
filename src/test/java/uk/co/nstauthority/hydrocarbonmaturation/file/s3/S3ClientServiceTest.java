@@ -28,18 +28,18 @@ public class S3ClientServiceTest {
   }
 
   @Test
-  public void testGetBucketName() {
+  void testGetBucketName() {
     assertThat(s3ClientService.getDefaultBucketName()).isEqualTo(BUCKET_NAME);
   }
 
   @Test
-  public void testDoesBucketExist_exists() {
+  void testDoesBucketExist_exists() {
     when(amazonS3Mock.doesBucketExistV2(BUCKET_NAME)).thenReturn(true);
     assertThat(s3ClientService.doesBucketExist()).isTrue();
   }
 
   @Test
-  public void testDoesBucketExist_doesntExist() {
+  void testDoesBucketExist_doesntExist() {
     when(amazonS3Mock.doesBucketExistV2(BUCKET_NAME)).thenReturn(false);
     assertThat(s3ClientService.doesBucketExist()).isFalse();
   }
