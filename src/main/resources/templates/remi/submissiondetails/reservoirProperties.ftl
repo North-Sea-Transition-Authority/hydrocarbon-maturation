@@ -85,7 +85,7 @@ breadcrumbsMap=breadcrumbsMap>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.depthToHydrocarbonContact.probabilityDistributionType"
-      labelText="Depth to hydrocarbon contact"
+      labelText="Depth to hydrocarbon contact distribution used"
       formId="depthToHydrocarbonContact"
       template=depthToHydrocarbonContactTemplate
       error=depthToHydrocarbonContactError/>

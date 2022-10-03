@@ -43,49 +43,49 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         reservoirForm.getAverageNetPayThickness(),
         errors,
         "averageNetPayThickness",
-        "Average net pay thickness"
+        "Average net pay thickness distribution used"
     );
 
     ProbabilityDistributionValidationUtil.validatePartial(
         reservoirForm.getGrossReservoirThickness(),
         errors,
         "grossReservoirThickness",
-        "Gross reservoir thickness"
+        "Gross reservoir thickness distribution used"
     );
 
     ProbabilityDistributionValidationUtil.validatePartial(
         reservoirForm.getGrossRockVolume(),
         errors,
         "grossRockVolume",
-        "Gross rock volume (GRV)"
+        "Gross rock volume (GRV) distribution used"
     );
 
     ProbabilityDistributionValidationUtil.validatePartial(
         reservoirForm.getPercentOfGrvOilBearing(),
         errors,
         "percentOfGrvOilBearing",
-        "Percentage of GRV which is oil bearing"
+        "Percentage of GRV which is oil bearing distribution used"
     );
 
     ProbabilityDistributionValidationUtil.validatePartial(
         reservoirForm.getNetToGross(),
         errors,
         "netToGross",
-        "Net to gross"
+        "Net to gross distribution used"
     );
 
     ProbabilityDistributionValidationUtil.validatePartial(
         reservoirForm.getNetPorosity(),
         errors,
         "netPorosity",
-        "Net porosity"
+        "Net porosity distribution used"
     );
 
     ProbabilityDistributionValidationUtil.validatePartial(
         reservoirForm.getDepthToHydrocarbonContact(),
         errors,
         "depthToHydrocarbonContact",
-        "Depth to hydrocarbon contact"
+        "Depth to hydrocarbon contact distribution used"
     );
   }
 
@@ -102,41 +102,41 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         reservoirForm.getAverageNetPayThickness(),
         errors,
         "averageNetPayThickness",
-        "Average net pay thickness"
+        "Average net pay thickness distribution used"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "grossReservoirThickness.probabilityDistributionType",
         "grossReservoirThickness.probabilityDistributionType.required",
-        "Select the gross reservoir thickness");
+        "Select the gross reservoir thickness distribution used");
 
     ProbabilityDistributionValidationUtil.validateFull(
         reservoirForm.getGrossReservoirThickness(),
         errors,
         "grossReservoirThickness",
-        "Gross reservoir thickness"
+        "Gross reservoir thickness distribution used"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "grossRockVolume.probabilityDistributionType",
         "grossRockVolume.probabilityDistributionType.required",
-        "Select the gross rock volume");
+        "Select the gross rock volume distribution used");
 
     ProbabilityDistributionValidationUtil.validateFull(
         reservoirForm.getGrossRockVolume(),
         errors,
         "grossRockVolume",
-        "Gross rock volume (GRV)"
+        "Gross rock volume (GRV) distribution used"
     );
 
     ProbabilityDistributionValidationUtil.validateFull(
         reservoirForm.getPercentOfGrvOilBearing(),
         errors,
         "percentOfGrvOilBearing",
-        "Percentage of GRV which is oil bearing"
+        "Percentage of GRV which is oil bearing distribution used"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "netToGross.probabilityDistributionType",
         "netToGross.probabilityDistributionType.required",
-        "Select net-to-gross");
+        "Select net-to-gross distribution used");
 
     ProbabilityDistributionValidationUtil.validateFull(
         reservoirForm.getNetToGross(),
@@ -147,24 +147,24 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
 
     ValidationUtils.rejectIfEmpty(errors, "netPorosity.probabilityDistributionType",
         "netPorosity.probabilityDistributionType.required",
-        "Select the net porosity");
+        "Select the net porosity distribution used");
 
     ProbabilityDistributionValidationUtil.validateFull(
         reservoirForm.getNetPorosity(),
         errors,
         "netPorosity",
-        "Net porosity"
+        "Net porosity distribution used"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "depthToHydrocarbonContact.probabilityDistributionType",
         "depthToHydrocarbonContact.probabilityDistributionType.required",
-        "Select the depth to hydrocarbon contact");
+        "Select the depth to hydrocarbon contact distribution used");
 
     ProbabilityDistributionValidationUtil.validateFull(
         reservoirForm.getDepthToHydrocarbonContact(),
         errors,
         "depthToHydrocarbonContact",
-        "Depth to hydrocarbon contact"
+        "Depth to hydrocarbon contact distribution used"
     );
   }
 }
