@@ -1,9 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +28,8 @@ class HydrocarbonCasePersistenceServiceTest {
 
   private static SubmissionDetail submissionDetail;
 
+  private HydrocarbonCaseDetail hydrocarbonCase;
+
   @BeforeEach
   void setup() {
     hydrocarbonCasePersistenceService = new HydrocarbonCasePersistenceService(hydrocarbonCaseRepository);
@@ -30,6 +37,7 @@ class HydrocarbonCasePersistenceServiceTest {
     UUID submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
+    hydrocarbonCase = new HydrocarbonCaseDetail();
   }
 
   @Test
@@ -76,5 +84,27 @@ class HydrocarbonCasePersistenceServiceTest {
   void getHydrocarbonCaseDetail_verifyMethodCall() {
     hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail);
     verify(hydrocarbonCaseRepository, times(1)).findBySubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void isGasOnlyPresent_whenGasOnly_isTrue() {
+    hydrocarbonCase.setGasOnly(true);
+    hydrocarbonCase.setGasOnlyProbability(BigDecimal.valueOf(25.5));
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+    assertTrue(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail));
+  }
+
+  @Test
+  void isGasOnlyPresent_whenOilAndGas_isFalse() {
+    hydrocarbonCase.setOilAndGas(true);
+    hydrocarbonCase.setOilAndGasProbability(BigDecimal.valueOf(1.5));
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+    assertFalse(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail));
+  }
+
+  @Test
+  void isGasOnlyPresent_whenNoGas_isFalse() {
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+    assertFalse(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail));
   }
 }

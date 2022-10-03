@@ -1,0 +1,126 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics;
+
+import java.util.UUID;
+import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+
+@Controller
+@RequestMapping("/submission-details/{submissionDetailId}/gas-case-volumetrics")
+public class GasCaseVolumetricsController {
+
+  private final SubmissionDetailService submissionDetailService;
+  private final ControllerHelperService controllerHelperService;
+  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
+  private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
+  private final GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
+  private final GasCaseVolumetricsPersistenceService gasCaseVolumetricsPersistenceService;
+
+  public static final String PAGE_NAME = "Gas case volumetrics";
+
+  @Autowired
+  public GasCaseVolumetricsController(SubmissionDetailService submissionDetailService,
+                                      ControllerHelperService controllerHelperService,
+                                      SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
+                                      ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
+                                      GasCaseVolumetricsFormService gasCaseVolumetricsFormService,
+                                      GasCaseVolumetricsPersistenceService gasCaseVolumetricsPersistenceService) {
+    this.submissionDetailService = submissionDetailService;
+    this.controllerHelperService = controllerHelperService;
+    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
+    this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
+    this.gasCaseVolumetricsFormService = gasCaseVolumetricsFormService;
+    this.gasCaseVolumetricsPersistenceService = gasCaseVolumetricsPersistenceService;
+  }
+
+  @GetMapping
+  public ModelAndView getGasCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                            @ModelAttribute("form") GasCaseVolumetricsForm form) {
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    return getGasCaseVolumetricsModelAndView(
+        gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(submissionDetail), submissionDetailId);
+  }
+
+  @PostMapping
+  public ModelAndView saveGasCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                             @Valid @ModelAttribute("form") GasCaseVolumetricsForm form,
+                                             BindingResult bindingResult,
+                                             ValidationType validationType) {
+    bindingResult = gasCaseVolumetricsFormService.validate(form, bindingResult, validationType);
+    return controllerHelperService.checkErrorsAndRedirect(
+        bindingResult,
+        getGasVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetailId),
+        () -> {
+          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+          gasCaseVolumetricsPersistenceService.saveGasCaseVolumetrics(form, submissionDetail);
+          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
+        }
+    );
+  }
+
+  private ModelAndView getGasCaseVolumetricsModelAndView(GasCaseVolumetricsForm form, UUID submissionDetailId) {
+    var modelAndView = new ModelAndView("remi/submissiondetails/gasCaseVolumetrics")
+        .addObject("form", form)
+        .addObject("gasHydrocarbonSaturationTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION))
+        .addObject("condensateGasRatioLifeOfFieldTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD))
+        .addObject("gasExpansionFactorTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR))
+        .addObject("gasRecoveryFactorTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR))
+        .addObject("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
+    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    return modelAndView;
+  }
+
+  private ModelAndView getGasVolumetricsModelAndViewWithErrors(BindingResult bindingResult,
+                                                               GasCaseVolumetricsForm form,
+                                                               UUID submissionDetailId) {
+    var modelAndView = getGasCaseVolumetricsModelAndView(form, submissionDetailId);
+
+    return modelAndView
+        .addObject("gasHydrocarbonSaturationError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "gasHydrocarbonSaturation",
+                form.getGasHydrocarbonSaturation()))
+        .addObject("condensateGasRatioLifeOfFieldError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "condensateGasRatioLifeOfField",
+                form.getCondensateGasRatioLifeOfField()))
+        .addObject("gasExpansionFactorError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "gasExpansionFactor",
+                form.getGasExpansionFactor()))
+        .addObject("gasRecoveryFactorError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "gasRecoveryFactor",
+                form.getGasRecoveryFactor()));
+  }
+}

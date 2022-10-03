@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
-class HydrocarbonCasePersistenceService {
+public class HydrocarbonCasePersistenceService {
   private final HydrocarbonCaseRepository hydrocarbonCaseRepository;
 
   @Autowired
@@ -52,5 +53,14 @@ class HydrocarbonCasePersistenceService {
 
   Optional<HydrocarbonCaseDetail> getHydrocarbonCaseDetail(SubmissionDetail submissionDetail) {
     return hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail);
+  }
+
+  //Checks if there is gas present in the hydrocarbon case
+  public boolean isGasOnlyPresent(SubmissionDetail submissionDetail) {
+    return getHydrocarbonCaseDetail(submissionDetail)
+        .stream().anyMatch(hydrocarbonCaseDetail ->
+            hydrocarbonCaseDetail.getGasOnly() != null
+                && hydrocarbonCaseDetail.getGasOnly()
+                && hydrocarbonCaseDetail.getGasOnlyProbability().compareTo(BigDecimal.ZERO) > 0);
   }
 }
