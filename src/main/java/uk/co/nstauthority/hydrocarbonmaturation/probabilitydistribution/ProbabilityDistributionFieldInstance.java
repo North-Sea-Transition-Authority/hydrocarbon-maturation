@@ -62,6 +62,22 @@ public enum ProbabilityDistributionFieldInstance {
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityDistributionUnits.PERCENT
   ),
+  OIL_RECOVERY_FACTOR(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.PERCENT
+  ),
+  FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.RB_STB
+  ),
+  OIL_HYDROCARBON_SATURATION(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.PERCENT
+  ),
+  ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.SCF_STB
+  ),
   PRODUCTIVE_AREA(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityDistributionUnits.KM2

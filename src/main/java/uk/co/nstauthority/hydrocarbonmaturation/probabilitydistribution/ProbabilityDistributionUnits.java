@@ -7,7 +7,9 @@ public enum ProbabilityDistributionUnits {
   PERCENT("%"),
   KM2("km2"),
   SCF_RCF("scf/rcf"),
-  STB_MCF("stb/mcf");
+  STB_MCF("stb/mcf"),
+  RB_STB("rb/stb"),
+  SCF_STB("scf/stb");
 
   private final String unitDisplay;
 
