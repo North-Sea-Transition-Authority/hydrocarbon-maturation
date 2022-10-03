@@ -22,20 +22,10 @@ public class ProbabilityDistributionFormService {
   ) {
     return probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance)
         .map(probabilityDistribution -> {
-          var form = createProbabilityDistributionForm(instance, probabilityDistribution.getDistributionType());
-          var distributionType = form.getProbabilityDistributionType();
-
           var exceedanceForm = getExceedanceFormFromEntity(probabilityDistribution);
-          switch (distributionType) {
-            case NORMAL -> form.setNormal(exceedanceForm);
-            case LOGNORMAL -> form.setLognormal(exceedanceForm);
-            case BETA -> form.setBeta(exceedanceForm);
-            case TRIANGULAR -> form.setTriangular(exceedanceForm);
-            case RECTANGULAR -> form.setRectangular(exceedanceForm);
-            case CONSTANT -> form.setConstant(exceedanceForm);
-            case CUSTOM -> form.setCustom(exceedanceForm);
-            default -> throw new IllegalStateException("Unexpected value: " + distributionType);
-          }
+
+          var form = createProbabilityDistributionForm(instance, probabilityDistribution.getDistributionType());
+          form.setProbabilityOfExceedanceForm(exceedanceForm);
 
           return form;
         })

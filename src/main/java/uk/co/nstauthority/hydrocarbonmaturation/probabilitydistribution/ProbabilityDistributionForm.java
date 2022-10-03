@@ -108,4 +108,17 @@ public class ProbabilityDistributionForm {
       case CUSTOM -> custom;
     };
   }
+
+  public void setProbabilityOfExceedanceForm(ProbabilityOfExceedanceForm exceedanceForm) {
+    switch (probabilityDistributionType) {
+      case NORMAL -> setNormal(exceedanceForm);
+      case LOGNORMAL -> setLognormal(exceedanceForm);
+      case BETA -> setBeta(exceedanceForm);
+      case TRIANGULAR -> setTriangular(exceedanceForm);
+      case RECTANGULAR -> setRectangular(exceedanceForm);
+      case CONSTANT -> setConstant(exceedanceForm);
+      case CUSTOM -> setCustom(exceedanceForm);
+      default -> throw new IllegalStateException("Unexpected value: " + probabilityDistributionType);
+    }
+  }
 }
