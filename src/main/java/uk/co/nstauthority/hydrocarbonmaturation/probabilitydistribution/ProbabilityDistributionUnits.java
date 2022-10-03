@@ -5,7 +5,9 @@ public enum ProbabilityDistributionUnits {
   M_TVT("m tvt"),
   MILLION_M3("million m3"),
   PERCENT("%"),
-  KM2("km2");
+  KM2("km2"),
+  SCF_RCF("scf/rcf"),
+  STB_MCF("stb/mcf");
 
   private final String unitDisplay;
 

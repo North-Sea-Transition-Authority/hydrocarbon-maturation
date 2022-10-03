@@ -48,19 +48,19 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   GAS_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "%"
+      ProbabilityDistributionUnits.PERCENT
   ),
   GAS_EXPANSION_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      "scf/rcf"
+      ProbabilityDistributionUnits.SCF_RCF
   ),
   CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      "stb/mcf"
+      ProbabilityDistributionUnits.STB_MCF
   ),
   GAS_RECOVERY_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      "%"
+      ProbabilityDistributionUnits.PERCENT
   ),
   PRODUCTIVE_AREA(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
