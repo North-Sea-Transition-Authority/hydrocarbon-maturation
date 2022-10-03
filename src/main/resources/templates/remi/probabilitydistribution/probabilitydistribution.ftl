@@ -103,13 +103,11 @@ probabilityDistributionFieldInstancePath
 formId
 error
 inputs
-labelText=""
-hintText="">
+labelText="">
 
     <@probabilityDistributionFieldSet
     formId=formId
     labelText=labelText
-    hintText=hintText
     nestingPath=probabilityDistributionTypePath
     error=error
     probabilityDistributionType=inputs.probabilityDistributionType>
@@ -177,8 +175,7 @@ hintText="">
         probabilityDistributionTypePath=probabilityDistributionTypePath
         probabilityDistributionFieldInstancePath=probabilityDistributionFieldInstancePath
         formId=formId
-        labelText=labelText
-        hintText="Probability of exceedance (${template.units})"
+        labelText=labelText+" (${template.units})"
         error=error
         inputs=template.probabilityDistributionTypeWithInputsList[0]/>
 

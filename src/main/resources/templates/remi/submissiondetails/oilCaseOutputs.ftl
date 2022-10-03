@@ -1,7 +1,7 @@
 <#include '../layout/layout.ftl'>
 <#import '../probabilitydistribution/probabilitydistribution.ftl' as probabilityDistribution>
 
-<#assign pageTitle = "Oil case volumetrics" />
+<#assign pageTitle = "Oil case ouputs (resources)"/>
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
