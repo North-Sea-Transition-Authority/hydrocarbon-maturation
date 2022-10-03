@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class S3ClientServiceTest {
+class S3ClientServiceTest {
 
   private static final String BUCKET_NAME = "test-bucket";
 
