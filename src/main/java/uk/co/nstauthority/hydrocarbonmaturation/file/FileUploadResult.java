@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,30 +28,6 @@ public class FileUploadResult {
 
   public static FileUploadResult valid(String fileId, String fileName, MultipartFile multipartFile) {
     return new FileUploadResult(fileId, fileName, multipartFile, null);
-  }
-
-  public Optional<String> getFileId() {
-    return Optional.ofNullable(fileId);
-  }
-
-  public String getFileName() {
-    return fileName;
-  }
-
-  public Long getSize() {
-    return size;
-  }
-
-  public String getContentType() {
-    return contentType;
-  }
-
-  public Optional<UploadErrorType> getErrorType() {
-    return Optional.ofNullable(errorType);
-  }
-
-  public Optional<String> getErrorMessage() {
-    return getErrorType().map(UploadErrorType::getErrorMessage);
   }
 
   public boolean isValid() {
