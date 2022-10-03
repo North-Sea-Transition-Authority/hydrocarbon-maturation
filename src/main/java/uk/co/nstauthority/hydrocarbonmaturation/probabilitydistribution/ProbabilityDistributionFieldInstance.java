@@ -12,15 +12,43 @@ import java.util.List;
 public enum ProbabilityDistributionFieldInstance {
   DEPTH_TO_CREST_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "ft tvdss"
+      ProbabilityDistributionUnits.FT_TVDSS
   ),
   DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "ft tvdss"
+      ProbabilityDistributionUnits.FT_TVDSS
+  ),
+  AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.M_TVT
+  ),
+  GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.M_TVT
+  ),
+  GROSS_ROCK_VOLUME(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.MILLION_M3
+  ),
+  PERCENT_OF_GRV_OIL_BEARING(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.PERCENT
+  ),
+  NET_TO_GROSS_PROSPECT_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.PERCENT
+  ),
+  NET_POROSITY_PROSPECT_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.KM2
+  ),
+  DEPTH_TO_HYDROCARBON_CONTACT(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.FT_TVDSS
   ),
   PRODUCTIVE_AREA(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "km2"
+      ProbabilityDistributionUnits.KM2
   ),
 
   //TODO remove example custom enum value
@@ -29,7 +57,7 @@ public enum ProbabilityDistributionFieldInstance {
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
   private List<ProbabilityDistributionType> presetTypes;
 
-  private String units;
+  private ProbabilityDistributionUnits units;
 
   private final Type type;
 
@@ -39,7 +67,7 @@ public enum ProbabilityDistributionFieldInstance {
 
   ProbabilityDistributionFieldInstance(
       List<ProbabilityDistributionType> presetTypes,
-      String units) {
+      ProbabilityDistributionUnits units) {
     this.presetTypes = presetTypes;
     this.units = units;
 
@@ -65,6 +93,6 @@ public enum ProbabilityDistributionFieldInstance {
   }
 
   public String getUnits() {
-    return units;
+    return units.getUnitDisplay();
   }
 }

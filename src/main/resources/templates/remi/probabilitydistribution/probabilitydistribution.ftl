@@ -102,9 +102,14 @@
     labelText
     formId
     template
-    error>
-
-    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=labelText hiddenContent=true>
+    error
+    optionalLabel=false>
+    <#if optionalLabel>
+      <#assign radioGroupLabelText = "${labelText} (optional)">
+    <#else>
+      <#assign radioGroupLabelText = "${labelText}">
+    </#if>
+    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=radioGroupLabelText hiddenContent=true>
         <#assign firstItem=true/>
         <#list template.probabilityDistributionTypeWithInputsList as inputs>
             <@fdsRadio.radioItem
