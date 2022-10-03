@@ -91,14 +91,11 @@ public class SupportingDocumentService {
   @Transactional
   public FileDeleteResult deleteFile(UUID uploadedFileId) {
     var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
-
+    supportingDocumentRepository.deleteByUploadedFile(uploadedFile);
     DeleteOutcome deleteOutcome = fileUploadService.deleteFile(uploadedFile);
     return switch (deleteOutcome) {
       case INTERNAL_SERVER_ERROR -> FileDeleteResult.error(uploadedFile.getId().toString());
-      case SUCCESS -> {
-        supportingDocumentRepository.deleteByUploadedFile(uploadedFile);
-        yield FileDeleteResult.success(uploadedFile.getId().toString());
-      }
+      case SUCCESS -> FileDeleteResult.success(uploadedFile.getId().toString());
     };
   }
 
