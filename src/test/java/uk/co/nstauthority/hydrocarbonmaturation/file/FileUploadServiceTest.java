@@ -154,7 +154,8 @@ class FileUploadServiceTest {
             UploadedFile::getFilename,
             UploadedFile::getFileContentType,
             UploadedFile::getFileSizeBytes,
-            UploadedFile::getUploadedTimeStamp
+            UploadedFile::getUploadedTimeStamp,
+            UploadedFile::getDescription
         )
         .contains(
             bucketName,
@@ -162,7 +163,8 @@ class FileUploadServiceTest {
             filename,
             contentType,
             fileSize,
-            clock.instant()
+            clock.instant(),
+            null
         );
   }
 
