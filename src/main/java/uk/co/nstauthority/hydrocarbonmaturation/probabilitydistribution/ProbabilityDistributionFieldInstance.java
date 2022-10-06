@@ -13,47 +13,75 @@ import java.util.List;
 public enum ProbabilityDistributionFieldInstance {
   DEPTH_TO_CREST_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "ft tvdss"
+      ProbabilityDistributionUnits.FT_TVDSS
   ),
   DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "ft tvdss"
+      ProbabilityDistributionUnits.FT_TVDSS
+  ),
+  AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.M_TVT
+  ),
+  GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.M_TVT
+  ),
+  GROSS_ROCK_VOLUME(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.MILLION_M3
+  ),
+  PERCENT_OF_GRV_OIL_BEARING(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.PERCENT
+  ),
+  NET_TO_GROSS_PROSPECT_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.PERCENT
+  ),
+  NET_POROSITY_PROSPECT_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.KM2
+  ),
+  DEPTH_TO_HYDROCARBON_CONTACT(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.FT_TVDSS
   ),
   GAS_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "%"
+      ProbabilityDistributionUnits.PERCENT
   ),
   GAS_EXPANSION_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      "scf/rcf"
+      ProbabilityDistributionUnits.SCF_RCF
   ),
   CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      "stb/mcf"
+      ProbabilityDistributionUnits.STB_MCF
   ),
   GAS_RECOVERY_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      "%"
+      ProbabilityDistributionUnits.PERCENT
   ),
   OIL_RECOVERY_FACTOR(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "%"
+      ProbabilityDistributionUnits.PERCENT
   ),
   FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "rb/stb"
+      ProbabilityDistributionUnits.RB_STB
   ),
   OIL_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "%"
+      ProbabilityDistributionUnits.PERCENT
   ),
   ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      "scf/stb"
+      ProbabilityDistributionUnits.SCF_STB
   ),
   PRODUCTIVE_AREA(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      "km2"
+      ProbabilityDistributionUnits.KM2
   ),
   OIL_IN_PLACE(OilInPlaceBehaviour.class, "mmstb"),
   OIL_RECOVERABLE_RESOURCES(OilRecoverableResourcesBehaviour.class, "mmstb"),
@@ -63,7 +91,7 @@ public enum ProbabilityDistributionFieldInstance {
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
   private final List<ProbabilityDistributionType> presetTypes;
 
-  private final String units;
+  private ProbabilityDistributionUnits units;
 
   private final Type type;
 
@@ -73,15 +101,14 @@ public enum ProbabilityDistributionFieldInstance {
 
   ProbabilityDistributionFieldInstance(
       List<ProbabilityDistributionType> presetTypes,
-      String units) {
+      ProbabilityDistributionUnits units) {
     this.presetTypes = presetTypes;
     this.units = units;
 
     type = Type.PRESET_LIST;
   }
 
-  ProbabilityDistributionFieldInstance(Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour,
-                                       String units) {
+  ProbabilityDistributionFieldInstance(Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour) {
     this.customBehaviour = customBehaviour;
     this.units = units;
 
@@ -98,7 +125,7 @@ public enum ProbabilityDistributionFieldInstance {
   }
 
   public String getUnits() {
-    return units;
+    return units.getUnitDisplay();
   }
 
   public boolean isCustomType() {

@@ -98,19 +98,19 @@
 
 
 <#macro probabilityDistributionSingle
-probabilityDistributionTypePath
-probabilityDistributionFieldInstancePath
-formId
-error
-inputs
-labelText="">
+    probabilityDistributionTypePath
+    probabilityDistributionFieldInstancePath
+    formId
+    error
+    inputs
+    labelText="">
 
     <@probabilityDistributionFieldSet
-    formId=formId
-    labelText=labelText
-    nestingPath=probabilityDistributionTypePath
-    error=error
-    probabilityDistributionType=inputs.probabilityDistributionType>
+        formId=formId
+        labelText=labelText
+        nestingPath=probabilityDistributionTypePath
+        error=error
+        probabilityDistributionType=inputs.probabilityDistributionType>
 
         <#if error.hasError() && error.probabilityDistributionType().name()==inputs.probabilityDistributionType.name()>
             <@springFtl.bind error.fullErrorPath()/>
@@ -133,12 +133,18 @@ labelText="">
     labelText
     formId
     template
-    error>
+    error
+    optionalLabel=false>
+    <#if optionalLabel>
+        <#assign radioGroupLabelText = "${labelText} (optional)">
+    <#else>
+        <#assign radioGroupLabelText = "${labelText}">
+    </#if>
 
     <#assign probabilityDistributionTypePath=probabilityDistributionPath+".probabilityDistributionType">
     <#assign probabilityDistributionFieldInstancePath=probabilityDistributionPath+".probabilityDistributionFieldInstance">
     <@springFtl.formHiddenInput path=probabilityDistributionFieldInstancePath/>
-    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=labelText hiddenContent=true>
+    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=radioGroupLabelText hiddenContent=true>
         <#assign firstItem=true/>
         <#list template.probabilityDistributionTypeWithInputsList as inputs>
             <@fdsRadio.radioItem

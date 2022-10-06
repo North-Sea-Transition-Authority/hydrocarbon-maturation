@@ -4,10 +4,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
-class GeneralDetailsPersistenceService {
+public class GeneralDetailsPersistenceService {
 
   private final GeneralDetailsRepository generalDetailsRepository;
 
@@ -42,7 +43,13 @@ class GeneralDetailsPersistenceService {
     generalDetailsRepository.save(generalDetail);
   }
 
-  Optional<GeneralDetail> getGeneralDetail(SubmissionDetail submissionDetail) {
+  public Optional<GeneralDetail> getGeneralDetail(SubmissionDetail submissionDetail) {
     return generalDetailsRepository.findBySubmissionDetail(submissionDetail);
+  }
+
+  public GeneralDetail getGeneralDetailOrThrow(SubmissionDetail submissionDetail) {
+    return getGeneralDetail(submissionDetail)
+        .orElseThrow(() -> new RemiEntityNotFoundException(
+            String.format("Could not find general detail for submission detail %s", submissionDetail.getId())));
   }
 }

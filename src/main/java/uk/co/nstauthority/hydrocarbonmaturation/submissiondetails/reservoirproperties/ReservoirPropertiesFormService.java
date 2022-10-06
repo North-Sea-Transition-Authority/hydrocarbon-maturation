@@ -3,6 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
@@ -13,12 +15,15 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
 
   private final ReservoirPropertiesFormValidator reservoirPropertiesFormValidator;
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
+  private final ProbabilityDistributionFormService probabilityDistributionFormService;
 
   @Autowired
   public ReservoirPropertiesFormService(ReservoirPropertiesFormValidator reservoirPropertiesFormValidator,
-                                        ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService) {
+                                        ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
+                                        ProbabilityDistributionFormService probabilityDistributionFormService) {
     this.reservoirPropertiesFormValidator = reservoirPropertiesFormValidator;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
+    this.probabilityDistributionFormService = probabilityDistributionFormService;
   }
 
   @Override
@@ -38,6 +43,36 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
     form.setFormationName(reservoirProperty.getFormationName());
     form.setAgeStageOrSeries(reservoirProperty.getAgeStage());
     form.setLithology(reservoirProperty.getLithology());
+
+    var submissionDetail = reservoirProperty.getSubmissionDetail();
+    form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY
+    ));
+    form.setGrossReservoirThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY
+    ));
+    form.setGrossRockVolume(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME
+    ));
+    form.setDepthToHydrocarbonContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT
+    ));
+    form.setNetPorosity(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY
+    ));
+    form.setNetToGross(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY
+    ));
+    form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING
+    ));
 
     return form;
   }

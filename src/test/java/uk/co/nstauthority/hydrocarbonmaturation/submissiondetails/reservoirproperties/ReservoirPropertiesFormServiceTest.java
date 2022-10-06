@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -27,12 +31,15 @@ class ReservoirPropertiesFormServiceTest {
   @Mock
   private static ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
 
+  @Mock
+  private static ProbabilityDistributionFormService probabilityDistributionFormService;
+
   private static SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setUp() {
     reservoirPropertiesFormService = new ReservoirPropertiesFormService(reservoirPropertiesFormValidator,
-        reservoirPropertiesPersistenceService);
+        reservoirPropertiesPersistenceService, probabilityDistributionFormService);
 
     UUID submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
@@ -56,9 +63,23 @@ class ReservoirPropertiesFormServiceTest {
         .extracting(
             ReservoirPropertiesForm::getFormationName,
             ReservoirPropertiesForm::getAgeStageOrSeries,
-            ReservoirPropertiesForm::getLithology
+            ReservoirPropertiesForm::getLithology,
+            form -> form.getAverageNetPayThickness().getProbabilityDistributionType(),
+            form -> form.getGrossReservoirThickness().getProbabilityDistributionType(),
+            form -> form.getDepthToHydrocarbonContact().getProbabilityDistributionType(),
+            form -> form.getNetPorosity().getProbabilityDistributionType(),
+            form -> form.getNetToGross().getProbabilityDistributionType(),
+            form -> form.getPercentOfGrvOilBearing().getProbabilityDistributionType(),
+            form -> form.getGrossRockVolume().getProbabilityDistributionType()
         )
-        .containsExactly(
+        .contains(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null,
             null,
             null
@@ -69,17 +90,65 @@ class ReservoirPropertiesFormServiceTest {
   void sourceAndSealEntityToForm_existingEntity_thenPopulatedForm() {
     var reservoirProperty = getReservoirProperty(submissionDetail);
     when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        eq(submissionDetail), any())).thenReturn(probabilityDistributionForm);
 
     assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail))
         .extracting(
             ReservoirPropertiesForm::getFormationName,
             ReservoirPropertiesForm::getAgeStageOrSeries,
-            ReservoirPropertiesForm::getLithology
+            ReservoirPropertiesForm::getLithology,
+            form -> form.getNetToGross().getProbabilityDistributionType(),
+            form -> form.getNetToGross().getNormal().getMin(),
+            form -> form.getNetToGross().getNormal().getP99(),
+            form -> form.getNetToGross().getNormal().getP90(),
+            form -> form.getNetToGross().getNormal().getMode(),
+            form -> form.getNetToGross().getNormal().getP50(),
+            form -> form.getNetToGross().getNormal().getMean(),
+            form -> form.getNetToGross().getNormal().getP10(),
+            form -> form.getNetToGross().getNormal().getP1(),
+            form -> form.getNetToGross().getNormal().getMax(),
+            form -> form.getNetToGross().getNormal().getConstant(),
+            form -> form.getAverageNetPayThickness().getProbabilityDistributionType(),
+            form -> form.getAverageNetPayThickness().getNormal().getMin(),
+            form -> form.getAverageNetPayThickness().getNormal().getP99(),
+            form -> form.getAverageNetPayThickness().getNormal().getP90(),
+            form -> form.getAverageNetPayThickness().getNormal().getMode(),
+            form -> form.getAverageNetPayThickness().getNormal().getP50(),
+            form -> form.getAverageNetPayThickness().getNormal().getMean(),
+            form -> form.getAverageNetPayThickness().getNormal().getP10(),
+            form -> form.getAverageNetPayThickness().getNormal().getP1(),
+            form -> form.getAverageNetPayThickness().getNormal().getMax(),
+            form -> form.getAverageNetPayThickness().getNormal().getConstant()
         )
         .containsExactly(
             reservoirProperty.getFormationName(),
             reservoirProperty.getAgeStage(),
-            reservoirProperty.getLithology()
+            reservoirProperty.getLithology(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getNormal().getMin(),
+            probabilityDistributionForm.getNormal().getP99(),
+            probabilityDistributionForm.getNormal().getP90(),
+            probabilityDistributionForm.getNormal().getMode(),
+            probabilityDistributionForm.getNormal().getP50(),
+            probabilityDistributionForm.getNormal().getMean(),
+            probabilityDistributionForm.getNormal().getP10(),
+            probabilityDistributionForm.getNormal().getP1(),
+            probabilityDistributionForm.getNormal().getMax(),
+            probabilityDistributionForm.getNormal().getConstant(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getNormal().getMin(),
+            probabilityDistributionForm.getNormal().getP99(),
+            probabilityDistributionForm.getNormal().getP90(),
+            probabilityDistributionForm.getNormal().getMode(),
+            probabilityDistributionForm.getNormal().getP50(),
+            probabilityDistributionForm.getNormal().getMean(),
+            probabilityDistributionForm.getNormal().getP10(),
+            probabilityDistributionForm.getNormal().getP1(),
+            probabilityDistributionForm.getNormal().getMax(),
+            probabilityDistributionForm.getNormal().getConstant()
         );
   }
 
