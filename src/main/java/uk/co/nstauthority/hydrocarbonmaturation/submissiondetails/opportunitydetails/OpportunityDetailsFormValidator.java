@@ -59,7 +59,7 @@ class OpportunityDetailsFormValidator implements SmartValidator, SubmissionFormV
 
     List<FileUploadDetail> mapOfOpportunity = opportunityDetailsForm.getMapOfOpportunity();
 
-    if (mapOfOpportunity.size() == 0) {
+    if (mapOfOpportunity.isEmpty()) {
       errors.rejectValue("mapOfOpportunity", "mapOfOpportunity.required", "Upload a map of opportunity");
     }
 
