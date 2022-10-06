@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
@@ -25,6 +28,7 @@ public class ReservoirPropertiesController {
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
+  private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
   public static final String PAGE_NAME = "Reservoir properties";
 
@@ -33,12 +37,14 @@ public class ReservoirPropertiesController {
                                        ReservoirPropertiesFormService reservoirPropertiesFormService,
                                        ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
                                        SubmissionDetailService submissionDetailService,
-                                       SubmissionTaskListRedirectionService submissionTaskListRedirectionService) {
+                                       SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
+                                       ProbabilityDistributionTemplateService probabilityDistributionTemplateService) {
     this.controllerHelperService = controllerHelperService;
     this.reservoirPropertiesFormService = reservoirPropertiesFormService;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
+    this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
   }
 
   @GetMapping
@@ -56,7 +62,7 @@ public class ReservoirPropertiesController {
     bindingResult = reservoirPropertiesFormService.validate(form, bindingResult, validationType);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getReservoirPropertiesModelAndView(form, submissionDetailId),
+        getReservoirPropertiesWithErrors(bindingResult, form, submissionDetailId),
         () -> {
           var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
@@ -68,8 +74,90 @@ public class ReservoirPropertiesController {
   private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form, UUID submissionDetailId) {
     var modelAndView = new ModelAndView("remi/submissiondetails/reservoirProperties")
         .addObject("form", form);
+    modelAndView = addProbabilityTemplates(modelAndView);
 
     ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    return modelAndView;
+  }
+
+  private ModelAndView addProbabilityTemplates(ModelAndView modelAndView) {
+    return modelAndView.addObject("averageNetPayThicknessTemplate",
+            probabilityDistributionTemplateService
+                .getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY))
+        .addObject("averageNetPayThicknessError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("grossReservoirThicknessTemplate",
+            probabilityDistributionTemplateService
+                .getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
+        .addObject("grossReservoirThicknessError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("grossRockVolumeTemplate",
+            probabilityDistributionTemplateService
+                .getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
+        .addObject("grossRockVolumeError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("percentOfGrvOilBearingTemplate",
+            probabilityDistributionTemplateService
+                .getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+        .addObject("percentOfGrvOilBearingError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("netToGrossTemplate",
+            probabilityDistributionTemplateService
+                .getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
+        .addObject("netToGrossError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("netPorosityTemplate",
+            probabilityDistributionTemplateService
+                .getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
+        .addObject("netPorosityError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("depthToHydrocarbonContactTemplate",
+            probabilityDistributionTemplateService
+                .getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT))
+        .addObject("depthToHydrocarbonContactError", ProbabilityDistributionTypeError.emptyError());
+  }
+
+  private ModelAndView getReservoirPropertiesWithErrors(BindingResult bindingResult,
+                                                        ReservoirPropertiesForm form,
+                                                        UUID submissionDetailId) {
+    var modelAndView = getReservoirPropertiesModelAndView(form, submissionDetailId);
+    modelAndView
+        .addObject("averageNetPayThicknessError",
+        probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+            bindingResult,
+            "averageNetPayThickness",
+            form.getAverageNetPayThickness()))
+        .addObject("grossReservoirThicknessError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "grossReservoirThickness",
+                form.getGrossReservoirThickness()))
+        .addObject("grossRockVolumeError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "grossRockVolume",
+                form.getGrossRockVolume()))
+        .addObject("percentOfGrvOilBearingError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "percentOfGrvOilBearing",
+                form.getPercentOfGrvOilBearing()))
+        .addObject("netToGrossError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "netToGross",
+                form.getNetToGross()))
+        .addObject("netPorosityError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "netPorosity",
+                form.getNetPorosity()))
+        .addObject("depthToHydrocarbonContactError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "depthToHydrocarbonContact",
+                form.getDepthToHydrocarbonContact()));
     return modelAndView;
   }
 }
