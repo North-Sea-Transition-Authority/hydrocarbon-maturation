@@ -1,7 +1,7 @@
 <#include '../layout/layout.ftl'>
 <#import '../probabilitydistribution/probabilitydistribution.ftl' as probabilityDistribution>
 
-<#assign pageTitle = "Gas case volumetrics" />
+<#assign pageTitle = "Gas case volumetrics parameters" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
@@ -41,7 +41,8 @@
       labelText="Condensate-gas ratio, life-of-field distribution used"
       formId="condensateGasRatioLifeOfField"
       template=condensateGasRatioLifeOfFieldTemplate
-      error=condensateGasRatioLifeOfFieldError/>
+      error=condensateGasRatioLifeOfFieldError
+      optionalLabel=true/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.gasRecoveryFactor.probabilityDistributionType"

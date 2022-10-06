@@ -64,8 +64,6 @@ class OilCaseVolumetricsFormValidatorTest {
                 Set.of("formationVolumeFactor.probabilityDistributionType.required")),
             entry("oilHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("oilHydrocarbonSaturation.probabilityDistributionType.required")),
-            entry("associatedGasOilRatioLifeOfField.probabilityDistributionType",
-                Set.of("associatedGasOilRatioLifeOfField.probabilityDistributionType.required")),
             entry("oilRecoveryFactor.probabilityDistributionType",
                 Set.of("oilRecoveryFactor.probabilityDistributionType.required"))
         );

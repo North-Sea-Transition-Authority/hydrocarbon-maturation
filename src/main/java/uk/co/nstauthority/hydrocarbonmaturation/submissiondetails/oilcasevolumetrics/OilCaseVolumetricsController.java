@@ -31,7 +31,7 @@ public class OilCaseVolumetricsController {
   private final OilCaseVolumetricsFormService oilCaseVolumetricsFormService;
   private final OilCaseVolumetricsPersistenceService oilCaseVolumetricsPersistenceService;
 
-  public static final String PAGE_NAME = "Oil case volumetrics";
+  public static final String PAGE_NAME = "Oil case volumetrics parameters";
 
   @Autowired
   public OilCaseVolumetricsController(SubmissionDetailService submissionDetailService,

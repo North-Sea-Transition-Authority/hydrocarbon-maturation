@@ -77,10 +77,6 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "gasExpansionFactor",
         "Gas expansion factor distribution used");
 
-    ValidationUtils.rejectIfEmpty(errors, "condensateGasRatioLifeOfField.probabilityDistributionType",
-        "condensateGasRatioLifeOfField.probabilityDistributionType.required",
-        "Select condensate-gas ratio, life-of-field distribution used");
-
     var condensateGasRatioLifeOfField = gasCaseVolumetricsForm.getCondensateGasRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validateFull(
         condensateGasRatioLifeOfField,

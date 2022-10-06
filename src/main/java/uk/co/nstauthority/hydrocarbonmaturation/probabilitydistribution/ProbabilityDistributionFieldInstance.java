@@ -78,6 +78,37 @@ public enum ProbabilityDistributionFieldInstance {
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityDistributionUnits.SCF_STB
   ),
+  MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.RB_STB),
+  MIXED_OIL_HYDROCARBON_SATURATION(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.PERCENT
+  ),
+  MIXED_GAS_HYDROCARBON_SATURATION(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.PERCENT
+  ),
+  MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.SCF_STB
+  ),
+  MIXED_GAS_EXPANSION_FACTOR(
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.SCF_RCF
+  ),
+  MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.STB_MCF
+  ),
+  MIXED_GAS_RECOVERY_FACTOR(
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.PERCENT
+  ),
+  MIXED_OIL_RECOVERY_FACTOR(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityDistributionUnits.PERCENT
+  ),
   PRODUCTIVE_AREA(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityDistributionUnits.KM2

@@ -77,10 +77,6 @@ public class OilCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "Gas hydrocarbon saturation distribution used"
     );
 
-    ValidationUtils.rejectIfEmpty(errors, "associatedGasOilRatioLifeOfField.probabilityDistributionType",
-        "associatedGasOilRatioLifeOfField.probabilityDistributionType.required",
-        "Select associated gas-oil ratio, life-of-field distribution used");
-
     var associatedGasOilRatioLifeOfField = oilCaseVolumetricsForm.getAssociatedGasOilRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validateFull(
         associatedGasOilRatioLifeOfField,
