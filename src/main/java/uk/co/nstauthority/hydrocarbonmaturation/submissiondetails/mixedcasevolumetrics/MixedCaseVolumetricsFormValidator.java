@@ -28,7 +28,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
     );
 
     var oilHydrocarbonSaturation = mixedCaseVolumetricsForm.getOilHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         oilHydrocarbonSaturation,
         errors,
         "oilHydrocarbonSaturation",
@@ -44,7 +44,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
     );
 
     var oilRecoveryFactor = mixedCaseVolumetricsForm.getOilRecoveryFactor();
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         oilRecoveryFactor,
         errors,
         "oilRecoveryFactor",
@@ -52,7 +52,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
     );
 
     var gasHydrocarbonSaturation = mixedCaseVolumetricsForm.getGasHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         gasHydrocarbonSaturation,
         errors,
         "gasHydrocarbonSaturation",
@@ -76,7 +76,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
     );
 
     var gasRecoveryFactor = mixedCaseVolumetricsForm.getGasRecoveryFactor();
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         gasRecoveryFactor,
         errors,
         "gasRecoveryFactor",
@@ -103,7 +103,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "oilHydrocarbonSaturation.probabilityDistributionType.required",
         "Select oil hydrocarbon saturation distribution used");
     var oilHydrocarbonSaturation = mixedCaseVolumetricsForm.getOilHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         oilHydrocarbonSaturation,
         errors,
         "oilHydrocarbonSaturation",
@@ -122,7 +122,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "oilRecoveryFactor.probabilityDistributionType.required",
         "Select oil recovery factor distribution used");
     var oilRecoveryFactor = mixedCaseVolumetricsForm.getOilRecoveryFactor();
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         oilRecoveryFactor,
         errors,
         "oilRecoveryFactor",
@@ -133,7 +133,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "gasHydrocarbonSaturation.probabilityDistributionType.required",
         "Select gas hydrocarbon saturation distribution used");
     var gasHydrocarbonSaturation = mixedCaseVolumetricsForm.getGasHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         gasHydrocarbonSaturation,
         errors,
         "gasHydrocarbonSaturation",
@@ -163,7 +163,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "gasRecoveryFactor.probabilityDistributionType.required",
         "Select gas recovery factor distribution used");
     var gasRecoveryFactor = mixedCaseVolumetricsForm.getGasRecoveryFactor();
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         gasRecoveryFactor,
         errors,
         "gasRecoveryFactor",

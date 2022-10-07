@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-public enum ProbabilityDistributionUnits {
+public enum ProbabilityOfExceedanceUnits {
   FT_TVDSS("ft tvdss"),
   M_TVT("m tvt"),
   MILLION_M3("million m3"),
@@ -13,7 +13,7 @@ public enum ProbabilityDistributionUnits {
 
   private final String unitDisplay;
 
-  ProbabilityDistributionUnits(String unitDisplay) {
+  ProbabilityOfExceedanceUnits(String unitDisplay) {
     this.unitDisplay = unitDisplay;
   }
 

@@ -46,7 +46,7 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "Average net pay thickness distribution used"
     );
 
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         reservoirForm.getGrossReservoirThickness(),
         errors,
         "grossReservoirThickness",
@@ -60,14 +60,14 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "Gross rock volume (GRV) distribution used"
     );
 
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         reservoirForm.getPercentOfGrvOilBearing(),
         errors,
         "percentOfGrvOilBearing",
         "Percentage of GRV which is oil bearing distribution used"
     );
 
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         reservoirForm.getNetToGross(),
         errors,
         "netToGross",
@@ -127,7 +127,7 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "Gross rock volume (GRV) distribution used"
     );
 
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         reservoirForm.getPercentOfGrvOilBearing(),
         errors,
         "percentOfGrvOilBearing",
@@ -138,11 +138,11 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "netToGross.probabilityDistributionType.required",
         "Select net-to-gross distribution used");
 
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         reservoirForm.getNetToGross(),
         errors,
         "netToGross",
-        "Net to gross"
+        "Net to gross distribution used"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "netPorosity.probabilityDistributionType",

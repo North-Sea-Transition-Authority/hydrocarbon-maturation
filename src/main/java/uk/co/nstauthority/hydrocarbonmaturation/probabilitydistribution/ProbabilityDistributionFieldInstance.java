@@ -12,106 +12,107 @@ import java.util.List;
 public enum ProbabilityDistributionFieldInstance {
   DEPTH_TO_CREST_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.FT_TVDSS
+      ProbabilityOfExceedanceUnits.FT_TVDSS
   ),
   DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.FT_TVDSS
+      ProbabilityOfExceedanceUnits.FT_TVDSS
   ),
   AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.M_TVT
+      ProbabilityOfExceedanceUnits.M_TVT
   ),
   GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.M_TVT
+      ProbabilityOfExceedanceUnits.M_TVT
   ),
   GROSS_ROCK_VOLUME(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.MILLION_M3
+      ProbabilityOfExceedanceUnits.MILLION_M3
   ),
   PERCENT_OF_GRV_OIL_BEARING(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT
   ),
   NET_TO_GROSS_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT
   ),
   NET_POROSITY_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.KM2
+      ProbabilityOfExceedanceUnits.KM2
   ),
   DEPTH_TO_HYDROCARBON_CONTACT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.FT_TVDSS
+      ProbabilityOfExceedanceUnits.FT_TVDSS
   ),
   GAS_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT
   ),
   GAS_EXPANSION_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.SCF_RCF
+      ProbabilityOfExceedanceUnits.SCF_RCF
   ),
   CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.STB_MCF
+      ProbabilityOfExceedanceUnits.STB_MCF
   ),
   GAS_RECOVERY_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT
   ),
   OIL_RECOVERY_FACTOR(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT
   ),
   FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.RB_STB
+      ProbabilityOfExceedanceUnits.RB_STB
   ),
   OIL_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT
   ),
   ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.SCF_STB
+      ProbabilityOfExceedanceUnits.SCF_STB
   ),
   MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.RB_STB),
+      ProbabilityOfExceedanceUnits.RB_STB
+  ),
   MIXED_OIL_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT
   ),
   MIXED_GAS_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT
   ),
   MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.SCF_STB
+      ProbabilityOfExceedanceUnits.SCF_STB
   ),
   MIXED_GAS_EXPANSION_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.SCF_RCF
+      ProbabilityOfExceedanceUnits.SCF_RCF
   ),
   MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.STB_MCF
+      ProbabilityOfExceedanceUnits.STB_MCF
   ),
   MIXED_GAS_RECOVERY_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT
   ),
   MIXED_OIL_RECOVERY_FACTOR(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT
   ),
   PRODUCTIVE_AREA(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityDistributionUnits.KM2
+      ProbabilityOfExceedanceUnits.KM2
   ),
 
   //TODO remove example custom enum value
@@ -120,7 +121,7 @@ public enum ProbabilityDistributionFieldInstance {
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
   private List<ProbabilityDistributionType> presetTypes;
 
-  private ProbabilityDistributionUnits units;
+  private ProbabilityOfExceedanceUnits units;
 
   private final Type type;
 
@@ -130,7 +131,7 @@ public enum ProbabilityDistributionFieldInstance {
 
   ProbabilityDistributionFieldInstance(
       List<ProbabilityDistributionType> presetTypes,
-      ProbabilityDistributionUnits units) {
+      ProbabilityOfExceedanceUnits units) {
     this.presetTypes = presetTypes;
     this.units = units;
 
