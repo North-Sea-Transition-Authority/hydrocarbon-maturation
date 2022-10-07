@@ -12,10 +12,9 @@ public class FileUploadValidationUtils {
   }
 
   public static void rejectIfFileDescriptionsAreEmptyOrWhitespace(Errors errors, List<FileUploadDetail> fileUploadDetails,
-                                                            String field) {
+                                                                  String field) {
     IntStream.range(0, fileUploadDetails.size()).forEachOrdered(
         i -> ValidationUtils.rejectIfEmptyOrWhitespace(errors, "%s[%d].uploadedFileDescription".formatted(field, i),
-            "%s[%d].uploadedFileDescription.required".formatted(field, i),
-            "Enter a description of this file"));
+            "%s[%d].uploadedFileDescription.required".formatted(field, i), "Enter a description of this file"));
   }
 }
