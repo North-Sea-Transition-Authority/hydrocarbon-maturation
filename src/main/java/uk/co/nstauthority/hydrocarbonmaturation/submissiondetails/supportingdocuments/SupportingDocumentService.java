@@ -79,6 +79,7 @@ public class SupportingDocumentService {
 
   public FileUploadTemplate buildFileUploadTemplate(UUID submissionDetailId, SupportingDocumentType supportingDocumentType) {
     return fileUploadService.buildFileUploadTemplate(
+        ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).download(submissionDetailId)),
         ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).upload(
             submissionDetailId,
             supportingDocumentType.name(),

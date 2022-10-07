@@ -1,5 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
 public class FileUploadUtils {
 
   private FileUploadUtils() {
@@ -19,5 +24,16 @@ public class FileUploadUtils {
     } while (fileSize > 1024);
 
     return Math.max(fileSize, 1) + byteUnits[i];
+  }
+
+  public static ResponseEntity<InputStreamResource> getFileResourceResponseEntity(UploadedFile uploadedFile, InputStreamResource inputStreamResource) {
+    return ResponseEntity.ok()
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .contentLength(uploadedFile.getFileSizeBytes())
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            String.format("attachment; filename=\"%s\"", uploadedFile.getFilename())
+        )
+        .body(inputStreamResource);
   }
 }
