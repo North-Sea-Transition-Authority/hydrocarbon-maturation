@@ -64,16 +64,18 @@ class OilCaseVolumetricsFormValidatorTest {
                 Set.of("formationVolumeFactor.probabilityDistributionType.required")),
             entry("oilHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("oilHydrocarbonSaturation.probabilityDistributionType.required")),
+            entry("associatedGasOilRatioLifeOfField.probabilityDistributionType",
+                Set.of("associatedGasOilRatioLifeOfField.probabilityDistributionType.required")),
             entry("oilRecoveryFactor.probabilityDistributionType",
-                Set.of("oilRecoveryFactor.probabilityDistributionType.required")),
-            entry("condensateGasRatioLifeOfField.probabilityDistributionType",
-                Set.of("condensateGasRatioLifeOfField.probabilityDistributionType.required"))
+                Set.of("oilRecoveryFactor.probabilityDistributionType.required"))
         );
   }
 
   @ParameterizedTest
   @EnumSource(
-      value = ProbabilityDistributionType.class
+      value = ProbabilityDistributionType.class,
+      mode = EnumSource.Mode.EXCLUDE,
+      names = "NOT_CALCULATED"
   )
   void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
@@ -97,7 +99,9 @@ class OilCaseVolumetricsFormValidatorTest {
 
   @ParameterizedTest
   @EnumSource(
-      value = ProbabilityDistributionType.class
+      value = ProbabilityDistributionType.class,
+      mode = EnumSource.Mode.EXCLUDE,
+      names = "NOT_CALCULATED"
   )
   void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
