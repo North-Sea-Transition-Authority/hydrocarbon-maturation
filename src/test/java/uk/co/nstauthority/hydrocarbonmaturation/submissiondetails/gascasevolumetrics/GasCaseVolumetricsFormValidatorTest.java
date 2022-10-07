@@ -66,7 +66,10 @@ class GasCaseVolumetricsFormValidatorTest {
             entry("gasExpansionFactor.probabilityDistributionType",
                 Set.of("gasExpansionFactor.probabilityDistributionType.required")),
             entry("gasRecoveryFactor.probabilityDistributionType",
-                Set.of("gasRecoveryFactor.probabilityDistributionType.required"))
+                Set.of("gasRecoveryFactor.probabilityDistributionType.required")),
+            entry("associatedGasOilRatioLifeOfField.probabilityDistributionType",
+                Set.of("associatedGasOilRatioLifeOfField.probabilityDistributionType.required")
+            )
         );
   }
 

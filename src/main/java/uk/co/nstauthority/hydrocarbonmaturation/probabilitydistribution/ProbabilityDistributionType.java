@@ -10,7 +10,8 @@ public enum ProbabilityDistributionType implements Displayable {
   BETA(BetaBehaviour.class, "Beta", 3, "beta"),
   TRIANGULAR(TriangularBehaviour.class, "Triangular", 4, "triangular"),
   RECTANGULAR(RectangularBehaviour.class, "Rectangular", 5, "rectangular"),
-  CONSTANT(ConstantBehaviour.class, "Constant", 6, "constant");
+  CONSTANT(ConstantBehaviour.class, "Constant", 6, "constant"),
+  NOT_CALCULATED(NotCalculatedBehaviour.class, "Not calculated", 7, "notCalculated");
 
   private Class<? extends ProbabilityDistributionTypeBehaviour> presetBehaviour;
   private final boolean hasPresetBehaviour;

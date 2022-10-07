@@ -98,6 +98,10 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
 
     var reservoirForm = ((ReservoirPropertiesForm) form);
 
+    ValidationUtils.rejectIfEmpty(errors, "averageNetPayThickness.probabilityDistributionType",
+        "averageNetPayThickness.probabilityDistributionType.required",
+        "Select the average net pay thickness distribution used");
+
     ProbabilityDistributionValidationUtil.validateFull(
         reservoirForm.getAverageNetPayThickness(),
         errors,
@@ -126,6 +130,10 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "grossRockVolume",
         "Gross rock volume (GRV) distribution used"
     );
+
+    ValidationUtils.rejectIfEmpty(errors, "percentOfGrvOilBearing.probabilityDistributionType",
+        "percentOfGrvOilBearing.probabilityDistributionType.required",
+        "Select the percentage of GRV which is oil bearing distribution used");
 
     ProbabilityDistributionValidationUtil.validateFullPercentage(
         reservoirForm.getPercentOfGrvOilBearing(),

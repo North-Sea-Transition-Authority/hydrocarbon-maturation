@@ -44,8 +44,7 @@ breadcrumbsMap=breadcrumbsMap>
       labelText="Average net pay thickness distribution used"
       formId="averageNetPayThickness"
       template=averageNetPayThicknessTemplate
-      error=averageNetPayThicknessError
-      optionalLabel=true/>
+      error=averageNetPayThicknessError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.grossReservoirThickness.probabilityDistributionType"
@@ -66,8 +65,7 @@ breadcrumbsMap=breadcrumbsMap>
       labelText="% of GRV which is oil bearing distribution used"
       formId="percentOfGrvOilBearing"
       template=percentOfGrvOilBearingTemplate
-      error=percentOfGrvOilBearingError
-      optionalLabel=true/>
+      error=percentOfGrvOilBearingError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.netToGross.probabilityDistributionType"

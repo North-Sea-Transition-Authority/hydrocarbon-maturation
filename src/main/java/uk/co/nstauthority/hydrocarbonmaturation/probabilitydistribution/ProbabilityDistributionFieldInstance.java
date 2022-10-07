@@ -4,6 +4,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.P
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.CONSTANT;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.LOGNORMAL;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.NORMAL;
+import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.NOT_CALCULATED;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.RECTANGULAR;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.TRIANGULAR;
 
@@ -19,7 +20,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.FT_TVDSS
   ),
   AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY(
-      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
       ProbabilityOfExceedanceUnits.M_TVT
   ),
   GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY(
@@ -31,7 +32,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.MILLION_M3
   ),
   PERCENT_OF_GRV_OIL_BEARING(
-      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
       ProbabilityOfExceedanceUnits.PERCENT
   ),
   NET_TO_GROSS_PROSPECT_DISCOVERY(
@@ -55,7 +56,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.SCF_RCF
   ),
   CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
-      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
       ProbabilityOfExceedanceUnits.STB_MCF
   ),
   GAS_RECOVERY_FACTOR(
@@ -75,7 +76,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT
   ),
   ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
-      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
       ProbabilityOfExceedanceUnits.SCF_STB
   ),
   MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY(
@@ -91,7 +92,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT
   ),
   MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
-      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
       ProbabilityOfExceedanceUnits.SCF_STB
   ),
   MIXED_GAS_EXPANSION_FACTOR(
@@ -99,7 +100,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.SCF_RCF
   ),
   MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
-      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
       ProbabilityOfExceedanceUnits.STB_MCF
   ),
   MIXED_GAS_RECOVERY_FACTOR(

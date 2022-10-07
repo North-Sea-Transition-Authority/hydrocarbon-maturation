@@ -83,7 +83,11 @@ class ReservoirPropertiesFormValidatorTest {
             entry("netPorosity." + probabilityDistributionType.getPath() + ".error",
                 Set.of("netPorosity." + probabilityDistributionType.getPath() + ".error.error")),
             entry("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error",
-                Set.of("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error.error"))
+                Set.of("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error",
+                Set.of("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error",
+                Set.of("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 
@@ -113,7 +117,11 @@ class ReservoirPropertiesFormValidatorTest {
             entry("netPorosity." + probabilityDistributionType.getPath() + ".error",
                 Set.of("netPorosity." + probabilityDistributionType.getPath() + ".error.error")),
             entry("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error",
-                Set.of("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error.error"))
+                Set.of("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error",
+                Set.of("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error",
+                Set.of("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 

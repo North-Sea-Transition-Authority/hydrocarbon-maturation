@@ -16,6 +16,8 @@ public class ProbabilityDistributionForm {
 
   private ProbabilityOfExceedanceForm constant = new ProbabilityOfExceedanceForm();
 
+  private ProbabilityOfExceedanceForm notCalculated = new ProbabilityOfExceedanceForm();
+
   public ProbabilityDistributionType getProbabilityDistributionType() {
     return probabilityDistributionType;
   }
@@ -77,6 +79,15 @@ public class ProbabilityDistributionForm {
     this.constant = constant;
   }
 
+  public ProbabilityOfExceedanceForm getNotCalculated() {
+    return notCalculated;
+  }
+
+  public void setNotCalculated(
+      ProbabilityOfExceedanceForm notCalculated) {
+    this.notCalculated = notCalculated;
+  }
+
   public ProbabilityOfExceedanceForm getProbabilityOfExceedanceForm() {
     return switch (probabilityDistributionType) {
       case NORMAL -> normal;
@@ -85,6 +96,7 @@ public class ProbabilityDistributionForm {
       case TRIANGULAR -> triangular;
       case RECTANGULAR -> rectangular;
       case CONSTANT -> constant;
+      case NOT_CALCULATED -> notCalculated;
     };
   }
 }

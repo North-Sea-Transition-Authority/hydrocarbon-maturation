@@ -65,6 +65,10 @@ public class ProbabilityDistributionTestUtil {
     return getValidProbabilityDistributionForm(ProbabilityDistributionType.CONSTANT);
   }
 
+  public static ProbabilityDistributionForm getValidNotCalculatedProbabilityDistributionForm() {
+    return getValidProbabilityDistributionForm(ProbabilityDistributionType.NOT_CALCULATED);
+  }
+
   public static ProbabilityDistributionForm getFormWithExceedance(
       ProbabilityDistributionType probabilityDistributionType,
       ProbabilityOfExceedanceForm probabilityOfExceedanceForm
@@ -98,6 +102,11 @@ public class ProbabilityDistributionTestUtil {
       case CONSTANT -> {
         var validForm = getValidConstantProbabilityDistributionForm();
         validForm.setConstant(probabilityOfExceedanceForm);
+        return validForm;
+      }
+      case NOT_CALCULATED -> {
+        var validForm = getValidNotCalculatedProbabilityDistributionForm();
+        validForm.setNotCalculated(probabilityOfExceedanceForm);
         return validForm;
       }
       default -> throw new ProbabilityDistributionException("Invalid probability distribution type provided");

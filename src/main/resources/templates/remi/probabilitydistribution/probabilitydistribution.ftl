@@ -102,38 +102,34 @@
     labelText
     formId
     template
-    error
-    optionalLabel=false>
-    <#if optionalLabel>
-      <#assign radioGroupLabelText = "${labelText} (optional)">
-    <#else>
-      <#assign radioGroupLabelText = "${labelText}">
-    </#if>
-    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=radioGroupLabelText hiddenContent=true>
+    error>
+    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=labelText hiddenContent=true>
         <#assign firstItem=true/>
         <#list template.probabilityDistributionTypeWithInputsList as inputs>
             <@fdsRadio.radioItem
                 path=probabilityDistributionTypePath
                 itemMap={inputs.probabilityDistributionType.name() : inputs.probabilityDistributionType.displayName}
                 isFirstItem=firstItem>
-                <@probabilityDistributionFieldSet
+                <#if inputs.probabilityDistributionType.name() != 'NOT_CALCULATED'>
+                    <@probabilityDistributionFieldSet
                     formId=formId
                     labelText="Probability of exceedance (${template.units})"
                     nestingPath=probabilityDistributionTypePath
                     error=error
                     probabilityDistributionType=inputs.probabilityDistributionType>
 
-                    <#if error.hasError() && error.probabilityDistributionType().name()==inputs.probabilityDistributionType.name()>
-                        <@springFtl.bind error.fullErrorPath()/>
-                        <@fdsError.inputError inputId=error.errorId()/>
-                        <@springFtl.bind probabilityDistributionTypePath/>
-                    </#if>
+                        <#if error.hasError() && error.probabilityDistributionType().name()==inputs.probabilityDistributionType.name()>
+                            <@springFtl.bind error.fullErrorPath()/>
+                            <@fdsError.inputError inputId=error.errorId()/>
+                            <@springFtl.bind probabilityDistributionTypePath/>
+                        </#if>
 
-                    <@probabilityDistributionInputList
+                        <@probabilityDistributionInputList
                         probabilityDistributionInputs=inputs.probabilityDistributionTypeInputs
                         pathPrefix=probabilityDistributionTypePath?replace("probabilityDistributionType", "")+inputs.probabilityDistributionType.path/>
-                    <#assign firstItem=false/>
-                </@probabilityDistributionFieldSet>
+                        <#assign firstItem=false/>
+                    </@probabilityDistributionFieldSet>
+                </#if>
             </@fdsRadio.radioItem>
         </#list>
     </@fdsRadio.radioGroup>

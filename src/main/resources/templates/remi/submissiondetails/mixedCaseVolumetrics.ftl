@@ -49,8 +49,7 @@
       labelText="Associated gas-oil ratio, life-of-field distribution used"
       formId="associatedGasOilRatioLifeOfField"
       template=associatedGasOilRatioLifeOfFieldTemplate
-      error=associatedGasOilRatioLifeOfFieldError
-      optionalLabel=true/>
+      error=associatedGasOilRatioLifeOfFieldError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.oilRecoveryFactor.probabilityDistributionType"
@@ -78,8 +77,7 @@
       labelText="Condensate-gas ratio, life-of-field distribution used"
       formId="condensateGasRatioLifeOfField"
       template=condensateGasRatioLifeOfFieldTemplate
-      error=condensateGasRatioLifeOfFieldError
-      optionalLabel=true/>
+      error=condensateGasRatioLifeOfFieldError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.gasRecoveryFactor.probabilityDistributionType"
