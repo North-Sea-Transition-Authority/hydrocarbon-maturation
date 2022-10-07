@@ -20,7 +20,7 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
     var gasCaseVolumetricsForm = (GasCaseVolumetricsForm) form;
 
     var gasHydrocarbonSaturation = gasCaseVolumetricsForm.getGasHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         gasHydrocarbonSaturation,
         errors,
         "gasHydrocarbonSaturation",
@@ -43,7 +43,7 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
     );
 
     var gasRecoveryFactor = gasCaseVolumetricsForm.getGasRecoveryFactor();
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         gasRecoveryFactor,
         errors,
         "gasRecoveryFactor",
@@ -59,7 +59,7 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "Select gas hydrocarbon saturation distribution used");
 
     var gasHydrocarbonSaturation = gasCaseVolumetricsForm.getGasHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         gasHydrocarbonSaturation,
         errors,
         "gasHydrocarbonSaturation",
@@ -90,7 +90,7 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "Select gas recovery factor distribution used");
 
     var gasRecoveryFactor = gasCaseVolumetricsForm.getGasRecoveryFactor();
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         gasRecoveryFactor,
         errors,
         "gasRecoveryFactor",

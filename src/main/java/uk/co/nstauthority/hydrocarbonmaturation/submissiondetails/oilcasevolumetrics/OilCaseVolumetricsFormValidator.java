@@ -24,10 +24,11 @@ public class OilCaseVolumetricsFormValidator extends PartialFullFormValidator {
         formationVolumeFactor,
         errors,
         "formationVolumeFactor",
-        "Formation volume factor distribution used");
+        "Formation volume factor distribution used"
+    );
 
     var oilHydrocarbonSaturation = oilCaseVolumetricsForm.getOilHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         oilHydrocarbonSaturation,
         errors,
         "oilHydrocarbonSaturation",
@@ -39,15 +40,16 @@ public class OilCaseVolumetricsFormValidator extends PartialFullFormValidator {
         associatedGasOilRatioLifeOfField,
         errors,
         "associatedGasOilRatioLifeOfField",
-        "Associated-gas ratio, life-of-field distribution used"
+        "Associated gas-oil ratio, life-of-field distribution used"
     );
 
     var oilRecoveryFactor = oilCaseVolumetricsForm.getOilRecoveryFactor();
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         oilRecoveryFactor,
         errors,
         "oilRecoveryFactor",
-        "Oil recovery factor distribution used");
+        "Oil recovery factor distribution used"
+    );
   }
 
   @Override
@@ -63,14 +65,15 @@ public class OilCaseVolumetricsFormValidator extends PartialFullFormValidator {
         formationVolumeFactor,
         errors,
         "formationVolumeFactor",
-        "Formation volume factor distribution used");
+        "Formation volume factor distribution used"
+    );
 
     ValidationUtils.rejectIfEmpty(errors, "oilHydrocarbonSaturation.probabilityDistributionType",
         "oilHydrocarbonSaturation.probabilityDistributionType.required",
         "Select oil hydrocarbon saturation distribution used");
 
     var oilHydrocarbonSaturation = oilCaseVolumetricsForm.getOilHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         oilHydrocarbonSaturation,
         errors,
         "oilHydrocarbonSaturation",
@@ -90,10 +93,11 @@ public class OilCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "Select oil recovery factor distribution used");
 
     var gasRecoveryFactor = oilCaseVolumetricsForm.getOilRecoveryFactor();
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         gasRecoveryFactor,
         errors,
         "oilRecoveryFactor",
-        "Oil recovery factor distribution used");
+        "Oil recovery factor distribution used"
+    );
   }
 }
