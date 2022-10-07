@@ -38,11 +38,10 @@ public class SubmissionSupportingDocumentsController {
   @PostMapping("upload/{supportingDocumentType}")
   @ResponseBody
   public FileUploadResult upload(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                 @PathVariable("supportingDocumentType") String supportingDocumentType,
+                                 @PathVariable("supportingDocumentType") SupportingDocumentType supportingDocumentType,
                                  @RequestParam("file") MultipartFile multipartFile) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    return supportingDocumentService.processFileUpload(
-        submissionDetail, SupportingDocumentType.valueOf(supportingDocumentType), multipartFile);
+    return supportingDocumentService.processFileUpload(submissionDetail, supportingDocumentType, multipartFile);
   }
 
   @GetMapping("download/{uploadedFileId}")
