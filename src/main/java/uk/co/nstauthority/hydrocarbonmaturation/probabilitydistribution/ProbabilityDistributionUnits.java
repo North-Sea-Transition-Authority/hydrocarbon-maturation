@@ -9,7 +9,11 @@ public enum ProbabilityDistributionUnits {
   SCF_RCF("scf/rcf"),
   STB_MCF("stb/mcf"),
   RB_STB("rb/stb"),
-  SCF_STB("scf/stb");
+  SCF_STB("scf/stb"),
+  MMSTB("mmstb"),
+  MMBOE("mmboe"),
+  BCF("bcf"),
+  ;
 
   private final String unitDisplay;
 

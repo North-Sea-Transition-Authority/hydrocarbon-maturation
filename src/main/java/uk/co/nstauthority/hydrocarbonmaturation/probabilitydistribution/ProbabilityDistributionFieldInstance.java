@@ -83,15 +83,15 @@ public enum ProbabilityDistributionFieldInstance {
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityDistributionUnits.KM2
   ),
-  OIL_IN_PLACE(OilInPlaceBehaviour.class, "mmstb"),
-  OIL_RECOVERABLE_RESOURCES(OilRecoverableResourcesBehaviour.class, "mmstb"),
-  ASSOCIATED_GAS_RECOVERABLE_RESOURCES(AssociatedGasRecoverableResourcesBehaviour.class, "bcf"),
-  OIL_EQUIVALENT_RECOVERABLE_RESOURCES(OilEquivalentRecoverableResourcesBehaviour.class, "mmboe"),
+  OIL_IN_PLACE(OilInPlaceBehaviour.class, ProbabilityDistributionUnits.MMSTB),
+  OIL_RECOVERABLE_RESOURCES(OilRecoverableResourcesBehaviour.class, ProbabilityDistributionUnits.MMSTB),
+  ASSOCIATED_GAS_RECOVERABLE_RESOURCES(AssociatedGasRecoverableResourcesBehaviour.class, ProbabilityDistributionUnits.BCF),
+  OIL_EQUIVALENT_RECOVERABLE_RESOURCES(OilEquivalentRecoverableResourcesBehaviour.class, ProbabilityDistributionUnits.MMBOE),
   ;
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
   private final List<ProbabilityDistributionType> presetTypes;
 
-  private ProbabilityDistributionUnits units;
+  private final ProbabilityDistributionUnits units;
 
   private final Type type;
 
@@ -108,7 +108,8 @@ public enum ProbabilityDistributionFieldInstance {
     type = Type.PRESET_LIST;
   }
 
-  ProbabilityDistributionFieldInstance(Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour) {
+  ProbabilityDistributionFieldInstance(Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour,
+                                       ProbabilityDistributionUnits units) {
     this.customBehaviour = customBehaviour;
     this.units = units;
 
