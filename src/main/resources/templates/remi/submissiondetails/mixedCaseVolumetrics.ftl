@@ -45,19 +45,26 @@
       error=oilHydrocarbonSaturationError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionTypePath="form.gasHydrocarbonSaturation.probabilityDistributionType"
-      labelText="Gas hydrocarbon saturation distribution used"
-      formId="gasHydrocarbonSaturation"
-      template=gasHydrocarbonSaturationTemplate
-      error=gasHydrocarbonSaturationError/>
-
-    <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.associatedGasOilRatioLifeOfField.probabilityDistributionType"
       labelText="Associated gas-oil ratio, life-of-field distribution used"
       formId="associatedGasOilRatioLifeOfField"
       template=associatedGasOilRatioLifeOfFieldTemplate
       error=associatedGasOilRatioLifeOfFieldError
       optionalLabel=true/>
+
+    <@probabilityDistribution.probabilityDistributionTemplate
+      probabilityDistributionTypePath="form.oilRecoveryFactor.probabilityDistributionType"
+      labelText="Oil recovery factor distribution used"
+      formId="oilRecoveryFactor"
+      template=oilRecoveryFactorTemplate
+      error=oilRecoveryFactorError/>
+
+    <@probabilityDistribution.probabilityDistributionTemplate
+      probabilityDistributionTypePath="form.gasHydrocarbonSaturation.probabilityDistributionType"
+      labelText="Gas hydrocarbon saturation distribution used"
+      formId="gasHydrocarbonSaturation"
+      template=gasHydrocarbonSaturationTemplate
+      error=gasHydrocarbonSaturationError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.gasExpansionFactor.probabilityDistributionType"
@@ -80,13 +87,6 @@
       formId="gasRecoveryFactor"
       template=gasRecoveryFactorTemplate
       error=gasRecoveryFactorError/>
-
-    <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionTypePath="form.oilRecoveryFactor.probabilityDistributionType"
-      labelText="Oil recovery factor distribution used"
-      formId="oilRecoveryFactor"
-      template=oilRecoveryFactorTemplate
-      error=oilRecoveryFactorError/>
 
     <@fdsAction.submitButtons primaryButtonText="Save and complete" secondaryButtonText="Save and complete later"/>
   </@fdsForm.htmlForm>

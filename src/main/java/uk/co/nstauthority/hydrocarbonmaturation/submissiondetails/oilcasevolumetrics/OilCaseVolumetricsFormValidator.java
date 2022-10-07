@@ -74,7 +74,7 @@ public class OilCaseVolumetricsFormValidator extends PartialFullFormValidator {
         oilHydrocarbonSaturation,
         errors,
         "oilHydrocarbonSaturation",
-        "Gas hydrocarbon saturation distribution used"
+        "Oil hydrocarbon saturation distribution used"
     );
 
     var associatedGasOilRatioLifeOfField = oilCaseVolumetricsForm.getAssociatedGasOilRatioLifeOfField();

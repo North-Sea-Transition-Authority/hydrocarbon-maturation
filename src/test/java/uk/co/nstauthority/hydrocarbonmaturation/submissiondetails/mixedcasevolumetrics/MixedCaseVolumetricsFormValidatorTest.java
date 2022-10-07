@@ -65,12 +65,12 @@ class MixedCaseVolumetricsFormValidatorTest {
                 Set.of("formationVolumeFactor.probabilityDistributionType.required")),
             entry("oilHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("oilHydrocarbonSaturation.probabilityDistributionType.required")),
+            entry("oilRecoveryFactor.probabilityDistributionType",
+                Set.of("oilRecoveryFactor.probabilityDistributionType.required")),
             entry("gasHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("gasHydrocarbonSaturation.probabilityDistributionType.required")),
             entry("gasExpansionFactor.probabilityDistributionType",
                 Set.of("gasExpansionFactor.probabilityDistributionType.required")),
-            entry("oilRecoveryFactor.probabilityDistributionType",
-                Set.of("oilRecoveryFactor.probabilityDistributionType.required")),
             entry("gasRecoveryFactor.probabilityDistributionType",
                 Set.of("gasRecoveryFactor.probabilityDistributionType.required"))
         );
