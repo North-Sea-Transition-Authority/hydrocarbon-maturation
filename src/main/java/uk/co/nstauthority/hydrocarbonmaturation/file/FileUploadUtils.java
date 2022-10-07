@@ -26,7 +26,8 @@ public class FileUploadUtils {
     return Math.max(fileSize, 1) + byteUnits[i];
   }
 
-  public static ResponseEntity<InputStreamResource> getFileResourceResponseEntity(UploadedFile uploadedFile, InputStreamResource inputStreamResource) {
+  public static ResponseEntity<InputStreamResource> getFileResourceResponseEntity(UploadedFile uploadedFile,
+                                                                                  InputStreamResource inputStreamResource) {
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .contentLength(uploadedFile.getFileSizeBytes())
