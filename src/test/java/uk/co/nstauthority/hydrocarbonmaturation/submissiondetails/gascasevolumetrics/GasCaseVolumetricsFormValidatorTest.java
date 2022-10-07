@@ -65,8 +65,6 @@ class GasCaseVolumetricsFormValidatorTest {
                 Set.of("gasHydrocarbonSaturation.probabilityDistributionType.required")),
             entry("gasExpansionFactor.probabilityDistributionType",
                 Set.of("gasExpansionFactor.probabilityDistributionType.required")),
-            entry("condensateGasRatioLifeOfField.probabilityDistributionType",
-                Set.of("condensateGasRatioLifeOfField.probabilityDistributionType.required")),
             entry("gasRecoveryFactor.probabilityDistributionType",
                 Set.of("gasRecoveryFactor.probabilityDistributionType.required"))
         );

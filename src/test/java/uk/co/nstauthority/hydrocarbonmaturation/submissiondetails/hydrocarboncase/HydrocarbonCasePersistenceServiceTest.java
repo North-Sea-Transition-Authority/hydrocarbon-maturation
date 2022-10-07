@@ -109,6 +109,28 @@ class HydrocarbonCasePersistenceServiceTest {
   }
 
   @Test
+  void isMixedPresent_whenGasAndOil_isTrue() {
+    hydrocarbonCase.setOilAndGas(true);
+    hydrocarbonCase.setOilAndGasProbability(BigDecimal.valueOf(25.5));
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+    assertTrue(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail));
+  }
+
+  @Test
+  void isMixedPresent_whenOilOnlyAndGasOnly_isFalse() {
+    hydrocarbonCase.setOilOnly(true);
+    hydrocarbonCase.setGasOnly(true);
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+    assertFalse(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail));
+  }
+
+  @Test
+  void isMixedPresent_whenNothing_isFalse() {
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+    assertFalse(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail));
+  }
+
+  @Test
   void isOilOnlyPresent_whenGasOnly_isTrue() {
     hydrocarbonCase.setOilOnly(true);
     hydrocarbonCase.setOilOnlyProbability(BigDecimal.valueOf(25.5));
