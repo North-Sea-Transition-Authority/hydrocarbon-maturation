@@ -114,10 +114,7 @@ public enum ProbabilityDistributionFieldInstance {
   PRODUCTIVE_AREA(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.KM2
-  ),
-
-  //TODO remove example custom enum value
-  DEPTH_TO_CREST_FIELD_SUBMISSION(CustomBehaviour.class),
+  )
   ;
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
   private List<ProbabilityDistributionType> presetTypes;
