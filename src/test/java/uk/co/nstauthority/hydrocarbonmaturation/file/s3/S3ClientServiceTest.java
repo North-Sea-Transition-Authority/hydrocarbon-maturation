@@ -69,9 +69,12 @@ class S3ClientServiceTest {
 
   @Test
   void storeFile_VerifyInteractions() {
+    when(amazonS3Mock.doesBucketExistV2(BUCKET_NAME)).thenReturn(true);
     var inputStream = mock(InputStream.class);
     ObjectMetadata objectMetadata = mock(ObjectMetadata.class);
+
     s3ClientService.storeFile(BUCKET_NAME, s3Key, inputStream, objectMetadata);
+
     verify(amazonS3Mock).putObject(BUCKET_NAME, s3Key, inputStream, objectMetadata);
   }
 
