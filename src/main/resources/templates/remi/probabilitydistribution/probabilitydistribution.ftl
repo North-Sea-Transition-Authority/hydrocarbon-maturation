@@ -99,7 +99,6 @@
 
 <#macro probabilityDistributionSingle
     probabilityDistributionTypePath
-    probabilityDistributionFieldInstancePath
     formId
     error
     inputs
@@ -129,7 +128,7 @@
 
 
 <#macro probabilityDistributionTemplate
-    probabilityDistributionPath
+    probabilityDistributionTypePath
     labelText
     formId
     template
@@ -141,9 +140,6 @@
         <#assign radioGroupLabelText = "${labelText}">
     </#if>
 
-    <#assign probabilityDistributionTypePath=probabilityDistributionPath+".probabilityDistributionType">
-    <#assign probabilityDistributionFieldInstancePath=probabilityDistributionPath+".probabilityDistributionFieldInstance">
-    <@springFtl.formHiddenInput path=probabilityDistributionFieldInstancePath/>
     <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=radioGroupLabelText hiddenContent=true>
         <#assign firstItem=true/>
         <#list template.probabilityDistributionTypeWithInputsList as inputs>
@@ -153,7 +149,6 @@
                 isFirstItem=firstItem>
                 <@probabilityDistributionSingle
                     probabilityDistributionTypePath=probabilityDistributionTypePath
-                    probabilityDistributionFieldInstancePath=probabilityDistributionFieldInstancePath
                     formId=formId
                     labelText="Probability of exceedance (${template.units})"
                     error=error
@@ -167,19 +162,16 @@
 
 
 <#macro probabilityDistributionCustomTemplate
-    probabilityDistributionPath
+    probabilityDistributionTypePath
     labelText
     formId
     template
     error>
 
-    <#assign probabilityDistributionTypePath=probabilityDistributionPath+".probabilityDistributionType">
-    <#assign probabilityDistributionFieldInstancePath=probabilityDistributionPath+".probabilityDistributionFieldInstance">
+    <#assign probabilityDistributionTypePath=probabilityDistributionTypePath>
     <@springFtl.formHiddenInput path=probabilityDistributionTypePath/>
-    <@springFtl.formHiddenInput path=probabilityDistributionFieldInstancePath/>
     <@probabilityDistributionSingle
         probabilityDistributionTypePath=probabilityDistributionTypePath
-        probabilityDistributionFieldInstancePath=probabilityDistributionFieldInstancePath
         formId=formId
         labelText=labelText+" (${template.units})"
         error=error

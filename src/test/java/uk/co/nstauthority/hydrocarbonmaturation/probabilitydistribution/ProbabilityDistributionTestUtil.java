@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalInputTestUtil;
@@ -12,13 +13,15 @@ public class ProbabilityDistributionTestUtil {
   ) {
     var probabilityDistributionForm = new ProbabilityDistributionForm();
 
-    ProbabilityDistributionFieldInstance instance = probabilityDistributionType.equals(ProbabilityDistributionType.CUSTOM)
+    var instance = Objects.equals(probabilityDistributionType, ProbabilityDistributionType.CUSTOM)
         ? ProbabilityDistributionFieldInstance.OIL_IN_PLACE
         : ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY;
-    probabilityDistributionForm.setProbabilityDistributionFieldInstance(instance);
 
     probabilityDistributionForm.setProbabilityDistributionType(probabilityDistributionType);
-    var probabilityOfExceedanceForm = getValidProbabilityOfExceedanceForm(instance, probabilityDistributionType);
+    var behaviour = ProbabilityDistributionTypeBehaviourUtil.getBehaviour(instance,
+        probabilityDistributionType);
+    var probabilityOfExceedanceForm = getValidProbabilityOfExceedanceForm(behaviour);
+
 
     if (probabilityDistributionType.equals(ProbabilityDistributionType.NORMAL)) {
       probabilityDistributionForm.setNormal(probabilityOfExceedanceForm);
@@ -161,11 +164,9 @@ public class ProbabilityDistributionTestUtil {
     return probabilityDistribution;
   }
 
-  private static ProbabilityOfExceedanceForm getValidProbabilityOfExceedanceForm(
-      ProbabilityDistributionFieldInstance instance, ProbabilityDistributionType probabilityDistributionType
+  private static ProbabilityOfExceedanceForm getValidProbabilityOfExceedanceForm(ProbabilityDistributionTypeBehaviour behaviour
   ) {
     var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
-    var behaviour = ProbabilityDistributionTypeBehaviourUtil.getBehaviour(instance, probabilityDistributionType);
     if (behaviour.isMinAvailable()) {
       probabilityOfExceedanceForm.setMin(DecimalInputTestUtil.getDecimalInput(1));
     }

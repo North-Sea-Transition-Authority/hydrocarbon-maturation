@@ -35,11 +35,11 @@ public class ProbabilityDistributionFormService {
   private ProbabilityDistributionForm createProbabilityDistributionForm(ProbabilityDistributionFieldInstance instance,
                                                                         ProbabilityDistributionType distributionType) {
     var form = new ProbabilityDistributionForm();
-    form.setProbabilityDistributionFieldInstance(instance);
-    form.setProbabilityDistributionType(distributionType);
 
     if (instance.isCustomType()) {
       form.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
+    } else {
+      form.setProbabilityDistributionType(distributionType);
     }
 
     return form;

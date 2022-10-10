@@ -28,15 +28,6 @@ public class ProbabilityDistributionForm {
     this.probabilityDistributionType = probabilityDistributionType;
   }
 
-  public ProbabilityDistributionFieldInstance getProbabilityDistributionFieldInstance() {
-    return probabilityDistributionFieldInstance;
-  }
-
-  public void setProbabilityDistributionFieldInstance(
-      ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance) {
-    this.probabilityDistributionFieldInstance = probabilityDistributionFieldInstance;
-  }
-
   public ProbabilityOfExceedanceForm getNormal() {
     return normal;
   }
