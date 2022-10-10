@@ -79,7 +79,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest
   @Test
   void download_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(fileUploadService.findUploadedFileOrThrow(uploadedFile.getId())).thenReturn(uploadedFile);
+    when(supportingDocumentService.findUploadedFileOrThrow(submissionDetail, uploadedFile.getId())).thenReturn(uploadedFile);
     var fileResource = new ClassPathResource("banner.txt");
     when(fileUploadService.downloadFile(uploadedFile)).thenReturn(fileResource.getInputStream());
 
