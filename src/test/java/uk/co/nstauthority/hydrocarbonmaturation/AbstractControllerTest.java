@@ -12,11 +12,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnicalSupportConfigurationProperties;
 
 @WebMvcTest
 @Import(value = {WebMvcConfiguration.class, AbstractControllerTest.TestConfig.class})
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
+@IncludeTechnicalSupportConfigurationProperties
 @WithDefaultPageControllerAdvice
 public abstract class AbstractControllerTest {
 

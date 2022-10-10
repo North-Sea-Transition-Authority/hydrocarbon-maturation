@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -20,12 +21,15 @@ public class DefaultPageControllerAdvice {
 
   private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
   private final TopNavigationService topNavigationService;
+  private final TechnicalSupportConfiguration technicalSupportConfiguration;
 
   @Autowired
   DefaultPageControllerAdvice(ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties,
-                              TopNavigationService topNavigationService) {
+                              TopNavigationService topNavigationService,
+                              TechnicalSupportConfiguration technicalSupportConfiguration) {
     this.serviceBrandingConfigurationProperties = serviceBrandingConfigurationProperties;
     this.topNavigationService = topNavigationService;
+    this.technicalSupportConfiguration = technicalSupportConfiguration;
   }
 
   @ModelAttribute
@@ -34,6 +38,7 @@ public class DefaultPageControllerAdvice {
     addCommonUrls(model);
     addTopNavigationItems(model, request);
     addSubmitButtonText(model);
+    addTechnicalSupportContactInfo(model);
   }
 
   @InitBinder
@@ -65,5 +70,9 @@ public class DefaultPageControllerAdvice {
   private void addSubmitButtonText(Model model) {
     model.addAttribute("submitPrimaryButtonText", ValidationType.FULL.getButtonText());
     model.addAttribute("submitSecondaryButtonText", ValidationType.PARTIAL.getButtonText());
+  }
+
+  private void addTechnicalSupportContactInfo(Model model) {
+    model.addAttribute("technicalSupport", technicalSupportConfiguration.getTechnicalSupportConfigurationProperties());
   }
 }
