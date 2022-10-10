@@ -11,5 +11,5 @@ interface SupportingDocumentRepository extends CrudRepository<SupportingDocument
   List<SupportingDocument> findAllBySubmissionDetailAndSupportingDocumentType(
       SubmissionDetail submissionDetail, SupportingDocumentType supportingDocumentType);
 
-  void deleteByUploadedFile(UploadedFile uploadedFile);
+  SupportingDocument findBySubmissionDetailAndUploadedFile(SubmissionDetail submissionDetail, UploadedFile uploadedFile);
 }

@@ -111,6 +111,6 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(supportingDocumentService, times(1)).deleteFile(uploadedFile.getId());
+    verify(supportingDocumentService, times(1)).deleteFile(submissionDetail, uploadedFile.getId());
   }
 }

@@ -49,7 +49,7 @@ public class SubmissionSupportingDocumentsController {
   public ResponseEntity<InputStreamResource> download(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                       @PathVariable("uploadedFileId") UUID uploadedFileId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
+    var uploadedFile = supportingDocumentService.findUploadedFileOrThrow(submissionDetail, uploadedFileId);
     var inputStream = fileUploadService.downloadFile(uploadedFile);
     return FileUploadUtils.getFileResourceResponseEntity(uploadedFile, new InputStreamResource(inputStream));
   }
@@ -59,6 +59,6 @@ public class SubmissionSupportingDocumentsController {
   public FileDeleteResult delete(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                  @PathVariable("uploadedFileId") UUID uploadedFileId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    return supportingDocumentService.deleteFile(uploadedFileId);
+    return supportingDocumentService.deleteFile(submissionDetail, uploadedFileId);
   }
 }

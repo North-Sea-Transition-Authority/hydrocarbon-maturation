@@ -9,7 +9,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import uk.co.nstauthority.hydrocarbonmaturation.file.DeleteOutcome;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDeleteResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadResult;
@@ -87,10 +86,12 @@ public class SupportingDocumentService {
   }
 
   @Transactional
-  public FileDeleteResult deleteFile(UUID uploadedFileId) {
+  public FileDeleteResult deleteFile(SubmissionDetail submissionDetail, UUID uploadedFileId) {
     var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
-    supportingDocumentRepository.deleteByUploadedFile(uploadedFile);
-    DeleteOutcome deleteOutcome = fileUploadService.deleteFile(uploadedFile);
+    var supportingDocument =
+        supportingDocumentRepository.findBySubmissionDetailAndUploadedFile(submissionDetail, uploadedFile);
+    supportingDocumentRepository.delete(supportingDocument);
+    var deleteOutcome = fileUploadService.deleteFile(uploadedFile);
     return switch (deleteOutcome) {
       case INTERNAL_SERVER_ERROR -> FileDeleteResult.error(uploadedFile.getId().toString());
       case SUCCESS -> FileDeleteResult.success(uploadedFile.getId().toString());
@@ -101,8 +102,8 @@ public class SupportingDocumentService {
   public void updateSupportingDocumentDescriptions(List<FileUploadDetail> fileUploadDetailList) {
     fileUploadDetailList
         .forEach(fileUploadDetail -> {
-          UUID uploadedFileId = UUID.fromString(fileUploadDetail.getUploadedFileId());
-          UploadedFile uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
+          var uploadedFileId = UUID.fromString(fileUploadDetail.getUploadedFileId());
+          var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
           fileUploadService.updateFileDescription(uploadedFile, fileUploadDetail.getUploadedFileDescription());
         });
   }
@@ -123,5 +124,12 @@ public class SupportingDocumentService {
     fileUploadDetail.setUploadedFileDescription(uploadedFile.getDescription());
     fileUploadDetail.setUploadedFileInstant(uploadedFile.getUploadedTimeStamp());
     return fileUploadDetail;
+  }
+
+  UploadedFile findUploadedFileOrThrow(SubmissionDetail submissionDetail, UUID uploadedFileId) {
+    var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
+    var supportingDocument = supportingDocumentRepository.findBySubmissionDetailAndUploadedFile(
+        submissionDetail, uploadedFile);
+    return supportingDocument.getUploadedFile();
   }
 }

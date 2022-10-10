@@ -98,7 +98,7 @@ class SupportingDocumentServiceTest {
     when(fileUploadService.findUploadedFileOrThrow(uuid)).thenReturn(uploadedFile);
     when(fileUploadService.deleteFile(uploadedFile)).thenReturn(DeleteOutcome.SUCCESS);
 
-    var fileDeleteResult = supportingDocumentService.deleteFile(uuid);
+    var fileDeleteResult = supportingDocumentService.deleteFile(submissionDetail, uuid);
 
     assertThat(fileDeleteResult.isValid()).isTrue();
   }
@@ -109,7 +109,7 @@ class SupportingDocumentServiceTest {
     when(fileUploadService.findUploadedFileOrThrow(uuid)).thenReturn(uploadedFile);
     when(fileUploadService.deleteFile(uploadedFile)).thenReturn(DeleteOutcome.INTERNAL_SERVER_ERROR);
 
-    var fileDeleteResult = supportingDocumentService.deleteFile(uuid);
+    var fileDeleteResult = supportingDocumentService.deleteFile(submissionDetail, uuid);
 
     assertThat(fileDeleteResult.isValid()).isFalse();
   }
