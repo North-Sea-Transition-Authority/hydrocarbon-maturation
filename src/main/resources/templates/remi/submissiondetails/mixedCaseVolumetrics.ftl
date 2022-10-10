@@ -31,21 +31,21 @@
   <@fdsForm.htmlForm>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.formationVolumeFactor"
+      probabilityDistributionTypePath="form.formationVolumeFactor.probabilityDistributionType"
       labelText="Formation volume factor distribution used"
       formId="formationVolumeFactor"
       template=formationVolumeFactorTemplate
       error=formationVolumeFactorError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.oilHydrocarbonSaturation"
+      probabilityDistributionTypePath="form.oilHydrocarbonSaturation.probabilityDistributionType"
       labelText="Oil hydrocarbon saturation distribution used"
       formId="oilHydrocarbonSaturation"
       template=oilHydrocarbonSaturationTemplate
       error=oilHydrocarbonSaturationError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.associatedGasOilRatioLifeOfField"
+      probabilityDistributionTypePath="form.associatedGasOilRatioLifeOfField.probabilityDistributionType"
       labelText="Associated gas-oil ratio, life-of-field distribution used"
       formId="associatedGasOilRatioLifeOfField"
       template=associatedGasOilRatioLifeOfFieldTemplate
@@ -53,28 +53,28 @@
       optionalLabel=true/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.oilRecoveryFactor"
+      probabilityDistributionTypePath="form.oilRecoveryFactor.probabilityDistributionType"
       labelText="Oil recovery factor distribution used"
       formId="oilRecoveryFactor"
       template=oilRecoveryFactorTemplate
       error=oilRecoveryFactorError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.gasHydrocarbonSaturation"
+      probabilityDistributionTypePath="form.gasHydrocarbonSaturation.probabilityDistributionType"
       labelText="Gas hydrocarbon saturation distribution used"
       formId="gasHydrocarbonSaturation"
       template=gasHydrocarbonSaturationTemplate
       error=gasHydrocarbonSaturationError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.gasExpansionFactor"
+      probabilityDistributionTypePath="form.gasExpansionFactor.probabilityDistributionType"
       labelText="Gas expansion factor distribution used"
       formId="gasExpansionFactor"
       template=gasExpansionFactorTemplate
       error=gasExpansionFactorError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.condensateGasRatioLifeOfField"
+      probabilityDistributionTypePath="form.condensateGasRatioLifeOfField.probabilityDistributionType"
       labelText="Condensate-gas ratio, life-of-field distribution used"
       formId="condensateGasRatioLifeOfField"
       template=condensateGasRatioLifeOfFieldTemplate
@@ -82,7 +82,7 @@
       optionalLabel=true/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.gasRecoveryFactor"
+      probabilityDistributionTypePath="form.gasRecoveryFactor.probabilityDistributionType"
       labelText="Gas recovery factor distribution used"
       formId="gasRecoveryFactor"
       template=gasRecoveryFactorTemplate

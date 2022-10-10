@@ -22,34 +22,7 @@ public class ProbabilityDistributionTestUtil {
         probabilityDistributionType);
     var probabilityOfExceedanceForm = getValidProbabilityOfExceedanceForm(behaviour);
 
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.NORMAL)) {
-      probabilityDistributionForm.setNormal(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.LOGNORMAL)) {
-      probabilityDistributionForm.setLognormal(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.BETA)) {
-      probabilityDistributionForm.setBeta(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.TRIANGULAR)) {
-      probabilityDistributionForm.setTriangular(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.RECTANGULAR)) {
-      probabilityDistributionForm.setRectangular(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.CONSTANT)) {
-      probabilityDistributionForm.setConstant(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.CUSTOM)) {
-      probabilityDistributionForm.setCustom(probabilityOfExceedanceForm);
-    }
+    probabilityDistributionForm.setProbabilityOfExceedanceForm(probabilityOfExceedanceForm);
 
     return probabilityDistributionForm;
   }

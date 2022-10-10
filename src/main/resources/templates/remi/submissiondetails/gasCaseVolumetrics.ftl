@@ -23,21 +23,21 @@
   <@fdsForm.htmlForm>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.gasHydrocarbonSaturation"
+      probabilityDistributionTypePath="form.gasHydrocarbonSaturation.probabilityDistributionType"
       labelText="Gas hydrocarbon saturation distribution used"
       formId="gasHydrocarbonSaturation"
       template=gasHydrocarbonSaturationTemplate
       error=gasHydrocarbonSaturationError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.gasExpansionFactor"
+      probabilityDistributionTypePath="form.gasExpansionFactor.probabilityDistributionType"
       labelText="Gas expansion factor distribution used"
       formId="gasExpansionFactor"
       template=gasExpansionFactorTemplate
       error=gasExpansionFactorError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.condensateGasRatioLifeOfField"
+      probabilityDistributionTypePath="form.condensateGasRatioLifeOfField.probabilityDistributionType"
       labelText="Condensate-gas ratio, life-of-field distribution used"
       formId="condensateGasRatioLifeOfField"
       template=condensateGasRatioLifeOfFieldTemplate
@@ -45,7 +45,7 @@
       optionalLabel=true/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.gasRecoveryFactor"
+      probabilityDistributionTypePath="form.gasRecoveryFactor.probabilityDistributionType"
       labelText="Gas recovery factor distribution used"
       formId="gasRecoveryFactor"
       template=gasRecoveryFactorTemplate
