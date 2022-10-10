@@ -33,7 +33,7 @@ public class FileUploadUtils {
         .contentLength(uploadedFile.getFileSizeBytes())
         .header(
             HttpHeaders.CONTENT_DISPOSITION,
-            String.format("attachment; filename=\"%s\"", uploadedFile.getFilename())
+            "attachment; filename=\"%s\"".formatted(uploadedFile.getFilename())
         )
         .body(inputStreamResource);
   }
