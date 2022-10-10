@@ -13,6 +13,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.numberinput.IntegerInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
@@ -108,8 +110,30 @@ class OilCaseOutputsFormValidatorTest {
             entry("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error"))
+                Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("riskedOilEquivalentRecoverableMean", Set.of("riskedOilEquivalentRecoverableMean.required"))
         );
+  }
+
+  @Test
+  void validate_whenInValidForm_noRiskedOilEquivalentRecoverableMean_thenValidationErrors() {
+    var form = getValidForm();
+    form.setRiskedOilEquivalentRecoverableMean(null);
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOilCaseOutputsForm_fullValidation(form));
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("riskedOilEquivalentRecoverableMean", Set.of("riskedOilEquivalentRecoverableMean.required"))
+        );
+  }
+
+  private BindingResult validateOilCaseOutputsForm_fullValidation(OilCaseOutputsForm form) {
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    oilCaseOutputsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+
+    return bindingResult;
   }
 
   private OilCaseOutputsForm getFormWithInvalidDistributions(
@@ -148,6 +172,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probDistributionForm);
     form.setOilEquivalentRecoverableResources(probDistributionForm);
     form.setOilRecoverableResources(probDistributionForm);
+    form.setRiskedOilEquivalentRecoverableMean(new IntegerInput("1"));
     return form;
   }
 

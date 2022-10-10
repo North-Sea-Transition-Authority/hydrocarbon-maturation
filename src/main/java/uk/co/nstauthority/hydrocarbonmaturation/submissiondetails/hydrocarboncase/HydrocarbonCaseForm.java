@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase;
 
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.numberinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 class HydrocarbonCaseForm implements SubmissionForm {

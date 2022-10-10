@@ -5,7 +5,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.numberinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 

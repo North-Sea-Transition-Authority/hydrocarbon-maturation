@@ -7,6 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedExcept
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.IntegerInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -115,5 +116,10 @@ public class OilCaseOutputsFormValidator implements SmartValidator, SubmissionFo
         "Oil equivalent recoverable resources",
         ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES
     );
+
+    IntegerInputValidator.configureValidator(errors, "riskedOilEquivalentRecoverableMean.integerInputValue",
+        "The risked oil equivalent recoverable mean", oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean())
+        .validate();
   }
+
 }

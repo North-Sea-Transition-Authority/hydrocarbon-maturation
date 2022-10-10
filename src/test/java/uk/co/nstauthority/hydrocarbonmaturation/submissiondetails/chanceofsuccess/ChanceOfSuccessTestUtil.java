@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess;
 
 import java.math.BigDecimal;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.numberinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 class ChanceOfSuccessTestUtil {

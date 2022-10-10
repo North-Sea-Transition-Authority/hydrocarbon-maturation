@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.validationutil;
 
 import java.math.BigDecimal;
 import org.springframework.validation.Errors;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.numberinput.DecimalInput;
 
 public class PercentageValidationUtils {
 

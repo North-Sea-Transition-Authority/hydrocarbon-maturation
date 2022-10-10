@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,15 +11,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 @Service
 public class OilCaseOutputsPersistenceService {
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+  private final OilCaseOutputsRepository oilCaseOutputsRepository;
 
   @Autowired
   public OilCaseOutputsPersistenceService(
-      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
+      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
+      OilCaseOutputsRepository oilCaseOutputsRepository) {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
+    this.oilCaseOutputsRepository = oilCaseOutputsRepository;
   }
 
   @Transactional
   public void saveOilCaseOutputs(OilCaseOutputsForm oilCaseOutputsForm, SubmissionDetail submissionDetail) {
+    saveProbabilityDistributionFields(oilCaseOutputsForm, submissionDetail);
+
+    var oilCaseOutput = getOilCaseOutput(submissionDetail).orElseGet(OilCaseOutput::new);
+
+    oilCaseOutput.setSubmissionDetail(submissionDetail);
+    var mean = oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().createBigIntegerOrNull();
+    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(mean);
+
+    oilCaseOutputsRepository.save(oilCaseOutput);
+  }
+
+  private void saveProbabilityDistributionFields(OilCaseOutputsForm oilCaseOutputsForm, SubmissionDetail submissionDetail) {
     if (oilCaseOutputsForm.getOilInPlace().getProbabilityDistributionType() != null) {
       var oilInPlace = ProbabilityDistributionFieldInstance.OIL_IN_PLACE;
       probabilityDistributionPersistenceService.saveProbabilityDistribution(
@@ -55,5 +71,9 @@ public class OilCaseOutputsPersistenceService {
           submissionDetail
       );
     }
+  }
+
+  public Optional<OilCaseOutput> getOilCaseOutput(SubmissionDetail submissionDetail) {
+    return oilCaseOutputsRepository.findBySubmissionDetail(submissionDetail);
   }
 }

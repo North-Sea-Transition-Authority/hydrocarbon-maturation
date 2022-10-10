@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutput
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.numberinput.IntegerInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -15,13 +16,16 @@ public class OilCaseOutputsFormService implements SubmissionFormService {
 
   private final OilCaseOutputsFormValidator oilCaseOutputsFormValidator;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
+  private final OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
 
   @Autowired
   public OilCaseOutputsFormService(
       OilCaseOutputsFormValidator oilCaseOutputsFormValidator,
-      ProbabilityDistributionFormService probabilityDistributionFormService) {
+      ProbabilityDistributionFormService probabilityDistributionFormService,
+      OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService) {
     this.oilCaseOutputsFormValidator = oilCaseOutputsFormValidator;
     this.probabilityDistributionFormService = probabilityDistributionFormService;
+    this.oilCaseOutputsPersistenceService = oilCaseOutputsPersistenceService;
   }
 
   @Override
@@ -56,6 +60,11 @@ public class OilCaseOutputsFormService implements SubmissionFormService {
         submissionDetail,
         ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES
     ));
+
+    var riskedOilEquivalentRecoverableMean = oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail)
+        .map(OilCaseOutput::getRiskedOilEquivalentRecoverableMean)
+        .orElse(null);
+    form.setRiskedOilEquivalentRecoverableMean(IntegerInput.createNumberInput(riskedOilEquivalentRecoverableMean));
 
     return form;
   }

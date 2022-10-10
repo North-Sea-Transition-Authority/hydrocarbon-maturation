@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.numberinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalInputTestUtil;
 

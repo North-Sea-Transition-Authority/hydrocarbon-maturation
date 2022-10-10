@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.numberinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 
 public class CoordinateInputValidationUtil {

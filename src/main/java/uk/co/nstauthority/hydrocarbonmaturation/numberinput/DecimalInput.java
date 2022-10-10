@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.decimalinput;
+package uk.co.nstauthority.hydrocarbonmaturation.numberinput;
 
 import java.math.BigDecimal;
 import java.util.Optional;

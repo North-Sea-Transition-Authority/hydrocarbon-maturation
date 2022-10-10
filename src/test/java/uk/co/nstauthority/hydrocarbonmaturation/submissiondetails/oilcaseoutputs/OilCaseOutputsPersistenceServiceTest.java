@@ -20,13 +20,17 @@ class OilCaseOutputsPersistenceServiceTest {
   @Mock
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
+  @Mock
+  private OilCaseOutputsRepository oilCaseOutputsRepository;
+
   private OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
   @BeforeEach
   void setUp() {
-    oilCaseOutputsPersistenceService = new OilCaseOutputsPersistenceService(probabilityDistributionPersistenceService);
+    oilCaseOutputsPersistenceService = new OilCaseOutputsPersistenceService(probabilityDistributionPersistenceService,
+        oilCaseOutputsRepository);
   }
 
   @Test
