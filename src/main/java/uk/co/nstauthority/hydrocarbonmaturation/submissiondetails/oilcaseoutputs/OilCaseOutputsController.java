@@ -35,11 +35,11 @@ public class OilCaseOutputsController {
 
   @Autowired
   public OilCaseOutputsController(SubmissionDetailService submissionDetailService,
-                                      ControllerHelperService controllerHelperService,
-                                      SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
-                                      ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
-                                      OilCaseOutputsFormService oilCaseOutputsFormService,
-                                      OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService) {
+                                  ControllerHelperService controllerHelperService,
+                                  SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
+                                  ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
+                                  OilCaseOutputsFormService oilCaseOutputsFormService,
+                                  OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
     this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
@@ -50,7 +50,7 @@ public class OilCaseOutputsController {
 
   @GetMapping
   public ModelAndView getOilCaseOutputs(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                            @ModelAttribute("form") OilCaseOutputsForm form) {
+                                        @ModelAttribute("form") OilCaseOutputsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getOilCaseOutputsModelAndView(
         oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail), submissionDetailId);
@@ -58,9 +58,9 @@ public class OilCaseOutputsController {
 
   @PostMapping
   public ModelAndView saveOilCaseOutputs(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                             @Valid @ModelAttribute("form") OilCaseOutputsForm form,
-                                             BindingResult bindingResult,
-                                             ValidationType validationType) {
+                                         @Valid @ModelAttribute("form") OilCaseOutputsForm form,
+                                         BindingResult bindingResult,
+                                         ValidationType validationType) {
     bindingResult = oilCaseOutputsFormService.validate(form, bindingResult, validationType);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
@@ -73,8 +73,7 @@ public class OilCaseOutputsController {
     );
   }
 
-  private ModelAndView getOilCaseOutputsModelAndView(
-      OilCaseOutputsForm form, UUID submissionDetailId) {
+  private ModelAndView getOilCaseOutputsModelAndView(OilCaseOutputsForm form, UUID submissionDetailId) {
     var modelAndView = new ModelAndView("remi/submissiondetails/oilCaseOutputs")
         .addObject("form", form)
         .addObject("oilInPlaceTemplate",
@@ -98,8 +97,8 @@ public class OilCaseOutputsController {
   }
 
   private ModelAndView getOilOutputsModelAndViewWithErrors(BindingResult bindingResult,
-                                                               OilCaseOutputsForm form,
-                                                               UUID submissionDetailId) {
+                                                           OilCaseOutputsForm form,
+                                                           UUID submissionDetailId) {
     var modelAndView = getOilCaseOutputsModelAndView(form, submissionDetailId);
 
     return modelAndView

@@ -24,28 +24,28 @@
   <@fdsForm.htmlForm>
     <@probabilityDistribution.probabilityDistributionCustomTemplate
       probabilityDistributionTypePath="form.oilInPlace.probabilityDistributionType"
-      labelText="Formation volume factor distribution used"
+      labelText="Oil in place"
       formId="oilInPlace"
       template=oilInPlaceTemplate
       error=oilInPlaceError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
     probabilityDistributionTypePath="form.oilRecoverableResources.probabilityDistributionType"
-      labelText="Oil hydrocarbon saturation distribution used"
+      labelText="Oil recoverable resources"
       formId="oilRecoverableResources"
       template=oilRecoverableResourcesTemplate
       error=oilRecoverableResourcesError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
     probabilityDistributionTypePath="form.associatedGasRecoverableResources.probabilityDistributionType"
-      labelText="Associated gas-oil ratio, life-of-field distribution used"
+      labelText="Associated gas recoverable resources"
       formId="associatedGasRecoverableResources"
       template=associatedGasRecoverableResourcesTemplate
       error=associatedGasRecoverableResourcesError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
     probabilityDistributionTypePath="form.oilEquivalentRecoverableResources.probabilityDistributionType"
-      labelText="Oil recovery factor distribution used"
+      labelText="Oil equivalent recoverable resources"
       formId="oilEquivalentRecoverableResources"
       template=oilEquivalentRecoverableResourcesTemplate
       error=oilEquivalentRecoverableResourcesError/>
