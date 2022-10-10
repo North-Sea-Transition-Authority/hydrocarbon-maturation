@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,6 +16,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Clock;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -32,6 +34,7 @@ class FileUploadServiceTest {
   private UploadedFileRepository uploadedFileRepository;
   private Clock clock;
   private FileUploadService fileUploadService;
+  private FileUploadConfig fileUploadConfig;
   private static MultipartFile multipartFile;
   private static final UploadedFile uploadedFile = FileTestUtil.createValidUploadedFile();
   private static final long fileSize = FileTestUtil.VALID_FILE_SIZE;
@@ -51,7 +54,7 @@ class FileUploadServiceTest {
     when(s3ClientService.getDefaultBucketName()).thenReturn(bucketName);
     uploadedFileRepository = mock(UploadedFileRepository.class);
     clock = mock(Clock.class);
-    var fileUploadConfig = FileTestUtil.validFileUploadConfig();
+    fileUploadConfig = FileTestUtil.validFileUploadConfig();
 
     fileUploadService =
         new FileUploadService(s3ClientService, uploadedFileRepository, fileUploadConfig, clock);
@@ -147,5 +150,63 @@ class FileUploadServiceTest {
   void downloadFile_VerifyInteractions() {
     fileUploadService.downloadFile(uploadedFile);
     verify(s3ClientService).fetchFile(uploadedFile.getBucketName(), uploadedFile.getS3Key());
+  }
+
+  @Test
+  void buildFileUploadTemplate() {
+    var downloadUrl = "download";
+    var uploadUrl = "upload";
+    var deleteUrl = "delete";
+
+    var fileUploadTemplate =
+        fileUploadService.buildFileUploadTemplate(downloadUrl, uploadUrl, deleteUrl);
+
+    assertThat(fileUploadTemplate)
+        .extracting(
+            FileUploadTemplate::downloadUrl,
+            FileUploadTemplate::uploadUrl,
+            FileUploadTemplate::deleteUrl,
+            FileUploadTemplate::maxAllowedSize,
+            FileUploadTemplate::allowedExtensions
+        )
+        .contains(
+            downloadUrl,
+            uploadUrl,
+            deleteUrl,
+            fileUploadConfig.maxAllowedSize().toString(),
+            fileUploadConfig.allowedExtensions()
+        );
+  }
+
+  @Test
+  void sanitiseFilename() {
+    String filename = "this%is%test.txt";
+
+    String sanitiseFilename = fileUploadService.sanitiseFilename(filename);
+
+    assertThat(sanitiseFilename).isEqualTo("this_is_test.txt");
+  }
+
+  @Test
+  void getFileUploadsByIdList_VerifyCalls() {
+    var uuid = UUID.randomUUID();
+    List<UUID> uuidList = List.of(uuid);
+
+    fileUploadService.getFileUploadsByIdList(uuidList);
+
+    verify(uploadedFileRepository, times(1)).findAllByIdIn(uuidList);
+  }
+
+  @Test
+  void updateFileDescription() {
+    UploadedFile file = new UploadedFile();
+    String uploadedFileDescription = "desc";
+
+    assertThat(file.getDescription()).isNull();
+
+    fileUploadService.updateFileDescription(file, uploadedFileDescription);
+
+    verify(uploadedFileRepository, times(1)).save(file);
+    assertThat(file.getDescription()).isEqualTo(uploadedFileDescription);
   }
 }
