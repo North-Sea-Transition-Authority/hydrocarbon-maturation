@@ -79,10 +79,10 @@ public class SupportingDocumentService {
 
   public FileUploadTemplate buildFileUploadTemplate(UUID submissionDetailId, SupportingDocumentType supportingDocumentType) {
     return fileUploadService.buildFileUploadTemplate(
-        ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).download(submissionDetailId)),
+        ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).download(submissionDetailId, null)),
         ReverseRouter.route(
             on(SubmissionSupportingDocumentsController.class).upload(submissionDetailId, supportingDocumentType, null)),
-        ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).delete(null))
+        ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).delete(submissionDetailId, null))
     );
   }
 
@@ -97,6 +97,7 @@ public class SupportingDocumentService {
     };
   }
 
+  @Transactional
   public void updateSupportingDocumentDescriptions(List<FileUploadDetail> fileUploadDetailList) {
     fileUploadDetailList
         .forEach(fileUploadDetail -> {
