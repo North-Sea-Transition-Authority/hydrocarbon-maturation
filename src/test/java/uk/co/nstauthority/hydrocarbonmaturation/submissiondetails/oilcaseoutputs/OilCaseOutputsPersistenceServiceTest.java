@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -69,5 +70,7 @@ class OilCaseOutputsPersistenceServiceTest {
             ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES,
             form.getOilEquivalentRecoverableResources(),
             submissionDetail);
+
+    verify(oilCaseOutputsRepository, times(1)).save(any(OilCaseOutput.class));
   }
 }
