@@ -5,6 +5,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigInteger;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +29,9 @@ class OilCaseOutputsFormServiceTest {
 
   @Mock
   private ProbabilityDistributionFormService probabilityDistributionFormService;
+
+  @Mock
+  private OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
 
   @InjectMocks
   private OilCaseOutputsFormService oilCaseOutputsFormService;
@@ -56,18 +61,22 @@ class OilCaseOutputsFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail, ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
         .thenReturn(new ProbabilityDistributionForm());
+    when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
+        .thenReturn(Optional.of(new OilCaseOutput()));
 
     assertThat(oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail))
         .extracting(
             form -> form.getOilInPlace().getProbabilityDistributionType(),
             form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType()
+            form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
+            oilCaseOutputsForm -> oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().asBigInteger()
         ).containsExactly(
             null,
             null,
             null,
-            null
+            null,
+            Optional.empty()
         );
   }
 
@@ -89,6 +98,11 @@ class OilCaseOutputsFormServiceTest {
         submissionDetail, ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
         .thenReturn(probabilityDistributionForm);
 
+    OilCaseOutput oilCaseOutput = new OilCaseOutput();
+    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigInteger.ONE);
+    when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
+        .thenReturn(Optional.of(oilCaseOutput));
+
     Assertions.assertThat(oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail))
         .extracting(
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
@@ -98,7 +112,9 @@ class OilCaseOutputsFormServiceTest {
             form -> form.getOilInPlace().getProbabilityDistributionType(),
             form -> form.getOilInPlace().getCustom().getConstant(),
             form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getAssociatedGasRecoverableResources().getCustom().getConstant())
+            form -> form.getAssociatedGasRecoverableResources().getCustom().getConstant(),
+            oilCaseOutputsForm -> oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().asBigInteger().get()
+        )
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
@@ -107,7 +123,8 @@ class OilCaseOutputsFormServiceTest {
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
             probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getCustom().getConstant()
+            probabilityDistributionForm.getCustom().getConstant(),
+            BigInteger.ONE
         );
   }
 }

@@ -55,7 +55,7 @@ class OilCaseOutputsFormValidatorTest {
 
   @Test
   void validate_whenInvalidForm_thenValidationErrors() {
-    var form = new OilCaseOutputsForm();
+    var form = getFormWithEmptyDistributions(ProbabilityDistributionType.CUSTOM);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     oilCaseOutputsFormValidator.validate(form, bindingResult, ValidationType.FULL);
 
@@ -111,20 +111,20 @@ class OilCaseOutputsFormValidatorTest {
                 Set.of("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("riskedOilEquivalentRecoverableMean", Set.of("riskedOilEquivalentRecoverableMean.required"))
+            entry("riskedOilEquivalentRecoverableMean.integerInputValue", Set.of("riskedOilEquivalentRecoverableMean.integerInputValue.notNumeric"))
         );
   }
 
   @Test
   void validate_whenInValidForm_noRiskedOilEquivalentRecoverableMean_thenValidationErrors() {
     var form = getValidForm();
-    form.setRiskedOilEquivalentRecoverableMean(null);
+    form.setRiskedOilEquivalentRecoverableMean(new IntegerInput(""));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateOilCaseOutputsForm_fullValidation(form));
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("riskedOilEquivalentRecoverableMean", Set.of("riskedOilEquivalentRecoverableMean.required"))
+            entry("riskedOilEquivalentRecoverableMean.integerInputValue", Set.of("riskedOilEquivalentRecoverableMean.integerInputValue.required"))
         );
   }
 
@@ -143,11 +143,13 @@ class OilCaseOutputsFormValidatorTest {
     var probabilityDistributionForm =
         ProbabilityDistributionTestUtil.getFormWithExceedance(
             probabilityDistributionType,
-            ProbabilityDistributionTestUtil.getInvalidProbabilityOfExceedanceForm());
+            ProbabilityDistributionTestUtil.getInvalidProbabilityOfExceedanceForm()
+        );
     form.setOilRecoverableResources(probabilityDistributionForm);
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
     form.setOilInPlace(probabilityDistributionForm);
+    form.setRiskedOilEquivalentRecoverableMean(new IntegerInput("abc"));
 
     return form;
   }
@@ -162,6 +164,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
     form.setOilInPlace(probabilityDistributionForm);
+    form.setRiskedOilEquivalentRecoverableMean(new IntegerInput(""));
     return form;
   }
 
