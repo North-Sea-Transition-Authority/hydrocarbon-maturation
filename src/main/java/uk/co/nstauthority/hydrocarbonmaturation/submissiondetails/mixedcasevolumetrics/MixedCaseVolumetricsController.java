@@ -1,0 +1,163 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics;
+
+import java.util.UUID;
+import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+
+@Controller
+@RequestMapping("/submission-details/{submissionDetailId}/mixed-case-volumetrics")
+public class MixedCaseVolumetricsController {
+
+  private final SubmissionDetailService submissionDetailService;
+  private final ControllerHelperService controllerHelperService;
+  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
+  private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
+  private final MixedCaseVolumetricsFormService mixedCaseVolumetricsFormService;
+  private final MixedCaseVolumetricsPersistenceService mixedCaseVolumetricsPersistenceService;
+
+  public static final String PAGE_NAME = "Mixed case volumetrics parameters";
+
+  @Autowired
+  public MixedCaseVolumetricsController(SubmissionDetailService submissionDetailService,
+                                      ControllerHelperService controllerHelperService,
+                                      SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
+                                      ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
+                                      MixedCaseVolumetricsFormService mixedCaseVolumetricsFormService,
+                                      MixedCaseVolumetricsPersistenceService mixedCaseVolumetricsPersistenceService) {
+    this.submissionDetailService = submissionDetailService;
+    this.controllerHelperService = controllerHelperService;
+    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
+    this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
+    this.mixedCaseVolumetricsFormService = mixedCaseVolumetricsFormService;
+    this.mixedCaseVolumetricsPersistenceService = mixedCaseVolumetricsPersistenceService;
+  }
+
+  @GetMapping
+  public ModelAndView getMixedCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                              @ModelAttribute("form") MixedCaseVolumetricsForm form) {
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    return getMixedCaseVolumetricsModelAndView(
+        mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail), submissionDetailId);
+  }
+
+  @PostMapping
+  public ModelAndView saveMixedCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                               @Valid @ModelAttribute("form") MixedCaseVolumetricsForm form,
+                                               BindingResult bindingResult,
+                                               ValidationType validationType) {
+    bindingResult = mixedCaseVolumetricsFormService.validate(form, bindingResult, validationType);
+    return controllerHelperService.checkErrorsAndRedirect(
+        bindingResult,
+        getMixedVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetailId),
+        () -> {
+          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+          mixedCaseVolumetricsPersistenceService.saveMixedCaseVolumetrics(form, submissionDetail);
+          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
+        }
+    );
+  }
+
+  private ModelAndView getMixedCaseVolumetricsModelAndView(MixedCaseVolumetricsForm form, UUID submissionDetailId) {
+    var modelAndView = new ModelAndView("remi/submissiondetails/mixedCaseVolumetrics")
+        .addObject("form", form)
+        .addObject("formationVolumeFactorTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
+        .addObject("oilHydrocarbonSaturationTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION))
+        .addObject("gasHydrocarbonSaturationTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION))
+        .addObject("associatedGasOilRatioLifeOfFieldTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
+        .addObject("gasExpansionFactorTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR))
+        .addObject("condensateGasRatioLifeOfFieldTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD))
+        .addObject("oilRecoveryFactorTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR))
+        .addObject("gasRecoveryFactorTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR))
+        .addObject("formationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("oilHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("associatedGasOilRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("oilRecoveryFactorError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
+
+    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    return modelAndView;
+  }
+
+  private ModelAndView getMixedVolumetricsModelAndViewWithErrors(BindingResult bindingResult,
+                                                                 MixedCaseVolumetricsForm form,
+                                                                 UUID submissionDetailId) {
+    var modelAndView = getMixedCaseVolumetricsModelAndView(form, submissionDetailId);
+
+    return modelAndView
+        .addObject("formationVolumeFactorError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "formationVolumeFactor",
+                form.getFormationVolumeFactor()))
+        .addObject("oilHydrocarbonSaturationError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "oilHydrocarbonSaturation",
+                form.getOilHydrocarbonSaturation()))
+        .addObject("gasHydrocarbonSaturationError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "gasHydrocarbonSaturation",
+                form.getGasHydrocarbonSaturation()))
+        .addObject("associatedGasOilRatioLifeOfFieldError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "associatedGasOilRatioLifeOfField",
+                form.getAssociatedGasOilRatioLifeOfField()))
+        .addObject("gasExpansionFactorError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "gasExpansionFactor",
+                form.getGasExpansionFactor()))
+        .addObject("condensateGasRatioLifeOfFieldError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "condensateGasRatioLifeOfField",
+                form.getCondensateGasRatioLifeOfField()))
+        .addObject("oilRecoveryFactorError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "oilRecoveryFactor",
+                form.getOilRecoveryFactor()))
+        .addObject("gasRecoveryFactorError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "gasRecoveryFactor",
+                form.getGasRecoveryFactor()));
+  }
+}

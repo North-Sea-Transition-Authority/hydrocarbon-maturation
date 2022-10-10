@@ -1,12 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionDetailServiceTest {
@@ -24,10 +28,13 @@ class SubmissionDetailServiceTest {
 
   private SubmissionDetailService submissionDetailService;
 
+  private SubmissionDetail submissionDetail;
+
   @BeforeEach
   void setUp() {
     Clock clock = Clock.fixed(Instant.from(INSTANT), ZoneId.systemDefault());
     submissionDetailService = new SubmissionDetailService(submissionDetailRepository, clock);
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
   }
 
   @Test
@@ -47,6 +54,38 @@ class SubmissionDetailServiceTest {
     assertThat(createdSubmissionDetail.getVersionNumber()).isEqualTo(SubmissionDetailService.FIRST_VERSION);
 
   }
+
+  @Test
+  void getLatestSubmissionDetailByResource_verifyMethodCall() {
+    var resource = new Resource();
+    submissionDetailService.getLatestSubmissionDetailByResource(resource);
+
+    verify(submissionDetailRepository, times(1))
+        .findFirstByResourceIdOrderByCreatedTimestampDesc(resource);
+  }
+
+  @Test
+  void getLatestSubmissionDetailForResourceOrThrow_verifyMethodCall() {
+    var resource = new Resource();
+    when(submissionDetailRepository.findFirstByResourceIdOrderByCreatedTimestampDesc(resource))
+        .thenReturn(Optional.of(submissionDetail));
+
+    assertThat(submissionDetailService.getLatestSubmissionDetailForResourceOrThrow(resource))
+        .isEqualTo(submissionDetail);
+  }
+
+  @Test
+  void getLatestSubmissionDetailForResourceOrThrow_throw() {
+    var resource = new Resource();
+    when(submissionDetailRepository.findFirstByResourceIdOrderByCreatedTimestampDesc(resource))
+        .thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> submissionDetailService.getLatestSubmissionDetailForResourceOrThrow(resource))
+        .isExactlyInstanceOf(RemiEntityNotFoundException.class)
+        .hasMessage("Submission detail for resource with ID %s not found"
+            .formatted(resource.getId()));
+  }
+
 
   @Test
   void completeSubmission() {

@@ -12,16 +12,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/summary")
 public class SubmissionSummaryController {
 
+  private final ProspectSummaryService prospectSummaryService;
   private final SubmissionDetailService submissionDetailService;
 
+  public static final String PAGE_NAME = "Check your answers before submitting";
+
   @Autowired
-  public SubmissionSummaryController(SubmissionDetailService submissionDetailService) {
+  public SubmissionSummaryController(ProspectSummaryService prospectSummaryService,
+                                     SubmissionDetailService submissionDetailService) {
+    this.prospectSummaryService = prospectSummaryService;
     this.submissionDetailService = submissionDetailService;
   }
 
@@ -34,12 +40,18 @@ public class SubmissionSummaryController {
   public ModelAndView processSubmission(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     submissionDetailService.completeSubmission(submissionDetail);
-
     return ReverseRouter.redirect(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId));
   }
 
   private ModelAndView getSubmissionSummaryModelAndView(UUID submissionDetailId) {
-    return new ModelAndView("remi/submissiondetails/submissionSummary")
-        .addObject("backLinkUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)));
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var modelAndView = new ModelAndView("remi/submissiondetails/submissionSummary")
+        .addObject("generalDetailsSummaryView",
+            prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("cancelUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)));
+
+    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+
+    return modelAndView;
   }
 }

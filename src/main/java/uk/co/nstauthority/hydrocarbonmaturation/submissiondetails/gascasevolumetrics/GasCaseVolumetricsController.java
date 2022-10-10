@@ -31,7 +31,7 @@ public class GasCaseVolumetricsController {
   private final GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
   private final GasCaseVolumetricsPersistenceService gasCaseVolumetricsPersistenceService;
 
-  public static final String PAGE_NAME = "Gas case volumetrics";
+  public static final String PAGE_NAME = "Gas case volumetrics parameters";
 
   @Autowired
   public GasCaseVolumetricsController(SubmissionDetailService submissionDetailService,

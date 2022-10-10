@@ -14,6 +14,9 @@ public class ProbabilityDistributionValidationUtil {
       "%s - all mandatory probability of exceedence inputs must be provided. " +
           "All inputs must be numbers with up to 2 decimal places.";
 
+  public static final String PERCENTAGE_ERROR_MESSAGE =
+      ERROR_MESSAGE + " Percentages must not be more than 100 percent.";
+
   private ProbabilityDistributionValidationUtil() {
     throw new IllegalStateException("ProbabilityDistributionValidationUtil is a util class and should not be instantiated");
   }
@@ -22,20 +25,35 @@ public class ProbabilityDistributionValidationUtil {
                                      Errors errors,
                                      String formField,
                                      String label) {
-    validate(probabilityDistributionForm, errors, formField, label, ValidationType.PARTIAL);
+    validate(probabilityDistributionForm, errors, formField, label, null, ValidationType.PARTIAL);
+  }
+
+  public static void validatePartialPercentage(ProbabilityDistributionForm probabilityDistributionForm,
+                                               Errors errors,
+                                               String formField,
+                                               String label) {
+    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT, ValidationType.PARTIAL);
   }
 
   public static void validateFull(ProbabilityDistributionForm probabilityDistributionForm,
                                   Errors errors,
                                   String formField,
                                   String label) {
-    validate(probabilityDistributionForm, errors, formField, label, ValidationType.FULL);
+    validate(probabilityDistributionForm, errors, formField, label, null, ValidationType.FULL);
+  }
+
+  public static void validateFullPercentage(ProbabilityDistributionForm probabilityDistributionForm,
+                                            Errors errors,
+                                            String formField,
+                                            String label) {
+    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT, ValidationType.FULL);
   }
 
   private static void validate(ProbabilityDistributionForm probabilityDistributionForm,
                                Errors errors,
                                String formField,
                                String label,
+                               ProbabilityOfExceedanceUnits units,
                                ValidationType validationType
   ) {
     int errorCountBefore = errors.getErrorCount();
@@ -54,6 +72,7 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.MIN.getPath(),
           probabilityOfExceedanceForm.getMin(),
+          units,
           validationType,
           errors
       );
@@ -66,6 +85,7 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.P99.getPath(),
           probabilityOfExceedanceForm.getP99(),
+          units,
           validationType,
           errors
       );
@@ -78,6 +98,7 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.P90.getPath(),
           probabilityOfExceedanceForm.getP90(),
+          units,
           validationType,
           errors
       );
@@ -90,6 +111,7 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.MODE.getPath(),
           probabilityOfExceedanceForm.getMode(),
+          units,
           validationType,
           errors
       );
@@ -102,6 +124,7 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.P50.getPath(),
           probabilityOfExceedanceForm.getP50(),
+          units,
           validationType,
           errors
       );
@@ -114,6 +137,7 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.MEAN.getPath(),
           probabilityOfExceedanceForm.getMean(),
+          units,
           validationType,
           errors
       );
@@ -126,6 +150,7 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.P10.getPath(),
           probabilityOfExceedanceForm.getP10(),
+          units,
           validationType,
           errors
       );
@@ -138,6 +163,7 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.P1.getPath(),
           probabilityOfExceedanceForm.getP1(),
+          units,
           validationType,
           errors
       );
@@ -150,6 +176,7 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.MAX.getPath(),
           probabilityOfExceedanceForm.getMax(),
+          units,
           validationType,
           errors
       );
@@ -162,6 +189,7 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.CONSTANT.getPath(),
           probabilityOfExceedanceForm.getConstant(),
+          units,
           validationType,
           errors
       );
@@ -173,7 +201,9 @@ public class ProbabilityDistributionValidationUtil {
         errors.rejectValue(
             errorPath,
             errorPath + ".error",
-            ERROR_MESSAGE.formatted(label)
+            units == ProbabilityOfExceedanceUnits.PERCENT
+                ? PERCENTAGE_ERROR_MESSAGE.formatted(label)
+                : ERROR_MESSAGE.formatted(label)
         );
       }
     }
@@ -186,6 +216,7 @@ public class ProbabilityDistributionValidationUtil {
       String typePath,
       String inputPath,
       DecimalInput input,
+      ProbabilityOfExceedanceUnits units,
       ValidationType validationType,
       Errors errors
   ) {
@@ -195,6 +226,7 @@ public class ProbabilityDistributionValidationUtil {
       var validator = ProbabilityDistributionValidationUtil.configureProbabilityOfExceedanceInputValidator(
           input,
           pathToExceedance,
+          units,
           errors
       );
       if (validationType.equals(ValidationType.FULL)) {
@@ -213,11 +245,18 @@ public class ProbabilityDistributionValidationUtil {
   private static DecimalInputValidator configureProbabilityOfExceedanceInputValidator(
       DecimalInput input,
       String fieldPath,
+      ProbabilityOfExceedanceUnits units,
       Errors errors
   ) {
-    return DecimalInputValidator.configureValidator(errors, fieldPath, "", input)
+    var decimalInputValidator = DecimalInputValidator.configureValidator(errors, fieldPath, "", input)
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.valueOf(0))
         .overrideDefaultErrorMessage("");
+
+    if (units == ProbabilityOfExceedanceUnits.PERCENT) {
+      decimalInputValidator.setMaxValue(BigDecimal.valueOf(100));
+    }
+
+    return decimalInputValidator;
   }
 }
