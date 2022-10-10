@@ -16,7 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 @EnableConfigurationProperties(value = ErrorConfigurationProperties.class)
 @ContextConfiguration(classes = ErrorConfiguration.class)
 @TestPropertySource("classpath:application-test.properties")
-public class ErrorServiceTest {
+class ErrorServiceTest {
 
   private static final String ERROR_REF_ATTRIBUTE_NAME = "errorRef";
   private static final String SERVICE_HOME_URLS_ATTRIBUTE_NAME = "serviceHomeUrl";
@@ -52,7 +52,7 @@ public class ErrorServiceTest {
   }
 
   @Test
-  public void addErrorAttributesToModel_whenNoThrowableError_assertExpectedModelAttributes() {
+  void addErrorAttributesToModel_whenNoThrowableError_assertExpectedModelAttributes() {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         null
