@@ -115,10 +115,22 @@ public enum ProbabilityDistributionFieldInstance {
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.KM2
   ),
-  OIL_IN_PLACE(OilInPlaceBehaviour.class, ProbabilityOfExceedanceUnits.MMSTB),
-  OIL_RECOVERABLE_RESOURCES(OilRecoverableResourcesBehaviour.class, ProbabilityOfExceedanceUnits.MMSTB),
-  ASSOCIATED_GAS_RECOVERABLE_RESOURCES(AssociatedGasRecoverableResourcesBehaviour.class, ProbabilityOfExceedanceUnits.BCF),
-  OIL_EQUIVALENT_RECOVERABLE_RESOURCES(OilEquivalentRecoverableResourcesBehaviour.class, ProbabilityOfExceedanceUnits.MMBOE),
+  OIL_IN_PLACE(
+      OilOutputBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB
+  ),
+  OIL_RECOVERABLE_RESOURCES(
+      OilOutputBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB
+  ),
+  ASSOCIATED_GAS_RECOVERABLE_RESOURCES(
+      OilOutputBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF
+  ),
+  OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
+      OilOutputBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE
+  ),
   ;
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
   private final List<ProbabilityDistributionType> presetTypes;

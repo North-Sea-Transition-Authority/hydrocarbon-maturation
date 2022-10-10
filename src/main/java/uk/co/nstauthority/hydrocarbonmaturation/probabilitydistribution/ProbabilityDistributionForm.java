@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 public class ProbabilityDistributionForm {
 
   private ProbabilityDistributionType probabilityDistributionType;
-  private ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance;
 
   private ProbabilityOfExceedanceForm normal = new ProbabilityOfExceedanceForm();
 
