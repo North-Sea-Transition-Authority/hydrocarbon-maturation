@@ -47,7 +47,7 @@ class GeneralDetailsFormServiceTest {
 
   @Test
   void generalDetailEntityToForm_newEntity_thenEmptyForm() {
-    when(generalDetailsPersistenceService.getGeneralDetail(submissionDetail)).thenReturn(Optional.empty());
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.empty());
 
     assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
         .extracting(
@@ -71,7 +71,7 @@ class GeneralDetailsFormServiceTest {
   @Test
   void generalDetailEntityToForm_existingEntity_thenPopulatedForm() {
     var generalDetail = getGeneralDetail(submissionDetail);
-    when(generalDetailsPersistenceService.getGeneralDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
 
     assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
         .extracting(

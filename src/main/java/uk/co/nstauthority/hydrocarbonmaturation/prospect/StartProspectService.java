@@ -6,7 +6,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCrea
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
-class StartProspectService {
+public class StartProspectService {
 
   private final SubmissionCreateService submissionCreateService;
 

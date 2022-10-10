@@ -18,7 +18,7 @@ public enum InformationSource implements Displayable {
     this.displayOrder = displayOrder;
   }
 
-  static Map<String, String> getInformationSource() {
+  public static Map<String, String> getInformationSource() {
     return DisplayableEnumOptionUtil.getDisplayableOptions(InformationSource.class);
   }
 
