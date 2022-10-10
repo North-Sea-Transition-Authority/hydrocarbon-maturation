@@ -30,21 +30,21 @@
       error=oilInPlaceError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-    probabilityDistributionTypePath="form.oilRecoverableResources.probabilityDistributionType"
+      probabilityDistributionTypePath="form.oilRecoverableResources.probabilityDistributionType"
       labelText="Oil recoverable resources"
       formId="oilRecoverableResources"
       template=oilRecoverableResourcesTemplate
       error=oilRecoverableResourcesError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-    probabilityDistributionTypePath="form.associatedGasRecoverableResources.probabilityDistributionType"
+      probabilityDistributionTypePath="form.associatedGasRecoverableResources.probabilityDistributionType"
       labelText="Associated gas recoverable resources"
       formId="associatedGasRecoverableResources"
       template=associatedGasRecoverableResourcesTemplate
       error=associatedGasRecoverableResourcesError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-    probabilityDistributionTypePath="form.oilEquivalentRecoverableResources.probabilityDistributionType"
+      probabilityDistributionTypePath="form.oilEquivalentRecoverableResources.probabilityDistributionType"
       labelText="Oil equivalent recoverable resources"
       formId="oilEquivalentRecoverableResources"
       template=oilEquivalentRecoverableResourcesTemplate
