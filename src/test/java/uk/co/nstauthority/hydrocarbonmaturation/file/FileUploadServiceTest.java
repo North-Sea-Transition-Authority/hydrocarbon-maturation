@@ -127,23 +127,23 @@ class FileUploadServiceTest {
   }
 
   @Test
-  void deleteFile_FileDeleted_ReturnsValidResult() {
-    DeleteOutcome deleteOutcome = fileUploadService.deleteFile(uploadedFile);
+  void deleteFile_FileDeleted() {
+    fileUploadService.deleteFile(uploadedFile);
 
     verify(s3ClientService).deleteFile(uploadedFile.getBucketName(), uploadedFile.getS3Key());
     verify(uploadedFileRepository).deleteById(uploadedFile.getId());
-    assertThat(deleteOutcome).isEqualTo(DeleteOutcome.SUCCESS);
   }
 
   @Test
-  void deleteFile_DeleteFileFailed_ReturnsNotValidResult() {
+  void deleteFile_DeleteFileFailed() throws S3DeleteFileFailedException {
     doThrow(S3DeleteFileFailedException.class).when(s3ClientService)
         .deleteFile(uploadedFile.getBucketName(), uploadedFile.getS3Key());
 
-    DeleteOutcome deleteOutcome = fileUploadService.deleteFile(uploadedFile);
+    try {
+      fileUploadService.deleteFile(uploadedFile);
+    } catch (S3DeleteFileFailedException ignore) {}
 
     verify(uploadedFileRepository, never()).deleteById(any());
-    assertThat(deleteOutcome).isEqualTo(DeleteOutcome.INTERNAL_SERVER_ERROR);
   }
 
   @Test

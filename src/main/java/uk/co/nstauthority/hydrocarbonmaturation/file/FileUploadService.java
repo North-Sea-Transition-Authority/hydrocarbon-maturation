@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ClientService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3DeleteFileFailedException;
-import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ObjectNotFoundException;
 
 @Service
 public class FileUploadService {
@@ -65,16 +63,10 @@ public class FileUploadService {
             String.format("Could not find uploaded file with ID %s", uploadedFileId)));
   }
 
-  public DeleteOutcome deleteFile(UploadedFile uploadedFile) {
-    try {
-      s3ClientService.deleteFile(uploadedFile.getBucketName(), uploadedFile.getS3Key());
-    } catch (S3DeleteFileFailedException | S3ObjectNotFoundException e) {
-      return DeleteOutcome.INTERNAL_SERVER_ERROR;
-    }
+  public void deleteFile(UploadedFile uploadedFile) {
+    s3ClientService.deleteFile(uploadedFile.getBucketName(), uploadedFile.getS3Key());
 
     uploadedFileRepository.deleteById(uploadedFile.getId());
-
-    return DeleteOutcome.SUCCESS;
   }
 
   public InputStream downloadFile(UploadedFile uploadedFile) {
