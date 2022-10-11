@@ -52,8 +52,8 @@ public class OpportunityDetailsController {
                                             @ModelAttribute("form") OpportunityDetailsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var opportunityDetailsForm = opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail);
-    var fileUploadDetails = getFileUploadViews(opportunityDetailsForm);
-    return getOpportunityDetailsModelAndView(opportunityDetailsForm, submissionDetailId, fileUploadDetails);
+    var mapOfOpportunityUploads = opportunityDetailsFormService.getMapOfOpportunityUploads(opportunityDetailsForm);
+    return getOpportunityDetailsModelAndView(opportunityDetailsForm, submissionDetailId, mapOfOpportunityUploads);
   }
 
   @PostMapping
@@ -61,7 +61,7 @@ public class OpportunityDetailsController {
                                              @ModelAttribute("form") OpportunityDetailsForm form,
                                              BindingResult bindingResult, ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var mapOfOpportunityUploads = getFileUploadViews(form);
+    var mapOfOpportunityUploads = opportunityDetailsFormService.getMapOfOpportunityUploads(form);
 
     bindingResult = opportunityDetailsFormService.validate(form, bindingResult, validationType);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
@@ -70,11 +70,6 @@ public class OpportunityDetailsController {
           opportunityDetailsPersistenceService.saveOpportunityDetails(form, submissionDetail);
           return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         });
-  }
-
-  private List<FileUploadView> getFileUploadViews(OpportunityDetailsForm opportunityDetailsForm) {
-    var mapOfOpportunityUploadIdList = opportunityDetailsFormService.getMapOfOpportunityUploadIdList(opportunityDetailsForm);
-    return supportingDocumentService.getFileUploadViewList(mapOfOpportunityUploadIdList);
   }
 
   private ModelAndView getOpportunityDetailsModelAndView(OpportunityDetailsForm form, UUID submissionDetailId,

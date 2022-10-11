@@ -91,11 +91,8 @@ public class SupportingDocumentService {
     var supportingDocument =
         supportingDocumentRepository.findBySubmissionDetailAndUploadedFile(submissionDetail, uploadedFile);
     supportingDocumentRepository.delete(supportingDocument);
-    var deleteOutcome = fileUploadService.deleteFile(uploadedFile);
-    return switch (deleteOutcome) {
-      case INTERNAL_SERVER_ERROR -> FileDeleteResult.error(uploadedFile.getId().toString());
-      case SUCCESS -> FileDeleteResult.success(uploadedFile.getId().toString());
-    };
+    fileUploadService.deleteFile(uploadedFile);
+    return FileDeleteResult.success(uploadedFile.getId().toString());
   }
 
   @Transactional

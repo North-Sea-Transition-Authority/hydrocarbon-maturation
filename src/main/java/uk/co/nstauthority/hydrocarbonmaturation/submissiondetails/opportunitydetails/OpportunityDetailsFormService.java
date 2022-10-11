@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
@@ -56,8 +57,13 @@ class OpportunityDetailsFormService implements SubmissionFormService {
     return bindingResult;
   }
 
-  public List<UUID> getMapOfOpportunityUploadIdList(OpportunityDetailsForm opportunityDetailsForm) {
-    return opportunityDetailsForm.getMapOfOpportunity().stream()
+  public List<FileUploadView> getMapOfOpportunityUploads(OpportunityDetailsForm opportunityDetailsForm) {
+    var mapOfOpportunityUploadIdList = getUploadIdList(opportunityDetailsForm.getMapOfOpportunity());
+    return supportingDocumentService.getFileUploadViewList(mapOfOpportunityUploadIdList);
+  }
+
+  private List<UUID> getUploadIdList(List<FileUploadDetail> fileUploadDetails) {
+    return fileUploadDetails.stream()
         .map(FileUploadDetail::getUploadedFileId)
         .map(UUID::fromString)
         .toList();

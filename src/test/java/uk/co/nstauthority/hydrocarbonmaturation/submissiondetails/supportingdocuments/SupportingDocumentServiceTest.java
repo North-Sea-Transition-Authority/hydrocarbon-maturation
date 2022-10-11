@@ -22,7 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
-import uk.co.nstauthority.hydrocarbonmaturation.file.DeleteOutcome;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
@@ -96,22 +95,10 @@ class SupportingDocumentServiceTest {
   void deleteFile_FileDeleted_ReturnsValidResult() {
     var uuid = UUID.randomUUID();
     when(fileUploadService.findUploadedFileOrThrow(uuid)).thenReturn(uploadedFile);
-    when(fileUploadService.deleteFile(uploadedFile)).thenReturn(DeleteOutcome.SUCCESS);
 
     var fileDeleteResult = supportingDocumentService.deleteFile(submissionDetail, uuid);
 
     assertThat(fileDeleteResult.isValid()).isTrue();
-  }
-
-  @Test
-  void deleteFile_DeleteFileFailed_ReturnsNotValidResult() {
-    var uuid = UUID.randomUUID();
-    when(fileUploadService.findUploadedFileOrThrow(uuid)).thenReturn(uploadedFile);
-    when(fileUploadService.deleteFile(uploadedFile)).thenReturn(DeleteOutcome.INTERNAL_SERVER_ERROR);
-
-    var fileDeleteResult = supportingDocumentService.deleteFile(submissionDetail, uuid);
-
-    assertThat(fileDeleteResult.isValid()).isFalse();
   }
 
   @Test
