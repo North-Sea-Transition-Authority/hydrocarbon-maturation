@@ -1,25 +1,32 @@
 package uk.co.nstauthority.hydrocarbonmaturation.validationutil;
 
+import java.beans.Introspector;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.springframework.validation.Errors;
-import uk.co.nstauthority.hydrocarbonmaturation.numberinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 
-public class DecimalInputValidator extends NumericInputValidator {
+public class DecimalInputValidator {
+  private final Errors errors;
   private final List<Consumer<BigDecimal>> validators  = new ArrayList<>();
+  private final String fieldId;
+  private final String errorMessagePrefix;
   private final DecimalInput decimalInput;
-
   private boolean isMandatory = true;
+  private boolean useDefaultErrorMessage = true;
+  private String overriddenErrorMessage;
   private BigDecimal minValue = null;
   private BigDecimal maxValue = null;
   private Integer decimalPlacesExpected = null;
 
   private DecimalInputValidator(Errors errors, String fieldId, String errorMessagePrefix,
                                DecimalInput decimalInput) {
-    super(errors, fieldId, errorMessagePrefix);
+    this.errors = errors;
     this.decimalInput = decimalInput;
+    this.fieldId = fieldId;
+    this.errorMessagePrefix = errorMessagePrefix;
   }
 
   public static DecimalInputValidator configureValidator(Errors errors, String fieldId, String errorMessagePrefix,
@@ -80,6 +87,7 @@ public class DecimalInputValidator extends NumericInputValidator {
     decimalValue.ifPresent(this::executeValidators);
   }
 
+
   private void rejectNonNumericValue() {
     var errorMessage = "%s must be a number".formatted(errorMessagePrefix);
 
@@ -87,6 +95,15 @@ public class DecimalInputValidator extends NumericInputValidator {
       errorMessage = overriddenErrorMessage;
     }
     errors.rejectValue(fieldId, "%s.notNumeric".formatted(fieldId), errorMessage);
+  }
+
+  private void rejectNullValue() {
+    var errorMessage = "Enter %s".formatted(Introspector.decapitalize(errorMessagePrefix));
+
+    if (!useDefaultErrorMessage) {
+      errorMessage = overriddenErrorMessage;
+    }
+    errors.rejectValue(fieldId, "%s.required".formatted(fieldId), errorMessage);
   }
 
   private void rejectMinValue(BigDecimal minValue) {

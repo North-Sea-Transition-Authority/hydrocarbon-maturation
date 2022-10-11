@@ -5,7 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -70,7 +70,7 @@ class OilCaseOutputsFormServiceTest {
             form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
-            oilCaseOutputsForm -> oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().asBigInteger()
+            oilCaseOutputsForm -> oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().asBigDecimal()
         ).containsExactly(
             null,
             null,
@@ -99,7 +99,7 @@ class OilCaseOutputsFormServiceTest {
         .thenReturn(probabilityDistributionForm);
 
     OilCaseOutput oilCaseOutput = new OilCaseOutput();
-    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigInteger.ONE);
+    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
         .thenReturn(Optional.of(oilCaseOutput));
 
@@ -113,7 +113,7 @@ class OilCaseOutputsFormServiceTest {
             form -> form.getOilInPlace().getCustom().getConstant(),
             form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedGasRecoverableResources().getCustom().getConstant(),
-            oilCaseOutputsForm -> oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().asBigInteger().get()
+            oilCaseOutputsForm -> oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().asBigDecimal().get()
         )
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
@@ -124,7 +124,7 @@ class OilCaseOutputsFormServiceTest {
             probabilityDistributionForm.getCustom().getConstant(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
-            BigInteger.ONE
+            BigDecimal.ONE
         );
   }
 }

@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.coordinateinput;
 
-import uk.co.nstauthority.hydrocarbonmaturation.numberinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 
 public class CoordinateInput {
 

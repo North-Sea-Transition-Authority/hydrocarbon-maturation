@@ -50,7 +50,7 @@
       template=oilEquivalentRecoverableResourcesTemplate
       error=oilEquivalentRecoverableResourcesError/>
 
-    <@fdsTextInput.textInput path="form.riskedOilEquivalentRecoverableMean.integerInputValue" labelText="Risked oil equivalent recoverable mean" inputClass="govuk-input--width-3"/>
+    <@fdsTextInput.textInput path="form.riskedOilEquivalentRecoverableMean.decimalInputValue" labelText="Risked oil equivalent recoverable mean" inputClass="govuk-input--width-3"/>
 
     <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>

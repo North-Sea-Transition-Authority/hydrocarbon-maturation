@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess;
 
-import uk.co.nstauthority.hydrocarbonmaturation.numberinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 
 public class ChanceOfSuccessDetailsForm {
 

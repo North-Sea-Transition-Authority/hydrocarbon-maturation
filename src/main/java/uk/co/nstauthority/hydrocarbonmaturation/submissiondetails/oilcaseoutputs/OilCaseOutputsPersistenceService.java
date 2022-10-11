@@ -28,7 +28,7 @@ public class OilCaseOutputsPersistenceService {
     var oilCaseOutput = getOilCaseOutput(submissionDetail).orElseGet(OilCaseOutput::new);
 
     oilCaseOutput.setSubmissionDetail(submissionDetail);
-    var mean = oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().createBigIntegerOrNull();
+    var mean = oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().createBigDecimalOrNull();
     oilCaseOutput.setRiskedOilEquivalentRecoverableMean(mean);
 
     oilCaseOutputsRepository.save(oilCaseOutput);

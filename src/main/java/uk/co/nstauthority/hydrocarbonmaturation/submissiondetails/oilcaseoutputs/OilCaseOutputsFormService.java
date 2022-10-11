@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutput
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.numberinput.IntegerInput;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -64,7 +64,7 @@ public class OilCaseOutputsFormService implements SubmissionFormService {
     var riskedOilEquivalentRecoverableMean = oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail)
         .map(OilCaseOutput::getRiskedOilEquivalentRecoverableMean)
         .orElse(null);
-    form.setRiskedOilEquivalentRecoverableMean(IntegerInput.createNumberInput(riskedOilEquivalentRecoverableMean));
+    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(riskedOilEquivalentRecoverableMean));
 
     return form;
   }

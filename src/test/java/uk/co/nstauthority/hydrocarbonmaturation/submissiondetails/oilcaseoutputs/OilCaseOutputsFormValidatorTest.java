@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.numberinput.IntegerInput;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
@@ -111,20 +111,20 @@ class OilCaseOutputsFormValidatorTest {
                 Set.of("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("riskedOilEquivalentRecoverableMean.integerInputValue", Set.of("riskedOilEquivalentRecoverableMean.integerInputValue.notNumeric"))
+            entry("riskedOilEquivalentRecoverableMean.decimalInputValue", Set.of("riskedOilEquivalentRecoverableMean.decimalInputValue.notNumeric"))
         );
   }
 
   @Test
   void validate_whenInValidForm_noRiskedOilEquivalentRecoverableMean_thenValidationErrors() {
     var form = getValidForm();
-    form.setRiskedOilEquivalentRecoverableMean(new IntegerInput(""));
+    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput(""));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateOilCaseOutputsForm_fullValidation(form));
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("riskedOilEquivalentRecoverableMean.integerInputValue", Set.of("riskedOilEquivalentRecoverableMean.integerInputValue.required"))
+            entry("riskedOilEquivalentRecoverableMean.decimalInputValue", Set.of("riskedOilEquivalentRecoverableMean.decimalInputValue.required"))
         );
   }
 
@@ -149,7 +149,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
     form.setOilInPlace(probabilityDistributionForm);
-    form.setRiskedOilEquivalentRecoverableMean(new IntegerInput("abc"));
+    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("abc"));
 
     return form;
   }
@@ -164,7 +164,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
     form.setOilInPlace(probabilityDistributionForm);
-    form.setRiskedOilEquivalentRecoverableMean(new IntegerInput(""));
+    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput(""));
     return form;
   }
 
@@ -175,7 +175,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probDistributionForm);
     form.setOilEquivalentRecoverableResources(probDistributionForm);
     form.setOilRecoverableResources(probDistributionForm);
-    form.setRiskedOilEquivalentRecoverableMean(new IntegerInput("1"));
+    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("1"));
     return form;
   }
 
