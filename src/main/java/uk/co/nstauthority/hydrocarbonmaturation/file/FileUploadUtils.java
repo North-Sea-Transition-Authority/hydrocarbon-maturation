@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
+import java.util.List;
+import java.util.UUID;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -36,5 +38,12 @@ public class FileUploadUtils {
             "attachment; filename=\"%s\"".formatted(uploadedFile.getFilename())
         )
         .body(inputStreamResource);
+  }
+
+  public static List<UUID> getUploadIdList(List<FileUploadDetail> fileUploadDetails) {
+    return fileUploadDetails.stream()
+        .map(FileUploadDetail::getUploadedFileId)
+        .map(UUID::fromString)
+        .toList();
   }
 }

@@ -1,11 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
 import java.util.List;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -58,14 +58,7 @@ class OpportunityDetailsFormService implements SubmissionFormService {
   }
 
   public List<FileUploadView> getMapOfOpportunityUploads(OpportunityDetailsForm opportunityDetailsForm) {
-    var mapOfOpportunityUploadIdList = getUploadIdList(opportunityDetailsForm.getMapOfOpportunity());
+    var mapOfOpportunityUploadIdList = FileUploadUtils.getUploadIdList(opportunityDetailsForm.getMapOfOpportunity());
     return supportingDocumentService.getFileUploadViewList(mapOfOpportunityUploadIdList);
-  }
-
-  private List<UUID> getUploadIdList(List<FileUploadDetail> fileUploadDetails) {
-    return fileUploadDetails.stream()
-        .map(FileUploadDetail::getUploadedFileId)
-        .map(UUID::fromString)
-        .toList();
   }
 }

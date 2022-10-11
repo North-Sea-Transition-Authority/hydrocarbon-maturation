@@ -1,11 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -91,6 +94,19 @@ class OpportunityDetailsFormServiceTest {
         );
   }
 
+  @Test
+  void getMapOfOpportunityUploads_VerifyCalls() {
+    FileUploadDetail fileUploadDetail1 = getFileUploadDetail();
+    FileUploadDetail fileUploadDetail2 = getFileUploadDetail();
+
+    var form = new OpportunityDetailsForm();
+    form.setMapOfOpportunity(List.of(fileUploadDetail1, fileUploadDetail2));
+
+    opportunityDetailsFormService.getMapOfOpportunityUploads(form);
+
+    verify(supportingDocumentService, times(1)).getFileUploadViewList(anyList());
+  }
+
   private OpportunityDetail getOpportunityDetail(SubmissionDetail submissionDetail) {
     var opportunityDetail =  new OpportunityDetail();
     opportunityDetail.setSubmissionDetail(submissionDetail);
@@ -98,5 +114,11 @@ class OpportunityDetailsFormServiceTest {
     opportunityDetail.setOpportunityComments("comments");
     opportunityDetail.setKeyEvaluationWorkCarriedOut("key");
     return opportunityDetail;
+  }
+
+  private FileUploadDetail getFileUploadDetail() {
+    FileUploadDetail fileUploadDetail = new FileUploadDetail();
+    fileUploadDetail.setUploadedFileId(UUID.randomUUID().toString());
+    return fileUploadDetail;
   }
 }
