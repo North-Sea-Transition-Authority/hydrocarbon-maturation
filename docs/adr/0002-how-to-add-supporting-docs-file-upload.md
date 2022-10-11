@@ -11,7 +11,7 @@
 
 **Controller** _(see OpportunityDetailsController)_
 - On GET method:
-    - Add to the model and view, a file upload template by calling the supportingDocumentService.buildFileUploadTemplate method.
+    - Add to the model and view for each file upload field, a file upload template by calling the supportingDocumentService.buildFileUploadTemplate method.
     - Call method to get uploaded files for the file upload field and pass in to the model and view.
 - On POST method:
     - Call the same method to get uploaded files for the file upload field but pass in the binded form.
@@ -26,4 +26,4 @@
     - Save file upload descriptions by calling supportingDocumentService.updateSupportingDocumentDescriptions and passing in the file upload list from the form.
 
 **Freemarker** _(see opportunityDetails.ftl)_
-- Use the FileUploadTemplate passed into the movalwith the given attributes to set out the fdsFileUpload.fileUpload macro
+- Use the FileUploadTemplate passed into the modal and view with the given attributes to set out the fdsFileUpload.fileUpload macro
