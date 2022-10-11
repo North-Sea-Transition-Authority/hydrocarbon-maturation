@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -114,6 +115,7 @@ public class FileUploadService {
     return uploadedFileRepository.findAllByIdIn(uploadedFileIdList);
   }
 
+  @Transactional
   public void updateFileDescription(UploadedFile uploadedFile, String uploadedFileDescription) {
     uploadedFile.setDescription(uploadedFileDescription);
     uploadedFileRepository.save(uploadedFile);
