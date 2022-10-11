@@ -12,4 +12,6 @@ interface SupportingDocumentRepository extends CrudRepository<SupportingDocument
       SubmissionDetail submissionDetail, SupportingDocumentType supportingDocumentType);
 
   SupportingDocument findBySubmissionDetailAndUploadedFile(SubmissionDetail submissionDetail, UploadedFile uploadedFile);
+
+  List<SupportingDocument> findAllByUploadedFile(UploadedFile uploadedFile);
 }

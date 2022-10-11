@@ -88,10 +88,17 @@ public class SupportingDocumentService {
   @Transactional
   public FileDeleteResult deleteFile(SubmissionDetail submissionDetail, UUID uploadedFileId) {
     var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
+    var supportingDocuments = supportingDocumentRepository.findAllByUploadedFile(uploadedFile);
+
     var supportingDocument =
         supportingDocumentRepository.findBySubmissionDetailAndUploadedFile(submissionDetail, uploadedFile);
     supportingDocumentRepository.delete(supportingDocument);
-    fileUploadService.deleteFile(uploadedFile);
+
+    // Check if the uploaded file is associated with other submission supporting documents and only delete if it is not
+    if (supportingDocuments.size() == 1) {
+      fileUploadService.deleteFile(uploadedFile);
+    }
+
     return FileDeleteResult.success(uploadedFile.getId().toString());
   }
 

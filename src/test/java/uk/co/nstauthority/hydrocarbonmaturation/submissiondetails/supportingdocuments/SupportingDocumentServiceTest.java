@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -92,12 +94,36 @@ class SupportingDocumentServiceTest {
   }
 
   @Test
-  void deleteFile_FileDeleted_ReturnsValidResult() {
+  void deleteFile_FileDeleted_SupportingDocAndFileDeleted() {
     var uuid = UUID.randomUUID();
+    SupportingDocument supportingDocument = mock(SupportingDocument.class);
     when(fileUploadService.findUploadedFileOrThrow(uuid)).thenReturn(uploadedFile);
+    when(supportingDocumentRepository.findBySubmissionDetailAndUploadedFile(submissionDetail, uploadedFile))
+        .thenReturn(supportingDocument);
+    when(supportingDocumentRepository.findAllByUploadedFile(uploadedFile))
+        .thenReturn(Collections.singletonList(supportingDocument));
 
     var fileDeleteResult = supportingDocumentService.deleteFile(submissionDetail, uuid);
 
+    verify(supportingDocumentRepository, times(1)).delete(supportingDocument);
+    verify(fileUploadService, times(1)).deleteFile(uploadedFile);
+    assertThat(fileDeleteResult.isValid()).isTrue();
+  }
+
+  @Test
+  void deleteFile_FileDeletedButExistsInOtherVersion_OnlySupportingDocDeleted() {
+    SupportingDocument supportingDocument1 = mock(SupportingDocument.class);
+    SupportingDocument supportingDocument2 = mock(SupportingDocument.class);
+    when(fileUploadService.findUploadedFileOrThrow(uploadedFile.getId())).thenReturn(uploadedFile);
+    when(supportingDocumentRepository.findBySubmissionDetailAndUploadedFile(submissionDetail, uploadedFile))
+        .thenReturn(supportingDocument1);
+    when(supportingDocumentRepository.findAllByUploadedFile(uploadedFile))
+        .thenReturn(List.of(supportingDocument1, supportingDocument2));
+
+    var fileDeleteResult = supportingDocumentService.deleteFile(submissionDetail, uploadedFile.getId());
+
+    verify(supportingDocumentRepository, times(1)).delete(supportingDocument1);
+    verify(fileUploadService, never()).deleteFile(uploadedFile);
     assertThat(fileDeleteResult.isValid()).isTrue();
   }
 

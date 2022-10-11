@@ -7,6 +7,4 @@ import org.springframework.data.repository.CrudRepository;
 interface UploadedFileRepository extends CrudRepository<UploadedFile, UUID> {
 
   List<UploadedFile> findAllByIdIn(List<UUID> id);
-
-  void removeUploadedFileById(UUID id);
 }
