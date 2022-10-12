@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.BETA;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.CONSTANT;
+import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.CUSTOM;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.LOGNORMAL;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.NORMAL;
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.RECTANGULAR;
@@ -114,12 +115,25 @@ public enum ProbabilityDistributionFieldInstance {
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.KM2
   ),
-
-  //TODO remove example custom enum value
-  DEPTH_TO_CREST_FIELD_SUBMISSION(CustomBehaviour.class),
+  OIL_IN_PLACE(
+      OilOutputBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB
+  ),
+  OIL_RECOVERABLE_RESOURCES(
+      OilOutputBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB
+  ),
+  ASSOCIATED_GAS_RECOVERABLE_RESOURCES(
+      OilOutputBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF
+  ),
+  OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
+      OilOutputBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE
+  ),
   ;
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
-  private List<ProbabilityDistributionType> presetTypes;
+  private final List<ProbabilityDistributionType> presetTypes;
 
   private ProbabilityOfExceedanceUnits units;
 
@@ -138,9 +152,12 @@ public enum ProbabilityDistributionFieldInstance {
     type = Type.PRESET_LIST;
   }
 
-  ProbabilityDistributionFieldInstance(Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour) {
+  ProbabilityDistributionFieldInstance(Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour,
+                                       ProbabilityOfExceedanceUnits units) {
     this.customBehaviour = customBehaviour;
+    this.units = units;
 
+    this.presetTypes = List.of(CUSTOM);
     type = Type.CUSTOM;
   }
 
@@ -152,11 +169,11 @@ public enum ProbabilityDistributionFieldInstance {
     return presetTypes;
   }
 
-  public Type getType() {
-    return type;
-  }
-
   public String getUnits() {
     return units.getUnitDisplay();
+  }
+
+  public boolean isCustomType() {
+    return type == Type.CUSTOM;
   }
 }

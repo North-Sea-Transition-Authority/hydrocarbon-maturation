@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalInputTestUtil;
@@ -11,32 +12,17 @@ public class ProbabilityDistributionTestUtil {
       ProbabilityDistributionType probabilityDistributionType
   ) {
     var probabilityDistributionForm = new ProbabilityDistributionForm();
+
+    var instance = Objects.equals(probabilityDistributionType, ProbabilityDistributionType.CUSTOM)
+        ? ProbabilityDistributionFieldInstance.OIL_IN_PLACE
+        : ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY;
+
     probabilityDistributionForm.setProbabilityDistributionType(probabilityDistributionType);
-    var probabilityOfExceedanceForm = getValidProbabilityOfExceedanceForm(probabilityDistributionType);
+    var behaviour = ProbabilityDistributionTypeBehaviourUtil.getBehaviour(instance,
+        probabilityDistributionType);
+    var probabilityOfExceedanceForm = getValidProbabilityOfExceedanceForm(behaviour);
 
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.NORMAL)) {
-      probabilityDistributionForm.setNormal(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.LOGNORMAL)) {
-      probabilityDistributionForm.setLognormal(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.BETA)) {
-      probabilityDistributionForm.setBeta(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.TRIANGULAR)) {
-      probabilityDistributionForm.setTriangular(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.RECTANGULAR)) {
-      probabilityDistributionForm.setRectangular(probabilityOfExceedanceForm);
-    }
-
-    if (probabilityDistributionType.equals(ProbabilityDistributionType.CONSTANT)) {
-      probabilityDistributionForm.setConstant(probabilityOfExceedanceForm);
-    }
+    probabilityDistributionForm.setProbabilityOfExceedanceForm(probabilityOfExceedanceForm);
 
     return probabilityDistributionForm;
   }
@@ -63,6 +49,10 @@ public class ProbabilityDistributionTestUtil {
 
   public static ProbabilityDistributionForm getValidConstantProbabilityDistributionForm() {
     return getValidProbabilityDistributionForm(ProbabilityDistributionType.CONSTANT);
+  }
+
+  public static ProbabilityDistributionForm getValidCustomProbabilityDistributionForm() {
+    return getValidProbabilityDistributionForm(ProbabilityDistributionType.CUSTOM);
   }
 
   public static ProbabilityDistributionForm getFormWithExceedance(
@@ -98,6 +88,11 @@ public class ProbabilityDistributionTestUtil {
       case CONSTANT -> {
         var validForm = getValidConstantProbabilityDistributionForm();
         validForm.setConstant(probabilityOfExceedanceForm);
+        return validForm;
+      }
+      case CUSTOM -> {
+        var validForm = getValidCustomProbabilityDistributionForm();
+        validForm.setCustom(probabilityOfExceedanceForm);
         return validForm;
       }
       default -> throw new ProbabilityDistributionException("Invalid probability distribution type provided");
@@ -142,11 +137,9 @@ public class ProbabilityDistributionTestUtil {
     return probabilityDistribution;
   }
 
-  private static ProbabilityOfExceedanceForm getValidProbabilityOfExceedanceForm(
-      ProbabilityDistributionType probabilityDistributionType
+  private static ProbabilityOfExceedanceForm getValidProbabilityOfExceedanceForm(ProbabilityDistributionTypeBehaviour behaviour
   ) {
     var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
-    var behaviour = probabilityDistributionType.newInstance();
     if (behaviour.isMinAvailable()) {
       probabilityOfExceedanceForm.setMin(DecimalInputTestUtil.getDecimalInput(1));
     }

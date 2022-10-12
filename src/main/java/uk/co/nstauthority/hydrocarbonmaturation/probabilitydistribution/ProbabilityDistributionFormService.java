@@ -20,40 +20,33 @@ public class ProbabilityDistributionFormService {
       SubmissionDetail submissionDetail,
       ProbabilityDistributionFieldInstance instance
   ) {
-    var probabilityDistribution = probabilityDistributionPersistenceService.getProbabilityDistribution(
-        submissionDetail, instance
-    );
+    return probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance)
+        .map(probabilityDistribution -> {
+          var exceedanceForm = getExceedanceFormFromEntity(probabilityDistribution);
 
-    if (probabilityDistribution.isEmpty()) {
-      return new ProbabilityDistributionForm();
-    }
+          var form = createProbabilityDistributionForm(instance, probabilityDistribution.getDistributionType());
+          form.setProbabilityOfExceedanceForm(exceedanceForm);
 
+          return form;
+        })
+        .orElseGet(() -> createProbabilityDistributionForm(instance));
+  }
+
+  private ProbabilityDistributionForm createProbabilityDistributionForm(ProbabilityDistributionFieldInstance instance,
+                                                                        ProbabilityDistributionType distributionType) {
     var form = new ProbabilityDistributionForm();
-    var distributionForm = probabilityDistribution.get();
-    var distributionType = distributionForm.getDistributionType();
-    form.setProbabilityDistributionType(distributionType);
 
-    var exceedanceForm = getExceedanceFormFromEntity(distributionForm);
-    if (distributionType.equals(ProbabilityDistributionType.NORMAL)) {
-      form.setNormal(exceedanceForm);
-    }
-    if (distributionType.equals(ProbabilityDistributionType.LOGNORMAL)) {
-      form.setLognormal(exceedanceForm);
-    }
-    if (distributionType.equals(ProbabilityDistributionType.BETA)) {
-      form.setBeta(exceedanceForm);
-    }
-    if (distributionType.equals(ProbabilityDistributionType.TRIANGULAR)) {
-      form.setTriangular(exceedanceForm);
-    }
-    if (distributionType.equals(ProbabilityDistributionType.RECTANGULAR)) {
-      form.setRectangular(exceedanceForm);
-    }
-    if (distributionType.equals(ProbabilityDistributionType.CONSTANT)) {
-      form.setConstant(exceedanceForm);
+    if (instance.isCustomType()) {
+      form.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
+    } else {
+      form.setProbabilityDistributionType(distributionType);
     }
 
     return form;
+  }
+
+  private ProbabilityDistributionForm createProbabilityDistributionForm(ProbabilityDistributionFieldInstance instance) {
+    return createProbabilityDistributionForm(instance, null);
   }
 
   private ProbabilityOfExceedanceForm getExceedanceFormFromEntity(

@@ -32,7 +32,6 @@ class OpportunityDetailsPersistenceService {
       opportunityDetail.setOtherTypeOfOpportunity(null);
     }
 
-
     opportunityDetailsRepository.save(opportunityDetail);
   }
 
