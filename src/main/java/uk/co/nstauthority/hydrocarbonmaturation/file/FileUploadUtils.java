@@ -52,7 +52,6 @@ public class FileUploadUtils {
   public static List<UUID> getUploadIdList(List<FileUploadDetail> fileUploadDetails) {
     return fileUploadDetails.stream()
         .map(FileUploadDetail::getUploadedFileId)
-        .map(UUID::fromString)
         .toList();
   }
 

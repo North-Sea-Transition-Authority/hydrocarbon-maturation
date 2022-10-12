@@ -118,7 +118,7 @@ class OpportunityDetailsFormServiceTest {
 
   private FileUploadDetail getFileUploadDetail() {
     FileUploadDetail fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileId(UUID.randomUUID().toString());
+    fileUploadDetail.setUploadedFileId(UUID.randomUUID());
     return fileUploadDetail;
   }
 }

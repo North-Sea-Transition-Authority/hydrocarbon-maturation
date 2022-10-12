@@ -111,7 +111,7 @@ public class SupportingDocumentService {
   public void updateSupportingDocumentFileDescriptions(List<FileUploadDetail> fileUploadDetailList) {
     fileUploadDetailList
         .forEach(fileUploadDetail -> {
-          var uploadedFileId = UUID.fromString(fileUploadDetail.getUploadedFileId());
+          var uploadedFileId = fileUploadDetail.getUploadedFileId();
           var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
           fileUploadService.updateFileDescription(uploadedFile, fileUploadDetail.getUploadedFileDescription());
         });
@@ -129,7 +129,7 @@ public class SupportingDocumentService {
 
   private FileUploadDetail createFileUploadDetail(UploadedFile uploadedFile) {
     FileUploadDetail fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileId(uploadedFile.getId().toString());
+    fileUploadDetail.setUploadedFileId(uploadedFile.getId());
     fileUploadDetail.setUploadedFileDescription(uploadedFile.getDescription());
     fileUploadDetail.setUploadedFileInstant(uploadedFile.getUploadedTimeStamp());
     return fileUploadDetail;

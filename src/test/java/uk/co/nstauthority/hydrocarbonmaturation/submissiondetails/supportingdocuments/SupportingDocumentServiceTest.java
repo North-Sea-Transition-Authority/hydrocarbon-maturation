@@ -208,7 +208,7 @@ class SupportingDocumentServiceTest {
 
   private FileUploadDetail createFileUploadDetail(UUID uuid) {
     var fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileId(uuid.toString());
+    fileUploadDetail.setUploadedFileId(uuid);
     fileUploadDetail.setUploadedFileDescription("test description");
     fileUploadDetail.setUploadedFileInstant(now);
     return fileUploadDetail;
