@@ -31,7 +31,8 @@ public class FileUploadService {
     this.clock = clock;
   }
 
-  public UploadedFile createdAndSaveUploadedFile(VirtualFolder virtualFolder, long fileSize, String filename, String contentType) {
+  public UploadedFile createdAndSaveUploadedFile(VirtualFolder virtualFolder, long fileSize, String filename,
+                                                 String contentType) {
     var s3Key = createS3KeyWithPath(virtualFolder);
 
     var uploadedFile = createUploadedFile(
