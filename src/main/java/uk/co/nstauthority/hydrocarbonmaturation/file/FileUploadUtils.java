@@ -11,12 +11,12 @@ import org.springframework.http.ResponseEntity;
 public class FileUploadUtils {
 
   private static final long BYTE = 1L;
-  private static final long KIB = BYTE << 10;
-  private static final long MIB = KIB << 10;
-  private static final long GIB = MIB << 10;
+  private static final long KB = BYTE << 10;
+  private static final long MB = KB << 10;
+  private static final long GB = MB << 10;
 
 
-  private static final DecimalFormat DEC_FORMAT = new DecimalFormat("#.##");
+  private static final DecimalFormat DEC_FORMAT = new DecimalFormat("#.#");
 
   private FileUploadUtils() {
   }
@@ -25,16 +25,16 @@ public class FileUploadUtils {
     if (size < 0) {
       throw new IllegalArgumentException("Invalid file size: " + size);
     }
-    if (size >= GIB) {
-      return formatSize(size, GIB, "GiB");
+    if (size >= GB) {
+      return formatSize(size, GB, "GB");
     }
-    if (size >= MIB) {
-      return formatSize(size, MIB, "MiB");
+    if (size >= MB) {
+      return formatSize(size, MB, "MB");
     }
-    if (size >= KIB) {
-      return formatSize(size, KIB, "KiB");
+    if (size >= KB) {
+      return formatSize(size, KB, "KB");
     }
-    return formatSize(size, BYTE, "Bytes");
+    return formatSize(size, BYTE, "B");
   }
 
   public static ResponseEntity<InputStreamResource> getFileResourceResponseEntity(UploadedFile uploadedFile,
