@@ -3,11 +3,11 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.UUID;
-import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 
 @Service
 public class SubmissionDetailService {
@@ -27,13 +27,19 @@ public class SubmissionDetailService {
     return submissionDetailRepository.findById(id);
   }
 
-  public Optional<SubmissionDetail> getSubmissionDetailForId(UUID id) {
-    return getSubmissionDetail(id);
+  Optional<SubmissionDetail> getLatestSubmissionDetailByResource(Resource resource) {
+    return submissionDetailRepository.findFirstByResourceIdOrderByCreatedTimestampDesc(resource);
+  }
+
+  public SubmissionDetail getLatestSubmissionDetailForResourceOrThrow(Resource resource) {
+    return getLatestSubmissionDetailByResource(resource)
+        .orElseThrow(() -> new RemiEntityNotFoundException("Submission detail for resource with ID %s not found"
+            .formatted(resource.getId())));
   }
 
   public SubmissionDetail getSubmissionDetailForIdOrError(UUID id) {
     return getSubmissionDetail(id)
-        .orElseThrow(() -> new EntityNotFoundException("Submission detail with id %s not found".formatted(id)));
+        .orElseThrow(() -> new RemiEntityNotFoundException("Submission detail with id %s not found".formatted(id)));
   }
 
   SubmissionDetail createInitialSubmissionDetail(Resource resource, SubmissionType submissionType) {

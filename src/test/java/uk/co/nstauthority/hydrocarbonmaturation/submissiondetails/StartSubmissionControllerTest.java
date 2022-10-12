@@ -20,6 +20,7 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartUpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @WithMockUser
@@ -30,7 +31,7 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
   SubmissionTypeSelectService submissionTypeSelectService;
 
   @Test
-  void startSubmission_whenValidForm_assertRedirection() throws Exception {
+  void startSubmission_whenValidFormAndCreateProspect_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -39,10 +40,24 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
             .with(csrf())
-            .param("submissionType", SubmissionType.CREATE_PROSPECT.name())
-    ).andExpect(status().is3xxRedirection())
-    .andExpect(redirectedUrl(ReverseRouter.route(on(StartProspectController.class).getStartPage())));
+            .param("submissionType", SubmissionType.CREATE_PROSPECT.name()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(StartProspectController.class).getStartPage())));
+  }
 
+  @Test
+  void startSubmission_whenValidFormAndUpdateProspect_assertRedirection() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+                .with(csrf())
+                .param("submissionType", SubmissionType.PROSPECT_UPDATE.name())
+        ).andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage())));
   }
 
   @Test

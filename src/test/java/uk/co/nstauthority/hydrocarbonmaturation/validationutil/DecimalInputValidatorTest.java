@@ -1,5 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation;
-
+package uk.co.nstauthority.hydrocarbonmaturation.validationutil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -15,7 +14,6 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.TypeMismatchTestForm;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 
 @ExtendWith(MockitoExtension.class)
 class DecimalInputValidatorTest {
