@@ -26,4 +26,4 @@
     - Save file upload descriptions by calling supportingDocumentService.updateSupportingDocumentDescriptions and passing in the file upload list from the form.
 
 **Freemarker** _(see opportunityDetails.ftl)_
-- Use the FileUploadTemplate passed into the modal and view with the given attributes to set out the fdsFileUpload.fileUpload macro
+- Use the FileUploadTemplate passed into the model and view with the given attributes to set out the fdsFileUpload.fileUpload macro
