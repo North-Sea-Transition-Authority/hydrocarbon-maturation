@@ -146,7 +146,7 @@ class SupportingDocumentServiceTest {
         )
         .contains(
             tuple(
-                uploadedFile.getId().toString(),
+                uploadedFile.getId(),
                 uploadedFile.getDescription(),
                 uploadedFile.getUploadedTimeStamp()
             )
