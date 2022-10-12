@@ -27,7 +27,7 @@ class S3ClientServiceTest {
   @Mock
   private AmazonS3 amazonS3Mock;
 
-  private final S3Config s3Config = new S3Config("", "", "", "", BUCKET_NAME);
+  private final S3Config s3Config = new S3Config("", "", "", "", BUCKET_NAME, false);
   private S3ClientService s3ClientService;
   private String s3Key;
 

@@ -104,7 +104,7 @@ class OpportunityDetailsFormServiceTest {
 
     opportunityDetailsFormService.getMapOfOpportunityUploads(form);
 
-    verify(supportingDocumentService, times(1)).getFileUploadViewList(anyList());
+    verify(supportingDocumentService, times(1)).getFileUploadFdsViewList(anyList());
   }
 
   private OpportunityDetail getOpportunityDetail(SubmissionDetail submissionDetail) {
