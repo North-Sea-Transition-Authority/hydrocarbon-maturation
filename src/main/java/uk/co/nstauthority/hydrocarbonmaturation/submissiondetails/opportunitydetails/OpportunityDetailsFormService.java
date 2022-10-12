@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
@@ -57,8 +57,8 @@ class OpportunityDetailsFormService implements SubmissionFormService {
     return bindingResult;
   }
 
-  public List<FileUploadView> getMapOfOpportunityUploads(OpportunityDetailsForm opportunityDetailsForm) {
+  public List<FileUploadFdsView> getMapOfOpportunityUploads(OpportunityDetailsForm opportunityDetailsForm) {
     var mapOfOpportunityUploadIdList = FileUploadUtils.getUploadIdList(opportunityDetailsForm.getMapOfOpportunity());
-    return supportingDocumentService.getFileUploadViewList(mapOfOpportunityUploadIdList);
+    return supportingDocumentService.getFileUploadFdsViewList(mapOfOpportunityUploadIdList);
   }
 }

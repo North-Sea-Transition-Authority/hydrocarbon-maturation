@@ -16,7 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.VirtualFolder;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -70,9 +70,9 @@ public class SupportingDocumentService {
         .toList();
   }
 
-  public List<FileUploadView> getFileUploadViewList(List<UUID> fileUploadIdList) {
+  public List<FileUploadFdsView> getFileUploadFdsViewList(List<UUID> fileUploadIdList) {
     return fileUploadService.getFileUploadsByIdList(fileUploadIdList).stream()
-        .map(this::createFileUploadView)
+        .map(this::createFileUploadFdsView)
         .toList();
   }
 
@@ -112,8 +112,8 @@ public class SupportingDocumentService {
         });
   }
 
-  private FileUploadView createFileUploadView(UploadedFile uploadedFile) {
-    return new FileUploadView(
+  private FileUploadFdsView createFileUploadFdsView(UploadedFile uploadedFile) {
+    return new FileUploadFdsView(
         uploadedFile.getId().toString(),
         uploadedFile.getFilename(),
         FileUploadUtils.fileSizeFormatter(uploadedFile.getFileSizeBytes()),

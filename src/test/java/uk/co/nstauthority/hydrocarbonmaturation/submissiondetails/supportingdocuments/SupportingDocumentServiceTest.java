@@ -29,7 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadErrorType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.VirtualFolder;
@@ -154,19 +154,19 @@ class SupportingDocumentServiceTest {
   }
 
   @Test
-  void getFileUploadViewList() {
+  void getFileUploadFdsViewList() {
     var uuid = UUID.randomUUID();
 
     when(fileUploadService.getFileUploadsByIdList(List.of(uuid))).thenReturn(List.of(uploadedFile));
-    var fileUploadViews = supportingDocumentService.getFileUploadViewList(List.of(uuid));
+    var fileUploadFdsViews = supportingDocumentService.getFileUploadFdsViewList(List.of(uuid));
 
-    assertThat(fileUploadViews)
+    assertThat(fileUploadFdsViews)
         .extracting(
-            FileUploadView::getFileId,
-            FileUploadView::getFileName,
-            FileUploadView::getFileSize,
-            FileUploadView::getFileDescription,
-            FileUploadView::getFileUploadedTime
+            FileUploadFdsView::getFileId,
+            FileUploadFdsView::getFileName,
+            FileUploadFdsView::getFileSize,
+            FileUploadFdsView::getFileDescription,
+            FileUploadFdsView::getFileUploadedTime
         )
         .contains(
             tuple(
