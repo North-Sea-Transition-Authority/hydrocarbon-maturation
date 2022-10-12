@@ -48,8 +48,8 @@ public class SupportingDocumentService {
       return FileUploadResult.error(filename, multipartFile, uploadErrorType);
     }
 
-    var uploadedFile = fileUploadService.uploadFileAndSaveRecord(
-        VirtualFolder.SUPPORTING_DOCUMENTS, multipartFile, fileSize, filename, contentType);
+    var uploadedFile = fileUploadService.createdAndSaveUploadedFile(
+        VirtualFolder.SUPPORTING_DOCUMENTS, fileSize, filename, contentType);
 
     var supportingDocument = new SupportingDocument();
     supportingDocument.setSubmissionDetail(submissionDetail);
@@ -57,6 +57,10 @@ public class SupportingDocumentService {
     supportingDocument.setUploadedFile(uploadedFile);
 
     supportingDocumentRepository.save(supportingDocument);
+
+    // Persist uploaded file and supporting document records first,
+    // so if it fails, we don't upload. If upload fails, we will roll back
+    fileUploadService.uploadFile(multipartFile, uploadedFile);
 
     return FileUploadResult.valid(uploadedFile.getId().toString(), filename, multipartFile);
   }

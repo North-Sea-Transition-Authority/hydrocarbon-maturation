@@ -31,12 +31,7 @@ public class FileUploadService {
     this.clock = clock;
   }
 
-  public UploadedFile uploadFileAndSaveRecord(VirtualFolder virtualFolder, MultipartFile multipartFile, long fileSize,
-                                       String filename, String contentType) {
-    var objectMetadata = new ObjectMetadata();
-    objectMetadata.setContentLength(fileSize);
-    objectMetadata.setContentType(contentType);
-
+  public UploadedFile createdAndSaveUploadedFile(VirtualFolder virtualFolder, long fileSize, String filename, String contentType) {
     var s3Key = createS3KeyWithPath(virtualFolder);
 
     var uploadedFile = createUploadedFile(
@@ -46,16 +41,23 @@ public class FileUploadService {
         filename,
         contentType,
         fileSize);
-    // Persist upload file record first, so if it fails, we don't upload. If upload fails, we will roll back
+
     uploadedFileRepository.save(uploadedFile);
 
+    return uploadedFile;
+  }
+
+  public void uploadFile(MultipartFile multipartFile, UploadedFile uploadedFile) {
+    var objectMetadata = new ObjectMetadata();
+    objectMetadata.setContentLength(uploadedFile.getFileSizeBytes());
+    objectMetadata.setContentType(uploadedFile.getFileContentType());
+
     try {
-      s3ClientService.storeFile(s3ClientService.getDefaultBucketName(), s3Key, multipartFile.getInputStream(), objectMetadata);
+      s3ClientService.storeFile(s3ClientService.getDefaultBucketName(), uploadedFile.getS3Key(), multipartFile.getInputStream(),
+          objectMetadata);
     } catch (Exception e) {
       throw new FileUploadException(multipartFile, e);
     }
-
-    return uploadedFile;
   }
 
   public UploadedFile findUploadedFileOrThrow(UUID uploadedFileId) {

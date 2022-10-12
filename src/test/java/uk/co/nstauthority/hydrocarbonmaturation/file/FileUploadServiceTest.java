@@ -61,28 +61,33 @@ class FileUploadServiceTest {
   }
 
   @Test
-  void uploadFileAndSaveRecord() {
-    fileUploadService.uploadFileAndSaveRecord(virtualFolder, multipartFile, fileSize, filename, contentType);
+  void createdAndSaveUploadedFile() {
+    fileUploadService.createdAndSaveUploadedFile(virtualFolder, fileSize, filename, contentType);
     verify(uploadedFileRepository).save(any(UploadedFile.class));
-    verify(s3ClientService).storeFile(eq(bucketName), anyString(), any(InputStream.class), any(ObjectMetadata.class));
   }
 
   @Test
-  void uploadFileAndSaveRecord_UploadFailed() {
+  void uploadFile_UploadFailed() {
     doThrow(MockitoException.class).when(s3ClientService)
         .storeFile(eq(bucketName), anyString(), any(InputStream.class), any(ObjectMetadata.class));
 
     assertThatExceptionOfType(FileUploadException.class).isThrownBy(() -> {
-      fileUploadService.uploadFileAndSaveRecord(virtualFolder, multipartFile, fileSize, filename, contentType);
+      fileUploadService.uploadFile(multipartFile, uploadedFile);
     });
   }
 
   @Test
-  void uploadFileAndSaveRecord_UploadedFileRecordSaved() {
+  void uploadFile() {
+    fileUploadService.uploadFile(multipartFile, uploadedFile);
+    verify(s3ClientService).storeFile(eq(bucketName), anyString(), any(InputStream.class), any(ObjectMetadata.class));
+  }
+
+  @Test
+  void createdAndSaveUploadedFile_UploadedFileRecordSaved() {
     when(s3ClientService.getDefaultBucketName()).thenReturn(bucketName);
 
     var argumentCaptor = ArgumentCaptor.forClass(UploadedFile.class);
-    fileUploadService.uploadFileAndSaveRecord(virtualFolder, multipartFile, fileSize, filename, contentType);
+    fileUploadService.createdAndSaveUploadedFile(virtualFolder, fileSize, filename, contentType);
 
     verify(uploadedFileRepository).save(argumentCaptor.capture());
     var file = argumentCaptor.getValue();

@@ -86,7 +86,7 @@ class SupportingDocumentServiceTest {
     when(fileUploadService.sanitiseFilename(filename)).thenReturn(filename);
     doReturn(uploadedFile)
         .when(fileUploadService)
-        .uploadFileAndSaveRecord(virtualFolder, multipartFile, fileSize, filename, contentType);
+        .createdAndSaveUploadedFile(virtualFolder, fileSize, filename, contentType);
 
     var fileUploadResult = supportingDocumentService.processFileUpload(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY, multipartFile);
 
