@@ -36,7 +36,7 @@ class OpportunityDetailsPersistenceService {
       opportunityDetail.setOtherTypeOfOpportunity(null);
     }
 
-    supportingDocumentService.updateSupportingDocumentDescriptions(form.getMapOfOpportunity());
+    supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getMapOfOpportunity());
 
     opportunityDetailsRepository.save(opportunityDetail);
   }

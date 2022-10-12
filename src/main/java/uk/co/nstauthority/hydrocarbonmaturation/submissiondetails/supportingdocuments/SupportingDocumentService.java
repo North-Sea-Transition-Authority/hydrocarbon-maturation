@@ -98,12 +98,13 @@ public class SupportingDocumentService {
     if (supportingDocuments.size() == 1) {
       fileUploadService.deleteFile(uploadedFile);
     }
+    // TODO HM-218 add logging for else size is greater than one
 
     return FileDeleteResult.success(uploadedFile.getId().toString());
   }
 
   @Transactional
-  public void updateSupportingDocumentDescriptions(List<FileUploadDetail> fileUploadDetailList) {
+  public void updateSupportingDocumentFileDescriptions(List<FileUploadDetail> fileUploadDetailList) {
     fileUploadDetailList
         .forEach(fileUploadDetail -> {
           var uploadedFileId = UUID.fromString(fileUploadDetail.getUploadedFileId());

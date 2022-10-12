@@ -201,7 +201,7 @@ class SupportingDocumentServiceTest {
     FileUploadDetail fileUploadDetail = createFileUploadDetail(uuid);
     when(fileUploadService.findUploadedFileOrThrow(uuid)).thenReturn(uploadedFile);
 
-    supportingDocumentService.updateSupportingDocumentDescriptions(List.of(fileUploadDetail));
+    supportingDocumentService.updateSupportingDocumentFileDescriptions(List.of(fileUploadDetail));
 
     verify(fileUploadService, times(1)).updateFileDescription(uploadedFile, fileUploadDetail.getUploadedFileDescription());
   }
