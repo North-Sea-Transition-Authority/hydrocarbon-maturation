@@ -14,7 +14,7 @@
   pageSize=PageSize.TWO_THIRDS_COLUMN
   backLinkUrl=springUrl(backLinkUrl)>
   <@fdsForm.htmlForm actionUrl=springUrl(actionUrl)>
-    <@fdsSearchSelector.searchSelectorRest path="form.prospectSelectedOption" restUrl=springUrl(prospectApiEndpoint) labelText="What prospect is being updated?"/>
+    <@fdsSearchSelector.searchSelectorRest path="form.prospectSelectedOption" restUrl=springUrl(prospectApiEndpoint) labelText="What prospect is being updated?" selectorMinInputLength=3/>
     <@fdsDetails.summaryDetails summaryTitle="The prospect I want to update is not listed">
       <p class="govuk-body">
         Only prospects that exist on an extant licence are shown. Prospects that have already had a post-drill submission can no longer be updated here.
