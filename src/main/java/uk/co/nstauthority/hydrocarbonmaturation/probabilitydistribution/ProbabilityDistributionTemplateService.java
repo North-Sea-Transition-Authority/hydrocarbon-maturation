@@ -14,91 +14,17 @@ public class ProbabilityDistributionTemplateService {
   ) {
     var presetTypes = instance.getPresetTypes();
 
+
     List<ProbabilityDistributionTypeWithInputs> probabilityDistributionTypeWithInputsList = new ArrayList<>();
 
     presetTypes.forEach(type -> {
 
       var probabilityDistributionTypeWithInputs = new ProbabilityDistributionTypeWithInputs();
-
       probabilityDistributionTypeWithInputs.setProbabilityDistributionType(type);
 
-      List<ProbabilityDistributionTypeInput> probabilityDistributionTypeInputs = new ArrayList<>();
+      var behaviour = determineBehaviour(instance, type);
 
-      var behaviour = type.newInstance();
-
-      checkAvailabilityAndAddProbabilityInputs(
-          behaviour.isMinAvailable(),
-          behaviour.isMinRequired(),
-          ProbabilityOfExceedanceType.MIN,
-          probabilityDistributionTypeInputs
-      );
-
-      checkAvailabilityAndAddProbabilityInputs(
-          behaviour.isP99Available(),
-          behaviour.isP99Required(),
-          ProbabilityOfExceedanceType.P99,
-          probabilityDistributionTypeInputs
-      );
-
-      checkAvailabilityAndAddProbabilityInputs(
-          behaviour.isP90Available(),
-          behaviour.isP90Required(),
-          ProbabilityOfExceedanceType.P90,
-          probabilityDistributionTypeInputs
-      );
-
-      checkAvailabilityAndAddProbabilityInputs(
-          behaviour.isModeAvailable(),
-          behaviour.isModeRequired(),
-          ProbabilityOfExceedanceType.MODE,
-          probabilityDistributionTypeInputs
-      );
-
-      checkAvailabilityAndAddProbabilityInputs(
-          behaviour.isP50Available(),
-          behaviour.isP50Required(),
-          ProbabilityOfExceedanceType.P50,
-          probabilityDistributionTypeInputs
-      );
-
-      checkAvailabilityAndAddProbabilityInputs(
-          behaviour.isMeanAvailable(),
-          behaviour.isMeanRequired(),
-          ProbabilityOfExceedanceType.MEAN,
-          probabilityDistributionTypeInputs
-      );
-
-      checkAvailabilityAndAddProbabilityInputs(
-          behaviour.isP10Available(),
-          behaviour.isP10Required(),
-          ProbabilityOfExceedanceType.P10,
-          probabilityDistributionTypeInputs
-      );
-
-      checkAvailabilityAndAddProbabilityInputs(
-          behaviour.isP1Available(),
-          behaviour.isP1Required(),
-          ProbabilityOfExceedanceType.P1,
-          probabilityDistributionTypeInputs
-      );
-
-      checkAvailabilityAndAddProbabilityInputs(
-          behaviour.isMaxAvailable(),
-          behaviour.isMaxRequired(),
-          ProbabilityOfExceedanceType.MAX,
-          probabilityDistributionTypeInputs
-      );
-
-      checkAvailabilityAndAddProbabilityInputs(
-          behaviour.isConstantAvailable(),
-          behaviour.isConstantRequired(),
-          ProbabilityOfExceedanceType.CONSTANT,
-          probabilityDistributionTypeInputs
-      );
-
-      probabilityDistributionTypeWithInputs.setProbabilityDistributionTypeInputs(probabilityDistributionTypeInputs);
-
-      probabilityDistributionTypeWithInputsList.add(probabilityDistributionTypeWithInputs);
+      addAddProbabilityInputsToList(probabilityDistributionTypeWithInputsList, probabilityDistributionTypeWithInputs, behaviour);
     });
 
     var probabilityDistributionTemplate = new ProbabilityDistributionTemplate();
@@ -106,6 +32,95 @@ public class ProbabilityDistributionTemplateService {
     probabilityDistributionTemplate.setProbabilityDistributionTypeWithInputsList(probabilityDistributionTypeWithInputsList);
     return probabilityDistributionTemplate;
 
+  }
+
+  private ProbabilityDistributionTypeBehaviour determineBehaviour(ProbabilityDistributionFieldInstance instance,
+                                                                  ProbabilityDistributionType type) {
+
+    return instance.isCustomType()
+        ? ProbabilityDistributionTypeBehaviourUtil.newCustomBehaviourInstance(instance)
+        : type.newPresetInstance();
+  }
+
+  private void addAddProbabilityInputsToList(
+      List<ProbabilityDistributionTypeWithInputs> probabilityDistributionTypeWithInputsList,
+      ProbabilityDistributionTypeWithInputs probabilityDistributionTypeWithInputs,
+      ProbabilityDistributionTypeBehaviour behaviour) {
+    List<ProbabilityDistributionTypeInput> probabilityDistributionTypeInputs = new ArrayList<>();
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isMinAvailable(),
+        behaviour.isMinRequired(),
+        ProbabilityOfExceedanceType.MIN,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isP99Available(),
+        behaviour.isP99Required(),
+        ProbabilityOfExceedanceType.P99,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isP90Available(),
+        behaviour.isP90Required(),
+        ProbabilityOfExceedanceType.P90,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isModeAvailable(),
+        behaviour.isModeRequired(),
+        ProbabilityOfExceedanceType.MODE,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isP50Available(),
+        behaviour.isP50Required(),
+        ProbabilityOfExceedanceType.P50,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isMeanAvailable(),
+        behaviour.isMeanRequired(),
+        ProbabilityOfExceedanceType.MEAN,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isP10Available(),
+        behaviour.isP10Required(),
+        ProbabilityOfExceedanceType.P10,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isP1Available(),
+        behaviour.isP1Required(),
+        ProbabilityOfExceedanceType.P1,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isMaxAvailable(),
+        behaviour.isMaxRequired(),
+        ProbabilityOfExceedanceType.MAX,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isConstantAvailable(),
+        behaviour.isConstantRequired(),
+        ProbabilityOfExceedanceType.CONSTANT,
+        probabilityDistributionTypeInputs
+    );
+
+    probabilityDistributionTypeWithInputs.setProbabilityDistributionTypeInputs(probabilityDistributionTypeInputs);
+
+    probabilityDistributionTypeWithInputsList.add(probabilityDistributionTypeWithInputs);
   }
 
   public ProbabilityDistributionTypeError getProbabilityDistributionTypeError(

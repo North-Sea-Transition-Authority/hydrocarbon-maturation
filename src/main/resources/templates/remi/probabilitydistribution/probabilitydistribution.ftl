@@ -29,17 +29,17 @@
 
   <div class="govuk-form-group ${formGroupClass} <#if hasError>govuk-form-group--error</#if>">
       <@fdsFieldset.fieldset
-      legendHeading=labelText
-      legendHeadingSize=fieldsetHeadingSize
-      legendHeadingClass=fieldsetHeadingClass
-      caption=caption
-      captionClass=captionClass
-      optionalLabel=optionalLabel
-      hintText=hintText
-      formErrorId=formId
-      formHasError=hasError
-      showHeadingOnly=showLabelOnly
-      noFieldsetHeadingSize=noFieldsetHeadingSize>
+          legendHeading=labelText
+          legendHeadingSize=fieldsetHeadingSize
+          legendHeadingClass=fieldsetHeadingClass
+          caption=caption
+          captionClass=captionClass
+          optionalLabel=optionalLabel
+          hintText=hintText
+          formErrorId=formId
+          formHasError=hasError
+          showHeadingOnly=showLabelOnly
+          noFieldsetHeadingSize=noFieldsetHeadingSize>
 
           ${moreNestedContent}
 
@@ -97,6 +97,36 @@
 
 
 
+<#macro probabilityDistributionSingle
+    probabilityDistributionTypePath
+    formId
+    error
+    inputs
+    labelText="">
+
+    <@probabilityDistributionFieldSet
+        formId=formId
+        labelText=labelText
+        nestingPath=probabilityDistributionTypePath
+        error=error
+        probabilityDistributionType=inputs.probabilityDistributionType>
+
+        <#if error.hasError() && error.probabilityDistributionType().name()==inputs.probabilityDistributionType.name()>
+            <@springFtl.bind error.fullErrorPath()/>
+            <@fdsError.inputError inputId=error.errorId()/>
+            <@springFtl.bind probabilityDistributionTypePath/>
+        </#if>
+
+        <@probabilityDistributionInputList
+        probabilityDistributionInputs=inputs.probabilityDistributionTypeInputs
+        pathPrefix=probabilityDistributionTypePath?replace("probabilityDistributionType", "")+inputs.probabilityDistributionType.path/>
+        <#assign firstItem=false/>
+    </@probabilityDistributionFieldSet>
+
+</#macro>
+
+
+
 <#macro probabilityDistributionTemplate
     probabilityDistributionTypePath
     labelText
@@ -105,10 +135,11 @@
     error
     optionalLabel=false>
     <#if optionalLabel>
-      <#assign radioGroupLabelText = "${labelText} (optional)">
+        <#assign radioGroupLabelText = "${labelText} (optional)">
     <#else>
-      <#assign radioGroupLabelText = "${labelText}">
+        <#assign radioGroupLabelText = "${labelText}">
     </#if>
+
     <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=radioGroupLabelText hiddenContent=true>
         <#assign firstItem=true/>
         <#list template.probabilityDistributionTypeWithInputsList as inputs>
@@ -116,26 +147,34 @@
                 path=probabilityDistributionTypePath
                 itemMap={inputs.probabilityDistributionType.name() : inputs.probabilityDistributionType.displayName}
                 isFirstItem=firstItem>
-                <@probabilityDistributionFieldSet
+                <@probabilityDistributionSingle
+                    probabilityDistributionTypePath=probabilityDistributionTypePath
                     formId=formId
                     labelText="Probability of exceedance (${template.units})"
-                    nestingPath=probabilityDistributionTypePath
                     error=error
-                    probabilityDistributionType=inputs.probabilityDistributionType>
-
-                    <#if error.hasError() && error.probabilityDistributionType().name()==inputs.probabilityDistributionType.name()>
-                        <@springFtl.bind error.fullErrorPath()/>
-                        <@fdsError.inputError inputId=error.errorId()/>
-                        <@springFtl.bind probabilityDistributionTypePath/>
-                    </#if>
-
-                    <@probabilityDistributionInputList
-                        probabilityDistributionInputs=inputs.probabilityDistributionTypeInputs
-                        pathPrefix=probabilityDistributionTypePath?replace("probabilityDistributionType", "")+inputs.probabilityDistributionType.path/>
-                    <#assign firstItem=false/>
-                </@probabilityDistributionFieldSet>
+                    inputs=inputs/>
             </@fdsRadio.radioItem>
         </#list>
     </@fdsRadio.radioGroup>
+
+</#macro>
+
+
+
+<#macro probabilityDistributionCustomTemplate
+    probabilityDistributionTypePath
+    labelText
+    formId
+    template
+    error>
+
+    <#assign probabilityDistributionTypePath=probabilityDistributionTypePath>
+    <@springFtl.formHiddenInput path=probabilityDistributionTypePath/>
+    <@probabilityDistributionSingle
+        probabilityDistributionTypePath=probabilityDistributionTypePath
+        formId=formId
+        labelText=labelText+" (${template.units})"
+        error=error
+        inputs=template.probabilityDistributionTypeWithInputsList[0]/>
 
 </#macro>

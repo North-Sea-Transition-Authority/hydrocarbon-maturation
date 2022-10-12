@@ -16,6 +16,8 @@ public class ProbabilityDistributionForm {
 
   private ProbabilityOfExceedanceForm constant = new ProbabilityOfExceedanceForm();
 
+  private ProbabilityOfExceedanceForm custom = new ProbabilityOfExceedanceForm();
+
   public ProbabilityDistributionType getProbabilityDistributionType() {
     return probabilityDistributionType;
   }
@@ -77,6 +79,14 @@ public class ProbabilityDistributionForm {
     this.constant = constant;
   }
 
+  public ProbabilityOfExceedanceForm getCustom() {
+    return custom;
+  }
+
+  public void setCustom(ProbabilityOfExceedanceForm custom) {
+    this.custom = custom;
+  }
+
   public ProbabilityOfExceedanceForm getProbabilityOfExceedanceForm() {
     return switch (probabilityDistributionType) {
       case NORMAL -> normal;
@@ -85,6 +95,20 @@ public class ProbabilityDistributionForm {
       case TRIANGULAR -> triangular;
       case RECTANGULAR -> rectangular;
       case CONSTANT -> constant;
+      case CUSTOM -> custom;
     };
+  }
+
+  public void setProbabilityOfExceedanceForm(ProbabilityOfExceedanceForm exceedanceForm) {
+    switch (probabilityDistributionType) {
+      case NORMAL -> setNormal(exceedanceForm);
+      case LOGNORMAL -> setLognormal(exceedanceForm);
+      case BETA -> setBeta(exceedanceForm);
+      case TRIANGULAR -> setTriangular(exceedanceForm);
+      case RECTANGULAR -> setRectangular(exceedanceForm);
+      case CONSTANT -> setConstant(exceedanceForm);
+      case CUSTOM -> setCustom(exceedanceForm);
+      default -> throw new IllegalStateException("Unexpected value: " + probabilityDistributionType);
+    }
   }
 }
