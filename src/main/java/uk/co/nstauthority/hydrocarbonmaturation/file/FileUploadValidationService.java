@@ -18,7 +18,7 @@ public class FileUploadValidationService {
     this.fileUploadConfig = fileUploadConfig;
   }
 
-  UploadErrorType validateFileUpload(MultipartFile multipartFile, long fileSize, String filename) {
+  public UploadErrorType validateFileUpload(MultipartFile multipartFile, long fileSize, String filename) {
     if (!isFileExtensionAllowed(filename)) {
       return UploadErrorType.EXTENSION_NOT_ALLOWED;
     }

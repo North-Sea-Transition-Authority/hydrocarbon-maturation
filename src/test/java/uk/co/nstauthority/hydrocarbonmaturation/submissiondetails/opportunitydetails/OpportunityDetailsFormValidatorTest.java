@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -54,7 +56,8 @@ class OpportunityDetailsFormValidatorTest {
     assertThat(extractedErrors)
         .containsExactly(
             entry("opportunityType", Set.of("opportunityType.required")),
-            entry("keyEvaluationWorkCarriedOut", Set.of("keyEvaluationWorkCarriedOut.required"))
+            entry("keyEvaluationWorkCarriedOut", Set.of("keyEvaluationWorkCarriedOut.required")),
+            entry("mapOfOpportunity", Set.of("mapOfOpportunity.required"))
         );
   }
 
@@ -99,6 +102,19 @@ class OpportunityDetailsFormValidatorTest {
   }
 
   @Test
+  void validate_whenInValidForm_noMapOfOpportunityFileDescriptionUploaded_thenValidationErrors() {
+    var form = getValidOpportunityDetailsForm();
+    form.setMapOfOpportunity(List.of(new FileUploadDetail()));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm_fullValidation(form));
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("mapOfOpportunity[0].uploadedFileDescription", Set.of("mapOfOpportunity[0].uploadedFileDescription.required"))
+        );
+  }
+
+  @Test
   void validate_whenEmptyFormAndPartialValidation_thenNoValidationErrors() {
     var form = new OpportunityDetailsForm();
     var bindingResult = validateOpportunityDetailsForm_partialValidation(form);
@@ -126,6 +142,9 @@ class OpportunityDetailsFormValidatorTest {
     form.setOpportunityType(OpportunityType.LEAD);
     form.setKeyEvaluationWorkCarriedOut("Work being carried out");
     form.setKeyWorkRequiredForFurtherMaturation("Key work");
+    FileUploadDetail fileUploadDetail = new FileUploadDetail();
+    fileUploadDetail.setUploadedFileDescription("File description");
+    form.setMapOfOpportunity(List.of(fileUploadDetail));
     return form;
   }
 }

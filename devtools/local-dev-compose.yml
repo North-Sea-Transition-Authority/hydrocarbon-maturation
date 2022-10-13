@@ -22,7 +22,9 @@ services:
       - "9090:9090"
       - "9191:9191"
     environment:
-      initialBuckets: dev-test
+      initialBuckets: remi-dev
+      retainFilesOnExit: true
+      root: ./s3data
 
 volumes:
   db-volume:

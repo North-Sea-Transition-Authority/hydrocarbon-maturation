@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class OpportunityDetailsPersistenceServiceTest {
@@ -19,13 +20,16 @@ class OpportunityDetailsPersistenceServiceTest {
   @Mock
   private static OpportunityDetailsRepository opportunityDetailsRepository;
 
+  @Mock
+  private SupportingDocumentService supportingDocumentService;
   private static OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
 
   private static SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setup() {
-    opportunityDetailsPersistenceService = new OpportunityDetailsPersistenceService(opportunityDetailsRepository);
+    opportunityDetailsPersistenceService = new OpportunityDetailsPersistenceService(opportunityDetailsRepository,
+        supportingDocumentService);
 
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();

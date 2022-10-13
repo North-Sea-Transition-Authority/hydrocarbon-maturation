@@ -23,34 +23,39 @@ public class S3ClientService {
     return s3Config.bucketName();
   }
 
-  boolean doesBucketExist() {
-    return s3Client.doesBucketExistV2(getDefaultBucketName());
+  boolean doesBucketExist(String bucketName) {
+    return s3Client.doesBucketExistV2(bucketName);
   }
 
   boolean doesObjectExist(String bucketName, String s3Key) {
     return s3Client.doesObjectExist(bucketName, s3Key);
   }
 
-  public void storeFile(String s3Key, InputStream fileInputStream, ObjectMetadata objectMetadata) {
-    s3Client.putObject(getDefaultBucketName(), s3Key, fileInputStream, objectMetadata);
+  public void storeFile(String bucketName, String s3Key, InputStream fileInputStream, ObjectMetadata objectMetadata) {
+    doesBucketExistOrThrow(bucketName);
+
+    s3Client.putObject(bucketName, s3Key, fileInputStream, objectMetadata);
   }
 
-  public InputStream fetchFile(String s3Key) {
-    var defaultBucketName = getDefaultBucketName();
-    doesObjectExistOrThrow(defaultBucketName, s3Key);
+  public InputStream fetchFile(String bucketName, String s3Key) {
+    doesObjectExistOrThrow(bucketName, s3Key);
 
-    return s3Client.getObject(defaultBucketName, s3Key).getObjectContent();
+    return s3Client.getObject(bucketName, s3Key).getObjectContent();
   }
 
-  public void deleteFile(String s3Key) {
-    var bucketName = getDefaultBucketName();
-
+  public void deleteFile(String bucketName, String s3Key) {
     doesObjectExistOrThrow(bucketName, s3Key);
 
     try {
       s3Client.deleteObject(bucketName, s3Key);
     } catch (SdkClientException e) {
       throw new S3DeleteFileFailedException(bucketName, s3Key, e);
+    }
+  }
+
+  private void doesBucketExistOrThrow(String bucketName) {
+    if (!doesBucketExist(bucketName)) {
+      throw new S3BucketNotFoundException(bucketName);
     }
   }
 

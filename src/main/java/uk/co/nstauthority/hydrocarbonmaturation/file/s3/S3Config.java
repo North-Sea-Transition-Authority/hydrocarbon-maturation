@@ -7,5 +7,6 @@ public record S3Config(String accessKey,
                        String secretKey,
                        String endpoint,
                        String regionName,
-                       String bucketName) {
+                       String bucketName,
+                       Boolean disableSsl) {
 }
