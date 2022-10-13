@@ -47,6 +47,7 @@
           maxAllowedSize=mapOfOpportunityTemplate.maxAllowedSize()
           allowedExtensions=mapOfOpportunityTemplate.allowedExtensions()
           existingFiles=mapOfOpportunityUploads
+          multiFile=false
         />
       </@fdsFieldset.fieldset>
 
