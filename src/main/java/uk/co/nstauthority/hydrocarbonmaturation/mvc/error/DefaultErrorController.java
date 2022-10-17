@@ -34,16 +34,16 @@ public class DefaultErrorController implements ErrorController {
   @GetMapping("/error")
   public ModelAndView handleError(HttpServletRequest request) {
 
-    Optional<Integer> statusCode = Optional.ofNullable(request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE))
+    var statusCode = Optional.ofNullable(request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE))
         .map(Integer.class::cast);
 
     var viewName = statusCode.map(this::getViewName).orElse(ErrorView.DEFAULT_ERROR.getViewName());
     var modelAndView = new ModelAndView(viewName);
 
     //Look for the Spring specific exception first, fall back to the Servlet exception if not available
-    Object dispatcherException = request.getAttribute(DispatcherServlet.EXCEPTION_ATTRIBUTE);
-    Object servletException = request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
-    Throwable throwable = (Throwable) ObjectUtils.defaultIfNull(dispatcherException, servletException);
+    var dispatcherException = request.getAttribute(DispatcherServlet.EXCEPTION_ATTRIBUTE);
+    var servletException = request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
+    var throwable = (Throwable) ObjectUtils.defaultIfNull(dispatcherException, servletException);
 
     errorService.addErrorAttributesToModel(modelAndView, throwable);
 

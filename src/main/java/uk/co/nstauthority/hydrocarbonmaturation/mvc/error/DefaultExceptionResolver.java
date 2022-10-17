@@ -33,11 +33,11 @@ public class DefaultExceptionResolver extends SimpleMappingExceptionResolver {
       //otherwise Spring attempts to write to the broken response.
       LOGGER.trace("Suppressed ClientAbortException");
       return null;
-    } else {
-      var modelAndView = super.getModelAndView(viewName, ex);
-      errorService.addErrorAttributesToModel(modelAndView, ex);
-
-      return modelAndView;
     }
+
+    var modelAndView = super.getModelAndView(viewName, ex);
+    errorService.addErrorAttributesToModel(modelAndView, ex);
+
+    return modelAndView;
   }
 }
