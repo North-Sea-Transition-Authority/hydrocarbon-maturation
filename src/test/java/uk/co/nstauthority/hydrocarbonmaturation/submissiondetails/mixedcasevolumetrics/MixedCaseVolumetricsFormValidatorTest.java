@@ -65,12 +65,16 @@ class MixedCaseVolumetricsFormValidatorTest {
                 Set.of("formationVolumeFactor.probabilityDistributionType.required")),
             entry("oilHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("oilHydrocarbonSaturation.probabilityDistributionType.required")),
+            entry("associatedGasOilRatioLifeOfField.probabilityDistributionType",
+                Set.of("associatedGasOilRatioLifeOfField.probabilityDistributionType.required")),
             entry("oilRecoveryFactor.probabilityDistributionType",
                 Set.of("oilRecoveryFactor.probabilityDistributionType.required")),
             entry("gasHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("gasHydrocarbonSaturation.probabilityDistributionType.required")),
             entry("gasExpansionFactor.probabilityDistributionType",
                 Set.of("gasExpansionFactor.probabilityDistributionType.required")),
+            entry("condensateGasRatioLifeOfField.probabilityDistributionType",
+                Set.of("condensateGasRatioLifeOfField.probabilityDistributionType.required")),
             entry("gasRecoveryFactor.probabilityDistributionType",
                 Set.of("gasRecoveryFactor.probabilityDistributionType.required"))
         );
@@ -79,8 +83,8 @@ class MixedCaseVolumetricsFormValidatorTest {
   @ParameterizedTest
   @EnumSource(
       value = ProbabilityDistributionType.class,
-      names = {"CUSTOM"},
-      mode = EnumSource.Mode.EXCLUDE
+      mode = EnumSource.Mode.EXCLUDE,
+      names = {"CUSTOM", "NOT_CALCULATED"}
   )
   void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
@@ -97,14 +101,14 @@ class MixedCaseVolumetricsFormValidatorTest {
                 Set.of("oilHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error",
                 Set.of("gasHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
-                Set.of("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error",
                 Set.of("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("condensateGasRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
                 Set.of("condensateGasRatioLifeOfField." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilRecoveryFactor." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilRecoveryFactor." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
+                Set.of("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error",
                 Set.of("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error.error"))
         );
@@ -113,8 +117,8 @@ class MixedCaseVolumetricsFormValidatorTest {
   @ParameterizedTest
   @EnumSource(
       value = ProbabilityDistributionType.class,
-      names = {"CUSTOM"},
-      mode = EnumSource.Mode.EXCLUDE
+      mode = EnumSource.Mode.EXCLUDE,
+      names = {"CUSTOM", "NOT_CALCULATED"}
   )
   void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);

@@ -41,8 +41,7 @@
       labelText="Associated gas-oil ratio, life-of-field distribution used"
       formId="associatedGasOilRatioLifeOfField"
       template=associatedGasOilRatioLifeOfFieldTemplate
-      error=associatedGasOilRatioLifeOfFieldError
-      optionalLabel=true/>
+      error=associatedGasOilRatioLifeOfFieldError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.oilRecoveryFactor.probabilityDistributionType"

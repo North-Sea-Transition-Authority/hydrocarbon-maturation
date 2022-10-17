@@ -41,8 +41,7 @@
       labelText="Condensate-gas ratio, life-of-field distribution used"
       formId="condensateGasRatioLifeOfField"
       template=condensateGasRatioLifeOfFieldTemplate
-      error=condensateGasRatioLifeOfFieldError
-      optionalLabel=true/>
+      error=condensateGasRatioLifeOfFieldError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.gasRecoveryFactor.probabilityDistributionType"

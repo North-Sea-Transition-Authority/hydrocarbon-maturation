@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
+
 public abstract class BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
 
   @Override

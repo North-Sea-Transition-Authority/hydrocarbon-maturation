@@ -100,8 +100,8 @@ class TrapPropertiesFormValidatorTest {
   @ParameterizedTest
   @EnumSource(
       value = ProbabilityDistributionType.class,
-      names = {"CUSTOM"},
-      mode = EnumSource.Mode.EXCLUDE
+      mode = EnumSource.Mode.EXCLUDE,
+      names = {"CUSTOM", "NOT_CALCULATED"}
   )
   void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
@@ -121,8 +121,8 @@ class TrapPropertiesFormValidatorTest {
   @ParameterizedTest
   @EnumSource(
       value = ProbabilityDistributionType.class,
-      names = {"CUSTOM"},
-      mode = EnumSource.Mode.EXCLUDE
+      mode = EnumSource.Mode.EXCLUDE,
+      names = {"CUSTOM", "NOT_CALCULATED"}
   )
   void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);

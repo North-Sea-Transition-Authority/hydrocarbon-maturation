@@ -51,6 +51,10 @@ public class ProbabilityDistributionTestUtil {
     return getValidProbabilityDistributionForm(ProbabilityDistributionType.CONSTANT);
   }
 
+  public static ProbabilityDistributionForm getValidNotCalculatedProbabilityDistributionForm() {
+    return getValidProbabilityDistributionForm(ProbabilityDistributionType.NOT_CALCULATED);
+  }
+
   public static ProbabilityDistributionForm getValidCustomProbabilityDistributionForm() {
     return getValidProbabilityDistributionForm(ProbabilityDistributionType.CUSTOM);
   }
@@ -88,6 +92,11 @@ public class ProbabilityDistributionTestUtil {
       case CONSTANT -> {
         var validForm = getValidConstantProbabilityDistributionForm();
         validForm.setConstant(probabilityOfExceedanceForm);
+        return validForm;
+      }
+      case NOT_CALCULATED -> {
+        var validForm = getValidNotCalculatedProbabilityDistributionForm();
+        validForm.setNotCalculated(probabilityOfExceedanceForm);
         return validForm;
       }
       case CUSTOM -> {

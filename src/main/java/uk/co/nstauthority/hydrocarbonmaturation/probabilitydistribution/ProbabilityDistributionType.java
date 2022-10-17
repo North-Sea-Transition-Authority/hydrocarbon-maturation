@@ -9,6 +9,7 @@ public enum ProbabilityDistributionType implements Displayable {
   TRIANGULAR(TriangularBehaviour.class, "Triangular", 4, "triangular"),
   RECTANGULAR(RectangularBehaviour.class, "Rectangular", 5, "rectangular"),
   CONSTANT(ConstantBehaviour.class, "Constant", 6, "constant"),
+  NOT_CALCULATED(NotCalculatedBehaviour.class, "Not calculated", 7, "notCalculated"),
   CUSTOM("custom");
 
   private Class<? extends ProbabilityDistributionTypeBehaviour> presetBehaviour;

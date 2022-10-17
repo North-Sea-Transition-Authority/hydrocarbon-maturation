@@ -132,27 +132,22 @@
     labelText
     formId
     template
-    error
-    optionalLabel=false>
-    <#if optionalLabel>
-        <#assign radioGroupLabelText = "${labelText} (optional)">
-    <#else>
-        <#assign radioGroupLabelText = "${labelText}">
-    </#if>
-
-    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=radioGroupLabelText hiddenContent=true>
+    error>
+    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=labelText hiddenContent=true>
         <#assign firstItem=true/>
         <#list template.probabilityDistributionTypeWithInputsList as inputs>
             <@fdsRadio.radioItem
                 path=probabilityDistributionTypePath
                 itemMap={inputs.probabilityDistributionType.name() : inputs.probabilityDistributionType.displayName}
                 isFirstItem=firstItem>
-                <@probabilityDistributionSingle
-                    probabilityDistributionTypePath=probabilityDistributionTypePath
-                    formId=formId
-                    labelText="Probability of exceedance (${template.units})"
-                    error=error
-                    inputs=inputs/>
+                <#if inputs.probabilityDistributionType.name() != 'NOT_CALCULATED'>
+                    <@probabilityDistributionSingle
+                        probabilityDistributionTypePath=probabilityDistributionTypePath
+                        formId=formId
+                        labelText="Probability of exceedance (${template.units})"
+                        error=error
+                        inputs=inputs/>
+                </#if>
             </@fdsRadio.radioItem>
         </#list>
     </@fdsRadio.radioGroup>

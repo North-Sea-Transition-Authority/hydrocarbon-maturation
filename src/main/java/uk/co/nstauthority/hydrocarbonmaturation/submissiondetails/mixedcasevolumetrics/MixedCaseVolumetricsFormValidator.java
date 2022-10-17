@@ -91,6 +91,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
     ValidationUtils.rejectIfEmpty(errors, "formationVolumeFactor.probabilityDistributionType",
         "formationVolumeFactor.probabilityDistributionType.required",
         "Select formation volume factor distribution used");
+
     var formationVolumeFactor = mixedCaseVolumetricsForm.getFormationVolumeFactor();
     ProbabilityDistributionValidationUtil.validateFull(
         formationVolumeFactor,
@@ -102,6 +103,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
     ValidationUtils.rejectIfEmpty(errors, "oilHydrocarbonSaturation.probabilityDistributionType",
         "oilHydrocarbonSaturation.probabilityDistributionType.required",
         "Select oil hydrocarbon saturation distribution used");
+
     var oilHydrocarbonSaturation = mixedCaseVolumetricsForm.getOilHydrocarbonSaturation();
     ProbabilityDistributionValidationUtil.validateFullPercentage(
         oilHydrocarbonSaturation,
@@ -109,6 +111,10 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "oilHydrocarbonSaturation",
         "Oil hydrocarbon saturation distribution used"
     );
+
+    ValidationUtils.rejectIfEmpty(errors, "associatedGasOilRatioLifeOfField.probabilityDistributionType",
+        "associatedGasOilRatioLifeOfField.probabilityDistributionType.required",
+        "Select associated gas-oil ratio, life-of-field distribution used");
 
     var associatedGasOilRatioLifeOfField = mixedCaseVolumetricsForm.getAssociatedGasOilRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -121,6 +127,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
     ValidationUtils.rejectIfEmpty(errors, "oilRecoveryFactor.probabilityDistributionType",
         "oilRecoveryFactor.probabilityDistributionType.required",
         "Select oil recovery factor distribution used");
+
     var oilRecoveryFactor = mixedCaseVolumetricsForm.getOilRecoveryFactor();
     ProbabilityDistributionValidationUtil.validateFullPercentage(
         oilRecoveryFactor,
@@ -132,6 +139,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
     ValidationUtils.rejectIfEmpty(errors, "gasHydrocarbonSaturation.probabilityDistributionType",
         "gasHydrocarbonSaturation.probabilityDistributionType.required",
         "Select gas hydrocarbon saturation distribution used");
+
     var gasHydrocarbonSaturation = mixedCaseVolumetricsForm.getGasHydrocarbonSaturation();
     ProbabilityDistributionValidationUtil.validateFullPercentage(
         gasHydrocarbonSaturation,
@@ -143,6 +151,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
     ValidationUtils.rejectIfEmpty(errors, "gasExpansionFactor.probabilityDistributionType",
         "gasExpansionFactor.probabilityDistributionType.required",
         "Select gas expansion factor distribution used");
+
     var gasExpansionFactor = mixedCaseVolumetricsForm.getGasExpansionFactor();
     ProbabilityDistributionValidationUtil.validateFull(
         gasExpansionFactor,
@@ -150,6 +159,10 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "gasExpansionFactor",
         "Gas expansion factor distribution used"
     );
+
+    ValidationUtils.rejectIfEmpty(errors, "condensateGasRatioLifeOfField.probabilityDistributionType",
+        "condensateGasRatioLifeOfField.probabilityDistributionType.required",
+        "Select condensate-gas ratio, life-of-field distribution used");
 
     var condensateGasRatioLifeOfField = mixedCaseVolumetricsForm.getCondensateGasRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -162,6 +175,7 @@ class MixedCaseVolumetricsFormValidator extends PartialFullFormValidator {
     ValidationUtils.rejectIfEmpty(errors, "gasRecoveryFactor.probabilityDistributionType",
         "gasRecoveryFactor.probabilityDistributionType.required",
         "Select gas recovery factor distribution used");
+
     var gasRecoveryFactor = mixedCaseVolumetricsForm.getGasRecoveryFactor();
     ProbabilityDistributionValidationUtil.validateFullPercentage(
         gasRecoveryFactor,
