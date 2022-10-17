@@ -23,7 +23,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   }
 
   GeneralDetailsForm getGeneralDetailsForm(SubmissionDetail submissionDetail) {
-    return generalDetailsPersistenceService.getGeneralDetail(submissionDetail)
+    return generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
         .map(this::generalDetailEntityToForm)
         .orElse(new GeneralDetailsForm());
   }

@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-public class RectangularBehaviour implements ProbabilityDistributionTypeBehaviour {
+public class RectangularBehaviour extends BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
 
   @Override
   public boolean isMinAvailable() {
@@ -13,82 +13,12 @@ public class RectangularBehaviour implements ProbabilityDistributionTypeBehaviou
   }
 
   @Override
-  public boolean isP99Available() {
-    return false;
-  }
-
-  @Override
-  public boolean isP99Required() {
-    return false;
-  }
-
-  @Override
-  public boolean isP90Available() {
-    return false;
-  }
-
-  @Override
-  public boolean isP90Required() {
-    return false;
-  }
-
-  @Override
-  public boolean isModeAvailable() {
-    return false;
-  }
-
-  @Override
-  public boolean isModeRequired() {
-    return false;
-  }
-
-  @Override
-  public boolean isP50Available() {
-    return false;
-  }
-
-  @Override
-  public boolean isP50Required() {
-    return false;
-  }
-
-  @Override
   public boolean isMeanAvailable() {
     return true;
   }
 
   @Override
   public boolean isMeanRequired() {
-    return false;
-  }
-
-  @Override
-  public boolean isConstantAvailable() {
-    return false;
-  }
-
-  @Override
-  public boolean isConstantRequired() {
-    return false;
-  }
-
-  @Override
-  public boolean isP10Available() {
-    return false;
-  }
-
-  @Override
-  public boolean isP10Required() {
-    return false;
-  }
-
-  @Override
-  public boolean isP1Available() {
-    return false;
-  }
-
-  @Override
-  public boolean isP1Required() {
     return false;
   }
 

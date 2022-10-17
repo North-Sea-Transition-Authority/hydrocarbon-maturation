@@ -1,10 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
@@ -19,7 +22,7 @@ public class GeneralDetailsPersistenceService {
 
   @Transactional
   public void saveGeneralDetails(GeneralDetailsForm form, SubmissionDetail submissionDetail) {
-    var generalDetail = getGeneralDetail(submissionDetail).orElse(new GeneralDetail());
+    var generalDetail = getGeneralDetailBySubmissionDetail(submissionDetail).orElse(new GeneralDetail());
 
     generalDetail.setSubmissionDetail(submissionDetail);
     generalDetail.setProspectName(form.getProspectName());
@@ -43,13 +46,39 @@ public class GeneralDetailsPersistenceService {
     generalDetailsRepository.save(generalDetail);
   }
 
-  public Optional<GeneralDetail> getGeneralDetail(SubmissionDetail submissionDetail) {
+  @Transactional
+  public void updateGeneralDetailProspect(UpdateProspectForm form,
+                                          SubmissionDetail submissionDetail,
+                                          GeneralDetail previousGeneralDetail) {
+    GeneralDetail newGeneralDetail = new GeneralDetail();
+    newGeneralDetail.setProspectName(previousGeneralDetail.getProspectName());
+    newGeneralDetail.setSubmissionDetail(submissionDetail);
+    newGeneralDetail.setInformationSource(form.getInformationSource());
+
+    if (form.getInformationSource() == InformationSource.OTHER) {
+      newGeneralDetail.setOtherInformationSource(form.getOtherSourceOfInformation());
+    } else {
+      newGeneralDetail.setOtherInformationSource(null);
+    }
+
+    generalDetailsRepository.save(newGeneralDetail);
+  }
+
+  Optional<GeneralDetail> getGeneralDetailBySubmissionDetail(SubmissionDetail submissionDetail) {
     return generalDetailsRepository.findBySubmissionDetail(submissionDetail);
   }
 
+  public Optional<GeneralDetail> getGeneralDetailById(UUID generalDetailId) {
+    return generalDetailsRepository.findById(generalDetailId);
+  }
+
   public GeneralDetail getGeneralDetailOrThrow(SubmissionDetail submissionDetail) {
-    return getGeneralDetail(submissionDetail)
+    return getGeneralDetailBySubmissionDetail(submissionDetail)
         .orElseThrow(() -> new RemiEntityNotFoundException(
             String.format("Could not find general detail for submission detail %s", submissionDetail.getId())));
+  }
+
+  public List<GeneralDetail> getGeneralDetailsByName(String name) {
+    return generalDetailsRepository.findByProspectNameContainingIgnoreCase(name);
   }
 }

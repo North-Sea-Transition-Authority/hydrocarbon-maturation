@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
@@ -25,28 +26,46 @@ public class ProbabilityDistributionValidationUtil {
                                      Errors errors,
                                      String formField,
                                      String label) {
-    validate(probabilityDistributionForm, errors, formField, label, null, ValidationType.PARTIAL);
+    validate(probabilityDistributionForm, errors, formField, label, null, ValidationType.PARTIAL, null);
+  }
+
+  public static void validateCustomPartial(ProbabilityDistributionForm probabilityDistributionForm,
+                                           Errors errors,
+                                           String formField,
+                                           String label,
+                                           ProbabilityDistributionFieldInstance instance) {
+    validate(probabilityDistributionForm, errors, formField, label, null, ValidationType.PARTIAL, instance);
   }
 
   public static void validatePartialPercentage(ProbabilityDistributionForm probabilityDistributionForm,
                                                Errors errors,
                                                String formField,
                                                String label) {
-    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT, ValidationType.PARTIAL);
+    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT, ValidationType.PARTIAL,
+        null);
   }
 
   public static void validateFull(ProbabilityDistributionForm probabilityDistributionForm,
                                   Errors errors,
                                   String formField,
                                   String label) {
-    validate(probabilityDistributionForm, errors, formField, label, null, ValidationType.FULL);
+    validate(probabilityDistributionForm, errors, formField, label, null, ValidationType.FULL, null);
   }
 
   public static void validateFullPercentage(ProbabilityDistributionForm probabilityDistributionForm,
                                             Errors errors,
                                             String formField,
                                             String label) {
-    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT, ValidationType.FULL);
+    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT, ValidationType.FULL,
+        null);
+  }
+
+  public static void validateCustomFull(ProbabilityDistributionForm probabilityDistributionForm,
+                                        Errors errors,
+                                        String formField,
+                                        String label,
+                                        ProbabilityDistributionFieldInstance instance) {
+    validate(probabilityDistributionForm, errors, formField, label, null, ValidationType.FULL, instance);
   }
 
   private static void validate(ProbabilityDistributionForm probabilityDistributionForm,
@@ -54,13 +73,14 @@ public class ProbabilityDistributionValidationUtil {
                                String formField,
                                String label,
                                ProbabilityOfExceedanceUnits units,
-                               ValidationType validationType
+                               ValidationType validationType,
+                               @Nullable ProbabilityDistributionFieldInstance instance
   ) {
     int errorCountBefore = errors.getErrorCount();
     if (!Objects.isNull(probabilityDistributionForm.getProbabilityDistributionType())) {
       var probabilityDistributionType = probabilityDistributionForm.getProbabilityDistributionType();
       var typePath = probabilityDistributionType.getPath();
-      var behaviour = probabilityDistributionType.newInstance();
+      var behaviour = ProbabilityDistributionTypeBehaviourUtil.getBehaviour(instance, probabilityDistributionType);
       var probabilityOfExceedanceForm = probabilityDistributionForm.getProbabilityOfExceedanceForm();
 
       // validate Min input
@@ -195,8 +215,7 @@ public class ProbabilityDistributionValidationUtil {
 
       int errorCountAfter = errors.getErrorCount();
       if (errorCountAfter > errorCountBefore) {
-        String exceedanceTypePath = probabilityDistributionForm.getProbabilityDistributionType().getPath();
-        String errorPath = formField + "." + exceedanceTypePath + ".error";
+        String errorPath = formField + "." + typePath + ".error";
         errorPath = errorPath.replaceAll("[\n\r\t]", "_");
         errors.rejectValue(
             errorPath,

@@ -57,7 +57,7 @@ class ReservoirPropertiesFormValidatorTest {
   @EnumSource(
       value = ProbabilityDistributionType.class,
       mode = EnumSource.Mode.EXCLUDE,
-      names = "NOT_CALCULATED"
+      names = {"CUSTOM", "NOT_CALCULATED"}
   )
   void validate_whenEmptyForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
@@ -97,7 +97,7 @@ class ReservoirPropertiesFormValidatorTest {
   @EnumSource(
       value = ProbabilityDistributionType.class,
       mode = EnumSource.Mode.EXCLUDE,
-      names = "NOT_CALCULATED"
+      names = {"CUSTOM", "NOT_CALCULATED"}
   )
   void validate_whenInvalidExceedenceForm_thenValidationErrors(
       ProbabilityDistributionType probabilityDistributionType) {

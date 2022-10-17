@@ -20,6 +20,8 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnicalSupportConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
@@ -27,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @WebMvcTest
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
+@IncludeTechnicalSupportConfigurationProperties
 @ContextConfiguration(classes = {
     DefaultPageControllerAdviceTest.TestController.class,
     DefaultPageControllerAdvice.class,
@@ -55,6 +58,8 @@ class DefaultPageControllerAdviceTest {
         "org.springframework.validation.BindingResult.customerBranding",
         "serviceBranding",
         "org.springframework.validation.BindingResult.serviceBranding",
+        "technicalSupport",
+        "org.springframework.validation.BindingResult.technicalSupport",
         "serviceHomeUrl",
         "navigationItems",
         "currentEndPoint",
@@ -64,6 +69,7 @@ class DefaultPageControllerAdviceTest {
 
     assertThat((CustomerConfigurationProperties) modelMap.get("customerBranding")).hasNoNullFieldsOrProperties();
     assertThat((ServiceConfigurationProperties) modelMap.get("serviceBranding")).hasNoNullFieldsOrProperties();
+    assertThat((TechnicalSupportConfigurationProperties) modelMap.get("technicalSupport")).hasNoNullFieldsOrProperties();
 
     Map<String, Object> commonPropertiesMap = new HashMap<>();
     commonPropertiesMap.put("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));

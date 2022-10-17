@@ -5,15 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 
 @Service
 class OpportunityDetailsPersistenceService {
 
   private final OpportunityDetailsRepository opportunityDetailsRepository;
+  private final SupportingDocumentService supportingDocumentService;
 
   @Autowired
-  OpportunityDetailsPersistenceService(OpportunityDetailsRepository opportunityDetailsRepository) {
+  OpportunityDetailsPersistenceService(OpportunityDetailsRepository opportunityDetailsRepository,
+                                       SupportingDocumentService supportingDocumentService) {
     this.opportunityDetailsRepository = opportunityDetailsRepository;
+    this.supportingDocumentService = supportingDocumentService;
   }
 
   @Transactional
@@ -32,6 +36,7 @@ class OpportunityDetailsPersistenceService {
       opportunityDetail.setOtherTypeOfOpportunity(null);
     }
 
+    supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getMapOfOpportunity());
 
     opportunityDetailsRepository.save(opportunityDetail);
   }

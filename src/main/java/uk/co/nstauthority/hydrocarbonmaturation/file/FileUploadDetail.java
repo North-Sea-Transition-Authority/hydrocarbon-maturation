@@ -1,19 +1,20 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public class FileUploadDetail {
-  private String uploadedFileId;
+  private UUID uploadedFileId;
 
   private String uploadedFileDescription;
 
   private Instant uploadedFileInstant;
 
-  public String getUploadedFileId() {
+  public UUID getUploadedFileId() {
     return uploadedFileId;
   }
 
-  public void setUploadedFileId(String uploadedFileId) {
+  public void setUploadedFileId(UUID uploadedFileId) {
     this.uploadedFileId = uploadedFileId;
   }
 

@@ -11,7 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "uploaded_files")
-class UploadedFile {
+public class UploadedFile {
   @Id
   @GeneratedValue(generator = "uuid")
   @GenericGenerator(name = "uuid", strategy = "uuid2")

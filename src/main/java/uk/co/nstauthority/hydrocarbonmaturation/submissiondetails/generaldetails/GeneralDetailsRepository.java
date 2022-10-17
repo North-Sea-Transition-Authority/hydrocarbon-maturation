@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
@@ -10,4 +11,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 interface GeneralDetailsRepository extends CrudRepository<GeneralDetail, UUID> {
 
   Optional<GeneralDetail> findBySubmissionDetail(SubmissionDetail submissionDetail);
+
+  Optional<GeneralDetail> findBySubmissionDetailId(UUID submissionDetailId);
+
+  List<GeneralDetail> findByProspectNameContainingIgnoreCase(String name);
 }

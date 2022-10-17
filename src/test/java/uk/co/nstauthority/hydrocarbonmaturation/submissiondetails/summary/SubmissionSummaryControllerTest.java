@@ -15,7 +15,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Objects;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 
@@ -39,18 +40,27 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
   @MockBean
   GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
+  @MockBean
+  ProspectSummaryService prospectSummaryService;
+
   private static UUID submissionDetailId;
   private static SubmissionDetail submissionDetail;
 
-  @BeforeAll
-  static void setUp() {
+  private GeneralDetailSummaryView generalDetailSummaryView;
+
+  @BeforeEach
+  void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
+    generalDetailSummaryView =  GeneralDetailSummaryView.empty();
+
   }
 
   @Test
   void showSubmissionSummary_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(generalDetailSummaryView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -74,6 +84,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(generalDetailSummaryView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -81,7 +93,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .getModelAndView()).getModelMap();
 
     assertThat(modelMap).contains(
-            entry("backLinkUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)))
-        );
+            entry("cancelUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))),
+            entry("generalDetailsSummaryView", generalDetailSummaryView)
+    );
   }
 }

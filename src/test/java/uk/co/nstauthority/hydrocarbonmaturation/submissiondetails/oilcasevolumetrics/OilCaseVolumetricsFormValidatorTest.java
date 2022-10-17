@@ -75,7 +75,7 @@ class OilCaseVolumetricsFormValidatorTest {
   @EnumSource(
       value = ProbabilityDistributionType.class,
       mode = EnumSource.Mode.EXCLUDE,
-      names = "NOT_CALCULATED"
+      names = {"CUSTOM", "NOT_CALCULATED"}
   )
   void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
@@ -101,7 +101,7 @@ class OilCaseVolumetricsFormValidatorTest {
   @EnumSource(
       value = ProbabilityDistributionType.class,
       mode = EnumSource.Mode.EXCLUDE,
-      names = "NOT_CALCULATED"
+      names = {"CUSTOM", "NOT_CALCULATED"}
   )
   void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
