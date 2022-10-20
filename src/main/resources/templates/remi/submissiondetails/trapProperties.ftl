@@ -15,6 +15,8 @@
 <#-- @ftlvariable name="depthToSpillPointError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 <#-- @ftlvariable name="productiveAreaTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
 <#-- @ftlvariable name="productiveAreaError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
+<#-- @ftlvariable name="prospectDepthMapTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate" -->
+<#-- @ftlvariable name="prospectDepthMapUploads" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView>" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -77,6 +79,20 @@
         formId="productiveArea"
         template=productiveAreaTemplate
         error=productiveAreaError/>
+
+    <@fdsFieldset.fieldset legendHeading="Prospect depth map" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--m">
+      <@fdsFileUpload.fileUpload
+        id="prospectDepthMap"
+        path="form.prospectDepthMap"
+        downloadUrl=prospectDepthMapTemplate.downloadUrl()
+        uploadUrl=prospectDepthMapTemplate.uploadUrl()
+        deleteUrl=prospectDepthMapTemplate.deleteUrl()
+        maxAllowedSize=prospectDepthMapTemplate.maxAllowedSize()
+        allowedExtensions=prospectDepthMapTemplate.allowedExtensions()
+        existingFiles=prospectDepthMapUploads
+        multiFile=false
+      />
+    </@fdsFieldset.fieldset>
 
       <@fdsAction.submitButtons primaryButtonText="Save and complete" secondaryButtonText="Save and complete later"/>
   </@fdsForm.htmlForm>

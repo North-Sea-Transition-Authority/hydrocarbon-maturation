@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
@@ -80,7 +83,9 @@ class TrapPropertiesFormValidatorTest {
             entry("depthToSpillPoint.probabilityDistributionType",
                 Set.of("depthToSpillPoint.probabilityDistributionType.required")),
             entry("productiveArea.probabilityDistributionType",
-                Set.of("productiveArea.probabilityDistributionType.required"))
+                Set.of("productiveArea.probabilityDistributionType.required")),
+            entry("prospectDepthMap",
+                Set.of("prospectDepthMap.required"))
         );
   }
 
@@ -139,6 +144,33 @@ class TrapPropertiesFormValidatorTest {
         );
   }
 
+  @Test
+  void validate_whenInValidForm_noProspectDepthMapFileDescriptionUploaded_thenValidationErrors() {
+    var form = getValidForm();
+    form.setProspectDepthMap(List.of(new FileUploadDetail()));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(validateTrapPropertiesForm(form));
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("prospectDepthMap[0].uploadedFileDescription", Set.of("prospectDepthMap[0].uploadedFileDescription.required"))
+        );
+  }
+
+  @Test
+  void validate_whenInValidForm_noProspectDepthMapFileUploaded_thenValidationErrors() {
+    var form = getValidForm();
+    form.setProspectDepthMap(new ArrayList<>());
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(validateTrapPropertiesForm(form));
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("prospectDepthMap", Set.of("prospectDepthMap.required"))
+        );
+  }
+
+
   private CoordinateInput getValidLongitudeCoordinates() {
     var coordinateInput = new CoordinateInput();
     coordinateInput.setDegrees(new DecimalInput("15"));
@@ -167,6 +199,10 @@ class TrapPropertiesFormValidatorTest {
     form.setDepthToCrest(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setDepthToSpillPoint(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setProductiveArea(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
+
+    FileUploadDetail fileUploadDetail = new FileUploadDetail();
+    fileUploadDetail.setUploadedFileDescription("File description");
+    form.setProspectDepthMap(List.of(fileUploadDetail));
     return form;
   }
 

@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class TrapPropertiesPersistenceServiceTest {
@@ -24,6 +25,9 @@ class TrapPropertiesPersistenceServiceTest {
 
   @Mock
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+
+  @Mock
+  private SupportingDocumentService supportingDocumentService;
 
   private TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
@@ -35,7 +39,8 @@ class TrapPropertiesPersistenceServiceTest {
   void setup() {
     trapPropertiesPersistenceService = new TrapPropertiesPersistenceService(
         trapPropertiesRepository,
-        probabilityDistributionPersistenceService);
+        probabilityDistributionPersistenceService,
+        supportingDocumentService);
 
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();

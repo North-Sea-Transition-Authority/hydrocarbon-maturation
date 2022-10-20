@@ -7,18 +7,22 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 
 @Service
 public class TrapPropertiesPersistenceService {
 
   private final TrapPropertiesRepository trapPropertiesRepository;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+  private final SupportingDocumentService supportingDocumentService;
 
   @Autowired
   public TrapPropertiesPersistenceService(TrapPropertiesRepository trapPropertiesRepository,
-                                          ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
+                                          ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
+                                          SupportingDocumentService supportingDocumentService) {
     this.trapPropertiesRepository = trapPropertiesRepository;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
+    this.supportingDocumentService = supportingDocumentService;
   }
 
   @Transactional
@@ -71,6 +75,8 @@ public class TrapPropertiesPersistenceService {
           submissionDetail
       );
     }
+
+    supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getProspectDepthMap());
   }
 
   Optional<TrapProperty> getTrapProperty(SubmissionDetail submissionDetail) {

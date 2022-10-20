@@ -1,12 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,11 +16,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,19 +32,20 @@ class TrapPropertiesFormServiceTest {
   private static TrapPropertiesFormService trapPropertiesFormService;
   private static TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private static ProbabilityDistributionFormService probabilityDistributionFormService;
-
+  private static SupportingDocumentService supportingDocumentService;
   private static SubmissionDetail submissionDetail;
-
 
   @BeforeAll
   static void setup() {
     trapPropertiesFormValidator = mock(TrapPropertiesFormValidator.class);
     trapPropertiesPersistenceService = mock(TrapPropertiesPersistenceService.class);
     probabilityDistributionFormService = mock(ProbabilityDistributionFormService.class);
+    supportingDocumentService = mock(SupportingDocumentService.class);
     trapPropertiesFormService = new TrapPropertiesFormService(
         trapPropertiesFormValidator,
         trapPropertiesPersistenceService,
-        probabilityDistributionFormService);
+        probabilityDistributionFormService,
+        supportingDocumentService);
 
     UUID submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
@@ -165,6 +170,20 @@ class TrapPropertiesFormServiceTest {
         );
   }
 
+  @Test
+  void getProspectDepthMapUploads_VerifyCalls() {
+    FileUploadDetail fileUploadDetail1 = getFileUploadDetail();
+    FileUploadDetail fileUploadDetail2 = getFileUploadDetail();
+
+    var form = new TrapPropertiesForm();
+    form.setProspectDepthMap(List.of(fileUploadDetail1, fileUploadDetail2));
+
+    trapPropertiesFormService.getProspectDepthMapUploads(form);
+
+    verify(supportingDocumentService, times(1)).getFileUploadFdsViewList(anyList());
+  }
+
+
   private TrapProperty getTrapProperty(SubmissionDetail submissionDetail) {
     var trapProperty = new TrapProperty();
     trapProperty.setSubmissionDetail(submissionDetail);
@@ -179,5 +198,11 @@ class TrapPropertiesFormServiceTest {
     trapProperty.setLongitudeHemisphere(Hemisphere.EAST);
 
     return trapProperty;
+  }
+
+  private FileUploadDetail getFileUploadDetail() {
+    FileUploadDetail fileUploadDetail = new FileUploadDetail();
+    fileUploadDetail.setUploadedFileId(UUID.randomUUID());
+    return fileUploadDetail;
   }
 }
