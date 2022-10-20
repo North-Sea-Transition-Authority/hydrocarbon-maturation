@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSection;
@@ -20,6 +22,7 @@ class ProspectSummaryService {
 
   private final GeneralDetailSummaryService generalDetailSummaryService;
   private final SourceAndSealSummaryService sourceAndSealSummaryService;
+  private final HydrocarbonCaseSummaryService hydrocarbonCaseSummaryService;
   private final List<ProspectTaskListSection> prospectTaskListSections;
   private final List<ProspectTaskListItem> prospectTaskListItems;
   private List<SubNavigationSectionItem> subNavigationSectionItems;
@@ -27,10 +30,12 @@ class ProspectSummaryService {
   @Autowired
   public ProspectSummaryService(GeneralDetailSummaryService generalDetailSummaryService,
                                 SourceAndSealSummaryService sourceAndSealSummaryService,
+                                HydrocarbonCaseSummaryService hydrocarbonCaseSummaryService,
                                 List<ProspectTaskListSection> prospectTaskListSections,
                                 List<ProspectTaskListItem> prospectTaskListItems) {
     this.generalDetailSummaryService = generalDetailSummaryService;
     this.sourceAndSealSummaryService = sourceAndSealSummaryService;
+    this.hydrocarbonCaseSummaryService = hydrocarbonCaseSummaryService;
     this.prospectTaskListSections = prospectTaskListSections;
     this.prospectTaskListItems = prospectTaskListItems;
     this.subNavigationSectionItems = new ArrayList<>();
@@ -42,6 +47,10 @@ class ProspectSummaryService {
 
   public SourceAndSealSummaryView getSourceAndSealSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return sourceAndSealSummaryService.getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public HydrocarbonCaseSummaryView getHydrocarbonCaseSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+    return hydrocarbonCaseSummaryService.getHydrocarbonSummaryFromSubmissionDetail(submissionDetail);
   }
 
   public List<SubNavigationSectionItem> getProspectSubNavigation(SubmissionDetail submissionDetail) {

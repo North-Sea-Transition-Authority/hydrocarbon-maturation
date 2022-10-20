@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.VolumetricsTaskListSection;
@@ -29,6 +30,9 @@ class ProspectSummaryServiceTest {
   private SourceAndSealSummaryService sourceAndSealSummaryService;
 
   @Mock
+  private HydrocarbonCaseSummaryService hydrocarbonCaseSummaryService;
+
+  @Mock
   private ProspectTaskListItem prospectTaskListItem;
 
   private ProspectSummaryService prospectSummaryService;
@@ -43,6 +47,7 @@ class ProspectSummaryServiceTest {
     prospectSummaryService = new ProspectSummaryService(
         generalDetailSummaryService,
         sourceAndSealSummaryService,
+        hydrocarbonCaseSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
@@ -69,9 +74,18 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
+  void getHydrocarbonCaseSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(hydrocarbonCaseSummaryService, times(1))
+        .getHydrocarbonSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+
+  @Test
   void getProspectSubNavigation_whenTwoSections_oneResult() {
-
-
     var subNavItems = prospectSummaryService.getProspectSubNavigation(submissionDetail);
 
     assertThat(subNavItems).hasSize(1);
@@ -84,7 +98,7 @@ class ProspectSummaryServiceTest {
     prospectSummaryService = new ProspectSummaryService(
         generalDetailSummaryService,
         sourceAndSealSummaryService,
-        listOfTaskListSections,
+        hydrocarbonCaseSummaryService, listOfTaskListSections,
         listOfTaskListItems);
 
     var subNavItems = prospectSummaryService.getProspectSubNavigation(submissionDetail);

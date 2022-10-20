@@ -2,6 +2,7 @@
 
 <#import '../summarylistcards/generaldetailsSummaryCard.ftl' as generalDetailsSummary>
 <#import '../summarylistcards/sourceAndSealSummaryCard.ftl' as sourceAndSealSummary>
+<#import '../summarylistcards/hydrocarbonCaseSummaryCard.ftl' as hydrocarbonCaseSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -35,6 +36,8 @@
         generalDetailValues=generalDetailsSummaryView/>
       <@sourceAndSealSummary.sourceAndSealCard
         sourceAndSealValues=sourceAndSealSummaryView/>
+      <@hydrocarbonCaseSummary.hydrocarbonCaseCard
+        hydrocarbonCaseValues=hydrocarbonCaseSummaryView/>
 
       <@fdsAction.submitButtons
         primaryButtonText="Submit"

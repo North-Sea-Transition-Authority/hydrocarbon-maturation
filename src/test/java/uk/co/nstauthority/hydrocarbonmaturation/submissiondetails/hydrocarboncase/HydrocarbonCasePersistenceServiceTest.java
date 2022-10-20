@@ -44,9 +44,12 @@ class HydrocarbonCasePersistenceServiceTest {
   void saveHydrocarbonCaseDetails_whenGivenAForm_verifyCreatedEntity() {
     var form = new HydrocarbonCaseForm();
     form.setOilOnlyCaseType(true);
+    form.setGasOnlyCaseType(true);
+    form.setOilAndGasCaseType(true);
+
     form.setOilOnlyProbability(new DecimalInput("100"));
-    form.setGasOnlyProbability(new DecimalInput());
-    form.setOilAndGasProbability(new DecimalInput());
+    form.setGasOnlyProbability(new DecimalInput("20"));
+    form.setOilAndGasProbability(new DecimalInput("30"));
 
     var hydrocarbonCaseArgumentCaptor = ArgumentCaptor.forClass(HydrocarbonCaseDetail.class);
 
@@ -125,7 +128,6 @@ class HydrocarbonCasePersistenceServiceTest {
   @Test
   void isGasOnlyPresent_whenGasOnly_isTrue() {
     hydrocarbonCase.setGasOnly(true);
-    hydrocarbonCase.setGasOnlyProbability(BigDecimal.valueOf(25.5));
     when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
     assertTrue(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail));
   }
@@ -147,7 +149,6 @@ class HydrocarbonCasePersistenceServiceTest {
   @Test
   void isMixedPresent_whenGasAndOil_isTrue() {
     hydrocarbonCase.setOilAndGas(true);
-    hydrocarbonCase.setOilAndGasProbability(BigDecimal.valueOf(25.5));
     when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
     assertTrue(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail));
   }
@@ -169,7 +170,6 @@ class HydrocarbonCasePersistenceServiceTest {
   @Test
   void isOilOnlyPresent_whenGasOnly_isTrue() {
     hydrocarbonCase.setOilOnly(true);
-    hydrocarbonCase.setOilOnlyProbability(BigDecimal.valueOf(25.5));
     when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
     assertTrue(hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail));
   }
@@ -177,7 +177,6 @@ class HydrocarbonCasePersistenceServiceTest {
   @Test
   void isOilOnlyPresent_whenOilAndGas_isFalse() {
     hydrocarbonCase.setOilAndGas(true);
-    hydrocarbonCase.setOilAndGasProbability(BigDecimal.valueOf(1.5));
     when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
     assertFalse(hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail));
   }

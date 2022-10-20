@@ -29,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.VolumetricsTaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
@@ -51,6 +52,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
 
   private GeneralDetailSummaryView generalDetailSummaryView;
   private SourceAndSealSummaryView sourceAndSealSummaryView;
+  private HydrocarbonCaseSummaryView hydrocarbonCaseSummarView;
 
   @BeforeEach
   void setUp() {
@@ -58,6 +60,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
     submissionDetailId = submissionDetail.getId();
     generalDetailSummaryView =  GeneralDetailSummaryView.empty();
     sourceAndSealSummaryView =  SourceAndSealSummaryView.empty();
+    hydrocarbonCaseSummarView = HydrocarbonCaseSummaryView.empty();
   }
 
   @Test
@@ -70,6 +73,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(generalDetailSummaryView);
     when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(sourceAndSealSummaryView);
+    when(prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(hydrocarbonCaseSummarView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -100,6 +105,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
     when(prospectSummaryService.getProspectSubNavigation(submissionDetail)).thenReturn(subNavList);
     when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(sourceAndSealSummaryView);
+    when(prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(hydrocarbonCaseSummarView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -111,6 +118,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("cancelUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
+            entry("hydrocarbonCaseSummaryView", hydrocarbonCaseSummarView),
             entry("subNavigation", subNavList)
     );
   }
