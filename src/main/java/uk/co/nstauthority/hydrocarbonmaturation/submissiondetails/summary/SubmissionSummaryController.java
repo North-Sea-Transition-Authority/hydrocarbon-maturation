@@ -48,7 +48,10 @@ public class SubmissionSummaryController {
     var modelAndView = new ModelAndView("remi/submissiondetails/submissionSummary")
         .addObject("generalDetailsSummaryView",
             prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("cancelUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)));
+        .addObject("sourceAndSealSummaryView",
+            prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("cancelUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)))
+        .addObject("subNavigation", prospectSummaryService.getProspectSubNavigation(submissionDetail));
 
     ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
 

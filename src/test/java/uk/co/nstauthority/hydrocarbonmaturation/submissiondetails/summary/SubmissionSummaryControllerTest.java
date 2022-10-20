@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.VolumetricsTaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 
 @WithMockUser
@@ -47,20 +50,26 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
   private static SubmissionDetail submissionDetail;
 
   private GeneralDetailSummaryView generalDetailSummaryView;
+  private SourceAndSealSummaryView sourceAndSealSummaryView;
 
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
     generalDetailSummaryView =  GeneralDetailSummaryView.empty();
-
+    sourceAndSealSummaryView =  SourceAndSealSummaryView.empty();
   }
 
   @Test
   void showSubmissionSummary_assertStatusOk() throws Exception {
+    var subNavList = List.of(new SubNavigationSectionItem(new VolumetricsTaskListSection()));
+
+    when(prospectSummaryService.getProspectSubNavigation(submissionDetail)).thenReturn(subNavList);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
+    when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(sourceAndSealSummaryView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -83,18 +92,26 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
 
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
+    var subNavList = List.of(new SubNavigationSectionItem(new VolumetricsTaskListSection()));
+
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
+    when(prospectSummaryService.getProspectSubNavigation(submissionDetail)).thenReturn(subNavList);
+    when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(sourceAndSealSummaryView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
         .andReturn()
         .getModelAndView()).getModelMap();
 
-    assertThat(modelMap).contains(
+    assertThat(modelMap)
+        .contains(
             entry("cancelUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))),
-            entry("generalDetailsSummaryView", generalDetailSummaryView)
+            entry("generalDetailsSummaryView", generalDetailSummaryView),
+            entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
+            entry("subNavigation", subNavList)
     );
   }
 }

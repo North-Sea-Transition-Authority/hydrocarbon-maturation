@@ -10,7 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prosp
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSection;
 
 @Component
-class ReviewAndSubmitTaskListItem implements ProspectTaskListItem {
+public class ReviewAndSubmitTaskListItem implements ProspectTaskListItem {
 
   static final int ITEM_DISPLAY_ORDER = 10;
 

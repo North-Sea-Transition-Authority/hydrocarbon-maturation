@@ -1,27 +1,46 @@
-<#include '../layout/layout.ftl'>
+<#include '../layout/leftSubNavLayout.ftl'>
+
 <#import '../summarylistcards/generaldetailsSummaryCard.ftl' as generalDetailsSummary>
+<#import '../summarylistcards/sourceAndSealSummaryCard.ftl' as sourceAndSealSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
+<#-- @ftlvariable name="subNavigation" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubNavigationSectionItem>" -->
 
-<@defaultPage
-htmlTitle=pageTitle
-pageHeading=pageTitle
-pageSize=PageSize.TWO_THIRDS_COLUMN
-errorItems=errorList
-breadcrumbsMap=breadcrumbsMap>
-  <@fdsForm.htmlForm>
-    <@generalDetailsSummary.generalDetailCard
-      generalDetailValues=generalDetailsSummaryView/>
+<@defaultLeftSubNavPage
+  htmlTitle=pageTitle
+  htmlAppTitle=pageTitle>
 
-    <@fdsAction.submitButtons
-      primaryButtonText="Submit"
-      secondaryLinkText="Cancel"
-      linkSecondaryAction=true
-      linkSecondaryActionUrl="${springUrl(cancelUrl)}"/>
-  </@fdsForm.htmlForm>
+  <@fdsLeftSubNavPageTemplateSubNav smallSubnav=true>
+    <@fdsSubNavigation.subNavigation sticky=true>
+      <@fdsSubNavigation.subNavigationSection themeHeading="Sections">
+        <#list subNavigation as section>
+          <#list section.getProspectTaskListItems() as item>
+            <@fdsSubNavigation.subNavigationSectionItem
+              linkName="${item.getItemDisplayText()}"
+              linkAction="${item.getAction()}"
+              currentItemHref="#"/>
+          </#list>
+        </#list>
+      </@fdsSubNavigation.subNavigationSection>
+    </@fdsSubNavigation.subNavigation>
+  </@fdsLeftSubNavPageTemplateSubNav>
 
-</@defaultPage>
+  <@defaultLeftSubNavPageContent pageHeading=pageTitle breadcrumbsMap=breadcrumbsMap>
+    <@fdsForm.htmlForm>
+      <@generalDetailsSummary.generalDetailCard
+        generalDetailValues=generalDetailsSummaryView/>
+      <@sourceAndSealSummary.sourceAndSealCard
+        sourceAndSealValues=sourceAndSealSummaryView/>
+
+      <@fdsAction.submitButtons
+        primaryButtonText="Submit"
+        secondaryLinkText="Cancel"
+        linkSecondaryAction=true
+        linkSecondaryActionUrl="${springUrl(cancelUrl)}"/>
+    </@fdsForm.htmlForm>
+  </@defaultLeftSubNavPageContent>
+</@defaultLeftSubNavPage>

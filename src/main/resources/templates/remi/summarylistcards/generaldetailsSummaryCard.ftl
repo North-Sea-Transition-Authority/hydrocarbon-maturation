@@ -1,9 +1,8 @@
 <#include '../layout/layout.ftl'>
 <#-- @ftlvariable name="generalDetailValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView" -->
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 
 <#macro generalDetailCard generalDetailValues>
-  <@fdsSummaryList.summaryListCard headingText="General details" summaryListId="generalDetailSummary">
+  <@fdsSummaryList.summaryListCard headingText="General details" summaryListId="generaldetails">
     <@fdsSummaryList.summaryListRowNoAction keyText="Prospect name">
       ${generalDetailValues.prospectName()}
     </@fdsSummaryList.summaryListRowNoAction>

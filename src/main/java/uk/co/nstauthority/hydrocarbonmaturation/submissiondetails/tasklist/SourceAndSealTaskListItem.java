@@ -12,7 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prosp
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSection;
 
 @Component
-class SourceAndSealTaskListItem implements ProspectTaskListItem {
+public class SourceAndSealTaskListItem implements ProspectTaskListItem {
 
   static final String ITEM_NAME = SourceAndSealController.PAGE_NAME;
   static final int ITEM_DISPLAY_ORDER = 30;
@@ -20,7 +20,7 @@ class SourceAndSealTaskListItem implements ProspectTaskListItem {
   private final SourceAndSealSubmissionService sourceAndSealSubmissionService;
 
   @Autowired
-  SourceAndSealTaskListItem(SourceAndSealSubmissionService sourceAndSealSubmissionService) {
+  public SourceAndSealTaskListItem(SourceAndSealSubmissionService sourceAndSealSubmissionService) {
     this.sourceAndSealSubmissionService = sourceAndSealSubmissionService;
   }
 
