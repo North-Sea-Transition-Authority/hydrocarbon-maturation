@@ -11,7 +11,7 @@
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>
   <@fdsForm.htmlForm>
-
+    <div id="chanceOfSuccessForm"></div>
     <h2 class="govuk-heading-l">Play chance of success</h2>
     <@fdsDetails.summaryDetails summaryTitle="How is a play defined?">
       <p class="govuk-body">
@@ -36,7 +36,13 @@
     <@fdsTextInput.textInput path="form.playChanceOfSuccess.topSealComments" labelText="Top seal knowledge level such as low, moderate, or high, and how work programme results could impact the chance of success"
       optionalLabel=true/>
 
+
+    <@fdsDataItems.dataItem dataItemListClasses="">
+      <@fdsDataItems.dataValues key="0.00%" value="Total play chance of success"/>
+    </@fdsDataItems.dataItem>
+
     <h2 class="govuk-heading-l">Prospect-specific chance of success</h2>
+
       <@fdsDetails.summaryDetails summaryTitle="How is this determined?">
         <p class="govuk-body">
           The prospect-specific geological chance of success is conditional on the play success,
@@ -67,21 +73,31 @@
       <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.migrationComments" labelText="Migration knowledge level such as low, moderate, or high, and how work programme results could impact the chance of success"
         optionalLabel=true/>
 
-      <h2 class="govuk-heading-l">Overall chance of success</h2>
+      <@fdsDataItems.dataItem>
+        <@fdsDataItems.dataValues key="0.00%" value="Total prospect-specific chance of success"/>
+      </@fdsDataItems.dataItem>
+      <@fdsDataItems.dataItem>
+        <@fdsDataItems.dataValues key="0.00%" value="Overall chance of success"/>
+      </@fdsDataItems.dataItem>
 
-      <@fdsRadio.radioGroup path="form.geophysicallyModified" labelText="Do you have a geophysically-modified chance of success?" hiddenContent=true>
+      <@fdsRadio.radioGroup path="form.geophysicallyModified"
+        fieldsetHeadingClass="govuk-fieldset__legend--l"
+        labelText="Do you have a geophysically-modified chance of success?"
+        hiddenContent=true>
         <@fdsRadio.radioYes path="form.geophysicallyModified">
-
           <@fdsTextInput.textInput path="form.geophysicallyModifiedPercentage.decimalInputValue" labelText="Geophysically-modified chance of success"
             suffix="%" suffixScreenReaderPrompt="percent" inputClass="govuk-input--width-3" nestingPath="form.geophysicallyModified"/>
           <@fdsTextInput.textInput path="form.geophysicallyModifiedComments" labelText="Please describe any geophysical evidence used in the volumetric and risk assessment"
             optionalLabel=true nestingPath="form.geophysicallyModified"/>
-
         </@fdsRadio.radioYes>
         <@fdsRadio.radioNo path="form.geophysicallyModified"/>
       </@fdsRadio.radioGroup>
 
-      <@fdsRadio.radioGroup path="form.relatedToSpecificWellLocation" labelText="Is the chance of success being quoted in relation to a specific well location?" hiddenContent=true>
+      <@fdsRadio.radioGroup
+        path="form.relatedToSpecificWellLocation"
+        fieldsetHeadingClass="govuk-fieldset__legend--l"
+        labelText="Is the chance of success being quoted in relation to a specific well location?"
+        hiddenContent=true>
         <@fdsRadio.radioYes path="form.relatedToSpecificWellLocation">
 
           <@fdsTextInput.textInput path="form.wellModifiedPercentage.decimalInputValue" labelText="Well-modified chance of success"

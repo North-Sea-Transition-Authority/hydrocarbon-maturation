@@ -1,6 +1,4 @@
 <#include '../layout/layout.ftl'>
-<#import '/spring.ftl' as springFtl>
-<#import '../../fds/utilities/utilities.ftl' as fdsUtil>
 
 <#assign pageTitle = "Hydrocarbon case" />
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
