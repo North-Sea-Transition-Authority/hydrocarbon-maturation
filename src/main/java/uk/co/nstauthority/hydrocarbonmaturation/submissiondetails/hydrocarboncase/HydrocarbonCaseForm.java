@@ -95,4 +95,19 @@ class HydrocarbonCaseForm implements SubmissionForm {
   public void setTotalProbability(DecimalInput totalProbability) {
     this.totalProbability = totalProbability;
   }
+
+  public boolean isOilAndGasCaseType() {
+    return getOilAndGasCaseType() != null
+        && getOilAndGasCaseType();
+  }
+
+  public boolean isGasOnlyCaseType() {
+    return getGasOnlyCaseType() != null
+        && getGasOnlyCaseType();
+  }
+
+  public boolean isOilOnlyCaseType() {
+    return getOilOnlyCaseType() != null
+        && getOilOnlyCaseType();
+  }
 }

@@ -1,5 +1,6 @@
 <#include '../../fds/layout.ftl'>
 <#import '_pageSizes.ftl' as PageSize>
+<#import '/spring.ftl' as spring>
 
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
@@ -25,6 +26,7 @@
     <#assign twoThirdsOneThirdColumn=false />
     <#assign oneQuarterColumn=false />
 
+
     <#if pageSize == PageSize.FULL_WIDTH>
         <#assign fullWidthColumn=true/>
     <#elseif pageSize == PageSize.ONE_HALF_COLUMN>
@@ -38,7 +40,6 @@
     <#else>
         <#assign twoThirdsColumn=true/>
     </#if>
-
     <#assign useBreadCrumbs=false>
     <#if breadcrumbsMap?has_content>
         <#assign useBreadCrumbs=true>
@@ -48,6 +49,11 @@
     <#if backLinkUrl?has_content>
         <#assign backLink=true/>
     </#if>
+
+    <#assign allScripts = springUrl('/assets/remi/javascript/all.js')/>
+    <#assign hydrocarbonScripts>
+      <script type="module" src="${allScripts}"></script>
+    </#assign>
 
     <@fdsDefaultPageTemplate
       htmlTitle=htmlTitle
@@ -70,6 +76,7 @@
       backLinkUrl=backLinkUrl
       breadcrumbs=useBreadCrumbs
       breadcrumbsList=breadcrumbsMap
+      customScriptContent=hydrocarbonScripts
     >
         <#nested />
     </@fdsDefaultPageTemplate>

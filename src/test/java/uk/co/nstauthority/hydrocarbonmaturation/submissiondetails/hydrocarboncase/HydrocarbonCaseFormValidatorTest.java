@@ -77,12 +77,31 @@ class HydrocarbonCaseFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
+            entry("oilOnlyCaseType", Set.of("oilOnlyCaseType.decimalInputError")),
             entry("oilOnlyProbability.decimalInputValue", Set.of("oilOnlyProbability.decimalInputValue.required")),
             entry("gasOnlyProbability.decimalInputValue", Set.of("gasOnlyProbability.decimalInputValue.required")),
             entry("oilAndGasProbability.decimalInputValue", Set.of("oilAndGasProbability.decimalInputValue.required"))
         );
   }
 
+  @Test
+  void validate_whenAddsUpToLessThan100FullValidation_thenErrors() {
+    var form = new HydrocarbonCaseForm();
+    form.setOilAndGasCaseType(true);
+    form.setOilAndGasProbability(new DecimalInput("5"));
+    form.setGasOnlyCaseType(true);
+    form.setGasOnlyProbability(new DecimalInput("25"));
+    form.setOilOnlyCaseType(true);
+    form.setOilOnlyProbability(new DecimalInput("50"));
+
+    var bindingResult = validateHydrocarbonCaseForm_fullValidation(form);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("oilOnlyCaseType", Set.of("oilOnlyCaseType.decimalInputError"))
+        );
+  }
 
   @Test
   void validate_whenProbabilityIsNullAndPartialValidation_thenNoValidationErrors() {

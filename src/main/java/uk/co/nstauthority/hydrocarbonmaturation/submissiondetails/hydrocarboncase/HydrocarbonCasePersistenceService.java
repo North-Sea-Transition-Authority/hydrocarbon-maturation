@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ public class HydrocarbonCasePersistenceService {
     hydrocarbonCase.setGasOnly(form.getGasOnlyCaseType());
     hydrocarbonCase.setOilAndGas(form.getOilAndGasCaseType());
 
-    if (form.getOilOnlyCaseType() != null && form.getOilOnlyCaseType()) {
+    if (form.isOilOnlyCaseType()) {
       hydrocarbonCase.setOilOnlyComments(form.getOilOnlyComments());
       hydrocarbonCase.setOilOnlyProbability(form.getOilOnlyProbability().createBigDecimalOrNull());
     } else {
@@ -32,7 +31,7 @@ public class HydrocarbonCasePersistenceService {
       hydrocarbonCase.setOilOnlyProbability(null);
     }
 
-    if (form.getGasOnlyCaseType() != null && form.getGasOnlyCaseType()) {
+    if (form.isGasOnlyCaseType()) {
       hydrocarbonCase.setGasOnlyComments(form.getGasOnlyComments());
       hydrocarbonCase.setGasOnlyProbability(form.getGasOnlyProbability().createBigDecimalOrNull());
     } else {
@@ -40,7 +39,7 @@ public class HydrocarbonCasePersistenceService {
       hydrocarbonCase.setGasOnlyProbability(null);
     }
 
-    if (form.getOilAndGasCaseType() != null && form.getOilAndGasCaseType()) {
+    if (form.isOilAndGasCaseType()) {
       hydrocarbonCase.setOilAndGasComments(form.getOilAndGasComments());
       hydrocarbonCase.setOilAndGasProbability(form.getOilAndGasProbability().createBigDecimalOrNull());
     } else {
@@ -60,23 +59,20 @@ public class HydrocarbonCasePersistenceService {
     return getHydrocarbonCaseDetail(submissionDetail)
         .stream().anyMatch(hydrocarbonCaseDetail ->
             hydrocarbonCaseDetail.getGasOnly() != null
-                && hydrocarbonCaseDetail.getGasOnly()
-                && hydrocarbonCaseDetail.getGasOnlyProbability().compareTo(BigDecimal.ZERO) > 0);
+                && hydrocarbonCaseDetail.getGasOnly());
   }
 
   public boolean isOilOnlyPresent(SubmissionDetail submissionDetail) {
     return getHydrocarbonCaseDetail(submissionDetail)
         .stream().anyMatch(hydrocarbonCaseDetail ->
             hydrocarbonCaseDetail.getOilOnly() != null
-                && hydrocarbonCaseDetail.getOilOnly()
-                && hydrocarbonCaseDetail.getOilOnlyProbability().compareTo(BigDecimal.ZERO) > 0);
+                && hydrocarbonCaseDetail.getOilOnly());
   }
 
   public boolean isMixedOilAndGasPresent(SubmissionDetail submissionDetail) {
     return getHydrocarbonCaseDetail(submissionDetail)
         .stream().anyMatch(hydrocarbonCaseDetail ->
             hydrocarbonCaseDetail.getOilAndGas() != null
-                && hydrocarbonCaseDetail.getOilAndGas()
-                && hydrocarbonCaseDetail.getOilAndGasProbability().compareTo(BigDecimal.ZERO) > 0);
+                && hydrocarbonCaseDetail.getOilAndGas());
   }
 }

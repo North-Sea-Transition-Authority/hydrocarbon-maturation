@@ -81,6 +81,42 @@ class HydrocarbonCasePersistenceServiceTest {
   }
 
   @Test
+  void saveHydrocarbonCaseDetails_givenEmptyForm_verifyCreatedEntity() {
+    var form = new HydrocarbonCaseForm();
+
+    var hydrocarbonCaseArgumentCaptor = ArgumentCaptor.forClass(HydrocarbonCaseDetail.class);
+
+    hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
+
+    verify(hydrocarbonCaseRepository, times(1)).save(hydrocarbonCaseArgumentCaptor.capture());
+    var savedHydrocarbonCase = (HydrocarbonCaseDetail) hydrocarbonCaseArgumentCaptor.getValue();
+
+    assertThat(savedHydrocarbonCase)
+        .extracting(
+            HydrocarbonCaseDetail::getOilOnly,
+            HydrocarbonCaseDetail::getGasOnly,
+            HydrocarbonCaseDetail::getOilAndGas,
+            HydrocarbonCaseDetail::getGasOnlyProbability,
+            HydrocarbonCaseDetail::getOilOnlyProbability,
+            HydrocarbonCaseDetail::getOilAndGasProbability,
+            HydrocarbonCaseDetail::getGasOnlyComments,
+            HydrocarbonCaseDetail::getOilAndGasComments,
+            HydrocarbonCaseDetail::getOilOnlyComments
+        )
+        .containsExactly(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
+  }
+
+  @Test
   void getHydrocarbonCaseDetail_verifyMethodCall() {
     hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail);
     verify(hydrocarbonCaseRepository, times(1)).findBySubmissionDetail(submissionDetail);
