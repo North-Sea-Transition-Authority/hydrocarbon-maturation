@@ -78,16 +78,16 @@ public class OilCaseOutputsController {
         .addObject("form", form)
         .addObject("oilInPlaceTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.OIL_IN_PLACE))
+                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE))
         .addObject("oilRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.OIL_RECOVERABLE_RESOURCES))
+                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES))
         .addObject("associatedGasRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_RECOVERABLE_RESOURCES))
+                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES))
         .addObject("oilEquivalentRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
+                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
         .addObject("oilInPlaceError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
@@ -102,6 +102,7 @@ public class OilCaseOutputsController {
     var modelAndView = getOilCaseOutputsModelAndView(form, submissionDetailId);
 
     return modelAndView
+        .addObject("form", form)
         .addObject("oilInPlaceError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,

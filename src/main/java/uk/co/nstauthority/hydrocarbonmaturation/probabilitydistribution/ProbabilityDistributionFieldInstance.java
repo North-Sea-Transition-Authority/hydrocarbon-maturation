@@ -116,22 +116,38 @@ public enum ProbabilityDistributionFieldInstance {
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.KM2
   ),
-  OIL_IN_PLACE(
-      OilOutputBehaviour.class,
+  OIL_OUTPUTS_OIL_IN_PLACE(
+      ResourceOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB
   ),
-  OIL_RECOVERABLE_RESOURCES(
-      OilOutputBehaviour.class,
+  OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB
   ),
-  ASSOCIATED_GAS_RECOVERABLE_RESOURCES(
-      OilOutputBehaviour.class,
+  OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF
   ),
-  OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
-      OilOutputBehaviour.class,
+  OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE
   ),
+  GAS_OUTPUTS_GAS_IN_PLACE(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF
+  ),
+  GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF
+  ),
+  GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB
+  ),
+  GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE
+  )
   ;
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
   private final List<ProbabilityDistributionType> presetTypes;

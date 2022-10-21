@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-public class OilOutputBehaviour extends BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
+public class ResourceOutputsPreDrillBehaviour extends BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
   @Override
   public boolean isP99Available() {
     return true;

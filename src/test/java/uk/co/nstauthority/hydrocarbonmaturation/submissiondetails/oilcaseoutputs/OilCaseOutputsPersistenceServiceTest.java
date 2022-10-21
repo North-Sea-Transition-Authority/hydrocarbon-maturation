@@ -44,30 +44,31 @@ class OilCaseOutputsPersistenceServiceTest {
     form.setAssociatedGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setOilEquivalentRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(BigDecimal.ONE));
+    form.setHasAssociatedGasRecoverableResources(true);
 
     oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistribution(
-            ProbabilityDistributionFieldInstance.OIL_IN_PLACE,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE,
             form.getOilInPlace(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistribution(
-            ProbabilityDistributionFieldInstance.OIL_RECOVERABLE_RESOURCES,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES,
             form.getOilRecoverableResources(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistribution(
-            ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_RECOVERABLE_RESOURCES,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES,
             form.getAssociatedGasRecoverableResources(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistribution(
-            ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES,
             form.getOilEquivalentRecoverableResources(),
             submissionDetail);
 

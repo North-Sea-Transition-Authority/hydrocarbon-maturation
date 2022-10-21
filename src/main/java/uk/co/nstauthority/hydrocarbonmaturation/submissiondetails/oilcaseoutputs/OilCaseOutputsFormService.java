@@ -43,29 +43,34 @@ public class OilCaseOutputsFormService implements SubmissionFormService {
 
     form.setOilInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
-        ProbabilityDistributionFieldInstance.OIL_IN_PLACE
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE
     ));
 
     form.setOilRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
-        ProbabilityDistributionFieldInstance.OIL_RECOVERABLE_RESOURCES
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES
     ));
 
     form.setAssociatedGasRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
-        ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_RECOVERABLE_RESOURCES
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES
     ));
 
     form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
-        ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES
     ));
+    var oilCaseOutput = oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail);
 
-    var riskedOilEquivalentRecoverableMean = oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail)
+    var riskedOilEquivalentRecoverableMean = oilCaseOutput
         .map(OilCaseOutput::getRiskedOilEquivalentRecoverableMean)
         .orElse(null);
-    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(riskedOilEquivalentRecoverableMean));
+    var hasAssociatedGasRecoverableResources = oilCaseOutput
+        .map(OilCaseOutput::getHasAssociatedGasRecoverableResources)
+        .orElse(null);
 
+    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(riskedOilEquivalentRecoverableMean));
+    form.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
     return form;
   }
 }

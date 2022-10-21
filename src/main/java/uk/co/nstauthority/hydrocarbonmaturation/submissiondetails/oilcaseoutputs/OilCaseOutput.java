@@ -26,6 +26,8 @@ class OilCaseOutput {
 
   private BigDecimal riskedOilEquivalentRecoverableMean;
 
+  private Boolean hasAssociatedGasRecoverableResources;
+
   UUID getId() {
     return id;
   }
@@ -48,5 +50,13 @@ class OilCaseOutput {
 
   void setRiskedOilEquivalentRecoverableMean(BigDecimal riskedOilEquivalentRecoverableMean) {
     this.riskedOilEquivalentRecoverableMean = riskedOilEquivalentRecoverableMean;
+  }
+
+  Boolean getHasAssociatedGasRecoverableResources() {
+    return hasAssociatedGasRecoverableResources;
+  }
+
+  void setHasAssociatedGasRecoverableResources(Boolean hasAssociatedGasRecoverableResources) {
+    this.hasAssociatedGasRecoverableResources = hasAssociatedGasRecoverableResources;
   }
 }

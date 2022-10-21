@@ -140,13 +140,13 @@ class OilCaseOutputsControllerTest extends AbstractControllerTest {
         .contains(
             entry("form", form),
             entry("oilInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.OIL_IN_PLACE)),
+                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE)),
             entry("associatedGasRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_RECOVERABLE_RESOURCES)),
+                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES)),
             entry("oilEquivalentRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES)),
+                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES)),
             entry("oilRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.OIL_RECOVERABLE_RESOURCES)),
+                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES)),
             entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),

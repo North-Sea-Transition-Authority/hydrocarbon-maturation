@@ -50,16 +50,16 @@ class OilCaseOutputsFormServiceTest {
   @Test
   void getOilCaseOutputsForm_newEntity_thenEmptyForm() {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_IN_PLACE))
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERABLE_RESOURCES))
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_RECOVERABLE_RESOURCES))
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
         .thenReturn(new ProbabilityDistributionForm());
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
         .thenReturn(Optional.of(new OilCaseOutput()));
@@ -86,16 +86,16 @@ class OilCaseOutputsFormServiceTest {
         ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_IN_PLACE))
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERABLE_RESOURCES))
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_RECOVERABLE_RESOURCES))
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
         .thenReturn(probabilityDistributionForm);
 
     OilCaseOutput oilCaseOutput = new OilCaseOutput();

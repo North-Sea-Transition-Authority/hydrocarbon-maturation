@@ -60,7 +60,33 @@ class OilCaseOutputsFormValidatorTest {
     oilCaseOutputsFormValidator.validate(form, bindingResult, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-    // TODO
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error"))
+        );
+  }
+
+  @Test
+  void validate_whenYesNoNotSelected_thenValidationErrors() {
+    var form = getValidForm();
+    form.setHasAssociatedGasRecoverableResources(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    oilCaseOutputsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("hasAssociatedGasRecoverableResources", Set.of("hasAssociatedGasRecoverableResources.required"))
+        );
   }
 
   @ParameterizedTest
@@ -149,6 +175,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
     form.setOilInPlace(probabilityDistributionForm);
+    form.setHasAssociatedGasRecoverableResources(true);
     form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("abc"));
 
     return form;
@@ -164,6 +191,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
     form.setOilInPlace(probabilityDistributionForm);
+    form.setHasAssociatedGasRecoverableResources(true);
     form.setRiskedOilEquivalentRecoverableMean(new DecimalInput(""));
     return form;
   }
@@ -176,7 +204,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setOilEquivalentRecoverableResources(probDistributionForm);
     form.setOilRecoverableResources(probDistributionForm);
     form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("1"));
+    form.setHasAssociatedGasRecoverableResources(true);
     return form;
   }
-
 }

@@ -36,7 +36,7 @@ class ProbabilityDistributionFormServiceTest {
   @Test
   void probabilityDistributionEntityToForm_NoSavedTypeAndInstanceIsCustom_TypeIsCustom() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var instance = ProbabilityDistributionFieldInstance.OIL_IN_PLACE;
+    var instance = ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE;
 
     when(probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance))
         .thenReturn(Optional.empty());
@@ -66,7 +66,7 @@ class ProbabilityDistributionFormServiceTest {
   @Test
   void probabilityDistributionEntityToForm_HasSavedTypeAndInstanceIsCustom_TypeIsCustom() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var instance = ProbabilityDistributionFieldInstance.OIL_IN_PLACE;
+    var instance = ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE;
 
     ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution();
     when(probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance))

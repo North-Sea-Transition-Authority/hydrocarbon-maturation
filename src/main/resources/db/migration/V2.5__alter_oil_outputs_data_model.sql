@@ -1,0 +1,1 @@
+ALTER TABLE oil_case_outputs ADD has_associated_gas_recoverable_resources BOOLEAN DEFAULT NULL;

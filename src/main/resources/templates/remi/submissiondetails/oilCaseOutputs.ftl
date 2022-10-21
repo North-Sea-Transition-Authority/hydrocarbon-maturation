@@ -1,7 +1,7 @@
 <#include '../layout/layout.ftl'>
 <#import '../probabilitydistribution/probabilitydistribution.ftl' as probabilityDistribution>
 
-<#assign pageTitle = "Oil case ouputs (resources)"/>
+<#assign pageTitle = "Oil case outputs (resources)"/>
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
@@ -36,12 +36,20 @@
       template=oilRecoverableResourcesTemplate
       error=oilRecoverableResourcesError/>
 
-    <@probabilityDistribution.probabilityDistributionCustomTemplate
-      probabilityDistributionTypePath="form.associatedGasRecoverableResources.probabilityDistributionType"
-      labelText="Associated gas recoverable resources"
-      formId="associatedGasRecoverableResources"
-      template=associatedGasRecoverableResourcesTemplate
-      error=associatedGasRecoverableResourcesError/>
+    <@fdsRadio.radioGroup
+      path="form.hasAssociatedGasRecoverableResources"
+      labelText="Do you expect to find associated gas recoverable resources?"
+      hiddenContent=true>
+      <@fdsRadio.radioYes path="form.hasAssociatedGasRecoverableResources">
+        <@probabilityDistribution.probabilityDistributionCustomTemplate
+          probabilityDistributionTypePath="form.associatedGasRecoverableResources.probabilityDistributionType"
+          labelText="Associated gas recoverable resources"
+          formId="associatedGasRecoverableResources"
+          template=associatedGasRecoverableResourcesTemplate
+          error=associatedGasRecoverableResourcesError/>
+      </@fdsRadio.radioYes>
+      <@fdsRadio.radioNo path="form.hasAssociatedGasRecoverableResources"/>
+    </@fdsRadio.radioGroup>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
       probabilityDistributionTypePath="form.oilEquivalentRecoverableResources.probabilityDistributionType"
