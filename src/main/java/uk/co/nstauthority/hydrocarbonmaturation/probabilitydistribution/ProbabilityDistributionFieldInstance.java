@@ -147,6 +147,34 @@ public enum ProbabilityDistributionFieldInstance {
   GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE
+  ),
+  MIXED_CASE_OIL_IN_PLACE(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB
+  ),
+  MIXED_CASE_OIL_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB
+  ),
+  MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF
+  ),
+  MIXED_CASE_GAS_IN_PLACE(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF
+  ),
+  MIXED_CASE_GAS_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF
+  ),
+  MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB
+  ),
+  MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
+      ResourceOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE
   )
   ;
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;

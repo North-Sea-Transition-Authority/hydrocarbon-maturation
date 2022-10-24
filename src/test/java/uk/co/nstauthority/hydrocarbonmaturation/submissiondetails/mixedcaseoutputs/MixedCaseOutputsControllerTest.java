@@ -1,0 +1,165 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
+
+    import static java.util.Map.entry;
+    import static org.assertj.core.api.Assertions.assertThat;
+    import static org.mockito.ArgumentMatchers.any;
+    import static org.mockito.ArgumentMatchers.eq;
+    import static org.mockito.Mockito.never;
+    import static org.mockito.Mockito.times;
+    import static org.mockito.Mockito.verify;
+    import static org.mockito.Mockito.when;
+    import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+    import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+    import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+    import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+    import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+    import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+    import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+    import java.util.Map;
+    import java.util.Objects;
+    import java.util.UUID;
+    import org.junit.jupiter.api.BeforeEach;
+    import org.junit.jupiter.api.Test;
+    import org.junit.jupiter.params.ParameterizedTest;
+    import org.junit.jupiter.params.provider.EnumSource;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.boot.test.mock.mockito.MockBean;
+    import org.springframework.security.test.context.support.WithMockUser;
+    import org.springframework.test.context.ContextConfiguration;
+    import org.springframework.validation.BeanPropertyBindingResult;
+    import org.springframework.validation.BindingResult;
+    import org.springframework.validation.FieldError;
+    import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+    import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+    import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+    import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
+    import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+    import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+    import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+    import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+    import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
+    import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
+    import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+    import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
+
+@WithMockUser
+@ContextConfiguration(classes = MixedCaseOutputsController.class)
+class MixedCaseOutputsControllerTest extends AbstractControllerTest {
+
+  @MockBean
+  private SubmissionDetailService submissionDetailService;
+
+  @MockBean
+  private MixedCaseOutputsFormService mixedCaseOutputsFormService;
+
+  @MockBean
+  private MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService;
+
+  @Autowired
+  private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
+
+  private static MixedCaseOutputsForm form;
+  private static UUID submissionDetailId;
+  private static SubmissionDetail submissionDetail;
+  private static BindingResult bindingResult;
+
+  @BeforeEach
+  void setUp() {
+    form = new MixedCaseOutputsForm();
+    bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetailId = submissionDetail.getId();
+  }
+
+  @Test
+  void getMixedCaseOutputs_assertOk() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail)).thenReturn(new MixedCaseOutputsForm());
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(MixedCaseOutputsController.class).getMixedCaseOutputs(submissionDetailId, null))))
+        .andExpect(status().isOk())
+        .andExpect(view().name("remi/submissiondetails/mixedCaseOutputs"));
+  }
+
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveMixedCaseOutputs_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    when(mixedCaseOutputsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(MixedCaseOutputsController.class).saveMixedCaseOutputs(submissionDetailId, null, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
+
+    verify(mixedCaseOutputsPersistenceService, times(1)).saveMixedCaseOutputs(any(MixedCaseOutputsForm.class), eq(submissionDetail));
+  }
+
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveMixedCaseOutputs_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
+
+    when(mixedCaseOutputsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(MixedCaseOutputsController.class).saveMixedCaseOutputs(submissionDetailId, null, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(mixedCaseOutputsPersistenceService, never()).saveMixedCaseOutputs(any(MixedCaseOutputsForm.class), any());
+  }
+
+  @Test
+  void getMixedCaseOutputsModelAndView_assertModelProperties() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail)).thenReturn(form);
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(MixedCaseOutputsController.class)
+                .getMixedCaseOutputs(submissionDetailId, null))))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    @SuppressWarnings(value = "unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+    assertThat(breadcrumbsMap.entrySet())
+        .containsExactly(
+            entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
+            entry(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)), ProspectTaskListController.PAGE_NAME)
+        );
+
+    assertThat(modelMap)
+        .contains(
+            entry("form", form),
+            entry("oilInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE)),
+            entry("oilRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES)),
+            entry("associatedGasRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES)),
+            entry("gasInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE)),
+            entry("gasRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES)),
+            entry("associatedCondensateRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES)),
+            entry("oilEquivalentRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES)),
+            entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("gasInPlaceError", ProbabilityDistributionTypeError.emptyError()),
+            entry("gasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
+        );
+  }
+
+}
