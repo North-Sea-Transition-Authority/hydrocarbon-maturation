@@ -54,16 +54,21 @@ public class OilCaseOutputsPersistenceService {
           submissionDetail
       );
     }
-
+    var associatedGasRecoverableResources =
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES;
     if (oilCaseOutputsForm.getHasAssociatedGasRecoverableResources() != null
         && oilCaseOutputsForm.getHasAssociatedGasRecoverableResources()
         && oilCaseOutputsForm.getAssociatedGasRecoverableResources().getProbabilityDistributionType() != null) {
-      var associatedGasRecoverableResources =
-          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES;
       probabilityDistributionPersistenceService.saveProbabilityDistribution(
           associatedGasRecoverableResources,
           oilCaseOutputsForm.getAssociatedGasRecoverableResources(),
           submissionDetail
+      );
+    } else if (oilCaseOutputsForm.getHasAssociatedGasRecoverableResources() != null
+        && !oilCaseOutputsForm.getHasAssociatedGasRecoverableResources()) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+            associatedGasRecoverableResources,
+            submissionDetail
       );
     }
 

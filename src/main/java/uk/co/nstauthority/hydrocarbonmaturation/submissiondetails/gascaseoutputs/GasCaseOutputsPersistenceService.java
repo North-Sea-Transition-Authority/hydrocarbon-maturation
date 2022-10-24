@@ -45,15 +45,20 @@ class GasCaseOutputsPersistenceService {
           submissionDetail
       );
     }
-
+    var associatedCondensateRecoverableResources =
+        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES;
     if (gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources() != null
         && gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources()
         && gasCaseOutputsForm.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType() != null) {
-      var associatedCondensateRecoverableResources =
-          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES;
       probabilityDistributionPersistenceService.saveProbabilityDistribution(
           associatedCondensateRecoverableResources,
           gasCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
+          submissionDetail
+      );
+    } else if (gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources() != null
+        && !gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources()) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          associatedCondensateRecoverableResources,
           submissionDetail
       );
     }

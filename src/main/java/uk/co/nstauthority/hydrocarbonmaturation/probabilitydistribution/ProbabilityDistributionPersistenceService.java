@@ -48,4 +48,9 @@ public class ProbabilityDistributionPersistenceService {
   ) {
     return probabilityDistributionRepository.findBySubmissionDetailAndInstance(submissionDetail, instance);
   }
+
+  public void deleteProbabilityDistribution(ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
+                                            SubmissionDetail submissionDetail) {
+    probabilityDistributionRepository.deleteBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance);
+  }
 }

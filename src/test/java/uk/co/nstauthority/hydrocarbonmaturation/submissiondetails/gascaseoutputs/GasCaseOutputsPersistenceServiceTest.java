@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -63,6 +64,74 @@ class GasCaseOutputsPersistenceServiceTest {
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistribution(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES,
+            form.getOilEquivalentRecoverableResources(),
+            submissionDetail);
+
+    verify(gasCaseOutputsRepository, times(1)).save(any(GasCaseOutput.class));
+  }
+
+  @Test
+  void saveGasCaseOutputs_whenGivenAFormAndOptionalFieldFalse_verifyCreatedEntity() {
+    var form = new GasCaseOutputsForm();
+    form.setGasInPlace(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
+    form.setGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
+    form.setAssociatedCondensateRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
+    form.setOilEquivalentRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
+    form.setHasAssociatedCondensateRecoverableResources(false);
+    gasCaseOutputsPersistenceService.saveGasCaseOutputs(form, submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistribution(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES,
+            form.getGasRecoverableResources(),
+            submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistribution(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE,
+            form.getGasInPlace(),
+            submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .deleteProbabilityDistribution(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES,
+            submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistribution(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES,
+            form.getOilEquivalentRecoverableResources(),
+            submissionDetail);
+
+    verify(gasCaseOutputsRepository, times(1)).save(any(GasCaseOutput.class));
+  }
+
+  @Test
+  void saveGasCaseOutputs_whenGivenEmptyForm_verifyCreatedEntity() {
+    var form = new GasCaseOutputsForm();
+
+    gasCaseOutputsPersistenceService.saveGasCaseOutputs(form, submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, never())
+        .saveProbabilityDistribution(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES,
+            form.getGasRecoverableResources(),
+            submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, never())
+        .saveProbabilityDistribution(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE,
+            form.getGasInPlace(),
+            submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, never())
+        .deleteProbabilityDistribution(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES,
+            submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, never())
         .saveProbabilityDistribution(
             ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES,
             form.getOilEquivalentRecoverableResources(),

@@ -7,10 +7,14 @@ import org.springframework.stereotype.Repository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Repository
-public interface ProbabilityDistributionRepository
+interface ProbabilityDistributionRepository
     extends CrudRepository<ProbabilityDistribution, UUID> {
 
   Optional<ProbabilityDistribution> findBySubmissionDetailAndInstance(
+      SubmissionDetail submissionDetail,
+      ProbabilityDistributionFieldInstance instance);
+
+  void deleteBySubmissionDetailAndInstance(
       SubmissionDetail submissionDetail,
       ProbabilityDistributionFieldInstance instance);
 }
