@@ -60,6 +60,7 @@ public class OilCaseOutputsFormService implements SubmissionFormService {
         submissionDetail,
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES
     ));
+
     var oilCaseOutput = oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail);
 
     var riskedOilEquivalentRecoverableMean = oilCaseOutput

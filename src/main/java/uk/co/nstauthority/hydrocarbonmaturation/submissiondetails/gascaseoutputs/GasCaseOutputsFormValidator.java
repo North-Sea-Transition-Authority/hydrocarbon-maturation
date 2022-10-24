@@ -59,7 +59,7 @@ class GasCaseOutputsFormValidator implements SmartValidator, SubmissionFormValid
     );
 
     if (hasAssociatedCondensateRecoverableResources(gasCaseOutputsForm)) {
-      var associatedCondensateRecoverableResources = gasCaseOutputsForm.getGasInPlace();
+      var associatedCondensateRecoverableResources = gasCaseOutputsForm.getAssociatedCondensateRecoverableResources();
       ProbabilityDistributionValidationUtil.validateCustomPartial(
           associatedCondensateRecoverableResources,
           errors,

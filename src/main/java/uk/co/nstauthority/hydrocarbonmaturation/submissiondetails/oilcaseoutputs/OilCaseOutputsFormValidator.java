@@ -59,14 +59,16 @@ public class OilCaseOutputsFormValidator implements SmartValidator, SubmissionFo
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES
     );
 
-    var associatedGasRecoverableResources = oilCaseOutputsForm.getAssociatedGasRecoverableResources();
-    ProbabilityDistributionValidationUtil.validateCustomPartial(
-        associatedGasRecoverableResources,
-        errors,
-        "associatedGasRecoverableResources",
-        "Associated gas recoverable resources",
-        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES
-    );
+    if (hasAssociatedGasRecoverableResources(oilCaseOutputsForm)) {
+      var associatedGasRecoverableResources = oilCaseOutputsForm.getAssociatedGasRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          associatedGasRecoverableResources,
+          errors,
+          "associatedGasRecoverableResources",
+          "Associated gas recoverable resources",
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES
+      );
+    }
 
     var oilEquivalentRecoverableResources = oilCaseOutputsForm.getOilEquivalentRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(

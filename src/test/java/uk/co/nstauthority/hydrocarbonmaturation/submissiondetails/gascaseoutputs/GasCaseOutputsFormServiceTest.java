@@ -55,6 +55,9 @@ class GasCaseOutputsFormServiceTest {
         submissionDetail, ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES))
+        .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail, ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES))
         .thenReturn(new ProbabilityDistributionForm());
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(submissionDetail))

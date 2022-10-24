@@ -52,12 +52,10 @@ class GasCaseOutputsFormService implements SubmissionFormService {
         .orElse(null);
 
     form.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
-    if (hasAssociatedCondensateRecoverableResources != null && hasAssociatedCondensateRecoverableResources) {
-      form.setAssociatedCondensateRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
-          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES
-      ));
-    }
+    form.setAssociatedCondensateRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES
+    ));
 
     form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
