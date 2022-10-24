@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
@@ -22,6 +24,7 @@ class ProspectSummaryService {
 
   private final GeneralDetailSummaryService generalDetailSummaryService;
   private final SourceAndSealSummaryService sourceAndSealSummaryService;
+  private final ChanceOfSuccessSummaryService chanceOfSuccessSummaryService;
   private final HydrocarbonCaseSummaryService hydrocarbonCaseSummaryService;
   private final List<ProspectTaskListSection> prospectTaskListSections;
   private final List<ProspectTaskListItem> prospectTaskListItems;
@@ -30,11 +33,13 @@ class ProspectSummaryService {
   @Autowired
   public ProspectSummaryService(GeneralDetailSummaryService generalDetailSummaryService,
                                 SourceAndSealSummaryService sourceAndSealSummaryService,
+                                ChanceOfSuccessSummaryService chanceOfSuccessSummaryService,
                                 HydrocarbonCaseSummaryService hydrocarbonCaseSummaryService,
                                 List<ProspectTaskListSection> prospectTaskListSections,
                                 List<ProspectTaskListItem> prospectTaskListItems) {
     this.generalDetailSummaryService = generalDetailSummaryService;
     this.sourceAndSealSummaryService = sourceAndSealSummaryService;
+    this.chanceOfSuccessSummaryService = chanceOfSuccessSummaryService;
     this.hydrocarbonCaseSummaryService = hydrocarbonCaseSummaryService;
     this.prospectTaskListSections = prospectTaskListSections;
     this.prospectTaskListItems = prospectTaskListItems;
@@ -47,6 +52,10 @@ class ProspectSummaryService {
 
   public SourceAndSealSummaryView getSourceAndSealSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return sourceAndSealSummaryService.getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public ChanceOfSuccessSummaryView getChanceOfSuccessSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+    return chanceOfSuccessSummaryService.getChanceOfSuccessSummaryFromSubmissionDetail(submissionDetail);
   }
 
   public HydrocarbonCaseSummaryView getHydrocarbonCaseSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {

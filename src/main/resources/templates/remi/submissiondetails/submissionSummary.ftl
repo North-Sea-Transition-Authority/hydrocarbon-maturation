@@ -3,6 +3,7 @@
 <#import '../summarylistcards/generaldetailsSummaryCard.ftl' as generalDetailsSummary>
 <#import '../summarylistcards/sourceAndSealSummaryCard.ftl' as sourceAndSealSummary>
 <#import '../summarylistcards/hydrocarbonCaseSummaryCard.ftl' as hydrocarbonCaseSummary>
+<#import '../summarylistcards/chanceOfSuccessSummaryCard.ftl' as chanceOfSuccessSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -38,6 +39,8 @@
         sourceAndSealValues=sourceAndSealSummaryView/>
       <@hydrocarbonCaseSummary.hydrocarbonCaseCard
         hydrocarbonCaseValues=hydrocarbonCaseSummaryView/>
+      <@chanceOfSuccessSummary.chanceOfSuccessCards
+        chanceOfSuccessValues=chanceOfSuccessSummaryView/>
 
       <@fdsAction.submitButtons
         primaryButtonText="Submit"

@@ -27,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView;
@@ -53,6 +54,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
   private GeneralDetailSummaryView generalDetailSummaryView;
   private SourceAndSealSummaryView sourceAndSealSummaryView;
   private HydrocarbonCaseSummaryView hydrocarbonCaseSummarView;
+  private ChanceOfSuccessSummaryView chanceOfSuccessSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -60,6 +62,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
     submissionDetailId = submissionDetail.getId();
     generalDetailSummaryView =  GeneralDetailSummaryView.empty();
     sourceAndSealSummaryView =  SourceAndSealSummaryView.empty();
+    chanceOfSuccessSummaryView = ChanceOfSuccessSummaryView.empty();
     hydrocarbonCaseSummarView = HydrocarbonCaseSummaryView.empty();
   }
 
@@ -75,6 +78,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(sourceAndSealSummaryView);
     when(prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(hydrocarbonCaseSummarView);
+    when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(chanceOfSuccessSummaryView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -107,6 +112,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(sourceAndSealSummaryView);
     when(prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(hydrocarbonCaseSummarView);
+    when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(chanceOfSuccessSummaryView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -119,6 +126,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("hydrocarbonCaseSummaryView", hydrocarbonCaseSummarView),
+            entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView),
             entry("subNavigation", subNavList)
     );
   }
