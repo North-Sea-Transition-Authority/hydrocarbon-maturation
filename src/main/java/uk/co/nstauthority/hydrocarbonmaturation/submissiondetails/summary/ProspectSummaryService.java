@@ -5,9 +5,11 @@ import java.util.Comparator;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
@@ -29,6 +31,7 @@ class ProspectSummaryService {
   private final ChanceOfSuccessSummaryService chanceOfSuccessSummaryService;
   private final HydrocarbonCaseSummaryService hydrocarbonCaseSummaryService;
   private final ReservoirPropertiesSummaryService reservoirPropertiesSummaryService;
+  private final GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
   private final List<ProspectTaskListSection> prospectTaskListSections;
   private final List<ProspectTaskListItem> prospectTaskListItems;
   private List<SubNavigationSectionItem> subNavigationSectionItems;
@@ -39,6 +42,7 @@ class ProspectSummaryService {
                                 ChanceOfSuccessSummaryService chanceOfSuccessSummaryService,
                                 HydrocarbonCaseSummaryService hydrocarbonCaseSummaryService,
                                 ReservoirPropertiesSummaryService reservoirPropertiesSummaryService,
+                                GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService,
                                 List<ProspectTaskListSection> prospectTaskListSections,
                                 List<ProspectTaskListItem> prospectTaskListItems) {
     this.generalDetailSummaryService = generalDetailSummaryService;
@@ -46,6 +50,7 @@ class ProspectSummaryService {
     this.chanceOfSuccessSummaryService = chanceOfSuccessSummaryService;
     this.hydrocarbonCaseSummaryService = hydrocarbonCaseSummaryService;
     this.reservoirPropertiesSummaryService = reservoirPropertiesSummaryService;
+    this.gasCaseVolumetricsSummaryService = gasCaseVolumetricsSummaryService;
     this.prospectTaskListSections = prospectTaskListSections;
     this.prospectTaskListItems = prospectTaskListItems;
     this.subNavigationSectionItems = new ArrayList<>();
@@ -69,6 +74,11 @@ class ProspectSummaryService {
 
   public ReservoirPropertiesSummaryView getReservoirPropertiesSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public ProbabilityDistributionsFormSummaryView getGasCaseVolumetricsSummaryViewFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
+    return gasCaseVolumetricsSummaryService.getGasCaseVolumetricsSummaryView(submissionDetail);
   }
 
   public List<SubNavigationSectionItem> getProspectSubNavigation(SubmissionDetail submissionDetail) {

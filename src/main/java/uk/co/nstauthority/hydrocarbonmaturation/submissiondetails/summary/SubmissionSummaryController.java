@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 
@@ -21,14 +22,17 @@ public class SubmissionSummaryController {
 
   private final ProspectSummaryService prospectSummaryService;
   private final SubmissionDetailService submissionDetailService;
+  private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   public static final String PAGE_NAME = "Check your answers before submitting";
 
   @Autowired
   public SubmissionSummaryController(ProspectSummaryService prospectSummaryService,
-                                     SubmissionDetailService submissionDetailService) {
+                                     SubmissionDetailService submissionDetailService,
+                                     HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService) {
     this.prospectSummaryService = prospectSummaryService;
     this.submissionDetailService = submissionDetailService;
+    this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
   }
 
   @GetMapping
@@ -56,6 +60,11 @@ public class SubmissionSummaryController {
             prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("reservoirPropertiesSummaryView",
             prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("gasCaseVolumetricsSummaryView",
+            prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("gasCase", hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail))
+        .addObject("oilCase", hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail))
+        .addObject("mixedCase", hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail))
         .addObject("cancelUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)))
         .addObject("subNavigation", prospectSummaryService.getProspectSubNavigation(submissionDetail));
 

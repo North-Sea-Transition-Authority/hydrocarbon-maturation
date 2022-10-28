@@ -25,12 +25,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.ui.ModelMap;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
@@ -48,6 +50,9 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
   GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   @MockBean
+  HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+
+  @MockBean
   ProspectSummaryService prospectSummaryService;
 
   private static UUID submissionDetailId;
@@ -58,6 +63,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
   private HydrocarbonCaseSummaryView hydrocarbonCaseSummaryView;
   private ChanceOfSuccessSummaryView chanceOfSuccessSummaryView;
   private ReservoirPropertiesSummaryView reservoirPropertiesSummaryView;
+  private ProbabilityDistributionsFormSummaryView gasCaseVolumetricsSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -72,6 +78,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         "lithology",
         new ArrayList<>());
     chanceOfSuccessSummaryView = ChanceOfSuccessSummaryView.empty();
+    gasCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
   }
 
   @Test
@@ -90,6 +97,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(reservoirPropertiesSummaryView);
     when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(chanceOfSuccessSummaryView);
+    when(prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(gasCaseVolumetricsSummaryView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -126,6 +135,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(reservoirPropertiesSummaryView);
     when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(chanceOfSuccessSummaryView);
+    when(prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(gasCaseVolumetricsSummaryView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -140,6 +151,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("hydrocarbonCaseSummaryView", hydrocarbonCaseSummaryView),
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
             entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView),
+            entry("gasCaseVolumetricsSummaryView", gasCaseVolumetricsSummaryView),
             entry("subNavigation", subNavList)
     );
   }

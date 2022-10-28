@@ -5,6 +5,7 @@
 <#import '../summarylistcards/hydrocarbonCaseSummaryCard.ftl' as hydrocarbonCaseSummary>
 <#import '../summarylistcards/reservoirPropertiesSummaryCard.ftl' as reservoirPropertiesSummary>
 <#import '../summarylistcards/chanceOfSuccessSummaryCard.ftl' as chanceOfSuccessSummary>
+<#import '../summarylistcards/gasCaseVolumetricsSummary.ftl' as gasCaseVolumetricsSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -13,6 +14,9 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="subNavigation" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubNavigationSectionItem>" -->
 <#-- @ftlvariable name="reservoirPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView" -->
+<#-- @ftlvariable name="gasCase" type="Boolean" -->
+<#-- @ftlvariable name="oilCase" type="Boolean" -->
+<#-- @ftlvariable name="mixedCase" type="Boolean" -->
 
 <@defaultLeftSubNavPage
   htmlTitle=pageTitle
@@ -45,6 +49,10 @@
         chanceOfSuccessValues=chanceOfSuccessSummaryView/>
       <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard
         reservoirPropertiesValues=reservoirPropertiesSummaryView/>
+      <#if gasCase>
+        <@gasCaseVolumetricsSummary.gasCaseVolumetricsSummary
+          gasCaseVolumetricsValues=gasCaseVolumetricsSummaryView/>
+      </#if>
 
       <@fdsAction.submitButtons
         primaryButtonText="Submit"
