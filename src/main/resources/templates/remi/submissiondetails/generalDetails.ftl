@@ -4,6 +4,8 @@
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="onshoreOffshore" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="quadrantBlocksApiEndpoint" type="String" -->
+<#-- @ftlvariable name="alreadyAddedQuadrantBlocks" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.addtolist.AddToListItem>" -->
 <#-- @ftlvariable name="informationSources" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
@@ -33,6 +35,22 @@ breadcrumbsMap=breadcrumbsMap>
                 nestingPath="form.prospectLocatedInUkcs"/>
           </@fdsRadio.radioNo>
       </@fdsRadio.radioGroup>
+
+      <@fdsFieldset.fieldset
+        legendHeading="Quadrant/blocks"
+        legendHeadingClass="govuk-fieldset__legend--s">
+        <@fdsAddToList.addToList
+          pathForList="form.quadrantBlocks"
+          pathForSelector="form.quadrantBlockSelect"
+          alreadyAdded=alreadyAddedQuadrantBlocks
+          title=""
+          itemName="Quadrant/block"
+          noItemText="No quadrant/block added"
+          invalidItemText="This quadrant/block is invalid"
+          addToListId="quadrant-block-table"
+          selectorLabelText="Select a quadrant/block to add to this prospect"
+          restUrl=springUrl(quadrantBlocksApiEndpoint)/>
+      </@fdsFieldset.fieldset>
 
       <@fdsRadio.radioGroup path="form.informationSource" labelText="Source of Information" hiddenContent=true>
           <#assign firstItem=true/>

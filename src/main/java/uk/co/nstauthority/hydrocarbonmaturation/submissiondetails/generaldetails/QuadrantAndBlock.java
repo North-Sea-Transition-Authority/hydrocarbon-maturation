@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "quadrant_blocks")
+@Table(name = "general_details_quadrant_blocks")
 class QuadrantAndBlock {
 
   @Id

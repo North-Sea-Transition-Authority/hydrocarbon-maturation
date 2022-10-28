@@ -24,13 +24,15 @@ class GeneralDetailsPersistenceServiceTest {
   private static GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   @Mock
+  private QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
+  @Mock
   private static GeneralDetailsRepository generalDetailsRepository;
-
   private static SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setup() {
-    generalDetailsPersistenceService = new GeneralDetailsPersistenceService(generalDetailsRepository);
+    generalDetailsPersistenceService = new GeneralDetailsPersistenceService(generalDetailsRepository,
+        quadrantAndBlockPersistenceService);
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);

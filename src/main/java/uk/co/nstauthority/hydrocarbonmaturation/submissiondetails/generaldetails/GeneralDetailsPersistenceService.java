@@ -15,9 +15,13 @@ public class GeneralDetailsPersistenceService {
 
   private final GeneralDetailsRepository generalDetailsRepository;
 
+  private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
+
   @Autowired
-  public GeneralDetailsPersistenceService(GeneralDetailsRepository generalDetailsRepository) {
+  public GeneralDetailsPersistenceService(GeneralDetailsRepository generalDetailsRepository,
+                                          QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService) {
     this.generalDetailsRepository = generalDetailsRepository;
+    this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
   }
 
   @Transactional
@@ -44,13 +48,14 @@ public class GeneralDetailsPersistenceService {
     }
 
     generalDetailsRepository.save(generalDetail);
+    quadrantAndBlockPersistenceService.saveQuadrantAndBlocks(form, generalDetail);
   }
 
   @Transactional
   public void updateGeneralDetailProspect(UpdateProspectForm form,
                                           SubmissionDetail submissionDetail,
                                           GeneralDetail previousGeneralDetail) {
-    GeneralDetail newGeneralDetail = new GeneralDetail();
+    var newGeneralDetail = new GeneralDetail();
     newGeneralDetail.setProspectName(previousGeneralDetail.getProspectName());
     newGeneralDetail.setSubmissionDetail(submissionDetail);
     newGeneralDetail.setInformationSource(form.getInformationSource());

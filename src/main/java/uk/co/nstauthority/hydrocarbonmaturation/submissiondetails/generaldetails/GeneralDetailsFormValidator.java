@@ -61,12 +61,16 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
     ValidationUtils.rejectIfEmpty(errors, "informationSource", "informationSource.required", "Select the source of information");
 
-    GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
+    var generalDetailsForm = (GeneralDetailsForm) form;
     fullValidationPercentageLocatedInUkcs(generalDetailsForm, errors);
 
     if (generalDetailsForm.getInformationSource() == InformationSource.OTHER) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherSourceOfInformation", "otherSourceOfInformation.required",
           "Enter the source of information for this prospect submission");
+    }
+
+    if (generalDetailsForm.getQuadrantBlocks().isEmpty()) {
+      errors.rejectValue("quadrantBlockSelect", "quadrantBlockSelect.notEmpty", "You must select at least one quadrant/block");
     }
   }
 

@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,7 +66,8 @@ class GeneralDetailsFormValidatorTest {
             entry("prospectName", Set.of("prospectName.required")),
             entry("onshoreOffshore", Set.of("onshoreOffshore.required")),
             entry("prospectLocatedInUkcs", Set.of("prospectLocatedInUkcs.required")),
-            entry("informationSource", Set.of("informationSource.required"))
+            entry("informationSource", Set.of("informationSource.required")),
+            entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
         );
   }
 
@@ -79,6 +82,20 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrors)
         .containsExactly(
             entry("otherSourceOfInformation", Set.of("otherSourceOfInformation.required"))
+        );
+  }
+
+  @Test
+  void validate_whenInValidForm_noQuadrantBlock_thenValidationErrors() {
+    var form = getValidForm();
+    form.setQuadrantBlocks(Collections.emptyList());
+
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
         );
   }
 
@@ -164,6 +181,7 @@ class GeneralDetailsFormValidatorTest {
     form.setProspectLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
     form.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
+    form.setQuadrantBlocks(List.of("27/10"));
 
     return form;
   }

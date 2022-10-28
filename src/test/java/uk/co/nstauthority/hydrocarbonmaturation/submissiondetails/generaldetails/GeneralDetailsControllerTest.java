@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,6 +31,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock.ReferenceBlockRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -112,7 +114,13 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
   @Test
   void getGeneralDetailsModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(new GeneralDetailsForm());
+
+    var form = new GeneralDetailsForm();
+    when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
+
+    var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);
+    var quadrantBlockViewList = List.of(quadrantBlockView1);
+    when(generalDetailsFormService.getQuadrantAndBlockViews(form)).thenReturn(quadrantBlockViewList);
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
@@ -121,10 +129,14 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
             .getModelAndView())
         .getModelMap();
 
-    Map<String, Object> modelMapExpected = new HashMap<>();
-    modelMapExpected.put("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore());
-    modelMapExpected.put("informationSources", InformationSource.getInformationSource());
-    assertThat(modelMap).containsAllEntriesOf(modelMapExpected);
+    assertThat(modelMap)
+        .contains(
+            entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
+            entry("informationSources", InformationSource.getInformationSource()),
+            entry("quadrantBlocksApiEndpoint",
+                SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null))),
+            entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList)
+        );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 
     @SuppressWarnings(value="unchecked")
