@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdoc
 
 public enum SupportingDocumentType {
   MAP_OF_OPPORTUNITY,
-  PROSPECT_DEPTH_MAP
+  PROSPECT_DEPTH_MAP,
+  ADDITIONAL_DOCUMENT
 }
 
