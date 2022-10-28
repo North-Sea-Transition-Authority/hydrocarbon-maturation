@@ -6,6 +6,7 @@
 <#import '../summarylistcards/reservoirPropertiesSummaryCard.ftl' as reservoirPropertiesSummary>
 <#import '../summarylistcards/chanceOfSuccessSummaryCard.ftl' as chanceOfSuccessSummary>
 <#import '../summarylistcards/gasCaseVolumetricsSummary.ftl' as gasCaseVolumetricsSummary>
+<#import '../summarylistcards/gasCaseOutputsSummaryCard.ftl' as gasCaseOutputsSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -52,6 +53,8 @@
       <#if gasCase>
         <@gasCaseVolumetricsSummary.gasCaseVolumetricsSummary
           gasCaseVolumetricsValues=gasCaseVolumetricsSummaryView/>
+        <@gasCaseOutputsSummary.gasCaseOutputsSummaryCard
+          gasCaseOutputsValues=gasCaseOutputsSummaryView/>
       </#if>
 
       <@fdsAction.submitButtons

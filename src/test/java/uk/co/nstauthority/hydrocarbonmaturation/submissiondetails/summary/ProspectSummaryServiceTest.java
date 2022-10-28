@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
@@ -45,6 +46,9 @@ class ProspectSummaryServiceTest {
   private GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
 
   @Mock
+  private GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
+
+  @Mock
   private ProspectTaskListItem prospectTaskListItem;
 
   private ProspectSummaryService prospectSummaryService;
@@ -63,6 +67,7 @@ class ProspectSummaryServiceTest {
         hydrocarbonCaseSummaryService,
         reservoirPropertiesSummaryService,
         gasCaseVolumetricsSummaryService,
+        gasCaseOutputsSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
@@ -129,6 +134,16 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
+  void getGasCaseOutputsSummaryViewFromSubmissionDetail() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    prospectSummaryService.getGasCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(gasCaseOutputsSummaryService, times(1))
+        .getGasCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
   void getProspectSubNavigation_whenTwoSections_oneResult() {
     var subNavItems = prospectSummaryService.getProspectSubNavigation(submissionDetail);
 
@@ -146,6 +161,7 @@ class ProspectSummaryServiceTest {
         hydrocarbonCaseSummaryService,
         reservoirPropertiesSummaryService,
         gasCaseVolumetricsSummaryService,
+        gasCaseOutputsSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
 

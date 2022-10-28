@@ -62,6 +62,8 @@ public class SubmissionSummaryController {
             prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("gasCaseVolumetricsSummaryView",
             prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("gasCaseOutputsSummaryView",
+            prospectSummaryService.getGasCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("gasCase", hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail))
         .addObject("oilCase", hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail))
         .addObject("mixedCase", hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail))
