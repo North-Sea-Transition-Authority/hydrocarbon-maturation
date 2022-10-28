@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -37,9 +38,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncas
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.VolumetricsTaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
 
 @WithMockUser
 @ContextConfiguration(classes = SubmissionSummaryController.class)
@@ -70,6 +74,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
   private OilCaseOutputsSummaryView oilCaseOutputsSummaryView;
   private ProbabilityDistributionsFormSummaryView mixedCaseVolumetricsSummaryView;
   private MixedCaseOutputsSummaryView mixedCaseOutputsSummaryView;
+  private TrapPropertiesSummaryView trapPropertiesSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -83,6 +88,20 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         "age",
         "lithology",
         new ArrayList<>());
+    trapPropertiesSummaryView = new TrapPropertiesSummaryView(
+        "desc",
+        "Other",
+        "other trap type",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "10",
+        "East",
+        new ArrayList<>(),
+        new HashMap<>()
+    );
     chanceOfSuccessSummaryView = ChanceOfSuccessSummaryView.empty();
     oilCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
@@ -117,6 +136,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(mixedCaseVolumetricsSummaryView);
     when(prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(mixedCaseOutputsSummaryView);
+    when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(trapPropertiesSummaryView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -163,6 +184,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(mixedCaseVolumetricsSummaryView);
     when(prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(mixedCaseOutputsSummaryView);
+    when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(trapPropertiesSummaryView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -182,6 +205,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("oilCaseOutputsSummaryView", oilCaseOutputsSummaryView),
             entry("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView),
             entry("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView),
+            entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
             entry("subNavigation", subNavList)
     );
   }

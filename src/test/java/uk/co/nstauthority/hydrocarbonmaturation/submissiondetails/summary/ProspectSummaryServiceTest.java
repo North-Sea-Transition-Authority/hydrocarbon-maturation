@@ -27,11 +27,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprope
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.VolumetricsTaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItem;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListSection;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService;
 
 @ExtendWith(MockitoExtension.class)
 class ProspectSummaryServiceTest {
@@ -70,6 +73,9 @@ class ProspectSummaryServiceTest {
   private MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService;
 
   @Mock
+  private TrapPropertiesSummaryService trapPropertiesSummaryService;
+
+  @Mock
   private ProspectTaskListItem prospectTaskListItem;
 
   private ProspectSummaryService prospectSummaryService;
@@ -86,6 +92,7 @@ class ProspectSummaryServiceTest {
         chanceOfSuccessSummaryService,
         hydrocarbonCaseSummaryService,
         reservoirPropertiesSummaryService,
+        trapPropertiesSummaryService,
         oilCaseVolumetricsSummaryService,
         oilCaseOutputsSummaryService,
         gasCaseVolumetricsSummaryService,
@@ -208,6 +215,16 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
+  void getTrapPropertiesSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(trapPropertiesSummaryService, times(1))
+        .getTrapPropertiesSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
   void getProspectSubNavigation_whenTwoSections_oneResult() {
     var subNavItems = prospectSummaryService.getProspectSubNavigation(submissionDetail);
 
@@ -224,6 +241,7 @@ class ProspectSummaryServiceTest {
         chanceOfSuccessSummaryService,
         hydrocarbonCaseSummaryService,
         reservoirPropertiesSummaryService,
+        trapPropertiesSummaryService,
         oilCaseVolumetricsSummaryService,
         oilCaseOutputsSummaryService,
         gasCaseVolumetricsSummaryService,
