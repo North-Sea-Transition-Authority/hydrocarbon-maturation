@@ -21,110 +21,104 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class S3ClientServiceTest {
-
-  private static final String BUCKET_NAME = "test-bucket";
-
+  private static final String S3_KEY = "TEST-KEY";
   @Mock
   private AmazonS3 amazonS3Mock;
-
-  private final S3Config s3Config = new S3Config("", "", "", "", BUCKET_NAME, false);
   private S3ClientService s3ClientService;
-  private String s3Key;
-
 
   @BeforeEach
   void setUp() {
+    var s3Config = S3ConfigTestUtil.getDefaultS3Config();
     s3ClientService = new S3ClientService(amazonS3Mock, s3Config);
-    s3Key = "TEST-KEY";
   }
 
   @Test
   void getDefaultBucketName() {
-    assertThat(s3ClientService.getDefaultBucketName()).isEqualTo(BUCKET_NAME);
+    assertThat(s3ClientService.getDefaultBucketName()).isEqualTo(S3ConfigTestUtil.BUCKET_NAME);
   }
 
   @Test
   void doesBucketExist_exists() {
-    when(amazonS3Mock.doesBucketExistV2(BUCKET_NAME)).thenReturn(true);
-    assertThat(s3ClientService.doesBucketExist(BUCKET_NAME)).isTrue();
+    when(amazonS3Mock.doesBucketExistV2(S3ConfigTestUtil.BUCKET_NAME)).thenReturn(true);
+    assertThat(s3ClientService.doesBucketExist(S3ConfigTestUtil.BUCKET_NAME)).isTrue();
   }
 
   @Test
   void doesBucketExist_doesntExist() {
-    when(amazonS3Mock.doesBucketExistV2(BUCKET_NAME)).thenReturn(false);
-    assertThat(s3ClientService.doesBucketExist(BUCKET_NAME)).isFalse();
+    when(amazonS3Mock.doesBucketExistV2(S3ConfigTestUtil.BUCKET_NAME)).thenReturn(false);
+    assertThat(s3ClientService.doesBucketExist(S3ConfigTestUtil.BUCKET_NAME)).isFalse();
   }
 
   @Test
   void doesObjectExist_exists() {
-    when(amazonS3Mock.doesObjectExist(BUCKET_NAME, s3Key)).thenReturn(true);
-    assertThat(s3ClientService.doesObjectExist(BUCKET_NAME, s3Key)).isTrue();
+    when(amazonS3Mock.doesObjectExist(S3ConfigTestUtil.BUCKET_NAME, S3_KEY)).thenReturn(true);
+    assertThat(s3ClientService.doesObjectExist(S3ConfigTestUtil.BUCKET_NAME, S3_KEY)).isTrue();
   }
 
   @Test
   void doesObjectExist_doesntExist() {
-    when(amazonS3Mock.doesObjectExist(BUCKET_NAME, s3Key)).thenReturn(false);
-    assertThat(s3ClientService.doesObjectExist(BUCKET_NAME, s3Key)).isFalse();
+    when(amazonS3Mock.doesObjectExist(S3ConfigTestUtil.BUCKET_NAME, S3_KEY)).thenReturn(false);
+    assertThat(s3ClientService.doesObjectExist(S3ConfigTestUtil.BUCKET_NAME, S3_KEY)).isFalse();
   }
 
   @Test
   void storeFile_VerifyInteractions() {
-    when(amazonS3Mock.doesBucketExistV2(BUCKET_NAME)).thenReturn(true);
+    when(amazonS3Mock.doesBucketExistV2(S3ConfigTestUtil.BUCKET_NAME)).thenReturn(true);
     var inputStream = mock(InputStream.class);
     ObjectMetadata objectMetadata = mock(ObjectMetadata.class);
 
-    s3ClientService.storeFile(BUCKET_NAME, s3Key, inputStream, objectMetadata);
+    s3ClientService.storeFile(S3ConfigTestUtil.BUCKET_NAME, S3_KEY, inputStream, objectMetadata);
 
-    verify(amazonS3Mock).putObject(BUCKET_NAME, s3Key, inputStream, objectMetadata);
+    verify(amazonS3Mock).putObject(S3ConfigTestUtil.BUCKET_NAME, S3_KEY, inputStream, objectMetadata);
   }
 
   @Test
   void fetchFile_FileFound() {
-    when(amazonS3Mock.doesObjectExist(BUCKET_NAME, s3Key)).thenReturn(true);
+    when(amazonS3Mock.doesObjectExist(S3ConfigTestUtil.BUCKET_NAME, S3_KEY)).thenReturn(true);
 
     var inputStream = mock(S3ObjectInputStream.class);
     var s3Object = mock(S3Object.class);
     when(s3Object.getObjectContent()).thenReturn(inputStream);
-    when(amazonS3Mock.getObject(BUCKET_NAME, s3Key)).thenReturn(s3Object);
+    when(amazonS3Mock.getObject(S3ConfigTestUtil.BUCKET_NAME, S3_KEY)).thenReturn(s3Object);
 
-    var file = s3ClientService.fetchFile(BUCKET_NAME, s3Key);
+    var file = s3ClientService.fetchFile(S3ConfigTestUtil.BUCKET_NAME, S3_KEY);
 
     assertThat(file).isEqualTo(inputStream);
   }
 
   @Test
   void fetchFile_FileNotFound() {
-    when(amazonS3Mock.doesObjectExist(BUCKET_NAME, s3Key)).thenReturn(false);
+    when(amazonS3Mock.doesObjectExist(S3ConfigTestUtil.BUCKET_NAME, S3_KEY)).thenReturn(false);
 
     assertThatExceptionOfType(S3ObjectNotFoundException.class).isThrownBy(() -> {
-      var file = s3ClientService.fetchFile(BUCKET_NAME, s3Key);
+      var file = s3ClientService.fetchFile(S3ConfigTestUtil.BUCKET_NAME, S3_KEY);
     });
   }
 
   @Test
   void deleteFile_FileFound() {
-    when(amazonS3Mock.doesObjectExist(BUCKET_NAME, s3Key)).thenReturn(true);
+    when(amazonS3Mock.doesObjectExist(S3ConfigTestUtil.BUCKET_NAME, S3_KEY)).thenReturn(true);
 
-    s3ClientService.deleteFile(BUCKET_NAME, s3Key);
-    verify(amazonS3Mock).deleteObject(BUCKET_NAME, s3Key);
+    s3ClientService.deleteFile(S3ConfigTestUtil.BUCKET_NAME, S3_KEY);
+    verify(amazonS3Mock).deleteObject(S3ConfigTestUtil.BUCKET_NAME, S3_KEY);
   }
 
   @Test
   void deleteFile_FileNotFound() {
-    when(amazonS3Mock.doesObjectExist(BUCKET_NAME, s3Key)).thenReturn(false);
+    when(amazonS3Mock.doesObjectExist(S3ConfigTestUtil.BUCKET_NAME, S3_KEY)).thenReturn(false);
 
     assertThatExceptionOfType(S3ObjectNotFoundException.class).isThrownBy(() -> {
-      s3ClientService.deleteFile(BUCKET_NAME, s3Key);
+      s3ClientService.deleteFile(S3ConfigTestUtil.BUCKET_NAME, S3_KEY);
     });
   }
 
   @Test
   void deleteFile_OperationFailed() {
-    when(amazonS3Mock.doesObjectExist(BUCKET_NAME, s3Key)).thenReturn(true);
-    doThrow(SdkClientException.class).when(amazonS3Mock).deleteObject(BUCKET_NAME, s3Key);
+    when(amazonS3Mock.doesObjectExist(S3ConfigTestUtil.BUCKET_NAME, S3_KEY)).thenReturn(true);
+    doThrow(SdkClientException.class).when(amazonS3Mock).deleteObject(S3ConfigTestUtil.BUCKET_NAME, S3_KEY);
 
     assertThatExceptionOfType(S3DeleteFileFailedException.class).isThrownBy(() -> {
-      s3ClientService.deleteFile(BUCKET_NAME, s3Key);
+      s3ClientService.deleteFile(S3ConfigTestUtil.BUCKET_NAME, S3_KEY);
     });
   }
 }

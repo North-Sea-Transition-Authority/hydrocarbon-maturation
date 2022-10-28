@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file.s3;
 
-import com.amazonaws.ClientConfiguration;
+import com.amazonaws.PredefinedClientConfigurations;
 import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -12,27 +12,35 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class S3ClientProvider {
-
   @Bean
   AmazonS3 s3Client(S3Config s3Config) {
+    return getAmazonS3ClientBuilder(s3Config).build();
+  }
 
+  AmazonS3ClientBuilder getAmazonS3ClientBuilder(S3Config s3Config) {
     var credentials = new BasicAWSCredentials(s3Config.accessKey(), s3Config.secretKey());
 
     var credentialsProvider = new AWSStaticCredentialsProvider(credentials);
 
     var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(s3Config.endpoint(), s3Config.regionName());
 
-    AmazonS3ClientBuilder amazonS3ClientBuilder = AmazonS3ClientBuilder
+    var clientConfiguration = PredefinedClientConfigurations.defaultConfig();
+
+    if (s3Config.isProxyConfigured()) {
+      clientConfiguration
+          .withProxyHost(s3Config.proxyHost())
+          .withProxyPort(s3Config.proxyPort());
+    }
+
+    if (s3Config.disableSsl()) {
+      clientConfiguration.withProtocol(Protocol.HTTP);
+    }
+
+    return AmazonS3ClientBuilder
         .standard()
         .withEndpointConfiguration(endpointConfiguration)
         .withPathStyleAccessEnabled(true)
-        .withCredentials(credentialsProvider);
-
-    if (s3Config.disableSsl()) {
-      amazonS3ClientBuilder.withClientConfiguration(new ClientConfiguration().withProtocol(Protocol.HTTP));
-    }
-
-    return amazonS3ClientBuilder
-        .build();
+        .withCredentials(credentialsProvider)
+        .withClientConfiguration(clientConfiguration);
   }
 }
