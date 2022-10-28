@@ -6,6 +6,8 @@ import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 import javax.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ClientService;
 
 @Service
 public class FileUploadService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FileUploadService.class);
 
   private final S3ClientService s3ClientService;
   private final UploadedFileRepository uploadedFileRepository;
@@ -56,6 +59,7 @@ public class FileUploadService {
     try {
       s3ClientService.storeFile(s3ClientService.getDefaultBucketName(), uploadedFile.getS3Key(), multipartFile.getInputStream(),
           objectMetadata);
+      LOGGER.debug("Completed upload of file {}", uploadedFile.getFilename());
     } catch (Exception e) {
       throw new FileUploadException(multipartFile, e);
     }

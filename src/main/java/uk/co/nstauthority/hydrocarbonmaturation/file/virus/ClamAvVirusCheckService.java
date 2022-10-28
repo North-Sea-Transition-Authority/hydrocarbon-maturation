@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ClamAvVirusCheckService implements VirusCheckService {
-
   private final ClamAVClient client;
 
   @Autowired
