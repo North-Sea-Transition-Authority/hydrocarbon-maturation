@@ -16,8 +16,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
@@ -34,9 +37,10 @@ class ProspectSummaryService {
   private final ChanceOfSuccessSummaryService chanceOfSuccessSummaryService;
   private final HydrocarbonCaseSummaryService hydrocarbonCaseSummaryService;
   private final ReservoirPropertiesSummaryService reservoirPropertiesSummaryService;
+  private final OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
+  private final OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
   private final GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
   private final GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
-  private final OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
   private final List<ProspectTaskListSection> prospectTaskListSections;
   private final List<ProspectTaskListItem> prospectTaskListItems;
   private List<SubNavigationSectionItem> subNavigationSectionItems;
@@ -48,6 +52,7 @@ class ProspectSummaryService {
                                 HydrocarbonCaseSummaryService hydrocarbonCaseSummaryService,
                                 ReservoirPropertiesSummaryService reservoirPropertiesSummaryService,
                                 OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService,
+                                OilCaseOutputsSummaryService oilCaseOutputsSummaryService,
                                 GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService,
                                 GasCaseOutputsSummaryService gasCaseOutputsSummaryService,
                                 List<ProspectTaskListSection> prospectTaskListSections,
@@ -57,9 +62,10 @@ class ProspectSummaryService {
     this.chanceOfSuccessSummaryService = chanceOfSuccessSummaryService;
     this.hydrocarbonCaseSummaryService = hydrocarbonCaseSummaryService;
     this.reservoirPropertiesSummaryService = reservoirPropertiesSummaryService;
+    this.oilCaseVolumetricsSummaryService = oilCaseVolumetricsSummaryService;
+    this.oilCaseOutputsSummaryService = oilCaseOutputsSummaryService;
     this.gasCaseVolumetricsSummaryService = gasCaseVolumetricsSummaryService;
     this.gasCaseOutputsSummaryService = gasCaseOutputsSummaryService;
-    this.oilCaseVolumetricsSummaryService = oilCaseVolumetricsSummaryService;
     this.prospectTaskListSections = prospectTaskListSections;
     this.prospectTaskListItems = prospectTaskListItems;
     this.subNavigationSectionItems = new ArrayList<>();
@@ -88,6 +94,10 @@ class ProspectSummaryService {
   public ProbabilityDistributionsFormSummaryView getOilCaseVolumetricsSummaryViewFromSubmissionDetail(
       SubmissionDetail submissionDetail) {
     return oilCaseVolumetricsSummaryService.getOilCaseVolumetricsSummaryView(submissionDetail);
+  }
+
+  public OilCaseOutputsSummaryView getOilCaseOutputsSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+    return oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
   }
 
   public ProbabilityDistributionsFormSummaryView getGasCaseVolumetricsSummaryViewFromSubmissionDetail(

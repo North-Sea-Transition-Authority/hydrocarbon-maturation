@@ -20,6 +20,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.VolumetricsTaskListSection;
@@ -54,12 +57,14 @@ class ProspectSummaryServiceTest {
   private OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
 
   @Mock
+  private OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
+
+  @Mock
   private ProspectTaskListItem prospectTaskListItem;
 
   private ProspectSummaryService prospectSummaryService;
   private SubmissionDetail submissionDetail;
   private List<ProspectTaskListSection> listOfTaskListSections;
-
 
   @BeforeEach
   void setUp() {
@@ -72,6 +77,7 @@ class ProspectSummaryServiceTest {
         hydrocarbonCaseSummaryService,
         reservoirPropertiesSummaryService,
         oilCaseVolumetricsSummaryService,
+        oilCaseOutputsSummaryService,
         gasCaseVolumetricsSummaryService,
         gasCaseOutputsSummaryService,
         listOfTaskListSections,
@@ -130,6 +136,26 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
+  void getOilCaseVolumetricsSummaryViewFromSubmissionDetail() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(oilCaseVolumetricsSummaryService, times(1))
+        .getOilCaseVolumetricsSummaryView(submissionDetail);
+  }
+
+  @Test
+  void getOilCaseOutputsSummaryViewFromSubmissionDetail() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(oilCaseOutputsSummaryService, times(1))
+        .getOilCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
   void getGasCaseVolumetricsSummaryViewFromSubmissionDetail() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
@@ -150,16 +176,6 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
-  void getOilCaseVolumetricsSummaryViewFromSubmissionDetail() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
-    prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
-
-    verify(oilCaseVolumetricsSummaryService, times(1))
-        .getOilCaseVolumetricsSummaryView(submissionDetail);
-  }
-
-  @Test
   void getProspectSubNavigation_whenTwoSections_oneResult() {
     var subNavItems = prospectSummaryService.getProspectSubNavigation(submissionDetail);
 
@@ -177,6 +193,7 @@ class ProspectSummaryServiceTest {
         hydrocarbonCaseSummaryService,
         reservoirPropertiesSummaryService,
         oilCaseVolumetricsSummaryService,
+        oilCaseOutputsSummaryService,
         gasCaseVolumetricsSummaryService,
         gasCaseOutputsSummaryService,
         listOfTaskListSections,

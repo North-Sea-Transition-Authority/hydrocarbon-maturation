@@ -60,6 +60,10 @@ public class SubmissionSummaryController {
             prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("reservoirPropertiesSummaryView",
             prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("oilCaseVolumetricsSummaryView",
+            prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("oilCaseOutputsSummaryView",
+            prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("gasCaseVolumetricsSummaryView",
             prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("gasCaseOutputsSummaryView",

@@ -13,7 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 
 @Entity
 @Table(name = "oil_case_outputs")
-class OilCaseOutput {
+public class OilCaseOutput {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -36,27 +36,27 @@ class OilCaseOutput {
     this.id = id;
   }
 
-  SubmissionDetail getSubmissionDetail() {
+  public SubmissionDetail getSubmissionDetail() {
     return submissionDetail;
   }
 
-  void setSubmissionDetail(SubmissionDetail submissionDetail) {
+  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
   }
 
-  BigDecimal getRiskedOilEquivalentRecoverableMean() {
+  public BigDecimal getRiskedOilEquivalentRecoverableMean() {
     return riskedOilEquivalentRecoverableMean;
   }
 
-  void setRiskedOilEquivalentRecoverableMean(BigDecimal riskedOilEquivalentRecoverableMean) {
+  public void setRiskedOilEquivalentRecoverableMean(BigDecimal riskedOilEquivalentRecoverableMean) {
     this.riskedOilEquivalentRecoverableMean = riskedOilEquivalentRecoverableMean;
   }
 
-  Boolean getHasAssociatedGasRecoverableResources() {
+  public Boolean getHasAssociatedGasRecoverableResources() {
     return hasAssociatedGasRecoverableResources;
   }
 
-  void setHasAssociatedGasRecoverableResources(Boolean hasAssociatedGasRecoverableResources) {
+  public void setHasAssociatedGasRecoverableResources(Boolean hasAssociatedGasRecoverableResources) {
     this.hasAssociatedGasRecoverableResources = hasAssociatedGasRecoverableResources;
   }
 }
