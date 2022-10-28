@@ -7,7 +7,7 @@
 <#import '../summarylistcards/chanceOfSuccessSummaryCard.ftl' as chanceOfSuccessSummary>
 <#import '../summarylistcards/gasCaseVolumetricsSummary.ftl' as gasCaseVolumetricsSummary>
 <#import '../summarylistcards/gasCaseOutputsSummaryCard.ftl' as gasCaseOutputsSummary>
-<#import '../summarylistcards/oilCaseVolumetricsSummary.ftl' as oilCaseOutputsSummary>
+<#import '../summarylistcards/oilCaseVolumetricsSummary.ftl' as oilCaseVolumetricsSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -52,7 +52,7 @@
       <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard
         reservoirPropertiesValues=reservoirPropertiesSummaryView/>
       <#if oilCase>
-        <@oilCaseOutputsSummary.oilCaseVolumetricsSummary
+        <@oilCaseVolumetricsSummary.oilCaseVolumetricsSummary
           oilCaseVolumetricsValues=oilCaseVolumetricsSummaryView/>
       </#if>
       <#if gasCase>
