@@ -16,6 +16,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
@@ -38,6 +40,7 @@ class ProspectSummaryService {
   private final HydrocarbonCaseSummaryService hydrocarbonCaseSummaryService;
   private final ReservoirPropertiesSummaryService reservoirPropertiesSummaryService;
   private final MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService;
+  private final MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService;
   private final OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
   private final OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
   private final GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
@@ -57,6 +60,7 @@ class ProspectSummaryService {
                                 GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService,
                                 GasCaseOutputsSummaryService gasCaseOutputsSummaryService,
                                 MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService,
+                                MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService,
                                 List<ProspectTaskListSection> prospectTaskListSections,
                                 List<ProspectTaskListItem> prospectTaskListItems) {
     this.generalDetailSummaryService = generalDetailSummaryService;
@@ -69,6 +73,7 @@ class ProspectSummaryService {
     this.gasCaseVolumetricsSummaryService = gasCaseVolumetricsSummaryService;
     this.gasCaseOutputsSummaryService = gasCaseOutputsSummaryService;
     this.mixedCaseVolumetricsSummaryService = mixedCaseVolumetricsSummaryService;
+    this.mixedCaseOutputsSummaryService = mixedCaseOutputsSummaryService;
     this.prospectTaskListSections = prospectTaskListSections;
     this.prospectTaskListItems = prospectTaskListItems;
     this.subNavigationSectionItems = new ArrayList<>();
@@ -115,6 +120,11 @@ class ProspectSummaryService {
   public ProbabilityDistributionsFormSummaryView getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(
       SubmissionDetail submissionDetail) {
     return mixedCaseVolumetricsSummaryService.getMixedCaseVolumetricsSummaryView(submissionDetail);
+  }
+
+  public MixedCaseOutputsSummaryView getMixedCaseOutputsSummaryViewFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
+    return mixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
   }
 
   public List<SubNavigationSectionItem> getProspectSubNavigation(SubmissionDetail submissionDetail) {

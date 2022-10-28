@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsucces
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
@@ -66,6 +67,9 @@ class ProspectSummaryServiceTest {
   private MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService;
 
   @Mock
+  private MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService;
+
+  @Mock
   private ProspectTaskListItem prospectTaskListItem;
 
   private ProspectSummaryService prospectSummaryService;
@@ -87,6 +91,7 @@ class ProspectSummaryServiceTest {
         gasCaseVolumetricsSummaryService,
         gasCaseOutputsSummaryService,
         mixedCaseVolumetricsSummaryService,
+        mixedCaseOutputsSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
@@ -182,6 +187,15 @@ class ProspectSummaryServiceTest {
         .getGasCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
   }
 
+  @Test
+  void getMixedCaseOutputsSummaryViewFromSubmissionDetail() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(mixedCaseOutputsSummaryService, times(1))
+        .getMixedCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+  }
 
   @Test
   void getMixedCaseVolumetricsSummaryViewFromSubmissionDetail() {
@@ -192,7 +206,6 @@ class ProspectSummaryServiceTest {
     verify(mixedCaseVolumetricsSummaryService, times(1))
         .getMixedCaseVolumetricsSummaryView(submissionDetail);
   }
-
 
   @Test
   void getProspectSubNavigation_whenTwoSections_oneResult() {
@@ -216,6 +229,7 @@ class ProspectSummaryServiceTest {
         gasCaseVolumetricsSummaryService,
         gasCaseOutputsSummaryService,
         mixedCaseVolumetricsSummaryService,
+        mixedCaseOutputsSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
 
