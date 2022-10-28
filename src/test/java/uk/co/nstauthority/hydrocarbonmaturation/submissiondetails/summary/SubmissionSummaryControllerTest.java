@@ -63,6 +63,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
   private HydrocarbonCaseSummaryView hydrocarbonCaseSummaryView;
   private ChanceOfSuccessSummaryView chanceOfSuccessSummaryView;
   private ReservoirPropertiesSummaryView reservoirPropertiesSummaryView;
+  private ProbabilityDistributionsFormSummaryView oilCaseVolumetricsSummaryView;
   private ProbabilityDistributionsFormSummaryView gasCaseVolumetricsSummaryView;
 
   @BeforeEach
@@ -79,6 +80,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         new ArrayList<>());
     chanceOfSuccessSummaryView = ChanceOfSuccessSummaryView.empty();
     gasCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
+    oilCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
   }
 
   @Test
@@ -97,6 +99,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(reservoirPropertiesSummaryView);
     when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(chanceOfSuccessSummaryView);
+    when(prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(oilCaseVolumetricsSummaryView);
     when(prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(gasCaseVolumetricsSummaryView);
 
@@ -135,6 +139,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(reservoirPropertiesSummaryView);
     when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(chanceOfSuccessSummaryView);
+    when(prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(oilCaseVolumetricsSummaryView);
     when(prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(gasCaseVolumetricsSummaryView);
 
@@ -151,6 +157,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("hydrocarbonCaseSummaryView", hydrocarbonCaseSummaryView),
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
             entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView),
+            entry("oilCaseVolumetricsSummaryView", oilCaseVolumetricsSummaryView),
             entry("gasCaseVolumetricsSummaryView", gasCaseVolumetricsSummaryView),
             entry("subNavigation", subNavList)
     );
