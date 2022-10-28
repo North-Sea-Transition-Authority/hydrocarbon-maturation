@@ -67,6 +67,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
   private ProbabilityDistributionsFormSummaryView oilCaseVolumetricsSummaryView;
   private ProbabilityDistributionsFormSummaryView gasCaseVolumetricsSummaryView;
   private OilCaseOutputsSummaryView oilCaseOutputsSummaryView;
+  private ProbabilityDistributionsFormSummaryView mixedCaseVolumetricsSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -84,7 +85,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
     oilCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
     gasCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
-    oilCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
+    mixedCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
   }
 
   @Test
@@ -109,6 +110,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(gasCaseVolumetricsSummaryView);
     when(prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(oilCaseOutputsSummaryView);
+    when(prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(mixedCaseVolumetricsSummaryView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -151,6 +154,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(gasCaseVolumetricsSummaryView);
     when(prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(oilCaseOutputsSummaryView);
+    when(prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(mixedCaseVolumetricsSummaryView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -168,6 +173,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("oilCaseVolumetricsSummaryView", oilCaseVolumetricsSummaryView),
             entry("gasCaseVolumetricsSummaryView", gasCaseVolumetricsSummaryView),
             entry("oilCaseOutputsSummaryView", oilCaseOutputsSummaryView),
+            entry("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView),
             entry("subNavigation", subNavList)
     );
   }

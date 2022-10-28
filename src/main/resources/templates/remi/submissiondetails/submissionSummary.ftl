@@ -9,6 +9,7 @@
 <#import '../summarylistcards/oilCaseOutputsSummaryCard.ftl' as oilCaseOutputsSummary>
 <#import '../summarylistcards/gasCaseVolumetricsSummary.ftl' as gasCaseVolumetricsSummary>
 <#import '../summarylistcards/gasCaseOutputsSummaryCard.ftl' as gasCaseOutputsSummary>
+<#import '../summarylistcards/mixedCaseVolumetricsSummary.ftl' as mixedCaseVolumetricsSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -63,6 +64,10 @@
           gasCaseVolumetricsValues=gasCaseVolumetricsSummaryView/>
         <@gasCaseOutputsSummary.gasCaseOutputsSummaryCard
           gasCaseOutputsValues=gasCaseOutputsSummaryView/>
+      </#if>
+      <#if mixedCase>
+        <@mixedCaseVolumetricsSummary.mixedCaseVolumetricsSummary
+          mixedCaseVolumetricsValues=mixedCaseVolumetricsSummaryView/>
       </#if>
 
       <@fdsAction.submitButtons
