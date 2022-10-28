@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.VolumetricsTaskListSection;
@@ -37,6 +38,9 @@ class ProspectSummaryServiceTest {
   private ChanceOfSuccessSummaryService chanceOfSuccessSummaryService;
 
   @Mock
+  private ReservoirPropertiesSummaryService reservoirPropertiesSummaryService;
+
+  @Mock
   private ProspectTaskListItem prospectTaskListItem;
 
   private ProspectSummaryService prospectSummaryService;
@@ -53,6 +57,7 @@ class ProspectSummaryServiceTest {
         sourceAndSealSummaryService,
         chanceOfSuccessSummaryService,
         hydrocarbonCaseSummaryService,
+        reservoirPropertiesSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
@@ -98,6 +103,15 @@ class ProspectSummaryServiceTest {
         .getHydrocarbonSummaryFromSubmissionDetail(submissionDetail);
   }
 
+  @Test
+  void getReservoirPropertiesSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(reservoirPropertiesSummaryService, times(1))
+        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+  }
 
   @Test
   void getProspectSubNavigation_whenTwoSections_oneResult() {
@@ -115,6 +129,7 @@ class ProspectSummaryServiceTest {
         sourceAndSealSummaryService,
         chanceOfSuccessSummaryService,
         hydrocarbonCaseSummaryService,
+        reservoirPropertiesSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
 

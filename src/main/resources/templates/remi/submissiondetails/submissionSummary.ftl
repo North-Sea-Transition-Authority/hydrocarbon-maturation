@@ -3,6 +3,7 @@
 <#import '../summarylistcards/generaldetailsSummaryCard.ftl' as generalDetailsSummary>
 <#import '../summarylistcards/sourceAndSealSummaryCard.ftl' as sourceAndSealSummary>
 <#import '../summarylistcards/hydrocarbonCaseSummaryCard.ftl' as hydrocarbonCaseSummary>
+<#import '../summarylistcards/reservoirPropertiesSummaryCard.ftl' as reservoirPropertiesSummary>
 <#import '../summarylistcards/chanceOfSuccessSummaryCard.ftl' as chanceOfSuccessSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
@@ -11,11 +12,12 @@
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="subNavigation" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubNavigationSectionItem>" -->
+<#-- @ftlvariable name="reservoirPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView" -->
 
 <@defaultLeftSubNavPage
   htmlTitle=pageTitle
-  htmlAppTitle=pageTitle>
-
+  htmlAppTitle=pageTitle
+  wrapperWidth=true>
   <@fdsLeftSubNavPageTemplateSubNav smallSubnav=true>
     <@fdsSubNavigation.subNavigation sticky=true>
       <@fdsSubNavigation.subNavigationSection themeHeading="Sections">
@@ -41,6 +43,8 @@
         hydrocarbonCaseValues=hydrocarbonCaseSummaryView/>
       <@chanceOfSuccessSummary.chanceOfSuccessCards
         chanceOfSuccessValues=chanceOfSuccessSummaryView/>
+      <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard
+        reservoirPropertiesValues=reservoirPropertiesSummaryView/>
 
       <@fdsAction.submitButtons
         primaryButtonText="Submit"

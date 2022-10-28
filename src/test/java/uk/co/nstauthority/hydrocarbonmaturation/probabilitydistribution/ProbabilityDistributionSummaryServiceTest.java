@@ -1,0 +1,116 @@
+package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+
+@ExtendWith(MockitoExtension.class)
+class ProbabilityDistributionSummaryServiceTest {
+
+  @Mock
+  private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+
+  @InjectMocks
+  private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
+
+  @Test
+  void getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission_emptySummary() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var probabilityDistribution = new ProbabilityDistribution();
+    probabilityDistribution.setDistributionType(ProbabilityDistributionType.LOGNORMAL);
+    probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA);
+
+    when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+        submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA))
+        .thenReturn(Optional.of(probabilityDistribution));
+
+    assertThat(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+        ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA, submissionDetail))
+        .extracting(
+            ProbabilityDistributionSummaryView::probabilityDistributionName,
+            ProbabilityDistributionSummaryView::probabilityDistributionType,
+            ProbabilityDistributionSummaryView::min,
+            ProbabilityDistributionSummaryView::p99,
+            ProbabilityDistributionSummaryView::p90,
+            ProbabilityDistributionSummaryView::mode,
+            ProbabilityDistributionSummaryView::p50,
+            ProbabilityDistributionSummaryView::meanOrConstant,
+            ProbabilityDistributionSummaryView::p10,
+            ProbabilityDistributionSummaryView::p1,
+            ProbabilityDistributionSummaryView::max,
+            ProbabilityDistributionSummaryView::units)
+        .contains(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA.getDisplayName(),
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA.getUnits());
+  }
+
+  @Test
+  void getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission_fullSummary() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var probabilityDistribution = new ProbabilityDistribution();
+
+    probabilityDistribution.setDistributionType(ProbabilityDistributionType.LOGNORMAL);
+    probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING);
+    probabilityDistribution.setConstantValue(BigDecimal.ONE);
+    probabilityDistribution.setMaxValue(BigDecimal.ONE);
+    probabilityDistribution.setMeanValue(BigDecimal.ONE);
+    probabilityDistribution.setP1(BigDecimal.ONE);
+    probabilityDistribution.setP10(BigDecimal.ONE);
+    probabilityDistribution.setP50(BigDecimal.ONE);
+    probabilityDistribution.setP90(BigDecimal.ONE);
+    probabilityDistribution.setP99(BigDecimal.ONE);
+    probabilityDistribution.setModeValue(BigDecimal.ONE);
+
+    when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+        submissionDetail, ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+        .thenReturn(Optional.of(probabilityDistribution));
+
+    assertThat(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING, submissionDetail))
+        .extracting(
+            ProbabilityDistributionSummaryView::probabilityDistributionName,
+            ProbabilityDistributionSummaryView::probabilityDistributionType,
+            ProbabilityDistributionSummaryView::min,
+            ProbabilityDistributionSummaryView::p99,
+            ProbabilityDistributionSummaryView::p90,
+            ProbabilityDistributionSummaryView::mode,
+            ProbabilityDistributionSummaryView::p50,
+            ProbabilityDistributionSummaryView::meanOrConstant,
+            ProbabilityDistributionSummaryView::p10,
+            ProbabilityDistributionSummaryView::p1,
+            ProbabilityDistributionSummaryView::max,
+            ProbabilityDistributionSummaryView::units)
+        .contains(
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING.getDisplayName(),
+            ProbabilityDistributionType.LOGNORMAL.getDisplayName(),
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING.getUnits());
+  }
+}

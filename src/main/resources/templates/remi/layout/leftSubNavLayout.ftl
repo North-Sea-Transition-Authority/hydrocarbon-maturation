@@ -2,6 +2,10 @@
 <#import '_pageSizes.ftl' as PageSize>
 <#import '/spring.ftl' as spring>
 
+<#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
+<#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
+<#-- @ftlvariable name="serviceHomeUrl" type="String" -->
+
 <#function springUrl url>
   <#local springUrl>
     <@spring.url url/>
@@ -16,11 +20,20 @@
   phaseBanner=true
   customScriptContent="">
 
+  <#local serviceName = serviceBranding.name() />
+  <#local customerMnemonic = customerBranding.mnemonic() />
+  <#local serviceHomeUrl = springUrl(serviceHomeUrl) />
+
   <@fdsLeftSubNavPageTemplate
     htmlTitle=htmlTitle
     htmlAppTitle=htmlAppTitle
     wrapperWidth=wrapperWidth
     phaseBanner=phaseBanner
+    headerLogo="GOV_CREST"
+    serviceName=serviceName
+    homePageUrl=serviceHomeUrl
+    serviceUrl=serviceHomeUrl
+    logoProductText=customerMnemonic
     customScriptContent=customScriptContent>
 
     <#nested>

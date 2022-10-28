@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsucces
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.VolumetricsTaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
@@ -53,8 +55,9 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
 
   private GeneralDetailSummaryView generalDetailSummaryView;
   private SourceAndSealSummaryView sourceAndSealSummaryView;
-  private HydrocarbonCaseSummaryView hydrocarbonCaseSummarView;
+  private HydrocarbonCaseSummaryView hydrocarbonCaseSummaryView;
   private ChanceOfSuccessSummaryView chanceOfSuccessSummaryView;
+  private ReservoirPropertiesSummaryView reservoirPropertiesSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -62,8 +65,13 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
     submissionDetailId = submissionDetail.getId();
     generalDetailSummaryView =  GeneralDetailSummaryView.empty();
     sourceAndSealSummaryView =  SourceAndSealSummaryView.empty();
+    hydrocarbonCaseSummaryView = HydrocarbonCaseSummaryView.empty();
+    reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(
+        "formation",
+        "age",
+        "lithology",
+        new ArrayList<>());
     chanceOfSuccessSummaryView = ChanceOfSuccessSummaryView.empty();
-    hydrocarbonCaseSummarView = HydrocarbonCaseSummaryView.empty();
   }
 
   @Test
@@ -77,7 +85,9 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
     when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(sourceAndSealSummaryView);
     when(prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(hydrocarbonCaseSummarView);
+        .thenReturn(hydrocarbonCaseSummaryView);
+    when(prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirPropertiesSummaryView);
     when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(chanceOfSuccessSummaryView);
 
@@ -111,7 +121,9 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
     when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(sourceAndSealSummaryView);
     when(prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(hydrocarbonCaseSummarView);
+        .thenReturn(hydrocarbonCaseSummaryView);
+    when(prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirPropertiesSummaryView);
     when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(chanceOfSuccessSummaryView);
 
@@ -125,7 +137,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("cancelUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
-            entry("hydrocarbonCaseSummaryView", hydrocarbonCaseSummarView),
+            entry("hydrocarbonCaseSummaryView", hydrocarbonCaseSummaryView),
+            entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
             entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView),
             entry("subNavigation", subNavList)
     );

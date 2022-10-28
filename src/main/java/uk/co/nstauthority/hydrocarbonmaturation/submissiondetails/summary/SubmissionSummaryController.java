@@ -54,6 +54,8 @@ public class SubmissionSummaryController {
             prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("hydrocarbonCaseSummaryView",
             prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("reservoirPropertiesSummaryView",
+            prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("cancelUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)))
         .addObject("subNavigation", prospectSummaryService.getProspectSubNavigation(submissionDetail));
 

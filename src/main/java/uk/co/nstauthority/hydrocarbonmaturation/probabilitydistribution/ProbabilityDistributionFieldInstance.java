@@ -14,175 +14,218 @@ import java.util.List;
 public enum ProbabilityDistributionFieldInstance {
   DEPTH_TO_CREST_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.FT_TVDSS
+      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      "Depth to crest"
   ),
   DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.FT_TVDSS
+      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      "Depth to spill point"
   ),
   AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
-      ProbabilityOfExceedanceUnits.M_TVT
+      ProbabilityOfExceedanceUnits.M_TVT,
+      "Average net pay thickness"
   ),
   GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.M_TVT
+      ProbabilityOfExceedanceUnits.M_TVT,
+      "Gross reservoir thickness"
   ),
   GROSS_ROCK_VOLUME(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.MILLION_M3
+      ProbabilityOfExceedanceUnits.MILLION_M3,
+      "Gross rock volume (GRV)"
   ),
   PERCENT_OF_GRV_OIL_BEARING(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
-      ProbabilityOfExceedanceUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "% of GRV which is oil bearing"
   ),
   NET_TO_GROSS_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Net to gross"
   ),
   NET_POROSITY_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.KM2
+      ProbabilityOfExceedanceUnits.KM2,
+      "Net porosity"
   ),
   DEPTH_TO_HYDROCARBON_CONTACT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.FT_TVDSS
+      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      "Depth to hydrocarbon contact"
   ),
   GAS_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Gas hydrocarbon saturation"
   ),
   GAS_EXPANSION_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.SCF_RCF
+      ProbabilityOfExceedanceUnits.SCF_RCF,
+      "Gas expansion factor"
   ),
   CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
-      ProbabilityOfExceedanceUnits.STB_MCF
+      ProbabilityOfExceedanceUnits.STB_MCF,
+      "Condensate-gas ratio life of field"
   ),
   GAS_RECOVERY_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Gas recovery factor"
   ),
   OIL_RECOVERY_FACTOR(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Oil recovery factor"
   ),
   FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.RB_STB
+      ProbabilityOfExceedanceUnits.RB_STB,
+      "Formation volume factor"
   ),
   OIL_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Oil hydrocarbon saturation"
   ),
   ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
-      ProbabilityOfExceedanceUnits.SCF_STB
+      ProbabilityOfExceedanceUnits.SCF_STB,
+      "Associated gas-oil ratio life of field"
   ),
   MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.RB_STB
+      ProbabilityOfExceedanceUnits.RB_STB,
+      "Formation volume factor"
   ),
   MIXED_OIL_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Oil hydrocarbon saturation"
   ),
   MIXED_GAS_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Gas hydrocarbon saturation"
   ),
   MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
-      ProbabilityOfExceedanceUnits.SCF_STB
+      ProbabilityOfExceedanceUnits.SCF_STB,
+      "Associated gas-oil ratio life of field"
   ),
   MIXED_GAS_EXPANSION_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.SCF_RCF
+      ProbabilityOfExceedanceUnits.SCF_RCF,
+      "Gas expansion factor"
   ),
   MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
-      ProbabilityOfExceedanceUnits.STB_MCF
+      ProbabilityOfExceedanceUnits.STB_MCF,
+      "Condensate-gas ratio life of field"
   ),
   MIXED_GAS_RECOVERY_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Gas recovery factor"
   ),
   MIXED_OIL_RECOVERY_FACTOR(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.PERCENT
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Oil recovery factor"
   ),
   PRODUCTIVE_AREA(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.KM2
+      ProbabilityOfExceedanceUnits.KM2,
+      "Productive area"
   ),
   OIL_OUTPUTS_OIL_IN_PLACE(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMSTB
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Oil in place"
   ),
   OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMSTB
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Oil recoverable resources"
   ),
   OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.BCF
+      ProbabilityOfExceedanceUnits.BCF,
+      "Associated-gas recoverable resources"
   ),
   OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMBOE
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
   ),
   GAS_OUTPUTS_GAS_IN_PLACE(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.BCF
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas in place"
   ),
   GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.BCF
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas recoverable resources"
   ),
   GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMSTB
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Associated condensate recoverable resources"
   ),
   GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMBOE
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
   ),
   MIXED_CASE_OIL_IN_PLACE(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMSTB
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Oil in place"
   ),
   MIXED_CASE_OIL_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMSTB
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Oil recoverable resources"
   ),
   MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.BCF
+      ProbabilityOfExceedanceUnits.BCF,
+      "Associated gas recoverable resources"
   ),
   MIXED_CASE_GAS_IN_PLACE(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.BCF
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas in place"
   ),
   MIXED_CASE_GAS_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.BCF
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas recoverable resources"
   ),
   MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMSTB
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Associated condensate recoverable resources"
   ),
   MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
       ResourceOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMBOE
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
   )
   ;
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
   private final List<ProbabilityDistributionType> presetTypes;
 
-  private ProbabilityOfExceedanceUnits units;
+  private final ProbabilityOfExceedanceUnits units;
 
   private final Type type;
+
+  private final String displayName;
 
   private enum Type {
     PRESET_LIST, CUSTOM
@@ -190,20 +233,25 @@ public enum ProbabilityDistributionFieldInstance {
 
   ProbabilityDistributionFieldInstance(
       List<ProbabilityDistributionType> presetTypes,
-      ProbabilityOfExceedanceUnits units) {
+      ProbabilityOfExceedanceUnits units,
+      String displayName) {
     this.presetTypes = presetTypes;
     this.units = units;
 
     type = Type.PRESET_LIST;
+    this.displayName = displayName;
+
   }
 
   ProbabilityDistributionFieldInstance(Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour,
-                                       ProbabilityOfExceedanceUnits units) {
+                                       ProbabilityOfExceedanceUnits units,
+                                       String displayName) {
     this.customBehaviour = customBehaviour;
     this.units = units;
 
     this.presetTypes = List.of(CUSTOM);
     type = Type.CUSTOM;
+    this.displayName = displayName;
   }
 
   public Class<? extends ProbabilityDistributionTypeBehaviour> getCustomBehaviour() {
@@ -216,6 +264,10 @@ public enum ProbabilityDistributionFieldInstance {
 
   public String getUnits() {
     return units.getUnitDisplay();
+  }
+
+  public String getDisplayName() {
+    return displayName;
   }
 
   public boolean isCustomType() {
