@@ -45,7 +45,7 @@ class GeneralDetailsFormValidatorTest {
   }
 
   @Test
-  void validate_whenValidForm_thenNoValidationErrors() {
+  void validate_whenValidForm_withOtherInfoSource_thenNoValidationErrors() {
     var form = getValidForm();
     form.setInformationSource(InformationSource.OTHER);
     form.setOtherSourceOfInformation("Other information");
@@ -56,7 +56,18 @@ class GeneralDetailsFormValidatorTest {
   }
 
   @Test
-  void validate_whenInValidForm_thenValidationErrors() {
+  void validate_whenValidForm_withLicenceApplicationInfoSource_thenNoValidationErrors() {
+    var form = getValidForm();
+    form.setInformationSource(InformationSource.LICENCE_APPLICATION);
+    form.setLicenceApplication("F33/1234");
+
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @Test
+  void validate_whenInvalidForm_thenValidationErrors() {
     var form = new GeneralDetailsForm();
     var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -82,6 +93,20 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrors)
         .containsExactly(
             entry("otherSourceOfInformation", Set.of("otherSourceOfInformation.required"))
+        );
+  }
+
+  @Test
+  void validate_whenInValidForm_noLicenceApplicationEntered_thenValidationErrors() {
+    var form = getValidForm();
+    form.setInformationSource(InformationSource.LICENCE_APPLICATION);
+
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("licenceApplication", Set.of("licenceApplication.required"))
         );
   }
 

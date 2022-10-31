@@ -43,6 +43,10 @@ public class GeneralDetail implements SearchSelectable {
 
   private String licenceApplicationInfoSource;
 
+  private String licenceApplicationReference;
+
+  private Integer licenceApplicationId;
+
   public UUID getId() {
     return id;
   }
@@ -117,19 +121,20 @@ public class GeneralDetail implements SearchSelectable {
     this.licenceApplicationInfoSource = licenceApplicationInfoSource;
   }
 
-  @Override
-  public String toString() {
-    return "GeneralDetail{" +
-        "id=" + id +
-        ", submissionDetail=" + submissionDetail +
-        ", prospectName='" + prospectName + '\'' +
-        ", onshoreOffshore=" + onshoreOffshore +
-        ", prospectLocatedInUkcs=" + prospectLocatedInUkcs +
-        ", percentageLocatedInUkcs=" + percentageLocatedInUkcs +
-        ", informationSource=" + informationSource +
-        ", otherInformationSource='" + otherInformationSource + '\'' +
-        ", licenceApplicationInfoSource='" + licenceApplicationInfoSource + '\'' +
-        '}';
+  public String getLicenceApplicationReference() {
+    return licenceApplicationReference;
+  }
+
+  public void setLicenceApplicationReference(String licenceApplicationReference) {
+    this.licenceApplicationReference = licenceApplicationReference;
+  }
+
+  public Integer getLicenceApplicationId() {
+    return licenceApplicationId;
+  }
+
+  public void setLicenceApplicationId(Integer licenceApplicationId) {
+    this.licenceApplicationId = licenceApplicationId;
   }
 
   @Override

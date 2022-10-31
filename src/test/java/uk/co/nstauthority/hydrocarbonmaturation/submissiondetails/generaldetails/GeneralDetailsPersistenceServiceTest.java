@@ -14,12 +14,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsPersistenceServiceTest {
+
+  private static final String LICENCE_APPLICATION = "1";
+  private static final String LICENCE_APPLICATION_REF = "F1234/5678";
 
   private static GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
@@ -27,12 +32,17 @@ class GeneralDetailsPersistenceServiceTest {
   private QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   @Mock
   private static GeneralDetailsRepository generalDetailsRepository;
+  @Mock
+  private static LicenceApplicationQueryService licenceApplicationQueryService;
+
   private static SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setup() {
-    generalDetailsPersistenceService = new GeneralDetailsPersistenceService(generalDetailsRepository,
-        quadrantAndBlockPersistenceService);
+    generalDetailsPersistenceService = new GeneralDetailsPersistenceService(
+        generalDetailsRepository,
+        quadrantAndBlockPersistenceService,
+        licenceApplicationQueryService);
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
@@ -69,6 +79,127 @@ class GeneralDetailsPersistenceServiceTest {
             form.getPercentageLocatedInUkcs(),
             form.getInformationSource(),
             form.getOtherSourceOfInformation()
+        );
+  }
+
+  @Test
+  void saveGeneralDetails_whenLicenceApplicationInfoSource() {
+    var form = new GeneralDetailsForm();
+    form.setLicenceApplication(LICENCE_APPLICATION);
+    form.setInformationSource(InformationSource.LICENCE_APPLICATION);
+
+    var licenceApplicationId = Integer.parseInt(LICENCE_APPLICATION);
+    when(licenceApplicationQueryService.getLicenceApplicationRef(licenceApplicationId))
+        .thenReturn(LICENCE_APPLICATION_REF);
+
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .extracting(
+            GeneralDetail::getLicenceApplicationId,
+            GeneralDetail::getLicenceApplicationReference
+        )
+        .containsExactly(
+            licenceApplicationId,
+            LICENCE_APPLICATION_REF
+        );
+  }
+
+  @Test
+  void saveGeneralDetails_whenLicenceApplicationInfoSource_andManualEntryLicenceApp() {
+    var form = new GeneralDetailsForm();
+    var manualLicenceApplication = SearchSelectorService.getValueWithManualEntryPrefix(LICENCE_APPLICATION);
+    form.setLicenceApplication(manualLicenceApplication);
+    form.setInformationSource(InformationSource.LICENCE_APPLICATION);
+
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .extracting(
+            GeneralDetail::getLicenceApplicationId,
+            GeneralDetail::getLicenceApplicationReference
+        )
+        .containsExactly(
+            null,
+            SearchSelectorService.removePrefix(manualLicenceApplication)
+        );
+  }
+
+  @Test
+  void saveGeneralDetails_checkLicenceAppDetails_whenNoInfoSource() {
+    var form = new GeneralDetailsForm();
+
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .extracting(
+            GeneralDetail::getLicenceApplicationId,
+            GeneralDetail::getLicenceApplicationReference
+        )
+        .containsExactly(
+            null,
+            null
+        );
+  }
+
+  @Test
+  void saveGeneralDetails_checkLicenceAppDetails_whenNotLicenceAppInfoSource() {
+    var form = new GeneralDetailsForm();
+    form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
+
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .extracting(
+            GeneralDetail::getLicenceApplicationId,
+            GeneralDetail::getLicenceApplicationReference
+        )
+        .containsExactly(
+            null,
+            null
+        );
+  }
+
+  @Test
+  void saveGeneralDetails_checkLicenceAppDetails_whenLicenceAppNotProvided() {
+    var form = new GeneralDetailsForm();
+    form.setInformationSource(InformationSource.LICENCE_APPLICATION);
+
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .extracting(
+            GeneralDetail::getLicenceApplicationId,
+            GeneralDetail::getLicenceApplicationReference
+        )
+        .containsExactly(
+            null,
+            null
         );
   }
 

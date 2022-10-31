@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
 
 @ExtendWith(MockitoExtension.class)
 class SearchSelectorServiceTest {
@@ -27,37 +29,37 @@ class SearchSelectorServiceTest {
     List<SearchItem> searchableResults = List.of(
         new SearchItem(1, "fieldname")
     );
-    List<RestSearchItem> result = searchSelectorService.search("should not match", searchableResults);
-    assertThat(result).isEmpty();
+    RestSearchResult result = searchSelectorService.search("should not match", searchableResults);
+    assertThat(result.results).isEmpty();
   }
 
   @Test
   void search_SearchableEmpty() {
     List<SearchSelectable> searchableResults = List.of();
-    List<RestSearchItem> result = searchSelectorService.search("should not match", searchableResults);
-    assertThat(result).isEmpty();
+    RestSearchResult result = searchSelectorService.search("should not match", searchableResults);
+    assertThat(result.results).isEmpty();
   }
 
   @Test
   void search_Match() {
     SearchItem searchItem = new SearchItem(1, "fieldname");
     List<SearchItem> searchableResults = List.of(searchItem);
-    List<RestSearchItem> result = searchSelectorService.search("fie", searchableResults);
-    assertThat(result).extracting(RestSearchItem::id)
+    RestSearchResult result = searchSelectorService.search("fie", searchableResults);
+    assertThat(result.results).extracting(RestSearchItem::id)
         .containsExactly(String.valueOf(searchItem.getId()));
   }
 
   @Test
   void addManualEntry() {
-    List<RestSearchItem> searchableResults = searchSelectorService.addManualEntry("free_text", new ArrayList<>());
-    assertThat(searchableResults).extracting(RestSearchItem::id)
+    RestSearchResult searchableResults = searchSelectorService.addManualEntry("free_text", new RestSearchResult(new ArrayList<>()));
+    assertThat(searchableResults.getResults()).extracting(RestSearchItem::id)
         .containsExactly(SearchSelectablePrefix.FREE_TEXT_PREFIX + "free_text");
   }
 
   @Test
   void addManualEntry_noFreeText() {
-    List<RestSearchItem> searchableResults = searchSelectorService.addManualEntry("free_text", new ArrayList<>(), ManualEntryAttribute.NO_FREE_TEXT_PREFIX);
-    assertThat(searchableResults).extracting(RestSearchItem::id)
+    RestSearchResult searchableResults = searchSelectorService.addManualEntry("free_text", new RestSearchResult(new ArrayList<>()), ManualEntryAttribute.NO_FREE_TEXT_PREFIX);
+    assertThat(searchableResults.results).extracting(RestSearchItem::id)
         .containsExactly("free_text");
   }
 
@@ -83,13 +85,12 @@ class SearchSelectorServiceTest {
     assertThat(SearchSelectorService.removePrefix(str)).isEqualTo("Test");
   }
 
-  //TODO re-add test once actual rest controller is created
-//  @Test
-//  public void route() {
-//    RestSearchResult routeOn = on(SearchSelectorTestController.class).search(null);
-//    String route = SearchSelectorService.route(routeOn);
-//    assertThat(route).doesNotEndWith("term");
-//  }
+  @Test
+  void route() {
+    RestSearchResult routeOn = on(LicenceApplicationRestController.class).searchLicenceApplicationsWithManualEntry(null);
+    String route = SearchSelectorService.route(routeOn);
+    assertThat(route).doesNotEndWith("term");
+  }
 
   @Test
   void isManualEntry() {

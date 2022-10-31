@@ -31,10 +31,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailId;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
@@ -114,9 +116,13 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
   @Test
   void getGeneralDetailsModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-
     var form = new GeneralDetailsForm();
+    var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
+    when(generalDetailsFormService.getPreSelectedLicenceApplication(
+        form.getLicenceApplication(),
+            SubmissionDetailId.fromSubmissionDetailId(submissionDetailId)))
+        .thenReturn(preselectedLicenceApplication);
 
     var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);
     var quadrantBlockViewList = List.of(quadrantBlockView1);
@@ -133,6 +139,9 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
         .contains(
             entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
             entry("informationSources", InformationSource.getInformationSource()),
+            entry("licenceApplication", preselectedLicenceApplication),
+            entry("licenceApplicationEndpoint",
+                SearchSelectorService.route(on(LicenceApplicationRestController.class).searchLicenceApplicationsWithManualEntry(null))),
             entry("quadrantBlocksApiEndpoint",
                 SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null))),
             entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList)

@@ -8,7 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 @Service
 public class GeneralDetailSummaryService {
 
-  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   @Autowired
   public GeneralDetailSummaryService(GeneralDetailsPersistenceService generalDetailsPersistenceService) {
@@ -30,13 +30,21 @@ public class GeneralDetailSummaryService {
         detail.getPercentageLocatedInUkcs() != null
             && !detail.getProspectLocatedInUkcs() ? detail.getPercentageLocatedInUkcs().toString() + "%" : "";
 
-    var informationSource = "";
-
-    if (detail.getInformationSource() != null) {
-      if (detail.getInformationSource().equals(InformationSource.OTHER)) {
-        informationSource = detail.getOtherInformationSource();
+    var informationSourceDisplay = "";
+    var licenceApplication = "";
+    var isLicenceApplicationInfoSource = false;
+    var informationSource = detail.getInformationSource();
+    if (informationSource != null) {
+      if (informationSource == InformationSource.LICENCE_APPLICATION) {
+        licenceApplication = detail.getLicenceApplicationReference() != null
+            ? detail.getLicenceApplicationReference()
+            : "";
+        isLicenceApplicationInfoSource = true;
+      }
+      if (informationSource == InformationSource.OTHER) {
+        informationSourceDisplay = detail.getOtherInformationSource();
       } else {
-        informationSource = detail.getInformationSource().getDisplayName();
+        informationSourceDisplay = informationSource.getDisplayName();
       }
     }
 
@@ -45,6 +53,8 @@ public class GeneralDetailSummaryService {
         onshoreOrOffshore,
         locatedWithinUkcs,
         percentageLocatedInUkcs,
-        informationSource);
+        informationSourceDisplay,
+        isLicenceApplicationInfoSource,
+        licenceApplication);
   }
 }

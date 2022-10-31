@@ -1,10 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -16,43 +17,58 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 @Service
 public class SearchSelectorService {
 
-  public List<RestSearchItem> search(String searchQuery, Collection<? extends SearchSelectable> selectableList) {
-    return selectableList.stream()
+  public RestSearchResult search(String searchQuery, Collection<? extends SearchSelectable> selectableList) {
+    Collection<? extends SearchSelectable> results = selectableList.stream()
         .filter(searchSelectable ->
             searchSelectable.getSelectionText()
                 .toLowerCase()
                 .contains(StringUtils.defaultIfBlank(searchQuery, "").toLowerCase()))
-        .map(item -> new RestSearchItem(item.getSelectionId(), item.getSelectionText()))
         .toList();
+
+    return buildSearchResult(results);
   }
 
-  public RestSearchResult getSearchResultsWithManualEntry(String searchTerm, List<? extends SearchSelectable> searchableList) {
-    List<RestSearchItem> results = search(searchTerm, searchableList)
-        .stream()
-        .sorted(Comparator.comparing(RestSearchItem::text))
+  public RestSearchResult getSearchResultsWithManualEntry(
+      String searchTerm,
+      Function<String, Collection<? extends SearchSelectable>> searchFunction) {
+    RestSearchResult results = search(searchTerm, searchFunction);
+    return addManualEntry(searchTerm, results);
+  }
+
+  public RestSearchResult search(String searchQuery, Function<String, Collection<? extends SearchSelectable>> searchFunction) {
+    Collection<? extends SearchSelectable> results = searchFunction.apply(searchQuery);
+
+    return buildSearchResult(results);
+  }
+
+  private RestSearchResult buildSearchResult(Collection<? extends SearchSelectable> selectableList) {
+
+    List<RestSearchItem> results = selectableList.stream()
+        .map(item -> new RestSearchItem(item.getSelectionId(), item.getSelectionText()))
         .toList();
-    addManualEntry(searchTerm, results);
+
     return new RestSearchResult(results);
   }
 
-  public List<RestSearchItem> addManualEntry(String searchQuery, List<RestSearchItem> resultList) {
+  public RestSearchResult addManualEntry(String searchQuery, RestSearchResult resultList) {
     return addManualEntry(searchQuery, resultList, ManualEntryAttribute.WITH_FREE_TEXT_PREFIX);
   }
 
-  public List<RestSearchItem> addManualEntry(String searchQuery, List<RestSearchItem> resultList,
+  public RestSearchResult addManualEntry(String searchQuery, RestSearchResult resultList,
                                              ManualEntryAttribute manualEntryAttribute) {
+    var resultsWithManualEntry = new ArrayList<>(resultList.getResults());
     if (!StringUtils.isBlank(searchQuery)) {
-      boolean entryExists = resultList.stream()
+      boolean entryExists = resultList.results.stream()
           .anyMatch(restSearchItem -> restSearchItem.text().equalsIgnoreCase(searchQuery));
       if (!entryExists) {
         if (manualEntryAttribute.equals(ManualEntryAttribute.WITH_FREE_TEXT_PREFIX)) {
-          resultList.add(0, new RestSearchItem(SearchSelectablePrefix.FREE_TEXT_PREFIX + searchQuery, searchQuery));
+          resultsWithManualEntry.add(0, new RestSearchItem(SearchSelectablePrefix.FREE_TEXT_PREFIX + searchQuery, searchQuery));
         } else {
-          resultList.add(0, new RestSearchItem(searchQuery, searchQuery));
+          resultsWithManualEntry.add(0, new RestSearchItem(searchQuery, searchQuery));
         }
       }
     }
-    return resultList;
+    return new RestSearchResult(resultsWithManualEntry);
   }
 
   public static String route(Object methodCall) {

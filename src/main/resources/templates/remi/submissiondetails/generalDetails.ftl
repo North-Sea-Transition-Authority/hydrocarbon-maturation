@@ -56,6 +56,15 @@ breadcrumbsMap=breadcrumbsMap>
           <#assign firstItem=true/>
           <#list informationSources as key, value>
               <@fdsRadio.radioItem path="form.informationSource" itemMap={key : value} isFirstItem=firstItem>
+                  <#if key == "LICENCE_APPLICATION">
+                    <@fdsSearchSelector.searchSelectorRest
+                      path="form.licenceApplication"
+                      restUrl=springUrl(licenceApplicationEndpoint)
+                      labelText="Licence application round and reference"
+                      selectorMinInputLength=3
+                      nestingPath="form.informationSource"
+                      preselectedItems=licenceApplication!{}/>
+                  </#if>
                 <#if key == "OTHER">
                   <@fdsTextInput.textInput path="form.otherSourceOfInformation"
                   labelText="Provide the source of information for this prospect submission" nestingPath="form.informationSource"/>

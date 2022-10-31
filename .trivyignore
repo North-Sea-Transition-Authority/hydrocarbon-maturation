@@ -1,4 +1,4 @@
-# Introduced in HM-41 due to SAML related dependencies
+# Open SAML related dependency vulnerabilities
 CVE-2018-10237
 CVE-2020-8908
 CVE-2015-7501
@@ -28,3 +28,5 @@ CVE-2022-38752
 #temporarily ignoring vulnerabilities from jackson which are fixed in Jackson 2.14.0-rc1 
 CVE-2022-42003
 CVE-2022-42004
+#graphql-java vulnerabilities
+CVE-2022-37734

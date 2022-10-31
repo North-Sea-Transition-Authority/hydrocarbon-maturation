@@ -20,5 +20,10 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Information source">
       ${generalDetailValues.informationSource()}
     </@fdsSummaryList.summaryListRowNoAction>
+      <#if generalDetailValues.isLicenceApplicationInfoSource()>
+          <@fdsSummaryList.summaryListRowNoAction keyText="Licence application">
+              ${generalDetailValues.licenceApplication()}
+          </@fdsSummaryList.summaryListRowNoAction>
+      </#if>
   </@fdsSummaryList.summaryListCard>
 </#macro>

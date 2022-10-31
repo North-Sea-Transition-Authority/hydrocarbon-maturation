@@ -17,6 +17,7 @@ class GeneralDetailsForm implements SubmissionForm {
   private List<String> quadrantBlocks = new ArrayList<>();
   private String quadrantBlockSelect;
   private InformationSource informationSource;
+  private String licenceApplication;
   private String otherSourceOfInformation;
 
   public String getProspectName() {
@@ -74,6 +75,14 @@ class GeneralDetailsForm implements SubmissionForm {
   public void setInformationSource(
       InformationSource informationSource) {
     this.informationSource = informationSource;
+  }
+
+  public String getLicenceApplication() {
+    return licenceApplication;
+  }
+
+  public void setLicenceApplication(String licenceApplication) {
+    this.licenceApplication = licenceApplication;
   }
 
   public String getOtherSourceOfInformation() {

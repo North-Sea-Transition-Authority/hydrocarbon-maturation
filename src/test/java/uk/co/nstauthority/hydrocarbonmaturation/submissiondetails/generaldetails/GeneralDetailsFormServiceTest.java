@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,33 +14,47 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock.ReferenceBlockSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock.ReferenceBlockView;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailId;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsFormServiceTest {
 
-  @Mock
-  private GeneralDetailsFormValidator generalDetailsFormValidator;
-  @Mock
-  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
-  @Mock
-  private QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
-  @Mock
-  private ReferenceBlockSearchService referenceBlockSearchService;
-  @InjectMocks
-  private GeneralDetailsFormService generalDetailsFormService;
+  private static final String LICENCE_APPLICATION_REF = "F33/1234";
+  private static final String LICENCE_APPLICATION_ID = "1";
+
+  private static GeneralDetailsFormValidator generalDetailsFormValidator;
+  private static GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private static GeneralDetailsFormService generalDetailsFormService;
+  private static SubmissionDetailService submissionDetailService;
+  private static QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
+  private static ReferenceBlockSearchService referenceBlockSearchService;
 
   private static SubmissionDetail submissionDetail;
 
   @BeforeAll
   static void setup() {
+    generalDetailsFormValidator = mock(GeneralDetailsFormValidator.class);
+    generalDetailsPersistenceService = mock(GeneralDetailsPersistenceService.class);
+    submissionDetailService = mock(SubmissionDetailService.class);
+    quadrantAndBlockPersistenceService = mock(QuadrantAndBlockPersistenceService.class);
+    referenceBlockSearchService = mock(ReferenceBlockSearchService.class);
+    SearchSelectorService searchSelectorService = new SearchSelectorService();
+    generalDetailsFormService = new GeneralDetailsFormService(
+        generalDetailsFormValidator,
+        generalDetailsPersistenceService,
+        searchSelectorService,
+        submissionDetailService,
+        quadrantAndBlockPersistenceService,
+        referenceBlockSearchService
+    );
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
@@ -58,23 +73,9 @@ class GeneralDetailsFormServiceTest {
   void generalDetailEntityToForm_newEntity_thenEmptyForm() {
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.empty());
 
-    assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
-        .extracting(
-            GeneralDetailsForm::getProspectName,
-            GeneralDetailsForm::getOnshoreOffshore,
-            GeneralDetailsForm::getProspectLocatedInUkcs,
-            GeneralDetailsForm::getPercentageLocatedInUkcs,
-            GeneralDetailsForm::getInformationSource,
-            GeneralDetailsForm::getOtherSourceOfInformation
-        )
-        .containsExactly(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        );
+    var form = generalDetailsFormService.getGeneralDetailsForm(submissionDetail);
+    assertThat(form).hasAllNullFieldsOrPropertiesExcept("quadrantBlocks");
+    assertThat(form.getQuadrantBlocks()).isEmpty();
   }
 
   @Test
@@ -118,7 +119,6 @@ class GeneralDetailsFormServiceTest {
 
   @Test
   void getQuadrantAndBlockViews_FormHasQuadBlock_ReturnsQuadrantAndBlockViewList() {
-    var generalDetail = getGeneralDetail(submissionDetail);
     var qbRef = "27/10";
     var qbRefList = List.of(qbRef);
     when(referenceBlockSearchService.getReferenceBlocksByRefsIn(qbRefList))
@@ -144,6 +144,57 @@ class GeneralDetailsFormServiceTest {
     quadrantAndBlock.setGeneralDetail(generalDetail);
     quadrantAndBlock.setQuadrantBlock(quadrantBlockRef);
     return quadrantAndBlock;
+  }
+
+  @Test
+  void generalDetailEntityToForm_existingEntity_withLicenceApplicationReferenceOnly_thenPopulatedForm() {
+    var generalDetail = getGeneralDetail(submissionDetail);
+    generalDetail.setLicenceApplicationReference(LICENCE_APPLICATION_REF);
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
+
+    assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail).getLicenceApplication())
+        .isEqualTo(SearchSelectorService.getValueWithManualEntryPrefix(LICENCE_APPLICATION_REF));
+  }
+
+  @Test
+  void generalDetailEntityToForm_existingEntity_withLicenceApplicationId_thenPopulatedForm() {
+    var generalDetail = getGeneralDetail(submissionDetail);
+    generalDetail.setLicenceApplicationReference(LICENCE_APPLICATION_REF);
+    generalDetail.setLicenceApplicationId(Integer.parseInt(LICENCE_APPLICATION_ID));
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
+
+    assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail).getLicenceApplication())
+        .isEqualTo(LICENCE_APPLICATION_ID);
+  }
+
+  @Test
+  void getPreselectedLicenceApplication_withNoLicenceApplication() {
+    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(
+        null,
+        SubmissionDetailId.fromSubmissionDetailId(submissionDetail.getId()))
+    ).isEmpty();
+  }
+
+  @Test
+  void getPreselectedLicenceApplication_withLicenceApplicationReferenceOnly() {
+    var manualLicenceRef = SearchSelectorService.getValueWithManualEntryPrefix(LICENCE_APPLICATION_REF);
+
+    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(manualLicenceRef, SubmissionDetailId.fromSubmissionDetailId(submissionDetail.getId())))
+        .containsEntry(manualLicenceRef, LICENCE_APPLICATION_REF);
+  }
+
+  @Test
+  void getPreselectedLicenceApplication_withLicenceApplicationId() {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+        .thenReturn(submissionDetail);
+    var generalDetail = getGeneralDetail(submissionDetail);
+    generalDetail.setLicenceApplicationId(Integer.parseInt(LICENCE_APPLICATION_ID));
+    generalDetail.setLicenceApplicationReference(LICENCE_APPLICATION_REF);
+    when(generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail))
+        .thenReturn(generalDetail);
+
+    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(LICENCE_APPLICATION_ID, SubmissionDetailId.fromSubmissionDetailId(submissionDetail.getId())))
+        .containsEntry(LICENCE_APPLICATION_ID, LICENCE_APPLICATION_REF);
   }
 
   private GeneralDetail getGeneralDetail(SubmissionDetail submissionDetail) {

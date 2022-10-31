@@ -39,6 +39,7 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setProspectName("prospect");
     generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     generalDetail.setInformationSource(InformationSource.LICENCE_APPLICATION);
+    generalDetail.setLicenceApplicationReference("licence application ref");
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(2.5));
     generalDetail.setProspectLocatedInUkcs(false);
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
@@ -48,13 +49,17 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::onshoreOffshore,
             GeneralDetailSummaryView::informationSource,
             GeneralDetailSummaryView::percentageLocatedInUkcs,
-            GeneralDetailSummaryView::prospectLocatedInUkcs)
+            GeneralDetailSummaryView::prospectLocatedInUkcs,
+            GeneralDetailSummaryView::isLicenceApplicationInfoSource,
+            GeneralDetailSummaryView::licenceApplication)
         .containsExactly(
             generalDetail.getProspectName(),
             generalDetail.getOnshoreOffshore().getDisplayName(),
             generalDetail.getInformationSource().getDisplayName(),
             generalDetail.getPercentageLocatedInUkcs().toString() + "%",
-            "No"
+            "No",
+            true,
+            generalDetail.getLicenceApplicationReference()
         );
   }
 
@@ -70,12 +75,16 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::onshoreOffshore,
             GeneralDetailSummaryView::informationSource,
             GeneralDetailSummaryView::percentageLocatedInUkcs,
-            GeneralDetailSummaryView::prospectLocatedInUkcs)
+            GeneralDetailSummaryView::prospectLocatedInUkcs,
+            GeneralDetailSummaryView::isLicenceApplicationInfoSource,
+            GeneralDetailSummaryView::licenceApplication)
         .containsExactly(
             "",
             "",
             "",
             "",
+            "",
+            false,
             ""
         );
   }

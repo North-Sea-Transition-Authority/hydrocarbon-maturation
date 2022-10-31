@@ -19,6 +19,14 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven {
+		url "http://nexus.fivium.local:8081/repository/maven-releases/"
+		allowInsecureProtocol = true
+	}
+	maven {
+		url "http://nexus.fivium.local:8081/repository/maven-snapshots/"
+		allowInsecureProtocol = true
+	}
 }
 
 dependencies {
@@ -34,7 +42,10 @@ dependencies {
 	implementation 'org.springframework.session:spring-session-core'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.307'
+
 	implementation 'fi.solita.clamav:clamav-client:1.0.1'
+
+	implementation 'uk.co.fivium.energyportalapi:client:v1.1.0'
 
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 

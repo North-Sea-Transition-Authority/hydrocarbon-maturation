@@ -64,6 +64,10 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     var generalDetailsForm = (GeneralDetailsForm) form;
     fullValidationPercentageLocatedInUkcs(generalDetailsForm, errors);
 
+    if (generalDetailsForm.getInformationSource() == InformationSource.LICENCE_APPLICATION) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "licenceApplication", "licenceApplication.required",
+          "Enter the licence application reference");
+    }
     if (generalDetailsForm.getInformationSource() == InformationSource.OTHER) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherSourceOfInformation", "otherSourceOfInformation.required",
           "Enter the source of information for this prospect submission");

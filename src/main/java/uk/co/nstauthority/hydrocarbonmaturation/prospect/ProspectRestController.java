@@ -30,6 +30,7 @@ public class ProspectRestController {
   public RestSearchResult searchProspects(@RequestParam("term") String searchTerm) {
     List<GeneralDetail> searchableList = updateProspectService.getLatestProspectByName(searchTerm);
     var results = searchSelectorService.search(searchTerm, searchableList)
+        .getResults()
         .stream()
         .sorted(Comparator.comparing(RestSearchItem::text))
         .toList();
