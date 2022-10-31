@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock;
+package uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @WithMockUser
@@ -20,7 +22,7 @@ class ReferenceBlockRestControllerTest extends AbstractControllerTest {
   @MockBean
   private SearchSelectorService searchSelectorService;
   @MockBean
-  private ReferenceBlockSearchService referenceBlockSearchService;
+  private ReferenceBlockQueryService referenceBlockQueryService;
 
 
   @Test

@@ -17,6 +17,11 @@
         ${generalDetailValues.percentageLocatedInUkcs()}
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Quadrant/blocks">
+      <#list generalDetailValues.quadAndBlockDisplayList() as quadAndBlock>
+        <div>${quadAndBlock}</div>
+      </#list>
+    </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Information source">
       ${generalDetailValues.informationSource()}
     </@fdsSummaryList.summaryListRowNoAction>

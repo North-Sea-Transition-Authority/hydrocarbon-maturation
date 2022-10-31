@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock.ReferenceBlockSearchService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailId;
@@ -26,7 +26,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   private final SearchSelectorService searchSelectorService;
   private final SubmissionDetailService submissionDetailService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
-  private final ReferenceBlockSearchService referenceBlockSearchService;
+  private final ReferenceBlockQueryService referenceBlockQueryService;
 
 
   @Autowired
@@ -35,13 +35,13 @@ public class GeneralDetailsFormService implements SubmissionFormService {
                                    SearchSelectorService searchSelectorService,
                                    SubmissionDetailService submissionDetailService,
                                    QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
-                                   ReferenceBlockSearchService referenceBlockSearchService) {
+                                   ReferenceBlockQueryService referenceBlockQueryService) {
     this.generalDetailsFormValidator = generalDetailsFormValidator;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.searchSelectorService = searchSelectorService;
     this.submissionDetailService = submissionDetailService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
-    this.referenceBlockSearchService = referenceBlockSearchService;
+    this.referenceBlockQueryService = referenceBlockQueryService;
   }
 
   GeneralDetailsForm getGeneralDetailsForm(SubmissionDetail submissionDetail) {
@@ -113,8 +113,11 @@ public class GeneralDetailsFormService implements SubmissionFormService {
       return Collections.emptyList();
     }
 
-    return referenceBlockSearchService.getReferenceBlocksByRefsIn(form.getQuadrantBlocks()).stream()
-        .map(referenceBlock -> new QuadrantAndBlockView(referenceBlock.id(), referenceBlock.name(), true))
+    return referenceBlockQueryService.getReferenceBlocksByRefsIn(form.getQuadrantBlocks()).stream()
+        .map(referenceBlock -> {
+          var isValid = true;
+          return new QuadrantAndBlockView(referenceBlock.blockRef(), referenceBlock.blockRef(), isValid);
+        })
         .toList();
   }
 

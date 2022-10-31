@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -9,19 +10,26 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 public class GeneralDetailSummaryService {
 
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
 
   @Autowired
-  public GeneralDetailSummaryService(GeneralDetailsPersistenceService generalDetailsPersistenceService) {
+  public GeneralDetailSummaryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
+                                     QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
+    this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
   }
 
   public GeneralDetailSummaryView getGeneralDetailSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
     var generalDetail = generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail);
-    return generalDetail.map(this::createSummaryViewFromGeneralDetail)
-        .orElse(GeneralDetailSummaryView.empty());
+    return generalDetail.map(detail -> {
+      var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail);
+      return createSummaryViewFromGeneralDetail(detail, quadrantAndBlocks);
+    })
+    .orElse(GeneralDetailSummaryView.empty());
   }
 
-  private GeneralDetailSummaryView createSummaryViewFromGeneralDetail(GeneralDetail detail) {
+  private GeneralDetailSummaryView createSummaryViewFromGeneralDetail(GeneralDetail detail,
+                                                                      List<QuadrantAndBlock> quadrantAndBlocks) {
     var prospectName = detail.getProspectName() != null ? detail.getProspectName() : "";
     var onshoreOrOffshore = detail.getOnshoreOffshore() != null ? detail.getOnshoreOffshore().getDisplayName() : "";
     var locatedWithinUkcs = BooleanUtil.yesNoFromBoolean(detail.getProspectLocatedInUkcs(), "");
@@ -46,7 +54,11 @@ public class GeneralDetailSummaryService {
       } else {
         informationSourceDisplay = informationSource.getDisplayName();
       }
+
     }
+    var quadAndBlockDisplayList = quadrantAndBlocks.stream()
+        .map(QuadrantAndBlock::getQuadrantBlock)
+        .toList();
 
     return new GeneralDetailSummaryView(
         prospectName,
@@ -55,6 +67,7 @@ public class GeneralDetailSummaryService {
         percentageLocatedInUkcs,
         informationSourceDisplay,
         isLicenceApplicationInfoSource,
-        licenceApplication);
+        licenceApplication,
+        quadAndBlockDisplayList);
   }
 }

@@ -14,15 +14,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock.ReferenceBlockSearchService;
-import uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock.ReferenceBlockView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 
 @ExtendWith(MockitoExtension.class)
 class QuadrantBlockPersistenceServiceTest {
   @Mock
   private QuadrantAndBlockRepository quadrantAndBlockRepository;
   @Mock
-  private ReferenceBlockSearchService referenceBlockSearchService;
+  private ReferenceBlockQueryService referenceBlockQueryService;
   @InjectMocks
   private QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
 
@@ -35,8 +35,8 @@ class QuadrantBlockPersistenceServiceTest {
     var generalDetailsForm = new GeneralDetailsForm();
     generalDetailsForm.setQuadrantBlocks(quadBlockRefs);
 
-    when(referenceBlockSearchService.getReferenceBlocksByRefsIn(quadBlockRefs))
-        .thenReturn(List.of(new ReferenceBlockView(qbRef1, qbRef1)));
+    when(referenceBlockQueryService.getReferenceBlocksByRefsIn(quadBlockRefs))
+        .thenReturn(List.of(new ReferenceBlockView(qbRef1)));
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<QuadrantAndBlock>> argumentCaptor = ArgumentCaptor.forClass(List.class);

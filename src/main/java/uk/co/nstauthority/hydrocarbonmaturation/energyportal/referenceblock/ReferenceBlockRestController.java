@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock;
+package uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,18 +17,18 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 public class ReferenceBlockRestController {
 
   private final SearchSelectorService searchSelectorService;
-  private final ReferenceBlockSearchService referenceBlockSearchService;
+  private final ReferenceBlockQueryService referenceBlockQueryService;
 
   @Autowired
   public ReferenceBlockRestController(SearchSelectorService searchSelectorService,
-                                      ReferenceBlockSearchService referenceBlockSearchService) {
+                                      ReferenceBlockQueryService referenceBlockQueryService) {
     this.searchSelectorService = searchSelectorService;
-    this.referenceBlockSearchService = referenceBlockSearchService;
+    this.referenceBlockQueryService = referenceBlockQueryService;
   }
 
   @GetMapping("/quadrant-blocks")
   public RestSearchResult searchQuadrantBlocks(@RequestParam("term") String searchReference) {
-    var results = searchSelectorService.search(searchReference, referenceBlockSearchService::getReferenceBlocksBy);
+    var results = searchSelectorService.search(searchReference, referenceBlockQueryService::getReferenceBlocksBy);
 
     if (!Objects.isNull(results)) {
       var sortedResults = results.getResults().stream()

@@ -4,6 +4,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 class GeneralDetailSummaryServiceTest {
   @Mock
   private GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  @Mock
+  private QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
 
   @InjectMocks
   private GeneralDetailSummaryService generalDetailSummaryService;
@@ -36,13 +40,23 @@ class GeneralDetailSummaryServiceTest {
   void getGeneralDetailSummaryFromSubmissionDetail_whenPresent_fullSummary() {
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
+
+    var quadrantBlockRef1 = "1/1";
+    var quadrantAndBlock1 = createQuadrantAndBlock(quadrantBlockRef1);
+    var quadrantBlockRef2 = "1/2";
+    var quadrantAndBlock2 = createQuadrantAndBlock(quadrantBlockRef2);
+    when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
+        .thenReturn(List.of(quadrantAndBlock1, quadrantAndBlock2));
+
     generalDetail.setProspectName("prospect");
     generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     generalDetail.setInformationSource(InformationSource.LICENCE_APPLICATION);
     generalDetail.setLicenceApplicationReference("licence application ref");
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(2.5));
     generalDetail.setProspectLocatedInUkcs(false);
+
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
+
     assertThat(view)
         .extracting(
             GeneralDetailSummaryView::prospectName,
@@ -51,7 +65,9 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::percentageLocatedInUkcs,
             GeneralDetailSummaryView::prospectLocatedInUkcs,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
-            GeneralDetailSummaryView::licenceApplication)
+            GeneralDetailSummaryView::licenceApplication,
+            GeneralDetailSummaryView::quadAndBlockDisplayList
+        )
         .containsExactly(
             generalDetail.getProspectName(),
             generalDetail.getOnshoreOffshore().getDisplayName(),
@@ -59,8 +75,15 @@ class GeneralDetailSummaryServiceTest {
             generalDetail.getPercentageLocatedInUkcs().toString() + "%",
             "No",
             true,
-            generalDetail.getLicenceApplicationReference()
+            generalDetail.getLicenceApplicationReference(),
+            List.of(quadrantBlockRef1, quadrantBlockRef2)
         );
+  }
+
+  private QuadrantAndBlock createQuadrantAndBlock(String quadrantBlockRef) {
+    var quadrantAndBlock1 = new QuadrantAndBlock();
+    quadrantAndBlock1.setQuadrantBlock(quadrantBlockRef);
+    return quadrantAndBlock1;
   }
 
   @Test
@@ -77,7 +100,9 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::percentageLocatedInUkcs,
             GeneralDetailSummaryView::prospectLocatedInUkcs,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
-            GeneralDetailSummaryView::licenceApplication)
+            GeneralDetailSummaryView::licenceApplication,
+            GeneralDetailSummaryView::quadAndBlockDisplayList
+        )
         .containsExactly(
             "",
             "",
@@ -85,7 +110,8 @@ class GeneralDetailSummaryServiceTest {
             "",
             "",
             false,
-            ""
+            "",
+            Collections.emptyList()
         );
   }
 }

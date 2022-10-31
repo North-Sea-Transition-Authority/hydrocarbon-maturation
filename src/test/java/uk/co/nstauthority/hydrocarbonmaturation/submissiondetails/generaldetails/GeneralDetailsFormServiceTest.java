@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock.ReferenceBlockSearchService;
-import uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock.ReferenceBlockView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailId;
@@ -35,7 +35,7 @@ class GeneralDetailsFormServiceTest {
   private static GeneralDetailsFormService generalDetailsFormService;
   private static SubmissionDetailService submissionDetailService;
   private static QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
-  private static ReferenceBlockSearchService referenceBlockSearchService;
+  private static ReferenceBlockQueryService referenceBlockQueryService;
 
   private static SubmissionDetail submissionDetail;
 
@@ -45,7 +45,7 @@ class GeneralDetailsFormServiceTest {
     generalDetailsPersistenceService = mock(GeneralDetailsPersistenceService.class);
     submissionDetailService = mock(SubmissionDetailService.class);
     quadrantAndBlockPersistenceService = mock(QuadrantAndBlockPersistenceService.class);
-    referenceBlockSearchService = mock(ReferenceBlockSearchService.class);
+    referenceBlockQueryService = mock(ReferenceBlockQueryService.class);
     SearchSelectorService searchSelectorService = new SearchSelectorService();
     generalDetailsFormService = new GeneralDetailsFormService(
         generalDetailsFormValidator,
@@ -53,7 +53,7 @@ class GeneralDetailsFormServiceTest {
         searchSelectorService,
         submissionDetailService,
         quadrantAndBlockPersistenceService,
-        referenceBlockSearchService
+        referenceBlockQueryService
     );
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
@@ -121,8 +121,8 @@ class GeneralDetailsFormServiceTest {
   void getQuadrantAndBlockViews_FormHasQuadBlock_ReturnsQuadrantAndBlockViewList() {
     var qbRef = "27/10";
     var qbRefList = List.of(qbRef);
-    when(referenceBlockSearchService.getReferenceBlocksByRefsIn(qbRefList))
-        .thenReturn(Collections.singletonList(new ReferenceBlockView(qbRef, qbRef)));
+    when(referenceBlockQueryService.getReferenceBlocksByRefsIn(qbRefList))
+        .thenReturn(Collections.singletonList(new ReferenceBlockView(qbRef)));
 
     var form = new GeneralDetailsForm();
     form.setQuadrantBlocks(qbRefList);

@@ -4,19 +4,19 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.nstauthority.hydrocarbonmaturation.enerrgyportal.referenceblock.ReferenceBlockSearchService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 
 @Service
 public class QuadrantAndBlockPersistenceService {
 
   private final QuadrantAndBlockRepository quadrantAndBlockRepository;
-  private final ReferenceBlockSearchService referenceBlockSearchService;
+  private final ReferenceBlockQueryService referenceBlockQueryService;
 
   @Autowired
   public QuadrantAndBlockPersistenceService(QuadrantAndBlockRepository quadrantAndBlockRepository,
-                                            ReferenceBlockSearchService referenceBlockSearchService) {
+                                            ReferenceBlockQueryService referenceBlockQueryService) {
     this.quadrantAndBlockRepository = quadrantAndBlockRepository;
-    this.referenceBlockSearchService = referenceBlockSearchService;
+    this.referenceBlockQueryService = referenceBlockQueryService;
   }
 
   @Transactional
@@ -25,9 +25,9 @@ public class QuadrantAndBlockPersistenceService {
         .distinct()
         .toList();
 
-    var quadrantAndBlocks = referenceBlockSearchService.getReferenceBlocksByRefsIn(quadBlocksRefs)
+    var quadrantAndBlocks = referenceBlockQueryService.getReferenceBlocksByRefsIn(quadBlocksRefs)
         .stream()
-        .map(view -> createQuadrantAndBlock(generalDetail, view.id()))
+        .map(view -> createQuadrantAndBlock(generalDetail, view.blockRef()))
         .toList();
 
     quadrantAndBlockRepository.deleteAllByGeneralDetail(generalDetail);
