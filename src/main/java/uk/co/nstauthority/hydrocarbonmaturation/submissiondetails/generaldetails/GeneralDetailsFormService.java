@@ -9,11 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailId;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -24,7 +23,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   private final GeneralDetailsFormValidator generalDetailsFormValidator;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final SearchSelectorService searchSelectorService;
-  private final SubmissionDetailService submissionDetailService;
+  private final LicenceApplicationQueryService licenceApplicationQueryService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private final ReferenceBlockQueryService referenceBlockQueryService;
 
@@ -33,13 +32,13 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   public GeneralDetailsFormService(GeneralDetailsFormValidator generalDetailsFormValidator,
                                    GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                    SearchSelectorService searchSelectorService,
-                                   SubmissionDetailService submissionDetailService,
+                                   LicenceApplicationQueryService licenceApplicationQueryService,
                                    QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                    ReferenceBlockQueryService referenceBlockQueryService) {
     this.generalDetailsFormValidator = generalDetailsFormValidator;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.searchSelectorService = searchSelectorService;
-    this.submissionDetailService = submissionDetailService;
+    this.licenceApplicationQueryService = licenceApplicationQueryService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.referenceBlockQueryService = referenceBlockQueryService;
   }
@@ -84,7 +83,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     return form;
   }
 
-  public Map<String, String> getPreSelectedLicenceApplication(String licenceApplication, SubmissionDetailId submissionDetailId) {
+  public Map<String, String> getPreSelectedLicenceApplication(String licenceApplication) {
     Map<String, String> preSelectedMap = Map.of();
     if (licenceApplication != null) {
       if (SearchSelectorService.isManualEntry(licenceApplication)) {
@@ -93,16 +92,12 @@ public class GeneralDetailsFormService implements SubmissionFormService {
             Map.of(licenceApplication, licenceApplication)
         );
       } else {
-        var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId.submissionDetailId());
-        var generalDetail = generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail);
-        var licenceRef = generalDetail.getLicenceApplicationReference();
-        if (Objects.isNull(licenceRef)) {
-          return preSelectedMap;
-        } else {
-          preSelectedMap = searchSelectorService.buildPrePopulatedSelections(
-              Collections.singletonList(licenceApplication),
-              Map.of(licenceApplication, licenceRef));
-        }
+        preSelectedMap = searchSelectorService.buildPrePopulatedSelections(
+            Collections.singletonList(licenceApplication),
+            Map.of(
+                licenceApplication,
+                licenceApplicationQueryService.getLicenceApplicationRef(Integer.parseInt(licenceApplication))
+            ));
       }
     }
     return preSelectedMap;

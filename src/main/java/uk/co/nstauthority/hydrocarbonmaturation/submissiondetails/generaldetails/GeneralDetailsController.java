@@ -17,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailId;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
@@ -78,9 +77,7 @@ public class GeneralDetailsController {
         .addObject("licenceApplicationEndpoint",
             SearchSelectorService.route(on(LicenceApplicationRestController.class).searchLicenceApplicationsWithManualEntry(null))
         )
-        .addObject("licenceApplication", generalDetailsFormService.getPreSelectedLicenceApplication(
-            form.getLicenceApplication(),
-            SubmissionDetailId.fromSubmissionDetailId(submissionDetail.getId())))
+        .addObject("licenceApplication", generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
         .addObject("quadrantBlocksApiEndpoint",
             SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null)))
         .addObject("alreadyAddedQuadrantBlocks", generalDetailsFormService.getQuadrantAndBlockViews(form))

@@ -36,7 +36,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.Refe
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailId;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
@@ -119,10 +118,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
-    when(generalDetailsFormService.getPreSelectedLicenceApplication(
-        form.getLicenceApplication(),
-            SubmissionDetailId.fromSubmissionDetailId(submissionDetailId)))
-        .thenReturn(preselectedLicenceApplication);
+    when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(preselectedLicenceApplication);
 
     var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);
     var quadrantBlockViewList = List.of(quadrantBlockView1);
