@@ -16,12 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailId;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +32,7 @@ class GeneralDetailsFormServiceTest {
   private static GeneralDetailsFormValidator generalDetailsFormValidator;
   private static GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private static GeneralDetailsFormService generalDetailsFormService;
-  private static SubmissionDetailService submissionDetailService;
+  private static LicenceApplicationQueryService licenceApplicationQueryService;
   private static QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private static ReferenceBlockQueryService referenceBlockQueryService;
 
@@ -43,15 +42,15 @@ class GeneralDetailsFormServiceTest {
   static void setup() {
     generalDetailsFormValidator = mock(GeneralDetailsFormValidator.class);
     generalDetailsPersistenceService = mock(GeneralDetailsPersistenceService.class);
-    submissionDetailService = mock(SubmissionDetailService.class);
     quadrantAndBlockPersistenceService = mock(QuadrantAndBlockPersistenceService.class);
     referenceBlockQueryService = mock(ReferenceBlockQueryService.class);
+    licenceApplicationQueryService = mock(LicenceApplicationQueryService.class);
     SearchSelectorService searchSelectorService = new SearchSelectorService();
     generalDetailsFormService = new GeneralDetailsFormService(
         generalDetailsFormValidator,
         generalDetailsPersistenceService,
         searchSelectorService,
-        submissionDetailService,
+        licenceApplicationQueryService,
         quadrantAndBlockPersistenceService,
         referenceBlockQueryService
     );
@@ -169,31 +168,20 @@ class GeneralDetailsFormServiceTest {
 
   @Test
   void getPreselectedLicenceApplication_withNoLicenceApplication() {
-    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(
-        null,
-        SubmissionDetailId.fromSubmissionDetailId(submissionDetail.getId()))
-    ).isEmpty();
+    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(null)).isEmpty();
   }
 
   @Test
   void getPreselectedLicenceApplication_withLicenceApplicationReferenceOnly() {
     var manualLicenceRef = SearchSelectorService.getValueWithManualEntryPrefix(LICENCE_APPLICATION_REF);
-
-    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(manualLicenceRef, SubmissionDetailId.fromSubmissionDetailId(submissionDetail.getId())))
-        .containsEntry(manualLicenceRef, LICENCE_APPLICATION_REF);
+    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(manualLicenceRef)).containsEntry(manualLicenceRef, LICENCE_APPLICATION_REF);
   }
 
   @Test
   void getPreselectedLicenceApplication_withLicenceApplicationId() {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
-        .thenReturn(submissionDetail);
-    var generalDetail = getGeneralDetail(submissionDetail);
-    generalDetail.setLicenceApplicationId(Integer.parseInt(LICENCE_APPLICATION_ID));
-    generalDetail.setLicenceApplicationReference(LICENCE_APPLICATION_REF);
-    when(generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail))
-        .thenReturn(generalDetail);
-
-    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(LICENCE_APPLICATION_ID, SubmissionDetailId.fromSubmissionDetailId(submissionDetail.getId())))
+    when(licenceApplicationQueryService.getLicenceApplicationRef(Integer.parseInt(LICENCE_APPLICATION_ID)))
+        .thenReturn(LICENCE_APPLICATION_REF);
+    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(LICENCE_APPLICATION_ID))
         .containsEntry(LICENCE_APPLICATION_ID, LICENCE_APPLICATION_REF);
   }
 
