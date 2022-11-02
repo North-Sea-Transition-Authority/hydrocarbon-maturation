@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -47,8 +48,8 @@ class ReferenceBlockQueryServiceTest {
     verify(referenceBlockApi, times(1)).searchReferenceBlocks(
         eq(searchReference),
         eq(ReferenceBlockQueryService.REFERENCE_BLOCKS_PROJECTION_ROOT),
-        anyString(),
-        anyString()
+        any(),
+        any()
     );
   }
 
@@ -61,8 +62,8 @@ class ReferenceBlockQueryServiceTest {
     verify(referenceBlockApi, times(3)).findReferenceBlockByExactBlogRef(
         anyString(),
         eq(ReferenceBlockQueryService.REFERENCE_BLOCK_PROJECTION_ROOT),
-        anyString(),
-        anyString()
+        any(),
+        any()
     );
   }
 }

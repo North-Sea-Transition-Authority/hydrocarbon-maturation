@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -51,8 +51,8 @@ class LicenceApplicationQueryServiceTest {
     when(licenceApplicationApi.searchLicenceApplications(
         eq(licenceApplicationRef),
         eq(filter),
-        anyString(),
-        anyString()
+        any(),
+        any()
     )).thenReturn(Collections.emptyList());
 
     assertTrue(licenceApplicationQueryService.getLicenceApplicationSearchableResults(licenceApplicationRef).isEmpty());
@@ -66,8 +66,8 @@ class LicenceApplicationQueryServiceTest {
     when(licenceApplicationApi.searchLicenceApplications(
         eq(licenceApplicationRef),
         eq(filter),
-        anyString(),
-        anyString()
+        any(),
+        any()
     )).thenReturn(List.of(licenceApplication));
 
     assertThat(licenceApplicationQueryService.getLicenceApplicationSearchableResults(licenceApplicationRef))
@@ -89,8 +89,8 @@ class LicenceApplicationQueryServiceTest {
     when(licenceApplicationApi.findLicenceApplication(
         eq(licenceApplicationId),
         eq(filter),
-        anyString(),
-        anyString()
+        any(),
+        any()
     )).thenReturn(Optional.empty());
 
     assertTrue(licenceApplicationQueryService.findLicenceApplication(licenceApplicationId).isEmpty());
@@ -106,8 +106,8 @@ class LicenceApplicationQueryServiceTest {
     when(licenceApplicationApi.findLicenceApplication(
         eq(LICENCE_APPLICATION_ID),
         eq(filter),
-        anyString(),
-        anyString()
+        any(),
+        any()
     )).thenReturn(Optional.of(licenceApplication));
 
     var expectedLicenceApplication = licenceApplicationQueryService.findLicenceApplication(LICENCE_APPLICATION_ID);
@@ -127,8 +127,8 @@ class LicenceApplicationQueryServiceTest {
     when(licenceApplicationApi.findLicenceApplication(
         eq(licenceApplicationId),
         eq(filter),
-        anyString(),
-        anyString()
+        any(),
+        any()
     )).thenReturn(Optional.empty());
 
     assertNull(licenceApplicationQueryService.getLicenceApplicationRef(licenceApplicationId));
@@ -144,8 +144,8 @@ class LicenceApplicationQueryServiceTest {
     when(licenceApplicationApi.findLicenceApplication(
         eq(LICENCE_APPLICATION_ID),
         eq(filter),
-        anyString(),
-        anyString()
+        any(),
+        any()
     )).thenReturn(Optional.of(licenceApplication));
 
     assertEquals(LICENCE_APPLICATION_REF, licenceApplicationQueryService.getLicenceApplicationRef(LICENCE_APPLICATION_ID));

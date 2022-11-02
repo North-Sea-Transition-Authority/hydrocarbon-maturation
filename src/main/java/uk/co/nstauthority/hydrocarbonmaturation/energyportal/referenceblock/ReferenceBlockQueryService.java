@@ -30,8 +30,8 @@ public class ReferenceBlockQueryService {
         referenceBlockApi.searchReferenceBlocks(
                 searchReference,
                 REFERENCE_BLOCKS_PROJECTION_ROOT,
-                requestPurpose.purpose(),
-                logCorrelationId.id()
+                requestPurpose,
+                logCorrelationId
             ).stream()
             .map(this::getReferenceBlockView)
             .toList());
@@ -51,8 +51,8 @@ public class ReferenceBlockQueryService {
         referenceBlockApi.findReferenceBlockByExactBlogRef(
             blockRef,
             REFERENCE_BLOCK_PROJECTION_ROOT,
-            requestPurpose.purpose(),
-            logCorrelationId.id()
+            requestPurpose,
+            logCorrelationId
         )
     );
   }
