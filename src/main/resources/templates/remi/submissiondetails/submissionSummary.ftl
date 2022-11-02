@@ -12,6 +12,7 @@
 <#import '../summarylistcards/gasCaseOutputsSummaryCard.ftl' as gasCaseOutputsSummary>
 <#import '../summarylistcards/mixedCaseVolumetricsSummary.ftl' as mixedCaseVolumetricsSummary>
 <#import '../summarylistcards/mixedCaseOutputsSummaryCard.ftl' as mixedCaseOutputsSummary>
+<#import '../summarylistcards/additionalInformationSummaryCard.ftl' as additionalInformationSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -76,6 +77,8 @@
         <@mixedCaseOutputsSummary.mixedCaseOutputsSummaryCard
           mixedCaseOutputsValues=mixedCaseOutputsSummaryView/>
       </#if>
+      <@additionalInformationSummary.additionalInformationSummaryCard
+          additionalInformationValues=additionalInformationSummaryView/>
 
       <@fdsAction.submitButtons
         primaryButtonText="Submit"

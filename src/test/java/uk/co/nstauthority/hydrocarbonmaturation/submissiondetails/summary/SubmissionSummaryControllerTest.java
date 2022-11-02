@@ -30,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation.AdditionalInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -73,6 +74,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
   private ProbabilityDistributionsFormSummaryView mixedCaseVolumetricsSummaryView;
   private MixedCaseOutputsSummaryView mixedCaseOutputsSummaryView;
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
+  private AdditionalInformationSummaryView additionalInformationSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -106,6 +108,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
     gasCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     mixedCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty();
+    additionalInformationSummaryView = AdditionalInformationSummaryView.empty();
   }
 
   @Test
@@ -136,6 +139,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(mixedCaseOutputsSummaryView);
     when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(trapPropertiesSummaryView);
+    when(prospectSummaryService.getAdditionalInformationSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(additionalInformationSummaryView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -184,6 +189,8 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(mixedCaseOutputsSummaryView);
     when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(trapPropertiesSummaryView);
+    when(prospectSummaryService.getAdditionalInformationSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(additionalInformationSummaryView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
@@ -204,6 +211,7 @@ class SubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView),
             entry("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
+            entry("additionalInformationSummaryView", additionalInformationSummaryView),
             entry("subNavigation", subNavList)
     );
   }

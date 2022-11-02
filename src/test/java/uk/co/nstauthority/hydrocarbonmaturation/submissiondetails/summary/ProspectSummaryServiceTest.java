@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation.AdditionalInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
@@ -19,9 +20,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.VolumetricsTaskListSection;
@@ -69,6 +70,9 @@ class ProspectSummaryServiceTest {
   private TrapPropertiesSummaryService trapPropertiesSummaryService;
 
   @Mock
+  private AdditionalInformationSummaryService additionalInformationSummaryService;
+
+  @Mock
   private ProspectTaskListItem prospectTaskListItem;
 
   private ProspectSummaryService prospectSummaryService;
@@ -92,6 +96,7 @@ class ProspectSummaryServiceTest {
         gasCaseOutputsSummaryService,
         mixedCaseVolumetricsSummaryService,
         mixedCaseOutputsSummaryService,
+        additionalInformationSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
@@ -218,6 +223,16 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
+  void getAdditionalInformationSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    prospectSummaryService.getAdditionalInformationSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(additionalInformationSummaryService, times(1))
+        .getAdditionalInformationSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
   void getProspectSubNavigation_whenTwoSections_oneResult() {
     var subNavItems = prospectSummaryService.getProspectSubNavigation(submissionDetail);
 
@@ -241,6 +256,7 @@ class ProspectSummaryServiceTest {
         gasCaseOutputsSummaryService,
         mixedCaseVolumetricsSummaryService,
         mixedCaseOutputsSummaryService,
+        additionalInformationSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
 
