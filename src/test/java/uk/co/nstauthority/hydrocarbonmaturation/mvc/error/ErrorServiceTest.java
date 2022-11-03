@@ -11,26 +11,50 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfigurationProperties;
 
 @ExtendWith(SpringExtension.class)
-@EnableConfigurationProperties(value = ErrorConfigurationProperties.class)
-@ContextConfiguration(classes = ErrorConfiguration.class)
+@EnableConfigurationProperties(value = {
+    ErrorConfigurationProperties.class,
+    ServiceConfigurationProperties.class,
+    CustomerConfigurationProperties.class,
+    TechnicalSupportConfigurationProperties.class})
+@ContextConfiguration(classes = {
+    ErrorConfiguration.class,
+    ServiceBrandingConfigurationProperties.class,
+    TechnicalSupportConfiguration.class})
 @TestPropertySource("classpath:application-test.properties")
 class ErrorServiceTest {
 
   private static final String ERROR_REF_ATTRIBUTE_NAME = "errorRef";
   private static final String SERVICE_HOME_URLS_ATTRIBUTE_NAME = "serviceHomeUrl";
   private static final String STACK_TRACE_ATTRIBUTE = "stackTrace";
+  private static final String SERVICE_BRANDING_ATTRIBUTE = "serviceBranding";
+  private static final String CUSTOMER_BRANDING_ATTRIBUTE = "customerBranding";
+  private static final String TECHNICAL_SUPPORT_ATTRIBUTE = "technicalSupport";
   private static final String UNSAFE_CHARACTERS = "0125AEIOULNSZ";
 
   @Autowired
   private ErrorConfiguration errorConfiguration;
 
+  @Autowired
+  private ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
+
+  @Autowired
+  private TechnicalSupportConfiguration technicalSupportConfiguration;
+
   private ErrorService errorService;
 
   @BeforeEach
   public void setup() {
-    errorService = new ErrorService(errorConfiguration);
+    errorService = new ErrorService(
+        errorConfiguration,
+        serviceBrandingConfigurationProperties,
+        technicalSupportConfiguration);
   }
 
   @Test
@@ -43,6 +67,9 @@ class ErrorServiceTest {
     assertThat(resultingModelMap).containsOnlyKeys(
         ERROR_REF_ATTRIBUTE_NAME,
         SERVICE_HOME_URLS_ATTRIBUTE_NAME,
+        SERVICE_BRANDING_ATTRIBUTE,
+        CUSTOMER_BRANDING_ATTRIBUTE,
+        TECHNICAL_SUPPORT_ATTRIBUTE,
         STACK_TRACE_ATTRIBUTE
     );
     Object errorRef = resultingModelMap.get(ERROR_REF_ATTRIBUTE_NAME);
@@ -59,7 +86,10 @@ class ErrorServiceTest {
     ).getModelMap();
 
     assertThat(resultingModelMap).containsOnlyKeys(
-        SERVICE_HOME_URLS_ATTRIBUTE_NAME
+        SERVICE_HOME_URLS_ATTRIBUTE_NAME,
+        SERVICE_BRANDING_ATTRIBUTE,
+        CUSTOMER_BRANDING_ATTRIBUTE,
+        TECHNICAL_SUPPORT_ATTRIBUTE
     );
   }
 }

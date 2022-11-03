@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Service
@@ -19,10 +21,16 @@ public class ErrorService {
   private static final String SAFE_CHARACTERS = "BCDFGHJKMPQRTVWXY346789";
 
   private final ErrorConfiguration errorConfiguration;
+  private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
+  private final TechnicalSupportConfiguration technicalSupportConfiguration;
 
   @Autowired
-  public ErrorService(ErrorConfiguration errorConfiguration) {
+  public ErrorService(ErrorConfiguration errorConfiguration,
+                      ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties,
+                      TechnicalSupportConfiguration technicalSupportConfiguration) {
     this.errorConfiguration = errorConfiguration;
+    this.serviceBrandingConfigurationProperties = serviceBrandingConfigurationProperties;
+    this.technicalSupportConfiguration = technicalSupportConfiguration;
   }
 
   public ModelAndView addErrorAttributesToModel(ModelAndView modelAndView, Throwable throwable) {
@@ -30,6 +38,8 @@ public class ErrorService {
       addStackTraceToModel(modelAndView, throwable);
       addErrorReference(modelAndView, throwable);
     }
+    addBrandingAttributes(modelAndView);
+    addTechnicalSupportContactInfo(modelAndView);
     addCommonUrls(modelAndView);
     return modelAndView;
   }
@@ -54,6 +64,21 @@ public class ErrorService {
       modelAndView.addObject("errorRef", errorReference);
       LOGGER.error("Caught unhandled exception (errorRef {})", errorReference, throwable);
     }
+  }
+
+  private void addBrandingAttributes(ModelAndView modelAndView) {
+    modelAndView.addObject(
+        "serviceBranding",
+        serviceBrandingConfigurationProperties.getServiceConfigurationProperties()
+    );
+    modelAndView.addObject(
+        "customerBranding",
+        serviceBrandingConfigurationProperties.getCustomerConfigurationProperties()
+    );
+  }
+
+  private void addTechnicalSupportContactInfo(ModelAndView modelAndView) {
+    modelAndView.addObject("technicalSupport", technicalSupportConfiguration.getTechnicalSupportConfigurationProperties());
   }
 
   private void addCommonUrls(ModelAndView modelAndView) {
