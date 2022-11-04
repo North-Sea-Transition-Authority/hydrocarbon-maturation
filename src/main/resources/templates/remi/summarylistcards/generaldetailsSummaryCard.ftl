@@ -20,18 +20,18 @@
         ${generalDetailValues.percentageLocatedInUkcs()}
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Quadrant/blocks">
-      <#list generalDetailValues.quadAndBlockDisplayList() as quadAndBlock>
-        <div>${quadAndBlock}</div>
-      </#list>
-    </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Information source">
       ${generalDetailValues.informationSource()}
     </@fdsSummaryList.summaryListRowNoAction>
-      <#if generalDetailValues.isLicenceApplicationInfoSource()>
-          <@fdsSummaryList.summaryListRowNoAction keyText="Licence application">
-              ${generalDetailValues.licenceApplication()}
-          </@fdsSummaryList.summaryListRowNoAction>
-      </#if>
+    <#if generalDetailValues.isLicenceApplicationInfoSource()>
+        <@fdsSummaryList.summaryListRowNoAction keyText="Licence application">
+            ${generalDetailValues.licenceApplication()}
+        </@fdsSummaryList.summaryListRowNoAction>
+    </#if>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Quadrant and blocks">
+        <#list generalDetailValues.quadAndBlockDisplayList() as quadAndBlock>
+          <div>${quadAndBlock}</div>
+        </#list>
+    </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 </#macro>

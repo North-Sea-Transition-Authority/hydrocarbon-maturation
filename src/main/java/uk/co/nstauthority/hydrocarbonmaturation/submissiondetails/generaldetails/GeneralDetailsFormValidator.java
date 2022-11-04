@@ -76,7 +76,8 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     }
 
     if (generalDetailsForm.getQuadrantBlocks().isEmpty()) {
-      errors.rejectValue("quadrantBlockSelect", "quadrantBlockSelect.notEmpty", "You must select at least one quadrant/block");
+      errors.rejectValue("quadrantBlockSelect", "quadrantBlockSelect.notEmpty",
+          "You must select at least one quadrant and block");
     }
   }
 
