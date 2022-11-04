@@ -14,7 +14,6 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 
@@ -52,7 +51,7 @@ public class UpdateProspectController {
 
   private ModelAndView getUpdatePageModelAndView(UpdateProspectForm form) {
     return new ModelAndView("remi/prospect/updateProspect")
-        .addObject("backLinkUrl", ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()))
+        .addObject("backLinkUrl", ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage()))
         .addObject("actionUrl", ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, null)))
         .addObject("informationSources", InformationSource.getInformationSource())
         .addObject("form", form)

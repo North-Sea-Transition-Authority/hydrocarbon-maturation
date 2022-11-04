@@ -20,7 +20,7 @@ public class ProspectTaskListBreadcrumbUtil {
                                                                   UUID submissionDetailId) {
     var breadcrumbs = Breadcrumbs.builder(pageName)
         .addWorkAreaBreadcrumb()
-        .addBreadcrumb(ProspectTaskListBreadcrumbUtil.getProspectTaskListBreadcrumb(submissionDetailId))
+        .addBreadcrumb(getProspectTaskListBreadcrumb(submissionDetailId))
         .build();
 
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);

@@ -1,13 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -38,7 +40,7 @@ class SubmissionCreateServiceTest {
 
   @Test
   void createInitialProspect() {
-    Resource resource = new Resource();
+    var resource = new Resource();
 
     when(resourceService.createResource(ResourceType.PROSPECT)).thenReturn(resource);
 
@@ -50,21 +52,16 @@ class SubmissionCreateServiceTest {
   @Test
   void createUpdateProspect_successful_verifyUpdateGeneralDetails() {
     var form = new UpdateProspectForm();
+    form.setProspectSelectedOption(UUID.randomUUID().toString());
+
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    Resource resource = new Resource();
-    UUID submissionId = UUID.randomUUID();
-    resource.setId(submissionId);
-    form.setProspectSelectedOption(submissionId.toString());
-    submissionDetail.setResourceId(resource);
-    submissionDetail.setId(submissionId);
 
-    when(resourceService.getResourceForId(submissionDetail.getId())).thenReturn(Optional.of(resource));
-    when(submissionDetailService.createInitialSubmissionDetail(resource, SubmissionType.PROSPECT_UPDATE)).thenReturn(submissionDetailNew);
+    when(submissionDetailService.createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.PROSPECT_UPDATE)).thenReturn(submissionDetailNew);
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(submissionDetail);
-    when(generalDetailsPersistenceService.getGeneralDetailById(UUID.fromString(form.getProspectSelectedOption())))
-        .thenReturn(Optional.of(generalDetail));
+    when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption())))
+        .thenReturn(generalDetail);
 
     submissionCreateService.createUpdateProspect(form);
 
@@ -75,17 +72,37 @@ class SubmissionCreateServiceTest {
   @Test
   void createUpdateProspect_failure_assertThrown() {
     var form = new UpdateProspectForm();
-    UUID generalDetailId = UUID.randomUUID();
+    var generalDetailId = UUID.randomUUID();
     form.setProspectSelectedOption(generalDetailId.toString());
 
-    when(generalDetailsPersistenceService.getGeneralDetailById(UUID.fromString(form.getProspectSelectedOption())))
-        .thenReturn(Optional.empty());
+    doThrow(RemiEntityNotFoundException.class).when(generalDetailsPersistenceService)
+        .getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption()));
 
-    assertThatThrownBy(()->submissionCreateService.createUpdateProspect(form))
-        .hasMessage("The prospect with ID %s you want to update does not exist!"
-            .formatted(form.getProspectSelectedOption()));
+    assertThatExceptionOfType(RemiEntityNotFoundException.class)
+        .isThrownBy(()->submissionCreateService.createUpdateProspect(form));
 
     verify(submissionDetailService, never()).createInitialSubmissionDetail(any(), any());
     verify(generalDetailsPersistenceService, never()).updateGeneralDetailProspect(any(), any(), any());
+  }
+
+  @Test
+  void createPostDrillDryHoleSubmission_Successful_VerifyCreatesPostDrillDryHoleSubmissionAndNewGeneralDetail() {
+    var form = new PostDrillDryHoleForm();
+    form.setProspectSelectedOption(UUID.randomUUID().toString());
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    var prospectName = "prospect-name";
+    var generalDetail = new GeneralDetail();
+    generalDetail.setSubmissionDetail(submissionDetail);
+    generalDetail.setProspectName(prospectName);
+    when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption())))
+        .thenReturn(generalDetail);
+    when(submissionDetailService.createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.POST_DRILL_DRY_HOLE))
+        .thenReturn(submissionDetailNew);
+
+    submissionCreateService.createPostDrillDryHoleSubmission(form);
+
+    verify(generalDetailsPersistenceService).createGeneralDetailWithProspectName(submissionDetailNew, prospectName);
   }
 }

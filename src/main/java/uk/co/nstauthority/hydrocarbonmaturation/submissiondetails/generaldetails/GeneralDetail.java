@@ -11,12 +11,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
-import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectable;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Entity
 @Table(name = "general_details")
-public class GeneralDetail implements SearchSelectable {
+public class GeneralDetail {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -165,15 +164,5 @@ public class GeneralDetail implements SearchSelectable {
 
   public void setOrganisationRegisteredNumber(String organisationRegisteredNumber) {
     this.organisationRegisteredNumber = organisationRegisteredNumber;
-  }
-
-  @Override
-  public String getSelectionId() {
-    return id.toString();
-  }
-
-  @Override
-  public String getSelectionText() {
-    return getProspectName();
   }
 }

@@ -108,18 +108,32 @@ public class GeneralDetailsPersistenceService {
     generalDetailsRepository.save(newGeneralDetail);
   }
 
-  Optional<GeneralDetail> getGeneralDetailBySubmissionDetail(SubmissionDetail submissionDetail) {
-    return generalDetailsRepository.findBySubmissionDetail(submissionDetail);
+  public void createGeneralDetailWithProspectName(SubmissionDetail submissionDetail, String prospectName) {
+    var newGeneralDetail = new GeneralDetail();
+    newGeneralDetail.setProspectName(prospectName);
+    newGeneralDetail.setSubmissionDetail(submissionDetail);
+
+    generalDetailsRepository.save(newGeneralDetail);
   }
 
-  public Optional<GeneralDetail> getGeneralDetailById(UUID generalDetailId) {
-    return generalDetailsRepository.findById(generalDetailId);
+  public Optional<GeneralDetail> getGeneralDetailBySubmissionDetail(SubmissionDetail submissionDetail) {
+    return generalDetailsRepository.findBySubmissionDetail(submissionDetail);
   }
 
   public GeneralDetail getGeneralDetailOrThrow(SubmissionDetail submissionDetail) {
     return getGeneralDetailBySubmissionDetail(submissionDetail)
         .orElseThrow(() -> new RemiEntityNotFoundException(
             String.format("Could not find general detail for submission detail %s", submissionDetail.getId())));
+  }
+
+  public Optional<GeneralDetail> getGeneralDetailById(UUID generalDetailId) {
+    return generalDetailsRepository.findById(generalDetailId);
+  }
+
+  public GeneralDetail getGeneralDetailByIdOrThrow(UUID generalDetailId) {
+    return generalDetailsRepository.findById(generalDetailId)
+        .orElseThrow(() -> new RemiEntityNotFoundException(
+            String.format("Could not find general detail by ID %s", generalDetailId)));
   }
 
   public List<GeneralDetail> getGeneralDetailsByName(String name) {

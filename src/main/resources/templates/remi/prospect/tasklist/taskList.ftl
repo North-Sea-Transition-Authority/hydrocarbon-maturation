@@ -4,12 +4,11 @@
 <#-- @ftlvariable name="taskListSections" type="java.util.List<uk.co.nstauthority.offshoresafetydirective.tasklist.TaskListSectionView>" -->
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
-
-<#assign pageTitle = "Prospect" />
+<#-- @ftlvariable name="submissionTypeName" type="String" -->
 
 <@defaultPage
-  htmlTitle=pageTitle
-  pageHeading=pageTitle
+  htmlTitle=submissionTypeName
+  pageHeading=submissionTypeName
   pageSize=PageSize.TWO_THIRDS_COLUMN
   breadcrumbsMap=breadcrumbsMap
 >

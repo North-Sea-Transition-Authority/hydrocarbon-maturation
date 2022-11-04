@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
+package uk.co.nstauthority.hydrocarbonmaturation.prospect;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,13 +25,9 @@ import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectController;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 
 
@@ -68,7 +64,7 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
             "informationSources",
             "form",
             "prospectApiEndpoint")
-        .containsExactly(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()),
+        .containsExactly(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage()),
             ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, emptyBindingResult())),
             InformationSource.getInformationSource(),
             form,
@@ -115,11 +111,13 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
             "informationSources",
             "form",
             "prospectApiEndpoint")
-        .containsExactly(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()),
+        .containsExactly(
+            ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage()),
             ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, emptyBindingResult())),
             InformationSource.getInformationSource(),
             form,
-            SearchSelectorService.route(on(ProspectRestController.class).searchProspects(null)));
+            SearchSelectorService.route(on(ProspectRestController.class).searchProspects(null))
+        );
 
     verify(updateProspectService, times(1)).validate(any(), any());
     verify(updateProspectService, never()).createUpdateProspect(any());

@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListItemView;
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListLabel;
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListLabelType;
@@ -47,6 +48,7 @@ class ProspectTaskListControllerTest extends AbstractControllerTest {
     var submissionDetailId = UUID.randomUUID();
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var sectionName = "section name";

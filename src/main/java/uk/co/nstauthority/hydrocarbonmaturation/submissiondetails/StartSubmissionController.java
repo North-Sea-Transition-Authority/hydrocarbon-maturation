@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartPostDrillDryHoleSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartUpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -44,6 +45,8 @@ public class StartSubmissionController {
         () -> switch (form.getSubmissionType()) {
           case CREATE_PROSPECT -> ReverseRouter.redirect(on(StartProspectController.class).getStartPage());
           case PROSPECT_UPDATE -> ReverseRouter.redirect(on(StartUpdateProspectController.class).getStartUpdatePage());
+          case POST_DRILL_DRY_HOLE ->
+              ReverseRouter.redirect(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage());
         });
   }
 

@@ -45,7 +45,8 @@ public class ProspectTaskListController {
                 prospectTaskListItems,
                 new ProspectTaskListItemType(submissionDetail)
             )
-        );
+        )
+        .addObject("submissionTypeName", submissionDetail.getSubmissionType().getTypeName());
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
         .addWorkAreaBreadcrumb()

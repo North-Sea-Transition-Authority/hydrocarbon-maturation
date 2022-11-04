@@ -288,4 +288,24 @@ class GeneralDetailsPersistenceServiceTest {
     generalDetailsPersistenceService.getGeneralDetailsByName("prospect");
     verify(generalDetailsRepository, times(1)).findByProspectNameContainingIgnoreCase("prospect");
   }
+
+  @Test
+  void createGeneralDetailWithProspectName_VerifySave() {
+    var prospectName = "prospect-name";
+
+    var argumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+    generalDetailsPersistenceService.createGeneralDetailWithProspectName(submissionDetail, prospectName);
+
+    verify(generalDetailsRepository, times(1)).save(argumentCaptor.capture());
+
+    assertThat(argumentCaptor.getValue())
+        .extracting(
+            GeneralDetail::getProspectName,
+            GeneralDetail::getSubmissionDetail
+        )
+        .containsExactly(
+            prospectName,
+            submissionDetail
+        );
+  }
 }

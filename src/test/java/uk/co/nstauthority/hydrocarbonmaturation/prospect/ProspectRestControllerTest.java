@@ -27,11 +27,11 @@ class ProspectRestControllerTest extends AbstractControllerTest {
   private SearchSelectorService searchSelectorService;
 
   @MockBean
-  private UpdateProspectService updateProspectService;
+  private ProspectQueryService prospectQueryService;
 
   @BeforeEach
   void setUp() {
-    RestSearchResult searchItems = new RestSearchResult(List.of(new RestSearchItem("searchTerm", "searchTerm")));
+    var searchItems = new RestSearchResult(List.of(new RestSearchItem("searchTerm", "searchTerm")));
     when(searchSelectorService.search(eq("searchTerm"), anyList())).thenReturn(searchItems);
   }
 
