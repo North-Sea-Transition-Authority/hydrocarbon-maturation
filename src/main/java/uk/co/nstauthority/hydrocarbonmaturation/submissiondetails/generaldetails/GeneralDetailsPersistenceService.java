@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
@@ -19,14 +20,17 @@ public class GeneralDetailsPersistenceService {
   private final GeneralDetailsRepository generalDetailsRepository;
   private final LicenceApplicationQueryService licenceApplicationQueryService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
+  private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
   public GeneralDetailsPersistenceService(GeneralDetailsRepository generalDetailsRepository,
                                           QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
-                                          LicenceApplicationQueryService licenceApplicationQueryService) {
+                                          LicenceApplicationQueryService licenceApplicationQueryService,
+                                          OrganisationUnitQueryService organisationUnitQueryService) {
     this.generalDetailsRepository = generalDetailsRepository;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.licenceApplicationQueryService = licenceApplicationQueryService;
+    this.organisationUnitQueryService = organisationUnitQueryService;
   }
 
   @Transactional
@@ -53,6 +57,20 @@ public class GeneralDetailsPersistenceService {
         var licenceApplicationRef = licenceApplicationQueryService.getLicenceApplicationRef(licenceApplicationId);
         generalDetail.setLicenceApplicationReference(licenceApplicationRef);
       }
+    }
+
+    var organisationId = form.getResponsibleOrganisationId();
+    if (Objects.isNull(organisationId)) {
+      generalDetail.setOrganisationId(null);
+      generalDetail.setOrganisationName(null);
+      generalDetail.setOrganisationRegisteredNumber(null);
+    } else {
+      var organisationUnit = organisationUnitQueryService.findOrganisationUnit(Integer.valueOf(organisationId));
+      organisationUnit.ifPresent(unit -> {
+        generalDetail.setOrganisationName(unit.getName());
+        generalDetail.setOrganisationId(unit.getOrganisationUnitId());
+        generalDetail.setOrganisationRegisteredNumber(unit.getRegisteredNumber());
+      });
     }
 
     if (form.getProspectLocatedInUkcs() !=  null && !form.getProspectLocatedInUkcs()) {

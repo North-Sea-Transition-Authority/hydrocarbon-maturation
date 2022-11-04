@@ -18,7 +18,16 @@ class GeneralDetailsForm implements SubmissionForm {
   private String quadrantBlockSelect;
   private InformationSource informationSource;
   private String licenceApplication;
+  private String responsibleOrganisationId;
   private String otherSourceOfInformation;
+
+  public String getResponsibleOrganisationId() {
+    return responsibleOrganisationId;
+  }
+
+  public void setResponsibleOrganisationId(String responsibleOrganisationId) {
+    this.responsibleOrganisationId = responsibleOrganisationId;
+  }
 
   public String getProspectName() {
     return prospectName;

@@ -30,44 +30,77 @@ public class GeneralDetailSummaryService {
 
   private GeneralDetailSummaryView createSummaryViewFromGeneralDetail(GeneralDetail detail,
                                                                       List<QuadrantAndBlock> quadrantAndBlocks) {
-    var prospectName = detail.getProspectName() != null ? detail.getProspectName() : "";
-    var onshoreOrOffshore = detail.getOnshoreOffshore() != null ? detail.getOnshoreOffshore().getDisplayName() : "";
-    var locatedWithinUkcs = BooleanUtil.yesNoFromBoolean(detail.getProspectLocatedInUkcs(), "");
-
-    var percentageLocatedInUkcs =
-        detail.getPercentageLocatedInUkcs() != null
-            && !detail.getProspectLocatedInUkcs() ? detail.getPercentageLocatedInUkcs().toString() + "%" : "";
-
-    var informationSourceDisplay = "";
     var licenceApplication = "";
     var isLicenceApplicationInfoSource = false;
     var informationSource = detail.getInformationSource();
-    if (informationSource != null) {
-      if (informationSource == InformationSource.LICENCE_APPLICATION) {
-        licenceApplication = detail.getLicenceApplicationReference() != null
-            ? detail.getLicenceApplicationReference()
-            : "";
-        isLicenceApplicationInfoSource = true;
+    if (informationSource == InformationSource.LICENCE_APPLICATION) {
+      licenceApplication = detail.getLicenceApplicationReference() != null
+          ? detail.getLicenceApplicationReference()
+          : "";
+      isLicenceApplicationInfoSource = true;
+    }
+    return new GeneralDetailSummaryView(
+        getProspectNameDisplay(detail),
+        getOnShoreOffShoreDisplay(detail),
+        BooleanUtil.yesNoFromBoolean(detail.getProspectLocatedInUkcs(), ""),
+        getPercentageLocatedInUkcs(detail),
+        getInformationSourceDisplay(detail),
+        getOrganisationDisplay(detail),
+        isLicenceApplicationInfoSource,
+        licenceApplication,
+        getQuadBlocksDisplay(quadrantAndBlocks)
+    );
+  }
+
+  private List<String> getQuadBlocksDisplay(List<QuadrantAndBlock> quadrantAndBlocks) {
+    return quadrantAndBlocks.stream()
+        .map(QuadrantAndBlock::getQuadrantBlock)
+        .toList();
+  }
+
+  private String getOrganisationDisplay(GeneralDetail detail) {
+    var organisationName = detail.getOrganisationName();
+    var organisationRegisteredNumber = detail.getOrganisationRegisteredNumber();
+    var organisationDisplay = "";
+    if (organisationName != null) {
+      if (organisationRegisteredNumber != null) {
+        organisationDisplay = "%s (%s)".formatted(organisationName,
+            organisationRegisteredNumber);
+      } else {
+        organisationDisplay = organisationName;
       }
+    }
+    return organisationDisplay;
+  }
+
+  private String getInformationSourceDisplay(GeneralDetail detail) {
+    var informationSourceDisplay = "";
+    var informationSource = detail.getInformationSource();
+    if (informationSource != null) {
       if (informationSource == InformationSource.OTHER) {
         informationSourceDisplay = detail.getOtherInformationSource();
       } else {
         informationSourceDisplay = informationSource.getDisplayName();
       }
-
     }
-    var quadAndBlockDisplayList = quadrantAndBlocks.stream()
-        .map(QuadrantAndBlock::getQuadrantBlock)
-        .toList();
+    return informationSourceDisplay;
+  }
 
-    return new GeneralDetailSummaryView(
-        prospectName,
-        onshoreOrOffshore,
-        locatedWithinUkcs,
-        percentageLocatedInUkcs,
-        informationSourceDisplay,
-        isLicenceApplicationInfoSource,
-        licenceApplication,
-        quadAndBlockDisplayList);
+  private String getOnShoreOffShoreDisplay(GeneralDetail detail) {
+    return detail.getOnshoreOffshore() != null
+        ? detail.getOnshoreOffshore().getDisplayName()
+        : "";
+  }
+
+  private String getProspectNameDisplay(GeneralDetail detail) {
+    return detail.getProspectName() != null
+        ? detail.getProspectName()
+        : "";
+  }
+
+  private String getPercentageLocatedInUkcs(GeneralDetail detail) {
+    return detail.getPercentageLocatedInUkcs() != null && !detail.getProspectLocatedInUkcs()
+        ? detail.getPercentageLocatedInUkcs().toString() + "%"
+        : "";
   }
 }

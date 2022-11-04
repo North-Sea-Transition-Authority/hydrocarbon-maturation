@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -24,21 +25,23 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final SearchSelectorService searchSelectorService;
   private final LicenceApplicationQueryService licenceApplicationQueryService;
+  private final OrganisationUnitQueryService organisationUnitQueryService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private final ReferenceBlockQueryService referenceBlockQueryService;
-
 
   @Autowired
   public GeneralDetailsFormService(GeneralDetailsFormValidator generalDetailsFormValidator,
                                    GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                    SearchSelectorService searchSelectorService,
                                    LicenceApplicationQueryService licenceApplicationQueryService,
+                                   OrganisationUnitQueryService organisationUnitQueryService,
                                    QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                    ReferenceBlockQueryService referenceBlockQueryService) {
     this.generalDetailsFormValidator = generalDetailsFormValidator;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.searchSelectorService = searchSelectorService;
     this.licenceApplicationQueryService = licenceApplicationQueryService;
+    this.organisationUnitQueryService = organisationUnitQueryService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.referenceBlockQueryService = referenceBlockQueryService;
   }
@@ -55,6 +58,13 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     form.setOnshoreOffshore(generalDetail.getOnshoreOffshore());
     form.setProspectLocatedInUkcs(generalDetail.getProspectLocatedInUkcs());
     form.setInformationSource(generalDetail.getInformationSource());
+
+    var organisationId = generalDetail.getOrganisationId();
+
+    if (!Objects.isNull(organisationId)) {
+      form.setResponsibleOrganisationId(organisationId.toString());
+    }
+
     var licenceApplicationId = generalDetail.getLicenceApplicationId();
     var licenceApplicationRef = generalDetail.getLicenceApplicationReference();
 
@@ -81,6 +91,29 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     form.setQuadrantBlocks(quadBlockRefs);
 
     return form;
+  }
+
+  public Map<String, String> getPreSelectedOrganisation(String responsibleOrganisation) {
+    Map<String, String> preSelectedOrganisation = Map.of();
+    if (responsibleOrganisation == null) {
+      return preSelectedOrganisation;
+    }
+
+    var organisation = organisationUnitQueryService.findOrganisationUnit(Integer.valueOf(responsibleOrganisation));
+    var key = organisation
+        .map(organisationUnit -> {
+          if (organisationUnit.getRegisteredNumber() != null) {
+            return "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber());
+          } else {
+            return organisationUnit.getName();
+          }
+        }).orElse("");
+
+    preSelectedOrganisation = searchSelectorService.buildPrePopulatedSelections(
+        Collections.singletonList(responsibleOrganisation),
+        Map.of(responsibleOrganisation, key));
+
+    return preSelectedOrganisation;
   }
 
   public Map<String, String> getPreSelectedLicenceApplication(String licenceApplication) {

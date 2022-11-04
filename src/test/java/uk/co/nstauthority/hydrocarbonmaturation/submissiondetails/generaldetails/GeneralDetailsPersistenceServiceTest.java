@@ -15,6 +15,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
@@ -34,6 +36,8 @@ class GeneralDetailsPersistenceServiceTest {
   private static GeneralDetailsRepository generalDetailsRepository;
   @Mock
   private static LicenceApplicationQueryService licenceApplicationQueryService;
+  @Mock
+  private static OrganisationUnitQueryService organisationUnitQueryService;
 
   private static SubmissionDetail submissionDetail;
 
@@ -42,7 +46,8 @@ class GeneralDetailsPersistenceServiceTest {
     generalDetailsPersistenceService = new GeneralDetailsPersistenceService(
         generalDetailsRepository,
         quadrantAndBlockPersistenceService,
-        licenceApplicationQueryService);
+        licenceApplicationQueryService,
+        organisationUnitQueryService);
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
@@ -55,8 +60,15 @@ class GeneralDetailsPersistenceServiceTest {
     form.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     form.setProspectLocatedInUkcs(true);
     form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
+    form.setResponsibleOrganisationId("1");
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    when(organisationUnitQueryService.findOrganisationUnit(1))
+        .thenReturn(Optional.of(OrganisationUnitTestUtil.Builder()
+                .withOrganisationId(1)
+                .withOrganisationName("name")
+                .withOrganisationNumber("25").build()));
 
     generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
 
@@ -70,7 +82,8 @@ class GeneralDetailsPersistenceServiceTest {
             GeneralDetail::getProspectLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
             GeneralDetail::getInformationSource,
-            GeneralDetail::getOtherInformationSource
+            GeneralDetail::getOtherInformationSource,
+            GeneralDetail::getOrganisationId
         )
         .containsExactly(
             form.getProspectName(),
@@ -78,7 +91,8 @@ class GeneralDetailsPersistenceServiceTest {
             form.getProspectLocatedInUkcs(),
             form.getPercentageLocatedInUkcs(),
             form.getInformationSource(),
-            form.getOtherSourceOfInformation()
+            form.getOtherSourceOfInformation(),
+            Integer.valueOf(form.getResponsibleOrganisationId())
         );
   }
 

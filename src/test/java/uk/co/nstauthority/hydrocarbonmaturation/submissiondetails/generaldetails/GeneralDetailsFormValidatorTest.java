@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -75,6 +76,7 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrors)
         .containsExactly(
             entry("prospectName", Set.of("prospectName.required")),
+            entry("responsibleOrganisationId", Set.of("responsibleOrganisationId.required")),
             entry("onshoreOffshore", Set.of("onshoreOffshore.required")),
             entry("prospectLocatedInUkcs", Set.of("prospectLocatedInUkcs.required")),
             entry("informationSource", Set.of("informationSource.required")),
@@ -207,10 +209,8 @@ class GeneralDetailsFormValidatorTest {
     form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
     form.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
     form.setQuadrantBlocks(List.of("27/10"));
+    form.setResponsibleOrganisationId("25");
 
     return form;
-  }
-
-  private static class NonSupportedClass {
   }
 }

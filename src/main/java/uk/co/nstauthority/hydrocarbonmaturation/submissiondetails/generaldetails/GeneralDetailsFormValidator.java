@@ -55,6 +55,8 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   @Override
   public void validateFull(SubmissionForm form, Errors errors) {
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId", "responsibleOrganisationId.required",
+        "Enter the responsible organisation");
     ValidationUtils.rejectIfEmpty(errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
     ValidationUtils.rejectIfEmpty(errors, "prospectLocatedInUkcs", "prospectLocatedInUkcs.required",
         "Select whether the prospect is wholly located within UKCS");

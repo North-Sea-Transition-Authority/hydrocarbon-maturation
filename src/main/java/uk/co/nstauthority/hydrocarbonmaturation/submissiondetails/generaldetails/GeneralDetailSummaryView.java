@@ -8,11 +8,13 @@ public record GeneralDetailSummaryView(String prospectName,
                                        String prospectLocatedInUkcs,
                                        String percentageLocatedInUkcs,
                                        String informationSource,
+                                       String organisationNameAndNumber,
                                        Boolean isLicenceApplicationInfoSource,
                                        String licenceApplication,
                                        List<String> quadAndBlockDisplayList) {
   public static GeneralDetailSummaryView empty() {
     return new GeneralDetailSummaryView(
+        "",
         "",
         "",
         "",

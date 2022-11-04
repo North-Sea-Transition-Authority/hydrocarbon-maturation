@@ -6,6 +6,9 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Prospect name">
       ${generalDetailValues.prospectName()}
     </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Responsible organisation">
+      ${generalDetailValues.organisationNameAndNumber()}
+    </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Onshore or offshore">
       ${generalDetailValues.onshoreOffshore()}
     </@fdsSummaryList.summaryListRowNoAction>

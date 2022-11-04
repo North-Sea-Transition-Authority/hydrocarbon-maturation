@@ -47,6 +47,12 @@ public class GeneralDetail implements SearchSelectable {
 
   private Integer licenceApplicationId;
 
+  private Integer organisationId;
+
+  private String organisationName;
+
+  private String organisationRegisteredNumber;
+
   public UUID getId() {
     return id;
   }
@@ -135,6 +141,30 @@ public class GeneralDetail implements SearchSelectable {
 
   public void setLicenceApplicationId(Integer licenceApplicationId) {
     this.licenceApplicationId = licenceApplicationId;
+  }
+
+  public Integer getOrganisationId() {
+    return organisationId;
+  }
+
+  public void setOrganisationId(Integer organisationId) {
+    this.organisationId = organisationId;
+  }
+
+  public String getOrganisationName() {
+    return organisationName;
+  }
+
+  public void setOrganisationName(String organisationUName) {
+    this.organisationName = organisationUName;
+  }
+
+  public String getOrganisationRegisteredNumber() {
+    return organisationRegisteredNumber;
+  }
+
+  public void setOrganisationRegisteredNumber(String organisationRegisteredNumber) {
+    this.organisationRegisteredNumber = organisationRegisteredNumber;
   }
 
   @Override

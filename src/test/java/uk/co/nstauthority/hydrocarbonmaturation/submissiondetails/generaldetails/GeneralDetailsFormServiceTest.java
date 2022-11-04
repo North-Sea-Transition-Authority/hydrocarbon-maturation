@@ -16,7 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -34,6 +36,7 @@ class GeneralDetailsFormServiceTest {
   private static GeneralDetailsFormService generalDetailsFormService;
   private static LicenceApplicationQueryService licenceApplicationQueryService;
   private static QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
+  private static OrganisationUnitQueryService organisationUnitQueryService;
   private static ReferenceBlockQueryService referenceBlockQueryService;
 
   private static SubmissionDetail submissionDetail;
@@ -45,15 +48,16 @@ class GeneralDetailsFormServiceTest {
     quadrantAndBlockPersistenceService = mock(QuadrantAndBlockPersistenceService.class);
     referenceBlockQueryService = mock(ReferenceBlockQueryService.class);
     licenceApplicationQueryService = mock(LicenceApplicationQueryService.class);
+    organisationUnitQueryService = mock(OrganisationUnitQueryService.class);
     SearchSelectorService searchSelectorService = new SearchSelectorService();
     generalDetailsFormService = new GeneralDetailsFormService(
         generalDetailsFormValidator,
         generalDetailsPersistenceService,
         searchSelectorService,
         licenceApplicationQueryService,
+        organisationUnitQueryService,
         quadrantAndBlockPersistenceService,
-        referenceBlockQueryService
-    );
+        referenceBlockQueryService);
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
@@ -94,7 +98,8 @@ class GeneralDetailsFormServiceTest {
             GeneralDetailsForm::getPercentageLocatedInUkcs,
             GeneralDetailsForm::getInformationSource,
             GeneralDetailsForm::getOtherSourceOfInformation,
-            GeneralDetailsForm::getQuadrantBlocks
+            GeneralDetailsForm::getQuadrantBlocks,
+            GeneralDetailsForm::getResponsibleOrganisationId
         )
         .containsExactly(
             generalDetail.getProspectName(),
@@ -103,7 +108,8 @@ class GeneralDetailsFormServiceTest {
             generalDetail.getPercentageLocatedInUkcs(),
             generalDetail.getInformationSource(),
             generalDetail.getOtherInformationSource(),
-            List.of(quadrantBlockRef)
+            List.of(quadrantBlockRef),
+            generalDetail.getOrganisationId().toString()
         );
   }
 
@@ -185,6 +191,29 @@ class GeneralDetailsFormServiceTest {
         .containsEntry(LICENCE_APPLICATION_ID, LICENCE_APPLICATION_REF);
   }
 
+  @Test
+  void getPreselectedOrganisation_withNameAndIdOnly() {
+    var organisationUnit = new OrganisationUnit();
+    organisationUnit.setName("name");
+    when(organisationUnitQueryService.findOrganisationUnit(1))
+        .thenReturn(Optional.of(organisationUnit));
+
+    assertThat(generalDetailsFormService.getPreSelectedOrganisation("1"))
+        .containsEntry("1", "name");
+  }
+
+  @Test
+  void getPreselectedOrganisation_withOrganisationNumber() {
+    var organisationUnit = new OrganisationUnit();
+    organisationUnit.setName("name");
+    organisationUnit.setRegisteredNumber("25");
+    when(organisationUnitQueryService.findOrganisationUnit(1))
+        .thenReturn(Optional.of(organisationUnit));
+
+    assertThat(generalDetailsFormService.getPreSelectedOrganisation("1"))
+        .containsEntry("1", "name (25)");
+  }
+
   private GeneralDetail getGeneralDetail(SubmissionDetail submissionDetail) {
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(submissionDetail);
@@ -192,7 +221,9 @@ class GeneralDetailsFormServiceTest {
     generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     generalDetail.setProspectLocatedInUkcs(true);
     generalDetail.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
-
+    generalDetail.setOrganisationId(1);
+    generalDetail.setOrganisationRegisteredNumber("25");
+    generalDetail.setOrganisationName("name");
     return generalDetail;
   }
 }

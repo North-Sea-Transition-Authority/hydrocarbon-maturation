@@ -21,7 +21,16 @@ breadcrumbsMap=breadcrumbsMap>
 
       <@fdsTextInput.textInput path="form.prospectName" labelText="Prospect name"/>
 
+      <@fdsSearchSelector.searchSelectorRest
+        path="form.responsibleOrganisationId"
+        restUrl=springUrl(organisationUnitEndpoint)
+        labelText="What organisation is responsible for this ${resourceType}?"
+        selectorMinInputLength=3
+        nestingPath="form.responsibleOrganisationId"
+        preselectedItems=responsibleOrganisation!{}/>
+
       <@fdsRadio.radio path="form.onshoreOffshore" radioItems=onshoreOffshore labelText="Is this prospect onshore or offshore?"/>
+
 
       <@fdsRadio.radioGroup path="form.prospectLocatedInUkcs" labelText="Is the prospect wholly located within UKCS?" hiddenContent=true>
           <@fdsRadio.radioYes path="form.prospectLocatedInUkcs"/>

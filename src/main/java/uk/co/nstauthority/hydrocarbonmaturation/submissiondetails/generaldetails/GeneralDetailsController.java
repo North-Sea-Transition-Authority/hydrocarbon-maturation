@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -75,9 +76,16 @@ public class GeneralDetailsController {
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("informationSources", InformationSource.getInformationSource())
         .addObject("licenceApplicationEndpoint",
-            SearchSelectorService.route(on(LicenceApplicationRestController.class).searchLicenceApplicationsWithManualEntry(null))
-        )
-        .addObject("licenceApplication", generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
+            SearchSelectorService.route(on(LicenceApplicationRestController.class)
+                .searchLicenceApplicationsWithManualEntry(null)))
+        .addObject("licenceApplication",
+            generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
+        .addObject("organisationUnitEndpoint",
+            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)))
+        .addObject("resourceType",
+            submissionDetail.getResourceId().getType().getDisplayName().toLowerCase())
+        .addObject("responsibleOrganisation", generalDetailsFormService
+            .getPreSelectedOrganisation(form.getResponsibleOrganisationId()))
         .addObject("quadrantBlocksApiEndpoint",
             SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null)))
         .addObject("alreadyAddedQuadrantBlocks", generalDetailsFormService.getQuadrantAndBlockViews(form))

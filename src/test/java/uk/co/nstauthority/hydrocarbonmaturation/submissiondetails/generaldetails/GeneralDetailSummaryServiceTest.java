@@ -54,6 +54,9 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setLicenceApplicationReference("licence application ref");
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(2.5));
     generalDetail.setProspectLocatedInUkcs(false);
+    generalDetail.setOrganisationName("name");
+    generalDetail.setOrganisationRegisteredNumber("25");
+    generalDetail.setOrganisationId(25);
 
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
 
@@ -66,7 +69,8 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::prospectLocatedInUkcs,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
-            GeneralDetailSummaryView::quadAndBlockDisplayList
+            GeneralDetailSummaryView::quadAndBlockDisplayList,
+            GeneralDetailSummaryView::organisationNameAndNumber
         )
         .containsExactly(
             generalDetail.getProspectName(),
@@ -76,7 +80,8 @@ class GeneralDetailSummaryServiceTest {
             "No",
             true,
             generalDetail.getLicenceApplicationReference(),
-            List.of(quadrantBlockRef1, quadrantBlockRef2)
+            List.of(quadrantBlockRef1, quadrantBlockRef2),
+            "name (25)"
         );
   }
 
@@ -101,7 +106,8 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::prospectLocatedInUkcs,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
-            GeneralDetailSummaryView::quadAndBlockDisplayList
+            GeneralDetailSummaryView::quadAndBlockDisplayList,
+            GeneralDetailSummaryView::organisationNameAndNumber
         )
         .containsExactly(
             "",
@@ -111,7 +117,8 @@ class GeneralDetailSummaryServiceTest {
             "",
             false,
             "",
-            Collections.emptyList()
+            Collections.emptyList(),
+            ""
         );
   }
 }
