@@ -24,6 +24,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
@@ -51,6 +53,7 @@ class ProspectSummaryService {
   private final GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
   private final GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
   private final AdditionalInformationSummaryService additionalInformationSummaryService;
+  private final OpportunityDetailsSummaryService opportunityDetailsSummaryService;
   private final List<ProspectTaskListSection> prospectTaskListSections;
   private final List<ProspectTaskListItem> prospectTaskListItems;
   private List<SubNavigationSectionItem> subNavigationSectionItems;
@@ -69,6 +72,7 @@ class ProspectSummaryService {
                                 MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService,
                                 MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService,
                                 AdditionalInformationSummaryService additionalInformationSummaryService,
+                                OpportunityDetailsSummaryService opportunityDetailsSummaryService,
                                 List<ProspectTaskListSection> prospectTaskListSections,
                                 List<ProspectTaskListItem> prospectTaskListItems) {
     this.generalDetailSummaryService = generalDetailSummaryService;
@@ -84,6 +88,7 @@ class ProspectSummaryService {
     this.mixedCaseOutputsSummaryService = mixedCaseOutputsSummaryService;
     this.trapPropertiesSummaryService = trapPropertiesSummaryService;
     this.additionalInformationSummaryService = additionalInformationSummaryService;
+    this.opportunityDetailsSummaryService = opportunityDetailsSummaryService;
     this.prospectTaskListSections = prospectTaskListSections;
     this.prospectTaskListItems = prospectTaskListItems;
     this.subNavigationSectionItems = new ArrayList<>();
@@ -139,6 +144,11 @@ class ProspectSummaryService {
 
   public TrapPropertiesSummaryView getTrapPropertiesSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public OpportunityDetailsSummaryView getOpportunityDetailsSummaryViewFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
+    return opportunityDetailsSummaryService.getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
   }
 
   public AdditionalInformationSummaryView getAdditionalInformationSummaryViewFromSubmissionDetail(

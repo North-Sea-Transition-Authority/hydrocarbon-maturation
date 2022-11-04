@@ -13,6 +13,7 @@
 <#import '../summarylistcards/mixedCaseVolumetricsSummary.ftl' as mixedCaseVolumetricsSummary>
 <#import '../summarylistcards/mixedCaseOutputsSummaryCard.ftl' as mixedCaseOutputsSummary>
 <#import '../summarylistcards/additionalInformationSummaryCard.ftl' as additionalInformationSummary>
+<#import '../summarylistcards/opportunityDetailsSummaryCard.ftl' as opportunityDetailsSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -49,6 +50,8 @@
     <@fdsForm.htmlForm>
       <@generalDetailsSummary.generalDetailCard
         generalDetailValues=generalDetailsSummaryView/>
+      <@opportunityDetailsSummary.opportunityDetailsSummaryCard
+        opportunityDetailsValues=opportunityDetailsSummaryView/>
       <@trapPropertiesSummary.trapPropertiesSummaryCard
         trapPropertiesValues=trapPropertiesSummaryView/>
       <@sourceAndSealSummary.sourceAndSealCard

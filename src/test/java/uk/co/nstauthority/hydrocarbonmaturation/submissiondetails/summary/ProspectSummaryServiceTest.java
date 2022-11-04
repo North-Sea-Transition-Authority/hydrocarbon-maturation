@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncas
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
@@ -73,6 +74,9 @@ class ProspectSummaryServiceTest {
   private AdditionalInformationSummaryService additionalInformationSummaryService;
 
   @Mock
+  private OpportunityDetailsSummaryService opportunityDetailsSummaryService;
+
+  @Mock
   private ProspectTaskListItem prospectTaskListItem;
 
   private ProspectSummaryService prospectSummaryService;
@@ -97,6 +101,7 @@ class ProspectSummaryServiceTest {
         mixedCaseVolumetricsSummaryService,
         mixedCaseOutputsSummaryService,
         additionalInformationSummaryService,
+        opportunityDetailsSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
@@ -110,6 +115,16 @@ class ProspectSummaryServiceTest {
 
     verify(generalDetailSummaryService, times(1))
         .getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getOpportunityDetailsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(opportunityDetailsSummaryService, times(1))
+        .getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
   }
 
   @Test
@@ -257,6 +272,7 @@ class ProspectSummaryServiceTest {
         mixedCaseVolumetricsSummaryService,
         mixedCaseOutputsSummaryService,
         additionalInformationSummaryService,
+        opportunityDetailsSummaryService,
         listOfTaskListSections,
         listOfTaskListItems);
 
