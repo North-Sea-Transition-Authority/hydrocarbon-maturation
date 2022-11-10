@@ -4,7 +4,9 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.PostDrillDryHoleForm;
@@ -18,14 +20,17 @@ public class SubmissionCreateService {
   private final ResourceService resourceService;
   private final SubmissionDetailService submissionDetailService;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private final ResourceLinkService resourceLinkService;
 
   @Autowired
   public SubmissionCreateService(ResourceService resourceService,
                                  SubmissionDetailService submissionDetailService,
-                                 GeneralDetailsPersistenceService generalDetailsPersistenceService) {
+                                 GeneralDetailsPersistenceService generalDetailsPersistenceService,
+                                 ResourceLinkService resourceLinkService) {
     this.resourceService = resourceService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
+    this.resourceLinkService = resourceLinkService;
   }
 
   @Transactional
@@ -63,5 +68,17 @@ public class SubmissionCreateService {
 
   private Resource getResourceFromGeneralDetail(GeneralDetail generalDetail) {
     return generalDetail.getSubmissionDetail().getResourceId();
+  }
+
+  @Transactional
+  public SubmissionDetail createNewDiscovery(StartDiscoveryForm form) {
+    var discoveryResource = resourceService.createResource(ResourceType.DISCOVERY);
+    var previousGeneralDetail = generalDetailsPersistenceService
+        .getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption()));
+    var prospectResource = getResourceFromGeneralDetail(previousGeneralDetail);
+
+    resourceLinkService.createNewResourceLink(prospectResource, discoveryResource);
+
+    return submissionDetailService.createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY);
   }
 }

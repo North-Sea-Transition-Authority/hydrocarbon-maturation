@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.discovery.DiscoveryTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.PostDrillDryHoleTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 
@@ -18,6 +19,8 @@ public class SubmissionTaskListRedirectionService {
           ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetail.getId()));
       case POST_DRILL_DRY_HOLE ->
           ReverseRouter.redirect(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetail.getId()));
+      case CREATE_DISCOVERY ->
+          ReverseRouter.redirect(on(DiscoveryTaskListController.class).getTaskList(submissionDetail.getId()));
     };
   }
 }

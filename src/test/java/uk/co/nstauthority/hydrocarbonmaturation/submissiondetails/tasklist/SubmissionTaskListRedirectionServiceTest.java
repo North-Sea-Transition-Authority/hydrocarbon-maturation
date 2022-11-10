@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.discovery.DiscoveryTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.PostDrillDryHoleTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 
@@ -34,6 +35,7 @@ class SubmissionTaskListRedirectionServiceTest {
         .extracting(ModelAndView::getViewName)
         .isEqualTo(ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetailId)).getViewName());
   }
+
   @Test
   void getTaskListEndpointProspect_PostDrillDryHole() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
@@ -45,4 +47,14 @@ class SubmissionTaskListRedirectionServiceTest {
         .isEqualTo(ReverseRouter.redirect(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetailId)).getViewName());
   }
 
+  @Test
+  void getTaskListEndpointDiscovery_PostDrillDiscovery() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var submissionDetailId = submissionDetail.getId();
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+
+    assertThat(submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail))
+        .extracting(ModelAndView::getViewName)
+        .isEqualTo(ReverseRouter.redirect(on(DiscoveryTaskListController.class).getTaskList(submissionDetailId)).getViewName());
+  }
 }

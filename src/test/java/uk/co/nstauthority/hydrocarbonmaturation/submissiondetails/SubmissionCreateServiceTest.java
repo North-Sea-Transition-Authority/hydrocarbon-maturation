@@ -14,7 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
@@ -34,6 +36,9 @@ class SubmissionCreateServiceTest {
 
   @Mock
   private GeneralDetailsPersistenceService generalDetailsPersistenceService;
+
+  @Mock
+  private ResourceLinkService resourceLinkService;
 
   @InjectMocks
   private SubmissionCreateService submissionCreateService;
@@ -104,5 +109,31 @@ class SubmissionCreateServiceTest {
     submissionCreateService.createPostDrillDryHoleSubmission(form);
 
     verify(generalDetailsPersistenceService).createGeneralDetailWithProspectName(submissionDetailNew, prospectName);
+  }
+
+  @Test
+  void createNewDiscovery_Successful_verifySubmissionCreated() {
+    var form = new StartDiscoveryForm();
+    form.setProspectSelectedOption(UUID.randomUUID().toString());
+
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    var generalDetail = new GeneralDetail();
+    generalDetail.setSubmissionDetail(submissionDetail);
+    var discoveryResource = new Resource();
+    discoveryResource.setType(ResourceType.DISCOVERY);
+    var prospectResource = new Resource();
+    prospectResource.setType(ResourceType.PROSPECT);
+    submissionDetail.setResourceId(prospectResource);
+    when(resourceService.createResource(ResourceType.DISCOVERY)).thenReturn(discoveryResource);
+    when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption())))
+        .thenReturn(generalDetail);
+
+    submissionCreateService.createNewDiscovery(form);
+
+    verify(resourceLinkService).createNewResourceLink(prospectResource, discoveryResource);
+
+    verify(submissionDetailService, times(1))
+        .createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY);
   }
 }

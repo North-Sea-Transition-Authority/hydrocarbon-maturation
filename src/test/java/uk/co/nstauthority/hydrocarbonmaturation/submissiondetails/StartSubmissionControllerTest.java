@@ -18,6 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartUpdateProspectController;
@@ -58,6 +59,21 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
                 .param("submissionType", SubmissionType.PROSPECT_UPDATE.name())
         ).andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage())));
+  }
+
+  @Test
+  void startSubmission_whenValidFormAndDiscovery_assertRedirection() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+                .with(csrf())
+                .param("submissionType", SubmissionType.CREATE_DISCOVERY.name())
+        ).andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage())));
   }
 
   @Test
