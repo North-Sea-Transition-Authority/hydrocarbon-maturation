@@ -16,6 +16,7 @@
   hintText=""
   optionalLabel="fromInterceptor"
   nestingPath=""
+  wgs84Datum=true
   fieldsetHeadingSize="h3"
   fieldsetHeadingClass="govuk-fieldset__legend--s"
   formGroupClass=""
@@ -61,8 +62,18 @@
   <#local hasError=hasErrorDegrees || hasErrorMinutes || hasErrorSeconds || hasErrorHemisphere>
   <#local hasErrorNoHemisphere=hasErrorDegrees || hasErrorMinutes || hasErrorSeconds >
 
+  <#if wgs84Datum>
+    <#assign finalLabelText>
+      ${labelText} in WGS 84
+    </#assign>
+  <#else>
+    <#assign finalLabelText>
+      ${labelText}
+    </#assign>
+  </#if>
+
   <div class="govuk-form-group ${formGroupClass}<#if hasError>govuk-form-group--error</#if>">
-    <@fdsFieldset.fieldset legendHeading="${labelText} in WGS 84" legendHeadingSize=fieldsetHeadingSize legendHeadingClass=fieldsetHeadingClass caption=caption captionClass=captionClass optionalLabel=optionalFlag hintText=hintText>
+    <@fdsFieldset.fieldset legendHeading="${finalLabelText}" legendHeadingSize=fieldsetHeadingSize legendHeadingClass=fieldsetHeadingClass caption=caption captionClass=captionClass optionalLabel=optionalFlag hintText=hintText>
       <#if hasError>
         <#if hasErrorDegrees>
             ${degreesError}

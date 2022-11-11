@@ -16,7 +16,7 @@ public enum Hemisphere implements Displayable {
     this.displayOrder = displayOrder;
   }
 
-  static Map<String, String> getLongitudeHemisphere() {
+  public static Map<String, String> getLongitudeHemisphere() {
     return DisplayableEnumOptionUtil.getDisplayableOptions(Hemisphere.class);
   }
 

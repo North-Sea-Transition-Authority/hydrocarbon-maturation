@@ -4,11 +4,14 @@ import java.math.BigDecimal;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
+import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 
 public class CoordinateInputValidationUtil {
 
+  private static final String LATITUDE = "latitude";
+  private static final String LONGITUDE = "longitude";
   private static final String DEGREES_FIELD_SUFFIX = "degrees.decimalInputValue";
   private static final String MINUTES_FIELD_SUFFIX = "minutes.decimalInputValue";
   private static final String SECONDS_FIELD_SUFFIX = "seconds.decimalInputValue";
@@ -44,6 +47,46 @@ public class CoordinateInputValidationUtil {
 
     validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.FALSE,
         OptionalMandatory.OPTIONAL);
+  }
+
+  public static void validateOptionalCoordinateInputForm(Errors errors,
+                                                         CoordinateInputForm form,
+                                                         String latitudeFieldIdPrefix,
+                                                         String longitudeFieldIdPrefix) {
+    CoordinateInputValidationUtil.validateOptionalCoordinateInput(
+        errors,
+        form.getLatitudeCoordinates(),
+        latitudeFieldIdPrefix,
+        LATITUDE);
+
+    CoordinateInputValidationUtil.validateOptionalCoordinateInput(
+        errors,
+        form.getLongitudeCoordinates(),
+        longitudeFieldIdPrefix,
+        LONGITUDE);
+  }
+
+  public static void validateMandatoryCoordinateInputForm(Errors errors,
+                                                          CoordinateInputForm form,
+                                                          String latitudeFieldIdPrefix,
+                                                          String longitudeFieldIdPrefix,
+                                                          String hemisphereFieldIdPrefix) {
+    CoordinateInputValidationUtil.validateMandatoryCoordinateInputNoHemisphere(
+        errors,
+        form.getLatitudeCoordinates(),
+        latitudeFieldIdPrefix,
+        LATITUDE
+    );
+
+    CoordinateInputValidationUtil.validateMandatoryCoordinateInputWithHemisphere(
+        errors,
+        form.getLongitudeCoordinates(),
+        longitudeFieldIdPrefix,
+        LONGITUDE,
+        form.getLongitudeHemisphere(),
+        hemisphereFieldIdPrefix
+    );
+
   }
 
   /**
@@ -186,8 +229,8 @@ public class CoordinateInputValidationUtil {
     var degreesValidator =
         DecimalInputValidator.configureValidator(errors, "%s.%s".formatted(fieldIdPrefix, DEGREES_FIELD_SUFFIX),
             "The %s degrees".formatted(displayPrefix), degrees)
-            .setMaxValue(displayPrefix.equals("latitude") ? UKCS_LATITUDE_MAX_DEGREES : UKCS_LONGITUDE_MAX_DEGREES)
-            .setMinValue(displayPrefix.equals("latitude") ? UKCS_LATITUDE_MIN_DEGREES : UKCS_LONGITUDE_MIN_DEGREES)
+            .setMaxValue(displayPrefix.equals(LATITUDE) ? UKCS_LATITUDE_MAX_DEGREES : UKCS_LONGITUDE_MAX_DEGREES)
+            .setMinValue(displayPrefix.equals(LATITUDE) ? UKCS_LATITUDE_MIN_DEGREES : UKCS_LONGITUDE_MIN_DEGREES)
             .setMaxDecimalPlaces(0);
 
     if (!degrees.hasContent() || overrideErrorMessage.equals(OverrideErrorMessage.TRUE)) {

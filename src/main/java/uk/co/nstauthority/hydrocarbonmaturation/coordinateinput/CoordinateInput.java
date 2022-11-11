@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.coordinateinput;
 
+import java.math.BigDecimal;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 
 public class CoordinateInput {
@@ -30,5 +31,19 @@ public class CoordinateInput {
 
   public void setSeconds(DecimalInput seconds) {
     this.seconds = seconds;
+  }
+
+  public static CoordinateInput createCoordinateInputForForm(BigDecimal degrees, BigDecimal minutes, BigDecimal seconds) {
+    var coordinateInput = new CoordinateInput();
+
+    var degreesCoordinate = degrees == null ? new DecimalInput() : new DecimalInput(degrees.toString());
+    var minutesCoordinate = minutes == null ? new DecimalInput() : new DecimalInput(minutes.toString());
+    var secondsCoordinate = seconds == null ? new DecimalInput() : new DecimalInput(seconds.toString());
+
+    coordinateInput.setDegrees(degreesCoordinate);
+    coordinateInput.setMinutes(minutesCoordinate);
+    coordinateInput.setSeconds(secondsCoordinate);
+
+    return coordinateInput;
   }
 }

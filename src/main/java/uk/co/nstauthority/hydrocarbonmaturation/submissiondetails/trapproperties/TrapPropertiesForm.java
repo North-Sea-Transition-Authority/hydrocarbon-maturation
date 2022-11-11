@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trappropertie
 
 import java.util.ArrayList;
 import java.util.List;
-import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
+import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -11,12 +11,12 @@ class TrapPropertiesForm implements SubmissionForm {
 
   private String trapDescription;
   //TODO HM-129
+
   private TrapType trapType;
+
   private String otherTrapType;
-  private CoordinateInput latitudeCoordinates = new CoordinateInput();
-  private CoordinateInput longitudeCoordinates = new CoordinateInput();
-  //TODO HM-129
-  private Hemisphere longitudeHemisphere;
+
+  private CoordinateInputForm coordinateInputForm = new CoordinateInputForm();
 
   private ProbabilityDistributionForm depthToCrest = new ProbabilityDistributionForm();
 
@@ -48,30 +48,6 @@ class TrapPropertiesForm implements SubmissionForm {
 
   public void setOtherTrapType(String otherTrapType) {
     this.otherTrapType = otherTrapType;
-  }
-
-  public CoordinateInput getLatitudeCoordinates() {
-    return latitudeCoordinates;
-  }
-
-  public void setLatitudeCoordinates(CoordinateInput latitudeCoordinates) {
-    this.latitudeCoordinates = latitudeCoordinates;
-  }
-
-  public CoordinateInput getLongitudeCoordinates() {
-    return longitudeCoordinates;
-  }
-
-  public void setLongitudeCoordinates(CoordinateInput longitudeCoordinates) {
-    this.longitudeCoordinates = longitudeCoordinates;
-  }
-
-  public Hemisphere getLongitudeHemisphere() {
-    return longitudeHemisphere;
-  }
-
-  public void setLongitudeHemisphere(Hemisphere longitudeHemisphere) {
-    this.longitudeHemisphere = longitudeHemisphere;
   }
 
   public ProbabilityDistributionForm getDepthToCrest() {
@@ -108,5 +84,14 @@ class TrapPropertiesForm implements SubmissionForm {
   public void setProspectDepthMap(
       List<FileUploadDetail> prospectDepthMap) {
     this.prospectDepthMap = prospectDepthMap;
+  }
+
+  public CoordinateInputForm getCoordinateInputForm() {
+    return coordinateInputForm;
+  }
+
+  public void setCoordinateInputForm(
+      CoordinateInputForm coordinateInputForm) {
+    this.coordinateInputForm = coordinateInputForm;
   }
 }

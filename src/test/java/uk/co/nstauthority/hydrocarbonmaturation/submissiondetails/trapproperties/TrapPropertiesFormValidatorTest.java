@@ -65,19 +65,19 @@ class TrapPropertiesFormValidatorTest {
         .containsExactly(
             entry("trapDescription", Set.of("trapDescription.required")),
             entry("trapType", Set.of("trapType.required")),
-            entry("latitudeCoordinates.degrees.decimalInputValue",
-                Set.of("latitudeCoordinates.degrees.decimalInputValue.required")),
-            entry("latitudeCoordinates.minutes.decimalInputValue",
-                Set.of("latitudeCoordinates.minutes.decimalInputValue.required")),
-            entry("latitudeCoordinates.seconds.decimalInputValue",
-                Set.of("latitudeCoordinates.seconds.decimalInputValue.required")),
-            entry("longitudeCoordinates.degrees.decimalInputValue",
-                Set.of("longitudeCoordinates.degrees.decimalInputValue.required")),
-            entry("longitudeCoordinates.minutes.decimalInputValue",
-                Set.of("longitudeCoordinates.minutes.decimalInputValue.required")),
-            entry("longitudeCoordinates.seconds.decimalInputValue",
-                Set.of("longitudeCoordinates.seconds.decimalInputValue.required")),
-            entry("longitudeHemisphere", Set.of("longitudeHemisphere.required")),
+            entry("coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue",
+                Set.of("coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue.required")),
+            entry("coordinateInputForm.latitudeCoordinates.minutes.decimalInputValue",
+                Set.of("coordinateInputForm.latitudeCoordinates.minutes.decimalInputValue.required")),
+            entry("coordinateInputForm.latitudeCoordinates.seconds.decimalInputValue",
+                Set.of("coordinateInputForm.latitudeCoordinates.seconds.decimalInputValue.required")),
+            entry("coordinateInputForm.longitudeCoordinates.degrees.decimalInputValue",
+                Set.of("coordinateInputForm.longitudeCoordinates.degrees.decimalInputValue.required")),
+            entry("coordinateInputForm.longitudeCoordinates.minutes.decimalInputValue",
+                Set.of("coordinateInputForm.longitudeCoordinates.minutes.decimalInputValue.required")),
+            entry("coordinateInputForm.longitudeCoordinates.seconds.decimalInputValue",
+                Set.of("coordinateInputForm.longitudeCoordinates.seconds.decimalInputValue.required")),
+            entry("coordinateInputForm.longitudeHemisphere", Set.of("coordinateInputForm.longitudeHemisphere.required")),
             entry("depthToCrest.probabilityDistributionType",
                 Set.of("depthToCrest.probabilityDistributionType.required")),
             entry("depthToSpillPoint.probabilityDistributionType",
@@ -193,9 +193,9 @@ class TrapPropertiesFormValidatorTest {
     var form = new TrapPropertiesForm();
     form.setTrapDescription("description");
     form.setTrapType(TrapType.COMBINATION);
-    form.setLatitudeCoordinates(getValidLatitudeCoordinates());
-    form.setLongitudeCoordinates(getValidLongitudeCoordinates());
-    form.setLongitudeHemisphere(Hemisphere.EAST);
+    form.getCoordinateInputForm().setLatitudeCoordinates(getValidLatitudeCoordinates());
+    form.getCoordinateInputForm().setLongitudeCoordinates(getValidLongitudeCoordinates());
+    form.getCoordinateInputForm().setLongitudeHemisphere(Hemisphere.EAST);
     form.setDepthToCrest(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setDepthToSpillPoint(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setProductiveArea(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());

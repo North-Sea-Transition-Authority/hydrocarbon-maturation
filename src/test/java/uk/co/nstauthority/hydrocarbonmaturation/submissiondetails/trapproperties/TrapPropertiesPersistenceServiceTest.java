@@ -59,9 +59,9 @@ class TrapPropertiesPersistenceServiceTest {
     var form = new TrapPropertiesForm();
     form.setTrapType(TrapType.COMBINATION);
     form.setTrapDescription("description");
-    form.setLatitudeCoordinates(latitudeCoordinate);
-    form.setLongitudeCoordinates(longitudeCoordinate);
-    form.setLongitudeHemisphere(Hemisphere.EAST);
+    form.getCoordinateInputForm().setLatitudeCoordinates(latitudeCoordinate);
+    form.getCoordinateInputForm().setLongitudeCoordinates(longitudeCoordinate);
+    form.getCoordinateInputForm().setLongitudeHemisphere(Hemisphere.EAST);
 
     var trapPropertiesArgumentCaptor = ArgumentCaptor.forClass(TrapProperty.class);
     trapPropertiesPersistenceService.saveTrapProperties(form, submissionDetail);
@@ -86,13 +86,13 @@ class TrapPropertiesPersistenceServiceTest {
             form.getTrapDescription(),
             form.getTrapType(),
             form.getOtherTrapType(),
-            form.getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
-            form.getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
-            form.getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
-            form.getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
-            form.getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
-            form.getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
-            form.getLongitudeHemisphere()
+            form.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            form.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            form.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            form.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            form.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            form.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            form.getCoordinateInputForm().getLongitudeHemisphere()
         );
   }
 

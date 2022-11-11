@@ -1,0 +1,42 @@
+package uk.co.nstauthority.hydrocarbonmaturation.energyportal.well;
+
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+
+@WithMockUser
+@ContextConfiguration(classes = DryWellRestController.class)
+class DryWellRestControllerTest extends AbstractControllerTest {
+
+  @MockBean
+  private SearchSelectorService searchSelectorService;
+
+  @MockBean
+  private DryWellQueryService dryWellQueryService;
+
+  @Test
+  void searchDryWells() throws Exception {
+    when(searchSelectorService.search(eq("search term"), anyList()))
+        .thenReturn(new RestSearchResult(List.of()));
+
+    mockMvc.perform(
+        get(SearchSelectorService.route(on(DryWellRestController.class)
+            .searchDryWells(null)))
+            .param("term", "search term")
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(status().isOk());
+  }
+}

@@ -1,12 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
-import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
@@ -61,15 +60,17 @@ class TrapPropertiesFormService implements SubmissionFormService {
     form.setTrapDescription(trapProperty.getTrapDescription());
     form.setOtherTrapType(trapProperty.getOtherTrapType());
 
-    var latitudeCoordinates = createCoordinateInputForEntity(trapProperty.getLatitudeDegrees(),
+    var latitudeCoordinates = CoordinateInput.createCoordinateInputForForm(trapProperty.getLatitudeDegrees(),
         trapProperty.getLatitudeMinutes(), trapProperty.getLatitudeSeconds());
 
-    var longitudeCoordinates = createCoordinateInputForEntity(trapProperty.getLongitudeDegrees(),
+    var longitudeCoordinates = CoordinateInput.createCoordinateInputForForm(trapProperty.getLongitudeDegrees(),
         trapProperty.getLongitudeMinutes(), trapProperty.getLongitudeSeconds());
 
-    form.setLatitudeCoordinates(latitudeCoordinates);
-    form.setLongitudeCoordinates(longitudeCoordinates);
-    form.setLongitudeHemisphere(trapProperty.getLongitudeHemisphere());
+    var coordinateInputForm = new CoordinateInputForm();
+    coordinateInputForm.setLatitudeCoordinates(latitudeCoordinates);
+    coordinateInputForm.setLongitudeCoordinates(longitudeCoordinates);
+    coordinateInputForm.setLongitudeHemisphere(trapProperty.getLongitudeHemisphere());
+    form.setCoordinateInputForm(coordinateInputForm);
 
     var submissionDetail = trapProperty.getSubmissionDetail();
     form.setDepthToCrest(probabilityDistributionFormService.probabilityDistributionEntityToForm(
@@ -90,20 +91,6 @@ class TrapPropertiesFormService implements SubmissionFormService {
     form.setProspectDepthMap(prospectDepthMapUploads);
 
     return form;
-  }
-
-  private CoordinateInput createCoordinateInputForEntity(BigDecimal degrees, BigDecimal minutes, BigDecimal seconds) {
-    var coordinateInput = new CoordinateInput();
-
-    var degreesCoordinate = degrees == null ? new DecimalInput() : new DecimalInput(degrees.toString());
-    var minutesCoordinate = minutes == null ? new DecimalInput() : new DecimalInput(minutes.toString());
-    var secondsCoordinate = seconds == null ? new DecimalInput() : new DecimalInput(seconds.toString());
-
-    coordinateInput.setDegrees(degreesCoordinate);
-    coordinateInput.setMinutes(minutesCoordinate);
-    coordinateInput.setSeconds(secondsCoordinate);
-
-    return coordinateInput;
   }
 
   public List<FileUploadFdsView> getProspectDepthMapUploads(TrapPropertiesForm trapPropertiesForm) {

@@ -44,11 +44,12 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
   public void validatePartial(SubmissionForm form, Errors errors) {
     var trapPropertiesForm = (TrapPropertiesForm) form;
 
-    CoordinateInputValidationUtil.validateOptionalCoordinateInput(errors, trapPropertiesForm.getLatitudeCoordinates(),
-        "latitudeCoordinates", "latitude");
-
-    CoordinateInputValidationUtil.validateOptionalCoordinateInput(errors,
-        trapPropertiesForm.getLongitudeCoordinates(), "longitudeCoordinates", "longitude");
+    CoordinateInputValidationUtil.validateOptionalCoordinateInputForm(
+        errors,
+        trapPropertiesForm.getCoordinateInputForm(),
+        "coordinateInputForm.latitudeCoordinates",
+        "coordinateInputForm.longitudeCoordinates"
+    );
 
     var depthToCrestForm = trapPropertiesForm.getDepthToCrest();
     ProbabilityDistributionValidationUtil.validatePartial(
@@ -88,12 +89,13 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
           "Enter an alternative trap type");
     }
 
-    CoordinateInputValidationUtil.validateMandatoryCoordinateInputNoHemisphere(errors,
-        trapPropertiesForm.getLatitudeCoordinates(), "latitudeCoordinates", "latitude");
-
-    CoordinateInputValidationUtil.validateMandatoryCoordinateInputWithHemisphere(errors,
-        trapPropertiesForm.getLongitudeCoordinates(), "longitudeCoordinates", "longitude",
-        trapPropertiesForm.getLongitudeHemisphere(), "longitudeHemisphere");
+    CoordinateInputValidationUtil.validateMandatoryCoordinateInputForm(
+        errors,
+        trapPropertiesForm.getCoordinateInputForm(),
+        "coordinateInputForm.latitudeCoordinates",
+        "coordinateInputForm.longitudeCoordinates",
+        "coordinateInputForm.longitudeHemisphere"
+    );
 
     ValidationUtils.rejectIfEmpty(errors, "depthToCrest.probabilityDistributionType",
         "depthToCrest.probabilityDistributionType.required",

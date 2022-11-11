@@ -31,13 +31,19 @@ public class TrapPropertiesPersistenceService {
     trapProperty.setSubmissionDetail(submissionDetail);
     trapProperty.setTrapDescription(form.getTrapDescription());
     trapProperty.setTrapType(form.getTrapType());
-    trapProperty.setLatitudeDegrees(form.getLatitudeCoordinates().getDegrees().createBigDecimalOrNull());
-    trapProperty.setLatitudeMinutes(form.getLatitudeCoordinates().getMinutes().createBigDecimalOrNull());
-    trapProperty.setLatitudeSeconds(form.getLatitudeCoordinates().getSeconds().createBigDecimalOrNull());
-    trapProperty.setLongitudeDegrees(form.getLongitudeCoordinates().getDegrees().createBigDecimalOrNull());
-    trapProperty.setLongitudeMinutes(form.getLongitudeCoordinates().getMinutes().createBigDecimalOrNull());
-    trapProperty.setLongitudeSeconds(form.getLongitudeCoordinates().getSeconds().createBigDecimalOrNull());
-    trapProperty.setLongitudeHemisphere(form.getLongitudeHemisphere());
+    trapProperty.setLatitudeDegrees(
+        form.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull());
+    trapProperty.setLatitudeMinutes(
+        form.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull());
+    trapProperty.setLatitudeSeconds(
+        form.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull());
+    trapProperty.setLongitudeDegrees(
+        form.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull());
+    trapProperty.setLongitudeMinutes(
+        form.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull());
+    trapProperty.setLongitudeSeconds(
+        form.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull());
+    trapProperty.setLongitudeHemisphere(form.getCoordinateInputForm().getLongitudeHemisphere());
 
     if (form.getTrapType() == TrapType.OTHER) {
       trapProperty.setOtherTrapType(form.getOtherTrapType());

@@ -12,11 +12,13 @@
   hintText="From 45 to 64 for degrees, 0 to 59 for minutes, and 0 to 59.999 for seconds"
   optionalLabel="fromInterceptor"
   nestingPath=""
-  formGroupClass="">
+  formGroupClass=""
+  wgs84Datum=true>
     <@locationInput.locationInput
       degreesLocationPath=degreesLocationPath
       minutesLocationPath=minutesLocationPath
       secondsLocationPath=secondsLocationPath
+      wgs84Datum=wgs84Datum
       formId=formId
       directionList=directionList
       direction=direction

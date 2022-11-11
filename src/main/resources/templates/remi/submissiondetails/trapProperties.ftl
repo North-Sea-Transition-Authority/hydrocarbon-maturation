@@ -42,19 +42,19 @@
     </@fdsRadio.radioGroup>
 
     <@coordinateInput.coordinateInput
-      degreesLocationPath="form.latitudeCoordinates.degrees.decimalInputValue"
-      minutesLocationPath="form.latitudeCoordinates.minutes.decimalInputValue"
-      secondsLocationPath="form.latitudeCoordinates.seconds.decimalInputValue"
+      degreesLocationPath="form.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue"
+      minutesLocationPath="form.coordinateInputForm.latitudeCoordinates.minutes.decimalInputValue"
+      secondsLocationPath="form.coordinateInputForm.latitudeCoordinates.seconds.decimalInputValue"
       formId="latitude"
       labelText="Latitude"/>
 
     <@coordinateInput.coordinateInput
-      degreesLocationPath="form.longitudeCoordinates.degrees.decimalInputValue"
-      minutesLocationPath="form.longitudeCoordinates.minutes.decimalInputValue"
-      secondsLocationPath="form.longitudeCoordinates.seconds.decimalInputValue"
+      degreesLocationPath="form.coordinateInputForm.longitudeCoordinates.degrees.decimalInputValue"
+      minutesLocationPath="form.coordinateInputForm.longitudeCoordinates.minutes.decimalInputValue"
+      secondsLocationPath="form.coordinateInputForm.longitudeCoordinates.seconds.decimalInputValue"
       formId="longitude"
       direction="EW"
-      directionPath="form.longitudeHemisphere"
+      directionPath="form.coordinateInputForm.longitudeHemisphere"
       directionList=longitudeHemisphere
       labelText="Longitude"
       hintText="From 0 to 30 for degrees, 0 to 59 for minutes, and 0 to 59.999 for seconds"/>
