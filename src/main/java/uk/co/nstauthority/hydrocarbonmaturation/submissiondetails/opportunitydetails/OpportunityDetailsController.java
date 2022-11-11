@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -53,7 +54,7 @@ public class OpportunityDetailsController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var opportunityDetailsForm = opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail);
     var mapOfOpportunityUploads = opportunityDetailsFormService.getMapOfOpportunityUploads(opportunityDetailsForm);
-    return getOpportunityDetailsModelAndView(opportunityDetailsForm, submissionDetailId, mapOfOpportunityUploads);
+    return getOpportunityDetailsModelAndView(opportunityDetailsForm, submissionDetail, mapOfOpportunityUploads);
   }
 
   @PostMapping
@@ -65,24 +66,25 @@ public class OpportunityDetailsController {
 
     bindingResult = opportunityDetailsFormService.validate(form, bindingResult, validationType);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getOpportunityDetailsModelAndView(form, submissionDetailId, mapOfOpportunityUploads),
+        getOpportunityDetailsModelAndView(form, submissionDetail, mapOfOpportunityUploads),
         () -> {
           opportunityDetailsPersistenceService.saveOpportunityDetails(form, submissionDetail);
           return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         });
   }
 
-  private ModelAndView getOpportunityDetailsModelAndView(OpportunityDetailsForm form, UUID submissionDetailId,
+  private ModelAndView getOpportunityDetailsModelAndView(OpportunityDetailsForm form, SubmissionDetail submissionDetail,
                                                          List<FileUploadFdsView> mapOfOpportunityUploads) {
     ModelAndView modelAndView = new ModelAndView("remi/submissiondetails/opportunityDetails")
         .addObject("opportunityTypes", OpportunityType.getOpportunityType())
         .addObject("form", form)
         .addObject("pageTitle", PAGE_NAME)
-        .addObject("mapOfOpportunityTemplate", supportingDocumentService.buildFileUploadTemplate(submissionDetailId,
+        .addObject("mapOfOpportunityTemplate", supportingDocumentService.buildFileUploadTemplate(
+            submissionDetail.getId(),
             SupportingDocumentType.MAP_OF_OPPORTUNITY))
         .addObject("mapOfOpportunityUploads", mapOfOpportunityUploads);
 
-    return ProspectTaskListBreadcrumbUtil
-        .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    return TaskListBreadcrumbUtil
+        .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
   }
 }

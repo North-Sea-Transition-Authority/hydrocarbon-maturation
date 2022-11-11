@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -55,7 +56,7 @@ public class AdditionalInformationController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var additionalInformationForm = additionalInformationFormService.getAdditionalInformationForm(submissionDetail);
     var additionalDocumentUploads = additionalInformationFormService.getAdditionalDocumentUploads(additionalInformationForm);
-    return getAdditionalInformationModelAndView(additionalInformationForm, submissionDetailId, additionalDocumentUploads);
+    return getAdditionalInformationModelAndView(additionalInformationForm, submissionDetail, additionalDocumentUploads);
   }
 
   @PostMapping
@@ -65,12 +66,11 @@ public class AdditionalInformationController {
                                                 ValidationType validationType) {
     bindingResult = additionalInformationFormService.validate(form, bindingResult, validationType);
     var additionalDocumentUploads = additionalInformationFormService.getAdditionalDocumentUploads(form);
-
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getAdditionalInformationModelAndView(form, submissionDetailId, additionalDocumentUploads),
+        getAdditionalInformationModelAndView(form, submissionDetail, additionalDocumentUploads),
         () -> {
-          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           additionalInformationPersistenceService.saveAdditionalInformation(form, submissionDetail);
           return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         }
@@ -78,16 +78,17 @@ public class AdditionalInformationController {
   }
 
   private ModelAndView getAdditionalInformationModelAndView(AdditionalInformationForm form,
-                                                            UUID submissionDetailId,
+                                                            SubmissionDetail submissionDetail,
                                                             List<FileUploadFdsView> additionalDocumentUploads) {
     var modelAndView = new ModelAndView("remi/submissiondetails/additionalInformation")
         .addObject("form", form)
         .addObject("pageTitle", PAGE_NAME)
-        .addObject("additionalDocumentTemplate", supportingDocumentService.buildFileUploadTemplate(submissionDetailId,
+        .addObject("additionalDocumentTemplate",
+            supportingDocumentService.buildFileUploadTemplate(submissionDetail.getId(),
             SupportingDocumentType.ADDITIONAL_DOCUMENT))
         .addObject("additionalDocumentUploads", additionalDocumentUploads);
 
-    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
 }

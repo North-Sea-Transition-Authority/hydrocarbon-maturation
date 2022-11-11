@@ -15,9 +15,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -53,7 +54,7 @@ public class GasCaseVolumetricsController {
                                             @ModelAttribute("form") GasCaseVolumetricsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getGasCaseVolumetricsModelAndView(
-        gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(submissionDetail), submissionDetailId);
+        gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(submissionDetail), submissionDetail);
   }
 
   @PostMapping
@@ -62,18 +63,18 @@ public class GasCaseVolumetricsController {
                                              BindingResult bindingResult,
                                              ValidationType validationType) {
     bindingResult = gasCaseVolumetricsFormService.validate(form, bindingResult, validationType);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getGasVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetailId),
+        getGasVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           gasCaseVolumetricsPersistenceService.saveGasCaseVolumetrics(form, submissionDetail);
           return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         }
     );
   }
 
-  private ModelAndView getGasCaseVolumetricsModelAndView(GasCaseVolumetricsForm form, UUID submissionDetailId) {
+  private ModelAndView getGasCaseVolumetricsModelAndView(GasCaseVolumetricsForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/gasCaseVolumetrics")
         .addObject("form", form)
         .addObject("gasHydrocarbonSaturationTemplate",
@@ -92,14 +93,14 @@ public class GasCaseVolumetricsController {
         .addObject("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
-    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
 
   private ModelAndView getGasVolumetricsModelAndViewWithErrors(BindingResult bindingResult,
                                                                GasCaseVolumetricsForm form,
-                                                               UUID submissionDetailId) {
-    var modelAndView = getGasCaseVolumetricsModelAndView(form, submissionDetailId);
+                                                               SubmissionDetail submissionDetail) {
+    var modelAndView = getGasCaseVolumetricsModelAndView(form, submissionDetail);
 
     return modelAndView
         .addObject("gasHydrocarbonSaturationError",

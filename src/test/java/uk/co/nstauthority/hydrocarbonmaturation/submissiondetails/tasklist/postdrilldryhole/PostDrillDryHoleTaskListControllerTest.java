@@ -1,10 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,7 +10,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Objects;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -22,12 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListItemView;
-import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListLabel;
-import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListLabelType;
-import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSectionView;
-import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @WithMockUser
@@ -35,106 +28,67 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 class PostDrillDryHoleTaskListControllerTest extends AbstractControllerTest {
 
   @MockBean
-  SubmissionDetailService submissionDetailService;
+  private SubmissionDetailService submissionDetailService;
 
   @MockBean
-  PostDrillDryHoleTaskListSection postDrillDryHoleTaskListSection;
+  private TaskListService taskListService;
 
-  @MockBean
-  PostDrillDryHoleTaskListItem postDrillDryHoleTaskListItem;
+  private SubmissionDetail submissionDetail;
+
+  @BeforeEach
+  void setUp() {
+    submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+  }
 
   @Test
-  void getTaskList_assertModelProperties() throws Exception {
-    var submissionDetailId = UUID.randomUUID();
-    var submissionDetail = new SubmissionDetail();
-    submissionDetail.setId(submissionDetailId);
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
+  void getTaskList() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+        .thenReturn(submissionDetail);
+    var taskListSections = List.of(
+        new TaskListSection("Reservoir", 10, List.of(
+            new TaskListItem("item1", "actionUrl1"),
+            new TaskListItem("item2", "actionUrl2")
+        )),
+        new TaskListSection("Section2", 10, List.of(
+            new TaskListItem("item1s2", "actionUrl1s2")))
+    );
 
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    var sectionName = "section name";
-    var sectionDisplayOrder = 10;
-    var sectionWarningText = "section warning text";
+    when(taskListService.getAllSections(submissionDetail))
+        .thenReturn(List.of(
+            new TaskListSection(
+                "Reservoir",
+                10,
+                List.of(
+                    new TaskListItem("item1", "actionUrl1"),
+                    new TaskListItem("item2", "actionUrl2")
+                )),
+                new TaskListSection(
+                    "Section2",
+                    10,
+                    List.of(
+                        new TaskListItem("item1s2", "actionUrl1s2")
+                    )))
+        );
 
-    when(postDrillDryHoleTaskListSection.getSectionName()).thenReturn(sectionName);
-    when(postDrillDryHoleTaskListSection.getDisplayOrder()).thenReturn(sectionDisplayOrder);
-    when(postDrillDryHoleTaskListSection.getSectionWarningText()).thenReturn(sectionWarningText);
-
-    var postDrillDryHoleTaskListItemType = new PostDrillDryHoleTaskListItemType(submissionDetail);
-
-    var expectedTaskListItemView = TaskListTestUtil.getItemViewBuilder(10, "display name", "/action-url")
-        .withTaskListLabels(true)
-        .withNotCompletedLabel(false)
-        .withItemValid(true)
-        .withCustomTaskListLabel(new TaskListLabel("label text", TaskListLabelType.GREY))
-        .build();
-
-    doReturn(postDrillDryHoleTaskListSection.getClass()).when(postDrillDryHoleTaskListItem).getTaskListSection();
-    when(postDrillDryHoleTaskListItem.isVisible(postDrillDryHoleTaskListItemType)).thenReturn(true);
-
-    when(postDrillDryHoleTaskListItem.getDisplayOrder()).thenReturn(expectedTaskListItemView.getDisplayOrder());
-    when(postDrillDryHoleTaskListItem.getActionUrl(postDrillDryHoleTaskListItemType)).thenReturn(expectedTaskListItemView.getActionUrl());
-    when(postDrillDryHoleTaskListItem.getItemDisplayText()).thenReturn(expectedTaskListItemView.getDisplayName());
-    when(postDrillDryHoleTaskListItem.showTaskListLabels(postDrillDryHoleTaskListItemType)).thenReturn(expectedTaskListItemView.showTaskListLabels());
-    when(postDrillDryHoleTaskListItem.showNotCompletedLabels(postDrillDryHoleTaskListItemType)).thenReturn(expectedTaskListItemView.showNotCompletedLabel());
-    when(postDrillDryHoleTaskListItem.isValid(postDrillDryHoleTaskListItemType)).thenReturn(expectedTaskListItemView.isItemValid());
-    when(postDrillDryHoleTaskListItem.getCustomTaskListLabel(postDrillDryHoleTaskListItemType)).thenReturn(expectedTaskListItemView.getCustomTaskListLabel());
-
-
-    var modelAndView =
+    var modelMap = Objects.requireNonNull(
         mockMvc.perform(
-            get(ReverseRouter.route(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetailId))))
+            get(ReverseRouter.route(on(PostDrillDryHoleTaskListController.class)
+                .getTaskList(submissionDetail.getId()))))
             .andExpect(status().isOk())
-            .andExpect(view().name("remi/prospect/tasklist/taskList"))
-            .andReturn()
-            .getModelAndView();
+            .andExpect(view().name("remi/prospect/tasklist/taskListDryWell"))
+            .andReturn().getModelAndView())
+        .getModelMap();
 
-    @SuppressWarnings("unchecked")
-    var taskListSectionViews = (List<TaskListSectionView>) modelAndView.getModel().get("taskListSections");
-
-    @SuppressWarnings("unchecked")
-    var breadcrumbs = (Map<String, String>) modelAndView.getModel().get("breadcrumbsMap");
-
-    assertThat(breadcrumbs)
-        .containsExactly(
-            entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE)
+    assertThat(modelMap)
+        .contains(
+            entry("taskListSections", taskListSections)
         );
 
-    assertEquals(PostDrillDryHoleTaskListController.PAGE_NAME, modelAndView.getModel().get("currentPage"));
+    @SuppressWarnings(value="unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
-    assertThat(taskListSectionViews)
-        .extracting(
-            TaskListSectionView::sectionName,
-            TaskListSectionView::displayOrder,
-            TaskListSectionView::sectionWarningText
-        )
-        .containsExactly(
-            tuple(
-                sectionName,
-                sectionDisplayOrder,
-                sectionWarningText
-            )
-        );
-
-    assertThat(taskListSectionViews.get(0).taskListItemViews())
-        .extracting(
-            TaskListItemView::getDisplayOrder,
-            TaskListItemView::getDisplayName,
-            TaskListItemView::getActionUrl,
-            TaskListItemView::isItemValid,
-            TaskListItemView::showTaskListLabels,
-            TaskListItemView::showNotCompletedLabel,
-            TaskListItemView::getCustomTaskListLabel
-        )
-        .containsExactly(
-            tuple(
-                expectedTaskListItemView.getDisplayOrder(),
-                expectedTaskListItemView.getDisplayName(),
-                expectedTaskListItemView.getActionUrl(),
-                expectedTaskListItemView.isItemValid(),
-                expectedTaskListItemView.showTaskListLabels(),
-                expectedTaskListItemView.showNotCompletedLabel(),
-                expectedTaskListItemView.getCustomTaskListLabel()
-            )
-        );
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE)
+    );
   }
 }

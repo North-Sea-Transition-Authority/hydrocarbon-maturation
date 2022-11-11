@@ -102,6 +102,7 @@ class HydrocarbonCaseControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(hydrocarbonCaseFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(HydrocarbonCaseController.class).saveHydrocarbonCase(submissionDetailId, form, bindingResult, null)))

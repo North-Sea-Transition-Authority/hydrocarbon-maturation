@@ -106,6 +106,7 @@ class GasCaseOutputsControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(gasCaseOutputsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GasCaseOutputsController.class).saveGasCaseOutputs(submissionDetailId, null, null, null)))

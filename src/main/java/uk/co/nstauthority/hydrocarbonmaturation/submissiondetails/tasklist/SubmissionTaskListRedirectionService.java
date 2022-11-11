@@ -23,4 +23,15 @@ public class SubmissionTaskListRedirectionService {
           ReverseRouter.redirect(on(DiscoveryTaskListController.class).getTaskList(submissionDetail.getId()));
     };
   }
+
+  public String getTaskListUrl(SubmissionDetail submissionDetail) {
+    return switch (submissionDetail.getSubmissionType()) {
+      case CREATE_PROSPECT, PROSPECT_UPDATE ->
+          ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetail.getId()));
+      case POST_DRILL_DRY_HOLE ->
+          ReverseRouter.route(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetail.getId()));
+      case CREATE_DISCOVERY ->
+          ReverseRouter.route(on(DiscoveryTaskListController.class).getTaskList(submissionDetail.getId()));
+    };
+  }
 }

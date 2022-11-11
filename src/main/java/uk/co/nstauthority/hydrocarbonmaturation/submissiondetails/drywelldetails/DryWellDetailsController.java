@@ -20,7 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.PostDrillDryHoleTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -81,8 +81,8 @@ public class DryWellDetailsController {
         .addObject("dryWellEndpoint", SearchSelectorService.route(on(DryWellRestController.class).searchDryWells(null)))
         .addObject("dryWell", dryWellDetailsFormService.getPreSelectedDryWell(form.getDryWell()));
 
-    PostDrillDryHoleTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
-        modelAndView, PAGE_NAME, submissionDetail.getId());
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
+        modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
 }

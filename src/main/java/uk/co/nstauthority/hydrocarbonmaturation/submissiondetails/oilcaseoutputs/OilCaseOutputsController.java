@@ -15,9 +15,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -53,7 +54,7 @@ public class OilCaseOutputsController {
                                         @ModelAttribute("form") OilCaseOutputsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getOilCaseOutputsModelAndView(
-        oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail), submissionDetailId);
+        oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail), submissionDetail);
   }
 
   @PostMapping
@@ -62,18 +63,19 @@ public class OilCaseOutputsController {
                                          BindingResult bindingResult,
                                          ValidationType validationType) {
     bindingResult = oilCaseOutputsFormService.validate(form, bindingResult, validationType);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getOilOutputsModelAndViewWithErrors(bindingResult, form, submissionDetailId),
+        getOilOutputsModelAndViewWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, submissionDetail);
           return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         }
     );
   }
 
-  private ModelAndView getOilCaseOutputsModelAndView(OilCaseOutputsForm form, UUID submissionDetailId) {
+  private ModelAndView getOilCaseOutputsModelAndView(OilCaseOutputsForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/oilCaseOutputs")
         .addObject("form", form)
         .addObject("oilInPlaceTemplate",
@@ -92,14 +94,14 @@ public class OilCaseOutputsController {
         .addObject("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError());
-    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
 
   private ModelAndView getOilOutputsModelAndViewWithErrors(BindingResult bindingResult,
                                                            OilCaseOutputsForm form,
-                                                           UUID submissionDetailId) {
-    var modelAndView = getOilCaseOutputsModelAndView(form, submissionDetailId);
+                                                           SubmissionDetail submissionDetail) {
+    var modelAndView = getOilCaseOutputsModelAndView(form, submissionDetail);
 
     return modelAndView
         .addObject("form", form)

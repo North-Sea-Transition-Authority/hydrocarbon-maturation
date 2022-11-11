@@ -15,9 +15,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -53,7 +54,7 @@ public class MixedCaseOutputsController {
                                         @ModelAttribute("form") MixedCaseOutputsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getMixedCaseOutputsModelAndView(
-        mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail), submissionDetailId);
+        mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail), submissionDetail);
   }
 
   @PostMapping
@@ -62,18 +63,18 @@ public class MixedCaseOutputsController {
                                          BindingResult bindingResult,
                                          ValidationType validationType) {
     bindingResult = mixedCaseOutputsFormService.validate(form, bindingResult, validationType);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getMixedOutputsModelAndViewWithErrors(bindingResult, form, submissionDetailId),
+        getMixedOutputsModelAndViewWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           mixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, submissionDetail);
           return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         }
     );
   }
 
-  private ModelAndView getMixedCaseOutputsModelAndView(MixedCaseOutputsForm form, UUID submissionDetailId) {
+  private ModelAndView getMixedCaseOutputsModelAndView(MixedCaseOutputsForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/mixedCaseOutputs")
         .addObject("form", form)
         .addObject("oilInPlaceTemplate",
@@ -104,14 +105,14 @@ public class MixedCaseOutputsController {
         .addObject("gasInPlaceError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError());
-    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
 
   private ModelAndView getMixedOutputsModelAndViewWithErrors(BindingResult bindingResult,
                                                            MixedCaseOutputsForm form,
-                                                           UUID submissionDetailId) {
-    var modelAndView = getMixedCaseOutputsModelAndView(form, submissionDetailId);
+                                                           SubmissionDetail submissionDetail) {
+    var modelAndView = getMixedCaseOutputsModelAndView(form, submissionDetail);
 
     return modelAndView
         .addObject("oilInPlaceError", probabilityDistributionTemplateService.getProbabilityDistributionTypeError(

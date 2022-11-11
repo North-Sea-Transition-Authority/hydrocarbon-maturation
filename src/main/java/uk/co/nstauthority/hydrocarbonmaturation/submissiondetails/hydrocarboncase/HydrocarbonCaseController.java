@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -45,7 +46,7 @@ public class HydrocarbonCaseController {
   public ModelAndView getHydrocarbonCase(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getHydrocarbonCaseModelAndView(
-        hydrocarbonCaseFormService.getHydrocarbonCaseForm(submissionDetail), submissionDetailId);
+        hydrocarbonCaseFormService.getHydrocarbonCaseForm(submissionDetail), submissionDetail);
   }
 
   @PostMapping
@@ -53,22 +54,22 @@ public class HydrocarbonCaseController {
                                           @ModelAttribute("form") HydrocarbonCaseForm form, BindingResult bindingResult,
                                           ValidationType validationType) {
     bindingResult = hydrocarbonCaseFormService.validate(form, bindingResult, validationType);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getHydrocarbonCaseModelAndView(form, submissionDetailId),
+        getHydrocarbonCaseModelAndView(form, submissionDetail),
         () -> {
-          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
           return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         }
     );
   }
 
-  private ModelAndView getHydrocarbonCaseModelAndView(HydrocarbonCaseForm form, UUID submissionDetailId) {
+  private ModelAndView getHydrocarbonCaseModelAndView(HydrocarbonCaseForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/hydrocarbonCase")
         .addObject("form", form);
-    return ProspectTaskListBreadcrumbUtil
-        .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    return TaskListBreadcrumbUtil
+        .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
   }
 }

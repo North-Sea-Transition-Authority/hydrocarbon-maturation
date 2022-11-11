@@ -63,7 +63,7 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
 
   @BeforeEach
   void setup() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
@@ -93,7 +93,8 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(
+            ReverseRouter.route(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetailId))));
 
     verify(dryWellDetailsFormService, times(1)).validate(any(), any(), eq(validationType));
     verify(dryWellDetailsPersistenceService, times(1))
@@ -155,7 +156,7 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetailId)),
-            ProspectTaskListController.PAGE_NAME)
+            PostDrillDryHoleTaskListController.PAGE_NAME)
     );
   }
 }

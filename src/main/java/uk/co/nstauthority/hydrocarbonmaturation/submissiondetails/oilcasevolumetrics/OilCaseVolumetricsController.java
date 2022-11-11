@@ -15,9 +15,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -53,7 +54,7 @@ public class OilCaseVolumetricsController {
                                             @ModelAttribute("form") OilCaseVolumetricsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getOilCaseVolumetricsModelAndView(
-        oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail), submissionDetailId);
+        oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail), submissionDetail);
   }
 
   @PostMapping
@@ -62,18 +63,18 @@ public class OilCaseVolumetricsController {
                                              BindingResult bindingResult,
                                              ValidationType validationType) {
     bindingResult = oilCaseVolumetricsFormService.validate(form, bindingResult, validationType);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getOilVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetailId),
+        getOilVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           oilCaseVolumetricsPersistenceService.saveOilCaseVolumetrics(form, submissionDetail);
           return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         }
     );
   }
 
-  private ModelAndView getOilCaseVolumetricsModelAndView(OilCaseVolumetricsForm form, UUID submissionDetailId) {
+  private ModelAndView getOilCaseVolumetricsModelAndView(OilCaseVolumetricsForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/oilCaseVolumetrics")
         .addObject("form", form)
         .addObject("oilHydrocarbonSaturationTemplate",
@@ -92,14 +93,14 @@ public class OilCaseVolumetricsController {
         .addObject("associatedGasOilRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
         .addObject("formationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
-    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
 
   private ModelAndView getOilVolumetricsModelAndViewWithErrors(BindingResult bindingResult,
                                                                OilCaseVolumetricsForm form,
-                                                               UUID submissionDetailId) {
-    var modelAndView = getOilCaseVolumetricsModelAndView(form, submissionDetailId);
+                                                               SubmissionDetail submissionDetail) {
+    var modelAndView = getOilCaseVolumetricsModelAndView(form, submissionDetail);
 
     return modelAndView
         .addObject("oilHydrocarbonSaturationError",

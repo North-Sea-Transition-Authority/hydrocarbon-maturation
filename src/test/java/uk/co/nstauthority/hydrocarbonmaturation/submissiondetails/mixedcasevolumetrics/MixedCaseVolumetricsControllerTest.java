@@ -106,6 +106,7 @@ class MixedCaseVolumetricsControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(mixedCaseVolumetricsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(MixedCaseVolumetricsController.class).saveMixedCaseVolumetrics(submissionDetailId, form, bindingResult, null)))

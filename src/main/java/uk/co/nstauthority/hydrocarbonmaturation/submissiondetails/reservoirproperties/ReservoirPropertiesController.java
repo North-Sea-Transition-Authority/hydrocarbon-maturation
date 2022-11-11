@@ -14,9 +14,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -51,7 +52,7 @@ public class ReservoirPropertiesController {
   public ModelAndView getReservoirProperties(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getReservoirPropertiesModelAndView(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail), submissionDetailId);
+        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail), submissionDetail);
   }
 
   @PostMapping
@@ -60,23 +61,23 @@ public class ReservoirPropertiesController {
                                               BindingResult bindingResult, ValidationType validationType) {
 
     bindingResult = reservoirPropertiesFormService.validate(form, bindingResult, validationType);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getReservoirPropertiesWithErrors(bindingResult, form, submissionDetailId),
+        getReservoirPropertiesWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
           return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         }
     );
   }
 
-  private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form, UUID submissionDetailId) {
+  private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/reservoirProperties")
         .addObject("form", form);
     modelAndView = addProbabilityTemplates(modelAndView);
 
-    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
 
@@ -120,8 +121,8 @@ public class ReservoirPropertiesController {
 
   private ModelAndView getReservoirPropertiesWithErrors(BindingResult bindingResult,
                                                         ReservoirPropertiesForm form,
-                                                        UUID submissionDetailId) {
-    var modelAndView = getReservoirPropertiesModelAndView(form, submissionDetailId);
+                                                        SubmissionDetail submissionDetail) {
+    var modelAndView = getReservoirPropertiesModelAndView(form, submissionDetail);
     modelAndView
         .addObject("averageNetPayThicknessError",
         probabilityDistributionTemplateService.getProbabilityDistributionTypeError(

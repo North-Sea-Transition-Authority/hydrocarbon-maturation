@@ -118,6 +118,7 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
 
     when(trapPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(fileUploadTemplate);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(TrapPropertiesController.class).saveTrapProperties(submissionDetailId, form, bindingResult, null)))

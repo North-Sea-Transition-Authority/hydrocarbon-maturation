@@ -106,6 +106,7 @@ class GasCaseVolumetricsControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(gasCaseVolumetricsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GasCaseVolumetricsController.class).saveGasCaseVolumetrics(submissionDetailId, form, bindingResult, null)))

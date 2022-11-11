@@ -106,6 +106,7 @@ class MixedCaseOutputsControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(mixedCaseOutputsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(MixedCaseOutputsController.class).saveMixedCaseOutputs(submissionDetailId, null, null, null)))

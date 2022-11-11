@@ -106,6 +106,7 @@ class OilCaseOutputsControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(oilCaseOutputsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(OilCaseOutputsController.class).saveOilCaseOutputs(submissionDetailId, null, null, null)))

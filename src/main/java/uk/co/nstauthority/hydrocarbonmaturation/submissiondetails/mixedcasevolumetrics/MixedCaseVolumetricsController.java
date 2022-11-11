@@ -15,9 +15,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -53,7 +54,7 @@ public class MixedCaseVolumetricsController {
                                               @ModelAttribute("form") MixedCaseVolumetricsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getMixedCaseVolumetricsModelAndView(
-        mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail), submissionDetailId);
+        mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail), submissionDetail);
   }
 
   @PostMapping
@@ -62,18 +63,19 @@ public class MixedCaseVolumetricsController {
                                                BindingResult bindingResult,
                                                ValidationType validationType) {
     bindingResult = mixedCaseVolumetricsFormService.validate(form, bindingResult, validationType);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getMixedVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetailId),
+        getMixedVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           mixedCaseVolumetricsPersistenceService.saveMixedCaseVolumetrics(form, submissionDetail);
           return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
         }
     );
   }
 
-  private ModelAndView getMixedCaseVolumetricsModelAndView(MixedCaseVolumetricsForm form, UUID submissionDetailId) {
+  private ModelAndView getMixedCaseVolumetricsModelAndView(MixedCaseVolumetricsForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/mixedCaseVolumetrics")
         .addObject("form", form)
         .addObject("formationVolumeFactorTemplate",
@@ -109,14 +111,14 @@ public class MixedCaseVolumetricsController {
         .addObject("oilRecoveryFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
 
-    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
 
   private ModelAndView getMixedVolumetricsModelAndViewWithErrors(BindingResult bindingResult,
                                                                  MixedCaseVolumetricsForm form,
-                                                                 UUID submissionDetailId) {
-    var modelAndView = getMixedCaseVolumetricsModelAndView(form, submissionDetailId);
+                                                                 SubmissionDetail submissionDetail) {
+    var modelAndView = getMixedCaseVolumetricsModelAndView(form, submissionDetail);
 
     return modelAndView
         .addObject("formationVolumeFactorError",

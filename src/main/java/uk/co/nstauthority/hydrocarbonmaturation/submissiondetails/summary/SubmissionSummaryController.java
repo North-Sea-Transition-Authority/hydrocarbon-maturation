@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListBreadcrumbUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/summary")
@@ -23,21 +24,26 @@ public class SubmissionSummaryController {
   private final ProspectSummaryService prospectSummaryService;
   private final SubmissionDetailService submissionDetailService;
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
 
   public static final String PAGE_NAME = "Check your answers before submitting";
 
   @Autowired
   public SubmissionSummaryController(ProspectSummaryService prospectSummaryService,
                                      SubmissionDetailService submissionDetailService,
-                                     HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService) {
+                                     HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
+                                     SubmissionTaskListRedirectionService submissionTaskListRedirectionService) {
     this.prospectSummaryService = prospectSummaryService;
     this.submissionDetailService = submissionDetailService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
+    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
   }
 
   @GetMapping
   public ModelAndView showSubmissionSummary(@PathVariable("submissionDetailId") UUID submissionDetailId) {
-    return getSubmissionSummaryModelAndView(submissionDetailId);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+
+    return getSubmissionSummaryModelAndView(submissionDetail);
   }
 
   @PostMapping
@@ -47,8 +53,7 @@ public class SubmissionSummaryController {
     return ReverseRouter.redirect(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId));
   }
 
-  private ModelAndView getSubmissionSummaryModelAndView(UUID submissionDetailId) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+  private ModelAndView getSubmissionSummaryModelAndView(SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/submissionSummary")
         .addObject("generalDetailsSummaryView",
             prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
@@ -81,10 +86,10 @@ public class SubmissionSummaryController {
         .addObject("gasCase", hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail))
         .addObject("oilCase", hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail))
         .addObject("mixedCase", hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail))
-        .addObject("cancelUrl", ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)))
+        .addObject("cancelUrl", submissionTaskListRedirectionService.getTaskListUrl(submissionDetail))
         .addObject("subNavigation", prospectSummaryService.getProspectSubNavigation(submissionDetail));
 
-    ProspectTaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetailId);
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
 
     return modelAndView;
   }

@@ -111,6 +111,7 @@ class AdditionalInformationControllerTest extends AbstractControllerTest {
     when(additionalInformationFormService.validate(any(), any(), any())).thenReturn(bindingResult);
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetail.getId(), SupportingDocumentType.ADDITIONAL_DOCUMENT))
         .thenReturn(fileUploadTemplate);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(AdditionalInformationController.class)
