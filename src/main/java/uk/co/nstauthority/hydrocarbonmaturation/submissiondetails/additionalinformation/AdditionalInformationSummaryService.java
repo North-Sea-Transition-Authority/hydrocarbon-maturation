@@ -54,7 +54,7 @@ public class AdditionalInformationSummaryService {
         ? BooleanUtil.yesNoFromBoolean(additionalInformation.getHasAdditionalDocuments())
         : "";
 
-    var fileUploadList = supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+    var fileUploadList = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,
         SupportingDocumentType.ADDITIONAL_DOCUMENT);
 

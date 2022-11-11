@@ -10,14 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDeleteResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.file.VirtualFolder;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -29,7 +28,8 @@ public class SupportingDocumentService {
   private final SupportingDocumentRepository supportingDocumentRepository;
 
   @Autowired
-  public SupportingDocumentService(FileUploadService fileUploadService, FileUploadValidationService fileUploadValidationService,
+  public SupportingDocumentService(FileUploadService fileUploadService,
+                                   FileUploadValidationService fileUploadValidationService,
                                    SupportingDocumentRepository supportingDocumentRepository) {
     this.fileUploadService = fileUploadService;
     this.fileUploadValidationService = fileUploadValidationService;
@@ -48,7 +48,7 @@ public class SupportingDocumentService {
       return FileUploadResult.error(filename, multipartFile, uploadErrorType);
     }
 
-    var uploadedFile = fileUploadService.createdAndSaveUploadedFile(
+    var uploadedFile = fileUploadService.createUploadedFile(
         VirtualFolder.SUPPORTING_DOCUMENTS, fileSize, filename, contentType);
 
     var supportingDocument = new SupportingDocument();
@@ -65,19 +65,17 @@ public class SupportingDocumentService {
     return FileUploadResult.valid(uploadedFile.getId().toString(), filename, multipartFile);
   }
 
-  public List<FileUploadDetail> getFileUploadDetailListForSubmissionAndType(SubmissionDetail submissionDetail,
-                                                                            SupportingDocumentType supportingDocumentType) {
+  public List<FileUploadForm> getFileUploadFormListForSubmissionAndType(SubmissionDetail submissionDetail,
+                                                                          SupportingDocumentType supportingDocumentType) {
     return supportingDocumentRepository.findAllBySubmissionDetailAndSupportingDocumentType(
             submissionDetail, supportingDocumentType).stream()
         .map(SupportingDocument::getUploadedFile)
-        .map(this::createFileUploadDetail)
+        .map(fileUploadService::createFileUploadForm)
         .toList();
   }
 
-  public List<FileUploadFdsView> getFileUploadFdsViewList(List<UUID> fileUploadIdList) {
-    return fileUploadService.getFileUploadsByIdList(fileUploadIdList).stream()
-        .map(this::createFileUploadFdsView)
-        .toList();
+  public List<UploadedFileView> getUploadedFileViewList(List<UUID> fileUploadIdList) {
+    return fileUploadService.getUploadedFileViewList(fileUploadIdList);
   }
 
   public FileUploadTemplate buildFileUploadTemplate(UUID submissionDetailId, SupportingDocumentType supportingDocumentType) {
@@ -108,31 +106,8 @@ public class SupportingDocumentService {
   }
 
   @Transactional
-  public void updateSupportingDocumentFileDescriptions(List<FileUploadDetail> fileUploadDetailList) {
-    fileUploadDetailList
-        .forEach(fileUploadDetail -> {
-          var uploadedFileId = fileUploadDetail.getUploadedFileId();
-          var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
-          fileUploadService.updateFileDescription(uploadedFile, fileUploadDetail.getUploadedFileDescription());
-        });
-  }
-
-  private FileUploadFdsView createFileUploadFdsView(UploadedFile uploadedFile) {
-    return new FileUploadFdsView(
-        uploadedFile.getId().toString(),
-        uploadedFile.getFilename(),
-        FileUploadUtils.fileSizeFormatter(uploadedFile.getFileSizeBytes()),
-        uploadedFile.getDescription(),
-        uploadedFile.getUploadedTimeStamp()
-    );
-  }
-
-  private FileUploadDetail createFileUploadDetail(UploadedFile uploadedFile) {
-    FileUploadDetail fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileId(uploadedFile.getId());
-    fileUploadDetail.setUploadedFileDescription(uploadedFile.getDescription());
-    fileUploadDetail.setUploadedFileInstant(uploadedFile.getUploadedTimeStamp());
-    return fileUploadDetail;
+  public void updateSupportingDocumentFileDescriptions(List<FileUploadForm> fileUploadFormList) {
+    fileUploadService.updateFileUploadDescriptions(fileUploadFormList);
   }
 
   UploadedFile findUploadedFileOrThrow(SubmissionDetail submissionDetail, UUID uploadedFileId) {

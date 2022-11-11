@@ -7,7 +7,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
@@ -65,7 +65,7 @@ class AdditionalInformationFormValidator implements SmartValidator, SubmissionFo
         "providingAdditionalDocuments.required",
         "Select whether you have additional documents");
 
-    List<FileUploadDetail> additionalDocuments = additionalInformationForm.getAdditionalDocuments();
+    List<FileUploadForm> additionalDocuments = additionalInformationForm.getAdditionalDocuments();
     if (BooleanUtils.isTrue(additionalInformationForm.getProvidingAdditionalDocuments())
         && additionalDocuments.isEmpty()) {
       errors.rejectValue("additionalDocuments", "additionalDocuments.required", "Upload an additional document");

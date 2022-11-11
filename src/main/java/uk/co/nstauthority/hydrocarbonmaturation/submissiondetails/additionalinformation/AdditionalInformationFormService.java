@@ -5,9 +5,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
@@ -32,7 +32,7 @@ class AdditionalInformationFormService implements SubmissionFormService {
   }
 
   AdditionalInformationForm getAdditionalInformationForm(SubmissionDetail submissionDetail) {
-    List<FileUploadDetail> additionalDocumentsFileUploads = supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+    List<FileUploadForm> additionalDocumentsFileUploads = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail, SupportingDocumentType.ADDITIONAL_DOCUMENT);
 
     return additionalInformationPersistenceService.getAdditionalInformation(submissionDetail)
@@ -40,9 +40,9 @@ class AdditionalInformationFormService implements SubmissionFormService {
         .orElse(new AdditionalInformationForm());
   }
 
-  public List<FileUploadFdsView> getAdditionalDocumentUploads(AdditionalInformationForm additionalInformationForm) {
+  public List<UploadedFileView> getAdditionalDocumentUploads(AdditionalInformationForm additionalInformationForm) {
     var additionalDocumentUploadIdList = FileUploadUtils.getUploadIdList(additionalInformationForm.getAdditionalDocuments());
-    return supportingDocumentService.getFileUploadFdsViewList(additionalDocumentUploadIdList);
+    return supportingDocumentService.getUploadedFileViewList(additionalDocumentUploadIdList);
   }
 
   @Override
@@ -52,7 +52,7 @@ class AdditionalInformationFormService implements SubmissionFormService {
   }
 
   private AdditionalInformationForm additionalInformationEntityToForm(AdditionalInformation additionalInformation,
-                                                                      List<FileUploadDetail> additionalDocumentUploads) {
+                                                                      List<FileUploadForm> additionalDocumentUploads) {
     var form = new AdditionalInformationForm();
 
     form.setProvidingAdditionalComments(additionalInformation.getHasAdditionalComments());

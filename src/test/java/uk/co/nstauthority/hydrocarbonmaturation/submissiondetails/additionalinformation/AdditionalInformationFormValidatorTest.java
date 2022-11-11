@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -89,7 +89,7 @@ class AdditionalInformationFormValidatorTest {
   @Test
   void validate_whenInValidForm_noAdditionalDocumentFileDescriptionUploaded_thenValidationErrors() {
     var form = getValidAdditionalInformationForm();
-    form.setAdditionalDocuments(List.of(new FileUploadDetail()));
+    form.setAdditionalDocuments(List.of(new FileUploadForm()));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateAdditionalInformationForm_fullValidation(form));
 
@@ -126,9 +126,9 @@ class AdditionalInformationFormValidatorTest {
     var form = new AdditionalInformationForm();
     form.setAdditionalComments("comments");
     form.setProvidingAdditionalDocuments(true);
-    FileUploadDetail fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileDescription("File description");
-    form.setAdditionalDocuments(List.of(fileUploadDetail));
+    FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileDescription("File description");
+    form.setAdditionalDocuments(List.of(fileUploadForm));
     form.setProvidingAdditionalComments(true);
     return form;
   }

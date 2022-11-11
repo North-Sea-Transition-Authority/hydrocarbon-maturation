@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
@@ -172,15 +172,15 @@ class TrapPropertiesFormServiceTest {
 
   @Test
   void getProspectDepthMapUploads_VerifyCalls() {
-    FileUploadDetail fileUploadDetail1 = getFileUploadDetail();
-    FileUploadDetail fileUploadDetail2 = getFileUploadDetail();
+    FileUploadForm fileUploadForm1 = getFileUploadForm();
+    FileUploadForm fileUploadForm2 = getFileUploadForm();
 
     var form = new TrapPropertiesForm();
-    form.setProspectDepthMap(List.of(fileUploadDetail1, fileUploadDetail2));
+    form.setProspectDepthMap(List.of(fileUploadForm1, fileUploadForm2));
 
     trapPropertiesFormService.getProspectDepthMapUploads(form);
 
-    verify(supportingDocumentService, times(1)).getFileUploadFdsViewList(anyList());
+    verify(supportingDocumentService, times(1)).getUploadedFileViewList(anyList());
   }
 
 
@@ -200,9 +200,9 @@ class TrapPropertiesFormServiceTest {
     return trapProperty;
   }
 
-  private FileUploadDetail getFileUploadDetail() {
-    FileUploadDetail fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileId(UUID.randomUUID());
-    return fileUploadDetail;
+  private FileUploadForm getFileUploadForm() {
+    FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileId(UUID.randomUUID());
+    return fileUploadForm;
   }
 }

@@ -4,9 +4,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
@@ -31,7 +31,7 @@ class OpportunityDetailsFormService implements SubmissionFormService {
   }
 
   OpportunityDetailsForm getOpportunityDetailsForm(SubmissionDetail submissionDetail) {
-    List<FileUploadDetail> mapOfOpportunityFileUploads = supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+    var mapOfOpportunityFileUploads = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY);
 
     return opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail)
@@ -40,7 +40,7 @@ class OpportunityDetailsFormService implements SubmissionFormService {
   }
 
   private OpportunityDetailsForm opportunityDetailEntityToForm(OpportunityDetail opportunityDetail,
-                                                               List<FileUploadDetail> mapOfOpportunityUploads) {
+                                                               List<FileUploadForm> mapOfOpportunityUploads) {
     var form = new OpportunityDetailsForm();
     form.setOpportunityComments(opportunityDetail.getOpportunityComments());
     form.setOpportunityType(opportunityDetail.getOpportunityType());
@@ -57,8 +57,8 @@ class OpportunityDetailsFormService implements SubmissionFormService {
     return bindingResult;
   }
 
-  public List<FileUploadFdsView> getMapOfOpportunityUploads(OpportunityDetailsForm opportunityDetailsForm) {
+  public List<UploadedFileView> getMapOfOpportunityUploads(OpportunityDetailsForm opportunityDetailsForm) {
     var mapOfOpportunityUploadIdList = FileUploadUtils.getUploadIdList(opportunityDetailsForm.getMapOfOpportunity());
-    return supportingDocumentService.getFileUploadFdsViewList(mapOfOpportunityUploadIdList);
+    return supportingDocumentService.getUploadedFileViewList(mapOfOpportunityUploadIdList);
   }
 }

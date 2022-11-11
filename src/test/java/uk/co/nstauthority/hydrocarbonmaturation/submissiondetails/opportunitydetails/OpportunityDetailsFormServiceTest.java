@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -96,15 +96,15 @@ class OpportunityDetailsFormServiceTest {
 
   @Test
   void getMapOfOpportunityUploads_VerifyCalls() {
-    FileUploadDetail fileUploadDetail1 = getFileUploadDetail();
-    FileUploadDetail fileUploadDetail2 = getFileUploadDetail();
+    FileUploadForm fileUploadForm1 = getFileUploadForm();
+    FileUploadForm fileUploadForm2 = getFileUploadForm();
 
     var form = new OpportunityDetailsForm();
-    form.setMapOfOpportunity(List.of(fileUploadDetail1, fileUploadDetail2));
+    form.setMapOfOpportunity(List.of(fileUploadForm1, fileUploadForm2));
 
     opportunityDetailsFormService.getMapOfOpportunityUploads(form);
 
-    verify(supportingDocumentService, times(1)).getFileUploadFdsViewList(anyList());
+    verify(supportingDocumentService, times(1)).getUploadedFileViewList(anyList());
   }
 
   private OpportunityDetail getOpportunityDetail(SubmissionDetail submissionDetail) {
@@ -116,9 +116,9 @@ class OpportunityDetailsFormServiceTest {
     return opportunityDetail;
   }
 
-  private FileUploadDetail getFileUploadDetail() {
-    FileUploadDetail fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileId(UUID.randomUUID());
-    return fileUploadDetail;
+  private FileUploadForm getFileUploadForm() {
+    FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileId(UUID.randomUUID());
+    return fileUploadForm;
   }
 }

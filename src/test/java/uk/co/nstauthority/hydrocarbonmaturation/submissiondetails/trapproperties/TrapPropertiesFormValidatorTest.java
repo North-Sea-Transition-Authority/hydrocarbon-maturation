@@ -18,7 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
@@ -147,7 +147,7 @@ class TrapPropertiesFormValidatorTest {
   @Test
   void validate_whenInValidForm_noProspectDepthMapFileDescriptionUploaded_thenValidationErrors() {
     var form = getValidForm();
-    form.setProspectDepthMap(List.of(new FileUploadDetail()));
+    form.setProspectDepthMap(List.of(new FileUploadForm()));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateTrapPropertiesForm(form));
 
@@ -200,9 +200,9 @@ class TrapPropertiesFormValidatorTest {
     form.setDepthToSpillPoint(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setProductiveArea(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
 
-    FileUploadDetail fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileDescription("File description");
-    form.setProspectDepthMap(List.of(fileUploadDetail));
+    FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileDescription("File description");
+    form.setProspectDepthMap(List.of(fileUploadForm));
     return form;
   }
 

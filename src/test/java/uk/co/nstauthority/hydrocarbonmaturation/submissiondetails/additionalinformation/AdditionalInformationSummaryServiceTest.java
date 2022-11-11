@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -96,23 +96,23 @@ class AdditionalInformationSummaryServiceTest {
     additionalInformation.setHasAdditionalDocuments(true);
     additionalInformation.setHasAdditionalComments(true);
 
-    FileUploadDetail fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileDescription("description");
+    FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileDescription("description");
     var uploadedFile = new UploadedFile();
     uploadedFile.setFilename("uploadedfile.txt");
     uploadedFile.setDescription("description");
 
-    when(fileUploadService.findUploadedFileOrThrow(fileUploadDetail.getUploadedFileId()))
+    when(fileUploadService.findUploadedFileOrThrow(fileUploadForm.getUploadedFileId()))
         .thenReturn(uploadedFile);
     when(additionalInformationPersistenceService.getAdditionalInformation(submissionDetail))
         .thenReturn(Optional.of(additionalInformation));
-    when(supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,
-        SupportingDocumentType.ADDITIONAL_DOCUMENT)).thenReturn(List.of(fileUploadDetail));
+        SupportingDocumentType.ADDITIONAL_DOCUMENT)).thenReturn(List.of(fileUploadForm));
 
     var fileMap = new HashMap<UploadedFile, String>();
     fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-        .download(submissionDetail.getId(), fileUploadDetail.getUploadedFileId())));
+        .download(submissionDetail.getId(), fileUploadForm.getUploadedFileId())));
 
     var additionalInformationSummaryView =
         additionalInformationSummaryService.getAdditionalInformationSummaryFromSubmissionDetail(submissionDetail);

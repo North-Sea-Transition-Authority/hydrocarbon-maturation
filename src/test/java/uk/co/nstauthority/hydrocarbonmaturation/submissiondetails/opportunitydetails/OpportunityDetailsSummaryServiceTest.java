@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -77,7 +77,7 @@ class OpportunityDetailsSummaryServiceTest {
     opportunityDetails.setOtherTypeOfOpportunity("other stuff");
     opportunityDetails.setKeyEvaluationWorkCarriedOut("evaluation");
     opportunityDetails.setKeyWorkRequiredForFurtherMaturation("work required");
-    FileUploadDetail fileUploadDetail = new FileUploadDetail();
+    FileUploadForm fileUploadDetail = new FileUploadForm();
     fileUploadDetail.setUploadedFileDescription("description");
 
     var uploadedFile = new UploadedFile();
@@ -90,7 +90,7 @@ class OpportunityDetailsSummaryServiceTest {
 
     when(opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail))
         .thenReturn(Optional.of(opportunityDetails));
-    when(supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,
         SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(List.of(fileUploadDetail));
     when(fileUploadService.findUploadedFileOrThrow(fileUploadDetail.getUploadedFileId()))
@@ -126,7 +126,7 @@ class OpportunityDetailsSummaryServiceTest {
 
     when(opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail))
         .thenReturn(Optional.of(opportunityDetails));
-    when(supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,
         SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(List.of());
 

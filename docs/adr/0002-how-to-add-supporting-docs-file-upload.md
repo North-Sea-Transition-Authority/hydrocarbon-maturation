@@ -4,7 +4,7 @@
 - Create a new SupportingDocumentType enum constant named after the data item name, e.g. MAP_OF_OPPORTUNITY for map of opportunity.  
   
 **Form page class** _(see OpportunityDetailsForm)_
-- Add a `List<FileUploadDetail>` for each file upload field on the form page.
+- Add a `List<FileUploadForm>` for each file upload field on the form page.
 
 **Form service class** _(see OpportunityDetailsFormService)_
 - Add a method to get all file uploads from the form for the file upload field.

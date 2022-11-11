@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
@@ -84,7 +84,7 @@ public class TrapPropertiesController {
   }
 
   private ModelAndView getTrapPropertiesModelAndView(TrapPropertiesForm form, UUID submissionDetailId,
-                                                     List<FileUploadFdsView> prospectDepthMapUploads) {
+                                                     List<UploadedFileView> prospectDepthMapUploads) {
 
     var modelAndView = new ModelAndView("remi/submissiondetails/trapProperties")
         .addObject("form", form)
@@ -118,7 +118,7 @@ public class TrapPropertiesController {
       BindingResult bindingResult,
       TrapPropertiesForm form,
       UUID submissionDetailId,
-      List<FileUploadFdsView> prospectDepthMapUploads
+      List<UploadedFileView> prospectDepthMapUploads
   ) {
     var modelAndView = getTrapPropertiesModelAndView(form, submissionDetailId, prospectDepthMapUploads);
     modelAndView

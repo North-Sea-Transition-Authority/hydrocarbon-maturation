@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -104,7 +104,7 @@ class OpportunityDetailsFormValidatorTest {
   @Test
   void validate_whenInValidForm_noMapOfOpportunityFileDescriptionUploaded_thenValidationErrors() {
     var form = getValidOpportunityDetailsForm();
-    form.setMapOfOpportunity(List.of(new FileUploadDetail()));
+    form.setMapOfOpportunity(List.of(new FileUploadForm()));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm_fullValidation(form));
 
@@ -142,9 +142,9 @@ class OpportunityDetailsFormValidatorTest {
     form.setOpportunityType(OpportunityType.LEAD);
     form.setKeyEvaluationWorkCarriedOut("Work being carried out");
     form.setKeyWorkRequiredForFurtherMaturation("Key work");
-    FileUploadDetail fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileDescription("File description");
-    form.setMapOfOpportunity(List.of(fileUploadDetail));
+    FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileDescription("File description");
+    form.setMapOfOpportunity(List.of(fileUploadForm));
     return form;
   }
 }

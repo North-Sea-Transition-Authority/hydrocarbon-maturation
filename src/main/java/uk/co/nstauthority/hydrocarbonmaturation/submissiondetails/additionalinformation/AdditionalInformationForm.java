@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinf
 
 import java.util.ArrayList;
 import java.util.List;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 class AdditionalInformationForm implements SubmissionForm {
@@ -10,7 +10,7 @@ class AdditionalInformationForm implements SubmissionForm {
   private Boolean providingAdditionalComments;
   private String additionalComments;
   private Boolean providingAdditionalDocuments;
-  private List<FileUploadDetail> additionalDocuments = new ArrayList<>();
+  private List<FileUploadForm> additionalDocuments = new ArrayList<>();
 
   public Boolean getProvidingAdditionalComments() {
     return providingAdditionalComments;
@@ -36,12 +36,12 @@ class AdditionalInformationForm implements SubmissionForm {
     this.providingAdditionalDocuments = providingAdditionalDocuments;
   }
 
-  public List<FileUploadDetail> getAdditionalDocuments() {
+  public List<FileUploadForm> getAdditionalDocuments() {
     return additionalDocuments;
   }
 
   public void setAdditionalDocuments(
-      List<FileUploadDetail> additionalDocuments) {
+      List<FileUploadForm> additionalDocuments) {
     this.additionalDocuments = additionalDocuments;
   }
 }

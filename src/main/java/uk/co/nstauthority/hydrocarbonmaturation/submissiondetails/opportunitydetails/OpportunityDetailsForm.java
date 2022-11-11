@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunityde
 
 import java.util.ArrayList;
 import java.util.List;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 class OpportunityDetailsForm implements SubmissionForm {
@@ -13,7 +13,7 @@ class OpportunityDetailsForm implements SubmissionForm {
   private String keyEvaluationWorkCarriedOut;
   private String keyWorkRequiredForFurtherMaturation;
 
-  private List<FileUploadDetail> mapOfOpportunity = new ArrayList<>();
+  private List<FileUploadForm> mapOfOpportunity = new ArrayList<>();
 
   public OpportunityType getOpportunityType() {
     return opportunityType;
@@ -56,11 +56,11 @@ class OpportunityDetailsForm implements SubmissionForm {
     this.keyWorkRequiredForFurtherMaturation = keyWorkRequiredForFurtherMaturation;
   }
 
-  public List<FileUploadDetail> getMapOfOpportunity() {
+  public List<FileUploadForm> getMapOfOpportunity() {
     return mapOfOpportunity;
   }
 
-  public void setMapOfOpportunity(List<FileUploadDetail> mapOfOpportunity) {
+  public void setMapOfOpportunity(List<FileUploadForm> mapOfOpportunity) {
     this.mapOfOpportunity = mapOfOpportunity;
   }
 }

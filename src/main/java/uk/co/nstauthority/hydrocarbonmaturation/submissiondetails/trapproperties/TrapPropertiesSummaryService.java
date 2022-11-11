@@ -92,7 +92,7 @@ public class TrapPropertiesSummaryService {
             submissionDetail);
     listOfSummaryViews.add(productiveArea);
 
-    var fileUploadList = supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+    var fileUploadList = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,
         SupportingDocumentType.PROSPECT_DEPTH_MAP);
 

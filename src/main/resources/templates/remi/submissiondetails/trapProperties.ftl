@@ -16,7 +16,7 @@
 <#-- @ftlvariable name="productiveAreaTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
 <#-- @ftlvariable name="productiveAreaError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 <#-- @ftlvariable name="prospectDepthMapTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate" -->
-<#-- @ftlvariable name="prospectDepthMapUploads" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView>" -->
+<#-- @ftlvariable name="prospectDepthMapUploads" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView>" -->
 
 <@defaultPage
   htmlTitle=pageTitle

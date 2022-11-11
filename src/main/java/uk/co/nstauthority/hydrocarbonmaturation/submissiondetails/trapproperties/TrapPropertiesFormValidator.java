@@ -7,7 +7,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -133,7 +133,7 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
         "Productive area"
     );
 
-    List<FileUploadDetail> prospectDepthMap = trapPropertiesForm.getProspectDepthMap();
+    List<FileUploadForm> prospectDepthMap = trapPropertiesForm.getProspectDepthMap();
 
     if (prospectDepthMap.isEmpty()) {
       errors.rejectValue("prospectDepthMap", "prospectDepthMap.required", "Upload a prospect depth map");

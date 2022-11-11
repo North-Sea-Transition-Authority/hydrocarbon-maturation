@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
@@ -98,8 +98,8 @@ class AdditionalInformationPersistenceServiceTest {
   void saveAdditionalInformation_whenGivenAFormUpload_verifyFileUpload() {
     var form = new AdditionalInformationForm();
     form.setProvidingAdditionalDocuments(true);
-    var fileUploadDetail = new FileUploadDetail();
-    form.setAdditionalDocuments(List.of(fileUploadDetail));
+    var fileUploadForm = new FileUploadForm();
+    form.setAdditionalDocuments(List.of(fileUploadForm));
 
     additionalInformationPersistenceService.saveAdditionalInformation(form, submissionDetail);
 
@@ -111,15 +111,15 @@ class AdditionalInformationPersistenceServiceTest {
   void saveAdditionalInformation_whenGivenAFormNoUpload_verifyFileDelete() {
     var form = new AdditionalInformationForm();
     form.setProvidingAdditionalDocuments(false);
-    var fileUploadDetail = new FileUploadDetail();
+    var fileUploadForm = new FileUploadForm();
 
-    when(supportingDocumentService.getFileUploadDetailListForSubmissionAndType(submissionDetail, SupportingDocumentType.ADDITIONAL_DOCUMENT))
-        .thenReturn(List.of(fileUploadDetail));
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.ADDITIONAL_DOCUMENT))
+        .thenReturn(List.of(fileUploadForm));
 
     additionalInformationPersistenceService.saveAdditionalInformation(form, submissionDetail);
 
     verify(supportingDocumentService, times(1))
-        .deleteFile(submissionDetail, fileUploadDetail.getUploadedFileId());
+        .deleteFile(submissionDetail, fileUploadForm.getUploadedFileId());
   }
 
 

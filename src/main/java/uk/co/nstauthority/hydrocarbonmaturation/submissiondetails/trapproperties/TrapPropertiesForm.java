@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trappropertie
 import java.util.ArrayList;
 import java.util.List;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
@@ -24,7 +24,7 @@ class TrapPropertiesForm implements SubmissionForm {
 
   private ProbabilityDistributionForm productiveArea = new ProbabilityDistributionForm();
 
-  private List<FileUploadDetail> prospectDepthMap = new ArrayList<>();
+  private List<FileUploadForm> prospectDepthMap = new ArrayList<>();
 
   public String getTrapDescription() {
     return trapDescription;
@@ -77,12 +77,12 @@ class TrapPropertiesForm implements SubmissionForm {
     this.productiveArea = productiveArea;
   }
 
-  public List<FileUploadDetail> getProspectDepthMap() {
+  public List<FileUploadForm> getProspectDepthMap() {
     return prospectDepthMap;
   }
 
   public void setProspectDepthMap(
-      List<FileUploadDetail> prospectDepthMap) {
+      List<FileUploadForm> prospectDepthMap) {
     this.prospectDepthMap = prospectDepthMap;
   }
 

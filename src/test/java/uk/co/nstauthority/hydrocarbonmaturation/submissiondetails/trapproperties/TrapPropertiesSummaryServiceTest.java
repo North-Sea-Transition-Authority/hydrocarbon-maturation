@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -114,28 +114,28 @@ class TrapPropertiesSummaryServiceTest {
     trapProperty.setLongitudeHemisphere(Hemisphere.EAST);
     trapProperty.setOtherTrapType("other trap type");
 
-    FileUploadDetail fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileDescription("description");
+    FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileDescription("description");
 
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail))
         .thenReturn(Optional.of(trapProperty));
     when(probabilityDistributionSummaryService
              .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))
         .thenReturn(testSummary);
-    when(supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,
-        SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(fileUploadDetail));
+        SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(fileUploadForm));
 
     var uploadedFile = new UploadedFile();
     uploadedFile.setFilename("uploadedfile.txt");
     uploadedFile.setDescription("description");
 
-    when(fileUploadService.findUploadedFileOrThrow(fileUploadDetail.getUploadedFileId()))
+    when(fileUploadService.findUploadedFileOrThrow(fileUploadForm.getUploadedFileId()))
         .thenReturn(uploadedFile);
 
     var fileMap = new HashMap<UploadedFile, String>();
     fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-            .download(submissionDetail.getId(), fileUploadDetail.getUploadedFileId())));
+            .download(submissionDetail.getId(), fileUploadForm.getUploadedFileId())));
 
     var trapPropertiesSummaryView = trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(submissionDetail);
 

@@ -40,7 +40,7 @@ class AdditionalInformationPersistenceService {
     if (BooleanUtils.isTrue(form.getProvidingAdditionalDocuments())) {
       supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getAdditionalDocuments());
     } else {
-      supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+      supportingDocumentService.getFileUploadFormListForSubmissionAndType(
           submissionDetail, SupportingDocumentType.ADDITIONAL_DOCUMENT)
           .forEach(file -> supportingDocumentService.deleteFile(submissionDetail, file.getUploadedFileId()));
     }

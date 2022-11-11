@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -25,10 +24,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadErrorType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
@@ -56,7 +53,6 @@ class SupportingDocumentServiceTest {
   private static final UploadedFile uploadedFile = FileTestUtil.createValidUploadedFile();
   private static MultipartFile multipartFile;
   private static SubmissionDetail submissionDetail;
-  private final Instant now = Instant.now();
 
 
   @BeforeAll
@@ -86,7 +82,7 @@ class SupportingDocumentServiceTest {
     when(fileUploadService.sanitiseFilename(filename)).thenReturn(filename);
     doReturn(uploadedFile)
         .when(fileUploadService)
-        .createdAndSaveUploadedFile(virtualFolder, fileSize, filename, contentType);
+        .createUploadedFile(virtualFolder, fileSize, filename, contentType);
 
     var fileUploadResult = supportingDocumentService.processFileUpload(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY, multipartFile);
 
@@ -96,7 +92,7 @@ class SupportingDocumentServiceTest {
   @Test
   void deleteFile_FileDeleted_SupportingDocAndFileDeleted() {
     var uuid = UUID.randomUUID();
-    SupportingDocument supportingDocument = mock(SupportingDocument.class);
+    var supportingDocument = mock(SupportingDocument.class);
     when(fileUploadService.findUploadedFileOrThrow(uuid)).thenReturn(uploadedFile);
     when(supportingDocumentRepository.findBySubmissionDetailAndUploadedFile(submissionDetail, uploadedFile))
         .thenReturn(supportingDocument);
@@ -112,8 +108,8 @@ class SupportingDocumentServiceTest {
 
   @Test
   void deleteFile_FileDeletedButExistsInOtherVersion_OnlySupportingDocDeleted() {
-    SupportingDocument supportingDocument1 = mock(SupportingDocument.class);
-    SupportingDocument supportingDocument2 = mock(SupportingDocument.class);
+    var supportingDocument1 = mock(SupportingDocument.class);
+    var supportingDocument2 = mock(SupportingDocument.class);
     when(fileUploadService.findUploadedFileOrThrow(uploadedFile.getId())).thenReturn(uploadedFile);
     when(supportingDocumentRepository.findBySubmissionDetailAndUploadedFile(submissionDetail, uploadedFile))
         .thenReturn(supportingDocument1);
@@ -128,21 +124,23 @@ class SupportingDocumentServiceTest {
   }
 
   @Test
-  void getFileUploadDetailListForSubmissionAndType() {
+  void getFileUploadFormListForSubmissionAndType() {
     var uuid = UUID.randomUUID();
     var supportingDocumentType = SupportingDocumentType.MAP_OF_OPPORTUNITY;
     var supportingDocument = createSupportingDocument(uuid, supportingDocumentType);
 
     when(supportingDocumentRepository.findAllBySubmissionDetailAndSupportingDocumentType(submissionDetail,
         supportingDocumentType)).thenReturn(List.of(supportingDocument));
-    var fileUploadDetails = supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+    when(fileUploadService.createFileUploadForm(uploadedFile)).thenReturn(createFileUploadForm(uploadedFile));
+
+    var fileUploadForms = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail, supportingDocumentType);
 
-    assertThat(fileUploadDetails)
+    assertThat(fileUploadForms)
         .extracting(
-            FileUploadDetail::getUploadedFileId,
-            FileUploadDetail::getUploadedFileDescription,
-            FileUploadDetail::getUploadedFileInstant
+            FileUploadForm::getUploadedFileId,
+            FileUploadForm::getUploadedFileDescription,
+            FileUploadForm::getUploadedFileInstant
         )
         .contains(
             tuple(
@@ -154,29 +152,13 @@ class SupportingDocumentServiceTest {
   }
 
   @Test
-  void getFileUploadFdsViewList() {
+  void getUploadedFileViewList() {
     var uuid = UUID.randomUUID();
+    var fileUploadIdList = List.of(uuid);
 
-    when(fileUploadService.getFileUploadsByIdList(List.of(uuid))).thenReturn(List.of(uploadedFile));
-    var fileUploadFdsViews = supportingDocumentService.getFileUploadFdsViewList(List.of(uuid));
+    var uploadedFileViews = supportingDocumentService.getUploadedFileViewList(fileUploadIdList);
 
-    assertThat(fileUploadFdsViews)
-        .extracting(
-            FileUploadFdsView::getFileId,
-            FileUploadFdsView::getFileName,
-            FileUploadFdsView::getFileSize,
-            FileUploadFdsView::getFileDescription,
-            FileUploadFdsView::getFileUploadedTime
-        )
-        .contains(
-            tuple(
-                uploadedFile.getId().toString(),
-                uploadedFile.getFilename(),
-                FileUploadUtils.fileSizeFormatter(uploadedFile.getFileSizeBytes()),
-                uploadedFile.getDescription(),
-                uploadedFile.getUploadedTimeStamp()
-            )
-        );
+    verify(fileUploadService).getUploadedFileViewList(fileUploadIdList);
   }
 
   @Test
@@ -197,21 +179,12 @@ class SupportingDocumentServiceTest {
 
   @Test
   void updateSupportingDocumentDescriptions() {
-    UUID uuid = UUID.randomUUID();
-    FileUploadDetail fileUploadDetail = createFileUploadDetail(uuid);
-    when(fileUploadService.findUploadedFileOrThrow(uuid)).thenReturn(uploadedFile);
+    var fileUploadForm = mock(FileUploadForm.class);
+    var fileUploadFormList = List.of(fileUploadForm);
 
-    supportingDocumentService.updateSupportingDocumentFileDescriptions(List.of(fileUploadDetail));
+    supportingDocumentService.updateSupportingDocumentFileDescriptions(fileUploadFormList);
 
-    verify(fileUploadService, times(1)).updateFileDescription(uploadedFile, fileUploadDetail.getUploadedFileDescription());
-  }
-
-  private FileUploadDetail createFileUploadDetail(UUID uuid) {
-    var fileUploadDetail = new FileUploadDetail();
-    fileUploadDetail.setUploadedFileId(uuid);
-    fileUploadDetail.setUploadedFileDescription("test description");
-    fileUploadDetail.setUploadedFileInstant(now);
-    return fileUploadDetail;
+    verify(fileUploadService, times(1)).updateFileUploadDescriptions(fileUploadFormList);
   }
 
   private SupportingDocument createSupportingDocument(UUID uuid, SupportingDocumentType supportingDocumentType) {
@@ -220,5 +193,13 @@ class SupportingDocumentServiceTest {
     supportingDocument.setSupportingDocumentType(supportingDocumentType);
     supportingDocument.setUploadedFile(uploadedFile);
     return supportingDocument;
+  }
+
+  private FileUploadForm createFileUploadForm(UploadedFile uploadedFile) {
+    var fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileId(uploadedFile.getId());
+    fileUploadForm.setUploadedFileDescription(uploadedFile.getDescription());
+    fileUploadForm.setUploadedFileInstant(uploadedFile.getUploadedTimeStamp());
+    return fileUploadForm;
   }
 }

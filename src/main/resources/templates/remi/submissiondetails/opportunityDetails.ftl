@@ -7,7 +7,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="mapOfOpportunityTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate" -->
-<#-- @ftlvariable name="mapOfOpportunityUploads" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView>" -->
+<#-- @ftlvariable name="mapOfOpportunityUploads" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView>" -->
 
 <@defaultPage
   htmlTitle=pageTitle

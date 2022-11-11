@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.file;
 import java.time.Instant;
 import java.util.UUID;
 
-public class FileUploadDetail {
+public class FileUploadForm {
   private UUID uploadedFileId;
 
   private String uploadedFileDescription;

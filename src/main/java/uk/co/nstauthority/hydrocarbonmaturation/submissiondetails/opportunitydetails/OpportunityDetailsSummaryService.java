@@ -50,7 +50,7 @@ public class OpportunityDetailsSummaryService {
     var keyEvaluationWork = Objects.requireNonNullElse(opportunityDetail.getKeyEvaluationWorkCarriedOut(), "");
     var keyWorkRequired = Objects.requireNonNullElse(opportunityDetail.getKeyWorkRequiredForFurtherMaturation(), "");
 
-    var fileUploadList = supportingDocumentService.getFileUploadDetailListForSubmissionAndType(
+    var fileUploadList = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,
         SupportingDocumentType.MAP_OF_OPPORTUNITY);
 

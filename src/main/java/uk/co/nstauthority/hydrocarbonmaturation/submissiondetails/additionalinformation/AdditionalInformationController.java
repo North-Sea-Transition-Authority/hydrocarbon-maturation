@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadFdsView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
@@ -79,7 +79,7 @@ public class AdditionalInformationController {
 
   private ModelAndView getAdditionalInformationModelAndView(AdditionalInformationForm form,
                                                             SubmissionDetail submissionDetail,
-                                                            List<FileUploadFdsView> additionalDocumentUploads) {
+                                                            List<UploadedFileView> additionalDocumentUploads) {
     var modelAndView = new ModelAndView("remi/submissiondetails/additionalInformation")
         .addObject("form", form)
         .addObject("pageTitle", PAGE_NAME)

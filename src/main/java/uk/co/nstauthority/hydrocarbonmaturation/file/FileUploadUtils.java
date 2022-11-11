@@ -49,9 +49,9 @@ public class FileUploadUtils {
         .body(inputStreamResource);
   }
 
-  public static List<UUID> getUploadIdList(List<FileUploadDetail> fileUploadDetails) {
-    return fileUploadDetails.stream()
-        .map(FileUploadDetail::getUploadedFileId)
+  public static List<UUID> getUploadIdList(List<FileUploadForm> fileUploadForms) {
+    return fileUploadForms.stream()
+        .map(FileUploadForm::getUploadedFileId)
         .toList();
   }
 
