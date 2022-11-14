@@ -28,7 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 
 @WithMockUser
@@ -85,7 +85,7 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(
-            ProspectTaskListController.class).getTaskList(submissionDetailId))));
+            TaskListController.class).getTaskList(submissionDetailId))));
   }
 
   @Test

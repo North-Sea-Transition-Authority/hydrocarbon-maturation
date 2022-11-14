@@ -17,10 +17,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -31,7 +32,6 @@ public class GeneralDetailsController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
-  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
 
   public static final String PAGE_NAME = "General details";
 
@@ -39,13 +39,11 @@ public class GeneralDetailsController {
   public GeneralDetailsController(GeneralDetailsFormService generalDetailsFormService,
                                   ControllerHelperService controllerHelperService,
                                   SubmissionDetailService submissionDetailService,
-                                  GeneralDetailsPersistenceService generalDetailsPersistenceService,
-                                  SubmissionTaskListRedirectionService submissionTaskListRedirectionService) {
+                                  GeneralDetailsPersistenceService generalDetailsPersistenceService) {
     this.generalDetailsFormService = generalDetailsFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
-    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
   }
 
   @GetMapping
@@ -66,7 +64,7 @@ public class GeneralDetailsController {
         getGeneralDetailsModelAndView(form, submissionDetail),
         () -> {
           generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
-          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );
   }

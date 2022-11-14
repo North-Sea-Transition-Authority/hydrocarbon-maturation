@@ -13,7 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.PostDrillDryHoleTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/dry-well-summary")
@@ -48,7 +48,7 @@ public class PostDrillDryWellSubmissionSummaryController {
     var modelAndView = new ModelAndView("remi/submissiondetails/dryWellSubmissionSummary")
         .addObject("dryWellDetailsSummaryView",
             postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("cancelUrl", ReverseRouter.route(on(PostDrillDryHoleTaskListController.class)
+        .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class)
             .getTaskList(submissionDetailId)))
         .addObject("subNavigation", postDrillDryWellSummaryService.getPostDrillDryWellSubNavigation(submissionDetail));
 

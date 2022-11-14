@@ -3,23 +3,20 @@
 <#macro standardTaskList taskListSections>
   <@fdsTaskList.taskList>
     <#list taskListSections as section>
-      <@fdsTaskList.taskListSection
-        sectionNumber="${section?index + 1}"
-        sectionHeadingText=section.sectionName()
-        warningText=section.sectionWarningText()>
-
-        <#list section.taskListItemViews() as item>
-          <@fdsTaskList.taskListItem
-            itemText=item.displayName
-            itemUrl=springUrl(item.actionUrl)
-            showTag=item.showTaskListLabels()
-            completed=item.isItemValid()
-            tagClass=(item.customTaskListLabel.labelType().cssClassName)!""
-            tagText=(item.customTaskListLabel.labelText())!""
-            useNotCompletedLabels=item.showNotCompletedLabel()/>
-        </#list>
-
-      </@fdsTaskList.taskListSection>
+      <@fdsTaskList.taskList>
+        <@fdsTaskList.taskListSection
+          sectionNumber="${section?index + 1}"
+          sectionHeadingText=section.displayName()>
+          <#list section.items() as item>
+            <@fdsTaskList.taskListItem
+              itemText=item.displayName()
+              itemUrl=springUrl(item.actionUrl())
+              showTag=item.label()?has_content
+              completed=item.label()?has_content && item.label().name() == 'COMPLETE'
+              useNotCompletedLabels=true />
+          </#list>
+        </@fdsTaskList.taskListSection>
+      </@fdsTaskList.taskList>
     </#list>
   </@fdsTaskList.taskList>
 </#macro>

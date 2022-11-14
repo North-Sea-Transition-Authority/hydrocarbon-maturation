@@ -15,7 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Controller
 @RequestMapping("prospect/update")
@@ -44,7 +44,7 @@ public class UpdateProspectController {
         getUpdatePageModelAndView(form),
         () -> {
           var submissionDetail = updateProspectService.createUpdateProspect(form);
-          return ReverseRouter.redirect(on(ProspectTaskListController.class).getTaskList(submissionDetail.getId()));
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
         }
     );
   }

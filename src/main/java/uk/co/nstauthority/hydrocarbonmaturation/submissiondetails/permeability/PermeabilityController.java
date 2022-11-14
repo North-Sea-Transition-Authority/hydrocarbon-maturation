@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,10 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -24,7 +27,6 @@ public class PermeabilityController {
 
   private final SubmissionDetailService submissionDetailService;
   private final ControllerHelperService controllerHelperService;
-  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
   private final PermeabilityDryWellFormService permeabilityDryWellFormService;
   private final PermeabilityPersistenceService permeabilityPersistenceService;
 
@@ -33,12 +35,10 @@ public class PermeabilityController {
   @Autowired
   public PermeabilityController(SubmissionDetailService submissionDetailService,
                                 ControllerHelperService controllerHelperService,
-                                SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
                                 PermeabilityDryWellFormService permeabilityDryWellFormService,
                                 PermeabilityPersistenceService permeabilityPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
-    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
     this.permeabilityDryWellFormService = permeabilityDryWellFormService;
     this.permeabilityPersistenceService = permeabilityPersistenceService;
   }
@@ -63,7 +63,7 @@ public class PermeabilityController {
         getPermeabilityModelAndView(form, submissionDetail),
         () -> {
           permeabilityPersistenceService.savePermeabilityDetail(form, submissionDetail);
-          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );
   }

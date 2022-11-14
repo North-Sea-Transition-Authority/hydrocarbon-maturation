@@ -14,7 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.PostDrillDryHoleTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Controller
 @RequestMapping("prospect/post-drill-dry-hole")
@@ -43,7 +43,7 @@ public class PostDrillDryHoleController {
         getPostDrillDryHolePageModelAndView(form),
         () -> {
           var submissionDetail = postDrillDryHoleService.createPostDrillDryHoleSubmission(form);
-          return ReverseRouter.redirect(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetail.getId()));
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
         }
     );
   }

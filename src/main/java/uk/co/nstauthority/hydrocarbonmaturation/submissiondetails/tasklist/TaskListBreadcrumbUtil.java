@@ -9,9 +9,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.discovery.DiscoveryTaskListController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.PostDrillDryHoleTaskListController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 
 public class TaskListBreadcrumbUtil {
 
@@ -31,17 +28,9 @@ public class TaskListBreadcrumbUtil {
   }
 
   private static BreadcrumbItem getTaskListBreadcrumb(SubmissionDetail submissionDetail) {
-    return switch (submissionDetail.getSubmissionType()) {
-      case CREATE_PROSPECT, PROSPECT_UPDATE -> new BreadcrumbItem(
-          ProspectTaskListController.PAGE_NAME,
-          ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetail.getId())));
-      case POST_DRILL_DRY_HOLE -> new BreadcrumbItem(
-          PostDrillDryHoleTaskListController.PAGE_NAME,
-          ReverseRouter.route(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetail.getId())));
-      case CREATE_DISCOVERY -> new BreadcrumbItem(
-          DiscoveryTaskListController.PAGE_NAME,
-          ReverseRouter.route(on(DiscoveryTaskListController.class).getTaskList(submissionDetail.getId()))
-      );
-    };
+    return new BreadcrumbItem(
+          TaskListController.PAGE_NAME,
+          ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))
+    );
   }
 }

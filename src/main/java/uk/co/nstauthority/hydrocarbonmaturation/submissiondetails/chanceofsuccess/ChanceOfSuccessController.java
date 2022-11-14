@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,10 +13,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -25,19 +28,16 @@ public class ChanceOfSuccessController {
   private final SubmissionDetailService submissionDetailService;
   private final ChanceOfSuccessFormService chanceOfSuccessFormService;
   private final ControllerHelperService controllerHelperService;
-  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
   private final ChanceOfSuccessPersistenceService chanceOfSuccessPersistenceService;
 
   @Autowired
   public ChanceOfSuccessController(SubmissionDetailService submissionDetailService,
                                    ChanceOfSuccessFormService chanceOfSuccessFormService,
                                    ControllerHelperService controllerHelperService,
-                                   SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
                                    ChanceOfSuccessPersistenceService chanceOfSuccessPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.chanceOfSuccessFormService = chanceOfSuccessFormService;
     this.controllerHelperService = controllerHelperService;
-    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
     this.chanceOfSuccessPersistenceService = chanceOfSuccessPersistenceService;
   }
 
@@ -59,7 +59,7 @@ public class ChanceOfSuccessController {
         getChanceOfSuccessModelAndView(form, submissionDetail),
         () -> {
           chanceOfSuccessPersistenceService.saveChanceOfSuccess(form, submissionDetail);
-          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );
   }

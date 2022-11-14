@@ -34,10 +34,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @WithMockUser
@@ -89,7 +89,7 @@ class HydrocarbonCaseControllerTest extends AbstractControllerTest {
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
     verify(hydrocarbonCasePersistenceService, times(1)).saveHydrocarbonCase(any(HydrocarbonCaseForm.class), eq(submissionDetail));
   }
@@ -132,7 +132,7 @@ class HydrocarbonCaseControllerTest extends AbstractControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(ProspectTaskListController.class).getTaskList(submissionDetailId)), ProspectTaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
     );
   }
 }

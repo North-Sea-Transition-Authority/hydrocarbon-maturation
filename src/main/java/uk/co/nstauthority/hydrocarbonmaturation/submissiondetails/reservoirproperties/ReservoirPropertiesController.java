@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,13 +13,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -28,7 +31,6 @@ public class ReservoirPropertiesController {
   private final ReservoirPropertiesFormService reservoirPropertiesFormService;
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
-  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
   public static final String PAGE_NAME = "Reservoir properties";
@@ -38,13 +40,11 @@ public class ReservoirPropertiesController {
                                        ReservoirPropertiesFormService reservoirPropertiesFormService,
                                        ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
                                        SubmissionDetailService submissionDetailService,
-                                       SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
                                        ProbabilityDistributionTemplateService probabilityDistributionTemplateService) {
     this.controllerHelperService = controllerHelperService;
     this.reservoirPropertiesFormService = reservoirPropertiesFormService;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.submissionDetailService = submissionDetailService;
-    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
   }
 
@@ -67,7 +67,7 @@ public class ReservoirPropertiesController {
         getReservoirPropertiesWithErrors(bindingResult, form, submissionDetail),
         () -> {
           reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
-          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );
   }

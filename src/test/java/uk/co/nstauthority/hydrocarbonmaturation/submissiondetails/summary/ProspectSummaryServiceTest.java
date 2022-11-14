@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,13 +23,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutpu
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSection;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.VolumetricsTaskListSection;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItem;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListSection;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReservoirTaskListSectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,16 +79,29 @@ class ProspectSummaryServiceTest {
   private OpportunityDetailsSummaryService opportunityDetailsSummaryService;
 
   @Mock
-  private ProspectTaskListItem prospectTaskListItem;
+  private PermeabilitySubmissionService permeabilitySubmissionService;
+
+  @Mock
+  private ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
+
+  private ReservoirTaskListSectionService reservoirTaskListSectionService;
+
+  private ReviewAndSubmitTaskListSectionService reviewAndSubmitTaskListSectionService;
 
   private ProspectSummaryService prospectSummaryService;
   private SubmissionDetail submissionDetail;
-  private List<ProspectTaskListSection> listOfTaskListSections;
+  private List<TaskListSectionService> listOfTaskListSections;
 
   @BeforeEach
   void setUp() {
-    listOfTaskListSections = List.of(new VolumetricsTaskListSection(), new ReviewAndSubmitTaskListSection());
-    List<ProspectTaskListItem> listOfTaskListItems = List.of(prospectTaskListItem);
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    listOfTaskListSections = new ArrayList<>();
+    reservoirTaskListSectionService = new ReservoirTaskListSectionService(reservoirPropertiesSubmissionService,
+        permeabilitySubmissionService);
+    reviewAndSubmitTaskListSectionService = new ReviewAndSubmitTaskListSectionService();
+    listOfTaskListSections.add(reservoirTaskListSectionService);
+    listOfTaskListSections.add(reviewAndSubmitTaskListSectionService);
+
     prospectSummaryService = new ProspectSummaryService(
         generalDetailSummaryService,
         sourceAndSealSummaryService,
@@ -102,8 +117,7 @@ class ProspectSummaryServiceTest {
         mixedCaseOutputsSummaryService,
         additionalInformationSummaryService,
         opportunityDetailsSummaryService,
-        listOfTaskListSections,
-        listOfTaskListItems);
+        listOfTaskListSections);
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
@@ -256,8 +270,7 @@ class ProspectSummaryServiceTest {
 
   @Test
   void getProspectSubNavigation_whenOneWrongSection_noResults() {
-    listOfTaskListSections = List.of(new ReviewAndSubmitTaskListSection());
-    List<ProspectTaskListItem> listOfTaskListItems = List.of(prospectTaskListItem);
+    listOfTaskListSections = List.of(reviewAndSubmitTaskListSectionService);
     prospectSummaryService = new ProspectSummaryService(
         generalDetailSummaryService,
         sourceAndSealSummaryService,
@@ -273,8 +286,7 @@ class ProspectSummaryServiceTest {
         mixedCaseOutputsSummaryService,
         additionalInformationSummaryService,
         opportunityDetailsSummaryService,
-        listOfTaskListSections,
-        listOfTaskListItems);
+        listOfTaskListSections);
 
     var subNavItems = prospectSummaryService.getProspectSubNavigation(submissionDetail);
 

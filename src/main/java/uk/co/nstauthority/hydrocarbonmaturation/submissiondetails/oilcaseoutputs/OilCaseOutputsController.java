@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -27,7 +30,6 @@ public class OilCaseOutputsController {
 
   private final SubmissionDetailService submissionDetailService;
   private final ControllerHelperService controllerHelperService;
-  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final OilCaseOutputsFormService oilCaseOutputsFormService;
   private final OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
@@ -37,13 +39,11 @@ public class OilCaseOutputsController {
   @Autowired
   public OilCaseOutputsController(SubmissionDetailService submissionDetailService,
                                   ControllerHelperService controllerHelperService,
-                                  SubmissionTaskListRedirectionService submissionTaskListRedirectionService,
                                   ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
                                   OilCaseOutputsFormService oilCaseOutputsFormService,
                                   OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
-    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.oilCaseOutputsFormService = oilCaseOutputsFormService;
     this.oilCaseOutputsPersistenceService = oilCaseOutputsPersistenceService;
@@ -70,7 +70,7 @@ public class OilCaseOutputsController {
         getOilOutputsModelAndViewWithErrors(bindingResult, form, submissionDetail),
         () -> {
           oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, submissionDetail);
-          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );
   }

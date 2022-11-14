@@ -11,7 +11,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingC
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnicalSupportConfigurationProperties;
 
 @WebMvcTest
@@ -31,11 +30,6 @@ public abstract class AbstractControllerTest {
     @Bean
     public ControllerHelperService controllerHelperService() {
       return new ControllerHelperService();
-    }
-
-    @Bean
-    public SubmissionTaskListRedirectionService submissionTaskListRedirectionService() {
-      return new SubmissionTaskListRedirectionService();
     }
 
     @Bean

@@ -29,7 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.PostDrillDryHoleTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @WithMockUser
 @ContextConfiguration(classes = PostDrillDryWellSubmissionSummaryController.class)
@@ -58,7 +58,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
 
   @Test
   void showSubmissionSummary_assertStatusOk() throws Exception {
-    var subNavList = List.of(new SubNavigationPostDrillSectionItem("item1", "#item1"));
+    var subNavList = List.of(new SubNavigationItem("item1", "#item1"));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
@@ -88,7 +88,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
 
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
-    var subNavList = List.of(new SubNavigationPostDrillSectionItem("item1", "#item1"));
+    var subNavList = List.of(new SubNavigationItem("item1", "#item1"));
 
     when(postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(dryWellDetailsSummaryView);
@@ -104,7 +104,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
 
     assertThat(modelMap)
         .contains(
-            entry("cancelUrl", ReverseRouter.route(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetailId))),
+            entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
             entry("dryWellDetailsSummaryView", dryWellDetailsSummaryView),
             entry("subNavigation", subNavList)
         );

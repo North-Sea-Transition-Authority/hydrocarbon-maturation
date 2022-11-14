@@ -27,7 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.PostDrillDryHoleTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @WithMockUser
 @ContextConfiguration(classes = PostDrillDryHoleController.class)
@@ -90,7 +90,7 @@ class PostDrillDryHoleControllerTest extends AbstractControllerTest {
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(
-            PostDrillDryHoleTaskListController.class).getTaskList(submissionDetailId))));
+            TaskListController.class).getTaskList(submissionDetailId))));
   }
 
   @Test

@@ -34,13 +34,11 @@
   <@fdsLeftSubNavPageTemplateSubNav smallSubnav=true>
     <@fdsSubNavigation.subNavigation sticky=true>
       <@fdsSubNavigation.subNavigationSection themeHeading="Sections">
-        <#list subNavigation as section>
-          <#list section.getTaskListItems() as item>
-            <@fdsSubNavigation.subNavigationSectionItem
-              linkName="${item.getItemDisplayText()}"
-              linkAction="${item.getAction()}"
-              currentItemHref="#"/>
-          </#list>
+        <#list subNavigation as item>
+          <@fdsSubNavigation.subNavigationSectionItem
+            linkName="${item.displayName()}"
+            linkAction="${item.actionUrl()}"
+            currentItemHref="#"/>
         </#list>
       </@fdsSubNavigation.subNavigationSection>
     </@fdsSubNavigation.subNavigation>

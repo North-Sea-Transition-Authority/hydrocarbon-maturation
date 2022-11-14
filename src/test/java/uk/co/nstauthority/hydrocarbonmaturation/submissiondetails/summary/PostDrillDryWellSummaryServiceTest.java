@@ -16,9 +16,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.ReservoirTaskListSectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.ReviewAndSubmitTaskListSectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.TaskListSectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReservoirTaskListSectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 
 @ExtendWith(MockitoExtension.class)
 class PostDrillDryWellSummaryServiceTest {
@@ -73,8 +73,8 @@ class PostDrillDryWellSummaryServiceTest {
     assertThat(subNavItems).hasSize(2);
     assertThat(subNavItems)
         .containsExactly(
-            new SubNavigationPostDrillSectionItem("Reservoir properties", "#reservoirproperties"),
-            new SubNavigationPostDrillSectionItem("Permeability", "#permeability")
+            new SubNavigationItem("Reservoir properties", "#reservoirproperties"),
+            new SubNavigationItem("Permeability", "#permeability")
         );
   }
 

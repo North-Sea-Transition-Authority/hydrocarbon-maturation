@@ -35,7 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.PostDrillDryHoleTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -88,7 +88,7 @@ class PermeabilityControllerTest extends AbstractControllerTest {
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(PostDrillDryHoleTaskListController.class)
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
             .getTaskList(submissionDetail.getId()))));
 
     verify(permeabilityDryWellFormService, times(1)).validate(any(), any(), eq(validationType));
@@ -147,8 +147,8 @@ class PermeabilityControllerTest extends AbstractControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(PostDrillDryHoleTaskListController.class)
-            .getTaskList(submissionDetail.getId())), PostDrillDryHoleTaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME)
     );
   }
 }

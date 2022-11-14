@@ -17,10 +17,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.DryWellRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SubmissionTaskListRedirectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -32,7 +33,6 @@ public class DryWellDetailsController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final DryWellDetailsPersistenceService dryWellDetailsPersistenceService;
-  private final SubmissionTaskListRedirectionService submissionTaskListRedirectionService;
 
   public static final String PAGE_NAME = "Dry well details";
 
@@ -40,13 +40,11 @@ public class DryWellDetailsController {
   public DryWellDetailsController(DryWellDetailsFormService dryWellDetailsFormService,
                                   ControllerHelperService controllerHelperService,
                                   SubmissionDetailService submissionDetailService,
-                                  DryWellDetailsPersistenceService dryWellDetailsPersistenceService,
-                                  SubmissionTaskListRedirectionService submissionTaskListRedirectionService) {
+                                  DryWellDetailsPersistenceService dryWellDetailsPersistenceService) {
     this.dryWellDetailsFormService = dryWellDetailsFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.dryWellDetailsPersistenceService = dryWellDetailsPersistenceService;
-    this.submissionTaskListRedirectionService = submissionTaskListRedirectionService;
   }
 
   @GetMapping
@@ -67,7 +65,7 @@ public class DryWellDetailsController {
         getDryWellDetailsModelAndView(form, submissionDetail),
         () -> {
           dryWellDetailsPersistenceService.saveDryWellDetails(form, submissionDetail);
-          return submissionTaskListRedirectionService.getTaskListEndpoint(submissionDetail);
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );
   }

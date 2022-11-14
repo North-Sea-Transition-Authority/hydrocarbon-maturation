@@ -39,8 +39,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.PostDrillDryHoleTaskListController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -94,7 +93,7 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(
-            ReverseRouter.route(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetailId))));
+            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
     verify(dryWellDetailsFormService, times(1)).validate(any(), any(), eq(validationType));
     verify(dryWellDetailsPersistenceService, times(1))
@@ -155,8 +154,8 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(PostDrillDryHoleTaskListController.class).getTaskList(submissionDetailId)),
-            PostDrillDryHoleTaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+            TaskListController.PAGE_NAME)
     );
   }
 }

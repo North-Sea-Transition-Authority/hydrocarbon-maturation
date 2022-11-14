@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.ShowOnSubNav;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.TaskListItem;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.TaskListSection;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.postdrilldryhole.TaskListSectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ShowOnSubNav;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListItem;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSection;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 
 @Service
 class PostDrillDryWellSummaryService {
@@ -30,15 +30,15 @@ class PostDrillDryWellSummaryService {
     return dryWellDetailsSummaryService.getDryWellDetailSummaryFromSubmissionDetail(submissionDetail);
   }
 
-  public List<SubNavigationPostDrillSectionItem> getPostDrillDryWellSubNavigation(SubmissionDetail submissionDetail) {
+  public List<SubNavigationItem> getPostDrillDryWellSubNavigation(SubmissionDetail submissionDetail) {
     return getPostDrillDryWellSubNavigationItems(postWellDrillTaskListSections, submissionDetail);
   }
 
-  private List<SubNavigationPostDrillSectionItem> getPostDrillDryWellSubNavigationItems(
+  private List<SubNavigationItem> getPostDrillDryWellSubNavigationItems(
       List<TaskListSectionService> sections,
       SubmissionDetail submissionDetail) {
 
-    List<SubNavigationPostDrillSectionItem> listOfSubNavItems = new ArrayList<>();
+    List<SubNavigationItem> listOfSubNavItems = new ArrayList<>();
     sections.stream()
         .map(tlss -> tlss.getSection(submissionDetail))
         .flatMap(Optional::stream)
@@ -47,7 +47,7 @@ class PostDrillDryWellSummaryService {
           section.items()
               .stream()
               .filter(item -> item.showOnSubNav() == ShowOnSubNav.TRUE)
-              .forEach(item -> listOfSubNavItems.add(new SubNavigationPostDrillSectionItem(item.displayName(),
+              .forEach(item -> listOfSubNavItems.add(new SubNavigationItem(item.displayName(),
                   getActionUrl(item))))
         );
 

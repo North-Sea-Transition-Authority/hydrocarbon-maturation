@@ -15,7 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.discovery.DiscoveryTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Controller
 @RequestMapping("/discovery/create")
@@ -44,7 +44,7 @@ public class PostDrillDiscoveryController {
         getStartDiscoveryModelAndView(form),
         () -> {
           var submissionDetail = startDiscoveryService.createNewDiscovery(form);
-          return ReverseRouter.redirect(on(DiscoveryTaskListController.class)
+          return ReverseRouter.redirect(on(TaskListController.class)
               .getTaskList(submissionDetail.getId()));
         }
     );

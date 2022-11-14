@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
@@ -30,10 +31,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprope
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSection;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItem;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListSection;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ShowOnSubNav;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListItem;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSection;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
 
@@ -54,9 +55,7 @@ class ProspectSummaryService {
   private final GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
   private final AdditionalInformationSummaryService additionalInformationSummaryService;
   private final OpportunityDetailsSummaryService opportunityDetailsSummaryService;
-  private final List<ProspectTaskListSection> prospectTaskListSections;
-  private final List<ProspectTaskListItem> prospectTaskListItems;
-  private List<SubNavigationSectionItem> subNavigationSectionItems;
+  private final List<TaskListSectionService> prospectTaskListSections;
 
   @Autowired
   public ProspectSummaryService(GeneralDetailSummaryService generalDetailSummaryService,
@@ -73,8 +72,7 @@ class ProspectSummaryService {
                                 MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService,
                                 AdditionalInformationSummaryService additionalInformationSummaryService,
                                 OpportunityDetailsSummaryService opportunityDetailsSummaryService,
-                                List<ProspectTaskListSection> prospectTaskListSections,
-                                List<ProspectTaskListItem> prospectTaskListItems) {
+                                List<TaskListSectionService> prospectTaskListSections) {
     this.generalDetailSummaryService = generalDetailSummaryService;
     this.sourceAndSealSummaryService = sourceAndSealSummaryService;
     this.chanceOfSuccessSummaryService = chanceOfSuccessSummaryService;
@@ -90,8 +88,6 @@ class ProspectSummaryService {
     this.additionalInformationSummaryService = additionalInformationSummaryService;
     this.opportunityDetailsSummaryService = opportunityDetailsSummaryService;
     this.prospectTaskListSections = prospectTaskListSections;
-    this.prospectTaskListItems = prospectTaskListItems;
-    this.subNavigationSectionItems = new ArrayList<>();
   }
 
   public GeneralDetailSummaryView getGeneralDetailSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -102,15 +98,18 @@ class ProspectSummaryService {
     return sourceAndSealSummaryService.getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
   }
 
-  public ChanceOfSuccessSummaryView getChanceOfSuccessSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+  public ChanceOfSuccessSummaryView getChanceOfSuccessSummaryViewFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
     return chanceOfSuccessSummaryService.getChanceOfSuccessSummaryFromSubmissionDetail(submissionDetail);
   }
 
-  public HydrocarbonCaseSummaryView getHydrocarbonCaseSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+  public HydrocarbonCaseSummaryView getHydrocarbonCaseSummaryViewFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
     return hydrocarbonCaseSummaryService.getHydrocarbonSummaryFromSubmissionDetail(submissionDetail);
   }
 
-  public ReservoirPropertiesSummaryView getReservoirPropertiesSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+  public ReservoirPropertiesSummaryView getReservoirPropertiesSummaryViewFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
     return reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
   }
 
@@ -156,38 +155,31 @@ class ProspectSummaryService {
     return additionalInformationSummaryService.getAdditionalInformationSummaryFromSubmissionDetail(submissionDetail);
   }
 
-  public List<SubNavigationSectionItem> getProspectSubNavigation(SubmissionDetail submissionDetail) {
-    subNavigationSectionItems = new ArrayList<>();
-    return getProspectSubNavigationItems(prospectTaskListItems, prospectTaskListSections, submissionDetail);
+  public List<SubNavigationItem> getProspectSubNavigation(SubmissionDetail submissionDetail) {
+    return getProspectSubNavigationItems(prospectTaskListSections, submissionDetail);
   }
 
-  private List<SubNavigationSectionItem> getProspectSubNavigationItems(
-      List<ProspectTaskListItem> items,
-      List<ProspectTaskListSection> sections,
+  private List<SubNavigationItem> getProspectSubNavigationItems(
+      List<TaskListSectionService> sections,
       SubmissionDetail submissionDetail) {
-    var taskListType = new ProspectTaskListItemType(submissionDetail);
 
-    sections
-        .stream()
-        .filter(item -> !item.getClass().equals(ReviewAndSubmitTaskListSection.class))
-        .map(SubNavigationSectionItem::new)
-        .sorted(Comparator.comparing(SubNavigationSectionItem::getOrder))
-        .forEach(subNavigationSectionItem -> {
-          items
+    List<SubNavigationItem> listOfSubNavItems = new ArrayList<>();
+    sections.stream()
+        .map(tlss -> tlss.getSection(submissionDetail))
+        .flatMap(Optional::stream)
+        .sorted(Comparator.comparing(TaskListSection::displayOrder))
+        .forEach(section ->
+          section.items()
               .stream()
-              .filter(taskListItem ->
-                  isTaskListForSectionAndVisible(taskListType, taskListItem, subNavigationSectionItem.getSection()))
-              .forEach(subNavigationSectionItem::addTaskListItem);
-          subNavigationSectionItems.add(subNavigationSectionItem);
-        });
-    return subNavigationSectionItems;
+              .filter(item -> item.showOnSubNav() == ShowOnSubNav.TRUE)
+              .forEach(item -> listOfSubNavItems.add(new SubNavigationItem(item.displayName(),
+                  getActionUrl(item))))
+        );
+
+    return listOfSubNavItems;
   }
 
-  private boolean isTaskListForSectionAndVisible(ProspectTaskListItemType taskListItemType,
-                                                 ProspectTaskListItem prospectTaskListItem,
-                                                 ProspectTaskListSection section) {
-    return taskListItemType != null
-        && prospectTaskListItem.isVisible(taskListItemType)
-        && prospectTaskListItem.getTaskListSection().equals(section.getClass());
+  private String getActionUrl(TaskListItem item) {
+    return "#" + item.displayName().replace(" ", "").toLowerCase();
   }
 }

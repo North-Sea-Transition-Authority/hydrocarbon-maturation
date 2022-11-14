@@ -28,8 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.discovery.DiscoveryTaskListController;
-
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @WithMockUser
 @ContextConfiguration(classes = PostDrillDiscoveryController.class)
@@ -85,7 +84,7 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(
-            ReverseRouter.route(on(DiscoveryTaskListController.class).getTaskList(submissionDetailId))));
+            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
   }
 
   @Test
