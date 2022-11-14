@@ -13,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
 
@@ -21,6 +23,9 @@ class ReservoirTaskListSectionServiceTest {
 
   @Mock
   private ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
+
+  @Mock
+  private PermeabilitySubmissionService permeabilitySubmissionService;
 
   @InjectMocks
   private ReservoirTaskListSectionService reservoirTaskListSectionService;
@@ -46,7 +51,10 @@ class ReservoirTaskListSectionServiceTest {
         .containsExactly(List.of(
             new TaskListItem("Reservoir properties",
                 TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetail.getId())))),
+                ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetail.getId()))),
+            new TaskListItem("Permeability",
+                TaskListLabel.NOT_COMPLETE,
+                ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(submissionDetail.getId(), null)))),
             "Reservoir",
             40
         );

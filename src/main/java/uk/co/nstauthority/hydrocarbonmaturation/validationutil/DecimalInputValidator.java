@@ -34,6 +34,11 @@ public class DecimalInputValidator {
     return new DecimalInputValidator(errors, fieldId, errorMessagePrefix, decimalInput);
   }
 
+  public static DecimalInputValidator configureOptionalValidator(Errors errors, String fieldId,
+                                                                 String errorMessagePrefix, DecimalInput decimalInput) {
+    return new DecimalInputValidator(errors, fieldId, errorMessagePrefix, decimalInput).isOptional();
+  }
+
   public DecimalInputValidator setMaxDecimalPlaces(int decimalPlacesExpected) {
     this.decimalPlacesExpected = decimalPlacesExpected;
     return this;
