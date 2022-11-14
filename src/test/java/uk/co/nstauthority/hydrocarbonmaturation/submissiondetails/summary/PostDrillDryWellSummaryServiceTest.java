@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReservoirTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSectionService;
@@ -25,6 +26,9 @@ class PostDrillDryWellSummaryServiceTest {
 
   @Mock
   private DryWellDetailsSummaryService dryWellDetailsSummaryService;
+
+  @Mock
+  private PermeabilitySummaryService permeabilitySummaryService;
 
   @Mock
   private ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
@@ -54,6 +58,7 @@ class PostDrillDryWellSummaryServiceTest {
 
     postDrillDryWellSummaryService = new PostDrillDryWellSummaryService(
         dryWellDetailsSummaryService,
+        permeabilitySummaryService,
         postWellDrillTaskListSections
     );
   }
@@ -64,6 +69,14 @@ class PostDrillDryWellSummaryServiceTest {
 
     verify(dryWellDetailsSummaryService, times(1))
         .getDryWellDetailSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getPermeabilityDetailSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(permeabilitySummaryService, times(1))
+        .getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
   }
 
   @Test
@@ -84,8 +97,10 @@ class PostDrillDryWellSummaryServiceTest {
 
     postDrillDryWellSummaryService = new PostDrillDryWellSummaryService(
         dryWellDetailsSummaryService,
+        permeabilitySummaryService,
         postWellDrillTaskListSections
     );
+
     var subNavItems = postDrillDryWellSummaryService.getPostDrillDryWellSubNavigation(submissionDetail);
 
     assertThat(subNavItems).isEmpty();

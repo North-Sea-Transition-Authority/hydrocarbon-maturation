@@ -28,7 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @WithMockUser
@@ -41,19 +41,17 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
   @MockBean
   private SubmissionDetailService submissionDetailService;
 
-  @MockBean
-  HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
-
   private static UUID submissionDetailId;
   private static SubmissionDetail submissionDetail;
-
   private DryWellDetailsSummaryView dryWellDetailsSummaryView;
+  private PermeabilityDetailSummaryView permeabilityDetailSummaryView;
 
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
     dryWellDetailsSummaryView =  DryWellDetailsSummaryView.empty();
+    permeabilityDetailSummaryView = PermeabilityDetailSummaryView.empty();
   }
 
   @Test
@@ -65,6 +63,8 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
         .thenReturn(dryWellDetailsSummaryView);
     when(postDrillDryWellSummaryService.getPostDrillDryWellSubNavigation(submissionDetail))
         .thenReturn(subNavList);
+    when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(permeabilityDetailSummaryView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
@@ -92,6 +92,8 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
 
     when(postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(dryWellDetailsSummaryView);
+    when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(permeabilityDetailSummaryView);
     when(postDrillDryWellSummaryService.getPostDrillDryWellSubNavigation(submissionDetail))
         .thenReturn(subNavList);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
@@ -106,6 +108,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
         .contains(
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
             entry("dryWellDetailsSummaryView", dryWellDetailsSummaryView),
+            entry("permeabiltySummaryView", permeabilityDetailSummaryView),
             entry("subNavigation", subNavList)
         );
   }

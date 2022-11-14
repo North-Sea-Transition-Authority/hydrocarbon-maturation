@@ -1,15 +1,14 @@
 <#include '../layout/leftSubNavLayout.ftl'>
 
 <#import '../summarylistcards/dryWellSummaryCard.ftl' as dryWellSummary>
+<#import '../summarylistcards/permeabilitySummaryCard.ftl' as permeabilitySummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
-<#-- @ftlvariable name="subNavigation" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubNavigationItem>" -->
-<#-- @ftlvariable name="reservoirPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView" -->
-<#-- @ftlvariable name="trapPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView" -->
+<#-- @ftlvariable name="subNavigation" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubNavigationPostDrillSectionItem>" -->
 <#-- @ftlvariable name="gasCase" type="Boolean" -->
 <#-- @ftlvariable name="oilCase" type="Boolean" -->
 <#-- @ftlvariable name="mixedCase" type="Boolean" -->
@@ -22,7 +21,7 @@
     <@fdsSubNavigation.subNavigation sticky=true>
       <@fdsSubNavigation.subNavigationSection themeHeading="Sections">
         <#list subNavigation as item>
-            <@fdsSubNavigation.subNavigationSectionItem
+          <@fdsSubNavigation.subNavigationSectionItem
             linkName="${item.displayName()}"
             linkAction="${item.actionUrl()}"
             currentItemHref="#"/>
@@ -34,6 +33,9 @@
   <@defaultLeftSubNavPageContent pageHeading=pageTitle breadcrumbsMap=breadcrumbsMap>
     <@fdsForm.htmlForm>
       <@dryWellSummary.dryWellDetailCard dryWellValues=dryWellDetailsSummaryView/>
+      <@permeabilitySummary.permeabilityDetailsSummaryCard
+        permeabilityDetailsValues=permeabiltySummaryView
+        optionalPermeability=true/>
 
       <@fdsAction.submitButtons
         primaryButtonText="Submit"
