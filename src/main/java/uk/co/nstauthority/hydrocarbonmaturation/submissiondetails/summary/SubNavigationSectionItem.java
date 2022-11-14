@@ -10,22 +10,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prosp
 public class SubNavigationSectionItem {
   private final ProspectTaskListSection section;
   private final String action;
-  private final List<ProspectSummaryItem> prospectTaskListItems;
+  private final List<TasklistSummaryItem> taskListItems;
   private final Integer order;
 
   public SubNavigationSectionItem(ProspectTaskListSection section) {
     this.section = section;
     this.action = "#" + section.getSectionName().replace(" ", "").toLowerCase();
-    this.prospectTaskListItems = new ArrayList<>();
+    this.taskListItems = new ArrayList<>();
     this.order = section.getDisplayOrder();
   }
 
   public void addTaskListItem(ProspectTaskListItem prospectTaskListItem) {
-    if (!prospectTaskListItems.contains(prospectTaskListItem)
+    if (!taskListItems.contains(prospectTaskListItem)
         && !(prospectTaskListItem.getClass().equals(ReviewAndSubmitTaskListItem.class))) {
-      var summaryItem = new ProspectSummaryItem(prospectTaskListItem);
-      prospectTaskListItems.add(summaryItem);
-      prospectTaskListItems.sort(Comparator.comparing(ProspectSummaryItem::getDisplayOrder));
+      var summaryItem = new TasklistSummaryItem(prospectTaskListItem);
+      taskListItems.add(summaryItem);
+      getTaskListItems().sort(Comparator.comparing(TasklistSummaryItem::getDisplayOrder));
     }
   }
 
@@ -45,7 +45,7 @@ public class SubNavigationSectionItem {
     return action;
   }
 
-  public List<ProspectSummaryItem> getProspectTaskListItems() {
-    return prospectTaskListItems;
+  public List<TasklistSummaryItem> getTaskListItems() {
+    return taskListItems;
   }
 }

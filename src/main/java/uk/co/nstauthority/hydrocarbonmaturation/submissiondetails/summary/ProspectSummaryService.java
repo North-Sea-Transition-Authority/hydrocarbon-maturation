@@ -180,7 +180,6 @@ class ProspectSummaryService {
               .forEach(subNavigationSectionItem::addTaskListItem);
           subNavigationSectionItems.add(subNavigationSectionItem);
         });
-
     return subNavigationSectionItems;
   }
 

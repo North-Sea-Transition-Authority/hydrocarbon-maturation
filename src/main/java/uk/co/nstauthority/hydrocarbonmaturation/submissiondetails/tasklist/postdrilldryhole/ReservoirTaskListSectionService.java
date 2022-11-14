@@ -14,15 +14,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprope
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
 
 @Service
-class ReservoirTaskListSectionService implements TaskListSectionService {
+public class ReservoirTaskListSectionService implements TaskListSectionService {
 
   private final ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
 
   private final PermeabilitySubmissionService permeabilitySubmissionService;
 
   @Autowired
-  ReservoirTaskListSectionService(ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService,
-                                  PermeabilitySubmissionService permeabilitySubmissionService) {
+  public ReservoirTaskListSectionService(ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService,
+                                         PermeabilitySubmissionService permeabilitySubmissionService) {
     this.reservoirPropertiesSubmissionService = reservoirPropertiesSubmissionService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
   }

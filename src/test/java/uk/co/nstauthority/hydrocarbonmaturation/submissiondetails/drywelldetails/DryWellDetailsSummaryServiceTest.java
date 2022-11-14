@@ -1,0 +1,133 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
+
+@ExtendWith(MockitoExtension.class)
+class DryWellDetailsSummaryServiceTest {
+
+  @Mock
+  private DryWellDetailsPersistenceService dryWellDetailsPersistenceService;
+
+  @InjectMocks
+  private DryWellDetailsSummaryService dryWellDetailsSummaryService;
+
+  private SubmissionDetail submissionDetail;
+
+  @BeforeEach
+  void setUp() {
+    submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+  }
+
+  @Test
+  void getDryWellDetailSummaryFromSubmissionDetail_whenNotPresent_emptySummary() {
+    when(dryWellDetailsPersistenceService.getDryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    var view = dryWellDetailsSummaryService.getDryWellDetailSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(view)
+        .extracting(
+            DryWellDetailsSummaryView::principalWell,
+            DryWellDetailsSummaryView::latitudeDegrees,
+            DryWellDetailsSummaryView::latitudeMinutes,
+            DryWellDetailsSummaryView::latitudeSeconds,
+            DryWellDetailsSummaryView::longitudeDegrees,
+            DryWellDetailsSummaryView::longitudeMinutes,
+            DryWellDetailsSummaryView::longitudeSeconds,
+            DryWellDetailsSummaryView::longitudeHemisphere,
+            DryWellDetailsSummaryView::datum,
+            DryWellDetailsSummaryView::totalDepthFormation,
+            DryWellDetailsSummaryView::totalDepthFormationComments,
+            DryWellDetailsSummaryView::dataAcquisitionProgramme,
+            DryWellDetailsSummaryView::geophysicalUpdate,
+            DryWellDetailsSummaryView::dryHoleType,
+            DryWellDetailsSummaryView::dryHoleDescription,
+            DryWellDetailsSummaryView::dryHoleScope,
+            DryWellDetailsSummaryView::dryHoleComments,
+            DryWellDetailsSummaryView::dryHoleCost)
+        .containsOnly("");
+  }
+
+  @Test
+  void getDryWellDetailSummaryFromSubmissionDetail_whenPresent_fullSummary() {
+    var dryWellDetail = new DryWellDetail();
+    dryWellDetail.setDryWellName("wellname");
+    dryWellDetail.setDryWellId("wellname");
+    dryWellDetail.setLatitudeDegrees(BigDecimal.ONE);
+    dryWellDetail.setLatitudeMinutes(BigDecimal.ONE);
+    dryWellDetail.setLatitudeSeconds(BigDecimal.ONE);
+    dryWellDetail.setLongitudeDegrees(BigDecimal.ONE);
+    dryWellDetail.setLongitudeMinutes(BigDecimal.ONE);
+    dryWellDetail.setLongitudeSeconds(BigDecimal.ONE);
+    dryWellDetail.setLongitudeHemisphere(Hemisphere.EAST);
+    dryWellDetail.setDatum(ReservoirDatum.ED50);
+    dryWellDetail.setTotalDepthFormation("depth");
+    dryWellDetail.setTotalDepthFormationComments("depthC");
+    dryWellDetail.setDataAcquisitionProgramme("data");
+    dryWellDetail.setGeophysicalUpdateCommentary("geophysical");
+    dryWellDetail.setDryHoleType(DryHoleType.GAS);
+    dryWellDetail.setDryHoleDescription("description");
+    dryWellDetail.setDryHoleScope("scope");
+    dryWellDetail.setDryHoleComments("comments");
+    dryWellDetail.setDryHoleCost(BigDecimal.ONE);
+
+    when(dryWellDetailsPersistenceService.getDryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(dryWellDetail));
+
+    var view = dryWellDetailsSummaryService.getDryWellDetailSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(view)
+        .extracting(
+            DryWellDetailsSummaryView::principalWell,
+            DryWellDetailsSummaryView::latitudeDegrees,
+            DryWellDetailsSummaryView::latitudeMinutes,
+            DryWellDetailsSummaryView::latitudeSeconds,
+            DryWellDetailsSummaryView::longitudeDegrees,
+            DryWellDetailsSummaryView::longitudeMinutes,
+            DryWellDetailsSummaryView::longitudeSeconds,
+            DryWellDetailsSummaryView::longitudeHemisphere,
+            DryWellDetailsSummaryView::datum,
+            DryWellDetailsSummaryView::totalDepthFormation,
+            DryWellDetailsSummaryView::totalDepthFormationComments,
+            DryWellDetailsSummaryView::dataAcquisitionProgramme,
+            DryWellDetailsSummaryView::geophysicalUpdate,
+            DryWellDetailsSummaryView::dryHoleType,
+            DryWellDetailsSummaryView::dryHoleDescription,
+            DryWellDetailsSummaryView::dryHoleScope,
+            DryWellDetailsSummaryView::dryHoleComments,
+            DryWellDetailsSummaryView::dryHoleCost)
+        .containsExactly(
+            "wellname",
+            BigDecimal.ONE + "°",
+            BigDecimal.ONE + "''",
+            BigDecimal.ONE + "'",
+            BigDecimal.ONE + "°",
+            BigDecimal.ONE + "''",
+            BigDecimal.ONE + "'",
+            Hemisphere.EAST.getDisplayName(),
+            ReservoirDatum.ED50.getDisplayName(),
+            "depth",
+            "depthC",
+            "data",
+            "geophysical",
+            DryHoleType.GAS.getDisplayName(),
+            "description",
+            "scope",
+            "comments",
+            BigDecimal.ONE.toString()
+        );
+  }
+}

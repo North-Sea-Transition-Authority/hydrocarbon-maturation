@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.PostDrillDryWellSubmissionSummaryController;
 
 class ReviewAndSubmitTaskListSectionServiceTest {
 
@@ -35,7 +35,8 @@ class ReviewAndSubmitTaskListSectionServiceTest {
             TaskListSection::displayOrder)
         .containsExactly(List.of(
             new TaskListItem("Review and submit",
-                ReverseRouter.route(on(SubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId())))),
+                ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId())),
+                ShowOnSubNav.FALSE)),
             "Review and submit",
             Integer.MAX_VALUE
         );

@@ -4,18 +4,18 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prosp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.prospect.ProspectTaskListItemType;
 import uk.co.nstauthority.hydrocarbonmaturation.tasklist.TaskListSection;
 
-public class ProspectSummaryItem implements ProspectTaskListItem {
+public class TasklistSummaryItem implements ProspectTaskListItem {
 
-  private String itemDisplayText;
-  private String actionUrl;
-  private Integer displayOrder;
-  private Class<? extends TaskListSection<ProspectTaskListItemType>>  taskListSection;
+  private final String itemDisplayText;
+  private final String actionUrl;
+  private final Integer displayOrder;
+  private final Class<? extends TaskListSection<ProspectTaskListItemType>>  taskListSection;
 
-  public ProspectSummaryItem(ProspectTaskListItem prospectTaskListItem) {
-    this.actionUrl = "#" + prospectTaskListItem.getItemDisplayText().replace(" ", "").toLowerCase();
-    this.itemDisplayText = prospectTaskListItem.getItemDisplayText();
-    this.taskListSection = prospectTaskListItem.getTaskListSection();
-    this.displayOrder = prospectTaskListItem.getDisplayOrder();
+  public TasklistSummaryItem(ProspectTaskListItem taskListItem) {
+    this.actionUrl = "#" + taskListItem.getItemDisplayText().replace(" ", "").toLowerCase();
+    this.itemDisplayText = taskListItem.getItemDisplayText();
+    this.taskListSection = taskListItem.getTaskListSection();
+    this.displayOrder = taskListItem.getDisplayOrder();
   }
 
   @Override
@@ -25,10 +25,10 @@ public class ProspectSummaryItem implements ProspectTaskListItem {
 
   @Override
   public String getActionUrl(ProspectTaskListItemType target) {
-    return null;
+    return actionUrl;
   }
 
-  public String getAction() {
+  public String getActionUrl() {
     return actionUrl;
   }
 

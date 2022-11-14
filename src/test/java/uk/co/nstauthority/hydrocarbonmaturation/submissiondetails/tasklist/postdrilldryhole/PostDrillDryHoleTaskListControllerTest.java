@@ -46,11 +46,11 @@ class PostDrillDryHoleTaskListControllerTest extends AbstractControllerTest {
         .thenReturn(submissionDetail);
     var taskListSections = List.of(
         new TaskListSection("Reservoir", 10, List.of(
-            new TaskListItem("item1", "actionUrl1"),
-            new TaskListItem("item2", "actionUrl2")
+            new TaskListItem("item1", "actionUrl1", ShowOnSubNav.TRUE),
+            new TaskListItem("item2", "actionUrl2", ShowOnSubNav.TRUE)
         )),
         new TaskListSection("Section2", 10, List.of(
-            new TaskListItem("item1s2", "actionUrl1s2")))
+            new TaskListItem("item1s2", "actionUrl1s2", ShowOnSubNav.TRUE)))
     );
 
     when(taskListService.getAllSections(submissionDetail))
@@ -59,14 +59,14 @@ class PostDrillDryHoleTaskListControllerTest extends AbstractControllerTest {
                 "Reservoir",
                 10,
                 List.of(
-                    new TaskListItem("item1", "actionUrl1"),
-                    new TaskListItem("item2", "actionUrl2")
+                    new TaskListItem("item1", "actionUrl1", ShowOnSubNav.TRUE),
+                    new TaskListItem("item2", "actionUrl2", ShowOnSubNav.TRUE)
                 )),
                 new TaskListSection(
                     "Section2",
                     10,
                     List.of(
-                        new TaskListItem("item1s2", "actionUrl1s2")
+                        new TaskListItem("item1s2", "actionUrl1s2", ShowOnSubNav.TRUE)
                     )))
         );
 

@@ -36,13 +36,13 @@ class SubNavigationSectionItemTest {
   @Test
   void addTaskListItem_reviewAndSubmitItem_doesntAdd() {
     subNavigationSectionItem.addTaskListItem(reviewAndSubmitTaskListItem);
-    assertThat(subNavigationSectionItem.getProspectTaskListItems()).isEmpty();
+    assertThat(subNavigationSectionItem.getTaskListItems()).isEmpty();
   }
 
   @Test
   void addTaskListItem_validProspectItem_addsToList() {
     subNavigationSectionItem.addTaskListItem(sourceAndSealTaskListItem);
-    assertThat(subNavigationSectionItem.getProspectTaskListItems()).hasSize(1);
+    assertThat(subNavigationSectionItem.getTaskListItems()).hasSize(1);
   }
 
   @Test

@@ -25,7 +25,7 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
 
     var items = List.of(
-        new TaskListItem("Post well drill",
+        new TaskListItem("Dry well details",
             TaskListLabel.notStartedOrComplete(dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)),
             ReverseRouter.route(on(DryWellDetailsController.class).getDryWellDetails(submissionDetail.getId(), null)))
     );

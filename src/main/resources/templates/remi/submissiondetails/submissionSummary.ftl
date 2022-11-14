@@ -35,7 +35,7 @@
     <@fdsSubNavigation.subNavigation sticky=true>
       <@fdsSubNavigation.subNavigationSection themeHeading="Sections">
         <#list subNavigation as section>
-          <#list section.getProspectTaskListItems() as item>
+          <#list section.getTaskListItems() as item>
             <@fdsSubNavigation.subNavigationSectionItem
               linkName="${item.getItemDisplayText()}"
               linkAction="${item.getAction()}"

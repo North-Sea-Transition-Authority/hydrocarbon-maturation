@@ -44,7 +44,7 @@ class PostWellDrillTaskListSectionServiceTest {
             TaskListSection::displayName,
             TaskListSection::displayOrder)
         .containsExactly(List.of(
-            new TaskListItem("Post well drill",
+            new TaskListItem("Dry well details",
                 TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(DryWellDetailsController.class).getDryWellDetails(submissionDetail.getId(), null)))),
             "Post well drill",

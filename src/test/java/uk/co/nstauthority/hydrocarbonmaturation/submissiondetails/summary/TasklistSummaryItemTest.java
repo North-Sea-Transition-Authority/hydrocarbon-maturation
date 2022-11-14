@@ -11,31 +11,31 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.SourceAndSealTaskListItem;
 
 @ExtendWith(MockitoExtension.class)
-class ProspectSummaryItemTest {
+class TasklistSummaryItemTest {
 
-  private ProspectSummaryItem prospectSummaryItem;
+  private TasklistSummaryItem tasklistSummaryItem;
 
   @Mock
   private SourceAndSealSubmissionService sourceAndSealSubmissionService;
 
   @BeforeEach
   void setUp() {
-    prospectSummaryItem = new ProspectSummaryItem(new SourceAndSealTaskListItem(sourceAndSealSubmissionService));
+    tasklistSummaryItem = new TasklistSummaryItem(new SourceAndSealTaskListItem(sourceAndSealSubmissionService));
   }
 
   @Test
   void getItemDisplayText() {
-    assertThat(prospectSummaryItem.getItemDisplayText()).hasToString("Source and seal");
+    assertThat(tasklistSummaryItem.getItemDisplayText()).hasToString("Source and seal");
   }
 
   @Test
   void getAction() {
-    assertThat(prospectSummaryItem.getAction()).hasToString("#sourceandseal");
+    assertThat(tasklistSummaryItem.getActionUrl()).hasToString("#sourceandseal");
   }
 
   @Test
   void getTaskListSection() {
-    assertThat(prospectSummaryItem.getTaskListSection().toString())
+    assertThat(tasklistSummaryItem.getTaskListSection().toString())
         .hasToString("class uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.OpportunityTaskListSection");
   }
 }
