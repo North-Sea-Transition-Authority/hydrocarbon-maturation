@@ -6,22 +6,25 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
-@WithMockUser
 @ContextConfiguration(classes = ProspectRestController.class)
 class ProspectRestControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private SearchSelectorService searchSelectorService;
@@ -39,7 +42,8 @@ class ProspectRestControllerTest extends AbstractControllerTest {
   void searchProspects() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(ProspectRestController.class).searchProspects(null)))
             .param("term", "searchTerm")
-            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .with(user(USER)))
         .andExpect(status().isOk());
   }
 }

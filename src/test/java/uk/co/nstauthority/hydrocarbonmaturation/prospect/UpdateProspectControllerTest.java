@@ -12,17 +12,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 import static uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter.emptyBindingResult;
 
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -31,9 +33,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 
-@WithMockUser
 @ContextConfiguration(classes = UpdateProspectController.class)
 class UpdateProspectControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail NSTA_USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private UpdateProspectService updateProspectService;
@@ -53,10 +56,12 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
 
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(UpdateProspectController.class).getUpdatePage(null)))
-            .flashAttr("form", form))
+            .flashAttr("form", form)
+            .with(user(NSTA_USER)))
         .andReturn()
         .getModelAndView();
 
+    assert modelAndView != null;
     assertThat(modelAndView.getModel())
         .extracting(
             "backLinkUrl",
@@ -82,6 +87,7 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         post(ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, null)))
             .flashAttr("form", form)
+            .with(user(NSTA_USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(
@@ -97,13 +103,15 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
     when(updateProspectService.validate(any(), any())).thenReturn(bindingResult);
 
     var modelAndView = mockMvc.perform(
-            post(ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, null)))
-                .flashAttr("form", form)
-                .with(csrf()))
+        post(ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, null)))
+            .flashAttr("form", form)
+            .with(user(NSTA_USER))
+            .with(csrf()))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView();
 
+    assert modelAndView != null;
     assertThat(modelAndView.getModel())
         .extracting(
             "backLinkUrl",

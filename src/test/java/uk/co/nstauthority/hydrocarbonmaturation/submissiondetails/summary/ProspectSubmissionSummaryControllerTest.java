@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,10 +23,11 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.ui.ModelMap;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -45,9 +47,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
 
-@WithMockUser
 @ContextConfiguration(classes = ProspectSubmissionSummaryController.class)
 class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail NSTA_USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private SubmissionDetailService submissionDetailService;
@@ -154,7 +157,8 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(opportunityDetailsSummaryView);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null))))
+        get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
+            .with(user(NSTA_USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/prospectSubmissionSummary"));
   }
@@ -165,8 +169,9 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
     when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
-              .with(csrf()))
+        post(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+            .with(user(NSTA_USER))
+            .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
 
@@ -209,7 +214,8 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(true);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null))))
+        get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
+            .with(user(NSTA_USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
 

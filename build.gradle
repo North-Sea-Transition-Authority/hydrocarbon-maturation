@@ -20,6 +20,10 @@ configurations {
 repositories {
 	mavenCentral()
 	maven {
+		// Required for opensaml deps
+		url "https://build.shibboleth.net/nexus/content/repositories/releases/"
+	}
+	maven {
 		url "http://nexus.fivium.local:8081/repository/maven-releases/"
 		allowInsecureProtocol = true
 	}
@@ -30,6 +34,13 @@ repositories {
 }
 
 dependencies {
+	// OpenSAML 4.1+ is required for most SAML functionality
+	// See the Spring samples e.g. https://github.com/spring-projects/spring-security-samples/blob/main/servlet/spring-boot/java/saml2/login/build.gradle
+	constraints {
+		implementation "org.opensaml:opensaml-core:4.2.0"
+		implementation "org.opensaml:opensaml-saml-api:4.2.0"
+		implementation "org.opensaml:opensaml-saml-impl:4.2.0"
+	}
   implementation 'org.apache.commons:commons-lang3:3.12.0'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

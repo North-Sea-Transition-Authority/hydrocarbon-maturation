@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation;
 
 import java.util.Optional;
-import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -6,25 +6,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 
-@WithMockUser
-@ContextConfiguration(
-    classes = WorkAreaController.class
-)
+@ContextConfiguration(classes = WorkAreaController.class)
 class WorkAreaControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @Test
   void getWorkArea_assertHttpOk() throws Exception {
-    mockMvc.perform(
-            get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
-        )
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
+            .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/workarea/workArea"))
         .andExpect(model().attribute("startSubmissionUrl", ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose())));

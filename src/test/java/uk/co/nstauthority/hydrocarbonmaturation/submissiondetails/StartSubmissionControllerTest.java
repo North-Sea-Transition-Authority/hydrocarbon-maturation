@@ -10,23 +10,26 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartUpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-@WithMockUser
 @ContextConfiguration(classes = StartSubmissionController.class)
 class StartSubmissionControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   SubmissionTypeSelectService submissionTypeSelectService;
@@ -40,6 +43,7 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+            .with(user(USER))
             .with(csrf())
             .param("submissionType", SubmissionType.CREATE_PROSPECT.name()))
         .andExpect(status().is3xxRedirection())
@@ -53,11 +57,11 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
 
-    mockMvc.perform(
-            post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
-                .with(csrf())
-                .param("submissionType", SubmissionType.PROSPECT_UPDATE.name())
-        ).andExpect(status().is3xxRedirection())
+    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+            .with(user(USER))
+            .with(csrf())
+            .param("submissionType", SubmissionType.PROSPECT_UPDATE.name()))
+        .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage())));
   }
 
@@ -68,11 +72,11 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
 
-    mockMvc.perform(
-            post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
-                .with(csrf())
-                .param("submissionType", SubmissionType.CREATE_DISCOVERY.name())
-        ).andExpect(status().is3xxRedirection())
+    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+            .with(user(USER))
+            .with(csrf())
+            .param("submissionType", SubmissionType.CREATE_DISCOVERY.name()))
+        .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage())));
   }
 
@@ -84,17 +88,18 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
 
-    mockMvc.perform(
-        post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
-            .with(csrf())
-    ).andExpect(status().isOk());
+    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+            .with(user(USER))
+            .with(csrf()))
+        .andExpect(status().isOk());
   }
 
 
   @Test
   void getSubmissionPurpose_assertModelProperties() throws Exception {
     var modelAndView = mockMvc.perform(
-        get(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose())))
+        get(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()))
+            .with(user(USER)))
         .andReturn()
         .getModelAndView();
 

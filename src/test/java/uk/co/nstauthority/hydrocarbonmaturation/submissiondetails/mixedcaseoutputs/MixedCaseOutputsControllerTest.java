@@ -1,51 +1,54 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
 
-    import static java.util.Map.entry;
-    import static org.assertj.core.api.Assertions.assertThat;
-    import static org.mockito.ArgumentMatchers.any;
-    import static org.mockito.ArgumentMatchers.eq;
-    import static org.mockito.Mockito.never;
-    import static org.mockito.Mockito.times;
-    import static org.mockito.Mockito.verify;
-    import static org.mockito.Mockito.when;
-    import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-    import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-    import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-    import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-    import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-    import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-    import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static java.util.Map.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-    import java.util.Map;
-    import java.util.Objects;
-    import java.util.UUID;
-    import org.junit.jupiter.api.BeforeEach;
-    import org.junit.jupiter.api.Test;
-    import org.junit.jupiter.params.ParameterizedTest;
-    import org.junit.jupiter.params.provider.EnumSource;
-    import org.springframework.beans.factory.annotation.Autowired;
-    import org.springframework.boot.test.mock.mockito.MockBean;
-    import org.springframework.security.test.context.support.WithMockUser;
-    import org.springframework.test.context.ContextConfiguration;
-    import org.springframework.validation.BeanPropertyBindingResult;
-    import org.springframework.validation.BindingResult;
-    import org.springframework.validation.FieldError;
-    import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-    import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-    import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
-    import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
-    import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
-    import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-    import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-    import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-    import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
-    import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
-    import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
-    import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-@WithMockUser
 @ContextConfiguration(classes = MixedCaseOutputsController.class)
 class MixedCaseOutputsControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private SubmissionDetailService submissionDetailService;
@@ -79,7 +82,8 @@ class MixedCaseOutputsControllerTest extends AbstractControllerTest {
     when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail)).thenReturn(new MixedCaseOutputsForm());
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(MixedCaseOutputsController.class).getMixedCaseOutputs(submissionDetailId, null))))
+        get(ReverseRouter.route(on(MixedCaseOutputsController.class).getMixedCaseOutputs(submissionDetailId, null)))
+            .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/mixedCaseOutputs"));
   }
@@ -91,9 +95,10 @@ class MixedCaseOutputsControllerTest extends AbstractControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(MixedCaseOutputsController.class).saveMixedCaseOutputs(submissionDetailId, null, null, null)))
-                .params(ControllerTestUtils.validationPostParams(validationType))
-                .with(csrf()))
+        post(ReverseRouter.route(on(MixedCaseOutputsController.class).saveMixedCaseOutputs(submissionDetailId, null, null, null)))
+            .params(ControllerTestUtils.validationPostParams(validationType))
+            .with(user(USER))
+            .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
@@ -109,9 +114,10 @@ class MixedCaseOutputsControllerTest extends AbstractControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(MixedCaseOutputsController.class).saveMixedCaseOutputs(submissionDetailId, null, null, null)))
-                .params(ControllerTestUtils.validationPostParams(validationType))
-                .with(csrf()))
+        post(ReverseRouter.route(on(MixedCaseOutputsController.class).saveMixedCaseOutputs(submissionDetailId, null, null, null)))
+            .params(ControllerTestUtils.validationPostParams(validationType))
+            .with(user(USER))
+            .with(csrf()))
         .andExpect(status().isOk());
 
     verify(mixedCaseOutputsPersistenceService, never()).saveMixedCaseOutputs(any(MixedCaseOutputsForm.class), any());
@@ -123,8 +129,9 @@ class MixedCaseOutputsControllerTest extends AbstractControllerTest {
     when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(MixedCaseOutputsController.class)
-                .getMixedCaseOutputs(submissionDetailId, null))))
+        get(ReverseRouter.route(on(MixedCaseOutputsController.class)
+            .getMixedCaseOutputs(submissionDetailId, null)))
+            .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
 

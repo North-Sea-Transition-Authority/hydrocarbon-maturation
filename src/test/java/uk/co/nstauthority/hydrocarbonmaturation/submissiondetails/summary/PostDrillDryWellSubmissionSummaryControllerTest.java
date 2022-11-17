@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,10 +20,11 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.ui.ModelMap;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -31,9 +33,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
-@WithMockUser
 @ContextConfiguration(classes = PostDrillDryWellSubmissionSummaryController.class)
 class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private PostDrillDryWellSummaryService postDrillDryWellSummaryService;
@@ -67,8 +70,9 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
         .thenReturn(permeabilityDetailSummaryView);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
-                .showSubmissionSummary(submissionDetailId))))
+        get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
+            .showSubmissionSummary(submissionDetailId)))
+            .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/dryWellSubmissionSummary"));
   }
@@ -78,8 +82,9 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).processSubmission(submissionDetailId)))
-                .with(csrf()))
+        post(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).processSubmission(submissionDetailId)))
+            .with(user(USER))
+            .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
 
@@ -99,8 +104,9 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
-                .showSubmissionSummary(submissionDetailId))))
+        get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
+            .showSubmissionSummary(submissionDetailId)))
+            .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
 

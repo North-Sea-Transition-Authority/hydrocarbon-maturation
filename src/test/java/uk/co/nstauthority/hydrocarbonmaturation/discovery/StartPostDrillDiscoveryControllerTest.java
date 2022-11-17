@@ -7,20 +7,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 
-@WithMockUser
 @ContextConfiguration(classes = StartPostDrillDiscoveryController.class)
 class StartPostDrillDiscoveryControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   private SubmissionDetail submissionDetail;
 
@@ -32,11 +35,13 @@ class StartPostDrillDiscoveryControllerTest extends AbstractControllerTest {
   @Test
   void getStartPostDrillDiscoveryPage() throws Exception {
     var modelAndView = mockMvc.perform(
-            get(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage())))
+        get(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage()))
+            .with(user(USER)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView();
 
+    assert modelAndView != null;
     assertThat(modelAndView.getModel())
         .extracting(
             "actionUrl",
@@ -50,6 +55,7 @@ class StartPostDrillDiscoveryControllerTest extends AbstractControllerTest {
   void startPostDrillDiscovery() throws Exception {
     mockMvc.perform(
             post(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).startPostDrillDiscovery()))
+                .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(PostDrillDiscoveryController.class).getStartDiscoveryPage(null))));

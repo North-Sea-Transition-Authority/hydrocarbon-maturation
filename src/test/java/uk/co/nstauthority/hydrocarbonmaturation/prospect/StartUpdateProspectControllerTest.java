@@ -7,19 +7,22 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 
-@WithMockUser
 @ContextConfiguration(classes = StartUpdateProspectController.class)
 class StartUpdateProspectControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail NSTA_USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private SubmissionCreateService submissionCreateService;
@@ -27,11 +30,13 @@ class StartUpdateProspectControllerTest extends AbstractControllerTest {
   @Test
   void getStartUpdatePage() throws Exception {
     var modelAndView = mockMvc.perform(
-        get(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage())))
+        get(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage()))
+            .with(user(NSTA_USER)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView();
 
+    assert modelAndView != null;
     assertThat(modelAndView.getModel())
         .extracting(
             "actionUrl",
@@ -45,6 +50,7 @@ class StartUpdateProspectControllerTest extends AbstractControllerTest {
   void updateProspect() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(on(StartUpdateProspectController.class).updateProspect()))
+            .with(user(NSTA_USER))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(UpdateProspectController.class).getUpdatePage(null))));

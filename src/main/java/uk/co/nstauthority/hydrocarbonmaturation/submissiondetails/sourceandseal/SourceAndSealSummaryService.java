@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -21,12 +21,12 @@ public class SourceAndSealSummaryService {
   }
 
   private SourceAndSealSummaryView createSummaryViewFromSourceAndSeal(SourceAndSeal sourceAndSeal) {
-    var sourceFormationName = ObjectUtils.defaultIfNull(sourceAndSeal.getSourceFormationName(), "").toString();
-    var sourceAgeStage = ObjectUtils.defaultIfNull(sourceAndSeal.getSourceAgeStage(), "").toString();
-    var sourceLithology = ObjectUtils.defaultIfNull(sourceAndSeal.getSourceLithology(), "").toString();
-    var sealFormationName = ObjectUtils.defaultIfNull(sourceAndSeal.getTopSealFormationName(), "").toString();
-    var sealAgeStage = ObjectUtils.defaultIfNull(sourceAndSeal.getTopSealAgeStage(), "").toString();
-    var sealLithology = ObjectUtils.defaultIfNull(sourceAndSeal.getTopSealLithology(), "").toString();
+    var sourceFormationName = ObjectUtils.defaultIfNull(sourceAndSeal.getSourceFormationName(), "");
+    var sourceAgeStage = ObjectUtils.defaultIfNull(sourceAndSeal.getSourceAgeStage(), "");
+    var sourceLithology = ObjectUtils.defaultIfNull(sourceAndSeal.getSourceLithology(), "");
+    var sealFormationName = ObjectUtils.defaultIfNull(sourceAndSeal.getTopSealFormationName(), "");
+    var sealAgeStage = ObjectUtils.defaultIfNull(sourceAndSeal.getTopSealAgeStage(), "");
+    var sealLithology = ObjectUtils.defaultIfNull(sourceAndSeal.getTopSealLithology(), "");
 
     return new SourceAndSealSummaryView(
         sourceFormationName,

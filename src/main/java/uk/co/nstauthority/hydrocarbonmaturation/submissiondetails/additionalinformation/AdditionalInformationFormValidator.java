@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation;
 
 import java.util.List;
-import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;

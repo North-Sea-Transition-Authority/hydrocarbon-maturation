@@ -12,16 +12,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectRestController;
@@ -30,9 +32,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
-@WithMockUser
 @ContextConfiguration(classes = PostDrillDiscoveryController.class)
 class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private StartDiscoveryService startDiscoveryService;
@@ -51,11 +54,14 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
     var form = new StartDiscoveryForm();
 
     var modelAndView = mockMvc.perform(
-            get(ReverseRouter.route(on(PostDrillDiscoveryController.class).getStartDiscoveryPage(null)))
-                .flashAttr("form", form))
+        get(ReverseRouter.route(on(PostDrillDiscoveryController.class).getStartDiscoveryPage(null)))
+            .flashAttr("form", form)
+            .with(user(USER))
+        )
         .andReturn()
         .getModelAndView();
 
+    assert modelAndView != null;
     assertThat(modelAndView.getModel())
         .extracting(
             "backLinkUrl",
@@ -81,6 +87,7 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
     mockMvc.perform(
             post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
                 .flashAttr("form", form)
+                .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(
@@ -98,11 +105,13 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
     var modelAndView = mockMvc.perform(
             post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
                 .flashAttr("form", form)
+                .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView();
 
+    assert modelAndView != null;
     assertThat(modelAndView.getModel())
         .extracting(
             "backLinkUrl",

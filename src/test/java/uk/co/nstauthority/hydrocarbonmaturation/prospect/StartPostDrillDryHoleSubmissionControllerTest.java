@@ -8,19 +8,22 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsFormService;
 
 @ContextConfiguration(classes = StartPostDrillDryHoleSubmissionController.class)
-@WithMockUser
 class StartPostDrillDryHoleSubmissionControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   GeneralDetailsFormService generalDetailsFormService;
@@ -31,7 +34,8 @@ class StartPostDrillDryHoleSubmissionControllerTest extends AbstractControllerTe
   @Test
   void getStartPostDrillDryHolePage_assertStatusOk() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage())))
+        get(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage()))
+            .with(user(USER)))
         .andExpect(status().isOk());
   }
 
@@ -39,6 +43,7 @@ class StartPostDrillDryHoleSubmissionControllerTest extends AbstractControllerTe
   void startPostDrillDryHole_assertRedirection() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).startPostDrillDryHole()))
+            .with(user(USER))
             .with(csrf()))
     .andExpect(status().is3xxRedirection())
     .andExpect(redirectedUrl(ReverseRouter.route(on(PostDrillDryHoleController.class).getPostDrillDryHolePage(null))));
@@ -47,7 +52,8 @@ class StartPostDrillDryHoleSubmissionControllerTest extends AbstractControllerTe
   @Test
   void getStartPostDrillDryHolePage_assertModelProperties() throws Exception {
     var modelAndView = mockMvc.perform(
-        get(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage())))
+        get(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage()))
+            .with(user(USER)))
         .andReturn()
         .getModelAndView();
 

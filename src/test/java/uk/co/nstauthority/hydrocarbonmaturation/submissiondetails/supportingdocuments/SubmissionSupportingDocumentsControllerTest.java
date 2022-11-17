@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -21,10 +22,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
@@ -33,9 +35,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 
-@WithMockUser
 @ContextConfiguration(classes = SubmissionSupportingDocumentsController.class)
 class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   SupportingDocumentService supportingDocumentService;
@@ -70,6 +73,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest
     mockMvc.perform(multipart(ReverseRouter.route(
             on(SubmissionSupportingDocumentsController.class).upload(submissionDetailId, supportingDocumentType, null)))
             .file(mockMultipartFile)
+            .with(user(USER))
             .with(csrf()))
         .andExpect(status().isOk());
 
@@ -84,8 +88,9 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest
     when(fileUploadService.downloadFile(uploadedFile)).thenReturn(fileResource.getInputStream());
 
     var response = mockMvc.perform(
-            get(ReverseRouter.route(
-                on(SubmissionSupportingDocumentsController.class).download(submissionDetailId, uploadedFile.getId()))))
+        get(ReverseRouter.route(
+            on(SubmissionSupportingDocumentsController.class).download(submissionDetailId, uploadedFile.getId())))
+            .with(user(USER)))
         .andExpect(status().isOk())
         .andReturn().getResponse();
 
@@ -107,7 +112,8 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(post(
-            ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).delete(submissionDetailId, uploadedFile.getId())))
+        ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).delete(submissionDetailId, uploadedFile.getId())))
+            .with(user(USER))
             .with(csrf()))
         .andExpect(status().isOk());
 

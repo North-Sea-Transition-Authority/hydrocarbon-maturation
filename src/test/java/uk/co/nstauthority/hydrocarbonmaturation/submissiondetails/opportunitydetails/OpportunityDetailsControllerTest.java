@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -23,13 +24,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -41,9 +43,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
-@WithMockUser
 @ContextConfiguration(classes = OpportunityDetailsController.class)
 class OpportunityDetailsControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   OpportunityDetailsFormService opportunityDetailsFormService;
@@ -81,7 +84,8 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
 
     mockMvc.perform(
-        get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form))))
+        get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form)))
+            .with(user(USER)))
         .andExpect(status().isOk());
   }
 
@@ -94,6 +98,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
+            .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
@@ -113,6 +118,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
+            .with(user(USER))
             .with(csrf()))
         .andExpect(status().isOk());
 
@@ -126,7 +132,8 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form))))
+        get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form)))
+            .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
 

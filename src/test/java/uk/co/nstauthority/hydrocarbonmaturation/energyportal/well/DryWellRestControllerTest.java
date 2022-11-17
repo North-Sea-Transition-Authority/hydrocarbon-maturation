@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -14,12 +15,16 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @WithMockUser
 @ContextConfiguration(classes = DryWellRestController.class)
 class DryWellRestControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private SearchSelectorService searchSelectorService;
@@ -36,7 +41,8 @@ class DryWellRestControllerTest extends AbstractControllerTest {
         get(SearchSelectorService.route(on(DryWellRestController.class)
             .searchDryWells(null)))
             .param("term", "search term")
-            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .with(user(USER)))
         .andExpect(status().isOk());
   }
 }

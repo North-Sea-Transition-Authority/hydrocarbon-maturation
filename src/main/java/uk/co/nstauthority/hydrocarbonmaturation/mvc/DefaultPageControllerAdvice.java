@@ -10,6 +10,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
@@ -22,14 +23,17 @@ public class DefaultPageControllerAdvice {
   private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
   private final TopNavigationService topNavigationService;
   private final TechnicalSupportConfiguration technicalSupportConfiguration;
+  private final UserDetailService userDetailService;
 
   @Autowired
   DefaultPageControllerAdvice(ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties,
                               TopNavigationService topNavigationService,
-                              TechnicalSupportConfiguration technicalSupportConfiguration) {
+                              TechnicalSupportConfiguration technicalSupportConfiguration,
+                              UserDetailService userDetailService) {
     this.serviceBrandingConfigurationProperties = serviceBrandingConfigurationProperties;
     this.topNavigationService = topNavigationService;
     this.technicalSupportConfiguration = technicalSupportConfiguration;
+    this.userDetailService = userDetailService;
   }
 
   @ModelAttribute
@@ -39,6 +43,7 @@ public class DefaultPageControllerAdvice {
     addTopNavigationItems(model, request);
     addSubmitButtonText(model);
     addTechnicalSupportContactInfo(model);
+    addUser(model);
   }
 
   @InitBinder
@@ -74,5 +79,9 @@ public class DefaultPageControllerAdvice {
 
   private void addTechnicalSupportContactInfo(Model model) {
     model.addAttribute("technicalSupport", technicalSupportConfiguration.getTechnicalSupportConfigurationProperties());
+  }
+
+  private void addUser(Model model) {
+    model.addAttribute("loggedInUser", userDetailService.getUserDetail());
   }
 }

@@ -58,6 +58,7 @@ track changes over time.
 | FILE_UPLOAD_ALLOWED_EXTENSIONS  | Allowed file extensions for document uploads                                                       |
 | REMI_ENERGY_PORTAL_API_URL      | The energy portal API URL                                                                          |
 | REMI_ENERGY_PORTAL_API_TOKEN    | Security key for access the energy portal API                                                      |
+| REMI_ENERGY_PORTAL_LOGOUT_URL   | Energy Portal logout URL                                                                           |
 
 ### 3. Initialise the Fivium Design System
 - `git submodule update --init --recursive`

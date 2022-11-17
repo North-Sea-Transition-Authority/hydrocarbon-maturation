@@ -11,13 +11,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -25,8 +27,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsFormService;
 
 @ContextConfiguration(classes = StartProspectController.class)
-@WithMockUser
 class StartProspectControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail NSTA_USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   GeneralDetailsFormService generalDetailsFormService;
@@ -37,7 +40,8 @@ class StartProspectControllerTest extends AbstractControllerTest {
   @Test
   void getStartPage_assertStatusOk() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(StartProspectController.class).getStartPage())))
+        get(ReverseRouter.route(on(StartProspectController.class).getStartPage()))
+            .with(user(NSTA_USER)))
         .andExpect(status().isOk());
   }
 
@@ -49,6 +53,7 @@ class StartProspectControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(StartProspectController.class).startProspect()))
+            .with(user(NSTA_USER))
             .with(csrf()))
     .andExpect(status().is3xxRedirection())
     .andExpect(redirectedUrl(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetail.getId(), null))));
@@ -59,7 +64,8 @@ class StartProspectControllerTest extends AbstractControllerTest {
   @Test
   void getStartPage_assertModelProperties() throws Exception {
     var modelAndView = mockMvc.perform(
-        get(ReverseRouter.route(on(StartProspectController.class).getStartPage())))
+        get(ReverseRouter.route(on(StartProspectController.class).getStartPage()))
+            .with(user(NSTA_USER)))
         .andReturn()
         .getModelAndView();
 

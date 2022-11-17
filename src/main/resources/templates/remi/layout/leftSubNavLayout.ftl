@@ -1,10 +1,12 @@
 <#include '../../fds/objects/layouts/leftSubNavLayout.ftl'>
 <#import '_pageSizes.ftl' as PageSize>
 <#import '/spring.ftl' as spring>
+<#import '_header.ftl' as pageHeader>
 
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 <#-- @ftlvariable name="serviceHomeUrl" type="String" -->
+<#-- @ftlvariable name="loggedInUser" type="uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail" -->
 
 <#function springUrl url>
   <#local springUrl>
@@ -13,6 +15,10 @@
   <#return springUrl>
 </#function>
 
+<#assign SERVICE_NAME = serviceBranding.name() />
+<#assign CUSTOMER_MNEMONIC = customerBranding.mnemonic() />
+<#assign SERVICE_HOME_URL = springUrl(serviceHomeUrl) />
+
 <#macro defaultLeftSubNavPage
   htmlTitle
   htmlAppTitle=""
@@ -20,9 +26,16 @@
   phaseBanner=true
   customScriptContent="">
 
-  <#local serviceName = serviceBranding.name() />
-  <#local customerMnemonic = customerBranding.mnemonic() />
-  <#local serviceHomeUrl = springUrl(serviceHomeUrl) />
+    <#assign serviceHeader>
+        <@pageHeader.header
+          serviceName=SERVICE_NAME
+          customerMnemonic=CUSTOMER_MNEMONIC
+          serviceHomeUrl=SERVICE_HOME_URL
+          signedInUserName=(loggedInUser?has_content)?then(loggedInUser.displayName(), "")
+          signOutUrl=springUrl("/logout")
+          wrapperWidth=wrapperWidth
+        />
+    </#assign>
 
   <@fdsLeftSubNavPageTemplate
     htmlTitle=htmlTitle
@@ -30,10 +43,11 @@
     wrapperWidth=wrapperWidth
     phaseBanner=phaseBanner
     headerLogo="GOV_CREST"
-    serviceName=serviceName
-    homePageUrl=serviceHomeUrl
-    serviceUrl=serviceHomeUrl
-    logoProductText=customerMnemonic
+    serviceName=SERVICE_NAME
+    homePageUrl=SERVICE_HOME_URL
+    serviceUrl=SERVICE_HOME_URL
+    logoProductText=CUSTOMER_MNEMONIC
+    headerContent=serviceHeader
     customScriptContent=customScriptContent>
 
     <#nested>
