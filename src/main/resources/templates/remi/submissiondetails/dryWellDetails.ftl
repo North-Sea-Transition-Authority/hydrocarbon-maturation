@@ -13,7 +13,7 @@
 <@defaultPage
   htmlTitle=pageTitle
   pageHeading=pageTitle
-  pageSize=PageSize.FULL_WIDTH
+  pageSize=PageSize.TWO_THIRDS_COLUMN
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>
   <@fdsForm.htmlForm>
@@ -48,8 +48,10 @@
     />
 
     <@fdsRadio.radioGroup path="form.reservoirDatum" labelText="Datum">
+      <#assign firstItem=true/>
       <#list datumTypes as key, value>
-        <@fdsRadio.radioItem path="form.reservoirDatum" itemMap={key : value}/>
+        <@fdsRadio.radioItem path="form.reservoirDatum" itemMap={key : value} isFirstItem=firstItem/>
+        <#assign firstItem=false/>
       </#list>
     </@fdsRadio.radioGroup>
     <@fdsTextInput.textInput
@@ -74,14 +76,16 @@
     />
 
     <h2 class="govuk-heading-l">Dry hole details</h2>
-    <@fdsRadio.radioGroup path="form.dryHoleType" labelText="Dry hole type">
+    <@fdsRadio.radioGroup path="form.dryHoleType" labelText="Dry hole shows type">
+      <#assign firstItem=true/>
       <#list dryHoleTypes as key, value>
-        <@fdsRadio.radioItem path="form.dryHoleType" itemMap={key : value}/>
+        <@fdsRadio.radioItem path="form.dryHoleType" itemMap={key : value} isFirstItem=firstItem/>
+        <#assign firstItem=false/>
       </#list>
     </@fdsRadio.radioGroup>
     <@fdsTextarea.textarea
       path="form.dryHoleDescription"
-      labelText="Dry hole description"
+      labelText="Dry hole shows description"
       hintText="Indicate if shows were encountered in the well and if so, over what stratigraphic intervals"
       optionalLabel=true
     />
@@ -99,9 +103,10 @@
     <h2 class="govuk-heading-l">Well cost</h2>
     <@fdsTextInput.textInput path="form.dryHoleCost.decimalInputValue"
       labelText="Dry hole cost"
-      inputClass="govuk-!-width-one-third"
+      inputClass="govuk-input--width-5"
       prefix="£"
-      nestingPath="form.dryHoleCost"/>
+      nestingPath="form.dryHoleCost"
+      suffix="million"/>
 
     <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>

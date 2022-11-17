@@ -1,5 +1,5 @@
-<#include '../layout/layout.ftl'>
-<#import '../reusableforms/permeability.ftl' as permeability>
+<#include '../../layout/layout.ftl'>
+<#import 'permeability.ftl' as permeability>
 <#assign pageTitle = "Permeability" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -9,7 +9,7 @@
 <@defaultPage
   htmlTitle=pageTitle
   pageHeading=pageTitle
-  pageSize=PageSize.FULL_WIDTH
+  pageSize=PageSize.TWO_THIRDS_COLUMN
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>
   <@fdsForm.htmlForm>

@@ -127,7 +127,7 @@ class DryWellDetailsSummaryServiceTest {
             "description",
             "scope",
             "comments",
-            BigDecimal.ONE.toString()
+            "£" + BigDecimal.ONE + " million"
         );
   }
 }

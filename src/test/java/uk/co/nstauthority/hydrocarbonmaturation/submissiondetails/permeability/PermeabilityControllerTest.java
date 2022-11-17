@@ -70,7 +70,7 @@ class PermeabilityControllerTest extends AbstractControllerTest {
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
         .getPermeabilityPage(submissionDetail.getId(), null))))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/submissiondetails/permeabilityDryWell"));
+        .andExpect(view().name("remi/submissiondetails/permeability/permeabilityDryWell"));
   }
 
 

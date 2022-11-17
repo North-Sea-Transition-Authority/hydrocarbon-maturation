@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
 public class PermeabilitySummaryService {
@@ -47,19 +48,22 @@ public class PermeabilitySummaryService {
     if (permeabilityDetail.getKvKhSource() == PermeabilitySource.OTHER) {
       otherKvKhSource = ObjectUtils.defaultIfNull(permeabilityDetail.getKvKhSourceOther(), "");
     }
+
+    final String kvKhUnits = "kv/kh";
+    final String mdUnits = "md";
     return new PermeabilityDetailSummaryView(
         BooleanUtil.yesNoFromBoolean(permeabilityDetail.getHasPermeability(), ""),
-        permeabilityDetail.getHasPermeability(),
-        ObjectUtils.defaultIfNull(permeabilityDetail.getPermeabilityMin(), "").toString(),
-        ObjectUtils.defaultIfNull(permeabilityDetail.getPermeabilityMax(), "").toString(),
-        ObjectUtils.defaultIfNull(permeabilityDetail.getPermeabilityAverage(), "").toString(),
+        ObjectUtils.defaultIfNull(permeabilityDetail.getHasPermeability(), true),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityMin(), mdUnits),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityMax(), mdUnits),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityAverage(), mdUnits),
         averageMethodUsed,
         permeabilitySource,
         otherPermeabilitySource,
         ObjectUtils.defaultIfNull(permeabilityDetail.getPermeabilityComments(), ""),
-        ObjectUtils.defaultIfNull(permeabilityDetail.getKvKhMin(), "").toString(),
-        ObjectUtils.defaultIfNull(permeabilityDetail.getKvKhMax(), "").toString(),
-        ObjectUtils.defaultIfNull(permeabilityDetail.getKvKhAverage(), "").toString(),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhMin(), kvKhUnits),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhMax(), kvKhUnits),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhAverage(), kvKhUnits),
         kvKhAverageMethodUsed,
         kvKhAverageMethodUsedOther,
         kvKhSource,

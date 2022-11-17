@@ -34,10 +34,10 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Geophysical update commentary">
       ${dryWellValues.geophysicalUpdate()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole type">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole shows type">
       ${dryWellValues.dryHoleType()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole description">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole shows description">
       ${dryWellValues.dryHoleDescription()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole scope for remaining potential">
@@ -46,7 +46,7 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Total depth formation">
       ${dryWellValues.dryHoleComments()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Total depth formation">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole cost">
       ${dryWellValues.dryHoleCost()}
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>

@@ -1,9 +1,9 @@
-<#include '../layout/layout.ftl'>
+<#include '../../layout/layout.ftl'>
 
 <#macro permeabilityForm form methodUsed source>
-  <@fdsTextInput.textInput nestingPath="form.permeabilityForm.permeabilityMin.decimalInputValue" path="form.permeabilityForm.permeabilityMin.decimalInputValue" labelText="Permeability (md) min"/>
-  <@fdsTextInput.textInput nestingPath="form.permeabilityForm.permeabilityMax.decimalInputValue" path="form.permeabilityForm.permeabilityMax.decimalInputValue" labelText="Permeability (md) max"/>
-  <@fdsTextInput.textInput nestingPath="form.permeabilityForm.permeabilityAverage.decimalInputValue" path="form.permeabilityForm.permeabilityAverage.decimalInputValue" labelText="Permeability (md) average"/>
+  <@fdsTextInput.textInput suffix="md" inputClass="govuk-input--width-4" nestingPath="form.permeabilityForm.permeabilityMin.decimalInputValue" path="form.permeabilityForm.permeabilityMin.decimalInputValue" labelText="Permeability (md) min"/>
+  <@fdsTextInput.textInput suffix="md" inputClass="govuk-input--width-4" nestingPath="form.permeabilityForm.permeabilityMax.decimalInputValue" path="form.permeabilityForm.permeabilityMax.decimalInputValue" labelText="Permeability (md) max"/>
+  <@fdsTextInput.textInput suffix="md" inputClass="govuk-input--width-4" nestingPath="form.permeabilityForm.permeabilityAverage.decimalInputValue" path="form.permeabilityForm.permeabilityAverage.decimalInputValue" labelText="Permeability (md) average"/>
   <@fdsRadio.radioGroup path="form.permeabilityForm.averageMethodUsed" nestingPath="form.permeabilityForm.averageMethodUsed" labelText="Permeability (md) average method used">
     <#assign firstItem=true/>
     <#list methodUsed as key, value>
@@ -28,9 +28,9 @@
     nestingPath="form.permeabilityForm.permeabilityComments"
     labelText="Permeability (md) comments"
     optionalLabel=true/>
-  <@fdsTextInput.textInput path="form.permeabilityForm.kvKhMin.decimalInputValue" nestingPath="form.permeabilityForm.kvKhMin.decimalInputValue" labelText="Kv/kh min"/>
-  <@fdsTextInput.textInput path="form.permeabilityForm.kvKhMax.decimalInputValue" nestingPath="form.permeabilityForm.kvKhMax.decimalInputValue" labelText="Kv/kh max"/>
-  <@fdsTextInput.textInput path="form.permeabilityForm.kvKhAverage.decimalInputValue" nestingPath="form.permeabilityForm.kvKhAverage.decimalInputValue" labelText="Kv/kh average"/>
+  <@fdsTextInput.textInput suffix="kv/kh" inputClass="govuk-input--width-4" path="form.permeabilityForm.kvKhMin.decimalInputValue" nestingPath="form.permeabilityForm.kvKhMin.decimalInputValue" labelText="Kv/kh min"/>
+  <@fdsTextInput.textInput suffix="kv/kh" inputClass="govuk-input--width-4" path="form.permeabilityForm.kvKhMax.decimalInputValue" nestingPath="form.permeabilityForm.kvKhMax.decimalInputValue" labelText="Kv/kh max"/>
+  <@fdsTextInput.textInput suffix="kv/kh" inputClass="govuk-input--width-4" path="form.permeabilityForm.kvKhAverage.decimalInputValue" nestingPath="form.permeabilityForm.kvKhAverage.decimalInputValue" labelText="Kv/kh average"/>
   <@fdsRadio.radioGroup path="form.permeabilityForm.kvKhAverageMethodUsed" hiddenContent=true nestingPath="form.permeabilityForm.kvKhAverageMethodUsed" labelText="Kv/kh average method used">
     <#assign firstItem=true/>
     <#list source as key, value>

@@ -22,7 +22,8 @@ public class DryWellDetailsSummaryService {
   }
 
   private DryWellDetailsSummaryView createSummaryViewFromDryWellDetail(DryWellDetail dryWellDetail) {
-    var dryWell = dryWellDetail.getDryWellName();
+    var dryWell = ObjectUtils.defaultIfNull(dryWellDetail.getDryWellName(), "");
+
     var longitudeDegrees = dryWellDetail.getLongitudeDegrees() != null
         ? dryWellDetail.getLongitudeDegrees().toString() + "°"
         : "";
@@ -57,7 +58,9 @@ public class DryWellDetailsSummaryService {
     var dryHoleDescription = ObjectUtils.defaultIfNull(dryWellDetail.getDryHoleDescription(), "");
     var dryHoleScope = ObjectUtils.defaultIfNull(dryWellDetail.getDryHoleScope(), "");
     var dryHoleComments = ObjectUtils.defaultIfNull(dryWellDetail.getDryHoleComments(), "");
-    var dryHoleCost = ObjectUtils.defaultIfNull(dryWellDetail.getDryHoleCost(), "").toString();
+    var dryHoleCost = dryWellDetail.getDryHoleCost() != null
+        ? "£" + dryWellDetail.getDryHoleCost() + " million"
+        : "";
 
     return new DryWellDetailsSummaryView(dryWell, latitudeDegrees, latitudeMinutes, latitudeSeconds, longitudeDegrees,
         longitudeMinutes, longitudeSeconds, longitudeHemisphere, datum, totalDepthFormation, totalDepthFormationComments,

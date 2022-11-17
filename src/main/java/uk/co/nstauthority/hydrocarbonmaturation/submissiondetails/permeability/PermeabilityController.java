@@ -69,7 +69,7 @@ public class PermeabilityController {
   }
 
   private ModelAndView getPermeabilityModelAndView(PermeabilityDryWellForm form, SubmissionDetail submissionDetail) {
-    var modelAndView = new ModelAndView("remi/submissiondetails/permeabilityDryWell")
+    var modelAndView = new ModelAndView("remi/submissiondetails/permeability/permeabilityDryWell")
         .addObject("form", form)
         .addObject("methodUsed", DisplayableEnumOptionUtil.getDisplayableOptions(AverageMethod.class))
         .addObject("source", DisplayableEnumOptionUtil.getDisplayableOptions(PermeabilitySource.class));

@@ -81,7 +81,7 @@ class PermeabilitySummaryServiceTest {
             PermeabilityDetailSummaryView::kvKhSource,
             PermeabilityDetailSummaryView::otherKvKhSource,
             PermeabilityDetailSummaryView::kvKhComments)
-        .containsOnly("", null);
+        .containsOnly("", true);
   }
 
   @Test
@@ -115,16 +115,16 @@ class PermeabilitySummaryServiceTest {
         .containsExactly(
             "Yes",
             permeabilityDetail.getHasPermeability(),
-            permeabilityDetail.getPermeabilityMin().toString(),
-            permeabilityDetail.getPermeabilityMax().toString(),
-            permeabilityDetail.getPermeabilityAverage().toString(),
+            permeabilityDetail.getPermeabilityMin().toString() + " md",
+            permeabilityDetail.getPermeabilityMax().toString() + " md",
+            permeabilityDetail.getPermeabilityAverage().toString() + " md",
             permeabilityDetail.getAverageMethodUsed().getDisplayName(),
             permeabilityDetail.getPermeabilitySource().getDisplayName(),
             permeabilityDetail.getSourceOther(),
             permeabilityDetail.getPermeabilityComments(),
-            permeabilityDetail.getKvKhMin().toString(),
-            permeabilityDetail.getKvKhMax().toString(),
-            permeabilityDetail.getKvKhAverage().toString(),
+            permeabilityDetail.getKvKhMin().toString() + " kv/kh",
+            permeabilityDetail.getKvKhMax().toString() + " kv/kh",
+            permeabilityDetail.getKvKhAverage().toString() + " kv/kh",
             permeabilityDetail.getKvKhAverageMethodUsed().getDisplayName(),
             permeabilityDetail.getKvKhAverageMethodUsedOther(),
             permeabilityDetail.getKvKhSource().getDisplayName(),
@@ -169,16 +169,16 @@ class PermeabilitySummaryServiceTest {
         .containsExactly(
             "Yes",
             permeabilityDetail.getHasPermeability(),
-            permeabilityDetail.getPermeabilityMin().toString(),
-            permeabilityDetail.getPermeabilityMax().toString(),
-            permeabilityDetail.getPermeabilityAverage().toString(),
+            permeabilityDetail.getPermeabilityMin().toString() + " md",
+            permeabilityDetail.getPermeabilityMax().toString() + " md",
+            permeabilityDetail.getPermeabilityAverage().toString() + " md",
             permeabilityDetail.getAverageMethodUsed().getDisplayName(),
             permeabilityDetail.getPermeabilitySource().getDisplayName(),
             "",
             permeabilityDetail.getPermeabilityComments(),
-            permeabilityDetail.getKvKhMin().toString(),
-            permeabilityDetail.getKvKhMax().toString(),
-            permeabilityDetail.getKvKhAverage().toString(),
+            permeabilityDetail.getKvKhMin().toString() + " kv/kh",
+            permeabilityDetail.getKvKhMax().toString() + " kv/kh",
+            permeabilityDetail.getKvKhAverage().toString() + " kv/kh",
             permeabilityDetail.getKvKhAverageMethodUsed().getDisplayName(),
             "",
             permeabilityDetail.getKvKhSource().getDisplayName(),

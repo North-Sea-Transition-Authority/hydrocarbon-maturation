@@ -101,7 +101,7 @@ class DryWellDetailsFormValidator implements SmartValidator, SubmissionFormValid
         errors,
         "dryHoleType",
         "dryHoleType.required",
-        "Select the dry hole type"
+        "Select the dry hole shows type"
     );
 
     DecimalInputValidator.configureValidator(
