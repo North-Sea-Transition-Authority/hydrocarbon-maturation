@@ -53,6 +53,16 @@ public class LognormalBehaviour extends BaseBehaviour implements ProbabilityDist
   }
 
   @Override
+  public boolean isMeanAvailable() {
+    return true;
+  }
+
+  @Override
+  public boolean isMeanRequired() {
+    return false;
+  }
+
+  @Override
   public boolean isP10Available() {
     return true;
   }
