@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
@@ -15,10 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation.AdditionalInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation.AdditionalInformationSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.AdditionalInformationTaskListSectionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListItem;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListLabel;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSection;
 
 @ExtendWith(MockitoExtension.class)
 class AdditionalInformationTaskListSectionServiceTest {
@@ -56,5 +54,12 @@ class AdditionalInformationTaskListSectionServiceTest {
                     ReverseRouter.route(on(AdditionalInformationController.class)
                         .getAdditionalInformation(submissionDetail.getId(), null)))
         ));
+  }
+
+  @Test
+  void isSectionSubmittable_whenSubmittable_asserTrue() {
+    when(additionalInformationSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    assertTrue(additionalInformationTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 }

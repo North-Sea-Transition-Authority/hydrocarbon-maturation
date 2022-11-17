@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
@@ -34,7 +35,7 @@ class ReviewAndSubmitTaskListSectionServiceTest {
         .extracting(TaskListSection::items)
         .isEqualTo(List.of(
             new TaskListItem("Review and submit",
-                ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId())),
+                ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId(), null)),
                 ShowOnSubNav.FALSE)
         ));
   }
@@ -56,5 +57,11 @@ class ReviewAndSubmitTaskListSectionServiceTest {
             "Review and submit",
             Integer.MAX_VALUE
         );
+  }
+
+  @Test
+  void isSectionSubmittable_assertTrue() {
+    var submittable = reviewAndSubmitTaskListSectionService.isSectionSubmittable(submissionDetail);
+    assertTrue(submittable);
   }
 }

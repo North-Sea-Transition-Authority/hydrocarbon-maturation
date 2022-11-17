@@ -49,4 +49,14 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
 
     return Optional.of(new TaskListSection("Reservoir", 40, items));
   }
+
+  @Override
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+    if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE
+        || submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY) {
+      return reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail)
+          && permeabilitySubmissionService.isSectionSubmittable(submissionDetail);
+    }
+    return reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail);
+  }
 }

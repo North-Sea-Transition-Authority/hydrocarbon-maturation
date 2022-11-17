@@ -51,6 +51,21 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
     return Optional.of(new TaskListSection("Opportunity", 20, items));
   }
 
+  @Override
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+    return switch (submissionDetail.getSubmissionType()) {
+      case PROSPECT_UPDATE, CREATE_PROSPECT -> opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)
+          && chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)
+          && trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)
+          && sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
+          && hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail);
+      default -> opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)
+          && sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
+          && trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail);
+    };
+  }
+
+
   private List<TaskListItem> getTaskListItemsBySubmissionType(SubmissionDetail submissionDetail) {
     var listOfItems = new ArrayList<TaskListItem>();
 

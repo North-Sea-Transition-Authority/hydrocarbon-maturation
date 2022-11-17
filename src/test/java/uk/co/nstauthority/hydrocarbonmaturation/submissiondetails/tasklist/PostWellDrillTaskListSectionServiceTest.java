@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
@@ -60,5 +62,20 @@ class PostWellDrillTaskListSectionServiceTest {
 
     assertThat(taskListSectionOptional)
         .isNotPresent();
+  }
+
+  @Test
+  void isSectionSubmittable_prospectSubmission_assertTrue() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
+
+    assertTrue(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_postDrillSubmissionWhenSubmittable_assertTrue() {
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    when(dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    assertTrue(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 }

@@ -37,4 +37,13 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
 
     return Optional.empty();
   }
+
+  @Override
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+    if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
+      return dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail);
+    } else {
+      return true;
+    }
+  }
 }

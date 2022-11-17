@@ -6,4 +6,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 public interface TaskListSectionService {
 
   Optional<TaskListSection> getSection(SubmissionDetail submissionDetail);
+
+  Boolean isSectionSubmittable(SubmissionDetail submissionDetail);
 }

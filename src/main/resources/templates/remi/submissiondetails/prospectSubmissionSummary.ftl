@@ -44,7 +44,23 @@
     </@fdsSubNavigation.subNavigation>
   </@fdsLeftSubNavPageTemplateSubNav>
 
-  <@defaultLeftSubNavPageContent pageHeading=pageTitle breadcrumbsMap=breadcrumbsMap>
+  <#if !submittable>
+    <#assign notificationBanner>
+      <@fdsNotificationBanner.notificationBannerInfo fullWidth=true bannerTitleText="Missing information">
+        Not all sections shown on the task list have been completed.
+        You will be allowed to submit without this information but this will mean the information will not be available in
+        the approved view of the resource.
+      </@fdsNotificationBanner.notificationBannerInfo>
+    </#assign>
+  <#else>
+    <#assign notificationBanner = ""/>
+  </#if>
+
+  <@defaultLeftSubNavPageContent
+    pageHeading=pageTitle
+    breadcrumbsMap=breadcrumbsMap
+    notificationBannerContent=notificationBanner
+    errorItems=errorList>
     <@fdsForm.htmlForm>
       <@generalDetailsSummary.generalDetailCard
         generalDetailValues=generalDetailsSummaryView/>
@@ -80,7 +96,11 @@
       </#if>
       <@additionalInformationSummary.additionalInformationSummaryCard
           additionalInformationValues=additionalInformationSummaryView/>
-
+    <#if !submittable>
+      <@fdsCheckbox.checkbox
+        labelText="I want to complete this submission without providing all the required information"
+        path="form.completeWithoutMandatoryInformation"/>
+    </#if>
       <@fdsAction.submitButtons
         primaryButtonText="Submit"
         secondaryLinkText="Cancel"

@@ -32,4 +32,9 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
 
     return Optional.of(new TaskListSection("General details", 10, items));
   }
+
+  @Override
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+    return generalDetailSubmissionService.isSectionSubmittable(submissionDetail);
+  }
 }

@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,16 +50,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
 
   @MockBean
-  SubmissionDetailService submissionDetailService;
+  private SubmissionDetailService submissionDetailService;
 
   @MockBean
-  GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   @MockBean
-  HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+  private HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   @MockBean
-  ProspectSummaryService prospectSummaryService;
+  private SubmissionSummaryFormService submissionSummaryFormService;
+
+  @MockBean
+  private ProspectSubmissionService prospectSubmissionService;
+
+  @MockBean
+  private ProspectSummaryService prospectSummaryService;
 
   private static UUID submissionDetailId;
   private static SubmissionDetail submissionDetail;
@@ -147,17 +154,18 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(opportunityDetailsSummaryView);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
+            get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null))))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/submissiondetails/submissionSummary"));
+        .andExpect(view().name("remi/submissiondetails/prospectSubmissionSummary"));
   }
 
   @Test
   void processSubmission_assertRedirection() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).processSubmission(submissionDetailId)))
+            post(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
               .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
@@ -197,15 +205,18 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(additionalInformationSummaryView);
     when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(opportunityDetailsSummaryView);
+    when(prospectSubmissionService.isSubmissionSubmittable(submissionDetail))
+        .thenReturn(true);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId))))
+            get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null))))
         .andReturn()
         .getModelAndView()).getModelMap();
 
     assertThat(modelMap)
         .contains(
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
+            entry("submittable", true),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("hydrocarbonCaseSummaryView", hydrocarbonCaseSummaryView),

@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -8,6 +10,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -114,5 +118,49 @@ class OpportunityTaskListSectionServiceTest {
             "Opportunity",
             20
         );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "CREATE_PROSPECT"})
+  void isSectionSubmittable_whenProspectSubmissionAndSubmittable_assertTrue(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    when(chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "CREATE_PROSPECT"})
+  void isSectionSubmittable_whenProspectSubmissionAndNotSubmittable_assertFalse(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+
+    assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY"})
+  void isSectionSubmittable_whenNotProspectSubmissionAndSubmittable_assertTrue(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY"})
+  void isSectionSubmittable_whenNotProspectSubmissionAndNotSubmittable_assertFalse(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 }

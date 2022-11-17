@@ -23,12 +23,17 @@ public class ReviewAndSubmitTaskListSectionService implements TaskListSectionSer
     return Optional.of(new TaskListSection(REVIEW_SUBMIT_ITEM_NAME, Integer.MAX_VALUE, items));
   }
 
+  @Override
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+    return true;
+  }
+
   private List<TaskListItem> getTaskListItemsBySubmissionType(SubmissionDetail submissionDetail) {
     return switch (submissionDetail.getSubmissionType()) {
       case CREATE_PROSPECT, PROSPECT_UPDATE ->
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(ProspectSubmissionSummaryController.class)
-                  .showSubmissionSummary(submissionDetail.getId())),
+                  .showSubmissionSummary(submissionDetail.getId(), null)),
               ShowOnSubNav.FALSE));
       case POST_DRILL_DRY_HOLE, CREATE_DISCOVERY ->
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,

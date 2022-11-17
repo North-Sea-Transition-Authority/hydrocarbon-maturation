@@ -34,4 +34,9 @@ class AdditionalInformationTaskListSectionService implements TaskListSectionServ
 
     return Optional.of(new TaskListSection("Additional information", 70, items));
   }
+
+  @Override
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+    return additionalInformationSubmissionService.isSectionSubmittable(submissionDetail);
+  }
 }

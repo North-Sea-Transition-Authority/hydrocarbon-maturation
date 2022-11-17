@@ -67,6 +67,36 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
             items));
   }
 
+  @Override
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT
+        || submissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE) {
+      var gasOnly = hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail);
+      var oilOnly = hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail);
+      var oilAndGas = hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail);
+
+      var sectionSubmittable = true;
+
+      if (gasOnly) {
+        sectionSubmittable = gasCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)
+            && gasCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail);
+      }
+
+      if (oilOnly) {
+        sectionSubmittable = sectionSubmittable && oilCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)
+            && oilCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail);
+      }
+
+      if (oilAndGas) {
+        sectionSubmittable = sectionSubmittable && mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)
+            && mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail);
+      }
+
+      return sectionSubmittable;
+    }
+    return true;
+  }
+
   private List<TaskListItem> getTaskListItemsByHydrocarbonCase(SubmissionDetail submissionDetail) {
     var gasOnly = hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail);
     var oilOnly = hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail);

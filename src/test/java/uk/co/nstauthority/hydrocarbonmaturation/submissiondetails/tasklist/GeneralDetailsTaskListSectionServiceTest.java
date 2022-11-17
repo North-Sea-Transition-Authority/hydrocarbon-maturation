@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
@@ -51,5 +53,12 @@ class GeneralDetailsTaskListSectionServiceTest {
             "General details",
             10
         );
+  }
+
+  @Test
+  void isSectionSubmittable_whenSubmittable_asserTrue() {
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 }

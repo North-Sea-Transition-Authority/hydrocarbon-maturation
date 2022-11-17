@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -14,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsController;
@@ -114,5 +116,37 @@ class VolumetricsTaskListSectionServiceTest {
                 ReverseRouter.route(on(MixedCaseOutputsController.class)
                     .getMixedCaseOutputs(submissionDetail.getId(), null))))
         );
+  }
+
+  @Test
+  void isSectionSubmittable_whenAllCasesAndProspectSubmissionAndSubmittableItems_assertTrue() {
+    when(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail)).thenReturn(true);
+    when(hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail)).thenReturn(true);
+    when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail)).thenReturn(true);
+    when(gasCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(oilCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_whenNoCasesAndProspectUpdateSubmissionAndSubmittableItems_assertTrue() {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
+
+    when(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail)).thenReturn(false);
+    when(hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail)).thenReturn(false);
+    when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail)).thenReturn(false);
+
+    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_whenNotProspectSubmission_assertTrue() {
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 }
