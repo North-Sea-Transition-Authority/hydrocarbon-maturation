@@ -42,18 +42,17 @@ class DryWellDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
     CoordinateInputValidationUtil.validateOptionalCoordinateInputForm(
         errors,
-        dryWellForm.getCoordinateInputForm(),
-        "coordinateInputForm.latitudeCoordinates",
-        "coordinateInputForm.longitudeCoordinates"
+        dryWellForm.getDrillDetailsForm().getCoordinateInputForm(),
+        "drillDetailsForm.coordinateInputForm.latitudeCoordinates",
+        "drillDetailsForm.coordinateInputForm.longitudeCoordinates"
     );
 
-    DecimalInputValidator.configureValidator(
+    DecimalInputValidator.configureOptionalValidator(
             errors,
             "dryHoleCost.decimalInputValue",
-            "Dry well cost",
+            "the dry well cost",
             dryWellForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
-        .isOptional()
         .validate();
   }
 
@@ -63,38 +62,38 @@ class DryWellDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "dryWell",
-        "dryWell.required",
-        "Enter dry well reference"
+        "drillDetailsForm.dryWell",
+        "drillDetailsForm.dryWell.required",
+        "Enter the dry well reference"
     );
 
     CoordinateInputValidationUtil.validateMandatoryCoordinateInputForm(
         errors,
-        dryWellForm.getCoordinateInputForm(),
-        "coordinateInputForm.latitudeCoordinates",
-        "coordinateInputForm.longitudeCoordinates",
-        "coordinateInputForm.longitudeHemisphere"
+        dryWellForm.getDrillDetailsForm().getCoordinateInputForm(),
+        "drillDetailsForm.coordinateInputForm.latitudeCoordinates",
+        "drillDetailsForm.coordinateInputForm.longitudeCoordinates",
+        "drillDetailsForm.coordinateInputForm.longitudeHemisphere"
     );
 
     ValidationUtils.rejectIfEmpty(
         errors,
-        "reservoirDatum",
-        "reservoirDatum.required",
+        "drillDetailsForm.reservoirDatum",
+        "drillDetailsForm.reservoirDatum.required",
         "Select the datum"
     );
 
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "totalDepthFormation",
-        "totalDepthFormation.required",
+        "drillDetailsForm.totalDepthFormation",
+        "drillDetailsForm.totalDepthFormation.required",
         "Enter the total depth formation"
     );
 
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "dataAcquisitionProgramme",
-        "dataAcquisitionProgramme.required",
-        "Enter data acquisition programme"
+        "drillDetailsForm.dataAcquisitionProgramme",
+        "drillDetailsForm.dataAcquisitionProgramme.required",
+        "Enter the data acquisition programme"
     );
 
     ValidationUtils.rejectIfEmpty(
@@ -107,7 +106,7 @@ class DryWellDetailsFormValidator implements SmartValidator, SubmissionFormValid
     DecimalInputValidator.configureValidator(
         errors,
         "dryHoleCost.decimalInputValue",
-        "Dry well cost",
+        "the total well cost",
         dryWellForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
         .validate();

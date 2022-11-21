@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
@@ -71,13 +72,13 @@ public class DryWellDetailsController {
   }
 
   private ModelAndView getDryWellDetailsModelAndView(DryWellDetailsForm form, SubmissionDetail submissionDetail) {
-    var modelAndView =  new ModelAndView("remi/submissiondetails/dryWellDetails")
+    var modelAndView =  new ModelAndView("remi/submissiondetails/wellDrillDetails/dryWellDetails")
         .addObject("form", form)
         .addObject("datumTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirDatum.class))
         .addObject("dryHoleTypes", DisplayableEnumOptionUtil.getDisplayableOptions(DryHoleType.class))
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
         .addObject("dryWellEndpoint", SearchSelectorService.route(on(DryWellRestController.class).searchDryWells(null)))
-        .addObject("dryWell", dryWellDetailsFormService.getPreSelectedDryWell(form.getDryWell()));
+        .addObject("dryWell", dryWellDetailsFormService.getPreSelectedDryWell(form.getDrillDetailsForm().getDryWell()));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView, PAGE_NAME, submissionDetail);

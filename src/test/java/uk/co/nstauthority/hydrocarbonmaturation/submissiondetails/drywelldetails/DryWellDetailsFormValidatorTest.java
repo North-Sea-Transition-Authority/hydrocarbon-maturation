@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
@@ -62,14 +63,14 @@ class DryWellDetailsFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
-            entry("dryWell", Set.of("dryWell.required")),
-            entry("coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue",
-                Set.of("coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue.required")),
-            entry("coordinateInputForm.longitudeCoordinates.minutes.decimalInputValue",
-                Set.of("coordinateInputForm.longitudeCoordinates.minutes.decimalInputValue.required")),
-            entry("reservoirDatum", Set.of("reservoirDatum.required")),
-            entry("totalDepthFormation", Set.of("totalDepthFormation.required")),
-            entry("dataAcquisitionProgramme", Set.of("dataAcquisitionProgramme.required")),
+            entry("drillDetailsForm.dryWell", Set.of("drillDetailsForm.dryWell.required")),
+            entry("drillDetailsForm.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue",
+                Set.of("drillDetailsForm.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue.required")),
+            entry("drillDetailsForm.coordinateInputForm.longitudeCoordinates.minutes.decimalInputValue",
+                Set.of("drillDetailsForm.coordinateInputForm.longitudeCoordinates.minutes.decimalInputValue.required")),
+            entry("drillDetailsForm.reservoirDatum", Set.of("drillDetailsForm.reservoirDatum.required")),
+            entry("drillDetailsForm.totalDepthFormation", Set.of("drillDetailsForm.totalDepthFormation.required")),
+            entry("drillDetailsForm.dataAcquisitionProgramme", Set.of("drillDetailsForm.dataAcquisitionProgramme.required")),
             entry("dryHoleType", Set.of("dryHoleType.required")),
             entry("dryHoleCost.decimalInputValue", Set.of("dryHoleCost.decimalInputValue.required"))
         );
@@ -79,9 +80,9 @@ class DryWellDetailsFormValidatorTest {
   void validate_whenGivenFormPartialValidation_wrongCoordinateValues_thenValidationErrors() {
     var form = getValidForm();
 
-    form.getCoordinateInputForm().setLatitudeCoordinates(CoordinateInput.createCoordinateInputForForm(
+    form.getDrillDetailsForm().getCoordinateInputForm().setLatitudeCoordinates(CoordinateInput.createCoordinateInputForForm(
         BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE));
-    form.getCoordinateInputForm().setLongitudeCoordinates(CoordinateInput.createCoordinateInputForForm(
+    form.getDrillDetailsForm().getCoordinateInputForm().setLongitudeCoordinates(CoordinateInput.createCoordinateInputForForm(
         BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -91,29 +92,29 @@ class DryWellDetailsFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
-            entry("coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue",
-                Set.of("coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue.lessThanMinValue"))
+            entry("drillDetailsForm.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue",
+                Set.of("drillDetailsForm.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue.lessThanMinValue"))
         );
   }
 
   private DryWellDetailsForm getValidForm() {
     var form = new DryWellDetailsForm();
-    form.setDryWell("dryWellName");
+    form.getDrillDetailsForm().setDryWell("dryWellName");
     form.setDryHoleComments("dryHoleComments");
     form.setDryHoleScope("dryHoleScope");
-    form.setReservoirDatum(ReservoirDatum.ED50);
+    form.getDrillDetailsForm().setReservoirDatum(ReservoirDatum.ED50);
     form.setDryHoleDescription("description");
-    form.getCoordinateInputForm().setLatitudeCoordinates(
+    form.getDrillDetailsForm().getCoordinateInputForm().setLatitudeCoordinates(
         CoordinateInput.createCoordinateInputForForm(BigDecimal.valueOf(46), BigDecimal.valueOf(35), BigDecimal.valueOf(35)));
-    form.getCoordinateInputForm().setLongitudeCoordinates(
+    form.getDrillDetailsForm().getCoordinateInputForm().setLongitudeCoordinates(
         CoordinateInput.createCoordinateInputForForm(BigDecimal.valueOf(25), BigDecimal.valueOf(25), BigDecimal.valueOf(25)));
-    form.getCoordinateInputForm().setLongitudeHemisphere(Hemisphere.EAST);
-    form.setDataAcquisitionProgramme("data");
-    form.setGeophysicalUpdate("update");
-    form.setTotalDepthFormation("formation");
+    form.getDrillDetailsForm().getCoordinateInputForm().setLongitudeHemisphere(Hemisphere.EAST);
+    form.getDrillDetailsForm().setDataAcquisitionProgramme("data");
+    form.getDrillDetailsForm().setGeophysicalUpdate("update");
+    form.getDrillDetailsForm().setTotalDepthFormation("formation");
     form.setDryHoleType(DryHoleType.GAS);
     form.setDryHoleCost(DecimalInput.createDecimalInput(BigDecimal.ONE));
-    form.setTotalDepthFormationComments("Depth comments");
+    form.getDrillDetailsForm().setTotalDepthFormationComments("Depth comments");
     return form;
   }
 }

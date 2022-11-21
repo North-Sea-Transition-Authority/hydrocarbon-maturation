@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.submission.ProspectSectionSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.submission.SectionSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class TrapPropertiesSubmissionService implements ProspectSectionSubmissionService {
+public class TrapPropertiesSubmissionService implements SectionSubmissionService {
 
   private final TrapPropertiesFormService trapPropertiesFormService;
 

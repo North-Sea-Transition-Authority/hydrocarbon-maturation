@@ -41,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -80,7 +81,7 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
         get(ReverseRouter.route(on(DryWellDetailsController.class).getDryWellDetails(submissionDetailId, null)))
             .with(user(USER)))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/submissiondetails/dryWellDetails"));
+        .andExpect(view().name("remi/submissiondetails/wellDrillDetails/dryWellDetails"));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
@@ -133,7 +134,7 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
     var preselectedWell = Map.of("well1", "well1");
 
     when(dryWellDetailsFormService.getDryWellDetailsForm(submissionDetail)).thenReturn(form);
-    when(dryWellDetailsFormService.getPreSelectedDryWell(form.getDryWell())).thenReturn(preselectedWell);
+    when(dryWellDetailsFormService.getPreSelectedDryWell(form.getDrillDetailsForm().getDryWell())).thenReturn(preselectedWell);
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(

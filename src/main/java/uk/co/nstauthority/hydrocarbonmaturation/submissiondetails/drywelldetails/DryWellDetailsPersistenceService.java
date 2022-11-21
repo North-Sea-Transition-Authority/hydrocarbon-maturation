@@ -20,32 +20,34 @@ class DryWellDetailsPersistenceService {
   public void saveDryWellDetails(DryWellDetailsForm form, SubmissionDetail submissionDetail) {
     var dryWellDetail = getDryWellDetailBySubmissionDetail(submissionDetail)
         .orElse(new DryWellDetail());
-    dryWellDetail.setDryWellId(form.getDryWell());
-    dryWellDetail.setDryWellName(form.getDryWell());
+
+    var detailForm = form.getDrillDetailsForm();
+    dryWellDetail.setDryWellId(detailForm.getDryWell());
+    dryWellDetail.setDryWellName(detailForm.getDryWell());
     dryWellDetail.setSubmissionDetail(submissionDetail);
     dryWellDetail.setDryHoleComments(form.getDryHoleComments());
     dryWellDetail.setDryHoleScope(form.getDryHoleScope());
-    dryWellDetail.setDatum(form.getReservoirDatum());
+    dryWellDetail.setDatum(detailForm.getReservoirDatum());
     dryWellDetail.setDryHoleDescription(form.getDryHoleDescription());
     dryWellDetail.setLatitudeDegrees(
-        form.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull());
+        detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull());
     dryWellDetail.setLatitudeMinutes(
-        form.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull());
+        detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull());
     dryWellDetail.setLatitudeSeconds(
-        form.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull());
+        detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull());
     dryWellDetail.setLongitudeDegrees(
-        form.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull());
+        detailForm.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull());
     dryWellDetail.setLongitudeMinutes(
-        form.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull());
+        detailForm.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull());
     dryWellDetail.setLongitudeSeconds(
-        form.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull());
-    dryWellDetail.setLongitudeHemisphere(form.getCoordinateInputForm().getLongitudeHemisphere());
-    dryWellDetail.setDataAcquisitionProgramme(form.getDataAcquisitionProgramme());
-    dryWellDetail.setGeophysicalUpdateCommentary(form.getGeophysicalUpdate());
-    dryWellDetail.setTotalDepthFormation(form.getTotalDepthFormation());
+        detailForm.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull());
+    dryWellDetail.setLongitudeHemisphere(detailForm.getCoordinateInputForm().getLongitudeHemisphere());
+    dryWellDetail.setDataAcquisitionProgramme(detailForm.getDataAcquisitionProgramme());
+    dryWellDetail.setGeophysicalUpdateCommentary(detailForm.getGeophysicalUpdate());
+    dryWellDetail.setTotalDepthFormation(detailForm.getTotalDepthFormation());
     dryWellDetail.setDryHoleType(form.getDryHoleType());
     dryWellDetail.setDryHoleCost(form.getDryHoleCost().createBigDecimalOrNull());
-    dryWellDetail.setTotalDepthFormationComments(form.getTotalDepthFormationComments());
+    dryWellDetail.setTotalDepthFormationComments(detailForm.getTotalDepthFormationComments());
 
     dryWellDetailsRepository.save(dryWellDetail);
   }

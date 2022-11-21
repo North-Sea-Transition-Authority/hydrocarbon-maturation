@@ -1,8 +1,8 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails;
 
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
-enum ReservoirDatum implements Displayable {
+public enum ReservoirDatum implements Displayable {
   WGS84("WGS84"),
   OSGB36("OSGB36"),
   ETRS89("ETRS89"),

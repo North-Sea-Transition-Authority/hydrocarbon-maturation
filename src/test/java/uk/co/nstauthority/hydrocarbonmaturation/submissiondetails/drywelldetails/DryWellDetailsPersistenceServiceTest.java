@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,7 +29,6 @@ class DryWellDetailsPersistenceServiceTest {
   private DryWellDetailsPersistenceService dryWellDetailsPersistenceService;
 
   private SubmissionDetail submissionDetail;
-
   private CoordinateInput latitudeCoordinate = new CoordinateInput();
   private CoordinateInput longitudeCoordinate = new CoordinateInput();
 
@@ -54,7 +54,7 @@ class DryWellDetailsPersistenceServiceTest {
     verify(dryWellDetailsRepository, times(1))
         .save(dryWellDetailsCaptor.capture());
     var savedDryWellDetail = dryWellDetailsCaptor.getValue();
-
+    var detailForm = form.getDrillDetailsForm();
     assertThat(savedDryWellDetail)
         .extracting(
             DryWellDetail::getDryWellName,
@@ -76,19 +76,19 @@ class DryWellDetailsPersistenceServiceTest {
             DryWellDetail::getDryHoleComments,
             DryWellDetail::getDryHoleCost)
         .containsExactly(
-            form.getDryWell(),
-            form.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLongitudeHemisphere(),
-            form.getReservoirDatum(),
-            form.getTotalDepthFormation(),
-            form.getTotalDepthFormationComments(),
-            form.getDataAcquisitionProgramme(),
-            form.getGeophysicalUpdate(),
+            detailForm.getDryWell(),
+            detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeHemisphere(),
+            detailForm.getReservoirDatum(),
+            detailForm.getTotalDepthFormation(),
+            detailForm.getTotalDepthFormationComments(),
+            detailForm.getDataAcquisitionProgramme(),
+            detailForm.getGeophysicalUpdate(),
             form.getDryHoleType(),
             form.getDryHoleDescription(),
             form.getDryHoleScope(),
@@ -107,7 +107,7 @@ class DryWellDetailsPersistenceServiceTest {
     verify(dryWellDetailsRepository, times(1))
         .save(dryWellDetailsCaptor.capture());
     var savedDryWellDetail = dryWellDetailsCaptor.getValue();
-
+    var detailForm = form.getDrillDetailsForm();
     assertThat(savedDryWellDetail)
         .extracting(
             DryWellDetail::getDryWellName,
@@ -129,19 +129,19 @@ class DryWellDetailsPersistenceServiceTest {
             DryWellDetail::getDryHoleComments,
             DryWellDetail::getDryHoleCost)
         .containsExactly(
-            form.getDryWell(),
-            form.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
-            form.getCoordinateInputForm().getLongitudeHemisphere(),
-            form.getReservoirDatum(),
-            form.getTotalDepthFormation(),
-            form.getTotalDepthFormationComments(),
-            form.getDataAcquisitionProgramme(),
-            form.getGeophysicalUpdate(),
+            detailForm.getDryWell(),
+            detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeHemisphere(),
+            detailForm.getReservoirDatum(),
+            detailForm.getTotalDepthFormation(),
+            detailForm.getTotalDepthFormationComments(),
+            detailForm.getDataAcquisitionProgramme(),
+            detailForm.getGeophysicalUpdate(),
             form.getDryHoleType(),
             form.getDryHoleDescription(),
             form.getDryHoleScope(),
@@ -158,22 +158,22 @@ class DryWellDetailsPersistenceServiceTest {
 
   private DryWellDetailsForm getFilledForm() {
     var form = new DryWellDetailsForm();
-    form.setDryWell("dryWellName");
+    form.getDrillDetailsForm().setDryWell("dryWellName");
     form.setDryHoleComments("dryHoleComments");
     form.setDryHoleScope("dryHoleScope");
-    form.setReservoirDatum(ReservoirDatum.ED50);
+    form.getDrillDetailsForm().setReservoirDatum(ReservoirDatum.ED50);
     form.setDryHoleDescription("description");
-    form.getCoordinateInputForm().setLatitudeCoordinates(
+    form.getDrillDetailsForm().getCoordinateInputForm().setLatitudeCoordinates(
         CoordinateInput.createCoordinateInputForForm(BigDecimal.valueOf(46), BigDecimal.valueOf(35), BigDecimal.valueOf(35)));
-    form.getCoordinateInputForm().setLongitudeCoordinates(
+    form.getDrillDetailsForm().getCoordinateInputForm().setLongitudeCoordinates(
         CoordinateInput.createCoordinateInputForForm(BigDecimal.valueOf(25), BigDecimal.valueOf(25), BigDecimal.valueOf(25)));
-    form.getCoordinateInputForm().setLongitudeHemisphere(Hemisphere.EAST);
-    form.setDataAcquisitionProgramme("data");
-    form.setGeophysicalUpdate("update");
-    form.setTotalDepthFormation("formation");
+    form.getDrillDetailsForm().getCoordinateInputForm().setLongitudeHemisphere(Hemisphere.EAST);
+    form.getDrillDetailsForm().setDataAcquisitionProgramme("data");
+    form.getDrillDetailsForm().setGeophysicalUpdate("update");
+    form.getDrillDetailsForm().setTotalDepthFormation("formation");
     form.setDryHoleType(DryHoleType.GAS);
     form.setDryHoleCost(DecimalInput.createDecimalInput(BigDecimal.ONE));
-    form.setTotalDepthFormationComments("Depth comments");
+    form.getDrillDetailsForm().setTotalDepthFormationComments("Depth comments");
     return form;
   }
 

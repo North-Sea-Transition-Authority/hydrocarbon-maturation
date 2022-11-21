@@ -18,6 +18,10 @@ public class SubmissionDetailTestUtils {
     return createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
   }
 
+  public static SubmissionDetail createNewDiscoverySubmissionDetail() {
+    return createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+  }
+
   public static SubmissionDetail createNewPostDrillDryWellSubmissionDetail() {
     return createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
   }

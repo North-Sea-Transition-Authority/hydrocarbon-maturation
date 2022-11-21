@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.submission.DryWellSectionSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.submission.SectionSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class DryWellDetailsSubmissionService implements DryWellSectionSubmissionService {
+public class DryWellDetailsSubmissionService implements SectionSubmissionService {
 
   private final DryWellDetailsFormService dryWellDetailsFormService;
 
