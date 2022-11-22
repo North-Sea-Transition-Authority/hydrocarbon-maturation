@@ -10,6 +10,11 @@ class GasFluidPropertyForm implements SubmissionForm {
   private DecimalInput gasCo2 = new DecimalInput();
   private DecimalInput gasN2 = new DecimalInput();
   private Boolean condensatePresent;
+  private DecimalInput condensateGravity = new DecimalInput();
+  private DecimalInput condensateViscosity = new DecimalInput();
+  private DecimalInput condensateSulphur = new DecimalInput();
+  private DecimalInput condensateWax = new DecimalInput();
+  private DecimalInput condensateOtherInclWax = new DecimalInput();
   private String adviseOtherGasesConcentration;
 
   public DecimalInput getGasSpecificGravity() {
@@ -50,6 +55,47 @@ class GasFluidPropertyForm implements SubmissionForm {
 
   public void setCondensatePresent(Boolean condensatePresent) {
     this.condensatePresent = condensatePresent;
+  }
+
+  public DecimalInput getCondensateGravity() {
+    return condensateGravity;
+  }
+
+  public void setCondensateGravity(DecimalInput condensateGravity) {
+    this.condensateGravity = condensateGravity;
+  }
+
+  public DecimalInput getCondensateViscosity() {
+    return condensateViscosity;
+  }
+
+  public void setCondensateViscosity(DecimalInput condensateViscosity) {
+    this.condensateViscosity = condensateViscosity;
+  }
+
+  public DecimalInput getCondensateSulphur() {
+    return condensateSulphur;
+  }
+
+  public void setCondensateSulphur(DecimalInput condensateSulphur) {
+    this.condensateSulphur = condensateSulphur;
+  }
+
+  public DecimalInput getCondensateWax() {
+    return condensateWax;
+  }
+
+  public void setCondensateWax(DecimalInput condensateWax) {
+    this.condensateWax = condensateWax;
+  }
+
+  public DecimalInput getCondensateOtherInclWax() {
+    return condensateOtherInclWax;
+  }
+
+  public void setCondensateOtherInclWax(
+      DecimalInput condensateOtherInclWax) {
+    this.condensateOtherInclWax = condensateOtherInclWax;
   }
 
   public String getAdviseOtherGasesConcentration() {

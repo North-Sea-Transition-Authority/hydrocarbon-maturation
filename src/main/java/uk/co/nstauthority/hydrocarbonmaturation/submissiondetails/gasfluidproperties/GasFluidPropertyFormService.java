@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -44,6 +45,13 @@ class GasFluidPropertyFormService implements SubmissionFormService {
     form.setGasSpecificGravity(DecimalInput.createDecimalInput(gasFluidProperty.getGasSpecificGravity()));
     form.setAdviseOtherGasesConcentration(gasFluidProperty.getAdviseOtherGasesConcentration());
 
+    if (BooleanUtils.isTrue(gasFluidProperty.getCondensatePresent())) {
+      form.setCondensateGravity(DecimalInput.createDecimalInput(gasFluidProperty.getCondensateGravity()));
+      form.setCondensateViscosity(DecimalInput.createDecimalInput(gasFluidProperty.getCondensateViscosity()));
+      form.setCondensateSulphur(DecimalInput.createDecimalInput(gasFluidProperty.getCondensateSulphur()));
+      form.setCondensateWax(DecimalInput.createDecimalInput(gasFluidProperty.getCondensateWax()));
+      form.setCondensateOtherInclWax(DecimalInput.createDecimalInput(gasFluidProperty.getCondensateOtherInclWax()));
+    }
     return form;
 
   }

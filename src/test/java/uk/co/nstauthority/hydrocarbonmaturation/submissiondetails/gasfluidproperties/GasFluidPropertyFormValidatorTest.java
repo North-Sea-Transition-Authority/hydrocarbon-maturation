@@ -63,6 +63,12 @@ class GasFluidPropertyFormValidatorTest {
     form.setGasN2(new DecimalInput("-10"));
     form.setGasSpecificGravity(new DecimalInput("something"));
     form.setGasH2s(new DecimalInput("something"));
+    form.setCondensateGravity(new DecimalInput("-10"));
+    form.setCondensateWax(new DecimalInput("-10"));
+    form.setCondensateViscosity(new DecimalInput("-10"));
+    form.setCondensateSulphur(new DecimalInput("-10"));
+    form.setCondensateOtherInclWax(new DecimalInput("-10"));
+
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     gasFluidPropertyFormValidator.validate(form, bindingResult, validationType);
@@ -74,7 +80,12 @@ class GasFluidPropertyFormValidatorTest {
             entry("gasSpecificGravity.decimalInputValue", Set.of("gasSpecificGravity.decimalInputValue.notNumeric")),
             entry("gasN2.decimalInputValue", Set.of("gasN2.decimalInputValue.lessThanMinValue")),
             entry("gasCo2.decimalInputValue", Set.of("gasCo2.decimalInputValue.moreThanMaxValue")),
-            entry("gasH2s.decimalInputValue", Set.of("gasH2s.decimalInputValue.notNumeric"))
+            entry("gasH2s.decimalInputValue", Set.of("gasH2s.decimalInputValue.notNumeric")),
+            entry("condensateGravity.decimalInputValue", Set.of("condensateGravity.decimalInputValue.lessThanMinValue")),
+            entry("condensateViscosity.decimalInputValue", Set.of("condensateViscosity.decimalInputValue.lessThanMinValue")),
+            entry("condensateSulphur.decimalInputValue", Set.of("condensateSulphur.decimalInputValue.lessThanMinValue")),
+            entry("condensateWax.decimalInputValue", Set.of("condensateWax.decimalInputValue.lessThanMinValue")),
+            entry("condensateOtherInclWax.decimalInputValue", Set.of("condensateOtherInclWax.decimalInputValue.lessThanMinValue"))
         );
   }
 
@@ -97,6 +108,30 @@ class GasFluidPropertyFormValidatorTest {
         );
   }
 
+  @Test
+  void validate_fullValidationWhenEmptyFormWithCondensate_thenValidationErrors() {
+    var form = new GasFluidPropertyForm();
+    form.setCondensatePresent(true);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    gasFluidPropertyFormValidator.validate(form, bindingResult, ValidationType.FULL);
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("gasSpecificGravity.decimalInputValue", Set.of("gasSpecificGravity.decimalInputValue.required")),
+            entry("gasN2.decimalInputValue", Set.of("gasN2.decimalInputValue.required")),
+            entry("gasCo2.decimalInputValue", Set.of("gasCo2.decimalInputValue.required")),
+            entry("gasH2s.decimalInputValue", Set.of("gasH2s.decimalInputValue.required")),
+            entry("condensateGravity.decimalInputValue", Set.of("condensateGravity.decimalInputValue.required")),
+            entry("condensateViscosity.decimalInputValue", Set.of("condensateViscosity.decimalInputValue.required")),
+            entry("condensateSulphur.decimalInputValue", Set.of("condensateSulphur.decimalInputValue.required")),
+            entry("condensateWax.decimalInputValue", Set.of("condensateWax.decimalInputValue.required")),
+            entry("condensateOtherInclWax.decimalInputValue", Set.of("condensateOtherInclWax.decimalInputValue.required"))
+        );
+  }
+
   private GasFluidPropertyForm getValidForm() {
     var form = new GasFluidPropertyForm();
     form.setGasN2(DecimalInput.createDecimalInput(BigDecimal.ONE));
@@ -104,6 +139,12 @@ class GasFluidPropertyFormValidatorTest {
     form.setGasSpecificGravity(DecimalInput.createDecimalInput(BigDecimal.ONE));
     form.setGasCo2(DecimalInput.createDecimalInput(BigDecimal.ONE));
     form.setCondensatePresent(true);
+    form.setCondensateSulphur(DecimalInput.createDecimalInput(BigDecimal.TEN));
+    form.setCondensateViscosity(DecimalInput.createDecimalInput(BigDecimal.TEN));
+    form.setCondensateOtherInclWax(DecimalInput.createDecimalInput(BigDecimal.TEN));
+    form.setCondensateWax(DecimalInput.createDecimalInput(BigDecimal.TEN));
+    form.setCondensateGravity(DecimalInput.createDecimalInput(BigDecimal.TEN));
+
     return form;
   }
 }

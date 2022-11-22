@@ -38,8 +38,40 @@
       nestingPath="form.gasN2"/>
     <@fdsRadio.radioGroup
       path="form.condensatePresent"
-      labelText="Is condensate present?">
-      <@fdsRadio.radioYes path="form.condensatePresent"/>
+      labelText="Is condensate present?"
+      hiddenContent=true>
+      <@fdsRadio.radioYes path="form.condensatePresent">
+        <@fdsTextInput.textInput
+          path="form.condensateGravity.decimalInputValue"
+          nestingPath="form.condensateGravity"
+          labelText="Condensate gravity (°API)"
+          inputClass="govuk-input--width-5"
+          suffix="°API"/>
+        <@fdsTextInput.textInput
+          path="form.condensateViscosity.decimalInputValue"
+          nestingPath="form.condensateViscosity"
+          labelText="Condensate viscosity (cP)"
+          inputClass="govuk-input--width-5"
+          suffix="cP"/>
+        <@fdsTextInput.textInput
+          path="form.condensateSulphur.decimalInputValue"
+          nestingPath="form.condensateSulphur"
+          labelText="Condensate sulphur (ppm)"
+          inputClass="govuk-input--width-5"
+          suffix="ppm"/>
+        <@fdsTextInput.textInput
+          path="form.condensateWax.decimalInputValue"
+          nestingPath="form.condensateWax"
+          labelText="Condensate wax (weight%)"
+          inputClass="govuk-input--width-5"
+          suffix="weight%"/>
+        <@fdsTextInput.textInput
+          path="form.condensateOtherInclWax.decimalInputValue"
+          nestingPath="form.condensateOtherInclWax"
+          labelText="Condensate other incl wax appearance temperature (oF)"
+          inputClass="govuk-input--width-5"
+          suffix="oF"/>
+      </@fdsRadio.radioYes>
       <@fdsRadio.radioNo path="form.condensatePresent"/>
     </@fdsRadio.radioGroup>
     <@fdsTextarea.textarea

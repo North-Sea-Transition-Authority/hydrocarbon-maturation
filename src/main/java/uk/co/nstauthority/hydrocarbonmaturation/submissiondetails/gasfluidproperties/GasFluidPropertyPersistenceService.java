@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties;
 
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,15 @@ class GasFluidPropertyPersistenceService {
     gasFluidProperty.setGasN2(gasFluidPropertyForm.getGasN2().createBigDecimalOrNull());
     gasFluidProperty.setCondensatePresent(gasFluidPropertyForm.getCondensatePresent());
     gasFluidProperty.setAdviseOtherGasesConcentration(gasFluidPropertyForm.getAdviseOtherGasesConcentration());
+
+    if (BooleanUtils.isTrue(gasFluidPropertyForm.getCondensatePresent())) {
+      gasFluidProperty.setCondensateGravity(gasFluidPropertyForm.getCondensateGravity().createBigDecimalOrNull());
+      gasFluidProperty.setCondensateViscosity(gasFluidPropertyForm.getCondensateViscosity().createBigDecimalOrNull());
+      gasFluidProperty.setCondensateSulphur(gasFluidPropertyForm.getCondensateSulphur().createBigDecimalOrNull());
+      gasFluidProperty.setCondensateWax(gasFluidPropertyForm.getCondensateWax().createBigDecimalOrNull());
+      gasFluidProperty.setCondensateOtherInclWax(
+          gasFluidPropertyForm.getCondensateOtherInclWax().createBigDecimalOrNull());
+    }
     gasFluidPropertyRepository.save(gasFluidProperty);
   }
 

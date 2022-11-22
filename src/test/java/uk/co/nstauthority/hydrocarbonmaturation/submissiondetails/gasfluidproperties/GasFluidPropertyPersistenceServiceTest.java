@@ -50,14 +50,24 @@ class GasFluidPropertyPersistenceServiceTest {
             GasFluidProperty::getGasN2,
             GasFluidProperty::getGasSpecificGravity,
             GasFluidProperty::getCondensatePresent,
-            GasFluidProperty::getAdviseOtherGasesConcentration)
+            GasFluidProperty::getAdviseOtherGasesConcentration,
+            GasFluidProperty::getCondensateGravity,
+            GasFluidProperty::getCondensateOtherInclWax,
+            GasFluidProperty::getCondensateSulphur,
+            GasFluidProperty::getCondensateViscosity,
+            GasFluidProperty::getCondensateWax)
         .containsExactly(
             form.getGasH2s().createBigDecimalOrNull(),
             form.getGasCo2().createBigDecimalOrNull(),
             form.getGasN2().createBigDecimalOrNull(),
             form.getGasSpecificGravity().createBigDecimalOrNull(),
             form.getCondensatePresent(),
-            form.getAdviseOtherGasesConcentration()
+            form.getAdviseOtherGasesConcentration(),
+            form.getCondensateGravity().createBigDecimalOrNull(),
+            form.getCondensateOtherInclWax().createBigDecimalOrNull(),
+            form.getCondensateSulphur().createBigDecimalOrNull(),
+            form.getCondensateViscosity().createBigDecimalOrNull(),
+            form.getCondensateWax().createBigDecimalOrNull()
         );
   }
 
@@ -79,14 +89,24 @@ class GasFluidPropertyPersistenceServiceTest {
             GasFluidProperty::getGasN2,
             GasFluidProperty::getGasSpecificGravity,
             GasFluidProperty::getCondensatePresent,
-            GasFluidProperty::getAdviseOtherGasesConcentration)
+            GasFluidProperty::getAdviseOtherGasesConcentration,
+            GasFluidProperty::getCondensateGravity,
+            GasFluidProperty::getCondensateOtherInclWax,
+            GasFluidProperty::getCondensateSulphur,
+            GasFluidProperty::getCondensateViscosity,
+            GasFluidProperty::getCondensateWax)
         .containsExactly(
             form.getGasH2s().createBigDecimalOrNull(),
             form.getGasCo2().createBigDecimalOrNull(),
             form.getGasN2().createBigDecimalOrNull(),
             form.getGasSpecificGravity().createBigDecimalOrNull(),
             form.getCondensatePresent(),
-            form.getAdviseOtherGasesConcentration()
+            form.getAdviseOtherGasesConcentration(),
+            form.getCondensateGravity().createBigDecimalOrNull(),
+            form.getCondensateOtherInclWax().createBigDecimalOrNull(),
+            form.getCondensateSulphur().createBigDecimalOrNull(),
+            form.getCondensateViscosity().createBigDecimalOrNull(),
+            form.getCondensateWax().createBigDecimalOrNull()
         );
   }
 
