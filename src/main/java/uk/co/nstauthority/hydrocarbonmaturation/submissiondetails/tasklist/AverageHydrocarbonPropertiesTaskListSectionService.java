@@ -14,18 +14,23 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelld
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertyController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertyController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySubmissionService;
 
 @Service
 class AverageHydrocarbonPropertiesTaskListSectionService implements TaskListSectionService {
 
   private final GasFluidPropertySubmissionService gasFluidPropertySubmissionService;
+  private final GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService;
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
 
   @Autowired
   AverageHydrocarbonPropertiesTaskListSectionService(
       GasFluidPropertySubmissionService gasFluidPropertySubmissionService,
+      GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService,
       DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService) {
     this.gasFluidPropertySubmissionService = gasFluidPropertySubmissionService;
+    this.generalFluidPropertySubmissionService = generalFluidPropertySubmissionService;
     this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
   }
 
@@ -44,8 +49,13 @@ class AverageHydrocarbonPropertiesTaskListSectionService implements TaskListSect
                 gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)),
             ReverseRouter.route(on(GasFluidPropertyController.class)
                 .getGasFluidProperties(submissionDetail.getId()))));
-        return Optional.of(new TaskListSection("Average hydrocarbon properties", 60, items));
       }
+      items.add(new TaskListItem("General properties",
+          TaskListLabel.notStartedOrComplete(
+              generalFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)),
+          ReverseRouter.route(on(GeneralFluidPropertyController.class)
+              .getGeneralFluidProperties(submissionDetail.getId()))));
+      return Optional.of(new TaskListSection("Average hydrocarbon properties", 60, items));
     }
     return Optional.empty();
   }

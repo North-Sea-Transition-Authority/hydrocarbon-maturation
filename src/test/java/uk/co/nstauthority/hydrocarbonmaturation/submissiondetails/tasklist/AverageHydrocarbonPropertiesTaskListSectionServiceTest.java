@@ -24,12 +24,17 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelld
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertyController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertyController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySubmissionService;
 
 @ExtendWith(MockitoExtension.class)
 class AverageHydrocarbonPropertiesTaskListSectionServiceTest {
 
   @Mock
   private GasFluidPropertySubmissionService gasFluidPropertySubmissionService;
+
+  @Mock
+  private GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService;
 
   @Mock
   private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
@@ -45,13 +50,26 @@ class AverageHydrocarbonPropertiesTaskListSectionServiceTest {
   }
 
   @Test
-  void getSection_whenDiscoveryWellDetailsNotPresent_assertEmptySection() {
+  void getSection_whenDiscoveryWellDetailsNotPresent_assertOneItem() {
     when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());
 
     var taskListSectionOptional = averageHydrocarbonPropertiesTaskListSectionService.getSection(submissionDetail);
 
-    assertThat(taskListSectionOptional).isNotPresent();
+    assertThat(taskListSectionOptional.get())
+        .extracting(
+            TaskListSection::displayName,
+            TaskListSection::displayOrder,
+            TaskListSection::items)
+        .containsExactly(
+            "Average hydrocarbon properties",
+            60,
+            List.of(
+                new TaskListItem("General properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                        .getGeneralFluidProperties(submissionDetail.getId()))))
+        );
   }
 
   @Test
@@ -64,7 +82,7 @@ class AverageHydrocarbonPropertiesTaskListSectionServiceTest {
   }
 
   @Test
-  void getSection_whenOilOnly_assertEmptySection() {
+  void getSection_whenOilOnly_assertOilSections() {
     var discoveryWellDetail = new DiscoveryWellDetail();
     discoveryWellDetail.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
 
@@ -72,7 +90,20 @@ class AverageHydrocarbonPropertiesTaskListSectionServiceTest {
         .thenReturn(Optional.of(discoveryWellDetail));
     var taskListSectionOptional = averageHydrocarbonPropertiesTaskListSectionService.getSection(submissionDetail);
 
-    assertThat(taskListSectionOptional).isNotPresent();
+    assertThat(taskListSectionOptional.get())
+        .extracting(
+            TaskListSection::displayName,
+            TaskListSection::displayOrder,
+            TaskListSection::items)
+        .containsExactly(
+            "Average hydrocarbon properties",
+            60,
+            List.of(
+                new TaskListItem("General properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                        .getGeneralFluidProperties(submissionDetail.getId()))))
+        );
   }
 
   @Test
@@ -96,7 +127,11 @@ class AverageHydrocarbonPropertiesTaskListSectionServiceTest {
                 "Gas properties",
                 TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(GasFluidPropertyController.class)
-                    .getGasFluidProperties(submissionDetail.getId()))))
+                    .getGasFluidProperties(submissionDetail.getId()))),
+                new TaskListItem("General properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                        .getGeneralFluidProperties(submissionDetail.getId()))))
         );
   }
 
@@ -121,7 +156,11 @@ class AverageHydrocarbonPropertiesTaskListSectionServiceTest {
                 "Gas properties",
                 TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(GasFluidPropertyController.class)
-                    .getGasFluidProperties(submissionDetail.getId()))))
+                    .getGasFluidProperties(submissionDetail.getId()))),
+                new TaskListItem("General properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                        .getGeneralFluidProperties(submissionDetail.getId()))))
         );
   }
 

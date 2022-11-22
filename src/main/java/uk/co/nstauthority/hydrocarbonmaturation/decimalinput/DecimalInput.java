@@ -36,6 +36,27 @@ public class DecimalInput {
         .orElse(null);
   }
 
+  public Integer createIntegerOrNull() {
+    return this.asInteger()
+        .orElse(null);
+  }
+
+  public Optional<Integer> asInteger() throws NumberFormatException {
+    if (decimalInputValue != null && decimalInputValue.toLowerCase().contains("e")) {
+      decimalInputValue = decimalInputValue.replaceAll("[\n\r\t]", "_");
+      LOGGER.debug("Could not convert the input value to a valid DecimalInput for value: {}", decimalInputValue);
+      return Optional.empty();
+    }
+
+    try {
+      return Optional.ofNullable(decimalInputValue)
+          .map(Integer::valueOf);
+
+    } catch (NumberFormatException e) {
+      return Optional.empty();
+    }
+  }
+
   /**
    * BigDecimal(String) allows exponents. This method counts any input containing e/E as invalid
    */
