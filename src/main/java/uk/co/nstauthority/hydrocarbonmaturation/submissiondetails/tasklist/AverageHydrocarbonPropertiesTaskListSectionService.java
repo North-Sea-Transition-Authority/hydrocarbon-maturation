@@ -16,20 +16,25 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproper
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertyController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySubmissionService;
 
 @Service
 class AverageHydrocarbonPropertiesTaskListSectionService implements TaskListSectionService {
 
   private final GasFluidPropertySubmissionService gasFluidPropertySubmissionService;
+  private final OilFluidPropertySubmissionService oilFluidPropertySubmissionService;
   private final GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService;
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
 
   @Autowired
   AverageHydrocarbonPropertiesTaskListSectionService(
       GasFluidPropertySubmissionService gasFluidPropertySubmissionService,
+      OilFluidPropertySubmissionService oilFluidPropertySubmissionService,
       GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService,
       DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService) {
     this.gasFluidPropertySubmissionService = gasFluidPropertySubmissionService;
+    this.oilFluidPropertySubmissionService = oilFluidPropertySubmissionService;
     this.generalFluidPropertySubmissionService = generalFluidPropertySubmissionService;
     this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
   }
@@ -42,6 +47,16 @@ class AverageHydrocarbonPropertiesTaskListSectionService implements TaskListSect
       var hydrocarbonsDiscovered = discoveryWellDetailsPersistenceService
           .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
           .map(DiscoveryWellDetail::getHydrocarbonsDiscovered).orElse(null);
+
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+          || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+        items.add(new TaskListItem("Oil properties",
+            TaskListLabel.notStartedOrComplete(
+                oilFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)),
+            ReverseRouter.route(on(OilFluidPropertyController.class)
+                .getOilFluidProperties(submissionDetail.getId()))));
+      }
+
       if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
           || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
         items.add(new TaskListItem("Gas properties",
@@ -50,6 +65,7 @@ class AverageHydrocarbonPropertiesTaskListSectionService implements TaskListSect
             ReverseRouter.route(on(GasFluidPropertyController.class)
                 .getGasFluidProperties(submissionDetail.getId()))));
       }
+
       items.add(new TaskListItem("General properties",
           TaskListLabel.notStartedOrComplete(
               generalFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)),

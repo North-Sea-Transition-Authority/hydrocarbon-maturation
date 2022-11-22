@@ -117,7 +117,6 @@ class OilCaseOutputsPersistenceServiceTest {
   @Test
   void saveOilCaseOutputs_whenGivenEmptyForm_verifyCreatedEntity() {
     var form = new OilCaseOutputsForm();
-    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(null));
 
     oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, submissionDetail);
 

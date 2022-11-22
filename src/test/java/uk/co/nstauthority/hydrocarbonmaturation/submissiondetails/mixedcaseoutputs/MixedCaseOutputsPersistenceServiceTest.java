@@ -101,7 +101,7 @@ class MixedCaseOutputsPersistenceServiceTest {
   @Test
   void saveMixedCaseOutputs_whenEmptyForm_verifyCreatedEntity() {
     var form = new MixedCaseOutputsForm();
-    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(null));
+    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput());
 
     mixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, submissionDetail);
 

@@ -23,6 +23,10 @@ public class DecimalInput {
     return decimalInputValue == null ? new DecimalInput() : new DecimalInput(decimalInputValue.toString());
   }
 
+  public static DecimalInput createDecimalInput(Integer decimalInputValue) {
+    return decimalInputValue == null ? new DecimalInput() : new DecimalInput(decimalInputValue.toString());
+  }
+
   public String getDecimalInputValue() {
     return decimalInputValue;
   }

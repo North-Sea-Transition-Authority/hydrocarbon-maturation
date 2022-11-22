@@ -11,7 +11,7 @@ public class OilCaseOutputsForm implements SubmissionForm {
   private ProbabilityDistributionForm associatedGasRecoverableResources = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm oilEquivalentRecoverableResources = new ProbabilityDistributionForm();
   private Boolean hasAssociatedGasRecoverableResources;
-  private DecimalInput riskedOilEquivalentRecoverableMean;
+  private DecimalInput riskedOilEquivalentRecoverableMean = new DecimalInput();
 
   public Boolean getHasAssociatedGasRecoverableResources() {
     return hasAssociatedGasRecoverableResources;
