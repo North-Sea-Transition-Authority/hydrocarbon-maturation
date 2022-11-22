@@ -33,7 +33,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation.AdditionalInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -84,7 +83,6 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
   private ProbabilityDistributionsFormSummaryView mixedCaseVolumetricsSummaryView;
   private MixedCaseOutputsSummaryView mixedCaseOutputsSummaryView;
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
-  private AdditionalInformationSummaryView additionalInformationSummaryView;
   private OpportunityDetailsSummaryView opportunityDetailsSummaryView;
 
   @BeforeEach
@@ -119,7 +117,6 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
     gasCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     mixedCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty();
-    additionalInformationSummaryView = AdditionalInformationSummaryView.empty();
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
   }
 
@@ -151,8 +148,6 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(mixedCaseOutputsSummaryView);
     when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(trapPropertiesSummaryView);
-    when(prospectSummaryService.getAdditionalInformationSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(additionalInformationSummaryView);
     when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(opportunityDetailsSummaryView);
 
@@ -206,8 +201,6 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(mixedCaseOutputsSummaryView);
     when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(trapPropertiesSummaryView);
-    when(prospectSummaryService.getAdditionalInformationSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(additionalInformationSummaryView);
     when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(opportunityDetailsSummaryView);
     when(prospectSubmissionService.isSubmissionSubmittable(submissionDetail))
@@ -234,7 +227,6 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView),
             entry("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
-            entry("additionalInformationSummaryView", additionalInformationSummaryView),
             entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
             entry("subNavigation", subNavList)
     );

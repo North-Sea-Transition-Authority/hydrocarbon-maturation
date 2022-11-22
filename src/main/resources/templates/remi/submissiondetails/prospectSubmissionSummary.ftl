@@ -12,7 +12,6 @@
 <#import '../summarylistcards/gasCaseOutputsSummaryCard.ftl' as gasCaseOutputsSummary>
 <#import '../summarylistcards/mixedCaseVolumetricsSummary.ftl' as mixedCaseVolumetricsSummary>
 <#import '../summarylistcards/mixedCaseOutputsSummaryCard.ftl' as mixedCaseOutputsSummary>
-<#import '../summarylistcards/additionalInformationSummaryCard.ftl' as additionalInformationSummary>
 <#import '../summarylistcards/opportunityDetailsSummaryCard.ftl' as opportunityDetailsSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
@@ -94,8 +93,6 @@
         <@mixedCaseOutputsSummary.mixedCaseOutputsSummaryCard
           mixedCaseOutputsValues=mixedCaseOutputsSummaryView/>
       </#if>
-      <@additionalInformationSummary.additionalInformationSummaryCard
-          additionalInformationValues=additionalInformationSummaryView/>
     <#if !submittable>
       <@fdsCheckbox.checkbox
         labelText="I want to complete this submission without providing all the required information"

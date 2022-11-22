@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation.AdditionalInformationSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation.AdditionalInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
@@ -53,7 +51,6 @@ class ProspectSummaryService {
   private final OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
   private final GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
   private final GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
-  private final AdditionalInformationSummaryService additionalInformationSummaryService;
   private final OpportunityDetailsSummaryService opportunityDetailsSummaryService;
   private final List<TaskListSectionService> prospectTaskListSections;
 
@@ -70,7 +67,6 @@ class ProspectSummaryService {
                                 GasCaseOutputsSummaryService gasCaseOutputsSummaryService,
                                 MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService,
                                 MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService,
-                                AdditionalInformationSummaryService additionalInformationSummaryService,
                                 OpportunityDetailsSummaryService opportunityDetailsSummaryService,
                                 List<TaskListSectionService> prospectTaskListSections) {
     this.generalDetailSummaryService = generalDetailSummaryService;
@@ -85,7 +81,6 @@ class ProspectSummaryService {
     this.mixedCaseVolumetricsSummaryService = mixedCaseVolumetricsSummaryService;
     this.mixedCaseOutputsSummaryService = mixedCaseOutputsSummaryService;
     this.trapPropertiesSummaryService = trapPropertiesSummaryService;
-    this.additionalInformationSummaryService = additionalInformationSummaryService;
     this.opportunityDetailsSummaryService = opportunityDetailsSummaryService;
     this.prospectTaskListSections = prospectTaskListSections;
   }
@@ -148,11 +143,6 @@ class ProspectSummaryService {
   public OpportunityDetailsSummaryView getOpportunityDetailsSummaryViewFromSubmissionDetail(
       SubmissionDetail submissionDetail) {
     return opportunityDetailsSummaryService.getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
-  }
-
-  public AdditionalInformationSummaryView getAdditionalInformationSummaryViewFromSubmissionDetail(
-      SubmissionDetail submissionDetail) {
-    return additionalInformationSummaryService.getAdditionalInformationSummaryFromSubmissionDetail(submissionDetail);
   }
 
   public List<SubNavigationItem> getProspectSubNavigation(SubmissionDetail submissionDetail) {

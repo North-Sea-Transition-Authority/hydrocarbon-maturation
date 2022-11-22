@@ -101,8 +101,6 @@ public class ProspectSubmissionSummaryController {
             prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",
             prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("additionalInformationSummaryView",
-            prospectSummaryService.getAdditionalInformationSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("submittable", prospectSubmissionService.isSubmissionSubmittable(submissionDetail))
         .addObject("gasCase", hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail))
         .addObject("oilCase", hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail))
