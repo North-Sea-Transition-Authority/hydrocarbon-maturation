@@ -8,12 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
-class DiscoveryWellDetailsPersistenceService {
+public class DiscoveryWellDetailsPersistenceService {
 
   private final DiscoveryWellDetailsRepository discoveryWellDetailsRepository;
 
   @Autowired
-  DiscoveryWellDetailsPersistenceService(DiscoveryWellDetailsRepository discoveryWellDetailsRepository) {
+  public DiscoveryWellDetailsPersistenceService(DiscoveryWellDetailsRepository discoveryWellDetailsRepository) {
     this.discoveryWellDetailsRepository = discoveryWellDetailsRepository;
   }
 

@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywell
 
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
-enum HydrocarbonsDiscovered implements Displayable {
+public enum HydrocarbonsDiscovered implements Displayable {
 
   OIL_ONLY("Oil only"),
   GAS_ONLY("Gas only (including condensate)"),

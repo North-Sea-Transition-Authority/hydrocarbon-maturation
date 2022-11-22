@@ -7,7 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.D
 
 @Entity
 @Table(name = "discovery_well_details")
-class DiscoveryWellDetail extends DrillDetail {
+public class DiscoveryWellDetail extends DrillDetail {
 
   private HydrocarbonsDiscovered hydrocarbonsDiscovered;
 
