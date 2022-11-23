@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="mixedCaseOutputsValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView" -->
 
 <#macro mixedCaseOutputsSummaryCard mixedCaseOutputsValues>
-  <@fdsSummaryList.summaryListCard headingText="Mixed case outputs (resources)" summaryListId="mixedcaseoutputs(resources)">
+  <@fdsSummaryList.summaryListCard headingText="Mixed case outputs (resources)" summaryListId="mixedcaseoutputresources">
     <@fdsSummaryList.summaryListRowNoAction keyText="Do you expect to find associated gas recoverable resources?">
       ${mixedCaseOutputsValues.hasAssociatedGasRecoverableResources()}
     </@fdsSummaryList.summaryListRowNoAction>
@@ -13,7 +13,9 @@
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 
-  <@probabilityDistribution.probabilityDistributionTable
-    withDistributionType=false
-    probabilityDistributions=mixedCaseOutputsValues.probabilityDistributionSummaryViews()/>
+    <@fdsSummaryList.summaryListCard headingText="Mixed case outputs" summaryListId="mixedcaseoutputs">
+        <@probabilityDistribution.probabilityDistributionTable
+          withDistributionType=false
+          probabilityDistributions=mixedCaseOutputsValues.probabilityDistributionSummaryViews()/>
+    </@fdsSummaryList.summaryListCard>
 </#macro>

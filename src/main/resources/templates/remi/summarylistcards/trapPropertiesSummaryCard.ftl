@@ -36,6 +36,7 @@
       fieldName="Prospect depth map"/>
   </@fdsSummaryList.summaryListCard>
 
-  <@probabilityDistribution.probabilityDistributionTable
-    probabilityDistributions=trapPropertiesValues.probabilityDistributionSummaryViews()/>
+    <@fdsSummaryList.summaryListCard headingText="Trap property distributions" summaryListId="trappropertydistributions">
+        <@probabilityDistribution.probabilityDistributionTable probabilityDistributions=trapPropertiesValues.probabilityDistributionSummaryViews()/>
+    </@fdsSummaryList.summaryListCard>
 </#macro>

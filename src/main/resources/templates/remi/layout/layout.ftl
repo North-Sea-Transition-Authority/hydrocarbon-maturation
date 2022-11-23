@@ -21,7 +21,7 @@
   backLinkUrl=""
   breadcrumbsMap={}
   wrapperWidth=false
->
+  notificationBannerContent="">
 
     <#assign fullWidthColumn=false />
     <#assign oneHalfColumn=false />
@@ -93,6 +93,7 @@
       breadcrumbsList=breadcrumbsMap
       headerContent=serviceHeader
       wrapperWidth=wrapperWidth
+      notificationBannerContent=notificationBannerContent
       customScriptContent=hydrocarbonScripts
     >
         <#nested />

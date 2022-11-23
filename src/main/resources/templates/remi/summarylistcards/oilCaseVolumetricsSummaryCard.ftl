@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="oilCaseVolumetricsValues" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView" -->
 
 <#macro oilCaseVolumetricsSummary oilCaseVolumetricsValues>
-  <@fdsSummaryList.summaryListWrapper headingClass="fds-summary-list-card__heading" headingSize="h2" headingText="Oil case volumetrics parameters" summaryListId="oilcasevolumetricsparameters"/>
-  <@probabilityDistribution.probabilityDistributionTable
-    probabilityDistributions=oilCaseVolumetricsValues.probabilityDistributionSummaryViews()/>
+    <@fdsSummaryList.summaryListCard headingText="Oil case volumetric parameters" summaryListId="oilcasevolumetricparams">
+        <@probabilityDistribution.probabilityDistributionTable probabilityDistributions=oilCaseVolumetricsValues.probabilityDistributionSummaryViews()/>
+    </@fdsSummaryList.summaryListCard>
 </#macro>

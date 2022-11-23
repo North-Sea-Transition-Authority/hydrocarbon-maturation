@@ -1,4 +1,4 @@
-<#include '../layout/leftSubNavLayout.ftl'>
+<#include '../layout/layout.ftl'>
 
 <#import '../summarylistcards/dryWellSummaryCard.ftl' as dryWellSummary>
 <#import '../summarylistcards/permeabilitySummaryCard.ftl' as permeabilitySummary>
@@ -13,35 +13,28 @@
 <#-- @ftlvariable name="oilCase" type="Boolean" -->
 <#-- @ftlvariable name="mixedCase" type="Boolean" -->
 
-<@defaultLeftSubNavPage
-  htmlTitle=pageTitle
-  htmlAppTitle=pageTitle
-  wrapperWidth=true>
-  <@fdsLeftSubNavPageTemplateSubNav smallSubnav=true>
-    <@fdsSubNavigation.subNavigation sticky=true>
-      <@fdsSubNavigation.subNavigationSection themeHeading="Sections">
-        <#list subNavigation as item>
-          <@fdsSubNavigation.subNavigationSectionItem
-            linkName="${item.displayName()}"
-            linkAction="${item.actionUrl()}"
-            currentItemHref="#"/>
-        </#list>
-      </@fdsSubNavigation.subNavigationSection>
-    </@fdsSubNavigation.subNavigation>
-  </@fdsLeftSubNavPageTemplateSubNav>
+<@defaultPage
+htmlTitle=pageTitle
+pageHeading=pageTitle
+pageSize=PageSize.FULL_WIDTH
+errorItems=errorList
+breadcrumbsMap=breadcrumbsMap>
 
-  <@defaultLeftSubNavPageContent pageHeading=pageTitle breadcrumbsMap=breadcrumbsMap>
     <@fdsForm.htmlForm>
-      <@dryWellSummary.dryWellDetailCard dryWellValues=dryWellDetailsSummaryView/>
-      <@permeabilitySummary.permeabilityDetailsSummaryCard
-        permeabilityDetailsValues=permeabiltySummaryView
-        optionalPermeability=true/>
-
+        <@fdsAccordion.accordion accordionId="summaryaccordian">
+            <@fdsAccordion.accordionSection sectionHeading="Post well drill" summaryText="Dry well details">
+                <@dryWellSummary.dryWellDetailCard dryWellValues=dryWellDetailsSummaryView/>
+            </@fdsAccordion.accordionSection>
+            <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">
+                <@permeabilitySummary.permeabilityDetailsSummaryCard
+                permeabilityDetailsValues=permeabiltySummaryView
+                optionalPermeability=true/>
+            </@fdsAccordion.accordionSection>
+        </@fdsAccordion.accordion>
       <@fdsAction.submitButtons
         primaryButtonText="Submit"
         secondaryLinkText="Cancel"
         linkSecondaryAction=true
         linkSecondaryActionUrl="${springUrl(cancelUrl)}"/>
     </@fdsForm.htmlForm>
-  </@defaultLeftSubNavPageContent>
-</@defaultLeftSubNavPage>
+</@defaultPage>

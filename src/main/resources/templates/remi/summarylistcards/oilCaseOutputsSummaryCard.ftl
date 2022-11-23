@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="oilCaseOutputsValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView" -->
 
 <#macro oilCaseOutputsSummaryCard oilCaseOutputsValues>
-  <@fdsSummaryList.summaryListCard headingText="Oil case outputs (resources)" summaryListId="oilcaseoutputs(resources)">
+  <@fdsSummaryList.summaryListCard headingText="Oil case outputs (resources)" summaryListId="oilcaseoutputresources">
     <@fdsSummaryList.summaryListRowNoAction keyText="Do you expect to find associated gas recoverable resources?">
       ${oilCaseOutputsValues.hasAssociatedGasRecoverableResources()}
     </@fdsSummaryList.summaryListRowNoAction>
@@ -13,7 +13,9 @@
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 
-  <@probabilityDistribution.probabilityDistributionTable
-    withDistributionType=false
-    probabilityDistributions=oilCaseOutputsValues.probabilityDistributionSummaryViews()/>
+    <@fdsSummaryList.summaryListCard headingText="Oil case outputs" summaryListId="oilcaseoutputs">
+        <@probabilityDistribution.probabilityDistributionTable
+          withDistributionType=false
+          probabilityDistributions=oilCaseOutputsValues.probabilityDistributionSummaryViews()/>
+    </@fdsSummaryList.summaryListCard>
 </#macro>

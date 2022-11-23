@@ -15,6 +15,7 @@
       ${reservoirPropertiesValues.lithology()}
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
-  <@probabilityDistribution.probabilityDistributionTable
-    probabilityDistributions=reservoirPropertiesValues.probabilityDistributionSummaryViews()/>
+    <@fdsSummaryList.summaryListCard headingText="Reservoir property distributions" summaryListId="reservoirpropertydistributions">
+        <@probabilityDistribution.probabilityDistributionTable probabilityDistributions=reservoirPropertiesValues.probabilityDistributionSummaryViews()/>
+    </@fdsSummaryList.summaryListCard>
 </#macro>
