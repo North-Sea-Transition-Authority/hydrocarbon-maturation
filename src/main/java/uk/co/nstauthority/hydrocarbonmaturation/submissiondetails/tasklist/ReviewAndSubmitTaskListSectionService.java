@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.DiscoverySubmissionSummaryController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.PostDrillDryWellSubmissionSummaryController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ProspectSubmissionSummaryController;
 
@@ -33,13 +34,15 @@ public class ReviewAndSubmitTaskListSectionService implements TaskListSectionSer
       case CREATE_PROSPECT, PROSPECT_UPDATE ->
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(ProspectSubmissionSummaryController.class)
-                  .showSubmissionSummary(submissionDetail.getId(), null)),
-              ShowOnSubNav.FALSE));
-      case POST_DRILL_DRY_HOLE, CREATE_DISCOVERY ->
+                  .showSubmissionSummary(submissionDetail.getId(), null))));
+      case POST_DRILL_DRY_HOLE ->
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
-                  .showSubmissionSummary(submissionDetail.getId())),
-              ShowOnSubNav.FALSE));
+                  .showSubmissionSummary(submissionDetail.getId()))));
+      case CREATE_DISCOVERY ->
+          List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
+              ReverseRouter.route(on(DiscoverySubmissionSummaryController.class)
+                  .showSubmissionSummary(submissionDetail.getId()))));
     };
   }
 }

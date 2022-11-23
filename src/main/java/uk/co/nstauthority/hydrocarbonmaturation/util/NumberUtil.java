@@ -14,4 +14,10 @@ public class NumberUtil {
         ? number + " " + units
         : "";
   }
+
+  public static String getNumberStringWithUnitsOrEmpty(Integer number, String units) {
+    return number != null
+        ? number + " " + units
+        : "";
+  }
 }

@@ -49,11 +49,11 @@ class TaskListControllerTest extends AbstractControllerTest {
         .thenReturn(submissionDetail);
     var taskListSections = List.of(
         new TaskListSection("Reservoir", 10, List.of(
-            new TaskListItem("item1", "actionUrl1", ShowOnSubNav.TRUE),
-            new TaskListItem("item2", "actionUrl2", ShowOnSubNav.TRUE)
+            new TaskListItem("item1", "actionUrl1"),
+            new TaskListItem("item2", "actionUrl2")
         )),
         new TaskListSection("Section2", 10, List.of(
-            new TaskListItem("item1s2", "actionUrl1s2", ShowOnSubNav.TRUE)))
+            new TaskListItem("item1s2", "actionUrl1s2")))
     );
 
     when(taskListService.getAllSections(submissionDetail))
@@ -62,14 +62,14 @@ class TaskListControllerTest extends AbstractControllerTest {
                 "Reservoir",
                 10,
                 List.of(
-                    new TaskListItem("item1", "actionUrl1", ShowOnSubNav.TRUE),
-                    new TaskListItem("item2", "actionUrl2", ShowOnSubNav.TRUE)
+                    new TaskListItem("item1", "actionUrl1"),
+                    new TaskListItem("item2", "actionUrl2")
                 )),
                 new TaskListSection(
                     "Section2",
                     10,
                     List.of(
-                        new TaskListItem("item1s2", "actionUrl1s2", ShowOnSubNav.TRUE)
+                        new TaskListItem("item1s2", "actionUrl1s2")
                     )))
         );
 

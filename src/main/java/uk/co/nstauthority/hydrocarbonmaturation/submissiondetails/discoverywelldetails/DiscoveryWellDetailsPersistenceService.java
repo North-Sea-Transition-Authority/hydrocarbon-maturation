@@ -53,4 +53,16 @@ public class DiscoveryWellDetailsPersistenceService {
   public Optional<DiscoveryWellDetail> getDiscoveryWellDetailBySubmissionDetail(SubmissionDetail submissionDetail) {
     return discoveryWellDetailsRepository.findBySubmissionDetail(submissionDetail);
   }
+
+  public boolean isDiscoveryGasOnly(DiscoveryWellDetail discoveryWellDetail) {
+    return discoveryWellDetail.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.GAS_ONLY;
+  }
+
+  public boolean isDiscoveryOilOnly(DiscoveryWellDetail discoveryWellDetail) {
+    return discoveryWellDetail.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.OIL_ONLY;
+  }
+
+  public boolean isDiscoveryMixed(DiscoveryWellDetail discoveryWellDetail) {
+    return discoveryWellDetail.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS;
+  }
 }

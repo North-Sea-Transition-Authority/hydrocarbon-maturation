@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,6 +12,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -132,6 +136,31 @@ class DiscoveryWellDetailsPersistenceServiceTest {
             form.getHydrocarbonsDiscovered(),
             form.getSuccessRelatedCosts().createBigDecimalOrNull()
         );
+  }
+
+  @ParameterizedTest
+  @EnumSource(HydrocarbonsDiscovered.class)
+  void isDiscovery_gasOilOrMixed_assertTrueFalse(HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+    var discoveryWellDetail = new DiscoveryWellDetail();
+    discoveryWellDetail.setHydrocarbonsDiscovered(hydrocarbonsDiscovered);
+
+    switch(hydrocarbonsDiscovered) {
+      case GAS_ONLY -> {
+        assertTrue(discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail));
+        assertFalse(discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail));
+        assertFalse(discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWellDetail));
+      }
+      case MIXED_OIL_AND_GAS -> {
+        assertFalse(discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail));
+        assertTrue(discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail));
+        assertFalse(discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWellDetail));
+      }
+      case OIL_ONLY -> {
+        assertFalse(discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail));
+        assertFalse(discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail));
+        assertTrue(discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWellDetail));
+      }
+    }
   }
 
   private DiscoveryWellDetailsForm getFilledForm() {

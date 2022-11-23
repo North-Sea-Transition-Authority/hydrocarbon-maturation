@@ -35,8 +35,7 @@ class ReviewAndSubmitTaskListSectionServiceTest {
         .extracting(TaskListSection::items)
         .isEqualTo(List.of(
             new TaskListItem("Review and submit",
-                ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId(), null)),
-                ShowOnSubNav.FALSE)
+                ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId(), null)))
         ));
   }
 
@@ -52,8 +51,7 @@ class ReviewAndSubmitTaskListSectionServiceTest {
             TaskListSection::displayOrder)
         .containsExactly(List.of(
             new TaskListItem("Review and submit",
-                ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId())),
-                ShowOnSubNav.FALSE)),
+                ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId())))),
             "Review and submit",
             Integer.MAX_VALUE
         );
