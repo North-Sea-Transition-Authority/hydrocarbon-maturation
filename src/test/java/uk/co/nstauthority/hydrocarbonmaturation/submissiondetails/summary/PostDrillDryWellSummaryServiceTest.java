@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -77,32 +76,5 @@ class PostDrillDryWellSummaryServiceTest {
 
     verify(permeabilitySummaryService, times(1))
         .getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
-  }
-
-  @Test
-  void getDryWellSubNavigation_whenTwoSections_TwoResults() {
-    var subNavItems = postDrillDryWellSummaryService.getPostDrillDryWellSubNavigation(submissionDetail);
-
-    assertThat(subNavItems).hasSize(2);
-    assertThat(subNavItems)
-        .containsExactly(
-            new SubNavigationItem("Reservoir properties", "#reservoirproperties"),
-            new SubNavigationItem("Permeability", "#permeability")
-        );
-  }
-
-  @Test
-  void getDryWellSubNavigation_whenOneWrongSection_noResults() {
-    postWellDrillTaskListSections = List.of(reviewAndSubmitTaskListSectionService);
-
-    postDrillDryWellSummaryService = new PostDrillDryWellSummaryService(
-        dryWellDetailsSummaryService,
-        permeabilitySummaryService,
-        postWellDrillTaskListSections
-    );
-
-    var subNavItems = postDrillDryWellSummaryService.getPostDrillDryWellSubNavigation(submissionDetail);
-
-    assertThat(subNavItems).isEmpty();
   }
 }

@@ -50,8 +50,7 @@ public class PostDrillDryWellSubmissionSummaryController {
             postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)))
         .addObject("permeabiltySummaryView",
-            postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("subNavigation", postDrillDryWellSummaryService.getPostDrillDryWellSubNavigation(submissionDetail));
+            postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
 

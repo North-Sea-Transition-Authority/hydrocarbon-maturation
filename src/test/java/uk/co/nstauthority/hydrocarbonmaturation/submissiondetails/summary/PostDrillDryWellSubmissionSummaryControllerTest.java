@@ -14,7 +14,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,13 +58,9 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
 
   @Test
   void showSubmissionSummary_assertStatusOk() throws Exception {
-    var subNavList = List.of(new SubNavigationItem("item1", "#item1"));
-
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(dryWellDetailsSummaryView);
-    when(postDrillDryWellSummaryService.getPostDrillDryWellSubNavigation(submissionDetail))
-        .thenReturn(subNavList);
     when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(permeabilityDetailSummaryView);
 
@@ -93,14 +88,10 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
 
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
-    var subNavList = List.of(new SubNavigationItem("item1", "#item1"));
-
     when(postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(dryWellDetailsSummaryView);
     when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(permeabilityDetailSummaryView);
-    when(postDrillDryWellSummaryService.getPostDrillDryWellSubNavigation(submissionDetail))
-        .thenReturn(subNavList);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -114,8 +105,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
         .contains(
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
             entry("dryWellDetailsSummaryView", dryWellDetailsSummaryView),
-            entry("permeabiltySummaryView", permeabilityDetailSummaryView),
-            entry("subNavigation", subNavList)
+            entry("permeabiltySummaryView", permeabilityDetailSummaryView)
         );
   }
 }

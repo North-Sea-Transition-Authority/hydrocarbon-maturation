@@ -26,7 +26,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprope
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListItem;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
@@ -138,9 +137,5 @@ class ProspectSummaryService {
   public OpportunityDetailsSummaryView getOpportunityDetailsSummaryViewFromSubmissionDetail(
       SubmissionDetail submissionDetail) {
     return opportunityDetailsSummaryService.getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
-  }
-
-  private String getActionUrl(TaskListItem item) {
-    return "#" + item.displayName().replace(" ", "").toLowerCase();
   }
 }

@@ -8,7 +8,6 @@
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
-<#-- @ftlvariable name="subNavigation" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubNavigationPostDrillSectionItem>" -->
 <#-- @ftlvariable name="gasCase" type="Boolean" -->
 <#-- @ftlvariable name="oilCase" type="Boolean" -->
 <#-- @ftlvariable name="mixedCase" type="Boolean" -->
