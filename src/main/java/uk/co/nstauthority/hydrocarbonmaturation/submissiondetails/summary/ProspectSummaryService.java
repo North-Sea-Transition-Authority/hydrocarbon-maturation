@@ -1,9 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
@@ -29,9 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprope
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ShowOnSubNav;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListItem;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSection;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
@@ -143,30 +138,6 @@ class ProspectSummaryService {
   public OpportunityDetailsSummaryView getOpportunityDetailsSummaryViewFromSubmissionDetail(
       SubmissionDetail submissionDetail) {
     return opportunityDetailsSummaryService.getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
-  }
-
-  public List<SubNavigationItem> getProspectSubNavigation(SubmissionDetail submissionDetail) {
-    return getProspectSubNavigationItems(prospectTaskListSections, submissionDetail);
-  }
-
-  private List<SubNavigationItem> getProspectSubNavigationItems(
-      List<TaskListSectionService> sections,
-      SubmissionDetail submissionDetail) {
-
-    List<SubNavigationItem> listOfSubNavItems = new ArrayList<>();
-    sections.stream()
-        .map(tlss -> tlss.getSection(submissionDetail))
-        .flatMap(Optional::stream)
-        .sorted(Comparator.comparing(TaskListSection::displayOrder))
-        .forEach(section ->
-          section.items()
-              .stream()
-              .filter(item -> item.showOnSubNav() == ShowOnSubNav.TRUE)
-              .forEach(item -> listOfSubNavItems.add(new SubNavigationItem(item.displayName(),
-                  getActionUrl(item))))
-        );
-
-    return listOfSubNavItems;
   }
 
   private String getActionUrl(TaskListItem item) {

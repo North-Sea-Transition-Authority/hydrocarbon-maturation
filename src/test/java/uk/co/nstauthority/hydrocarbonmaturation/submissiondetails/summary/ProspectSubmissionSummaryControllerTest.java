@@ -17,7 +17,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,9 +121,6 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
 
   @Test
   void showSubmissionSummary_assertStatusOk() throws Exception {
-    var subNavList = List.of(new SubNavigationItem("Gas case outputs", "#gascaseoutputs"));
-
-    when(prospectSummaryService.getProspectSubNavigation(submissionDetail)).thenReturn(subNavList);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
@@ -175,12 +171,9 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
 
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
-    var subNavList = List.of(new SubNavigationItem("Gas case outputs", "#gascaseoutputs"));
-
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
-    when(prospectSummaryService.getProspectSubNavigation(submissionDetail)).thenReturn(subNavList);
     when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(sourceAndSealSummaryView);
     when(prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
@@ -227,8 +220,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView),
             entry("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
-            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
-            entry("subNavigation", subNavList)
+            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
     );
   }
 }

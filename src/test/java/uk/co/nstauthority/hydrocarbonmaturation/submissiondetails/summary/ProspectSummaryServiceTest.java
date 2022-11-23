@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -247,13 +246,6 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
-  void getProspectSubNavigation_whenTwoSections_oneResult() {
-    var subNavItems = prospectSummaryService.getProspectSubNavigation(submissionDetail);
-
-    assertThat(subNavItems).hasSize(1);
-  }
-
-  @Test
   void getProspectSubNavigation_whenOneWrongSection_noResults() {
     listOfTaskListSections = List.of(reviewAndSubmitTaskListSectionService);
     prospectSummaryService = new ProspectSummaryService(
@@ -271,9 +263,5 @@ class ProspectSummaryServiceTest {
         mixedCaseOutputsSummaryService,
         opportunityDetailsSummaryService,
         listOfTaskListSections);
-
-    var subNavItems = prospectSummaryService.getProspectSubNavigation(submissionDetail);
-
-    assertThat(subNavItems).isEmpty();
   }
 }
