@@ -9,10 +9,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
 @Entity
 @Table(name = "additional_information")
-class AdditionalInformation {
+class AdditionalInformation implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -29,6 +30,10 @@ class AdditionalInformation {
 
   public UUID getId() {
     return id;
+  }
+
+  public void setId(UUID id) {
+    this.id = id;
   }
 
   public SubmissionDetail getSubmissionDetail() {

@@ -134,7 +134,6 @@ public class OilCaseOutputsFormValidator implements SmartValidator, SubmissionFo
         .validate();
   }
 
-
   private boolean hasAssociatedGasRecoverableResources(OilCaseOutputsForm oilCaseOutputsForm) {
     return oilCaseOutputsForm.getHasAssociatedGasRecoverableResources() != null
         && oilCaseOutputsForm.getHasAssociatedGasRecoverableResources();

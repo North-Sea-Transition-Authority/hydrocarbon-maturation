@@ -12,10 +12,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
 @Entity
 @Table(name = "trap_properties")
-class TrapProperty {
+class TrapProperty implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")

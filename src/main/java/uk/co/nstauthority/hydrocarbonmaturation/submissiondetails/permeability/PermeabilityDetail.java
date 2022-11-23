@@ -13,10 +13,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
 @Entity
 @Table(name = "permeability_details")
-class PermeabilityDetail {
+class PermeabilityDetail implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")

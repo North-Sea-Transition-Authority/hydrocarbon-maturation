@@ -227,7 +227,7 @@ class GeneralDetailsPersistenceServiceTest {
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
-    generalDetailsPersistenceService.updateGeneralDetailProspect(form, submissionDetail, generalDetail);
+    generalDetailsPersistenceService.updateGeneralDetailProspect(form, generalDetail);
 
     verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
     var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
@@ -287,25 +287,5 @@ class GeneralDetailsPersistenceServiceTest {
   void getGeneralDetailsByName_verifyMethodCall() {
     generalDetailsPersistenceService.getGeneralDetailsByName("prospect");
     verify(generalDetailsRepository, times(1)).findByProspectNameContainingIgnoreCase("prospect");
-  }
-
-  @Test
-  void createGeneralDetailWithProspectName_VerifySave() {
-    var prospectName = "prospect-name";
-
-    var argumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
-    generalDetailsPersistenceService.createGeneralDetailWithProspectName(submissionDetail, prospectName);
-
-    verify(generalDetailsRepository, times(1)).save(argumentCaptor.capture());
-
-    assertThat(argumentCaptor.getValue())
-        .extracting(
-            GeneralDetail::getProspectName,
-            GeneralDetail::getSubmissionDetail
-        )
-        .containsExactly(
-            prospectName,
-            submissionDetail
-        );
   }
 }

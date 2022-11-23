@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -17,4 +19,7 @@ interface ProbabilityDistributionRepository
   void deleteBySubmissionDetailAndInstance(
       SubmissionDetail submissionDetail,
       ProbabilityDistributionFieldInstance instance);
+
+  List<ProbabilityDistribution> findBySubmissionDetailAndInstanceIn(SubmissionDetail submissionDetail,
+                                                                    Set<ProbabilityDistributionFieldInstance> instances);
 }

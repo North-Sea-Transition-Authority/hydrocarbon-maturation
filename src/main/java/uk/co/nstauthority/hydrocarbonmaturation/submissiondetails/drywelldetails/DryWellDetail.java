@@ -6,10 +6,11 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.DrillDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
 @Entity
 @Table(name = "dry_well_details")
-class DryWellDetail extends DrillDetail {
+class DryWellDetail extends DrillDetail implements SubmissionDetailChildEntity {
 
   @Enumerated(EnumType.STRING)
   private DryHoleType dryHoleType;

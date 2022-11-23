@@ -9,10 +9,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
 @Entity
 @Table(name = "gas_case_outputs")
-class GasCaseOutput {
+class GasCaseOutput implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -25,27 +26,27 @@ class GasCaseOutput {
 
   private Boolean hasAssociatedCondensateRecoverableResources;
 
-  UUID getId() {
+  public UUID getId() {
     return id;
   }
 
-  void setId(UUID id) {
+  public void setId(UUID id) {
     this.id = id;
   }
 
-  SubmissionDetail getSubmissionDetail() {
+  public SubmissionDetail getSubmissionDetail() {
     return submissionDetail;
   }
 
-  void setSubmissionDetail(SubmissionDetail submissionDetail) {
+  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
   }
 
-  Boolean getHasAssociatedCondensateRecoverableResources() {
+  public Boolean getHasAssociatedCondensateRecoverableResources() {
     return hasAssociatedCondensateRecoverableResources;
   }
 
-  void setHasAssociatedCondensateRecoverableResources(Boolean hasAssociatedCondensateRecoverableResources) {
+  public void setHasAssociatedCondensateRecoverableResources(Boolean hasAssociatedCondensateRecoverableResources) {
     this.hasAssociatedCondensateRecoverableResources = hasAssociatedCondensateRecoverableResources;
   }
 }

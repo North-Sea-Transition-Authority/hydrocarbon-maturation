@@ -67,11 +67,17 @@ public class SupportingDocumentService {
 
   public List<FileUploadForm> getFileUploadFormListForSubmissionAndType(SubmissionDetail submissionDetail,
                                                                           SupportingDocumentType supportingDocumentType) {
-    return supportingDocumentRepository.findAllBySubmissionDetailAndSupportingDocumentType(
-            submissionDetail, supportingDocumentType).stream()
+    return supportingDocumentRepository
+        .findAllBySubmissionDetailAndSupportingDocumentType(submissionDetail, supportingDocumentType).stream()
         .map(SupportingDocument::getUploadedFile)
         .map(fileUploadService::createFileUploadForm)
         .toList();
+  }
+
+  public List<SupportingDocument> getSupportingDocumentsForType(SubmissionDetail submissionDetail,
+                                                                SupportingDocumentType supportingDocumentType) {
+    return supportingDocumentRepository
+        .findAllBySubmissionDetailAndSupportingDocumentType(submissionDetail, supportingDocumentType);
   }
 
   public List<UploadedFileView> getUploadedFileViewList(List<UUID> fileUploadIdList) {

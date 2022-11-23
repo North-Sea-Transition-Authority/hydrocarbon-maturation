@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 
@@ -39,6 +40,9 @@ class SubmissionCreateServiceTest {
 
   @Mock
   private ResourceLinkService resourceLinkService;
+
+  @Mock
+  private SubmissionDetailDuplicationService submissionDetailDuplicationService;
 
   @InjectMocks
   private SubmissionCreateService submissionCreateService;
@@ -67,11 +71,16 @@ class SubmissionCreateServiceTest {
     generalDetail.setSubmissionDetail(submissionDetail);
     when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption())))
         .thenReturn(generalDetail);
+    var newGeneralDetail = new GeneralDetail();
+    when(generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetailNew))
+        .thenReturn(newGeneralDetail);
 
     submissionCreateService.createUpdateProspect(form);
 
+    verify(submissionDetailDuplicationService, times(1))
+        .duplicateSubmissionDetailSections(submissionDetail, submissionDetailNew);
     verify(generalDetailsPersistenceService, times(1))
-        .updateGeneralDetailProspect(form, submissionDetailNew, generalDetail);
+        .updateGeneralDetailProspect(form, newGeneralDetail);
   }
 
   @Test
@@ -87,11 +96,11 @@ class SubmissionCreateServiceTest {
         .isThrownBy(()->submissionCreateService.createUpdateProspect(form));
 
     verify(submissionDetailService, never()).createInitialSubmissionDetail(any(), any());
-    verify(generalDetailsPersistenceService, never()).updateGeneralDetailProspect(any(), any(), any());
+    verify(generalDetailsPersistenceService, never()).updateGeneralDetailProspect(any(), any());
   }
 
   @Test
-  void createPostDrillDryHoleSubmission_Successful_VerifyCreatesPostDrillDryHoleSubmissionAndNewGeneralDetail() {
+  void createPostDrillDryHoleSubmission_Successful_VerifyDuplicatesSubmissionDetailSections() {
     var form = new PostDrillDryHoleForm();
     form.setProspectSelectedOption(UUID.randomUUID().toString());
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
@@ -108,7 +117,8 @@ class SubmissionCreateServiceTest {
 
     submissionCreateService.createPostDrillDryHoleSubmission(form);
 
-    verify(generalDetailsPersistenceService).createGeneralDetailWithProspectName(submissionDetailNew, prospectName);
+    verify(submissionDetailDuplicationService)
+        .duplicateSubmissionDetailSections(submissionDetail, submissionDetailNew);
   }
 
   @Test
@@ -117,6 +127,7 @@ class SubmissionCreateServiceTest {
     form.setProspectSelectedOption(UUID.randomUUID().toString());
 
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(submissionDetail);
@@ -128,12 +139,14 @@ class SubmissionCreateServiceTest {
     when(resourceService.createResource(ResourceType.DISCOVERY)).thenReturn(discoveryResource);
     when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption())))
         .thenReturn(generalDetail);
+    when(submissionDetailService.createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY))
+        .thenReturn(submissionDetailNew);
 
     submissionCreateService.createNewDiscovery(form);
 
     verify(resourceLinkService).createNewResourceLink(prospectResource, discoveryResource);
 
-    verify(submissionDetailService, times(1))
-        .createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY);
+    verify(submissionDetailDuplicationService)
+        .duplicateSubmissionDetailSections(submissionDetail, submissionDetailNew);
   }
 }

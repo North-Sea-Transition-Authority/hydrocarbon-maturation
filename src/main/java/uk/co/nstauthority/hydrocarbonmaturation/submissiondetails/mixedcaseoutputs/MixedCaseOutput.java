@@ -10,10 +10,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
 @Entity
 @Table(name = "mixed_case_outputs")
-class MixedCaseOutput {
+class MixedCaseOutput implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -36,27 +37,27 @@ class MixedCaseOutput {
     this.hasAssociatedGasRecoverableResources = hasAssociatedGasRecoverableResources;
   }
 
-  UUID getId() {
+  public UUID getId() {
     return id;
   }
 
-  void setId(UUID id) {
+  public void setId(UUID id) {
     this.id = id;
   }
 
-  SubmissionDetail getSubmissionDetail() {
+  public SubmissionDetail getSubmissionDetail() {
     return submissionDetail;
   }
 
-  void setSubmissionDetail(SubmissionDetail submissionDetail) {
+  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
   }
 
-  BigDecimal getRiskedOilEquivalentRecoverableMean() {
+  public BigDecimal getRiskedOilEquivalentRecoverableMean() {
     return riskedOilEquivalentRecoverableMean;
   }
 
-  void setRiskedOilEquivalentRecoverableMean(BigDecimal riskedOilEquivalentRecoverableMean) {
+  public void setRiskedOilEquivalentRecoverableMean(BigDecimal riskedOilEquivalentRecoverableMean) {
     this.riskedOilEquivalentRecoverableMean = riskedOilEquivalentRecoverableMean;
   }
 }

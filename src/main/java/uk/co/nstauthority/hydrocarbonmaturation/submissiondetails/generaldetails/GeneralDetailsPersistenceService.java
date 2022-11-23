@@ -92,11 +92,7 @@ public class GeneralDetailsPersistenceService {
 
   @Transactional
   public void updateGeneralDetailProspect(UpdateProspectForm form,
-                                          SubmissionDetail submissionDetail,
-                                          GeneralDetail previousGeneralDetail) {
-    var newGeneralDetail = new GeneralDetail();
-    newGeneralDetail.setProspectName(previousGeneralDetail.getProspectName());
-    newGeneralDetail.setSubmissionDetail(submissionDetail);
+                                          GeneralDetail newGeneralDetail) {
     newGeneralDetail.setInformationSource(form.getInformationSource());
 
     if (form.getInformationSource() == InformationSource.OTHER) {
@@ -104,14 +100,6 @@ public class GeneralDetailsPersistenceService {
     } else {
       newGeneralDetail.setOtherInformationSource(null);
     }
-
-    generalDetailsRepository.save(newGeneralDetail);
-  }
-
-  public void createGeneralDetailWithProspectName(SubmissionDetail submissionDetail, String prospectName) {
-    var newGeneralDetail = new GeneralDetail();
-    newGeneralDetail.setProspectName(prospectName);
-    newGeneralDetail.setSubmissionDetail(submissionDetail);
 
     generalDetailsRepository.save(newGeneralDetail);
   }

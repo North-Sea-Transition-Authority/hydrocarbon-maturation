@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +49,12 @@ public class ProbabilityDistributionPersistenceService {
       ProbabilityDistributionFieldInstance instance
   ) {
     return probabilityDistributionRepository.findBySubmissionDetailAndInstance(submissionDetail, instance);
+  }
+
+  public List<ProbabilityDistribution> getAllProbabilityDistributionsForInstances(
+      SubmissionDetail submissionDetail,
+      Set<ProbabilityDistributionFieldInstance> instances) {
+    return probabilityDistributionRepository.findBySubmissionDetailAndInstanceIn(submissionDetail, instances);
   }
 
   public void deleteProbabilityDistribution(ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,

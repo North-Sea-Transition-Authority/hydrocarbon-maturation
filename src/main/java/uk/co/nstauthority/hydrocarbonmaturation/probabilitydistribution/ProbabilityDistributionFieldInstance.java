@@ -12,6 +12,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.P
 import java.util.List;
 
 public enum ProbabilityDistributionFieldInstance {
+  // Trap properties
   DEPTH_TO_CREST_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.FT_TVDSS,
@@ -22,6 +23,12 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.FT_TVDSS,
       "Depth to spill point"
   ),
+  PRODUCTIVE_AREA(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.KM2,
+      "Productive area"
+  ),
+  // Reservoir properties
   AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
       ProbabilityOfExceedanceUnits.M_TVT,
@@ -57,6 +64,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.FT_TVDSS,
       "Depth to hydrocarbon contact"
   ),
+  // Gas case volumetrics
   GAS_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.PERCENT,
@@ -77,6 +85,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT,
       "Gas recovery factor"
   ),
+  // Oil case volumetrics
   OIL_RECOVERY_FACTOR(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.PERCENT,
@@ -97,6 +106,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.SCF_STB,
       "Associated gas-oil ratio life of field"
   ),
+  // Mixed case volumetrics
   MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.RB_STB,
@@ -137,11 +147,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT,
       "Oil recovery factor"
   ),
-  PRODUCTIVE_AREA(
-      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.KM2,
-      "Productive area"
-  ),
+  // Oil case outputs
   OIL_OUTPUTS_OIL_IN_PLACE(
       ResourceOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
@@ -162,6 +168,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   ),
+  // Gas case outputs
   GAS_OUTPUTS_GAS_IN_PLACE(
       ResourceOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
@@ -182,6 +189,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   ),
+  // Mixed case outputs
   MIXED_CASE_OIL_IN_PLACE(
       ResourceOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,

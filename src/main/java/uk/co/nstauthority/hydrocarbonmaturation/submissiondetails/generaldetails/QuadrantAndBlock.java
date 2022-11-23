@@ -8,10 +8,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.GeneralDetailChildEntity;
 
 @Entity
 @Table(name = "general_details_quadrant_blocks")
-class QuadrantAndBlock {
+public class QuadrantAndBlock implements GeneralDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
