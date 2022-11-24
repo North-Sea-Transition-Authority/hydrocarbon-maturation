@@ -1,25 +1,10 @@
 # Open SAML related dependency vulnerabilities
-CVE-2018-10237
-CVE-2020-8908
-CVE-2015-7501
-CVE-2015-6420
-CVE-2021-40690
-CVE-2019-12400
-CVE-2020-13936
-CVE-2020-13959
-CVE-2020-15522
 CVE-2022-40151
 CVE-2022-40152
 CVE-2022-40153
 CVE-2022-40154
 CVE-2022-40155
 CVE-2022-40156
-
-#temporarily ignoring vulnerability from eclipse base image
-CVE-2022-30065
-
-#postgres CVE August 2022
-CVE-2022-31197
 
 #temporarily ignoring vulnerability from eclipse base image
 CVE-2022-25857
@@ -29,13 +14,6 @@ CVE-2022-38749
 CVE-2022-38750
 CVE-2022-38751
 CVE-2022-38752
-
-#temporarily ignoring vulnerabilities from jackson which are fixed in Jackson 2.14.0-rc1 
-CVE-2022-42003
-CVE-2022-42004
-
-#graphql-java vulnerabilities
-CVE-2022-37734
 
 # Spring security core vulnerabilities
 CVE-2022-31692
