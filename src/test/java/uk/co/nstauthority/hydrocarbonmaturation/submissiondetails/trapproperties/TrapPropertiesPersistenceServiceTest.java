@@ -125,4 +125,12 @@ class TrapPropertiesPersistenceServiceTest {
     trapPropertiesPersistenceService.getTrapProperty(submissionDetail);
     verify(trapPropertiesRepository, times(1)).findBySubmissionDetail(submissionDetail);
   }
+
+  @Test
+  void getCentreOfInterestBlockFromSubmissionDetail_verifyMethodCall() {
+    trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail);
+
+    verify(trapPropertiesRepository, times(1))
+        .findBySubmissionDetail(submissionDetail);
+  }
 }

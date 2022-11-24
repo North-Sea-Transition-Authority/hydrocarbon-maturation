@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 
@@ -99,5 +100,11 @@ public class TrapPropertiesPersistenceService {
 
   public Optional<TrapProperty> getTrapProperty(SubmissionDetail submissionDetail) {
     return trapPropertiesRepository.findBySubmissionDetail(submissionDetail);
+  }
+
+  public Optional<QuadrantAndBlock> getCentreOfInterestBlockFromSubmissionDetail(SubmissionDetail submissionDetail) {
+    return trapPropertiesRepository.findBySubmissionDetail(submissionDetail)
+        .map(TrapProperty::getCentreOfInterestQuadrantBlock)
+        .or(Optional::empty);
   }
 }
