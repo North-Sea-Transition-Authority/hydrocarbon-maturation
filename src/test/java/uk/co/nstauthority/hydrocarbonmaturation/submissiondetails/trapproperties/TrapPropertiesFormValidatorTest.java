@@ -22,6 +22,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -78,6 +80,8 @@ class TrapPropertiesFormValidatorTest {
             entry("coordinateInputForm.longitudeCoordinates.seconds.decimalInputValue",
                 Set.of("coordinateInputForm.longitudeCoordinates.seconds.decimalInputValue.required")),
             entry("coordinateInputForm.longitudeHemisphere", Set.of("coordinateInputForm.longitudeHemisphere.required")),
+            entry("datum", Set.of("datum.required")),
+            entry("centreOfInterestQuadrantBlock", Set.of("centreOfInterestQuadrantBlock.required")),
             entry("depthToCrest.probabilityDistributionType",
                 Set.of("depthToCrest.probabilityDistributionType.required")),
             entry("depthToSpillPoint.probabilityDistributionType",
@@ -199,7 +203,8 @@ class TrapPropertiesFormValidatorTest {
     form.setDepthToCrest(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setDepthToSpillPoint(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setProductiveArea(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
-
+    form.setCentreOfInterestQuadrantBlock("15/10");
+    form.setDatum(ReservoirDatum.ED50);
     FileUploadForm fileUploadForm = new FileUploadForm();
     fileUploadForm.setUploadedFileDescription("File description");
     form.setProspectDepthMap(List.of(fileUploadForm));
@@ -234,8 +239,5 @@ class TrapPropertiesFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     trapPropertiesFormValidator.validate(form, bindingResult, ValidationType.FULL);
     return bindingResult;
-  }
-
-  private static class NonSupportedClass {
   }
 }

@@ -1,12 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 
 @Service
@@ -15,14 +17,17 @@ public class TrapPropertiesPersistenceService {
   private final TrapPropertiesRepository trapPropertiesRepository;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SupportingDocumentService supportingDocumentService;
+  private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
 
   @Autowired
   public TrapPropertiesPersistenceService(TrapPropertiesRepository trapPropertiesRepository,
                                           ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                          SupportingDocumentService supportingDocumentService) {
+                                          SupportingDocumentService supportingDocumentService,
+                                          QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService) {
     this.trapPropertiesRepository = trapPropertiesRepository;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.supportingDocumentService = supportingDocumentService;
+    this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
   }
 
   @Transactional
@@ -44,6 +49,13 @@ public class TrapPropertiesPersistenceService {
     trapProperty.setLongitudeSeconds(
         form.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull());
     trapProperty.setLongitudeHemisphere(form.getCoordinateInputForm().getLongitudeHemisphere());
+    trapProperty.setDatum(form.getDatum());
+    if (form.getCentreOfInterestQuadrantBlock() != null) {
+      var quadrantBlock = quadrantAndBlockPersistenceService.getQuadrantBlockById(
+          UUID.fromString(form.getCentreOfInterestQuadrantBlock())).orElse(null);
+
+      trapProperty.setCentreOfInterestQuadrantBlock(quadrantBlock);
+    }
 
     if (form.getTrapType() == TrapType.OTHER) {
       trapProperty.setOtherTrapType(form.getOtherTrapType());
@@ -85,7 +97,7 @@ public class TrapPropertiesPersistenceService {
     supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getProspectDepthMap());
   }
 
-  Optional<TrapProperty> getTrapProperty(SubmissionDetail submissionDetail) {
+  public Optional<TrapProperty> getTrapProperty(SubmissionDetail submissionDetail) {
     return trapPropertiesRepository.findBySubmissionDetail(submissionDetail);
   }
 }

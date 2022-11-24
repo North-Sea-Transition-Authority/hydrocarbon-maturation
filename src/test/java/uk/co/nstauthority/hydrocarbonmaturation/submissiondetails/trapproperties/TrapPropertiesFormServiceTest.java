@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
@@ -22,6 +23,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -33,6 +39,8 @@ class TrapPropertiesFormServiceTest {
   private static TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private static ProbabilityDistributionFormService probabilityDistributionFormService;
   private static SupportingDocumentService supportingDocumentService;
+  private static QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
+  private static GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private static SubmissionDetail submissionDetail;
 
   @BeforeAll
@@ -41,10 +49,14 @@ class TrapPropertiesFormServiceTest {
     trapPropertiesPersistenceService = mock(TrapPropertiesPersistenceService.class);
     probabilityDistributionFormService = mock(ProbabilityDistributionFormService.class);
     supportingDocumentService = mock(SupportingDocumentService.class);
+    generalDetailsPersistenceService = mock(GeneralDetailsPersistenceService.class);
+    quadrantAndBlockPersistenceService = mock(QuadrantAndBlockPersistenceService.class);
     trapPropertiesFormService = new TrapPropertiesFormService(
         trapPropertiesFormValidator,
         trapPropertiesPersistenceService,
         probabilityDistributionFormService,
+        quadrantAndBlockPersistenceService,
+        generalDetailsPersistenceService,
         supportingDocumentService);
 
     UUID submissionDetailId = UUID.randomUUID();
@@ -85,25 +97,12 @@ class TrapPropertiesFormServiceTest {
             form -> form.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
             form -> form.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
             form -> form.getCoordinateInputForm().getLongitudeHemisphere(),
+            TrapPropertiesForm::getDatum,
+            TrapPropertiesForm::getCentreOfInterestQuadrantBlock,
             form -> form.getDepthToCrest().getProbabilityDistributionType(),
             form -> form.getDepthToSpillPoint().getProbabilityDistributionType(),
-            form -> form.getProductiveArea().getProbabilityDistributionType()
-        )
-        .containsExactly(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        );
+            form -> form.getProductiveArea().getProbabilityDistributionType())
+        .containsOnlyNulls();
   }
 
   @Test
@@ -133,6 +132,8 @@ class TrapPropertiesFormServiceTest {
             form -> form.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
             form -> form.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
             form -> form.getCoordinateInputForm().getLongitudeHemisphere(),
+            TrapPropertiesForm::getDatum,
+            TrapPropertiesForm::getCentreOfInterestQuadrantBlock,
             form -> form.getDepthToCrest().getProbabilityDistributionType(),
             form -> form.getDepthToCrest().getNormal().getMin(),
             form -> form.getDepthToCrest().getNormal().getP99(),
@@ -143,8 +144,7 @@ class TrapPropertiesFormServiceTest {
             form -> form.getDepthToCrest().getNormal().getP10(),
             form -> form.getDepthToCrest().getNormal().getP1(),
             form -> form.getDepthToCrest().getNormal().getMax(),
-            form -> form.getDepthToCrest().getNormal().getConstant()
-        )
+            form -> form.getDepthToCrest().getNormal().getConstant())
         .containsExactly(
             trapProperty.getTrapType(),
             trapProperty.getOtherTrapType(),
@@ -156,6 +156,8 @@ class TrapPropertiesFormServiceTest {
             trapProperty.getLongitudeMinutes(),
             trapProperty.getLongitudeSeconds(),
             trapProperty.getLongitudeHemisphere(),
+            trapProperty.getDatum(),
+            trapProperty.getCentreOfInterestQuadrantBlock().getId().toString(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getNormal().getMin(),
             probabilityDistributionForm.getNormal().getP99(),
@@ -183,6 +185,24 @@ class TrapPropertiesFormServiceTest {
     verify(supportingDocumentService, times(1)).getUploadedFileViewList(anyList());
   }
 
+  @Test
+  void getQuadrantAndBlocks() {
+    var generalDetail = new GeneralDetail();
+    var quadrantBlock = new QuadrantAndBlock();
+    quadrantBlock.setQuadrantBlock("quad1");
+    var blockId = UUID.randomUUID();
+    quadrantBlock.setId(blockId);
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+    when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
+        .thenReturn(List.of(quadrantBlock));
+
+    var quadrantBlocks = trapPropertiesFormService.getQuadrantAndBlocks(submissionDetail);
+    assertThat(quadrantBlocks)
+        .contains(
+            entry(blockId.toString(), "quad1")
+        );
+  }
 
   private TrapProperty getTrapProperty(SubmissionDetail submissionDetail) {
     var trapProperty = new TrapProperty();
@@ -196,6 +216,11 @@ class TrapPropertiesFormServiceTest {
     trapProperty.setLongitudeMinutes(BigDecimal.valueOf(6));
     trapProperty.setLongitudeSeconds(BigDecimal.valueOf(40));
     trapProperty.setLongitudeHemisphere(Hemisphere.EAST);
+    trapProperty.setDatum(ReservoirDatum.ED50);
+    var quadrantAndBlock = new QuadrantAndBlock();
+    quadrantAndBlock.setQuadrantBlock("quadBlock");
+    quadrantAndBlock.setId(UUID.randomUUID());
+    trapProperty.setCentreOfInterestQuadrantBlock(quadrantAndBlock);
 
     return trapProperty;
   }

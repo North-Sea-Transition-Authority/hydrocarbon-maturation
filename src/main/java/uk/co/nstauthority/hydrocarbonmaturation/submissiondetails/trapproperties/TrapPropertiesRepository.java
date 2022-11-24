@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Repository
-interface TrapPropertiesRepository extends CrudRepository<TrapProperty, UUID> {
+public interface TrapPropertiesRepository extends CrudRepository<TrapProperty, UUID> {
 
   Optional<TrapProperty> findBySubmissionDetail(SubmissionDetail submissionDetail);
 }

@@ -104,6 +104,14 @@ public class TrapPropertiesSummaryService {
             ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
                 .download(submissionDetail.getId(), file.getUploadedFileId()))));
 
+    var datumDisplay = trapProperty.getDatum() != null
+        ? trapProperty.getDatum().getDisplayName()
+        : "";
+
+    var quadBlock = trapProperty.getCentreOfInterestQuadrantBlock() != null
+        ? trapProperty.getCentreOfInterestQuadrantBlock().getQuadrantBlock()
+        : "";
+
     return new TrapPropertiesSummaryView(
         trapDescription,
         trapType,
@@ -115,7 +123,10 @@ public class TrapPropertiesSummaryService {
         longitudeMinutes,
         longitudeSeconds,
         longitudeHemisphere,
+        datumDisplay,
+        quadBlock,
         listOfSummaryViews,
-        prospectDepthMapUploadsAndLinks);
+        prospectDepthMapUploadsAndLinks
+    );
   }
 }

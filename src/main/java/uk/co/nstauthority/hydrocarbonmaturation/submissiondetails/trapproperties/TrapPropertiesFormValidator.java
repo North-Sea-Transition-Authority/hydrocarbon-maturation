@@ -97,6 +97,20 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
         "coordinateInputForm.longitudeHemisphere"
     );
 
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "datum",
+        "datum.required",
+        "Select the datum"
+    );
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(
+        errors,
+        "centreOfInterestQuadrantBlock",
+        "centreOfInterestQuadrantBlock.required",
+        "Enter the quadrant and block the centre of interest is within"
+    );
+
     ValidationUtils.rejectIfEmpty(errors, "depthToCrest.probabilityDistributionType",
         "depthToCrest.probabilityDistributionType.required",
         "Select a depth to crest distribution used");

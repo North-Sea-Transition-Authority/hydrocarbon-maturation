@@ -14,12 +14,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
@@ -61,7 +64,7 @@ public class TrapPropertiesController {
     var prospectDepthMapUploads = trapPropertiesFormService.getProspectDepthMapUploads(trapPropertiesForm);
 
     return getTrapPropertiesModelAndView(
-        trapPropertiesForm, submissionDetailId, prospectDepthMapUploads);
+        trapPropertiesForm, submissionDetail, prospectDepthMapUploads);
   }
 
   @PostMapping
@@ -71,24 +74,26 @@ public class TrapPropertiesController {
 
     bindingResult = trapPropertiesFormService.validate(form, bindingResult, validationType);
     var prospectDepthMapUploads = trapPropertiesFormService.getProspectDepthMapUploads(form);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getTrapPropertiesWithDistributionErrors(bindingResult, form, submissionDetailId, prospectDepthMapUploads),
+        getTrapPropertiesWithDistributionErrors(bindingResult, form, submissionDetail, prospectDepthMapUploads),
         () -> {
-          var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
           trapPropertiesPersistenceService.saveTrapProperties(form, submissionDetail);
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );
   }
 
-  private ModelAndView getTrapPropertiesModelAndView(TrapPropertiesForm form, UUID submissionDetailId,
+  private ModelAndView getTrapPropertiesModelAndView(TrapPropertiesForm form, SubmissionDetail submissionDetail,
                                                      List<UploadedFileView> prospectDepthMapUploads) {
 
     var modelAndView = new ModelAndView("remi/submissiondetails/trapProperties")
         .addObject("form", form)
         .addObject("trapTypes", TrapType.getTrapTypes())
+        .addObject("datumTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirDatum.class))
+        .addObject("quadrantAndBlocks", trapPropertiesFormService.getQuadrantAndBlocks(submissionDetail))
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
         .addObject("depthToCrestTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
@@ -105,22 +110,22 @@ public class TrapPropertiesController {
                 ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA
             ))
         .addObject("productiveAreaError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("prospectDepthMapTemplate", supportingDocumentService.buildFileUploadTemplate(submissionDetailId,
-            SupportingDocumentType.PROSPECT_DEPTH_MAP))
+        .addObject("prospectDepthMapTemplate",
+            supportingDocumentService.buildFileUploadTemplate(submissionDetail.getId(),
+                SupportingDocumentType.PROSPECT_DEPTH_MAP))
         .addObject("prospectDepthMapUploads", prospectDepthMapUploads);
 
-    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME,
-        submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId));
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
 
   private ModelAndView getTrapPropertiesWithDistributionErrors(
       BindingResult bindingResult,
       TrapPropertiesForm form,
-      UUID submissionDetailId,
+      SubmissionDetail submissionDetail,
       List<UploadedFileView> prospectDepthMapUploads
   ) {
-    var modelAndView = getTrapPropertiesModelAndView(form, submissionDetailId, prospectDepthMapUploads);
+    var modelAndView = getTrapPropertiesModelAndView(form, submissionDetail, prospectDepthMapUploads);
     modelAndView
         .addObject("depthToCrestError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(

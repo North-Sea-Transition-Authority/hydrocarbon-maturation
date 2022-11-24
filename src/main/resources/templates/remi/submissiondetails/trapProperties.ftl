@@ -46,7 +46,8 @@
       minutesLocationPath="form.coordinateInputForm.latitudeCoordinates.minutes.decimalInputValue"
       secondsLocationPath="form.coordinateInputForm.latitudeCoordinates.seconds.decimalInputValue"
       formId="latitude"
-      labelText="Latitude"/>
+      labelText="Centre of interest latitude"
+      wgs84Datum=false/>
 
     <@coordinateInput.coordinateInput
       degreesLocationPath="form.coordinateInputForm.longitudeCoordinates.degrees.decimalInputValue"
@@ -56,8 +57,21 @@
       direction="EW"
       directionPath="form.coordinateInputForm.longitudeHemisphere"
       directionList=longitudeHemisphere
-      labelText="Longitude"
+      wgs84Datum=false
+      labelText="Centre of interest longitude"
       hintText="From 0 to 30 for degrees, 0 to 59 for minutes, and 0 to 59.999 for seconds"/>
+    <@fdsRadio.radioGroup path="form.datum" labelText="Centre of interest datum">
+      <#assign firstItem=true/>
+      <#list datumTypes as key, value>
+        <@fdsRadio.radioItem path="form.datum" itemMap={key : value} isFirstItem=firstItem/>
+        <#assign firstItem=false/>
+      </#list>
+    </@fdsRadio.radioGroup>
+    <@fdsSearchSelector.searchSelectorEnhanced
+      path="form.centreOfInterestQuadrantBlock"
+      labelText="Quadrant and block the centre of interest is within"
+      options=quadrantAndBlocks
+      hintText="You can only select from quadrants and blocks added in the general details section of the form"/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionTypePath="form.depthToCrest.probabilityDistributionType"

@@ -6,6 +6,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputF
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 
 class TrapPropertiesForm implements SubmissionForm {
 
@@ -18,6 +19,10 @@ class TrapPropertiesForm implements SubmissionForm {
 
   private CoordinateInputForm coordinateInputForm = new CoordinateInputForm();
 
+  private ReservoirDatum datum;
+
+  private String centreOfInterestQuadrantBlock;
+
   private ProbabilityDistributionForm depthToCrest = new ProbabilityDistributionForm();
 
   private ProbabilityDistributionForm depthToSpillPoint = new ProbabilityDistributionForm();
@@ -25,6 +30,22 @@ class TrapPropertiesForm implements SubmissionForm {
   private ProbabilityDistributionForm productiveArea = new ProbabilityDistributionForm();
 
   private List<FileUploadForm> prospectDepthMap = new ArrayList<>();
+
+  public ReservoirDatum getDatum() {
+    return datum;
+  }
+
+  public void setDatum(ReservoirDatum datum) {
+    this.datum = datum;
+  }
+
+  public String getCentreOfInterestQuadrantBlock() {
+    return centreOfInterestQuadrantBlock;
+  }
+
+  public void setCentreOfInterestQuadrantBlock(String centreOfInterestQuadrantBlock) {
+    this.centreOfInterestQuadrantBlock = centreOfInterestQuadrantBlock;
+  }
 
   public String getTrapDescription() {
     return trapDescription;

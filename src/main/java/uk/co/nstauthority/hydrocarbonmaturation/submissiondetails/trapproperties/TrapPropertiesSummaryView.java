@@ -15,6 +15,8 @@ public record TrapPropertiesSummaryView(String trapDescription,
                                         String longitudeMinutes,
                                         String longitudeSeconds,
                                         String longitudeHemisphere,
+                                        String datum,
+                                        String quadAndBlockCentreOfInterest,
                                         List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews,
                                         Map<UploadedFile, String> prospectDepthMap) {
 }

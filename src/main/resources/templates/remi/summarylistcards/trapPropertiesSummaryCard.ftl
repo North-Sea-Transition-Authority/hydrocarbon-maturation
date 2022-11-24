@@ -17,12 +17,12 @@
         ${trapPropertiesValues.otherTrapType()}
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Latitude ">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Centre of interest latitude ">
       ${trapPropertiesValues.latitudeDegrees()}
       ${trapPropertiesValues.latitudeMinutes()}
       ${trapPropertiesValues.latitudeSeconds()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Longitude">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Centre of interest longitude">
       ${trapPropertiesValues.longitudeDegrees()}
       ${trapPropertiesValues.longitudeMinutes()}
       ${trapPropertiesValues.longitudeSeconds()}
@@ -30,7 +30,12 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Longitude hemisphere">
       ${trapPropertiesValues.longitudeHemisphere()}
     </@fdsSummaryList.summaryListRowNoAction>
-
+    <@fdsSummaryList.summaryListRowNoAction keyText="Centre of interest datum">
+      ${trapPropertiesValues.datum()}
+    </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Quadrant and block the centre of interest is within">
+      ${trapPropertiesValues.quadAndBlockCentreOfInterest()}
+    </@fdsSummaryList.summaryListRowNoAction>
     <@fileUploadSummary.fileUploadSummary
       filesUploaded=trapPropertiesValues.prospectDepthMap()
       fieldName="Prospect depth map"/>

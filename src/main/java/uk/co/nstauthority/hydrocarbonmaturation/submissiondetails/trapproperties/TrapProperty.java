@@ -9,14 +9,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 
 @Entity
 @Table(name = "trap_properties")
-class TrapProperty implements SubmissionDetailChildEntity {
+public class TrapProperty implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -45,6 +48,13 @@ class TrapProperty implements SubmissionDetailChildEntity {
   private BigDecimal longitudeMinutes;
 
   private BigDecimal longitudeSeconds;
+
+  @Enumerated(EnumType.STRING)
+  private ReservoirDatum datum;
+
+  @OneToOne
+  @JoinColumn(name = "centre_of_interest_quadrant_block")
+  private QuadrantAndBlock centreOfInterestQuadrantBlock;
 
   @Enumerated(EnumType.STRING)
   private Hemisphere longitudeHemisphere;
@@ -144,5 +154,22 @@ class TrapProperty implements SubmissionDetailChildEntity {
   public void setLongitudeHemisphere(
       Hemisphere longitudeHemisphere) {
     this.longitudeHemisphere = longitudeHemisphere;
+  }
+
+  public ReservoirDatum getDatum() {
+    return datum;
+  }
+
+  public void setDatum(ReservoirDatum datum) {
+    this.datum = datum;
+  }
+
+  public QuadrantAndBlock getCentreOfInterestQuadrantBlock() {
+    return centreOfInterestQuadrantBlock;
+  }
+
+  public void setCentreOfInterestQuadrantBlock(
+      QuadrantAndBlock centreOfInterestQuadrantBlock) {
+    this.centreOfInterestQuadrantBlock = centreOfInterestQuadrantBlock;
   }
 }

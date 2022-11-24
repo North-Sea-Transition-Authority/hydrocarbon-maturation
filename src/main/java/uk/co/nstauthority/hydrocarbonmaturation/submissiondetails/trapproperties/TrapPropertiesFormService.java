@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -14,27 +16,36 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class TrapPropertiesFormService implements SubmissionFormService {
+public class TrapPropertiesFormService implements SubmissionFormService {
 
   private final TrapPropertiesFormValidator trapPropertiesFormValidator;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
-
+  private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
+  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final SupportingDocumentService supportingDocumentService;
 
   @Autowired
-  TrapPropertiesFormService(TrapPropertiesFormValidator trapPropertiesFormValidator,
-                            TrapPropertiesPersistenceService trapPropertiesPersistenceService,
-                            ProbabilityDistributionFormService probabilityDistributionFormService,
-                            SupportingDocumentService supportingDocumentService) {
+  public TrapPropertiesFormService(TrapPropertiesFormValidator trapPropertiesFormValidator,
+                                   TrapPropertiesPersistenceService trapPropertiesPersistenceService,
+                                   ProbabilityDistributionFormService probabilityDistributionFormService,
+                                   QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
+                                   GeneralDetailsPersistenceService generalDetailsPersistenceService,
+                                   SupportingDocumentService supportingDocumentService) {
     this.trapPropertiesFormValidator = trapPropertiesFormValidator;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.probabilityDistributionFormService = probabilityDistributionFormService;
+    this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
+    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.supportingDocumentService = supportingDocumentService;
   }
 
@@ -71,7 +82,10 @@ class TrapPropertiesFormService implements SubmissionFormService {
     coordinateInputForm.setLongitudeCoordinates(longitudeCoordinates);
     coordinateInputForm.setLongitudeHemisphere(trapProperty.getLongitudeHemisphere());
     form.setCoordinateInputForm(coordinateInputForm);
-
+    form.setDatum(trapProperty.getDatum());
+    if (trapProperty.getCentreOfInterestQuadrantBlock() != null) {
+      form.setCentreOfInterestQuadrantBlock(trapProperty.getCentreOfInterestQuadrantBlock().getId().toString());
+    }
     var submissionDetail = trapProperty.getSubmissionDetail();
     form.setDepthToCrest(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
@@ -96,5 +110,15 @@ class TrapPropertiesFormService implements SubmissionFormService {
   public List<UploadedFileView> getProspectDepthMapUploads(TrapPropertiesForm trapPropertiesForm) {
     var prospectDepthMapUploadIdList = FileUploadUtils.getUploadIdList(trapPropertiesForm.getProspectDepthMap());
     return supportingDocumentService.getUploadedFileViewList(prospectDepthMapUploadIdList);
+  }
+
+  public Map<String, String> getQuadrantAndBlocks(SubmissionDetail submissionDetail) {
+    return generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
+        .map(detail -> quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail)
+            .stream()
+            .collect(StreamUtil.toLinkedHashMap(
+                quadAndBlock -> quadAndBlock.getId().toString(),
+                QuadrantAndBlock::getQuadrantBlock)))
+        .orElseGet(LinkedHashMap::new);
   }
 }

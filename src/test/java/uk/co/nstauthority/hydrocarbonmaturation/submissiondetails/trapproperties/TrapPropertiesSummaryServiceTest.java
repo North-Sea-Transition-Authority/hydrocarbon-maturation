@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +25,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
@@ -73,7 +76,9 @@ class TrapPropertiesSummaryServiceTest {
             TrapPropertiesSummaryView::longitudeSeconds,
             TrapPropertiesSummaryView::longitudeHemisphere,
             TrapPropertiesSummaryView::probabilityDistributionSummaryViews,
-            TrapPropertiesSummaryView::prospectDepthMap)
+            TrapPropertiesSummaryView::prospectDepthMap,
+            TrapPropertiesSummaryView::datum,
+            TrapPropertiesSummaryView::quadAndBlockCentreOfInterest)
         .containsExactly(
             "",
             "",
@@ -89,7 +94,9 @@ class TrapPropertiesSummaryServiceTest {
                 emptySummary,
                 emptySummary,
                 emptySummary),
-            Collections.emptyMap()
+            Collections.emptyMap(),
+            "",
+            ""
         );
   }
 
@@ -113,7 +120,11 @@ class TrapPropertiesSummaryServiceTest {
     trapProperty.setLongitudeSeconds(BigDecimal.TEN);
     trapProperty.setLongitudeHemisphere(Hemisphere.EAST);
     trapProperty.setOtherTrapType("other trap type");
-
+    trapProperty.setDatum(ReservoirDatum.ED50);
+    var quadrantBlock = new QuadrantAndBlock();
+    quadrantBlock.setQuadrantBlock("15/10");
+    quadrantBlock.setId(UUID.randomUUID());
+    trapProperty.setCentreOfInterestQuadrantBlock(quadrantBlock);
     FileUploadForm fileUploadForm = new FileUploadForm();
     fileUploadForm.setUploadedFileDescription("description");
 
@@ -152,7 +163,9 @@ class TrapPropertiesSummaryServiceTest {
               TrapPropertiesSummaryView::longitudeSeconds,
               TrapPropertiesSummaryView::longitudeHemisphere,
               TrapPropertiesSummaryView::probabilityDistributionSummaryViews,
-              TrapPropertiesSummaryView::prospectDepthMap)
+              TrapPropertiesSummaryView::prospectDepthMap,
+              TrapPropertiesSummaryView::datum,
+              TrapPropertiesSummaryView::quadAndBlockCentreOfInterest)
           .containsExactly(
               "desc",
               "Other",
@@ -168,7 +181,9 @@ class TrapPropertiesSummaryServiceTest {
                   testSummary,
                   testSummary,
                   testSummary),
-              fileMap
+              fileMap,
+              ReservoirDatum.ED50.getDisplayName(),
+              quadrantBlock.getQuadrantBlock()
           );
   }
 }
