@@ -26,7 +26,7 @@ public class SubmissionDetailTestUtils {
     return createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
   }
 
-  private static SubmissionDetail createSubmissionDetail(SubmissionType submissionType) {
+  public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType) {
     var resourceId = UUID.randomUUID();
     var resource = new Resource();
     resource.setId(resourceId);
