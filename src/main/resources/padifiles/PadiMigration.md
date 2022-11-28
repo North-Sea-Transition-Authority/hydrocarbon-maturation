@@ -13,11 +13,20 @@ and the operators who have access to specific prospect and discovery data not cr
 - Use Postgres PLSQL scripts to migrate data from PaDI extracts to Remi data model. These will be ran manually on each environment
 - Mark data from PaDI in the ReMI data model so that it is easily identifiable
 
+## Prospects and discoveries
+
+- A prospect will be created for each resource, grouped by the resource id and the organisation for that prospect
+- A prospect group will be created for each prospect resource
+- Possibly need an empty prospect resource for discoveries which are not linked to prospects in the PaDI dataset
+- Discoveries will be created based on the prospects created above
+- Relinquishments need discussion. Is this a new submission type? Is it a question on the prospect / discovery?
+
 ## Before import (CSV things to remember)
 
 - Remove single quote characters from end of text columns
 - Remove blank spaces from data columns where the data should be null
-- Check where INT data should be TEXT and vice-versa
+- Format number cells to remove commas
+- Check where INT/NUMERIC data should be TEXT and vice-versa
 - Convert end of line characters to UNIX using Notepad++
 
 ## Considerations
