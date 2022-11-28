@@ -22,7 +22,9 @@ public class ReservoirPropertiesSubmissionService implements SectionSubmissionSe
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = reservoirPropertiesFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = reservoirPropertiesFormService.validate(
+        form, bindingResult,
+        ValidationType.FULL, submissionDetail.getSubmissionType());
     return !bindingResult.hasErrors();
   }
 }

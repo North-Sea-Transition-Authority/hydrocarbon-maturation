@@ -34,7 +34,7 @@ class ReservoirPropertiesSubmissionServiceTest {
 
     when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
 
-    when(reservoirPropertiesFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(reservoirPropertiesFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
         .thenReturn(emptyBindingResult);
 
     assertTrue(reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail));
@@ -51,7 +51,7 @@ class ReservoirPropertiesSubmissionServiceTest {
 
     when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
 
-    when(reservoirPropertiesFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(reservoirPropertiesFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
         .thenReturn(bindingResultWithError);
 
     assertFalse(reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail));

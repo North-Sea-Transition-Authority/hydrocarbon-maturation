@@ -12,11 +12,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -48,7 +50,7 @@ class ReservoirPropertiesFormValidatorTest {
   void validate_fullValidation_whenValidForm_thenNoValidationErrors() {
     var form = getValidForm();
 
-    var bindingResult = validateReservoirProperties(form, ValidationType.FULL);
+    var bindingResult = validateReservoirProperties(form, ValidationType.FULL, SubmissionType.CREATE_PROSPECT);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -59,12 +61,12 @@ class ReservoirPropertiesFormValidatorTest {
       mode = EnumSource.Mode.EXCLUDE,
       names = {"CUSTOM", "NOT_CALCULATED"}
   )
-  void validate_whenEmptyForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
+  void validate_whenEmptyForm_prospectSubmission_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
     form.setLithology(null);
     form.setFormationName(null);
     form.setAgeStageOrSeries(null);
-    var bindingResult = validateReservoirProperties(form, ValidationType.FULL);
+    var bindingResult = validateReservoirProperties(form, ValidationType.FULL, SubmissionType.CREATE_PROSPECT);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -99,11 +101,11 @@ class ReservoirPropertiesFormValidatorTest {
       mode = EnumSource.Mode.EXCLUDE,
       names = {"CUSTOM", "NOT_CALCULATED"}
   )
-  void validate_whenInvalidExceedenceForm_thenValidationErrors(
+  void validate_whenInvalidExceedenceForm_whenProspectUpdate_thenValidationErrors(
       ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
 
-    var bindingResult = validateReservoirProperties(form, ValidationType.FULL);
+    var bindingResult = validateReservoirProperties(form, ValidationType.FULL, SubmissionType.PROSPECT_UPDATE);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -129,18 +131,58 @@ class ReservoirPropertiesFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(
+      value = ProbabilityDistributionType.class,
+      mode = EnumSource.Mode.EXCLUDE,
+      names = {"CUSTOM", "NOT_CALCULATED"})
+  void validate_whenInvalidExceedenceForm_whenDryHole_thenValidationErrors(
+      ProbabilityDistributionType probabilityDistributionType) {
+    var form = getFormWithInvalidDistributions(probabilityDistributionType);
+
+    var bindingResult = validateReservoirProperties(form, ValidationType.FULL, SubmissionType.POST_DRILL_DRY_HOLE);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error",
+                Set.of("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("grossReservoirThickness." + probabilityDistributionType.getPath() + ".error",
+                Set.of("grossReservoirThickness." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("grossRockVolume." + probabilityDistributionType.getPath() + ".error",
+                Set.of("grossRockVolume." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error",
+                Set.of("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("netToGross." + probabilityDistributionType.getPath() + ".error",
+                Set.of("netToGross." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("netPorosity." + probabilityDistributionType.getPath() + ".error",
+                Set.of("netPorosity." + probabilityDistributionType.getPath() + ".error.error")))
+        .doesNotContainKey("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error");
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(
+            "Gross rock volume (GRV) distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Percentage of GRV which is oil bearing distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Average net pay thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+        );
+  }
+
   @Test
-  void partialValidation_withValidForm() {
+  void partialValidation_whenProspectSubmission_withValidForm() {
     var form = new ReservoirPropertiesForm();
-    var bindingResult = validateReservoirProperties(form, ValidationType.PARTIAL);
+    var bindingResult = validateReservoirProperties(form, ValidationType.PARTIAL, SubmissionType.CREATE_PROSPECT);
 
     assertFalse(bindingResult.hasErrors());
   }
 
-  private BindingResult validateReservoirProperties(ReservoirPropertiesForm form, ValidationType validationType) {
+  private BindingResult validateReservoirProperties(ReservoirPropertiesForm form, ValidationType validationType, SubmissionType submissionType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    reservoirPropertiesFormValidator.validate(form, bindingResult, validationType);
+    reservoirPropertiesFormValidator.validate(form, bindingResult, validationType, submissionType);
     return bindingResult;
   }
 
@@ -149,6 +191,8 @@ class ReservoirPropertiesFormValidatorTest {
     form.setFormationName("source formation name");
     form.setAgeStageOrSeries("age stage");
     form.setLithology("lithology");
+    form.setReservoirConnectivity("connectivity");
+    form.setReservoirFacies("facies");
     form.setAverageNetPayThickness(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setGrossReservoirThickness(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setDepthToHydrocarbonContact(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());

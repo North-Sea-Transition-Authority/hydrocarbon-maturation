@@ -32,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
@@ -93,9 +94,12 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
     sourceAndSealSummaryView =  SourceAndSealSummaryView.empty();
     hydrocarbonCaseSummaryView = HydrocarbonCaseSummaryView.empty();
     reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(
+        SubmissionType.CREATE_PROSPECT,
         "formation",
         "age",
         "lithology",
+        "facies",
+        "connectivity",
         new ArrayList<>());
     trapPropertiesSummaryView = new TrapPropertiesSummaryView(
         "desc",

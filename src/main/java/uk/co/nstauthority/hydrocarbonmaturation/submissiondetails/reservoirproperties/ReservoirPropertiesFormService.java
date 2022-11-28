@@ -3,11 +3,13 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -28,7 +30,13 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
 
   @Override
   public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
-    reservoirPropertiesFormValidator.validate(form, bindingResult, validationType);
+    throw new ActionNotAllowedException("Must supply submission type to this validator");
+  }
+
+  @Override
+  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
+                                ValidationType validationType, SubmissionType submissionType) {
+    reservoirPropertiesFormValidator.validate(form, bindingResult, validationType, submissionType);
     return bindingResult;
   }
 
@@ -45,22 +53,38 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
     form.setLithology(reservoirProperty.getLithology());
 
     var submissionDetail = reservoirProperty.getSubmissionDetail();
-    form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY
-    ));
+    var submissionType = submissionDetail.getSubmissionType();
+    if (submissionType == SubmissionType.PROSPECT_UPDATE
+        || submissionType == SubmissionType.CREATE_PROSPECT) {
+      form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT
+      ));
+      form.setDepthToHydrocarbonContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT
+      ));
+    }
+
+    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+      form.setReservoirConnectivity(reservoirProperty.getReservoirConnectivity());
+      form.setReservoirFacies(reservoirProperty.getReservoirFacies());
+      form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY
+      ));
+    }
+
     form.setGrossReservoirThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY
     ));
+
     form.setGrossRockVolume(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME
     ));
-    form.setDepthToHydrocarbonContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT
-    ));
+
     form.setNetPorosity(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
         ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY

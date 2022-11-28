@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -8,16 +9,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,9 +46,7 @@ class ReservoirPropertiesFormServiceTest {
     reservoirPropertiesFormService = new ReservoirPropertiesFormService(reservoirPropertiesFormValidator,
         reservoirPropertiesPersistenceService, probabilityDistributionFormService);
 
-    UUID submissionDetailId = UUID.randomUUID();
-    submissionDetail = new SubmissionDetail();
-    submissionDetail.setId(submissionDetailId);
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @Test
@@ -51,12 +54,23 @@ class ReservoirPropertiesFormServiceTest {
     var form = new ReservoirPropertiesForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    reservoirPropertiesFormService.validate(form, bindingResult, ValidationType.FULL);
-    verify(reservoirPropertiesFormValidator, times(1)).validate(form, bindingResult, ValidationType.FULL);
+    reservoirPropertiesFormService.validate(form, bindingResult, ValidationType.FULL, SubmissionType.CREATE_PROSPECT);
+    verify(reservoirPropertiesFormValidator, times(1)).validate(form, bindingResult, ValidationType.FULL,
+        SubmissionType.CREATE_PROSPECT);
   }
 
   @Test
-  void sourceAndSealEntityToForm_newEntity_thenEmptyForm() {
+  void validate_noSubmissionTypePassed_verifyExceptionThrown() {
+    var form = new ReservoirPropertiesForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    assertThatThrownBy(() -> reservoirPropertiesFormService.validate(form, bindingResult, ValidationType.FULL))
+        .isExactlyInstanceOf(ActionNotAllowedException.class)
+        .hasMessage("Must supply submission type to this validator");
+  }
+
+  @Test
+  void reservoirPropertiesEntityToForm_newEntity_thenEmptyForm() {
     when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.empty());
 
     assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail))
@@ -64,6 +78,8 @@ class ReservoirPropertiesFormServiceTest {
             ReservoirPropertiesForm::getFormationName,
             ReservoirPropertiesForm::getAgeStageOrSeries,
             ReservoirPropertiesForm::getLithology,
+            ReservoirPropertiesForm::getReservoirFacies,
+            ReservoirPropertiesForm::getReservoirConnectivity,
             form -> form.getAverageNetPayThickness().getProbabilityDistributionType(),
             form -> form.getGrossReservoirThickness().getProbabilityDistributionType(),
             form -> form.getDepthToHydrocarbonContact().getProbabilityDistributionType(),
@@ -72,34 +88,30 @@ class ReservoirPropertiesFormServiceTest {
             form -> form.getPercentOfGrvOilBearing().getProbabilityDistributionType(),
             form -> form.getGrossRockVolume().getProbabilityDistributionType()
         )
-        .contains(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        );
+        .containsOnlyNulls();
   }
 
-  @Test
-  void sourceAndSealEntityToForm_existingEntity_thenPopulatedForm() {
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "CREATE_PROSPECT", "POST_DRILL_DRY_HOLE"})
+  void reservoirPropertiesEntityToForm_existingEntity_thenPopulatedForm(SubmissionType submissionType) {
     var reservoirProperty = getReservoirProperty(submissionDetail);
+    submissionDetail.setSubmissionType(submissionType);
     when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
     var probabilityDistributionForm =
         ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         eq(submissionDetail), any())).thenReturn(probabilityDistributionForm);
 
+    var expectedConnectivity = submissionType == SubmissionType.POST_DRILL_DRY_HOLE ? "connectivity" : null;
+    var expectedFacies = submissionType == SubmissionType.POST_DRILL_DRY_HOLE ? "facies" : null;
+
     assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail))
         .extracting(
             ReservoirPropertiesForm::getFormationName,
             ReservoirPropertiesForm::getAgeStageOrSeries,
             ReservoirPropertiesForm::getLithology,
+            ReservoirPropertiesForm::getReservoirFacies,
+            ReservoirPropertiesForm::getReservoirConnectivity,
             form -> form.getNetToGross().getProbabilityDistributionType(),
             form -> form.getNetToGross().getNormal().getMin(),
             form -> form.getNetToGross().getNormal().getP99(),
@@ -127,6 +139,8 @@ class ReservoirPropertiesFormServiceTest {
             reservoirProperty.getFormationName(),
             reservoirProperty.getAgeStage(),
             reservoirProperty.getLithology(),
+            expectedFacies,
+            expectedConnectivity,
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getNormal().getMin(),
             probabilityDistributionForm.getNormal().getP99(),
@@ -158,6 +172,8 @@ class ReservoirPropertiesFormServiceTest {
     reservoirProperty.setFormationName("formation name");
     reservoirProperty.setAgeStage("age stage");
     reservoirProperty.setLithology("lithology");
+    reservoirProperty.setReservoirConnectivity("connectivity");
+    reservoirProperty.setReservoirFacies("facies");
     return reservoirProperty;
   }
 }

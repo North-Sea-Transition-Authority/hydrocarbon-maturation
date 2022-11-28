@@ -27,6 +27,8 @@ class ReservoirProperty implements SubmissionDetailChildEntity {
   private String formationName;
   private String ageStage;
   private String lithology;
+  private String reservoirFacies;
+  private String reservoirConnectivity;
 
   public UUID getId() {
     return id;
@@ -66,5 +68,21 @@ class ReservoirProperty implements SubmissionDetailChildEntity {
 
   public void setLithology(String lithology) {
     this.lithology = lithology;
+  }
+
+  public String getReservoirFacies() {
+    return reservoirFacies;
+  }
+
+  public void setReservoirFacies(String reservoirFacies) {
+    this.reservoirFacies = reservoirFacies;
+  }
+
+  public String getReservoirConnectivity() {
+    return reservoirConnectivity;
+  }
+
+  public void setReservoirConnectivity(String reservoirConnectivity) {
+    this.reservoirConnectivity = reservoirConnectivity;
   }
 }

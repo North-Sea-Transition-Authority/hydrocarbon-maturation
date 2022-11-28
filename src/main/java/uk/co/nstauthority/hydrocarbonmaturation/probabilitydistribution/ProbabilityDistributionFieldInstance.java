@@ -29,11 +29,17 @@ public enum ProbabilityDistributionFieldInstance {
       "Productive area"
   ),
   // Reservoir properties
-  AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY(
+  AVERAGE_NET_PAY_THICKNESS_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
       ProbabilityOfExceedanceUnits.M_TVT,
       "Average net pay thickness"
   ),
+  AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.M_TVT,
+      "Average net pay thickness"
+  ),
+
   GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.M_TVT,

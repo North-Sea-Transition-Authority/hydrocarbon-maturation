@@ -2,6 +2,7 @@
 
 <#import '../summarylistcards/dryWellSummaryCard.ftl' as dryWellSummary>
 <#import '../summarylistcards/permeabilitySummaryCard.ftl' as permeabilitySummary>
+<#import '../summarylistcards/reservoirPropertiesSummaryCard.ftl' as reservoirPropertiesSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -25,9 +26,11 @@ breadcrumbsMap=breadcrumbsMap>
                 <@dryWellSummary.dryWellDetailCard dryWellValues=dryWellDetailsSummaryView/>
             </@fdsAccordion.accordionSection>
             <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">
+                <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard
+                  reservoirPropertiesValues=reservoirPropertiesSummaryView />
                 <@permeabilitySummary.permeabilityDetailsSummaryCard
-                permeabilityDetailsValues=permeabiltySummaryView
-                optionalPermeability=true/>
+                  permeabilityDetailsValues=permeabiltySummaryView
+                  optionalPermeability=true/>
             </@fdsAccordion.accordionSection>
         </@fdsAccordion.accordion>
       <@fdsAction.submitButtons

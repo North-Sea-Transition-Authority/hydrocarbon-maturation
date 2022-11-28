@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @Service
 class ReservoirPropertiesPersistenceService {
@@ -24,14 +25,25 @@ class ReservoirPropertiesPersistenceService {
   @Transactional
   public void saveReservoirProperty(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
     var reservoirProperty = getReservoirProperty(submissionDetail).orElse(new ReservoirProperty());
+    var submissionType = submissionDetail.getSubmissionType();
+
     reservoirProperty.setSubmissionDetail(submissionDetail);
     reservoirProperty.setFormationName(form.getFormationName());
     reservoirProperty.setAgeStage(form.getAgeStageOrSeries());
     reservoirProperty.setLithology(form.getLithology());
 
+    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+      reservoirProperty.setReservoirConnectivity(form.getReservoirConnectivity());
+      reservoirProperty.setReservoirFacies(form.getReservoirFacies());
+    }
+
     if (form.getAverageNetPayThickness().getProbabilityDistributionType() != null) {
-      var averageNetPayInstance =
-          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY;
+      ProbabilityDistributionFieldInstance averageNetPayInstance;
+      if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+        averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY;
+      } else {
+        averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT;
+      }
       probDistributionService.saveProbabilityDistribution(
           averageNetPayInstance,
           form.getAverageNetPayThickness(),
@@ -58,7 +70,8 @@ class ReservoirPropertiesPersistenceService {
       );
     }
 
-    if (form.getDepthToHydrocarbonContact().getProbabilityDistributionType() != null) {
+    if ((submissionType == SubmissionType.CREATE_PROSPECT || submissionType == SubmissionType.PROSPECT_UPDATE)
+        && (form.getDepthToHydrocarbonContact().getProbabilityDistributionType() != null)) {
       var depthToHydrocarbonContact =
           ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT;
       probDistributionService.saveProbabilityDistribution(

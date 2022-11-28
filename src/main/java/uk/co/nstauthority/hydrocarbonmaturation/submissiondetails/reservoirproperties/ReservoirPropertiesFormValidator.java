@@ -7,11 +7,14 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
 
 @Service
 class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionFormValidator {
+
+  private SubmissionType submissionType;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -26,6 +29,7 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
     var validationType = SubmissionFormValidationUtils.extractValidationTypeFromHints(validationHints);
+    submissionType = SubmissionFormValidationUtils.extractSubmissionTypeFromHints(validationHints);
     var form = (ReservoirPropertiesForm) target;
 
     switch (validationType) {
@@ -81,12 +85,15 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "Net porosity distribution used"
     );
 
-    ProbabilityDistributionValidationUtil.validatePartial(
-        reservoirForm.getDepthToHydrocarbonContact(),
-        errors,
-        "depthToHydrocarbonContact",
-        "Depth to hydrocarbon contact distribution used"
-    );
+    if (submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.PROSPECT_UPDATE) {
+      ProbabilityDistributionValidationUtil.validatePartial(
+          reservoirForm.getDepthToHydrocarbonContact(),
+          errors,
+          "depthToHydrocarbonContact",
+          "Depth to hydrocarbon contact distribution used"
+      );
+    }
   }
 
   @Override
@@ -164,15 +171,18 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "Net porosity distribution used"
     );
 
-    ValidationUtils.rejectIfEmpty(errors, "depthToHydrocarbonContact.probabilityDistributionType",
-        "depthToHydrocarbonContact.probabilityDistributionType.required",
-        "Select the depth to hydrocarbon contact distribution used");
+    if (submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.PROSPECT_UPDATE) {
+      ValidationUtils.rejectIfEmpty(errors, "depthToHydrocarbonContact.probabilityDistributionType",
+          "depthToHydrocarbonContact.probabilityDistributionType.required",
+          "Select the depth to hydrocarbon contact distribution used");
 
-    ProbabilityDistributionValidationUtil.validateFull(
-        reservoirForm.getDepthToHydrocarbonContact(),
-        errors,
-        "depthToHydrocarbonContact",
-        "Depth to hydrocarbon contact distribution used"
-    );
+      ProbabilityDistributionValidationUtil.validateFull(
+          reservoirForm.getDepthToHydrocarbonContact(),
+          errors,
+          "depthToHydrocarbonContact",
+          "Depth to hydrocarbon contact distribution used"
+      );
+    }
   }
 }

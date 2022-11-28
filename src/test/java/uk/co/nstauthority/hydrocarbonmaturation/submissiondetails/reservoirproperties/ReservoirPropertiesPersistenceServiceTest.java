@@ -16,6 +16,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesPersistenceServiceTest {
@@ -34,12 +36,11 @@ class ReservoirPropertiesPersistenceServiceTest {
         probabilityDistributionPersistenceService);
 
     var submissionDetailId = UUID.randomUUID();
-    submissionDetail = new SubmissionDetail();
-    submissionDetail.setId(submissionDetailId);
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @Test
-  void saveReservoirProperties_whenGivenAForm_verifyCreated_Entity() {
+  void saveReservoirProperties_whenProspectSubmission_givenAForm_verifyCreated_Entity() {
     var form = getValidForm();
 
     var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
@@ -55,13 +56,48 @@ class ReservoirPropertiesPersistenceServiceTest {
             ReservoirProperty::getSubmissionDetail,
             ReservoirProperty::getFormationName,
             ReservoirProperty::getAgeStage,
-            ReservoirProperty::getLithology
+            ReservoirProperty::getLithology,
+            ReservoirProperty::getReservoirConnectivity,
+            ReservoirProperty::getReservoirFacies
         )
         .containsExactly(
             submissionDetail,
             form.getFormationName(),
             form.getAgeStageOrSeries(),
-            form.getLithology()
+            form.getLithology(),
+            null,
+            null
+        );
+  }
+
+  @Test
+  void saveReservoirProperties_whenDryWellSubmission_givenAForm_verifyCreated_Entity() {
+    var form = getValidForm();
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verifyProbabilityTablesSaved(form);
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
+
+    var savedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getSubmissionDetail,
+            ReservoirProperty::getFormationName,
+            ReservoirProperty::getAgeStage,
+            ReservoirProperty::getLithology,
+            ReservoirProperty::getReservoirConnectivity,
+            ReservoirProperty::getReservoirFacies
+        )
+        .containsExactly(
+            submissionDetail,
+            form.getFormationName(),
+            form.getAgeStageOrSeries(),
+            form.getLithology(),
+            form.getReservoirConnectivity(),
+            form.getReservoirFacies()
         );
   }
 
@@ -72,10 +108,18 @@ class ReservoirPropertiesPersistenceServiceTest {
   }
 
   private void verifyProbabilityTablesSaved(ReservoirPropertiesForm form) {
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY,
-        form.getAverageNetPayThickness(),
-        submissionDetail);
+    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT
+        || submissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE) {
+      verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
+          form.getAverageNetPayThickness(),
+          submissionDetail);
+    } else if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE){
+      verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY,
+          form.getAverageNetPayThickness(),
+          submissionDetail);
+    }
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
         form.getNetToGross(),
@@ -92,10 +136,13 @@ class ReservoirPropertiesPersistenceServiceTest {
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
         form.getGrossRockVolume(),
         submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
-        form.getDepthToHydrocarbonContact(),
-        submissionDetail);
+    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT
+        || submissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE) {
+      verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
+          form.getDepthToHydrocarbonContact(),
+          submissionDetail);
+    }
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
         form.getGrossReservoirThickness(),
@@ -107,6 +154,8 @@ class ReservoirPropertiesPersistenceServiceTest {
     form.setFormationName("formation name");
     form.setAgeStageOrSeries("age stage or series");
     form.setLithology("lithology");
+    form.setReservoirFacies("facies");
+    form.setReservoirConnectivity("connectivity");
     form.setPercentOfGrvOilBearing(
         ProbabilityDistributionTestUtil.getValidProbabilityDistributionForm(ProbabilityDistributionType.LOGNORMAL));
     form.setNetToGross(

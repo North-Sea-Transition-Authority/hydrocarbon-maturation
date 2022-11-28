@@ -15,6 +15,8 @@ class ReservoirPropertiesForm implements SubmissionForm {
   private ProbabilityDistributionForm netToGross = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm netPorosity = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm depthToHydrocarbonContact = new ProbabilityDistributionForm();
+  private String reservoirFacies;
+  private String reservoirConnectivity;
 
   public String getFormationName() {
     return formationName;
@@ -101,5 +103,21 @@ class ReservoirPropertiesForm implements SubmissionForm {
   public void setDepthToHydrocarbonContact(
       ProbabilityDistributionForm depthToHydrocarbonContact) {
     this.depthToHydrocarbonContact = depthToHydrocarbonContact;
+  }
+
+  public String getReservoirFacies() {
+    return reservoirFacies;
+  }
+
+  public void setReservoirFacies(String reservoirFacies) {
+    this.reservoirFacies = reservoirFacies;
+  }
+
+  public String getReservoirConnectivity() {
+    return reservoirConnectivity;
+  }
+
+  public void setReservoirConnectivity(String reservoirConnectivity) {
+    this.reservoirConnectivity = reservoirConnectivity;
   }
 }

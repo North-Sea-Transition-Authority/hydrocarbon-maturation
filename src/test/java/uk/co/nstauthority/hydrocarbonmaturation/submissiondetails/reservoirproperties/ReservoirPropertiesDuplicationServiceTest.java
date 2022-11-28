@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,6 +23,7 @@ import org.mockito.stubbing.OngoingStubbing;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
@@ -141,9 +143,43 @@ class ReservoirPropertiesDuplicationServiceTest {
         .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
+  @Test
+  void duplicateSubmissionSection_averageNetPayExists_PostDrill_duplicates() {
+    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var newSubmissionDetail = new SubmissionDetail();
+    newSubmissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    var averageNetPayProbDistribution = new ProbabilityDistribution();
+    averageNetPayProbDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
+    averageNetPayProbDistribution.setDistributionType(ProbabilityDistributionType.CONSTANT);
+    whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
+        .thenReturn(List.of(averageNetPayProbDistribution));
+
+    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, times(1))
+        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
+  @Test
+  void duplicateSubmissionSection_averageNetPayExistsNotCalculated_PostDrill_notDuplicates() {
+    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var newSubmissionDetail = new SubmissionDetail();
+    newSubmissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    var averageNetPayProbDistribution = new ProbabilityDistribution();
+    averageNetPayProbDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
+    averageNetPayProbDistribution.setDistributionType(ProbabilityDistributionType.NOT_CALCULATED);
+    whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
+        .thenReturn(List.of(averageNetPayProbDistribution));
+
+    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(SubmissionDetail oldSubmissionDetail) {
     return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
@@ -155,7 +191,7 @@ class ReservoirPropertiesDuplicationServiceTest {
 
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(SubmissionDetail oldSubmissionDetail) {
     return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,

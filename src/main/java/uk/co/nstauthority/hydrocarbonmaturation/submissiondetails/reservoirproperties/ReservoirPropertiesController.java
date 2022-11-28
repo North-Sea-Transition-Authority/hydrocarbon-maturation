@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -60,8 +61,9 @@ public class ReservoirPropertiesController {
                                               @ModelAttribute("form") ReservoirPropertiesForm form,
                                               BindingResult bindingResult, ValidationType validationType) {
 
-    bindingResult = reservoirPropertiesFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = reservoirPropertiesFormService.validate(form, bindingResult,
+        validationType, submissionDetail.getSubmissionType());
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getReservoirPropertiesWithErrors(bindingResult, form, submissionDetail),
@@ -74,19 +76,16 @@ public class ReservoirPropertiesController {
 
   private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/reservoirProperties")
-        .addObject("form", form);
-    modelAndView = addProbabilityTemplates(modelAndView);
+        .addObject("form", form)
+        .addObject("submissionType", submissionDetail.getSubmissionType());
+    addProbabilityTemplates(modelAndView, submissionDetail);
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
 
-  private ModelAndView addProbabilityTemplates(ModelAndView modelAndView) {
-    return modelAndView.addObject("averageNetPayThicknessTemplate",
-            probabilityDistributionTemplateService
-                .getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY))
-        .addObject("averageNetPayThicknessError", ProbabilityDistributionTypeError.emptyError())
+  private void addProbabilityTemplates(ModelAndView modelAndView, SubmissionDetail submissionDetail) {
+    modelAndView
         .addObject("grossReservoirThicknessTemplate",
             probabilityDistributionTemplateService
                 .getProbabilityDistributionTemplateForInstance(
@@ -111,12 +110,29 @@ public class ReservoirPropertiesController {
             probabilityDistributionTemplateService
                 .getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
-        .addObject("netPorosityError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("depthToHydrocarbonContactTemplate",
-            probabilityDistributionTemplateService
-                .getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT))
-        .addObject("depthToHydrocarbonContactError", ProbabilityDistributionTypeError.emptyError());
+        .addObject("netPorosityError", ProbabilityDistributionTypeError.emptyError());
+    var submissionType = submissionDetail.getSubmissionType();
+    if (submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.PROSPECT_UPDATE) {
+      modelAndView
+          .addObject("depthToHydrocarbonContactTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT))
+          .addObject("depthToHydrocarbonContactError", ProbabilityDistributionTypeError.emptyError())
+          .addObject("averageNetPayThicknessTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT))
+          .addObject("averageNetPayThicknessError", ProbabilityDistributionTypeError.emptyError());
+    } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
+        || submissionType == SubmissionType.CREATE_DISCOVERY) {
+      modelAndView.addObject("averageNetPayThicknessOptionalTemplate",
+          probabilityDistributionTemplateService
+              .getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY))
+          .addObject("averageNetPayThicknessOptionalError", ProbabilityDistributionTypeError.emptyError());
+    }
   }
 
   private ModelAndView getReservoirPropertiesWithErrors(BindingResult bindingResult,
@@ -124,11 +140,6 @@ public class ReservoirPropertiesController {
                                                         SubmissionDetail submissionDetail) {
     var modelAndView = getReservoirPropertiesModelAndView(form, submissionDetail);
     modelAndView
-        .addObject("averageNetPayThicknessError",
-        probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-            bindingResult,
-            "averageNetPayThickness",
-            form.getAverageNetPayThickness()))
         .addObject("grossReservoirThicknessError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
@@ -153,12 +164,31 @@ public class ReservoirPropertiesController {
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
                 "netPorosity",
-                form.getNetPorosity()))
-        .addObject("depthToHydrocarbonContactError",
-            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult,
-                "depthToHydrocarbonContact",
-                form.getDepthToHydrocarbonContact()));
+                form.getNetPorosity()));
+
+    var submissionType = submissionDetail.getSubmissionType();
+    if (submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.PROSPECT_UPDATE) {
+      modelAndView
+          .addObject("depthToHydrocarbonContactError",
+          probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              "depthToHydrocarbonContact",
+              form.getDepthToHydrocarbonContact()))
+          .addObject("averageNetPayThicknessError",
+          probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              "averageNetPayThickness",
+              form.getAverageNetPayThickness()));
+    } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
+        || submissionType == SubmissionType.CREATE_DISCOVERY) {
+      modelAndView.addObject("averageNetPayThicknessOptionalError",
+          probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              "averageNetPayThickness",
+              form.getAverageNetPayThickness()
+          ));
+    }
     return modelAndView;
   }
 }

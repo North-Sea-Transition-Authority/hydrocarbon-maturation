@@ -96,7 +96,7 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveReservoirProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
-    when(reservoirPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(reservoirPropertiesFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -110,14 +110,14 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
     verify(reservoirPropertiesPersistenceService, times(1))
         .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(submissionDetail));
     verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(validationType));
+        .validate(any(), any(), eq(validationType), eq(submissionDetail.getSubmissionType()));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveReservoirProperties_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(reservoirPropertiesFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(reservoirPropertiesFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -128,7 +128,7 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
 
     verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(validationType));
+        .validate(any(), any(), eq(validationType), eq(submissionDetail.getSubmissionType()));
     verify(reservoirPropertiesPersistenceService, never())
         .saveReservoirProperty(any(), any());
   }
@@ -167,7 +167,7 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
         .containsEntry("netPorosityError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("depthToHydrocarbonContactError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("averageNetPayThicknessTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT))
         .containsEntry("grossReservoirThicknessTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
         .containsEntry("grossRockVolumeTemplate", probabilityDistributionTemplateService

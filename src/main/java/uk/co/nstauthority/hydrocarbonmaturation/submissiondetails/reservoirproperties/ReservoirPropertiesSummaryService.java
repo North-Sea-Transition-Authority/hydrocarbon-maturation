@@ -8,6 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @Service
 public class ReservoirPropertiesSummaryService {
@@ -32,16 +33,21 @@ public class ReservoirPropertiesSummaryService {
 
   private ReservoirPropertiesSummaryView createSummaryViewFromReservoirProperty(SubmissionDetail submissionDetail,
                                                                                 ReservoirProperty reservoirProperty) {
-    var formationName = Objects.requireNonNullElse(reservoirProperty.getFormationName(), "");
-    var ageStageOrSeries = Objects.requireNonNullElse(reservoirProperty.getAgeStage(), "");
-    var lithology = Objects.requireNonNullElse(reservoirProperty.getLithology(), "");
-
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-
-    var averageNetPayThickness =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY,
-            submissionDetail);
+    ProbabilityDistributionSummaryView averageNetPayThickness;
+    if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
+      averageNetPayThickness = probabilityDistributionSummaryService
+          .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+              ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY,
+              submissionDetail
+      );
+    } else {
+      averageNetPayThickness = probabilityDistributionSummaryService
+          .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+              ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
+              submissionDetail
+      );
+    }
     listOfSummaryViews.add(averageNetPayThickness);
 
     var grossReservoirThickness =
@@ -74,16 +80,23 @@ public class ReservoirPropertiesSummaryService {
             submissionDetail);
     listOfSummaryViews.add(netPorosity);
 
-    var depthToHydrocarbonContact =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
-            submissionDetail);
-    listOfSummaryViews.add(depthToHydrocarbonContact);
+    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT
+        || submissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE) {
+      var depthToHydrocarbonContact =
+          probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+              ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
+              submissionDetail);
+      listOfSummaryViews.add(depthToHydrocarbonContact);
+    }
 
     return new ReservoirPropertiesSummaryView(
-        formationName,
-        ageStageOrSeries,
-        lithology,
-        listOfSummaryViews);
+        submissionDetail.getSubmissionType(),
+        Objects.requireNonNullElse(reservoirProperty.getFormationName(), ""),
+        Objects.requireNonNullElse(reservoirProperty.getAgeStage(), ""),
+        Objects.requireNonNullElse(reservoirProperty.getLithology(), ""),
+        Objects.requireNonNullElse(reservoirProperty.getReservoirFacies(), ""),
+        Objects.requireNonNullElse(reservoirProperty.getReservoirConnectivity(), ""),
+        listOfSummaryViews
+    );
   }
 }

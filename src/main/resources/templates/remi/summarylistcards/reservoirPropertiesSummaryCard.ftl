@@ -14,8 +14,16 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Lithology">
       ${reservoirPropertiesValues.lithology()}
     </@fdsSummaryList.summaryListRowNoAction>
-  </@fdsSummaryList.summaryListCard>
+    <#if reservoirPropertiesValues.submissionType() == "POST_DRILL_DRY_HOLE">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Reservoir facies">
+        ${reservoirPropertiesValues.reservoirFacies()}
+      </@fdsSummaryList.summaryListRowNoAction>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Reservoir connectivity">
+        ${reservoirPropertiesValues.reservoirConnectivity()}
+      </@fdsSummaryList.summaryListRowNoAction>
+    </#if>
+    </@fdsSummaryList.summaryListCard>
     <@fdsSummaryList.summaryListCard headingText="Reservoir property distributions" summaryListId="reservoirpropertydistributions">
-        <@probabilityDistribution.probabilityDistributionTable probabilityDistributions=reservoirPropertiesValues.probabilityDistributionSummaryViews()/>
+      <@probabilityDistribution.probabilityDistributionTable probabilityDistributions=reservoirPropertiesValues.probabilityDistributionSummaryViews()/>
     </@fdsSummaryList.summaryListCard>
 </#macro>

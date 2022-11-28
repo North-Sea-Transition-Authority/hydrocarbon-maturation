@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,8 +29,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ContextConfiguration(classes = PostDrillDryWellSubmissionSummaryController.class)
@@ -47,6 +50,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
   private static SubmissionDetail submissionDetail;
   private DryWellDetailsSummaryView dryWellDetailsSummaryView;
   private PermeabilityDetailSummaryView permeabilityDetailSummaryView;
+  private ReservoirPropertiesSummaryView reservoirPropertiesSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -54,6 +58,14 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
     submissionDetailId = submissionDetail.getId();
     dryWellDetailsSummaryView =  DryWellDetailsSummaryView.empty();
     permeabilityDetailSummaryView = PermeabilityDetailSummaryView.empty();
+    reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(
+        SubmissionType.POST_DRILL_DRY_HOLE,
+        "formation",
+        "age",
+        "lithology",
+        "facies",
+        "connectivity",
+        new ArrayList<>());
   }
 
   @Test
@@ -63,6 +75,8 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
         .thenReturn(dryWellDetailsSummaryView);
     when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(permeabilityDetailSummaryView);
+    when(postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirPropertiesSummaryView);
 
     mockMvc.perform(
         get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
@@ -93,6 +107,8 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
     when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(permeabilityDetailSummaryView);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirPropertiesSummaryView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)

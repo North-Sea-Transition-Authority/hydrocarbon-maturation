@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
@@ -39,7 +40,7 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
         );
 
     var applicableInstances = new HashSet<>(Set.of(
-        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
@@ -53,8 +54,20 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
     }
 
     probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, applicableInstances)
-        .forEach(probabilityDistribution ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
-                ProbabilityDistribution.class));
+        .forEach(probabilityDistribution -> {
+          //this ensures the correct probability field instance is saved, for the new submission type,
+          //since the question is mandatory for dry hole submissions the not calculated option is not copied forward
+          if (probabilityDistribution.getInstance() == ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT
+              && newSubmissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
+            if (probabilityDistribution.getDistributionType() == ProbabilityDistributionType.NOT_CALCULATED) {
+              return;
+            }
+            probabilityDistribution.setInstance(
+                ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
+          }
+          submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
+              ProbabilityDistribution.class);
+          probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
+        });
   }
 }
