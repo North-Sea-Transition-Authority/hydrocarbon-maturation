@@ -67,9 +67,9 @@ public class QuadrantAndBlockPersistenceService {
           if (quadBlock != null) {
             quadrantAndBlocks
                 .stream()
-                .filter(item -> quadBlock.getQuadrantBlock().equals(item.getQuadrantBlock()))
+                .filter(item -> quadBlock.equals(item.getQuadrantBlock()))
                 .findAny()
-                .ifPresent(trapProperty::setCentreOfInterestQuadrantBlock);
+                .ifPresent(block -> trapProperty.setCentreOfInterestQuadrantBlock(block.getQuadrantBlock()));
             trapPropertyRepository.save(trapProperty);
           }
         });

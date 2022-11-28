@@ -157,7 +157,7 @@ class TrapPropertiesFormServiceTest {
             trapProperty.getLongitudeSeconds(),
             trapProperty.getLongitudeHemisphere(),
             trapProperty.getDatum(),
-            trapProperty.getCentreOfInterestQuadrantBlock().getId().toString(),
+            trapProperty.getCentreOfInterestQuadrantBlock(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getNormal().getMin(),
             probabilityDistributionForm.getNormal().getP99(),
@@ -200,7 +200,7 @@ class TrapPropertiesFormServiceTest {
     var quadrantBlocks = trapPropertiesFormService.getQuadrantAndBlocks(submissionDetail);
     assertThat(quadrantBlocks)
         .contains(
-            entry(blockId.toString(), "quad1")
+            entry("quad1", "quad1")
         );
   }
 
@@ -217,10 +217,7 @@ class TrapPropertiesFormServiceTest {
     trapProperty.setLongitudeSeconds(BigDecimal.valueOf(40));
     trapProperty.setLongitudeHemisphere(Hemisphere.EAST);
     trapProperty.setDatum(ReservoirDatum.ED50);
-    var quadrantAndBlock = new QuadrantAndBlock();
-    quadrantAndBlock.setQuadrantBlock("quadBlock");
-    quadrantAndBlock.setId(UUID.randomUUID());
-    trapProperty.setCentreOfInterestQuadrantBlock(quadrantAndBlock);
+    trapProperty.setCentreOfInterestQuadrantBlock("10/15");
 
     return trapProperty;
   }

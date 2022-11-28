@@ -67,12 +67,17 @@
         <#assign firstItem=false/>
       </#list>
     </@fdsRadio.radioGroup>
-    <@fdsSearchSelector.searchSelectorEnhanced
-      path="form.centreOfInterestQuadrantBlock"
-      labelText="Quadrant and block the centre of interest is within"
-      options=quadrantAndBlocks
-      hintText="You can only select from quadrants and blocks added in the general details section of the form"/>
-
+    <@fdsFieldset.fieldset legendHeading="Quadrant and block the centre of interest is within"
+      legendHeadingClass="govuk-fieldset__legend--s"
+      legendHeadingSize="h2"
+      hintText="You can only select from quadrants and blocks added in the general details section of the form">
+      <@fdsSearchSelector.searchSelectorEnhanced
+        path="form.centreOfInterestQuadrantBlock"
+        labelHeadingClass="govuk-fieldset__heading"
+        pageHeading=false
+        options=quadrantAndBlocks
+        labelText=""/>
+    </@fdsFieldset.fieldset>
     <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionTypePath="form.depthToCrest.probabilityDistributionType"
         labelText="Depth to crest distribution used"

@@ -1,14 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
 import java.util.Optional;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 
@@ -18,7 +16,6 @@ public class TrapPropertiesPersistenceService {
   private final TrapPropertiesRepository trapPropertiesRepository;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SupportingDocumentService supportingDocumentService;
-  private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
 
   @Autowired
   public TrapPropertiesPersistenceService(TrapPropertiesRepository trapPropertiesRepository,
@@ -28,7 +25,6 @@ public class TrapPropertiesPersistenceService {
     this.trapPropertiesRepository = trapPropertiesRepository;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.supportingDocumentService = supportingDocumentService;
-    this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
   }
 
   @Transactional
@@ -51,12 +47,7 @@ public class TrapPropertiesPersistenceService {
         form.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull());
     trapProperty.setLongitudeHemisphere(form.getCoordinateInputForm().getLongitudeHemisphere());
     trapProperty.setDatum(form.getDatum());
-    if (form.getCentreOfInterestQuadrantBlock() != null) {
-      var quadrantBlock = quadrantAndBlockPersistenceService.getQuadrantBlockById(
-          UUID.fromString(form.getCentreOfInterestQuadrantBlock())).orElse(null);
-
-      trapProperty.setCentreOfInterestQuadrantBlock(quadrantBlock);
-    }
+    trapProperty.setCentreOfInterestQuadrantBlock(form.getCentreOfInterestQuadrantBlock());
 
     if (form.getTrapType() == TrapType.OTHER) {
       trapProperty.setOtherTrapType(form.getOtherTrapType());
@@ -102,7 +93,7 @@ public class TrapPropertiesPersistenceService {
     return trapPropertiesRepository.findBySubmissionDetail(submissionDetail);
   }
 
-  public Optional<QuadrantAndBlock> getCentreOfInterestBlockFromSubmissionDetail(SubmissionDetail submissionDetail) {
+  public Optional<String> getCentreOfInterestBlockFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return trapPropertiesRepository.findBySubmissionDetail(submissionDetail)
         .map(TrapProperty::getCentreOfInterestQuadrantBlock)
         .or(Optional::empty);

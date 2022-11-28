@@ -121,10 +121,7 @@ class QuadrantBlockPersistenceServiceTest {
   @Test
   void updateTrapProperty_whenFilledCentreOfInterestAndQuadBlockDeleted_assertCentreOfInterestNull() {
     var trapProperty = new TrapProperty();
-    var centreOfInterestQuadBlock = new QuadrantAndBlock();
-    centreOfInterestQuadBlock.setQuadrantBlock("10/15");
-    centreOfInterestQuadBlock.setId(UUID.randomUUID());
-    trapProperty.setCentreOfInterestQuadrantBlock(centreOfInterestQuadBlock);
+    trapProperty.setCentreOfInterestQuadrantBlock("10/15");
     var genDetail = new GeneralDetail();
     genDetail.setSubmissionDetail(submissionDetail);
     when(trapPropertiesRepository.findBySubmissionDetail(submissionDetail))
@@ -144,14 +141,14 @@ class QuadrantBlockPersistenceServiceTest {
   @Test
   void updateTrapProperty_whenFilledCentreOfInterestAndQuadBlockNotDeleted_assertCentreOfInterestSaved() {
     var trapProperty = new TrapProperty();
-    var centreOfInterestQuadBlock = new QuadrantAndBlock();
-    centreOfInterestQuadBlock.setQuadrantBlock("10/15");
-    centreOfInterestQuadBlock.setId(UUID.randomUUID());
-    trapProperty.setCentreOfInterestQuadrantBlock(centreOfInterestQuadBlock);
+    trapProperty.setCentreOfInterestQuadrantBlock("10/15");
     var genDetail = new GeneralDetail();
     genDetail.setSubmissionDetail(submissionDetail);
     when(trapPropertiesRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(trapProperty));
+
+    var centreOfInterestQuadBlock = new QuadrantAndBlock();
+    centreOfInterestQuadBlock.setQuadrantBlock("10/15");
 
     quadrantAndBlockPersistenceService.updateTrapProperty(genDetail, List.of(centreOfInterestQuadBlock, new QuadrantAndBlock(), new QuadrantAndBlock()));
     ArgumentCaptor<TrapProperty> argumentCaptor = ArgumentCaptor.forClass(TrapProperty.class);
@@ -161,6 +158,6 @@ class QuadrantBlockPersistenceServiceTest {
     assertThat(argumentCaptor.getValue())
         .extracting(
             TrapProperty::getCentreOfInterestQuadrantBlock)
-        .isEqualTo(centreOfInterestQuadBlock);
+        .isEqualTo(centreOfInterestQuadBlock.getQuadrantBlock());
   }
 }

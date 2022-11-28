@@ -17,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,11 +38,6 @@ class ProspectQueryServiceTest {
   void getLatestProspectSubmissionByName_twoProspects() {
     var generalDetail1 = createGeneralDetail("prospect1");
     var generalDetail2 = createGeneralDetail("prospect2");
-    var prospectName = "prospect latest";
-    var quadRantBlock1 = new QuadrantAndBlock();
-    quadRantBlock1.setQuadrantBlock("15/10");
-    quadRantBlock1.setId(UUID.randomUUID());
-
     var searchTerm = "prospect";
     when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm)).thenReturn(List.of(generalDetail1, generalDetail2));
     when(submissionDetailService
@@ -57,7 +51,7 @@ class ProspectQueryServiceTest {
     when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(generalDetail1.getSubmissionDetail()))
         .thenReturn(Optional.empty());
     when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(generalDetail2.getSubmissionDetail()))
-        .thenReturn(Optional.of(quadRantBlock1));
+        .thenReturn(Optional.of("15/10"));
 
     var result = prospectQueryService.getLatestProspectSubmissionByName(searchTerm);
 

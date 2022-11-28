@@ -109,7 +109,7 @@ public class TrapPropertiesSummaryService {
         : "";
 
     var quadBlock = trapProperty.getCentreOfInterestQuadrantBlock() != null
-        ? trapProperty.getCentreOfInterestQuadrantBlock().getQuadrantBlock()
+        ? trapProperty.getCentreOfInterestQuadrantBlock()
         : "";
 
     return new TrapPropertiesSummaryView(

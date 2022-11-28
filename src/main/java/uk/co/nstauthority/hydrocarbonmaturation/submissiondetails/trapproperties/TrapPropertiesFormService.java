@@ -84,7 +84,7 @@ public class TrapPropertiesFormService implements SubmissionFormService {
     form.setCoordinateInputForm(coordinateInputForm);
     form.setDatum(trapProperty.getDatum());
     if (trapProperty.getCentreOfInterestQuadrantBlock() != null) {
-      form.setCentreOfInterestQuadrantBlock(trapProperty.getCentreOfInterestQuadrantBlock().getId().toString());
+      form.setCentreOfInterestQuadrantBlock(trapProperty.getCentreOfInterestQuadrantBlock());
     }
     var submissionDetail = trapProperty.getSubmissionDetail();
     form.setDepthToCrest(probabilityDistributionFormService.probabilityDistributionEntityToForm(
@@ -117,7 +117,7 @@ public class TrapPropertiesFormService implements SubmissionFormService {
         .map(detail -> quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail)
             .stream()
             .collect(StreamUtil.toLinkedHashMap(
-                quadAndBlock -> quadAndBlock.getId().toString(),
+                QuadrantAndBlock::getQuadrantBlock,
                 QuadrantAndBlock::getQuadrantBlock)))
         .orElseGet(LinkedHashMap::new);
   }

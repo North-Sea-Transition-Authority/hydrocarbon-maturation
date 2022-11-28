@@ -9,13 +9,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 
 @Entity
 @Table(name = "trap_properties")
@@ -52,9 +50,7 @@ public class TrapProperty implements SubmissionDetailChildEntity {
   @Enumerated(EnumType.STRING)
   private ReservoirDatum datum;
 
-  @OneToOne
-  @JoinColumn(name = "centre_of_interest_quadrant_block")
-  private QuadrantAndBlock centreOfInterestQuadrantBlock;
+  private String centreOfInterestQuadrantBlock;
 
   @Enumerated(EnumType.STRING)
   private Hemisphere longitudeHemisphere;
@@ -164,12 +160,11 @@ public class TrapProperty implements SubmissionDetailChildEntity {
     this.datum = datum;
   }
 
-  public QuadrantAndBlock getCentreOfInterestQuadrantBlock() {
+  public String getCentreOfInterestQuadrantBlock() {
     return centreOfInterestQuadrantBlock;
   }
 
-  public void setCentreOfInterestQuadrantBlock(
-      QuadrantAndBlock centreOfInterestQuadrantBlock) {
+  public void setCentreOfInterestQuadrantBlock(String centreOfInterestQuadrantBlock) {
     this.centreOfInterestQuadrantBlock = centreOfInterestQuadrantBlock;
   }
 }

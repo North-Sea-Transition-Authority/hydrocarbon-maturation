@@ -33,7 +33,7 @@ class ProspectQueryService {
           var centreOfInterestBlock = trapPropertiesPersistenceService
               .getCentreOfInterestBlockFromSubmissionDetail(generalDetail.getSubmissionDetail());
           var prospectDisplayName = generalDetail.getProspectName() + centreOfInterestBlock
-              .map(item -> " (" + item.getQuadrantBlock() + ")")
+              .map(item -> " (" + item + ")")
               .orElse("");
           return new ProspectView(generalDetail.getId(), prospectDisplayName);
         })
