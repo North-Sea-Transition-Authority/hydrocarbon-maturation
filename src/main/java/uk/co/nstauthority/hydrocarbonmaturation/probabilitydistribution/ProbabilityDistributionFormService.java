@@ -54,46 +54,25 @@ public class ProbabilityDistributionFormService {
   ) {
     var exceedanceForm = new ProbabilityOfExceedanceForm();
     var min = probabilityDistribution.getMinValue();
-    exceedanceForm.setMin(
-        min == null ? new DecimalInput() : new DecimalInput(min.toString())
-    );
+    exceedanceForm.setMin(DecimalInput.createDecimalInput(min));
     var p99 = probabilityDistribution.getP99();
-    exceedanceForm.setP99(
-        p99 == null ? new DecimalInput() : new DecimalInput(p99.toString())
-    );
+    exceedanceForm.setP99(DecimalInput.createDecimalInput(p99));
     var p90 = probabilityDistribution.getP90();
-    exceedanceForm.setP90(
-        p90 == null ? new DecimalInput() : new DecimalInput(p90.toString())
-    );
+    exceedanceForm.setP90(DecimalInput.createDecimalInput(p90));
     var mode = probabilityDistribution.getModeValue();
-    exceedanceForm.setMode(
-        mode == null ? new DecimalInput() : new DecimalInput(mode.toString())
-    );
+    exceedanceForm.setMode(DecimalInput.createDecimalInput(mode));
     var p50 = probabilityDistribution.getP50();
-    exceedanceForm.setP50(
-        p50 == null ? new DecimalInput() : new DecimalInput(p50.toString())
-    );
+    exceedanceForm.setP50(DecimalInput.createDecimalInput(p50));
     var mean = probabilityDistribution.getMeanValue();
-    exceedanceForm.setMean(
-        mean == null ? new DecimalInput() : new DecimalInput(mean.toString())
-    );
+    exceedanceForm.setMean(DecimalInput.createDecimalInput(mean));
     var p10 = probabilityDistribution.getP10();
-    exceedanceForm.setP10(
-        p10 == null ? new DecimalInput() : new DecimalInput(p10.toString())
-    );
+    exceedanceForm.setP10(DecimalInput.createDecimalInput(p10));
     var p1 = probabilityDistribution.getP1();
-    exceedanceForm.setP1(
-        p1 == null ? new DecimalInput() : new DecimalInput(p1.toString())
-    );
+    exceedanceForm.setP1(DecimalInput.createDecimalInput(p1));
     var max = probabilityDistribution.getMaxValue();
-    exceedanceForm.setMax(
-        max == null ? new DecimalInput() : new DecimalInput(max.toString())
-    );
+    exceedanceForm.setMax(DecimalInput.createDecimalInput(max));
     var constant = probabilityDistribution.getConstantValue();
-    exceedanceForm.setConstant(
-        constant == null ? new DecimalInput() : new DecimalInput(constant.toString())
-    );
+    exceedanceForm.setConstant(DecimalInput.createDecimalInput(constant));
     return exceedanceForm;
   }
-
 }

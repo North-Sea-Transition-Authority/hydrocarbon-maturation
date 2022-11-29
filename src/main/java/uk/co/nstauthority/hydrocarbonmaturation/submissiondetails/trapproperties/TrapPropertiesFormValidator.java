@@ -1,13 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
-import java.util.List;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -147,7 +145,7 @@ class TrapPropertiesFormValidator implements SmartValidator, SubmissionFormValid
         "Productive area"
     );
 
-    List<FileUploadForm> prospectDepthMap = trapPropertiesForm.getProspectDepthMap();
+    var prospectDepthMap = trapPropertiesForm.getProspectDepthMap();
 
     if (prospectDepthMap.isEmpty()) {
       errors.rejectValue("prospectDepthMap", "prospectDepthMap.required", "Upload a prospect depth map");

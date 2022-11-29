@@ -14,7 +14,6 @@ public class ProbabilityDistributionTemplateService {
   ) {
     var presetTypes = instance.getPresetTypes();
 
-
     List<ProbabilityDistributionTypeWithInputs> probabilityDistributionTypeWithInputsList = new ArrayList<>();
 
     presetTypes.forEach(type -> {
@@ -141,7 +140,7 @@ public class ProbabilityDistributionTemplateService {
       return ProbabilityDistributionTypeError.emptyError();
     }
 
-    boolean hasError = true;
+    var hasError = true;
     return new ProbabilityDistributionTypeError(
         hasError,
         "form." + errorPath,
@@ -168,7 +167,7 @@ public class ProbabilityDistributionTemplateService {
       ProbabilityOfExceedanceType probabilityOfExceedanceType,
       boolean isRequired
   ) {
-    ProbabilityDistributionTypeInput input = new ProbabilityDistributionTypeInput();
+    var input = new ProbabilityDistributionTypeInput();
     input.setProbabilityOfExceedanceType(probabilityOfExceedanceType);
     input.setRequired(isRequired);
     return input;

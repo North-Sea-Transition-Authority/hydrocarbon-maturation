@@ -52,7 +52,7 @@ class ProbabilityDistributionFormServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var instance = ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY;
 
-    ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution();
+    var probabilityDistribution = new ProbabilityDistribution();
     probabilityDistribution.setDistributionType(ProbabilityDistributionType.NORMAL);
     when(probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance))
         .thenReturn(Optional.of(probabilityDistribution));
@@ -68,7 +68,7 @@ class ProbabilityDistributionFormServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var instance = ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE;
 
-    ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution();
+    var probabilityDistribution = new ProbabilityDistribution();
     when(probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance))
         .thenReturn(Optional.of(probabilityDistribution));
 

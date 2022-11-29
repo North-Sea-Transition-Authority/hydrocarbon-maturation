@@ -76,7 +76,7 @@ public class ProbabilityDistributionValidationUtil {
                                ValidationType validationType,
                                @Nullable ProbabilityDistributionFieldInstance instance
   ) {
-    int errorCountBefore = errors.getErrorCount();
+    var errorCountBefore = errors.getErrorCount();
     if (!Objects.isNull(probabilityDistributionForm.getProbabilityDistributionType())) {
       var probabilityDistributionType = probabilityDistributionForm.getProbabilityDistributionType();
       var typePath = probabilityDistributionType.getPath();
@@ -213,9 +213,9 @@ public class ProbabilityDistributionValidationUtil {
           errors
       );
 
-      int errorCountAfter = errors.getErrorCount();
+      var errorCountAfter = errors.getErrorCount();
       if (errorCountAfter > errorCountBefore) {
-        String errorPath = formField + "." + typePath + ".error";
+        var errorPath = formField + "." + typePath + ".error";
         errorPath = errorPath.replaceAll("[\n\r\t]", "_");
         errors.rejectValue(
             errorPath,
@@ -228,7 +228,7 @@ public class ProbabilityDistributionValidationUtil {
     }
   }
 
-  private static void validateInput(
+  static void validateInput(
       boolean isAvailable,
       boolean isRequired,
       String formField,
@@ -239,25 +239,26 @@ public class ProbabilityDistributionValidationUtil {
       ValidationType validationType,
       Errors errors
   ) {
-    if (isAvailable) {
-      var pathToExceedance = formField + "." + typePath + "." + inputPath + ".decimalInputValue";
-      pathToExceedance = pathToExceedance.replaceAll("[\n\r\t]", "_");
-      var validator = ProbabilityDistributionValidationUtil.configureProbabilityOfExceedanceInputValidator(
-          input,
-          pathToExceedance,
-          units,
-          errors
-      );
-      if (validationType.equals(ValidationType.FULL)) {
-        if (isRequired) {
-          ValidationUtils.rejectIfEmptyOrWhitespace(errors, pathToExceedance, pathToExceedance + ".required", "");
-          validator.validate();
-        } else {
-          validator.isOptional().validate();
-        }
-      } else if (validationType.equals(ValidationType.PARTIAL)) {
+    if (!isAvailable) {
+      return;
+    }
+    var pathToExceedance = formField + "." + typePath + "." + inputPath + ".decimalInputValue";
+    pathToExceedance = pathToExceedance.replaceAll("[\n\r\t]", "_");
+    var validator = ProbabilityDistributionValidationUtil.configureProbabilityOfExceedanceInputValidator(
+        input,
+        pathToExceedance,
+        units,
+        errors
+    );
+    if (validationType.equals(ValidationType.FULL)) {
+      if (isRequired) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, pathToExceedance, pathToExceedance + ".required", "");
+        validator.validate();
+      } else {
         validator.isOptional().validate();
       }
+    } else if (validationType.equals(ValidationType.PARTIAL)) {
+      validator.isOptional().validate();
     }
   }
 
