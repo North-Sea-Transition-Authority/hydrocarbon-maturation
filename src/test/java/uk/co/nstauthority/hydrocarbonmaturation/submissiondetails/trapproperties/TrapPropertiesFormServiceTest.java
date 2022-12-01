@@ -204,6 +204,34 @@ class TrapPropertiesFormServiceTest {
         );
   }
 
+  @Test
+  void getQuadrantAndBlocks_assertSorted() {
+    var generalDetail = new GeneralDetail();
+    var quadrantBlock = new QuadrantAndBlock();
+    var quadrantBlock1 = new QuadrantAndBlock();
+    var quadrantBlock2 = new QuadrantAndBlock();
+    quadrantBlock1.setSortKey("0002");
+    quadrantBlock1.setQuadrantBlock("quad1");
+    quadrantBlock2.setQuadrantBlock("quad2");
+    quadrantBlock2.setSortKey("0003");
+    quadrantBlock.setSortKey("0001");
+    quadrantBlock.setQuadrantBlock("quad");
+    var blockId = UUID.randomUUID();
+    quadrantBlock.setId(blockId);
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+    when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
+        .thenReturn(List.of(quadrantBlock2, quadrantBlock1, quadrantBlock));
+
+    var quadrantBlocks = trapPropertiesFormService.getQuadrantAndBlocks(submissionDetail);
+    assertThat(quadrantBlocks)
+        .containsExactly(
+            entry("quad", "quad"),
+            entry("quad1", "quad1"),
+            entry("quad2", "quad2")
+        );
+  }
+
   private TrapProperty getTrapProperty(SubmissionDetail submissionDetail) {
     var trapProperty = new TrapProperty();
     trapProperty.setSubmissionDetail(submissionDetail);

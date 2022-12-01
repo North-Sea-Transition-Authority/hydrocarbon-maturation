@@ -15,35 +15,35 @@
   <@fdsForm.htmlForm>
     <@fdsTextInput.textInput
       path="form.oilGravity.decimalInputValue"
-      labelText="Oil gravity (°API)"
+      labelText="Oil gravity"
       inputClass="govuk-input--width-5"
       suffix="°API"
       nestingPath="form.oilGravity"/>
 
     <@fdsTextInput.textInput
       path="form.oilViscosity.decimalInputValue"
-      labelText="Oil viscosity (cP)"
+      labelText="Oil viscosity"
       inputClass="govuk-input--width-5"
       suffix="cP"
       nestingPath="form.oilViscosity"/>
 
     <@fdsTextInput.textInput
       path="form.oilSulphur.decimalInputValue"
-      labelText="Oil sulphur (ppm)"
+      labelText="Oil sulphur"
       inputClass="govuk-input--width-5"
       suffix="ppm"
       nestingPath="form.oilSulphur"/>
 
     <@fdsTextInput.textInput
       path="form.oilWax.decimalInputValue"
-      labelText="Oil wax (weight%)"
+      labelText="Oil wax"
       inputClass="govuk-input--width-5"
       suffix="weight%"
       nestingPath="form.oilWax"/>
 
     <@fdsTextInput.textInput
       path="form.oilOtherWaxAppearanceTemperature.decimalInputValue"
-      labelText="Oil other incl wax appearance temperature (°F)"
+      labelText="Oil other incl wax appearance temperature"
       inputClass="govuk-input--width-5"
       suffix="°F"
       nestingPath="form.oilOtherWaxAppearanceTemperature"

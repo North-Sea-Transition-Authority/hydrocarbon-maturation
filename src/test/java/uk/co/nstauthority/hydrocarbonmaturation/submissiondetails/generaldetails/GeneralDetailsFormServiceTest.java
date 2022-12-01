@@ -127,7 +127,7 @@ class GeneralDetailsFormServiceTest {
     var qbRef = "27/10";
     var qbRefList = List.of(qbRef);
     when(referenceBlockQueryService.getReferenceBlocksByRefsIn(qbRefList))
-        .thenReturn(Collections.singletonList(new ReferenceBlockView(qbRef)));
+        .thenReturn(Collections.singletonList(new ReferenceBlockView(qbRef, "005005")));
 
     var form = new GeneralDetailsForm();
     form.setQuadrantBlocks(qbRefList);

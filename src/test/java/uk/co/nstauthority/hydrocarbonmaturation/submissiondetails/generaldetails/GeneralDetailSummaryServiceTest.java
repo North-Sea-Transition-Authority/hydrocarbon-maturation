@@ -88,6 +88,7 @@ class GeneralDetailSummaryServiceTest {
   private QuadrantAndBlock createQuadrantAndBlock(String quadrantBlockRef) {
     var quadrantAndBlock1 = new QuadrantAndBlock();
     quadrantAndBlock1.setQuadrantBlock(quadrantBlockRef);
+    quadrantAndBlock1.setSortKey("0010");
     return quadrantAndBlock1;
   }
 

@@ -16,31 +16,36 @@
 
     <@fdsTextInput.textInput
       path="form.datumDepth.decimalInputValue"
-      labelText="Datum depth (ft tvdss)"
+      labelText="Datum depth"
+      suffix="ft tvdss"
       inputClass="govuk-input--width-5"
       nestingPath="form.datumDepth"/>
 
     <@fdsTextInput.textInput
       path="form.temperatureAtDatumDepth.decimalInputValue"
-      labelText="Temperature at datum depth (°F)"
+      labelText="Temperature at datum depth"
       inputClass="govuk-input--width-5"
+      suffix="°F"
       nestingPath="form.temperatureAtDatumDepth"/>
 
     <@fdsTextInput.textInput
       path="form.pressureAtDatumDepth.decimalInputValue"
-      labelText="Pressure at datum depth (psia)"
+      labelText="Pressure at datum depth"
+      suffix="psia"
       inputClass="govuk-input--width-5"
       nestingPath="form.pressureAtDatumDepth"/>
 
     <@fdsTextInput.textInput
       path="form.saturationPressureAtDatumDepth.decimalInputValue"
-      labelText="Saturation pressure at datum depth (psia)"
+      labelText="Saturation pressure at datum depth"
       inputClass="govuk-input--width-5"
+      suffix="psia"
       nestingPath="form.saturationPressureAtDatumDepth"/>
 
     <@fdsTextInput.textInput
       path="form.waterSalinity.decimalInputValue"
-      labelText="Water salinity (ppm)"
+      labelText="Water salinity"
+      suffix="ppm"
       inputClass="govuk-input--width-5"
       nestingPath="form.waterSalinity"/>
 

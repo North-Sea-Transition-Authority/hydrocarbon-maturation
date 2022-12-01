@@ -55,7 +55,7 @@ class QuadrantBlockPersistenceServiceTest {
     generalDetailsForm.setQuadrantBlocks(quadBlockRefs);
 
     when(referenceBlockQueryService.getReferenceBlocksByRefsIn(quadBlockRefs))
-        .thenReturn(List.of(new ReferenceBlockView(qbRef1)));
+        .thenReturn(List.of(new ReferenceBlockView(qbRef1, "0505")));
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<QuadrantAndBlock>> argumentCaptor = ArgumentCaptor.forClass(List.class);

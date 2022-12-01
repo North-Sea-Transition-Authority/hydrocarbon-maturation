@@ -6,32 +6,32 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Gas specific gravity (air=1)">
       ${gasFluidValues.gasGravity()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Gas H₂S (ppm by volume)">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Gas H₂S">
       ${gasFluidValues.gasH2s()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Gas CO₂ (mol%)">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Gas CO₂">
       ${gasFluidValues.gasCo2()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Gas N₂ (mol%)">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Gas N₂">
       ${gasFluidValues.gasN2()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Is condensate present?">
       ${gasFluidValues.condensatePresent()}
     </@fdsSummaryList.summaryListRowNoAction>
     <#if gasFluidValues.showCondensate()>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Condensate gravity (°API)">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Condensate gravity">
         ${gasFluidValues.condensateGravity()}
       </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Condensate viscosity (cP)">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Condensate viscosity">
         ${gasFluidValues.condensateViscosity()}
       </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Condensate sulphur (ppm)">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Condensate sulphur">
         ${gasFluidValues.condensateSulphur()}
       </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Condensate wax (weight%)">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Condensate wax">
         ${gasFluidValues.condensateWax()}
       </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Condensate other incl wax appearance temperature (°F)">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Condensate other incl wax appearance temperature">
         ${gasFluidValues.condensateOtherInclWax()}
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>

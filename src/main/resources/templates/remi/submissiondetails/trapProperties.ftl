@@ -74,6 +74,7 @@
       <@fdsSearchSelector.searchSelectorEnhanced
         path="form.centreOfInterestQuadrantBlock"
         labelHeadingClass="govuk-fieldset__heading"
+        inputWidth="33"
         pageHeading=false
         options=quadrantAndBlocks
         labelText=""/>

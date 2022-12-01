@@ -25,6 +25,8 @@ public class QuadrantAndBlock implements GeneralDetailChildEntity {
 
   private String quadrantBlock;
 
+  private String sortKey;
+
   public UUID getId() {
     return id;
   }
@@ -48,5 +50,13 @@ public class QuadrantAndBlock implements GeneralDetailChildEntity {
 
   public void setQuadrantBlock(String quadrantBlock) {
     this.quadrantBlock = quadrantBlock;
+  }
+
+  public String getSortKey() {
+    return sortKey;
+  }
+
+  public void setSortKey(String sortKey) {
+    this.sortKey = sortKey;
   }
 }

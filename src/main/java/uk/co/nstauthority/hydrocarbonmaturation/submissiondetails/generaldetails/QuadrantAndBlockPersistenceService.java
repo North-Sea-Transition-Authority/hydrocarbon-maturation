@@ -33,7 +33,7 @@ public class QuadrantAndBlockPersistenceService {
 
     var quadrantAndBlocks = referenceBlockQueryService.getReferenceBlocksByRefsIn(quadBlocksRefs)
         .stream()
-        .map(view -> createQuadrantAndBlock(generalDetail, view.blockRef()))
+        .map(view -> createQuadrantAndBlock(generalDetail, view.blockRef(), view.sortKey()))
         .toList();
 
     quadrantAndBlockRepository.deleteAllByGeneralDetail(generalDetail);
@@ -75,10 +75,11 @@ public class QuadrantAndBlockPersistenceService {
         });
   }
 
-  private QuadrantAndBlock createQuadrantAndBlock(GeneralDetail generalDetail, String quadBlockRef) {
+  private QuadrantAndBlock createQuadrantAndBlock(GeneralDetail generalDetail, String quadBlockRef, String sortKey) {
     var quadrantAndBlock = new QuadrantAndBlock();
     quadrantAndBlock.setGeneralDetail(generalDetail);
     quadrantAndBlock.setQuadrantBlock(quadBlockRef);
+    quadrantAndBlock.setSortKey(sortKey);
 
     return quadrantAndBlock;
   }

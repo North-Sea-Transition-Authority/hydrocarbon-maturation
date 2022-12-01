@@ -20,19 +20,19 @@
       nestingPath="form.gasSpecificGravity"/>
     <@fdsTextInput.textInput
       path="form.gasH2s.decimalInputValue"
-      labelText="Gas H₂S (ppm by volume)"
+      labelText="Gas H₂S"
       inputClass="govuk-input--width-5"
       suffix="ppm"
       nestingPath="form.gasH2s"/>
     <@fdsTextInput.textInput
       path="form.gasCo2.decimalInputValue"
-      labelText="Gas CO₂ (mol%)"
+      labelText="Gas CO₂"
       inputClass="govuk-input--width-5"
       suffix="mol%"
       nestingPath="form.gasCo2"/>
     <@fdsTextInput.textInput
       path="form.gasN2.decimalInputValue"
-      labelText="Gas N₂ (mol%)"
+      labelText="Gas N₂"
       inputClass="govuk-input--width-5"
       suffix="mol%"
       nestingPath="form.gasN2"/>
@@ -44,33 +44,33 @@
         <@fdsTextInput.textInput
           path="form.condensateGravity.decimalInputValue"
           nestingPath="form.condensateGravity"
-          labelText="Condensate gravity (°API)"
+          labelText="Condensate gravity"
           inputClass="govuk-input--width-5"
           suffix="°API"/>
         <@fdsTextInput.textInput
           path="form.condensateViscosity.decimalInputValue"
           nestingPath="form.condensateViscosity"
-          labelText="Condensate viscosity (cP)"
+          labelText="Condensate viscosity"
           inputClass="govuk-input--width-5"
           suffix="cP"/>
         <@fdsTextInput.textInput
           path="form.condensateSulphur.decimalInputValue"
           nestingPath="form.condensateSulphur"
-          labelText="Condensate sulphur (ppm)"
+          labelText="Condensate sulphur"
           inputClass="govuk-input--width-5"
           suffix="ppm"/>
         <@fdsTextInput.textInput
           path="form.condensateWax.decimalInputValue"
           nestingPath="form.condensateWax"
-          labelText="Condensate wax (weight%)"
+          labelText="Condensate wax"
           inputClass="govuk-input--width-5"
           suffix="weight%"/>
         <@fdsTextInput.textInput
           path="form.condensateOtherInclWax.decimalInputValue"
           nestingPath="form.condensateOtherInclWax"
-          labelText="Condensate other incl wax appearance temperature (oF)"
+          labelText="Condensate other incl wax appearance temperature "
           inputClass="govuk-input--width-5"
-          suffix="oF"/>
+          suffix="°F"/>
       </@fdsRadio.radioYes>
       <@fdsRadio.radioNo path="form.condensatePresent"/>
     </@fdsRadio.radioGroup>

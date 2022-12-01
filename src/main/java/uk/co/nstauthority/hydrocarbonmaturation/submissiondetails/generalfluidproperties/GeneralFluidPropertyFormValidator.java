@@ -42,28 +42,28 @@ class GeneralFluidPropertyFormValidator implements SmartValidator, SubmissionFor
     DecimalInputValidator.configureOptionalValidator(
         errors,
         "datumDepth.decimalInputValue",
-        "The datum depth (ft tvdss)",
+        "The datum depth",
         generalFluidPropertyForm.getDatumDepth())
         .setMaxDecimalPlaces(2).setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureOptionalValidator(
         errors,
         "temperatureAtDatumDepth.decimalInputValue",
-        "The temperature at datum depth (°F)",
+        "The temperature at datum depth",
         generalFluidPropertyForm.getTemperatureAtDatumDepth())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureOptionalValidator(
         errors,
         "pressureAtDatumDepth.decimalInputValue",
-        "The pressure at datum depth (psia)",
+        "The pressure at datum depth",
         generalFluidPropertyForm.getPressureAtDatumDepth())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureOptionalValidator(
         errors,
         "saturationPressureAtDatumDepth.decimalInputValue",
-        "The saturation pressure at datum depth (psia)",
+        "The saturation pressure at datum depth",
         generalFluidPropertyForm.getSaturationPressureAtDatumDepth())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
@@ -71,7 +71,7 @@ class GeneralFluidPropertyFormValidator implements SmartValidator, SubmissionFor
     DecimalInputValidator.configureOptionalValidator(
         errors,
         "waterSalinity.decimalInputValue",
-        "The water salinity (ppm)",
+        "The water salinity",
         generalFluidPropertyForm.getWaterSalinity())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
   }
@@ -83,28 +83,28 @@ class GeneralFluidPropertyFormValidator implements SmartValidator, SubmissionFor
     DecimalInputValidator.configureValidator(
             errors,
             "datumDepth.decimalInputValue",
-            "The datum depth (ft tvdss)",
+            "The datum depth",
             generalFluidPropertyForm.getDatumDepth())
         .setMaxDecimalPlaces(2).setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureValidator(
             errors,
             "temperatureAtDatumDepth.decimalInputValue",
-            "The temperature at datum depth (°F)",
+            "The temperature at datum depth",
             generalFluidPropertyForm.getTemperatureAtDatumDepth())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureValidator(
             errors,
             "pressureAtDatumDepth.decimalInputValue",
-            "The pressure at datum depth (psia)",
+            "The pressure at datum depth",
             generalFluidPropertyForm.getPressureAtDatumDepth())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureValidator(
             errors,
             "saturationPressureAtDatumDepth.decimalInputValue",
-            "The saturation pressure at datum depth (psia)",
+            "The saturation pressure at datum depth",
             generalFluidPropertyForm.getSaturationPressureAtDatumDepth())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
@@ -112,7 +112,7 @@ class GeneralFluidPropertyFormValidator implements SmartValidator, SubmissionFor
     DecimalInputValidator.configureValidator(
             errors,
             "waterSalinity.decimalInputValue",
-            "The water salinity (ppm)",
+            "The water salinity",
             generalFluidPropertyForm.getWaterSalinity())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
   }

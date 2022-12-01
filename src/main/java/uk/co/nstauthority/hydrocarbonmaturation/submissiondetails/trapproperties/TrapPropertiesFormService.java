@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,6 +117,7 @@ public class TrapPropertiesFormService implements SubmissionFormService {
     return generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
         .map(detail -> quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail)
             .stream()
+            .sorted(Comparator.comparing(QuadrantAndBlock::getSortKey))
             .collect(StreamUtil.toLinkedHashMap(
                 QuadrantAndBlock::getQuadrantBlock,
                 QuadrantAndBlock::getQuadrantBlock)))

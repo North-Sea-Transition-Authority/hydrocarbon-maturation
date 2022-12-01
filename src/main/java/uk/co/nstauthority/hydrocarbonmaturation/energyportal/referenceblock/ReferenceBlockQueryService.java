@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +14,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApi
 @Service
 public class ReferenceBlockQueryService {
   public static final ReferenceBlocksProjectionRoot REFERENCE_BLOCKS_PROJECTION_ROOT =
-      new ReferenceBlocksProjectionRoot().blockRef();
+      new ReferenceBlocksProjectionRoot().blockRef().sortKey();
   public static final ReferenceBlockProjectionRoot REFERENCE_BLOCK_PROJECTION_ROOT =
-      new ReferenceBlockProjectionRoot().blockRef();
+      new ReferenceBlockProjectionRoot().blockRef().sortKey();
   private final ReferenceBlockApi referenceBlockApi;
   private final EnergyPortalApiWrapper energyPortalApiWrapper;
 
@@ -33,6 +34,7 @@ public class ReferenceBlockQueryService {
                 requestPurpose,
                 logCorrelationId
             ).stream()
+            .sorted(Comparator.comparing(ReferenceBlock::getSortKey))
             .map(this::getReferenceBlockView)
             .toList());
   }
@@ -42,6 +44,7 @@ public class ReferenceBlockQueryService {
         .map(this::getReferenceBlock)
         .filter(Optional::isPresent)
         .map(Optional::get)
+        .sorted(Comparator.comparing(ReferenceBlock::getSortKey))
         .map(this::getReferenceBlockView)
         .toList();
   }
@@ -58,6 +61,6 @@ public class ReferenceBlockQueryService {
   }
 
   private ReferenceBlockView getReferenceBlockView(ReferenceBlock referenceBlock) {
-    return new ReferenceBlockView(referenceBlock.getBlockRef());
+    return new ReferenceBlockView(referenceBlock.getBlockRef(), referenceBlock.getSortKey());
   }
 }

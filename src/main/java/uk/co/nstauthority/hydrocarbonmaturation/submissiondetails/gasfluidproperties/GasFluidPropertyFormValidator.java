@@ -52,21 +52,21 @@ class GasFluidPropertyFormValidator implements SmartValidator, SubmissionFormVal
     DecimalInputValidator.configureOptionalValidator(
         errors,
         "gasH2s.decimalInputValue",
-        "The gas H₂S (mol%)",
+        "The gas H₂S",
         gasFluidPropertyForm.getGasH2s())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
     PercentageValidationUtils.configurePercentageValidator(
         gasFluidPropertyForm.getGasCo2(),
         "gasCo2.decimalInputValue",
-        "The gas CO₂ (mol%)",
+        "The gas CO₂",
         errors)
         .setMaxDecimalPlaces(2).setMinValue(BigDecimal.ZERO).isOptional().validate();
 
     PercentageValidationUtils.configurePercentageValidator(
         gasFluidPropertyForm.getGasN2(),
         "gasN2.decimalInputValue",
-        "The gas N₂ (mol%)",
+        "The gas N₂",
         errors)
         .setMaxDecimalPlaces(2).setMinValue(BigDecimal.ZERO).isOptional().validate();
 
@@ -74,35 +74,35 @@ class GasFluidPropertyFormValidator implements SmartValidator, SubmissionFormVal
       DecimalInputValidator.configureOptionalValidator(
           errors,
           "condensateGravity.decimalInputValue",
-          "The condensate gravity (°API)",
+          "The condensate gravity",
           gasFluidPropertyForm.getCondensateGravity())
           .setMinValue(BigDecimal.ZERO).setMaxDecimalPlaces(0).validate();
 
       DecimalInputValidator.configureOptionalValidator(
           errors,
           "condensateViscosity.decimalInputValue",
-          "The condensate viscosity (cP)",
+          "The condensate viscosity",
           gasFluidPropertyForm.getCondensateViscosity())
           .setMinValue(BigDecimal.ZERO).setMaxDecimalPlaces(1).validate();
 
       DecimalInputValidator.configureOptionalValidator(
           errors,
           "condensateSulphur.decimalInputValue",
-          "The condensate sulphur (ppm)",
+          "The condensate sulphur",
           gasFluidPropertyForm.getCondensateSulphur())
           .setMinValue(BigDecimal.ZERO).setMaxDecimalPlaces(0).validate();
 
       PercentageValidationUtils.configurePercentageValidator(
           gasFluidPropertyForm.getCondensateWax(),
           "condensateWax.decimalInputValue",
-          "The condensate wax (weight%)",
+          "The condensate wax",
           errors)
           .setMinValue(BigDecimal.ZERO).isOptional().setMaxDecimalPlaces(2).validate();
 
       DecimalInputValidator.configureOptionalValidator(
           errors,
           "condensateOtherInclWax.decimalInputValue",
-          "The condensate other incl wax appearance temperature (oF)",
+          "The condensate other incl wax appearance temperature",
           gasFluidPropertyForm.getCondensateOtherInclWax())
           .setMinValue(BigDecimal.ZERO).setMaxDecimalPlaces(0).validate();
     }
@@ -123,21 +123,21 @@ class GasFluidPropertyFormValidator implements SmartValidator, SubmissionFormVal
     DecimalInputValidator.configureValidator(
         errors,
         "gasH2s.decimalInputValue",
-        "The gas H₂S (ppm by volume)",
+        "The gas H₂S",
         gasFluidPropertyForm.getGasH2s())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
     PercentageValidationUtils.configurePercentageValidator(
         gasFluidPropertyForm.getGasCo2(),
         "gasCo2.decimalInputValue",
-        "The gas CO₂ (mol%)",
+        "The gas CO₂",
         errors)
         .setMaxDecimalPlaces(2).setMinValue(BigDecimal.ZERO).validate();
 
     PercentageValidationUtils.configurePercentageValidator(
         gasFluidPropertyForm.getGasN2(),
         "gasN2.decimalInputValue",
-        "The gas N₂ (mol%)",
+        "The gas N₂",
         errors)
         .setMaxDecimalPlaces(2).setMinValue(BigDecimal.ZERO).validate();
 
@@ -151,35 +151,35 @@ class GasFluidPropertyFormValidator implements SmartValidator, SubmissionFormVal
       DecimalInputValidator.configureValidator(
           errors,
           "condensateGravity.decimalInputValue",
-          "The condensate gravity (°API)",
+          "The condensate gravity",
           gasFluidPropertyForm.getCondensateGravity())
           .setMinValue(BigDecimal.ZERO).setMaxDecimalPlaces(0).validate();
 
       DecimalInputValidator.configureValidator(
           errors,
           "condensateViscosity.decimalInputValue",
-          "The condensate viscosity (cP)",
+          "The condensate viscosity",
           gasFluidPropertyForm.getCondensateViscosity())
           .setMinValue(BigDecimal.ZERO).setMaxDecimalPlaces(1).validate();
 
       DecimalInputValidator.configureValidator(
           errors,
           "condensateSulphur.decimalInputValue",
-          "The condensate sulphur (ppm)",
+          "The condensate sulphur",
           gasFluidPropertyForm.getCondensateSulphur())
           .setMinValue(BigDecimal.ZERO).setMaxDecimalPlaces(0).validate();
 
       PercentageValidationUtils.configurePercentageValidator(
           gasFluidPropertyForm.getCondensateWax(),
           "condensateWax.decimalInputValue",
-          "The condensate wax (weight%)",
+          "The condensate wax",
           errors)
           .setMinValue(BigDecimal.ZERO).setMaxDecimalPlaces(2).validate();
 
       DecimalInputValidator.configureValidator(
           errors,
           "condensateOtherInclWax.decimalInputValue",
-          "The condensate other incl wax appearance temperature (oF)",
+          "The condensate other incl wax appearance temperature",
           gasFluidPropertyForm.getCondensateOtherInclWax())
           .setMinValue(BigDecimal.ZERO).setMaxDecimalPlaces(0).validate();
     }

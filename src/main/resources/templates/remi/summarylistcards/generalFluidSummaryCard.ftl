@@ -3,19 +3,19 @@
 
 <#macro generalFluidPropertiesCard generalFluidValues>
   <@fdsSummaryList.summaryListCard headingText="General properties" summaryListId="generalproperties">
-    <@fdsSummaryList.summaryListRowNoAction keyText="Datum depth (ft tvdss)">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Datum depth">
       ${generalFluidValues.datumDepth()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Temperature at datum depth (°F)">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Temperature at datum depth">
       ${generalFluidValues.temperatureAtDatumDepth()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Pressure at datum depth (psia)">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Pressure at datum depth">
       ${generalFluidValues.pressureAtDatumDepth()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Saturation pressure at datum depth (psia)">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Saturation pressure at datum depth">
       ${generalFluidValues.saturationPressureAtDatumDepth()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Water salinity (ppm)">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Water salinity">
       ${generalFluidValues.waterSalinity()}
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>

@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import java.util.Comparator;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ public class GeneralDetailSummaryService {
 
   private List<String> getQuadBlocksDisplay(List<QuadrantAndBlock> quadrantAndBlocks) {
     return quadrantAndBlocks.stream()
+        .sorted(Comparator.comparing(QuadrantAndBlock::getSortKey))
         .map(QuadrantAndBlock::getQuadrantBlock)
         .toList();
   }

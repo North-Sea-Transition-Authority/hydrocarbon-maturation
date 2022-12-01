@@ -43,14 +43,14 @@ class OilFluidPropertyFormValidator implements SmartValidator, SubmissionFormVal
     DecimalInputValidator.configureOptionalValidator(
         errors,
         "oilGravity.decimalInputValue",
-        "The oil gravity (°API)",
+        "The oil gravity",
         oiLFluidPropertyForm.getOilGravity())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureOptionalValidator(
             errors,
             "oilViscosity.decimalInputValue",
-            "The oil viscosity (cP)",
+            "The oil viscosity",
             oiLFluidPropertyForm.getOilViscosity())
         .setMaxDecimalPlaces(1).setMinValue(BigDecimal.ZERO).validate();
 
@@ -64,14 +64,14 @@ class OilFluidPropertyFormValidator implements SmartValidator, SubmissionFormVal
     PercentageValidationUtils.configurePercentageValidator(
             oiLFluidPropertyForm.getOilWax(),
             "oilWax.decimalInputValue",
-            "The oil wax (weight%)",
+            "The oil wax",
             errors)
         .setMaxDecimalPlaces(2).isOptional().setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureOptionalValidator(
             errors,
             "oilOtherWaxAppearanceTemperature.decimalInputValue",
-            "The oil other incl wax appearance temperature (°F)",
+            "The oil other incl wax appearance temperature",
             oiLFluidPropertyForm.getOilOtherWaxAppearanceTemperature())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
   }
@@ -83,35 +83,35 @@ class OilFluidPropertyFormValidator implements SmartValidator, SubmissionFormVal
     DecimalInputValidator.configureValidator(
             errors,
             "oilGravity.decimalInputValue",
-            "The oil gravity (°API)",
+            "The oil gravity",
             oiLFluidPropertyForm.getOilGravity())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureValidator(
             errors,
             "oilViscosity.decimalInputValue",
-            "The oil viscosity (cP)",
+            "The oil viscosity",
             oiLFluidPropertyForm.getOilViscosity())
         .setMaxDecimalPlaces(1).setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureValidator(
             errors,
             "oilSulphur.decimalInputValue",
-            "The oil sulphur (ppm)",
+            "The oil sulphur",
             oiLFluidPropertyForm.getOilSulphur())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
 
     PercentageValidationUtils.configurePercentageValidator(
             oiLFluidPropertyForm.getOilWax(),
             "oilWax.decimalInputValue",
-            "The oil wax (weight%)",
+            "The oil wax",
             errors)
         .setMaxDecimalPlaces(2).setMinValue(BigDecimal.ZERO).validate();
 
     DecimalInputValidator.configureOptionalValidator(
             errors,
             "oilOtherWaxAppearanceTemperature.decimalInputValue",
-            "The oil other incl wax appearance temperature (°F)",
+            "The oil other incl wax appearance temperature",
             oiLFluidPropertyForm.getOilOtherWaxAppearanceTemperature())
         .setMaxDecimalPlaces(0).setMinValue(BigDecimal.ZERO).validate();
   }
