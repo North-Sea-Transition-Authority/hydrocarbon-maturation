@@ -76,6 +76,7 @@ breadcrumbsMap=breadcrumbsMap>
         noItemText="No quadrant and block added"
         invalidItemText="This quadrant and block is invalid"
         addToListId="quadrant-block-table"
+        selectorInputWidth="48"
         selectorLabelText="Select a quadrant and block to add to this prospect"
         restUrl=springUrl(quadrantBlocksApiEndpoint)/>
 
