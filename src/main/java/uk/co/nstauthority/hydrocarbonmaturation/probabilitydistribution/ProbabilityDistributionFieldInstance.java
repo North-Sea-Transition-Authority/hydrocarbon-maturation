@@ -62,7 +62,7 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   NET_POROSITY_PROSPECT_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.KM2,
+      ProbabilityOfExceedanceUnits.PERCENT,
       "Net porosity"
   ),
   DEPTH_TO_HYDROCARBON_CONTACT(

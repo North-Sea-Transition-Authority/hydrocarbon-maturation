@@ -50,7 +50,7 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "Average net pay thickness distribution used"
     );
 
-    ProbabilityDistributionValidationUtil.validatePartialPercentage(
+    ProbabilityDistributionValidationUtil.validatePartial(
         reservoirForm.getGrossReservoirThickness(),
         errors,
         "grossReservoirThickness",
@@ -78,7 +78,7 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "Net to gross distribution used"
     );
 
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validatePartialPercentage(
         reservoirForm.getNetPorosity(),
         errors,
         "netPorosity",
@@ -164,7 +164,7 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "netPorosity.probabilityDistributionType.required",
         "Select the net porosity distribution used");
 
-    ProbabilityDistributionValidationUtil.validateFull(
+    ProbabilityDistributionValidationUtil.validateFullPercentage(
         reservoirForm.getNetPorosity(),
         errors,
         "netPorosity",
