@@ -4,10 +4,11 @@ import java.math.BigDecimal;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.DrillDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
 @Entity
 @Table(name = "discovery_well_details")
-public class DiscoveryWellDetail extends DrillDetail {
+public class DiscoveryWellDetail extends DrillDetail implements SubmissionDetailChildEntity {
 
   private HydrocarbonsDiscovered hydrocarbonsDiscovered;
 

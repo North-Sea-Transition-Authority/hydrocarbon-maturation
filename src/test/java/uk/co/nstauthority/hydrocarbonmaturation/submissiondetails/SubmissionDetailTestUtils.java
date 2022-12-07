@@ -22,6 +22,10 @@ public class SubmissionDetailTestUtils {
     return createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
   }
 
+  public static SubmissionDetail createNewDiscoveryUpdateSubmissionDetail() {
+    return createSubmissionDetail(SubmissionType.UPDATE_DISCOVERY);
+  }
+
   public static SubmissionDetail createNewPostDrillDryWellSubmissionDetail() {
     return createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
   }
