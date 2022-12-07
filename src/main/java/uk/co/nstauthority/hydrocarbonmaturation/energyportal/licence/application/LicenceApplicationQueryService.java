@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import uk.co.fivium.energyportalapi.generated.client.LicenceApplicationProjectio
 import uk.co.fivium.energyportalapi.generated.client.LicenceApplicationsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.LicenceApplication;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @Service
 public class LicenceApplicationQueryService {
@@ -22,12 +25,15 @@ public class LicenceApplicationQueryService {
 
   private final LicenceApplicationApi licenceApplicationApi;
   private final EnergyPortalApiWrapper energyPortalApiWrapper;
+  private final SearchSelectorService searchSelectorService;
 
   @Autowired
   public LicenceApplicationQueryService(LicenceApplicationApi licenceApplicationApi,
-                                        EnergyPortalApiWrapper energyPortalApiWrapper) {
+                                        EnergyPortalApiWrapper energyPortalApiWrapper,
+                                        SearchSelectorService searchSelectorService) {
     this.licenceApplicationApi = licenceApplicationApi;
     this.energyPortalApiWrapper = energyPortalApiWrapper;
+    this.searchSelectorService = searchSelectorService;
   }
 
   public List<LicenceApplicationDto> getLicenceApplicationSearchableResults(String licenceApplicationRef) {
@@ -63,7 +69,26 @@ public class LicenceApplicationQueryService {
     );
   }
 
-  List<LicenceApplication> searchLicenceApplications(
+  public Map<String, String> getPreSelectedLicenceApplication(String licenceApplication) {
+    if (licenceApplication != null) {
+      if (SearchSelectorService.isManualEntry(licenceApplication)) {
+        return searchSelectorService.buildPrePopulatedSelections(
+            Collections.singletonList(licenceApplication),
+            Map.of(licenceApplication, licenceApplication)
+        );
+      } else {
+        return searchSelectorService.buildPrePopulatedSelections(
+            Collections.singletonList(licenceApplication),
+            Map.of(
+                licenceApplication,
+                getLicenceApplicationRef(Integer.parseInt(licenceApplication))
+            ));
+      }
+    }
+    return Map.of();
+  }
+
+  private List<LicenceApplication> searchLicenceApplications(
       String licenceApplicationRef,
       RequestPurpose requestPurpose,
       LogCorrelationId logCorrelationId) {

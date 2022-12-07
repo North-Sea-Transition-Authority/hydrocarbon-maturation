@@ -44,20 +44,7 @@ public class GeneralDetailsPersistenceService {
     generalDetail.setInformationSource(form.getInformationSource());
 
     var licenceApplication = form.getLicenceApplication();
-    if (Objects.isNull(licenceApplication) || form.getInformationSource() != InformationSource.LICENCE_APPLICATION) {
-      generalDetail.setLicenceApplicationReference(null);
-      generalDetail.setLicenceApplicationId(null);
-    } else {
-      if (SearchSelectorService.isManualEntry(licenceApplication)) {
-        generalDetail.setLicenceApplicationReference(SearchSelectorService.removePrefix(licenceApplication));
-        generalDetail.setLicenceApplicationId(null);
-      } else {
-        var licenceApplicationId = Integer.parseInt(licenceApplication);
-        generalDetail.setLicenceApplicationId(licenceApplicationId);
-        var licenceApplicationRef = licenceApplicationQueryService.getLicenceApplicationRef(licenceApplicationId);
-        generalDetail.setLicenceApplicationReference(licenceApplicationRef);
-      }
-    }
+    setLicenceApplication(generalDetail, licenceApplication, form.getInformationSource());
 
     var organisationId = form.getResponsibleOrganisationId();
     if (Objects.isNull(organisationId)) {
@@ -101,6 +88,9 @@ public class GeneralDetailsPersistenceService {
       newGeneralDetail.setOtherInformationSource(null);
     }
 
+    var licenceApplication = form.getLicenceApplication();
+    setLicenceApplication(newGeneralDetail, licenceApplication, form.getInformationSource());
+
     generalDetailsRepository.save(newGeneralDetail);
   }
 
@@ -126,5 +116,24 @@ public class GeneralDetailsPersistenceService {
 
   public List<GeneralDetail> getGeneralDetailsByName(String name) {
     return generalDetailsRepository.findByProspectNameContainingIgnoreCase(name);
+  }
+
+  private void setLicenceApplication(GeneralDetail generalDetail,
+                                     String licenceApplication,
+                                     InformationSource informationSource) {
+    if (Objects.isNull(licenceApplication) || informationSource != InformationSource.LICENCE_APPLICATION) {
+      generalDetail.setLicenceApplicationReference(null);
+      generalDetail.setLicenceApplicationId(null);
+    } else {
+      if (SearchSelectorService.isManualEntry(licenceApplication)) {
+        generalDetail.setLicenceApplicationReference(SearchSelectorService.removePrefix(licenceApplication));
+        generalDetail.setLicenceApplicationId(null);
+      } else {
+        var licenceApplicationId = Integer.parseInt(licenceApplication);
+        generalDetail.setLicenceApplicationId(licenceApplicationId);
+        var licenceApplicationRef = licenceApplicationQueryService.getLicenceApplicationRef(licenceApplicationId);
+        generalDetail.setLicenceApplicationReference(licenceApplicationRef);
+      }
+    }
   }
 }

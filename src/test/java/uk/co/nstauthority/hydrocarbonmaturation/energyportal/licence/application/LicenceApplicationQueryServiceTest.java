@@ -21,6 +21,7 @@ import uk.co.fivium.energyportalapi.client.licence.application.LicenceApplicatio
 import uk.co.fivium.energyportalapi.generated.types.LicenceApplication;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @ExtendWith(MockitoExtension.class)
 class LicenceApplicationQueryServiceTest {
@@ -34,14 +35,16 @@ class LicenceApplicationQueryServiceTest {
 
   private static LicenceApplicationApi licenceApplicationApi;
   private static LicenceApplicationQueryService licenceApplicationQueryService;
+  private static SearchSelectorService searchSelectorService;
 
   @BeforeAll
   static void setup() {
     licenceApplicationApi = mock(LicenceApplicationApi.class);
+    searchSelectorService = new SearchSelectorService();
     licenceApplicationQueryService = new LicenceApplicationQueryService(
         licenceApplicationApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties)
-    );
+        new EnergyPortalApiWrapper(serviceConfigurationProperties),
+        searchSelectorService);
   }
 
   @Test
@@ -149,5 +152,30 @@ class LicenceApplicationQueryServiceTest {
     )).thenReturn(Optional.of(licenceApplication));
 
     assertEquals(LICENCE_APPLICATION_REF, licenceApplicationQueryService.getLicenceApplicationRef(LICENCE_APPLICATION_ID));
+  }
+
+  @Test
+  void getPreselectedLicenceApplication_withNoLicenceApplication() {
+    assertThat(licenceApplicationQueryService.getPreSelectedLicenceApplication(null)).isEmpty();
+  }
+
+  @Test
+  void getPreselectedLicenceApplication_withLicenceApplicationReferenceOnly() {
+    var manualLicenceRef = SearchSelectorService.getValueWithManualEntryPrefix("F33/1234");
+    assertThat(licenceApplicationQueryService.getPreSelectedLicenceApplication(manualLicenceRef))
+        .containsEntry(manualLicenceRef, "F33/1234");
+  }
+
+  @Test
+  void getPreselectedLicenceApplication_withLicenceApplicationId() {
+    var licenceApplication = LicenceApplicationTestUtil.Builder()
+        .withLicenceApplicationId(1)
+        .withLicenceApplicationRef("F33/1234")
+        .build();
+    when(licenceApplicationApi.findLicenceApplication(eq(1), any(), any(), any()))
+        .thenReturn(Optional.of(licenceApplication));
+
+    assertThat(licenceApplicationQueryService.getPreSelectedLicenceApplication("1"))
+        .containsEntry("1", "F33/1234");
   }
 }

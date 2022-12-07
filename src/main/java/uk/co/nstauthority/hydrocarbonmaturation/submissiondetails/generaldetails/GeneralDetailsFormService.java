@@ -117,23 +117,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   }
 
   public Map<String, String> getPreSelectedLicenceApplication(String licenceApplication) {
-    Map<String, String> preSelectedMap = Map.of();
-    if (licenceApplication != null) {
-      if (SearchSelectorService.isManualEntry(licenceApplication)) {
-        preSelectedMap = searchSelectorService.buildPrePopulatedSelections(
-            Collections.singletonList(licenceApplication),
-            Map.of(licenceApplication, licenceApplication)
-        );
-      } else {
-        preSelectedMap = searchSelectorService.buildPrePopulatedSelections(
-            Collections.singletonList(licenceApplication),
-            Map.of(
-                licenceApplication,
-                licenceApplicationQueryService.getLicenceApplicationRef(Integer.parseInt(licenceApplication))
-            ));
-      }
-    }
-    return preSelectedMap;
+    return licenceApplicationQueryService.getPreSelectedLicenceApplication(licenceApplication);
   }
 
   List<QuadrantAndBlockView> getQuadrantAndBlockViews(GeneralDetailsForm form) {

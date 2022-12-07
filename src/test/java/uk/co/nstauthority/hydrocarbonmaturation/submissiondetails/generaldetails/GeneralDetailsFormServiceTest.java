@@ -173,22 +173,10 @@ class GeneralDetailsFormServiceTest {
   }
 
   @Test
-  void getPreselectedLicenceApplication_withNoLicenceApplication() {
-    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(null)).isEmpty();
-  }
+  void getPreselectedLicenceApplication_verifyMethodCall() {
+    generalDetailsFormService.getPreSelectedLicenceApplication("app");
 
-  @Test
-  void getPreselectedLicenceApplication_withLicenceApplicationReferenceOnly() {
-    var manualLicenceRef = SearchSelectorService.getValueWithManualEntryPrefix(LICENCE_APPLICATION_REF);
-    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(manualLicenceRef)).containsEntry(manualLicenceRef, LICENCE_APPLICATION_REF);
-  }
-
-  @Test
-  void getPreselectedLicenceApplication_withLicenceApplicationId() {
-    when(licenceApplicationQueryService.getLicenceApplicationRef(Integer.parseInt(LICENCE_APPLICATION_ID)))
-        .thenReturn(LICENCE_APPLICATION_REF);
-    assertThat(generalDetailsFormService.getPreSelectedLicenceApplication(LICENCE_APPLICATION_ID))
-        .containsEntry(LICENCE_APPLICATION_ID, LICENCE_APPLICATION_REF);
+    verify(licenceApplicationQueryService, times(1)).getPreSelectedLicenceApplication("app");
   }
 
   @Test

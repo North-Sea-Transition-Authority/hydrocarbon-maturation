@@ -89,6 +89,33 @@ class UpdateFormValidatorTest {
         );
   }
 
+  @Test
+  void validate_whenLicenceApplicatio_noErrors() {
+    var form = getValidForm();
+    form.setInformationSource(InformationSource.LICENCE_APPLICATION);
+    form.setLicenceApplication("ref");
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    updateFormValidator.validate(form, bindingResult);
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .isEmpty();
+  }
+
+  @Test
+  void validate_whenLicenceApplicationEmpty_thenSingleError() {
+    var form = getValidForm();
+    form.setInformationSource(InformationSource.LICENCE_APPLICATION);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    updateFormValidator.validate(form, bindingResult);
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("licenceApplication", Set.of("licenceApplication.required"))
+        );
+  }
+
   private UpdateProspectForm getValidForm() {
     var form = new UpdateProspectForm();
     form.setProspectSelectedOption(UUID.randomUUID().toString());

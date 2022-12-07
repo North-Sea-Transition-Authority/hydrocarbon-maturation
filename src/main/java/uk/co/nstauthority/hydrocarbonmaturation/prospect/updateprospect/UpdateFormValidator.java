@@ -29,6 +29,9 @@ public class UpdateFormValidator implements SmartValidator {
     if (updateProspectForm.getInformationSource() == InformationSource.OTHER) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherSourceOfInformation", "otherSourceOfInformation.required",
           "Enter the source of information for this prospect submission");
+    } else if (updateProspectForm.getInformationSource() == InformationSource.LICENCE_APPLICATION) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "licenceApplication", "licenceApplication.required",
+          "Enter the licence application reference");
     }
   }
 

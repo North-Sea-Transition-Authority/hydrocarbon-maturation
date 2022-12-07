@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -56,6 +57,11 @@ public class UpdateProspectController {
         .addObject("actionUrl", ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, null)))
         .addObject("informationSources", InformationSource.getInformationSource())
         .addObject("form", form)
+        .addObject("licenceApplicationEndpoint",
+            SearchSelectorService.route(on(LicenceApplicationRestController.class)
+                .searchLicenceApplicationsWithManualEntry(null)))
+        .addObject("licenceApplication",
+            updateProspectService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
         .addObject("prospectApiEndpoint",
             SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null)));
   }

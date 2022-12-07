@@ -11,6 +11,8 @@ public class UpdateProspectForm implements SubmissionForm {
 
   private String otherSourceOfInformation;
 
+  private String licenceApplication;
+
   public String getProspectSelectedOption() {
     return prospectSelectedOption;
   }
@@ -34,5 +36,13 @@ public class UpdateProspectForm implements SubmissionForm {
 
   public void setOtherSourceOfInformation(String otherSourceOfInformation) {
     this.otherSourceOfInformation = otherSourceOfInformation;
+  }
+
+  public String getLicenceApplication() {
+    return licenceApplication;
+  }
+
+  public void setLicenceApplication(String licenceApplication) {
+    this.licenceApplication = licenceApplication;
   }
 }
