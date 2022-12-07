@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,5 +21,9 @@ public class ResourceLinkService {
     resourceLink.setDiscoveryResource(discovery);
     resourceLink.setProspectResource(prospect);
     resourceLinksRepository.save(resourceLink);
+  }
+
+  public List<ResourceLink> getResourceLinksByProspect(Resource prospect) {
+    return resourceLinksRepository.findAllByProspectResource(prospect);
   }
 }

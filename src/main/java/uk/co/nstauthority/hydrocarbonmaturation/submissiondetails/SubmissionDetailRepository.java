@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
@@ -8,6 +9,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 
 @Repository
 interface SubmissionDetailRepository extends CrudRepository<SubmissionDetail, UUID> {
+
+  List<SubmissionDetail> findSubmissionDetailsByResourceId(Resource resource);
 
   Optional<SubmissionDetail> findFirstByResourceIdOrderByCreatedTimestampDesc(Resource resource);
 }

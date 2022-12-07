@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -45,4 +44,12 @@ class ResourceLinkServiceTest {
         );
   }
 
+  @Test
+  void getResourceLinkByProspect_verifyMethodCall() {
+    var prospect = new Resource();
+
+    resourceLinkService.getResourceLinksByProspect(prospect);
+
+    verify(resourceLinksRepository, times(1)).findAllByProspectResource(prospect);
+  }
 }

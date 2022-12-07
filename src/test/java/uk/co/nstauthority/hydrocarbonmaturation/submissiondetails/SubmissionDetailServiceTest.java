@@ -86,7 +86,6 @@ class SubmissionDetailServiceTest {
             .formatted(resource.getId()));
   }
 
-
   @Test
   void completeSubmission() {
     var submissionDetail = new SubmissionDetail();
@@ -94,5 +93,14 @@ class SubmissionDetailServiceTest {
 
     assertThat(submissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.APPROVED);
     verify(submissionDetailRepository, times(1)).save(submissionDetail);
+  }
+
+  @Test
+  void getSubmissionDetailsForResource_verifyMethodCall() {
+    var resource = new Resource();
+
+    submissionDetailService.getSubmissionDetailsForResource(resource);
+
+    verify(submissionDetailRepository, times(1)).findSubmissionDetailsByResourceId(resource);
   }
 }

@@ -2,11 +2,13 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @RestController
 @RequestMapping("/api")
@@ -22,11 +24,14 @@ public class ResourceRestController {
     this.submissionQueryService = submissionQueryService;
   }
 
-  @GetMapping("/prospects")
-  public RestSearchResult searchProspects(@RequestParam("term") String searchTerm) {
+  @GetMapping("/prospects/{submissionType}")
+  public RestSearchResult searchProspects(@RequestParam("term") String searchTerm,
+                                          @PathVariable("submissionType") SubmissionType submissionType) {
     return searchSelectorService.search(
         searchTerm,
-        submissionQueryService.getLatestSubmissionByNameAndResourceType(searchTerm, ResourceType.PROSPECT)
+        submissionQueryService.getLatestProspectsByNameForSubmissionType(
+            searchTerm,
+            submissionType)
     );
   }
 
@@ -34,7 +39,7 @@ public class ResourceRestController {
   public RestSearchResult searchDiscoveries(@RequestParam("term") String searchTerm) {
     return searchSelectorService.search(
         searchTerm,
-        submissionQueryService.getLatestSubmissionByNameAndResourceType(searchTerm, ResourceType.DISCOVERY)
+        submissionQueryService.getLatestDiscoveriesByName(searchTerm)
     );
   }
 }

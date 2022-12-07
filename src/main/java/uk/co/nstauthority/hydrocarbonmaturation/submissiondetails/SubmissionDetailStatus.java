@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
-enum SubmissionDetailStatus {
+public enum SubmissionDetailStatus {
   DRAFT,
   APPROVED,
+  SUBMITTED
 }

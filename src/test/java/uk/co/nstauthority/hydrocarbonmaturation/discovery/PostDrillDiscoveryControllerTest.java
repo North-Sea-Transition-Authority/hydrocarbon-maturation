@@ -30,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestContr
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ContextConfiguration(classes = PostDrillDiscoveryController.class)
@@ -72,7 +73,7 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage()),
             ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null))
+            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY))
         );
   }
 
@@ -122,7 +123,7 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage()),
             ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null))
+            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY))
         );
 
     verify(startDiscoveryService, times(1)).validate(any(), any());

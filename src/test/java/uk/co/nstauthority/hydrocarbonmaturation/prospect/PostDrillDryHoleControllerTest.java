@@ -34,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDr
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ContextConfiguration(classes = PostDrillDryHoleController.class)
@@ -83,7 +84,8 @@ class PostDrillDryHoleControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage()),
             ReverseRouter.route(on(PostDrillDryHoleController.class).createPostDrillDryHole(null, emptyBindingResult())),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null))
+            SearchSelectorService.route(on(ResourceRestController.class)
+                .searchProspects(null, SubmissionType.POST_DRILL_DRY_HOLE))
         );
   }
 

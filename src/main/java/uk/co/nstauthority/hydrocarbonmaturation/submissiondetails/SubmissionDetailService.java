@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import java.time.Clock;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.transaction.Transactional;
@@ -59,5 +60,9 @@ public class SubmissionDetailService {
   public void completeSubmission(SubmissionDetail submissionDetail) {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     submissionDetailRepository.save(submissionDetail);
+  }
+
+  public List<SubmissionDetail> getSubmissionDetailsForResource(Resource resource) {
+    return submissionDetailRepository.findSubmissionDetailsByResourceId(resource);
   }
 }

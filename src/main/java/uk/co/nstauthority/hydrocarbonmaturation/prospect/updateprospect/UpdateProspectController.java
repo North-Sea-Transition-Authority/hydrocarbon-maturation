@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
@@ -63,6 +64,7 @@ public class UpdateProspectController {
         .addObject("licenceApplication",
             updateProspectService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
         .addObject("prospectApiEndpoint",
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null)));
+            SearchSelectorService.route(on(ResourceRestController.class)
+                .searchProspects(null, SubmissionType.PROSPECT_UPDATE)));
   }
 }

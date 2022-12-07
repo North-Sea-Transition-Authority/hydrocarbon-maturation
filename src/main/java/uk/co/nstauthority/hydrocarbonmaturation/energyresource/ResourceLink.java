@@ -11,7 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "resource_links")
-class ResourceLink {
+public class ResourceLink {
 
   @Id
   @GeneratedValue(generator = "uuid")

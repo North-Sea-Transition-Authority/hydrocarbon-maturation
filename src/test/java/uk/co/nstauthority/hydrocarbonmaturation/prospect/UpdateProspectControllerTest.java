@@ -34,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdatePr
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
@@ -78,7 +79,8 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, emptyBindingResult())),
             InformationSource.getInformationSource(),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null)));
+            SearchSelectorService.route(on(ResourceRestController.class)
+                .searchProspects(null, SubmissionType.PROSPECT_UPDATE)));
   }
 
   @Test
@@ -129,7 +131,8 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, emptyBindingResult())),
             InformationSource.getInformationSource(),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null))
+            SearchSelectorService.route(on(ResourceRestController.class)
+                .searchProspects(null, SubmissionType.PROSPECT_UPDATE))
         );
 
     verify(updateProspectService, times(1)).validate(any(), any());

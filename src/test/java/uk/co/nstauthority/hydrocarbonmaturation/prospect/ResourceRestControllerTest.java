@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.SubmissionQuerySe
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ContextConfiguration(classes = ResourceRestController.class)
 class ResourceRestControllerTest extends AbstractControllerTest {
@@ -42,7 +43,7 @@ class ResourceRestControllerTest extends AbstractControllerTest {
 
   @Test
   void searchProspects() throws Exception {
-    mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null)))
+    mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.PROSPECT_UPDATE)))
             .param("term", "searchTerm")
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))

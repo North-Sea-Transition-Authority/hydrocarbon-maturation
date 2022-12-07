@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Controller
@@ -56,6 +57,7 @@ public class PostDrillDryHoleController {
         .addObject("actionUrl", ReverseRouter.route(on(PostDrillDryHoleController.class).createPostDrillDryHole(null, null)))
         .addObject("form", form)
         .addObject("prospectApiEndpoint",
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null)));
+            SearchSelectorService.route(on(ResourceRestController.class)
+                .searchProspects(null, SubmissionType.POST_DRILL_DRY_HOLE)));
   }
 }
