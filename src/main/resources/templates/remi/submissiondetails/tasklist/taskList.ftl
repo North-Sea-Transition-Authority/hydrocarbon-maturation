@@ -11,6 +11,7 @@
   pageHeading=submissionTypeName
   pageSize=PageSize.TWO_THIRDS_COLUMN
   breadcrumbsMap=breadcrumbsMap
+  caption=resourceName
 >
   <@taskList.standardTaskList taskListSections=taskListSections />
 </@defaultPage>

@@ -19,6 +19,7 @@
   errorItems=[]
   pageSize=PageSize.TWO_THIRDS_COLUMN
   backLinkUrl=""
+  caption=""
   breadcrumbsMap={}
   wrapperWidth=false
   notificationBannerContent="">
@@ -94,6 +95,7 @@
       headerContent=serviceHeader
       wrapperWidth=wrapperWidth
       notificationBannerContent=notificationBannerContent
+      caption=caption
       customScriptContent=hydrocarbonScripts
     >
         <#nested />

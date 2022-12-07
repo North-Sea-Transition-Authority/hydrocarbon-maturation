@@ -12,6 +12,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,6 +24,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = TaskListController.class)
@@ -36,6 +39,9 @@ class TaskListControllerTest extends AbstractControllerTest {
   @MockBean
   private TaskListService taskListService;
 
+  @MockBean
+  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
+
   private SubmissionDetail submissionDetail;
 
   @BeforeEach
@@ -47,6 +53,12 @@ class TaskListControllerTest extends AbstractControllerTest {
   void getTaskList() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
+
+    var generalDetail = new GeneralDetail();
+    generalDetail.setProspectName("pros123");
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+
     var taskListSections = List.of(
         new TaskListSection("Reservoir", 10, List.of(
             new TaskListItem("item1", "actionUrl1"),
@@ -79,13 +91,14 @@ class TaskListControllerTest extends AbstractControllerTest {
                 .getTaskList(submissionDetail.getId())))
                 .with(user(USER)))
             .andExpect(status().isOk())
-            .andExpect(view().name("remi/prospect/tasklist/taskList"))
+            .andExpect(view().name("remi/submissiondetails/tasklist/taskList"))
             .andReturn().getModelAndView())
         .getModelMap();
 
     assertThat(modelMap)
         .contains(
-            entry("taskListSections", taskListSections)
+            entry("taskListSections", taskListSections),
+            entry("resourceName", "pros123")
         );
 
     @SuppressWarnings(value="unchecked")

@@ -9,20 +9,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/task-list")
 public class TaskListController {
 
   private final SubmissionDetailService submissionDetailService;
+  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final TaskListService taskListService;
   public static final String PAGE_NAME = "Task list";
 
   @Autowired
   public TaskListController(SubmissionDetailService submissionDetailService,
-                     TaskListService taskListService) {
+                            GeneralDetailsPersistenceService generalDetailsPersistenceService,
+                            TaskListService taskListService) {
     this.submissionDetailService = submissionDetailService;
+    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.taskListService = taskListService;
   }
 
@@ -31,9 +37,10 @@ public class TaskListController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionId);
     var sections = taskListService.getAllSections(submissionDetail);
 
-    var modelAndView = new ModelAndView("remi/prospect/tasklist/taskList")
+    var modelAndView = new ModelAndView("remi/submissiondetails/tasklist/taskList")
         .addObject("taskListSections", sections)
-        .addObject("submissionTypeName", submissionDetail.getSubmissionType().getTypeName());
+        .addObject("submissionTypeName", submissionDetail.getSubmissionType().getTypeName())
+        .addObject("resourceName", getResourceName(submissionDetail));
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
         .addWorkAreaBreadcrumb()
@@ -42,5 +49,11 @@ public class TaskListController {
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
 
     return modelAndView;
+  }
+
+  private String getResourceName(SubmissionDetail submissionDetail) {
+    return generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
+        .map(GeneralDetail::getProspectName)
+        .orElse("");
   }
 }
