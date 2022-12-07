@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect.submission;
+package uk.co.nstauthority.hydrocarbonmaturation.prospect;
 
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 

@@ -41,7 +41,8 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
       );
     }
 
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY) {
+    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
+        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
       items.add(
           new TaskListItem("Discovery well details",
               TaskListLabel.notStartedOrComplete(

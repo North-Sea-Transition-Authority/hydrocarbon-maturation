@@ -25,8 +25,13 @@ import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectController;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource;
@@ -73,7 +78,7 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, emptyBindingResult())),
             InformationSource.getInformationSource(),
             form,
-            SearchSelectorService.route(on(ProspectRestController.class).searchProspects(null)));
+            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null)));
   }
 
   @Test
@@ -124,7 +129,7 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, emptyBindingResult())),
             InformationSource.getInformationSource(),
             form,
-            SearchSelectorService.route(on(ProspectRestController.class).searchProspects(null))
+            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null))
         );
 
     verify(updateProspectService, times(1)).validate(any(), any());

@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect;
+package uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole;
 
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 

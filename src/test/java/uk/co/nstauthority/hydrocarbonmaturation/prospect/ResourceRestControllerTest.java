@@ -17,12 +17,14 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.SubmissionQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
-@ContextConfiguration(classes = ProspectRestController.class)
-class ProspectRestControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = ResourceRestController.class)
+class ResourceRestControllerTest extends AbstractControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -30,7 +32,7 @@ class ProspectRestControllerTest extends AbstractControllerTest {
   private SearchSelectorService searchSelectorService;
 
   @MockBean
-  private ProspectQueryService prospectQueryService;
+  private SubmissionQueryService submissionQueryService;
 
   @BeforeEach
   void setUp() {
@@ -40,7 +42,16 @@ class ProspectRestControllerTest extends AbstractControllerTest {
 
   @Test
   void searchProspects() throws Exception {
-    mockMvc.perform(get(SearchSelectorService.route(on(ProspectRestController.class).searchProspects(null)))
+    mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null)))
+            .param("term", "searchTerm")
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void searchDiscoveries() throws Exception {
+    mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class).searchDiscoveries(null)))
             .param("term", "searchTerm")
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))

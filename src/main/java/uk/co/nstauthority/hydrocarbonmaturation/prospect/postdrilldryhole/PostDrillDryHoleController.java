@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect;
+package uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -55,6 +56,6 @@ public class PostDrillDryHoleController {
         .addObject("actionUrl", ReverseRouter.route(on(PostDrillDryHoleController.class).createPostDrillDryHole(null, null)))
         .addObject("form", form)
         .addObject("prospectApiEndpoint",
-            SearchSelectorService.route(on(ProspectRestController.class).searchProspects(null)));
+            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null)));
   }
 }

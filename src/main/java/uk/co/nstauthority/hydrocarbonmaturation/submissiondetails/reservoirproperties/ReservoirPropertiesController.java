@@ -126,7 +126,8 @@ public class ReservoirPropertiesController {
                       ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT))
           .addObject("averageNetPayThicknessError", ProbabilityDistributionTypeError.emptyError());
     } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
-        || submissionType == SubmissionType.CREATE_DISCOVERY) {
+        || submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.UPDATE_DISCOVERY) {
       modelAndView.addObject("averageNetPayThicknessOptionalTemplate",
           probabilityDistributionTemplateService
               .getProbabilityDistributionTemplateForInstance(
@@ -181,7 +182,8 @@ public class ReservoirPropertiesController {
               "averageNetPayThickness",
               form.getAverageNetPayThickness()));
     } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
-        || submissionType == SubmissionType.CREATE_DISCOVERY) {
+        || submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.UPDATE_DISCOVERY) {
       modelAndView.addObject("averageNetPayThicknessOptionalError",
           probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
               bindingResult,

@@ -40,7 +40,8 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
                 on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetail.getId())))));
 
     if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE
-        || submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY) {
+        || submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
+        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
       items.add(new TaskListItem("Permeability",
           TaskListLabel.notStartedOrComplete(permeabilitySubmissionService.isSectionSubmittable(submissionDetail)),
           ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(submissionDetail.getId(), null)))
@@ -53,7 +54,8 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE
-        || submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY) {
+        || submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
+        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
       return reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail)
           && permeabilitySubmissionService.isSectionSubmittable(submissionDetail);
     }

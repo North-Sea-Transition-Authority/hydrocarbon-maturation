@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect;
+package uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 

@@ -1,0 +1,132 @@
+package uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
+
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.ObjectError;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+
+@ContextConfiguration(classes = UpdateDiscoveryController.class)
+class UpdateDiscoveryControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+
+  @MockBean
+  private UpdateDiscoveryService updateDiscoveryService;
+
+  private static SubmissionDetail submissionDetail;
+  private static UUID submissionDetailId;
+
+  @BeforeAll
+  static void setup() {
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetailId = submissionDetail.getId();
+  }
+
+  @Test
+  void getUpdateDiscoveryPage_assertModelProperties() throws Exception {
+    var form = new UpdateDiscoveryForm();
+
+    var modelAndView = mockMvc.perform(
+            get(ReverseRouter.route(on(UpdateDiscoveryController.class).getUpdateDiscoveryPage(null)))
+                .flashAttr("form", form)
+                .with(user(USER))
+        )
+        .andReturn()
+        .getModelAndView();
+
+    assert modelAndView != null;
+    assertThat(modelAndView.getModel())
+        .extracting(
+            "backLinkUrl",
+            "actionUrl",
+            "form",
+            "discoveryApiEndpoint")
+        .containsExactly(
+            ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage()),
+            ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)),
+            form,
+            SearchSelectorService.route(on(ResourceRestController.class).searchDiscoveries(null))
+        );
+  }
+
+  @Test
+  void createUpdateDiscovery_asValidForm_assertRedirect() throws Exception {
+    var form = new UpdateDiscoveryForm();
+
+    var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
+    when(updateDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
+    when(updateDiscoveryService.createUpdateDiscovery(form)).thenReturn(submissionDetail);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)))
+                .flashAttr("form", form)
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(
+            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+
+    verify(updateDiscoveryService, times(1)).createUpdateDiscovery(any(UpdateDiscoveryForm.class));
+  }
+
+  @Test
+  void createUpdateDiscovery_asInvalidForm_assertIsOk() throws Exception {
+    var form = new UpdateDiscoveryForm();
+
+    var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
+    bindingResult.addError(new ObjectError("form", "invalid form"));
+    when(updateDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
+
+    var modelAndView = mockMvc.perform(
+            post(ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)))
+                .flashAttr("form", form)
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getModelAndView();
+
+    assert modelAndView != null;
+    assertThat(modelAndView.getModel())
+        .extracting(
+            "backLinkUrl",
+            "actionUrl",
+            "form",
+            "discoveryApiEndpoint")
+        .containsExactly(
+            ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage()),
+            ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)),
+            form,
+            SearchSelectorService.route(on(ResourceRestController.class).searchDiscoveries(null))
+        );
+
+    verify(updateDiscoveryService, times(1)).validate(any(), any());
+    verify(updateDiscoveryService, never()).createUpdateDiscovery(any());
+  }
+}

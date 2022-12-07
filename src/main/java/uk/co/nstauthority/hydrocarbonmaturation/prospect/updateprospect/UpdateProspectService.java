@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect;
+package uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

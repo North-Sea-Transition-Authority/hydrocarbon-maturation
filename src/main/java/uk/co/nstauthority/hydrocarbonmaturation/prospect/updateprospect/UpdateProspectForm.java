@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect;
+package uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect;
 
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource;
@@ -10,16 +10,6 @@ public class UpdateProspectForm implements SubmissionForm {
   private InformationSource informationSource;
 
   private String otherSourceOfInformation;
-
-  public UpdateProspectForm() {
-  }
-
-  public UpdateProspectForm(String prospectSelectedOption, InformationSource informationSource,
-                            String otherSourceOfInformation) {
-    this.prospectSelectedOption = prospectSelectedOption;
-    this.informationSource = informationSource;
-    this.otherSourceOfInformation = otherSourceOfInformation;
-  }
 
   public String getProspectSelectedOption() {
     return prospectSelectedOption;

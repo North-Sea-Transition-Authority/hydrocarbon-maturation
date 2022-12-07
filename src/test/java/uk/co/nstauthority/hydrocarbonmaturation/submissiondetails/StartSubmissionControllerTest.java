@@ -23,7 +23,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartUpdateProspectController;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = StartSubmissionController.class)
@@ -78,6 +79,22 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
             .param("submissionType", SubmissionType.CREATE_DISCOVERY.name()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage())));
+  }
+
+  @Test
+  void startSubmission_whenValidFormAndUpdateDiscovery_assertRedirection() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+
+    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+            .with(user(USER))
+            .with(csrf())
+            .param("submissionType", SubmissionType.UPDATE_DISCOVERY.name()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(
+            ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage())));
   }
 
   @Test

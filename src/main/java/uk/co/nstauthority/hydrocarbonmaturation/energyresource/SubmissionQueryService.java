@@ -1,5 +1,6 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect;
+package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
+import java.util.Comparator;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,25 +9,26 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesPersistenceService;
 
 @Service
-class ProspectQueryService {
+public class SubmissionQueryService {
 
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
 
   @Autowired
-  ProspectQueryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
-                       TrapPropertiesPersistenceService trapPropertiesPersistenceService,
-                       SubmissionDetailService submissionDetailService) {
+  SubmissionQueryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
+                         TrapPropertiesPersistenceService trapPropertiesPersistenceService,
+                         SubmissionDetailService submissionDetailService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.submissionDetailService = submissionDetailService;
   }
 
-  public List<ProspectView> getLatestProspectSubmissionByName(String name) {
+  public List<ResourceView> getLatestSubmissionByNameAndResourceType(String name, ResourceType resourceType) {
     return generalDetailsPersistenceService.getGeneralDetailsByName(name).stream()
         .map(detail -> detail.getSubmissionDetail().getResourceId())
         .distinct()
+        .filter(resource -> resource.getType() == resourceType)
         .map(submissionDetailService::getLatestSubmissionDetailForResourceOrThrow)
         .map(generalDetailsPersistenceService::getGeneralDetailOrThrow)
         .map(generalDetail -> {
@@ -35,8 +37,9 @@ class ProspectQueryService {
           var prospectDisplayName = generalDetail.getProspectName() + centreOfInterestBlock
               .map(item -> " (" + item + ")")
               .orElse("");
-          return new ProspectView(generalDetail.getId(), prospectDisplayName);
+          return new ResourceView(generalDetail.getId(), prospectDisplayName);
         })
+        .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();
   }
 }

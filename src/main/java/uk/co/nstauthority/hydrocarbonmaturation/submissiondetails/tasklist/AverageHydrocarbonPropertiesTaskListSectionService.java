@@ -41,7 +41,8 @@ class AverageHydrocarbonPropertiesTaskListSectionService implements TaskListSect
 
   @Override
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY) {
+    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
+        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
       var items = new ArrayList<TaskListItem>();
 
       var hydrocarbonsDiscovered = discoveryWellDetailsPersistenceService
@@ -78,7 +79,8 @@ class AverageHydrocarbonPropertiesTaskListSectionService implements TaskListSect
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY) {
+    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
+        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
       return gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail);
     } else {
       return true;

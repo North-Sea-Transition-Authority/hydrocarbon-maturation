@@ -20,8 +20,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkServi
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.PostDrillDryHoleForm;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -145,6 +146,28 @@ class SubmissionCreateServiceTest {
     submissionCreateService.createNewDiscovery(form);
 
     verify(resourceLinkService).createNewResourceLink(prospectResource, discoveryResource);
+
+    verify(submissionDetailDuplicationService)
+        .duplicateSubmissionDetailSections(submissionDetail, submissionDetailNew);
+  }
+
+  @Test
+  void createUpdateDiscoverySubmission_Successful_VerifyDuplicatesSubmissionDetailSections() {
+    var form = new UpdateDiscoveryForm();
+    form.setDiscoverySelectedOption(UUID.randomUUID().toString());
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    var prospectName = "prospect-name";
+    var generalDetail = new GeneralDetail();
+    generalDetail.setSubmissionDetail(submissionDetail);
+    generalDetail.setProspectName(prospectName);
+    when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getDiscoverySelectedOption())))
+        .thenReturn(generalDetail);
+    when(submissionDetailService.createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.UPDATE_DISCOVERY))
+        .thenReturn(submissionDetailNew);
+
+    submissionCreateService.createUpdateDiscovery(form);
 
     verify(submissionDetailDuplicationService)
         .duplicateSubmissionDetailSections(submissionDetail, submissionDetailNew);

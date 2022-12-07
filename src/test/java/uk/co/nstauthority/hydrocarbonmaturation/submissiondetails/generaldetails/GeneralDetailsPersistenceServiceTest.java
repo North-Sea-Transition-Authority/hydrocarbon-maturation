@@ -19,7 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @ExtendWith(MockitoExtension.class)

@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Controller
@@ -57,6 +57,6 @@ public class PostDrillDiscoveryController {
         .addObject("actionUrl", ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
         .addObject("form", form)
         .addObject("prospectApiEndpoint",
-            SearchSelectorService.route(on(ProspectRestController.class).searchProspects(null)));
+            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null)));
   }
 }

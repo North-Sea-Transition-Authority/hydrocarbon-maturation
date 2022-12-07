@@ -5,11 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.PostDrillDryHoleForm;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.UpdateProspectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 
@@ -19,7 +20,6 @@ public class SubmissionCreateService {
   private final ResourceService resourceService;
   private final SubmissionDetailService submissionDetailService;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
-
   private final ResourceLinkService resourceLinkService;
   private final SubmissionDetailDuplicationService submissionDetailDuplicationService;
 
@@ -83,6 +83,20 @@ public class SubmissionCreateService {
 
     var newSubmissionDetail =
         submissionDetailService.createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY);
+
+    submissionDetailDuplicationService
+        .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
+
+    return newSubmissionDetail;
+  }
+
+  @Transactional
+  public SubmissionDetail createUpdateDiscovery(UpdateDiscoveryForm form) {
+    var oldSubmissionDetail = getSubmissionDetailByGeneralDetail(form.getDiscoverySelectedOption());
+    var resource = oldSubmissionDetail.getResourceId();
+
+    var newSubmissionDetail =
+        submissionDetailService.createInitialSubmissionDetail(resource, SubmissionType.UPDATE_DISCOVERY);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);

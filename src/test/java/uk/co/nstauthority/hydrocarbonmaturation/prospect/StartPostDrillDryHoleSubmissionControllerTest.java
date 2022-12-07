@@ -11,25 +11,19 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleController;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsFormService;
 
 @ContextConfiguration(classes = StartPostDrillDryHoleSubmissionController.class)
 class StartPostDrillDryHoleSubmissionControllerTest extends AbstractControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
-
-  @MockBean
-  GeneralDetailsFormService generalDetailsFormService;
-
-  @MockBean
-  StartProspectService startProspectService;
 
   @Test
   void getStartPostDrillDryHolePage_assertStatusOk() throws Exception {
