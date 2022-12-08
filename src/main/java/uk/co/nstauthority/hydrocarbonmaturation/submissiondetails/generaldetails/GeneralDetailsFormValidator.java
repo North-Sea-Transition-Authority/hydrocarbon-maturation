@@ -55,15 +55,26 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   @Override
   public void validateFull(SubmissionForm form, Errors errors) {
+    var generalDetailsForm = (GeneralDetailsForm) form;
+
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId", "responsibleOrganisationId.required",
         "Enter the responsible organisation");
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "resourceOnALicence",
+        "resourceOnALicence.required", "Select whether the resource is on a licence");
+
+    if (BooleanUtils.isTrue(generalDetailsForm.getResourceOnALicence())
+        && generalDetailsForm.getLicences().isEmpty()) {
+      errors.rejectValue("licenceSelect", "licenceSelect.required",
+          "You must select at least one licence");
+    }
+
     ValidationUtils.rejectIfEmpty(errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
     ValidationUtils.rejectIfEmpty(errors, "resourceLocatedInUkcs", "resourceLocatedInUkcs.required",
         "Select whether the resource is wholly located within UKCS");
 
     ValidationUtils.rejectIfEmpty(errors, "informationSource", "informationSource.required", "Select the source of information");
 
-    var generalDetailsForm = (GeneralDetailsForm) form;
     fullValidationPercentageLocatedInUkcs(generalDetailsForm, errors);
 
     if (generalDetailsForm.getInformationSource() == InformationSource.LICENCE_APPLICATION) {

@@ -11,14 +11,17 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Subm
 class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationService {
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
+  private final LicencePersistenceService licencePersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
 
   @Autowired
   GeneralDetailsDuplicationService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                    QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
+                                   LicencePersistenceService licencePersistenceService,
                                    SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
+    this.licencePersistenceService = licencePersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
   }
 
@@ -36,6 +39,9 @@ class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationSe
           quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail).forEach(quadrantAndBlock ->
               submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newGeneralDetail, quadrantAndBlock,
                   QuadrantAndBlock.class));
+          licencePersistenceService.getLicencesByGeneralDetail(generalDetail).forEach(licence ->
+              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newGeneralDetail, licence,
+                  Licence.class));
         });
   }
 }

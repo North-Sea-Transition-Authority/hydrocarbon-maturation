@@ -16,7 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @ContextConfiguration(classes = LicenceApplicationRestController.class)
-class LicenceApplicationRestContollerTest extends AbstractControllerTest {
+class LicenceApplicationRestControllerTest extends AbstractControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 

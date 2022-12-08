@@ -38,6 +38,8 @@ class GeneralDetailsPersistenceServiceTest {
   private static LicenceApplicationQueryService licenceApplicationQueryService;
   @Mock
   private static OrganisationUnitQueryService organisationUnitQueryService;
+  @Mock
+  private static LicencePersistenceService licencePersistenceService;
 
   private static SubmissionDetail submissionDetail;
 
@@ -47,7 +49,8 @@ class GeneralDetailsPersistenceServiceTest {
         generalDetailsRepository,
         quadrantAndBlockPersistenceService,
         licenceApplicationQueryService,
-        organisationUnitQueryService);
+        organisationUnitQueryService,
+        licencePersistenceService);
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);

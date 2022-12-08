@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
@@ -38,6 +39,8 @@ class GeneralDetailsFormServiceTest {
   private static QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private static OrganisationUnitQueryService organisationUnitQueryService;
   private static ReferenceBlockQueryService referenceBlockQueryService;
+  private static LicencePersistenceService licencePersistenceService;
+  private static LicenceQueryService licenceQueryService;
 
   private static SubmissionDetail submissionDetail;
 
@@ -49,6 +52,9 @@ class GeneralDetailsFormServiceTest {
     referenceBlockQueryService = mock(ReferenceBlockQueryService.class);
     licenceApplicationQueryService = mock(LicenceApplicationQueryService.class);
     organisationUnitQueryService = mock(OrganisationUnitQueryService.class);
+    licencePersistenceService = mock(LicencePersistenceService.class);
+    licenceQueryService = mock(LicenceQueryService.class);
+
     SearchSelectorService searchSelectorService = new SearchSelectorService();
     generalDetailsFormService = new GeneralDetailsFormService(
         generalDetailsFormValidator,
@@ -57,7 +63,9 @@ class GeneralDetailsFormServiceTest {
         licenceApplicationQueryService,
         organisationUnitQueryService,
         quadrantAndBlockPersistenceService,
-        referenceBlockQueryService);
+        referenceBlockQueryService,
+        licenceQueryService,
+        licencePersistenceService);
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
@@ -77,7 +85,7 @@ class GeneralDetailsFormServiceTest {
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.empty());
 
     var form = generalDetailsFormService.getGeneralDetailsForm(submissionDetail);
-    assertThat(form).hasAllNullFieldsOrPropertiesExcept("quadrantBlocks");
+    assertThat(form).hasAllNullFieldsOrPropertiesExcept("quadrantBlocks", "licences");
     assertThat(form.getQuadrantBlocks()).isEmpty();
   }
 
@@ -200,6 +208,58 @@ class GeneralDetailsFormServiceTest {
 
     assertThat(generalDetailsFormService.getPreSelectedOrganisation("1"))
         .containsEntry("1", "name (25)");
+  }
+
+  @Test
+  void getLicenceApplicationViews_whenLicencesPresent() {
+    var form = new GeneralDetailsForm();
+    form.setLicences(List.of("ref", "ref2"));
+    var genDetail = getGeneralDetail(submissionDetail);
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(genDetail));
+    var licence1 = new Licence();
+        licence1.setLicenceId(1);
+        licence1.setLicenceReference("ref");
+
+    var licence2 = new Licence();
+    licence2.setLicenceId(2);
+    licence2.setLicenceReference("ref2");
+
+    when(licencePersistenceService.getLicencesByGeneralDetail(genDetail))
+        .thenReturn(List.of(licence1, licence2));
+
+    var selectorViews = generalDetailsFormService.getLicenceViews(form, submissionDetail);
+
+    assertThat(selectorViews)
+        .extracting(
+            LicenceSelectorView::getId,
+            LicenceSelectorView::getName)
+        .containsExactly(
+            tuple("1", "ref"),
+            tuple("2", "ref2")
+        );
+  }
+
+  @Test
+  void getLicenceApplicationViews_whenLicencesNotPresent() {
+    var form = new GeneralDetailsForm();
+    var genDetail = getGeneralDetail(submissionDetail);
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(genDetail));
+    var licence1 = new Licence();
+    licence1.setLicenceId(1);
+    licence1.setLicenceReference("ref");
+
+    var licence2 = new Licence();
+    licence2.setLicenceId(2);
+    licence2.setLicenceReference("ref2");
+
+    when(licencePersistenceService.getLicencesByGeneralDetail(genDetail))
+        .thenReturn(List.of(licence1, licence2));
+
+    var selectorViews = generalDetailsFormService.getLicenceViews(form, submissionDetail);
+
+    assertThat(selectorViews).isEmpty();
   }
 
   private GeneralDetail getGeneralDetail(SubmissionDetail submissionDetail) {

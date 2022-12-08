@@ -21,16 +21,19 @@ public class GeneralDetailsPersistenceService {
   private final LicenceApplicationQueryService licenceApplicationQueryService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
+  private final LicencePersistenceService licencePersistenceService;
 
   @Autowired
   public GeneralDetailsPersistenceService(GeneralDetailsRepository generalDetailsRepository,
                                           QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                           LicenceApplicationQueryService licenceApplicationQueryService,
-                                          OrganisationUnitQueryService organisationUnitQueryService) {
+                                          OrganisationUnitQueryService organisationUnitQueryService,
+                                          LicencePersistenceService licencePersistenceService) {
     this.generalDetailsRepository = generalDetailsRepository;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.licenceApplicationQueryService = licenceApplicationQueryService;
     this.organisationUnitQueryService = organisationUnitQueryService;
+    this.licencePersistenceService = licencePersistenceService;
   }
 
   @Transactional
@@ -42,6 +45,7 @@ public class GeneralDetailsPersistenceService {
     generalDetail.setOnshoreOffshore(form.getOnshoreOffshore());
     generalDetail.setResourceLocatedInUkcs(form.getResourceLocatedInUkcs());
     generalDetail.setInformationSource(form.getInformationSource());
+    generalDetail.setResourceOnALicence(form.getResourceOnALicence());
 
     var licenceApplication = form.getLicenceApplication();
     setLicenceApplication(generalDetail, licenceApplication, form.getInformationSource());
@@ -72,9 +76,10 @@ public class GeneralDetailsPersistenceService {
     } else {
       generalDetail.setOtherInformationSource(null);
     }
-
     generalDetailsRepository.save(generalDetail);
+    licencePersistenceService.saveLicences(form, generalDetail);
     quadrantAndBlockPersistenceService.saveQuadrantAndBlocks(form, generalDetail);
+
   }
 
   @Transactional

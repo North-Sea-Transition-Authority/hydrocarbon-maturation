@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -52,6 +53,9 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
   private String organisationName;
 
   private String organisationRegisteredNumber;
+
+  @Column(name = "resource_on_a_licence")
+  private Boolean resourceOnALicence;
 
   public UUID getId() {
     return id;
@@ -165,5 +169,13 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
 
   public void setOrganisationRegisteredNumber(String organisationRegisteredNumber) {
     this.organisationRegisteredNumber = organisationRegisteredNumber;
+  }
+
+  public Boolean getResourceOnALicence() {
+    return resourceOnALicence;
+  }
+
+  public void setResourceOnALicence(Boolean resourceOnALicence) {
+    this.resourceOnALicence = resourceOnALicence;
   }
 }

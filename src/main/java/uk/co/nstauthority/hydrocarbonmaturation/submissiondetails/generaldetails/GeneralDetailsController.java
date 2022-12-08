@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -87,7 +88,11 @@ public class GeneralDetailsController {
         .addObject("quadrantBlocksApiEndpoint",
             SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null)))
         .addObject("alreadyAddedQuadrantBlocks", generalDetailsFormService.getQuadrantAndBlockViews(form))
-        .addObject("form", form);
+        .addObject("form", form)
+        .addObject("licenceEndpoint",
+            SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
+        .addObject("alreadyAddedLicences", generalDetailsFormService.getLicenceViews(
+            form, submissionDetail));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;

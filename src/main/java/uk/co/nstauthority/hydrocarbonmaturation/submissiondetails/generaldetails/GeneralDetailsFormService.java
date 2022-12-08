@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -28,6 +30,8 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private final ReferenceBlockQueryService referenceBlockQueryService;
+  private final LicenceQueryService licenceQueryService;
+  private final LicencePersistenceService licencePersistenceService;
 
   @Autowired
   public GeneralDetailsFormService(GeneralDetailsFormValidator generalDetailsFormValidator,
@@ -36,7 +40,9 @@ public class GeneralDetailsFormService implements SubmissionFormService {
                                    LicenceApplicationQueryService licenceApplicationQueryService,
                                    OrganisationUnitQueryService organisationUnitQueryService,
                                    QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
-                                   ReferenceBlockQueryService referenceBlockQueryService) {
+                                   ReferenceBlockQueryService referenceBlockQueryService,
+                                   LicenceQueryService licenceQueryService,
+                                   LicencePersistenceService licencePersistenceService) {
     this.generalDetailsFormValidator = generalDetailsFormValidator;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.searchSelectorService = searchSelectorService;
@@ -44,6 +50,8 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.referenceBlockQueryService = referenceBlockQueryService;
+    this.licenceQueryService = licenceQueryService;
+    this.licencePersistenceService = licencePersistenceService;
   }
 
   GeneralDetailsForm getGeneralDetailsForm(SubmissionDetail submissionDetail) {
@@ -58,7 +66,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     form.setOnshoreOffshore(generalDetail.getOnshoreOffshore());
     form.setResourceLocatedInUkcs(generalDetail.getResourceLocatedInUkcs());
     form.setInformationSource(generalDetail.getInformationSource());
-
+    form.setResourceOnALicence(generalDetail.getResourceOnALicence());
     var organisationId = generalDetail.getOrganisationId();
 
     if (!Objects.isNull(organisationId)) {
@@ -90,6 +98,18 @@ public class GeneralDetailsFormService implements SubmissionFormService {
         .toList();
     form.setQuadrantBlocks(quadBlockRefs);
 
+    var licenceIds = licencePersistenceService.getLicencesByGeneralDetail(generalDetail)
+        .stream()
+        .map(licence -> licence.getLicenceId().toString())
+        .toList();
+
+    var licences = licenceQueryService.getLicencesByIds(licenceIds)
+        .stream()
+        .map(LicenceView::getSelectionText)
+        .toList();
+
+    form.setLicences(licences);
+
     return form;
   }
 
@@ -114,6 +134,29 @@ public class GeneralDetailsFormService implements SubmissionFormService {
         Map.of(responsibleOrganisation, key));
 
     return preSelectedOrganisation;
+  }
+
+  public List<LicenceSelectorView> getLicenceViews(GeneralDetailsForm form,
+                                                   SubmissionDetail submissionDetail) {
+    if (ObjectUtils.isEmpty(form.getLicences())) {
+      return Collections.emptyList();
+    }
+
+    var licenceViews =
+        generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
+            .map(licencePersistenceService::getLicencesByGeneralDetail)
+            .map(licences ->
+                licences
+                    .stream()
+                    .map(licence -> {
+                      var isValid = true;
+                      return new LicenceSelectorView(
+                          licence.getLicenceId().toString(),
+                          licence.getLicenceReference(),
+                          isValid);
+                    }).toList());
+    return licenceViews
+        .orElseGet(Collections::emptyList);
   }
 
   public Map<String, String> getPreSelectedLicenceApplication(String licenceApplication) {

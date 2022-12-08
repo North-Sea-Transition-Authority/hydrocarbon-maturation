@@ -9,6 +9,17 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Responsible organisation">
       ${generalDetailValues.organisationNameAndNumber()}
     </@fdsSummaryList.summaryListRowNoAction>
+
+    <@fdsSummaryList.summaryListRowNoAction keyText="Is this ${generalDetailValues.resourceType()} on a licence?">
+      ${generalDetailValues.isResourceOnALicence()}
+    </@fdsSummaryList.summaryListRowNoAction>
+    <#if generalDetailValues.showLicences()>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Licences">
+        <#list generalDetailValues.licenceDisplayList() as licence>
+          <div>${licence}</div>
+        </#list>
+      </@fdsSummaryList.summaryListRowNoAction>
+    </#if>
     <@fdsSummaryList.summaryListRowNoAction keyText="Onshore or offshore">
       ${generalDetailValues.onshoreOffshore()}
     </@fdsSummaryList.summaryListRowNoAction>

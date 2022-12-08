@@ -90,7 +90,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
-    generalDetailSummaryView =  GeneralDetailSummaryView.empty("Prospect");
+    generalDetailSummaryView =  GeneralDetailSummaryView.empty("prospect");
     sourceAndSealSummaryView =  SourceAndSealSummaryView.empty();
     hydrocarbonCaseSummaryView = HydrocarbonCaseSummaryView.empty();
     reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(

@@ -15,11 +15,15 @@ class GeneralDetailsForm implements SubmissionForm {
   //TODO HM-129
 
   private List<String> quadrantBlocks = new ArrayList<>();
+  private List<String> licences = new ArrayList<>();
+
   private String quadrantBlockSelect;
+  private String licenceSelect;
   private InformationSource informationSource;
   private String licenceApplication;
   private String responsibleOrganisationId;
   private String otherSourceOfInformation;
+  private Boolean resourceOnALicence;
 
   public String getResponsibleOrganisationId() {
     return responsibleOrganisationId;
@@ -100,5 +104,30 @@ class GeneralDetailsForm implements SubmissionForm {
 
   public void setOtherSourceOfInformation(String otherSourceOfInformation) {
     this.otherSourceOfInformation = otherSourceOfInformation;
+  }
+
+  public List<String> getLicences() {
+    return licences;
+  }
+
+  public void setLicences(
+      List<String> licences) {
+    this.licences = licences;
+  }
+
+  public Boolean getResourceOnALicence() {
+    return resourceOnALicence;
+  }
+
+  public void setResourceOnALicence(Boolean resourceOnALicence) {
+    this.resourceOnALicence = resourceOnALicence;
+  }
+
+  public String getLicenceSelect() {
+    return licenceSelect;
+  }
+
+  public void setLicenceSelect(String licenceSelect) {
+    this.licenceSelect = licenceSelect;
   }
 }

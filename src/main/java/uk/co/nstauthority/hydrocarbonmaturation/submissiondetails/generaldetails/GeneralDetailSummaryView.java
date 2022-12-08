@@ -5,6 +5,8 @@ import java.util.List;
 
 public record GeneralDetailSummaryView(String resourceName,
                                        String onshoreOffshore,
+                                       String isResourceOnALicence,
+                                       Boolean showLicences,
                                        String resourceLocatedInUkcs,
                                        String percentageLocatedInUkcs,
                                        String informationSource,
@@ -12,17 +14,21 @@ public record GeneralDetailSummaryView(String resourceName,
                                        Boolean isLicenceApplicationInfoSource,
                                        String licenceApplication,
                                        List<String> quadAndBlockDisplayList,
+                                       List<String> licenceDisplayList,
                                        String resourceType) {
   public static GeneralDetailSummaryView empty(String resourceType) {
     return new GeneralDetailSummaryView(
         "",
         "",
         "",
+        Boolean.TRUE,
+        "",
         "",
         "",
         "",
         false,
         "",
+        Collections.emptyList(),
         Collections.emptyList(),
         resourceType);
   }

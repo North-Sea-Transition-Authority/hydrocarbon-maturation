@@ -28,9 +28,28 @@ breadcrumbsMap=breadcrumbsMap>
         selectorMinInputLength=3
         nestingPath="form.responsibleOrganisationId"
         preselectedItems=responsibleOrganisation!{}/>
+      <@fdsRadio.radioGroup
+        path="form.resourceOnALicence"
+        labelText="Is this ${resourceType} on a licence?"
+        hiddenContent=true>
+        <@fdsRadio.radioYes path="form.resourceOnALicence">
+          <@fdsAddToList.addToList
+            pathForList="form.licences"
+            pathForSelector="form.licenceSelect"
+            alreadyAdded=alreadyAddedLicences
+            title=""
+            itemName="Licences"
+            noItemText="No licence added"
+            invalidItemText="This licence is invalid"
+            selectorMinInputLength=1
+            addToListId="licence-table"
+            selectorLabelText="Select a licence to add to this ${resourceType}"
+            restUrl=springUrl(licenceEndpoint)/>
+        </@fdsRadio.radioYes>
+        <@fdsRadio.radioNo path="form.resourceOnALicence"/>
+      </@fdsRadio.radioGroup>
 
       <@fdsRadio.radio path="form.onshoreOffshore" radioItems=onshoreOffshore labelText="Is this ${resourceType} onshore or offshore?"/>
-
 
       <@fdsRadio.radioGroup path="form.resourceLocatedInUkcs" labelText="Is the ${resourceType} wholly located within UKCS?" hiddenContent=true>
           <@fdsRadio.radioYes path="form.resourceLocatedInUkcs"/>

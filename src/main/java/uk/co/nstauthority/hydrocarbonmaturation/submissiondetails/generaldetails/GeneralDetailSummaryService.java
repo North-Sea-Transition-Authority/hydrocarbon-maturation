@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import java.util.Comparator;
 import java.util.List;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -12,25 +13,33 @@ public class GeneralDetailSummaryService {
 
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
+  private final LicencePersistenceService licencePersistenceService;
 
   @Autowired
   public GeneralDetailSummaryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
-                                     QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService) {
+                                     QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
+                                     LicencePersistenceService licencePersistenceService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
+    this.licencePersistenceService = licencePersistenceService;
   }
 
   public GeneralDetailSummaryView getGeneralDetailSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
     var generalDetail = generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail);
     return generalDetail.map(detail -> {
       var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail);
-      return createSummaryViewFromGeneralDetail(detail, quadrantAndBlocks);
+      var licences = licencePersistenceService.getLicencesByGeneralDetail(detail)
+          .stream()
+          .sorted(Comparator.comparing(Licence::getLicenceReference))
+          .toList();
+      return createSummaryViewFromGeneralDetail(detail, quadrantAndBlocks, licences);
     })
     .orElse(GeneralDetailSummaryView.empty(getResourceTypeDisplay(submissionDetail)));
   }
 
   private GeneralDetailSummaryView createSummaryViewFromGeneralDetail(GeneralDetail detail,
-                                                                      List<QuadrantAndBlock> quadrantAndBlocks) {
+                                                                      List<QuadrantAndBlock> quadrantAndBlocks,
+                                                                      List<Licence> licences) {
     var licenceApplication = "";
     var isLicenceApplicationInfoSource = false;
     var informationSource = detail.getInformationSource();
@@ -43,6 +52,8 @@ public class GeneralDetailSummaryService {
     return new GeneralDetailSummaryView(
         getResourceNameDisplay(detail),
         getOnShoreOffShoreDisplay(detail),
+        BooleanUtil.yesNoFromBoolean(detail.getResourceOnALicence(), ""),
+        getIsResourceOnALicenceBoolean(detail),
         BooleanUtil.yesNoFromBoolean(detail.getResourceLocatedInUkcs(), ""),
         getPercentageLocatedInUkcs(detail),
         getInformationSourceDisplay(detail),
@@ -50,6 +61,7 @@ public class GeneralDetailSummaryService {
         isLicenceApplicationInfoSource,
         licenceApplication,
         getQuadBlocksDisplay(quadrantAndBlocks),
+        getLicenceDisplay(licences),
         getResourceTypeDisplay(detail.getSubmissionDetail())
     );
   }
@@ -58,10 +70,22 @@ public class GeneralDetailSummaryService {
     return submissionDetail.getResourceId().getType().getDisplayName().toLowerCase();
   }
 
+  private boolean getIsResourceOnALicenceBoolean(GeneralDetail detail) {
+    return BooleanUtils.isTrue(detail.getResourceOnALicence())
+        || detail.getResourceOnALicence() == null;
+  }
+
   private List<String> getQuadBlocksDisplay(List<QuadrantAndBlock> quadrantAndBlocks) {
     return quadrantAndBlocks.stream()
         .sorted(Comparator.comparing(QuadrantAndBlock::getSortKey))
         .map(QuadrantAndBlock::getQuadrantBlock)
+        .toList();
+  }
+
+  private List<String> getLicenceDisplay(List<Licence> licences) {
+    return licences.stream()
+        .sorted(Comparator.comparing(Licence::getLicenceReference))
+        .map(Licence::getLicenceReference)
         .toList();
   }
 

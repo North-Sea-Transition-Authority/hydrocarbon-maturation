@@ -27,6 +27,9 @@ class GeneralDetailsDuplicationServiceTest {
   private QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
 
   @Mock
+  private LicencePersistenceService licencePersistenceService;
+
+  @Mock
   private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
 
   @InjectMocks

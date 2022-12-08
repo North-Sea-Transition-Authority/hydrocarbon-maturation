@@ -24,6 +24,8 @@ class GeneralDetailSummaryServiceTest {
   private GeneralDetailsPersistenceService generalDetailsPersistenceService;
   @Mock
   private QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
+  @Mock
+  private LicencePersistenceService licencePersistenceService;
 
   @InjectMocks
   private GeneralDetailSummaryService generalDetailSummaryService;
@@ -42,6 +44,46 @@ class GeneralDetailSummaryServiceTest {
   }
 
   @Test
+  void getGeneralDetailSummaryFromSubmissionDetail_whenNotPresent_emptySummary() {
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+    var resource = new Resource();
+    resource.setType(ResourceType.PROSPECT);
+    submissionDetail.setResourceId(resource);
+    generalDetail.setSubmissionDetail(submissionDetail);
+    var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
+    assertThat(view)
+        .extracting(
+            GeneralDetailSummaryView::resourceName,
+            GeneralDetailSummaryView::onshoreOffshore,
+            GeneralDetailSummaryView::informationSource,
+            GeneralDetailSummaryView::percentageLocatedInUkcs,
+            GeneralDetailSummaryView::resourceLocatedInUkcs,
+            GeneralDetailSummaryView::isLicenceApplicationInfoSource,
+            GeneralDetailSummaryView::licenceApplication,
+            GeneralDetailSummaryView::quadAndBlockDisplayList,
+            GeneralDetailSummaryView::organisationNameAndNumber,
+            GeneralDetailSummaryView::isResourceOnALicence,
+            GeneralDetailSummaryView::showLicences,
+            GeneralDetailSummaryView::licenceDisplayList
+        )
+        .containsExactly(
+            "",
+            "",
+            "",
+            "",
+            "",
+            false,
+            "",
+            Collections.emptyList(),
+            "",
+            "",
+            true,
+            Collections.emptyList()
+        );
+  }
+
+  @Test
   void getGeneralDetailSummaryFromSubmissionDetail_whenPresent_fullSummary() {
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
@@ -53,6 +95,16 @@ class GeneralDetailSummaryServiceTest {
     when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
         .thenReturn(List.of(quadrantAndBlock1, quadrantAndBlock2));
 
+    var licence1Ref = "ALF/1";
+    var licence1 = createLicence(licence1Ref);
+    var licence2Ref = "LOL/2";
+    var licence2 = createLicence(licence2Ref);
+    when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
+        .thenReturn(List.of(licence1, licence2));
+    var resource = new Resource();
+    resource.setType(ResourceType.PROSPECT);
+    submissionDetail.setResourceId(resource);
+    generalDetail.setSubmissionDetail(submissionDetail);
     generalDetail.setResourceName("prospect");
     generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     generalDetail.setInformationSource(InformationSource.LICENCE_APPLICATION);
@@ -62,6 +114,7 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setOrganisationName("name");
     generalDetail.setOrganisationRegisteredNumber("25");
     generalDetail.setOrganisationId(25);
+    generalDetail.setResourceOnALicence(true);
 
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
 
@@ -76,6 +129,9 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
             GeneralDetailSummaryView::organisationNameAndNumber,
+            GeneralDetailSummaryView::isResourceOnALicence,
+            GeneralDetailSummaryView::licenceDisplayList,
+            GeneralDetailSummaryView::showLicences,
             GeneralDetailSummaryView::resourceType
         )
         .containsExactly(
@@ -88,6 +144,9 @@ class GeneralDetailSummaryServiceTest {
             generalDetail.getLicenceApplicationReference(),
             List.of(quadrantBlockRef1, quadrantBlockRef2),
             "name (25)",
+            "Yes",
+            List.of(licence1.getLicenceReference(), licence2.getLicenceReference()),
+            true,
             "prospect"
         );
   }
@@ -99,36 +158,9 @@ class GeneralDetailSummaryServiceTest {
     return quadrantAndBlock1;
   }
 
-  @Test
-  void getGeneralDetailSummaryFromSubmissionDetail_whenNotPresent_emptySummary() {
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(generalDetail));
-
-    var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
-    assertThat(view)
-        .extracting(
-            GeneralDetailSummaryView::resourceName,
-            GeneralDetailSummaryView::onshoreOffshore,
-            GeneralDetailSummaryView::informationSource,
-            GeneralDetailSummaryView::percentageLocatedInUkcs,
-            GeneralDetailSummaryView::resourceLocatedInUkcs,
-            GeneralDetailSummaryView::isLicenceApplicationInfoSource,
-            GeneralDetailSummaryView::licenceApplication,
-            GeneralDetailSummaryView::quadAndBlockDisplayList,
-            GeneralDetailSummaryView::organisationNameAndNumber,
-            GeneralDetailSummaryView::resourceType
-        )
-        .containsExactly(
-            "",
-            "",
-            "",
-            "",
-            "",
-            false,
-            "",
-            Collections.emptyList(),
-            "",
-            "prospect"
-        );
+  private Licence createLicence(String licenceRef) {
+    var licence = new Licence();
+    licence.setLicenceReference(licenceRef);
+    return licence;
   }
 }

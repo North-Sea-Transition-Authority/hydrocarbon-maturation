@@ -28,7 +28,7 @@ class OrganisationUnitRestControllerTest extends AbstractControllerTest {
   SearchSelectorService searchSelectorService;
 
   @Test
-  void searchLicenceApplications() throws Exception {
+  void searchOrganisationUnits() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(OrganisationUnitRestController.class)
             .searchOrganisationUnits(null)))
             .param("term", SEARCH_TERM)

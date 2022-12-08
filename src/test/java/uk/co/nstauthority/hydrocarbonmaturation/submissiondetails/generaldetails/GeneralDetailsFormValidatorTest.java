@@ -72,11 +72,11 @@ class GeneralDetailsFormValidatorTest {
     var form = new GeneralDetailsForm();
     var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
     assertThat(extractedErrors)
         .containsExactly(
             entry("resourceName", Set.of("resourceName.required")),
             entry("responsibleOrganisationId", Set.of("responsibleOrganisationId.required")),
+            entry("resourceOnALicence", Set.of("resourceOnALicence.required")),
             entry("onshoreOffshore", Set.of("onshoreOffshore.required")),
             entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
             entry("informationSource", Set.of("informationSource.required")),
@@ -113,15 +113,16 @@ class GeneralDetailsFormValidatorTest {
   }
 
   @Test
-  void validate_whenInValidForm_noQuadrantBlock_thenValidationErrors() {
+  void validate_whenInValidForm_noQuadrantBlockAndLicence_thenValidationErrors() {
     var form = getValidForm();
     form.setQuadrantBlocks(Collections.emptyList());
-
+    form.setLicences(List.of());
     var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
+            entry("licenceSelect", Set.of("licenceSelect.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
         );
   }
@@ -210,7 +211,8 @@ class GeneralDetailsFormValidatorTest {
     form.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
     form.setQuadrantBlocks(List.of("27/10"));
     form.setResponsibleOrganisationId("25");
-
+    form.setLicences(List.of("EL101"));
+    form.setResourceOnALicence(true);
     return form;
   }
 }
