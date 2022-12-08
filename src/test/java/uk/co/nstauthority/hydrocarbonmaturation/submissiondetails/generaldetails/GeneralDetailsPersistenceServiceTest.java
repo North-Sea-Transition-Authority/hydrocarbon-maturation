@@ -56,9 +56,9 @@ class GeneralDetailsPersistenceServiceTest {
   @Test
   void saveGeneralDetails_whenGivenAForm_verifyCreatedEntity() {
     var form = new GeneralDetailsForm();
-    form.setProspectName("prospect name");
+    form.setResourceName("prospect name");
     form.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    form.setProspectLocatedInUkcs(true);
+    form.setResourceLocatedInUkcs(true);
     form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
     form.setResponsibleOrganisationId("1");
 
@@ -77,18 +77,18 @@ class GeneralDetailsPersistenceServiceTest {
 
     assertThat(savedGeneralDetail)
         .extracting(
-            GeneralDetail::getProspectName,
+            GeneralDetail::getResourceName,
             GeneralDetail::getOnshoreOffshore,
-            GeneralDetail::getProspectLocatedInUkcs,
+            GeneralDetail::getResourceLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
             GeneralDetail::getInformationSource,
             GeneralDetail::getOtherInformationSource,
             GeneralDetail::getOrganisationId
         )
         .containsExactly(
-            form.getProspectName(),
+            form.getResourceName(),
             form.getOnshoreOffshore(),
-            form.getProspectLocatedInUkcs(),
+            form.getResourceLocatedInUkcs(),
             form.getPercentageLocatedInUkcs(),
             form.getInformationSource(),
             form.getOtherSourceOfInformation(),
@@ -234,9 +234,9 @@ class GeneralDetailsPersistenceServiceTest {
 
     assertThat(savedGeneralDetail)
         .extracting(
-            GeneralDetail::getProspectName,
+            GeneralDetail::getResourceName,
             GeneralDetail::getOnshoreOffshore,
-            GeneralDetail::getProspectLocatedInUkcs,
+            GeneralDetail::getResourceLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
             GeneralDetail::getInformationSource,
             GeneralDetail::getOtherInformationSource
@@ -286,6 +286,6 @@ class GeneralDetailsPersistenceServiceTest {
   @Test
   void getGeneralDetailsByName_verifyMethodCall() {
     generalDetailsPersistenceService.getGeneralDetailsByName("prospect");
-    verify(generalDetailsRepository, times(1)).findByProspectNameContainingIgnoreCase("prospect");
+    verify(generalDetailsRepository, times(1)).findByResourceNameContainingIgnoreCase("prospect");
   }
 }

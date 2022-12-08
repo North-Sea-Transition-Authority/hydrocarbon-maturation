@@ -110,7 +110,7 @@ class SubmissionCreateServiceTest {
     var prospectName = "prospect-name";
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(submissionDetail);
-    generalDetail.setProspectName(prospectName);
+    generalDetail.setResourceName(prospectName);
     when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption())))
         .thenReturn(generalDetail);
     when(submissionDetailService.createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.POST_DRILL_DRY_HOLE))
@@ -161,7 +161,7 @@ class SubmissionCreateServiceTest {
     var prospectName = "prospect-name";
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(submissionDetail);
-    generalDetail.setProspectName(prospectName);
+    generalDetail.setResourceName(prospectName);
     when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getDiscoverySelectedOption())))
         .thenReturn(generalDetail);
     when(submissionDetailService.createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.UPDATE_DISCOVERY))

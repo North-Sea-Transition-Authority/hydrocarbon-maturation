@@ -92,9 +92,9 @@ class GeneralDetailsFormServiceTest {
 
     assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
         .extracting(
-            GeneralDetailsForm::getProspectName,
+            GeneralDetailsForm::getResourceName,
             GeneralDetailsForm::getOnshoreOffshore,
-            GeneralDetailsForm::getProspectLocatedInUkcs,
+            GeneralDetailsForm::getResourceLocatedInUkcs,
             GeneralDetailsForm::getPercentageLocatedInUkcs,
             GeneralDetailsForm::getInformationSource,
             GeneralDetailsForm::getOtherSourceOfInformation,
@@ -102,9 +102,9 @@ class GeneralDetailsFormServiceTest {
             GeneralDetailsForm::getResponsibleOrganisationId
         )
         .containsExactly(
-            generalDetail.getProspectName(),
+            generalDetail.getResourceName(),
             generalDetail.getOnshoreOffshore(),
-            generalDetail.getProspectLocatedInUkcs(),
+            generalDetail.getResourceLocatedInUkcs(),
             generalDetail.getPercentageLocatedInUkcs(),
             generalDetail.getInformationSource(),
             generalDetail.getOtherInformationSource(),
@@ -205,9 +205,9 @@ class GeneralDetailsFormServiceTest {
   private GeneralDetail getGeneralDetail(SubmissionDetail submissionDetail) {
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(submissionDetail);
-    generalDetail.setProspectName("prospect name");
+    generalDetail.setResourceName("prospect name");
     generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    generalDetail.setProspectLocatedInUkcs(true);
+    generalDetail.setResourceLocatedInUkcs(true);
     generalDetail.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
     generalDetail.setOrganisationId(1);
     generalDetail.setOrganisationRegisteredNumber("25");

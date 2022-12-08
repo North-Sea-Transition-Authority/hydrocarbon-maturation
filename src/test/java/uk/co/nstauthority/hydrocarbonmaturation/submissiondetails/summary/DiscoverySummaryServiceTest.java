@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySummaryService;
@@ -30,6 +31,9 @@ class DiscoverySummaryServiceTest {
 
   @Mock
   private PermeabilitySummaryService permeabilitySummaryService;
+
+  @Mock
+  private GeneralDetailSummaryService generalDetailSummaryService;
 
   @InjectMocks
   private DiscoverySummaryService discoverySummaryService;
@@ -71,5 +75,13 @@ class DiscoverySummaryServiceTest {
 
     verify(permeabilitySummaryService, times(1))
         .getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getGeneralDetailsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(generalDetailSummaryService, times(1))
+        .getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
   }
 }

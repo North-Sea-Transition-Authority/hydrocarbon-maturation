@@ -34,7 +34,7 @@ public class SubmissionConfirmationController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var generalDetail = generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail);
 
-    return getSubmissionConfirmationModelAndView(generalDetail.getProspectName(), submissionDetail.getSubmissionType());
+    return getSubmissionConfirmationModelAndView(generalDetail.getResourceName(), submissionDetail.getSubmissionType());
   }
 
   private ModelAndView getSubmissionConfirmationModelAndView(String prospectName, SubmissionType submissionType) {

@@ -38,9 +38,9 @@ public class GeneralDetailsPersistenceService {
     var generalDetail = getGeneralDetailBySubmissionDetail(submissionDetail).orElse(new GeneralDetail());
 
     generalDetail.setSubmissionDetail(submissionDetail);
-    generalDetail.setProspectName(form.getProspectName());
+    generalDetail.setResourceName(form.getResourceName());
     generalDetail.setOnshoreOffshore(form.getOnshoreOffshore());
-    generalDetail.setProspectLocatedInUkcs(form.getProspectLocatedInUkcs());
+    generalDetail.setResourceLocatedInUkcs(form.getResourceLocatedInUkcs());
     generalDetail.setInformationSource(form.getInformationSource());
 
     var licenceApplication = form.getLicenceApplication();
@@ -60,7 +60,7 @@ public class GeneralDetailsPersistenceService {
       });
     }
 
-    if (form.getProspectLocatedInUkcs() !=  null && !form.getProspectLocatedInUkcs()) {
+    if (form.getResourceLocatedInUkcs() !=  null && !form.getResourceLocatedInUkcs()) {
       var decimalPercentage = form.getPercentageLocatedInUkcs().createBigDecimalOrNull();
       generalDetail.setPercentageLocatedInUkcs(decimalPercentage);
     } else {
@@ -115,7 +115,7 @@ public class GeneralDetailsPersistenceService {
   }
 
   public List<GeneralDetail> getGeneralDetailsByName(String name) {
-    return generalDetailsRepository.findByProspectNameContainingIgnoreCase(name);
+    return generalDetailsRepository.findByResourceNameContainingIgnoreCase(name);
   }
 
   private void setLicenceApplication(GeneralDetail generalDetail,

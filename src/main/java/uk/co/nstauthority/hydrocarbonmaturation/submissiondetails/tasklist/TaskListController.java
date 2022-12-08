@@ -53,7 +53,7 @@ public class TaskListController {
 
   private String getResourceName(SubmissionDetail submissionDetail) {
     return generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
-        .map(GeneralDetail::getProspectName)
+        .map(GeneralDetail::getResourceName)
         .orElse("");
   }
 }

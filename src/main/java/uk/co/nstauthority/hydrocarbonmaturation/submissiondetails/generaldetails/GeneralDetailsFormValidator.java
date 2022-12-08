@@ -44,7 +44,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   }
 
   public void validateAlways(Errors errors) {
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "prospectName", "prospectName.required", "Enter the prospect name");
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "resourceName", "resourceName.required", "Enter the resource name");
   }
 
   @Override
@@ -58,8 +58,8 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId", "responsibleOrganisationId.required",
         "Enter the responsible organisation");
     ValidationUtils.rejectIfEmpty(errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
-    ValidationUtils.rejectIfEmpty(errors, "prospectLocatedInUkcs", "prospectLocatedInUkcs.required",
-        "Select whether the prospect is wholly located within UKCS");
+    ValidationUtils.rejectIfEmpty(errors, "resourceLocatedInUkcs", "resourceLocatedInUkcs.required",
+        "Select whether the resource is wholly located within UKCS");
 
     ValidationUtils.rejectIfEmpty(errors, "informationSource", "informationSource.required", "Select the source of information");
 
@@ -72,7 +72,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     }
     if (generalDetailsForm.getInformationSource() == InformationSource.OTHER) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherSourceOfInformation", "otherSourceOfInformation.required",
-          "Enter the source of information for this prospect submission");
+          "Enter the source of information for this submission");
     }
 
     if (generalDetailsForm.getQuadrantBlocks().isEmpty()) {
@@ -82,13 +82,13 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   }
 
   private void fullValidationPercentageLocatedInUkcs(GeneralDetailsForm form, Errors errors) {
-    if (BooleanUtils.isFalse(form.getProspectLocatedInUkcs())) {
+    if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
       configurePercentageLocatedInUkcs(form, errors).validate();
     }
   }
 
   private void partialValidationPercentageLocatedInUkcs(GeneralDetailsForm form, Errors errors) {
-    if (BooleanUtils.isFalse(form.getProspectLocatedInUkcs())) {
+    if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
       configurePercentageLocatedInUkcs(form, errors).isOptional().validate();
     }
   }

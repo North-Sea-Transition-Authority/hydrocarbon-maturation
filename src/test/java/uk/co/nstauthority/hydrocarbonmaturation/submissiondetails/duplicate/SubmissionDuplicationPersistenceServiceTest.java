@@ -39,16 +39,16 @@ class SubmissionDuplicationPersistenceServiceTest {
     assertThat(newGeneralDetail.getSubmissionDetail().getId()).isEqualTo(newSubmissionDetail.getId());
     assertThat(newGeneralDetail)
         .extracting(
-            GeneralDetail::getProspectName,
+            GeneralDetail::getResourceName,
             GeneralDetail::getOnshoreOffshore,
-            GeneralDetail::getProspectLocatedInUkcs,
+            GeneralDetail::getResourceLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
             GeneralDetail::getLicenceApplicationId
         )
         .containsExactly(
-            newGeneralDetail.getProspectName(),
+            newGeneralDetail.getResourceName(),
             newGeneralDetail.getOnshoreOffshore(),
-            newGeneralDetail.getProspectLocatedInUkcs(),
+            newGeneralDetail.getResourceLocatedInUkcs(),
             newGeneralDetail.getPercentageLocatedInUkcs(),
             newGeneralDetail.getLicenceApplicationId()
         );
@@ -75,9 +75,9 @@ class SubmissionDuplicationPersistenceServiceTest {
   private GeneralDetail createGeneralDetail(SubmissionDetail oldSubmissionDetail) {
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(oldSubmissionDetail);
-    generalDetail.setProspectName("prospect-name");
+    generalDetail.setResourceName("prospect-name");
     generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    generalDetail.setProspectLocatedInUkcs(true);
+    generalDetail.setResourceLocatedInUkcs(true);
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.TEN);
     generalDetail.setLicenceApplicationId(1);
     testEntityManager.persistAndFlush(generalDetail);

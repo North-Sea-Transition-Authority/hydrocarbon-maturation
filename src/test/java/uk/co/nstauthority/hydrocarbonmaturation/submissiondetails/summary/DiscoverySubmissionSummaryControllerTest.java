@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
@@ -60,6 +61,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   private OilFluidPropertySummaryView oilFluidPropertySummaryView;
   private GeneralFluidPropertySummaryView generalFluidPropertySummaryView;
   private PermeabilityDetailSummaryView permeabilityDetailSummaryView;
+  private GeneralDetailSummaryView generalDetailSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -69,6 +71,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
     oilFluidPropertySummaryView =  OilFluidPropertySummaryView.empty();
     generalFluidPropertySummaryView = GeneralFluidPropertySummaryView.empty();
     permeabilityDetailSummaryView = PermeabilityDetailSummaryView.empty();
+    generalDetailSummaryView = GeneralDetailSummaryView.empty("Prospect");
   }
 
   @Test
@@ -82,6 +85,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(gasFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalFluidPropertySummaryView);
+    when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(generalDetailSummaryView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
@@ -102,6 +107,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(gasFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalFluidPropertySummaryView);
+    when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(generalDetailSummaryView);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId)))
@@ -124,6 +131,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(gasFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalFluidPropertySummaryView);
+    when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(generalDetailSummaryView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
@@ -138,6 +147,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("generalFluidPropertiesSummaryView", generalFluidPropertySummaryView),
             entry("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView),
             entry("permeabiltySummaryView", permeabilityDetailSummaryView),
+            entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("gasOnlyDiscovery", false),
             entry("oilOnlyDiscovery", false),
             entry("mixedDiscovery", false)

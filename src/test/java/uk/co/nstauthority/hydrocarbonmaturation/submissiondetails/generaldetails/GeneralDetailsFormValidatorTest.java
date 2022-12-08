@@ -75,10 +75,10 @@ class GeneralDetailsFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("prospectName", Set.of("prospectName.required")),
+            entry("resourceName", Set.of("resourceName.required")),
             entry("responsibleOrganisationId", Set.of("responsibleOrganisationId.required")),
             entry("onshoreOffshore", Set.of("onshoreOffshore.required")),
-            entry("prospectLocatedInUkcs", Set.of("prospectLocatedInUkcs.required")),
+            entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
             entry("informationSource", Set.of("informationSource.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
         );
@@ -157,8 +157,8 @@ class GeneralDetailsFormValidatorTest {
   @Test
   void partialValidation_withValidForm() {
     var form = new GeneralDetailsForm();
-    form.setProspectName("Prospect name");
-    form.setProspectLocatedInUkcs(false);
+    form.setResourceName("Prospect name");
+    form.setResourceLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
 
     var bindingResult = validateGeneralDetailsForm(form, ValidationType.PARTIAL);
@@ -175,15 +175,15 @@ class GeneralDetailsFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("prospectName", Set.of("prospectName.required"))
+            entry("resourceName", Set.of("resourceName.required"))
         );
   }
 
   @Test
-  void partialValidation_prospectLocatedInUkcs_invalidPercentage() {
+  void partialValidation_resourceLocatedInUkcs_invalidPercentage() {
     var form = new GeneralDetailsForm();
-    form.setProspectName("Prospect name");
-    form.setProspectLocatedInUkcs(false);
+    form.setResourceName("Prospect name");
+    form.setResourceLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("abc"));
     var bindingResult = validateGeneralDetailsForm(form, ValidationType.PARTIAL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -203,9 +203,9 @@ class GeneralDetailsFormValidatorTest {
 
   private GeneralDetailsForm getValidForm() {
     var form = new GeneralDetailsForm();
-    form.setProspectName("Prospect name");
+    form.setResourceName("Prospect name");
     form.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    form.setProspectLocatedInUkcs(false);
+    form.setResourceLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
     form.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
     form.setQuadrantBlocks(List.of("27/10"));

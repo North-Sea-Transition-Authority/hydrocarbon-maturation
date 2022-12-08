@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryService;
@@ -19,16 +21,19 @@ class DiscoverySummaryService {
   private final OilFluidPropertySummaryService oilFluidPropertySummaryService;
   private final GeneralFluidPropertySummaryService generalFluidPropertySummaryService;
   private final PermeabilitySummaryService permeabilitySummaryService;
+  private final GeneralDetailSummaryService generalDetailSummaryService;
 
   @Autowired
   DiscoverySummaryService(GasFluidPropertySummaryService gasFluidPropertySummaryService,
                           OilFluidPropertySummaryService oilFluidPropertySummaryService,
                           GeneralFluidPropertySummaryService generalFluidPropertySummaryService,
-                          PermeabilitySummaryService permeabilitySummaryService) {
+                          PermeabilitySummaryService permeabilitySummaryService,
+                          GeneralDetailSummaryService generalDetailSummaryService) {
     this.gasFluidPropertySummaryService = gasFluidPropertySummaryService;
     this.oilFluidPropertySummaryService = oilFluidPropertySummaryService;
     this.generalFluidPropertySummaryService = generalFluidPropertySummaryService;
     this.permeabilitySummaryService = permeabilitySummaryService;
+    this.generalDetailSummaryService = generalDetailSummaryService;
   }
 
   public GasFluidPropertySummaryView getGasFluidPropertySummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -46,5 +51,9 @@ class DiscoverySummaryService {
 
   public PermeabilityDetailSummaryView getPermeabilitySummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return permeabilitySummaryService.getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public GeneralDetailSummaryView getGeneralDetailsSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+    return generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
   }
 }

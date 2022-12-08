@@ -131,7 +131,7 @@ public class SubmissionQueryService {
   private ResourceView getResourceViewFromGeneralDetail(GeneralDetail generalDetail) {
     var centreOfInterestBlock = trapPropertiesPersistenceService
         .getCentreOfInterestBlockFromSubmissionDetail(generalDetail.getSubmissionDetail());
-    var prospectDisplayName = generalDetail.getProspectName() + centreOfInterestBlock
+    var prospectDisplayName = generalDetail.getResourceName() + centreOfInterestBlock
         .map(item -> " (" + item + ")")
         .orElse("");
     return new ResourceView(generalDetail.getId(), prospectDisplayName);

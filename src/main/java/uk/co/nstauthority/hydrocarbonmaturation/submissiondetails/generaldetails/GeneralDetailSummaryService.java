@@ -26,7 +26,7 @@ public class GeneralDetailSummaryService {
       var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail);
       return createSummaryViewFromGeneralDetail(detail, quadrantAndBlocks);
     })
-    .orElse(GeneralDetailSummaryView.empty());
+    .orElse(GeneralDetailSummaryView.empty(getResourceTypeDisplay(submissionDetail)));
   }
 
   private GeneralDetailSummaryView createSummaryViewFromGeneralDetail(GeneralDetail detail,
@@ -41,16 +41,21 @@ public class GeneralDetailSummaryService {
       isLicenceApplicationInfoSource = true;
     }
     return new GeneralDetailSummaryView(
-        getProspectNameDisplay(detail),
+        getResourceNameDisplay(detail),
         getOnShoreOffShoreDisplay(detail),
-        BooleanUtil.yesNoFromBoolean(detail.getProspectLocatedInUkcs(), ""),
+        BooleanUtil.yesNoFromBoolean(detail.getResourceLocatedInUkcs(), ""),
         getPercentageLocatedInUkcs(detail),
         getInformationSourceDisplay(detail),
         getOrganisationDisplay(detail),
         isLicenceApplicationInfoSource,
         licenceApplication,
-        getQuadBlocksDisplay(quadrantAndBlocks)
+        getQuadBlocksDisplay(quadrantAndBlocks),
+        getResourceTypeDisplay(detail.getSubmissionDetail())
     );
+  }
+
+  private String getResourceTypeDisplay(SubmissionDetail submissionDetail) {
+    return submissionDetail.getResourceId().getType().getDisplayName().toLowerCase();
   }
 
   private List<String> getQuadBlocksDisplay(List<QuadrantAndBlock> quadrantAndBlocks) {
@@ -94,14 +99,14 @@ public class GeneralDetailSummaryService {
         : "";
   }
 
-  private String getProspectNameDisplay(GeneralDetail detail) {
-    return detail.getProspectName() != null
-        ? detail.getProspectName()
+  private String getResourceNameDisplay(GeneralDetail detail) {
+    return detail.getResourceName() != null
+        ? detail.getResourceName()
         : "";
   }
 
   private String getPercentageLocatedInUkcs(GeneralDetail detail) {
-    return detail.getPercentageLocatedInUkcs() != null && !detail.getProspectLocatedInUkcs()
+    return detail.getPercentageLocatedInUkcs() != null && !detail.getResourceLocatedInUkcs()
         ? detail.getPercentageLocatedInUkcs().toString() + "%"
         : "";
   }

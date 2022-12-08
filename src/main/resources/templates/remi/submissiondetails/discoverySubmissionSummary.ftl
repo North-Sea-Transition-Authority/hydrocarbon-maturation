@@ -4,6 +4,8 @@
 <#import '../summarylistcards/gasFluidSummaryCard.ftl' as gasFluidSummary>
 <#import '../summarylistcards/generalFluidSummaryCard.ftl' as generalFluidSummary>
 <#import '../summarylistcards/oilFluidSummaryCard.ftl' as oilFluidSummary>
+<#import '../summarylistcards/generaldetailsSummaryCard.ftl' as generalDetailsSummary>
+
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -19,6 +21,9 @@
   breadcrumbsMap=breadcrumbsMap>
   <@fdsForm.htmlForm>
     <@fdsAccordion.accordion accordionId="summaryaccordian">
+      <@fdsAccordion.accordionSection sectionHeading="General details">
+        <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
+      </@fdsAccordion.accordionSection>
       <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">
         <@permeabilitySummary.permeabilityDetailsSummaryCard
           permeabilityDetailsValues=permeabiltySummaryView

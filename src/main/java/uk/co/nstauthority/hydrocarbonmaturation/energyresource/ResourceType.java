@@ -4,7 +4,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
 public enum ResourceType implements Displayable {
   PROSPECT("Prospect"),
-  DISCOVERY("Post-drill discovery"),
+  DISCOVERY("Discovery"),
   FIELD("Field");
 
   private final String displayName;

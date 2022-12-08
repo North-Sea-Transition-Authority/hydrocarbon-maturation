@@ -13,6 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 
@@ -33,6 +35,9 @@ class GeneralDetailSummaryServiceTest {
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     generalDetail = new GeneralDetail();
+    var resource = new Resource();
+    resource.setType(ResourceType.PROSPECT);
+    submissionDetail.setResourceId(resource);
     generalDetail.setSubmissionDetail(submissionDetail);
   }
 
@@ -48,12 +53,12 @@ class GeneralDetailSummaryServiceTest {
     when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
         .thenReturn(List.of(quadrantAndBlock1, quadrantAndBlock2));
 
-    generalDetail.setProspectName("prospect");
+    generalDetail.setResourceName("prospect");
     generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     generalDetail.setInformationSource(InformationSource.LICENCE_APPLICATION);
     generalDetail.setLicenceApplicationReference("licence application ref");
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(2.5));
-    generalDetail.setProspectLocatedInUkcs(false);
+    generalDetail.setResourceLocatedInUkcs(false);
     generalDetail.setOrganisationName("name");
     generalDetail.setOrganisationRegisteredNumber("25");
     generalDetail.setOrganisationId(25);
@@ -62,18 +67,19 @@ class GeneralDetailSummaryServiceTest {
 
     assertThat(view)
         .extracting(
-            GeneralDetailSummaryView::prospectName,
+            GeneralDetailSummaryView::resourceName,
             GeneralDetailSummaryView::onshoreOffshore,
             GeneralDetailSummaryView::informationSource,
             GeneralDetailSummaryView::percentageLocatedInUkcs,
-            GeneralDetailSummaryView::prospectLocatedInUkcs,
+            GeneralDetailSummaryView::resourceLocatedInUkcs,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
-            GeneralDetailSummaryView::organisationNameAndNumber
+            GeneralDetailSummaryView::organisationNameAndNumber,
+            GeneralDetailSummaryView::resourceType
         )
         .containsExactly(
-            generalDetail.getProspectName(),
+            generalDetail.getResourceName(),
             generalDetail.getOnshoreOffshore().getDisplayName(),
             generalDetail.getInformationSource().getDisplayName(),
             generalDetail.getPercentageLocatedInUkcs().toString() + "%",
@@ -81,7 +87,8 @@ class GeneralDetailSummaryServiceTest {
             true,
             generalDetail.getLicenceApplicationReference(),
             List.of(quadrantBlockRef1, quadrantBlockRef2),
-            "name (25)"
+            "name (25)",
+            "prospect"
         );
   }
 
@@ -100,15 +107,16 @@ class GeneralDetailSummaryServiceTest {
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
     assertThat(view)
         .extracting(
-            GeneralDetailSummaryView::prospectName,
+            GeneralDetailSummaryView::resourceName,
             GeneralDetailSummaryView::onshoreOffshore,
             GeneralDetailSummaryView::informationSource,
             GeneralDetailSummaryView::percentageLocatedInUkcs,
-            GeneralDetailSummaryView::prospectLocatedInUkcs,
+            GeneralDetailSummaryView::resourceLocatedInUkcs,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
-            GeneralDetailSummaryView::organisationNameAndNumber
+            GeneralDetailSummaryView::organisationNameAndNumber,
+            GeneralDetailSummaryView::resourceType
         )
         .containsExactly(
             "",
@@ -119,7 +127,8 @@ class GeneralDetailSummaryServiceTest {
             false,
             "",
             Collections.emptyList(),
-            ""
+            "",
+            "prospect"
         );
   }
 }

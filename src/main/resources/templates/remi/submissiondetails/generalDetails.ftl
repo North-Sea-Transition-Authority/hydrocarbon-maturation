@@ -19,7 +19,7 @@ breadcrumbsMap=breadcrumbsMap>
 
     <@fdsForm.htmlForm>
 
-      <@fdsTextInput.textInput path="form.prospectName" labelText="Prospect name"/>
+      <@fdsTextInput.textInput path="form.resourceName" labelText="${resourceType?capitalize} name"/>
 
       <@fdsSearchSelector.searchSelectorRest
         path="form.responsibleOrganisationId"
@@ -29,19 +29,19 @@ breadcrumbsMap=breadcrumbsMap>
         nestingPath="form.responsibleOrganisationId"
         preselectedItems=responsibleOrganisation!{}/>
 
-      <@fdsRadio.radio path="form.onshoreOffshore" radioItems=onshoreOffshore labelText="Is this prospect onshore or offshore?"/>
+      <@fdsRadio.radio path="form.onshoreOffshore" radioItems=onshoreOffshore labelText="Is this ${resourceType} onshore or offshore?"/>
 
 
-      <@fdsRadio.radioGroup path="form.prospectLocatedInUkcs" labelText="Is the prospect wholly located within UKCS?" hiddenContent=true>
-          <@fdsRadio.radioYes path="form.prospectLocatedInUkcs"/>
-          <@fdsRadio.radioNo path="form.prospectLocatedInUkcs">
+      <@fdsRadio.radioGroup path="form.resourceLocatedInUkcs" labelText="Is the ${resourceType} wholly located within UKCS?" hiddenContent=true>
+          <@fdsRadio.radioYes path="form.resourceLocatedInUkcs"/>
+          <@fdsRadio.radioNo path="form.resourceLocatedInUkcs">
               <@fdsTextInput.textInput path="form.percentageLocatedInUkcs.decimalInputValue"
                 labelText="What percentage of the hydrocarbon volume is located within the UKCS?"
                 suffix="%"
                 suffixScreenReaderPrompt="percent"
                 hintText="Must be between 0.1 and 100"
                 inputClass="govuk-!-width-one-third"
-                nestingPath="form.prospectLocatedInUkcs"/>
+                nestingPath="form.resourceLocatedInUkcs"/>
           </@fdsRadio.radioNo>
       </@fdsRadio.radioGroup>
 
@@ -60,7 +60,7 @@ breadcrumbsMap=breadcrumbsMap>
                   </#if>
                 <#if key == "OTHER">
                   <@fdsTextInput.textInput path="form.otherSourceOfInformation"
-                  labelText="Provide the source of information for this prospect submission" nestingPath="form.informationSource"/>
+                  labelText="Provide the source of information for this ${resourceType} submission" nestingPath="form.informationSource"/>
                 </#if>
                 <#assign firstItem=false/>
               </@fdsRadio.radioItem>
@@ -77,7 +77,7 @@ breadcrumbsMap=breadcrumbsMap>
         invalidItemText="This quadrant and block is invalid"
         addToListId="quadrant-block-table"
         selectorInputWidth="48"
-        selectorLabelText="Select a quadrant and block to add to this prospect"
+        selectorLabelText="Select a quadrant and block to add to this ${resourceType}"
         restUrl=springUrl(quadrantBlocksApiEndpoint)/>
 
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>

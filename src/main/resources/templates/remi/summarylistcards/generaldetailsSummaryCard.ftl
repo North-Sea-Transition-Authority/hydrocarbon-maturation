@@ -3,8 +3,8 @@
 
 <#macro generalDetailCard generalDetailValues>
   <@fdsSummaryList.summaryListCard headingText="General details" summaryListId="generaldetails">
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect name">
-      ${generalDetailValues.prospectName()}
+    <@fdsSummaryList.summaryListRowNoAction keyText="${generalDetailValues.resourceType()?capitalize} name">
+      ${generalDetailValues.resourceName()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Responsible organisation">
       ${generalDetailValues.organisationNameAndNumber()}
@@ -13,9 +13,9 @@
       ${generalDetailValues.onshoreOffshore()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Wholly located within UKCS">
-      ${generalDetailValues.prospectLocatedInUkcs()}
+      ${generalDetailValues.resourceLocatedInUkcs()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <#if generalDetailValues.prospectLocatedInUkcs() == "No">
+    <#if generalDetailValues.resourceLocatedInUkcs() == "No">
       <@fdsSummaryList.summaryListRowNoAction keyText="Percentage located in UKCS">
         ${generalDetailValues.percentageLocatedInUkcs()}
       </@fdsSummaryList.summaryListRowNoAction>
@@ -24,9 +24,9 @@
       ${generalDetailValues.informationSource()}
     </@fdsSummaryList.summaryListRowNoAction>
     <#if generalDetailValues.isLicenceApplicationInfoSource()>
-        <@fdsSummaryList.summaryListRowNoAction keyText="Licence application">
-            ${generalDetailValues.licenceApplication()}
-        </@fdsSummaryList.summaryListRowNoAction>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Licence application">
+        ${generalDetailValues.licenceApplication()}
+      </@fdsSummaryList.summaryListRowNoAction>
     </#if>
     <@fdsSummaryList.summaryListRowNoAction keyText="Quadrant and blocks">
         <#list generalDetailValues.quadAndBlockDisplayList() as quadAndBlock>

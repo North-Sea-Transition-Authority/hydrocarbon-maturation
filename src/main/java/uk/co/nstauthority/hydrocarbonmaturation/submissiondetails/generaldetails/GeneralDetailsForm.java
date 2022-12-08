@@ -7,10 +7,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 
 class GeneralDetailsForm implements SubmissionForm {
 
-  private String prospectName;
+  private String resourceName;
   //TODO HM-129
   private OnshoreOffshore onshoreOffshore;
-  private Boolean prospectLocatedInUkcs;
+  private Boolean resourceLocatedInUkcs;
   private DecimalInput percentageLocatedInUkcs;
   //TODO HM-129
 
@@ -29,12 +29,12 @@ class GeneralDetailsForm implements SubmissionForm {
     this.responsibleOrganisationId = responsibleOrganisationId;
   }
 
-  public String getProspectName() {
-    return prospectName;
+  public String getResourceName() {
+    return resourceName;
   }
 
-  public void setProspectName(String prospectName) {
-    this.prospectName = prospectName;
+  public void setResourceName(String resourceName) {
+    this.resourceName = resourceName;
   }
 
   public OnshoreOffshore getOnshoreOffshore() {
@@ -45,12 +45,12 @@ class GeneralDetailsForm implements SubmissionForm {
     this.onshoreOffshore = onshoreOffshore;
   }
 
-  public Boolean getProspectLocatedInUkcs() {
-    return prospectLocatedInUkcs;
+  public Boolean getResourceLocatedInUkcs() {
+    return resourceLocatedInUkcs;
   }
 
-  public void setProspectLocatedInUkcs(Boolean prospectLocatedInUkcs) {
-    this.prospectLocatedInUkcs = prospectLocatedInUkcs;
+  public void setResourceLocatedInUkcs(Boolean resourceLocatedInUkcs) {
+    this.resourceLocatedInUkcs = resourceLocatedInUkcs;
   }
 
   public DecimalInput getPercentageLocatedInUkcs() {

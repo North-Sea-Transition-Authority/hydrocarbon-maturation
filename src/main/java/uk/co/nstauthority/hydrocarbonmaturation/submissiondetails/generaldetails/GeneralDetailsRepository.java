@@ -12,5 +12,5 @@ interface GeneralDetailsRepository extends CrudRepository<GeneralDetail, UUID> {
 
   Optional<GeneralDetail> findBySubmissionDetail(SubmissionDetail submissionDetail);
 
-  List<GeneralDetail> findByProspectNameContainingIgnoreCase(String name);
+  List<GeneralDetail> findByResourceNameContainingIgnoreCase(String name);
 }

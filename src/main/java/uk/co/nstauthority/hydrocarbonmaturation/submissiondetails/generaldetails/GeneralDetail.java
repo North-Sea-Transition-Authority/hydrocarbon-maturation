@@ -27,12 +27,12 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
-  private String prospectName;
+  private String resourceName;
 
   @Enumerated(EnumType.STRING)
   private OnshoreOffshore onshoreOffshore;
 
-  private Boolean prospectLocatedInUkcs;
+  private Boolean resourceLocatedInUkcs;
 
   private BigDecimal percentageLocatedInUkcs;
 
@@ -69,12 +69,12 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
     this.submissionDetail = submissionDetail;
   }
 
-  public String getProspectName() {
-    return prospectName;
+  public String getResourceName() {
+    return resourceName;
   }
 
-  public void setProspectName(String prospectName) {
-    this.prospectName = prospectName;
+  public void setResourceName(String prospectName) {
+    this.resourceName = prospectName;
   }
 
   public OnshoreOffshore getOnshoreOffshore() {
@@ -86,12 +86,12 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
     this.onshoreOffshore = onshoreOffshore;
   }
 
-  public Boolean getProspectLocatedInUkcs() {
-    return prospectLocatedInUkcs;
+  public Boolean getResourceLocatedInUkcs() {
+    return resourceLocatedInUkcs;
   }
 
-  public void setProspectLocatedInUkcs(Boolean prospectLocatedInUkcs) {
-    this.prospectLocatedInUkcs = prospectLocatedInUkcs;
+  public void setResourceLocatedInUkcs(Boolean prospectLocatedInUkcs) {
+    this.resourceLocatedInUkcs = prospectLocatedInUkcs;
   }
 
   public BigDecimal getPercentageLocatedInUkcs() {

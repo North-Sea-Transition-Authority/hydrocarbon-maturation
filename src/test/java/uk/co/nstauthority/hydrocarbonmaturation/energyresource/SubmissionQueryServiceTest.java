@@ -303,7 +303,7 @@ class SubmissionQueryServiceTest {
 
     var generalDetail = new GeneralDetail();
     generalDetail.setId(UUID.randomUUID());
-    generalDetail.setProspectName(prospectName);
+    generalDetail.setResourceName(prospectName);
     generalDetail.setSubmissionDetail(detail);
     return generalDetail;
   }

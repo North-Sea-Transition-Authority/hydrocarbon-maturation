@@ -59,7 +59,9 @@ public class DiscoverySubmissionSummaryController {
         .addObject("oilFluidPropertiesSummaryView",
             discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("permeabiltySummaryView",
-            discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail));
+            discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("generalDetailsSummaryView",
+            discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail));
 
     modelAndView = addHydrocarbonsDiscoveredToModelAndView(submissionDetail, modelAndView);
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

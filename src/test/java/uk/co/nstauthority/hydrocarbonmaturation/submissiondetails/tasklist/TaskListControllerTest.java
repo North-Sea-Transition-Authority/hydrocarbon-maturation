@@ -55,7 +55,7 @@ class TaskListControllerTest extends AbstractControllerTest {
         .thenReturn(submissionDetail);
 
     var generalDetail = new GeneralDetail();
-    generalDetail.setProspectName("pros123");
+    generalDetail.setResourceName("pros123");
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
 

@@ -50,7 +50,7 @@ class SubmissionConfirmationControllerTest extends AbstractControllerTest {
 
     generalDetail = new GeneralDetail();
     prospectName = "Test prospect name";
-    generalDetail.setProspectName(prospectName);
+    generalDetail.setResourceName(prospectName);
   }
 
   @Test

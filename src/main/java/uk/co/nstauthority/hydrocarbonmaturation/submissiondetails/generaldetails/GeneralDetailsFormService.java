@@ -54,9 +54,9 @@ public class GeneralDetailsFormService implements SubmissionFormService {
 
   private GeneralDetailsForm generalDetailEntityToForm(GeneralDetail generalDetail) {
     var form = new GeneralDetailsForm();
-    form.setProspectName(generalDetail.getProspectName());
+    form.setResourceName(generalDetail.getResourceName());
     form.setOnshoreOffshore(generalDetail.getOnshoreOffshore());
-    form.setProspectLocatedInUkcs(generalDetail.getProspectLocatedInUkcs());
+    form.setResourceLocatedInUkcs(generalDetail.getResourceLocatedInUkcs());
     form.setInformationSource(generalDetail.getInformationSource());
 
     var organisationId = generalDetail.getOrganisationId();
@@ -78,7 +78,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
 
     form.setOtherSourceOfInformation(generalDetail.getOtherInformationSource());
 
-    if (generalDetail.getProspectLocatedInUkcs() != null && !generalDetail.getProspectLocatedInUkcs()) {
+    if (generalDetail.getResourceLocatedInUkcs() != null && !generalDetail.getResourceLocatedInUkcs()) {
 
       var decimalPercentage = generalDetail.getPercentageLocatedInUkcs() == null
           ? new DecimalInput() : new DecimalInput(generalDetail.getPercentageLocatedInUkcs().toString());
