@@ -19,6 +19,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
@@ -217,18 +218,13 @@ class GeneralDetailsFormServiceTest {
     var genDetail = getGeneralDetail(submissionDetail);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(genDetail));
-    var licence1 = new Licence();
-        licence1.setLicenceId(1);
-        licence1.setLicenceReference("ref");
+    var licence1 = new LicenceView("ref", 1);
+    var licence2 = new LicenceView("ref2", 2);
 
-    var licence2 = new Licence();
-    licence2.setLicenceId(2);
-    licence2.setLicenceReference("ref2");
-
-    when(licencePersistenceService.getLicencesByGeneralDetail(genDetail))
+    when(licenceQueryService.getLicencesByIds(form.getLicences()))
         .thenReturn(List.of(licence1, licence2));
 
-    var selectorViews = generalDetailsFormService.getLicenceViews(form, submissionDetail);
+    var selectorViews = generalDetailsFormService.getLicenceViews(form);
 
     assertThat(selectorViews)
         .extracting(
@@ -246,18 +242,11 @@ class GeneralDetailsFormServiceTest {
     var genDetail = getGeneralDetail(submissionDetail);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(genDetail));
-    var licence1 = new Licence();
-    licence1.setLicenceId(1);
-    licence1.setLicenceReference("ref");
 
-    var licence2 = new Licence();
-    licence2.setLicenceId(2);
-    licence2.setLicenceReference("ref2");
+    when(licenceQueryService.getLicencesByIds(form.getLicences()))
+        .thenReturn(List.of());
 
-    when(licencePersistenceService.getLicencesByGeneralDetail(genDetail))
-        .thenReturn(List.of(licence1, licence2));
-
-    var selectorViews = generalDetailsFormService.getLicenceViews(form, submissionDetail);
+    var selectorViews = generalDetailsFormService.getLicenceViews(form);
 
     assertThat(selectorViews).isEmpty();
   }

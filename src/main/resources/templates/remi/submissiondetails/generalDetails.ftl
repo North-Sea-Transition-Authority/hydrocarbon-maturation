@@ -42,6 +42,7 @@ breadcrumbsMap=breadcrumbsMap>
             noItemText="No licence added"
             invalidItemText="This licence is invalid"
             selectorMinInputLength=1
+            selectorNestingPath="form.resourceOnALicence"
             addToListId="licence-table"
             selectorLabelText="Select a licence to add to this ${resourceType}"
             restUrl=springUrl(licenceEndpoint)/>

@@ -92,7 +92,7 @@ public class GeneralDetailsController {
         .addObject("licenceEndpoint",
             SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
         .addObject("alreadyAddedLicences", generalDetailsFormService.getLicenceViews(
-            form, submissionDetail));
+            form));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
