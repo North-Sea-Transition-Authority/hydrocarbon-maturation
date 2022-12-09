@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.authentication;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Objects;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -7,6 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 class ServiceSaml2Authentication extends AbstractAuthenticationToken {
 
+  @Serial
+  private static final long serialVersionUID = 4671397789349743401L;
   private final ServiceUserDetail principal;
 
   ServiceSaml2Authentication(ServiceUserDetail principal, Collection<? extends GrantedAuthority> authorities) {

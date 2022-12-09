@@ -7,6 +7,7 @@ import uk.co.fivium.energyportalapi.client.licence.application.LicenceApplicatio
 import uk.co.fivium.energyportalapi.client.licence.licence.LicenceApi;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
 import uk.co.fivium.energyportalapi.client.referenceblock.ReferenceBlockApi;
+import uk.co.fivium.energyportalapi.client.user.UserApi;
 
 @Configuration
 class EnergyPortalApiBeans {
@@ -37,5 +38,10 @@ class EnergyPortalApiBeans {
   @Bean
   OrganisationApi organisationApi(EnergyPortal energyPortal) {
     return new OrganisationApi(energyPortal);
+  }
+
+  @Bean
+  UserApi userApi(EnergyPortal energyPortal) {
+    return new UserApi(energyPortal);
   }
 }

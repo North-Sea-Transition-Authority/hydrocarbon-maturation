@@ -16,6 +16,22 @@ public class DisplayableEnumOptionUtil {
   ) {
     return Arrays.stream((Displayable[]) displayableOptionEnum.getEnumConstants())
         .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
-        .collect(StreamUtil.toLinkedHashMap(Displayable::getEnumName, Displayable::getDisplayName));
+        .collect(StreamUtil.toLinkedHashMap(
+            Displayable::getEnumName,
+            Displayable::getDisplayName
+        ));
+  }
+
+  public static Map<String, String> getDisplayableOptionsWithDescription(
+      Class<? extends Displayable> displayableOptionEnum
+  ) {
+    return Arrays.stream((Displayable[]) displayableOptionEnum.getEnumConstants())
+        .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
+        .collect(StreamUtil.toLinkedHashMap(
+            Displayable::getEnumName,
+            display -> !display.getDescription().isEmpty()
+                ? "%s (%s)".formatted(display.getDescription(), display.getDisplayName())
+                : display.getDisplayName()
+        ));
   }
 }

@@ -6,7 +6,9 @@
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 <#-- @ftlvariable name="serviceHomeUrl" type="String" -->
+<#-- @ftlvariable name="singleErrorMessage" type="String" -->
 <#-- @ftlvariable name="loggedInUser" type="uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail" -->
+<#-- @ftlvariable name="flash" type="uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner" -->
 
 <#assign SERVICE_NAME = serviceBranding.name() />
 <#assign CUSTOMER_MNEMONIC = customerBranding.mnemonic() />
@@ -22,7 +24,8 @@
   caption=""
   breadcrumbsMap={}
   wrapperWidth=false
-  notificationBannerContent="">
+  notificationBanner=""
+  singleErrorMessage="">
 
     <#assign fullWidthColumn=false />
     <#assign oneHalfColumn=false />
@@ -53,6 +56,32 @@
     <#assign backLink = false>
     <#if backLinkUrl?has_content>
         <#assign backLink=true/>
+    </#if>
+
+    <#if flash?has_content>
+      <#assign notificationBannerContent>
+          <#local bannerContent>
+              <#if flash.heading?has_content>
+                  <@fdsNotificationBanner.notificationBannerContent headingText=flash.heading moreContent=flash.content/>
+              <#else>
+                <p class="govuk-body">
+                    ${flash.content}
+                </p>
+              </#if>
+          </#local>
+
+          <#if flash.type.name() == "INFO">
+              <@fdsNotificationBanner.notificationBannerInfo bannerTitleText=flash.title>
+                  ${bannerContent}
+              </@fdsNotificationBanner.notificationBannerInfo>
+          <#elseif flash.type.name() == "SUCCESS">
+              <@fdsNotificationBanner.notificationBannerSuccess bannerTitleText=flash.title>
+                  ${bannerContent}
+              </@fdsNotificationBanner.notificationBannerSuccess>
+          </#if>
+        </#assign>
+    <#else>
+        <#assign notificationBannerContent=notificationBanner>
     </#if>
 
     <#assign allScripts = springUrl('/assets/remi/javascript/all.js')/>
@@ -87,6 +116,7 @@
       twoThirdsColumn=twoThirdsColumn
       twoThirdsOneThirdColumn=twoThirdsOneThirdColumn
       oneQuarterColumn=oneQuarterColumn
+      topNavigation=true
       errorItems=errorItems
       backLink=backLink
       backLinkUrl=backLinkUrl
@@ -97,6 +127,7 @@
       notificationBannerContent=notificationBannerContent
       caption=caption
       customScriptContent=hydrocarbonScripts
+      singleErrorMessage=singleErrorMessage
     >
         <#nested />
     </@fdsDefaultPageTemplate>

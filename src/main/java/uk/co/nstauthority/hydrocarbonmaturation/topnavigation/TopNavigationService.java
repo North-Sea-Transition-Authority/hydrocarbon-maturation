@@ -8,15 +8,23 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.navigation.TopNavigationItem;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Service
 public class TopNavigationService {
 
+  public static final String TEAM_MANAGEMENT_NAVIGATION_ITEM_TITLE = "Manage teams";
+
   public List<TopNavigationItem> getTopNavigationItems() {
     var navigationItems = new ArrayList<TopNavigationItem>();
     navigationItems.add(
         new TopNavigationItem(WORK_AREA_TITLE, ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
+    );
+
+    navigationItems.add(
+        new TopNavigationItem(TEAM_MANAGEMENT_NAVIGATION_ITEM_TITLE,
+            ReverseRouter.route(on(RegulatorTeamManagementController.class).renderMemberListRedirect()))
     );
     return navigationItems;
   }

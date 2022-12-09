@@ -12,22 +12,41 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortalConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnicalSupportConfigurationProperties;
 
 @WebMvcTest
-@Import(value = {WebMvcConfiguration.class, AbstractControllerTest.TestConfig.class})
+@Import(value = {
+    WebMvcConfiguration.class,
+    AbstractControllerTest.TestConfig.class,
+    PermissionManagementHandlerInterceptor.class,
+    RegulatorPermissionManagementHandlerInterceptor.class,
+    HasPermissionInterceptor.class,
+    PermissionService.class})
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
 @IncludeTechnicalSupportConfigurationProperties
+@IncludeEnergyPortalConfigurationProperties
 @WithDefaultPageControllerAdvice
 public abstract class AbstractControllerTest {
 
   @Autowired
   protected MockMvc mockMvc;
+
+  @Autowired
+  protected PermissionService permissionService;
+
+  @MockBean
+  protected TeamMemberService teamMemberService;
 
   @MockBean
   protected UserDetailService userDetailService;

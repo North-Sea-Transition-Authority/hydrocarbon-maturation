@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.enumUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,24 +16,37 @@ class DisplayableEnumOptionUtilTest {
   void getDisplayableOptions_assertMapInRightOrder() {
     var returnedMap = DisplayableEnumOptionUtil.getDisplayableOptions(DisplayableTestEnum.class);
 
-    assertThat(returnedMap.keySet()).containsExactly(
-        DisplayableTestEnum.OPTION_ONE.name(),
-        DisplayableTestEnum.OPTION_TWO.name(),
-        DisplayableTestEnum.OPTION_THREE.name()
+    assertThat(returnedMap.entrySet()).containsExactly(
+        entry(DisplayableTestEnum.OPTION_ONE.name(), DisplayableTestEnum.OPTION_ONE.getDisplayName()),
+        entry(DisplayableTestEnum.OPTION_TWO.name(), DisplayableTestEnum.OPTION_TWO.getDisplayName()),
+        entry(DisplayableTestEnum.OPTION_THREE.name(), DisplayableTestEnum.OPTION_THREE.getDisplayName())
+    );
+  }
+
+  @Test
+  void getDisplayableOptionsWithDescriptions_assertMapInRightOrder() {
+    var returnedMap = DisplayableEnumOptionUtil.getDisplayableOptionsWithDescription(DisplayableTestEnum.class);
+
+    assertThat(returnedMap.entrySet()).containsExactly(
+        entry(DisplayableTestEnum.OPTION_ONE.name(), "%s (%s)".formatted(DisplayableTestEnum.OPTION_ONE.getDescription(), DisplayableTestEnum.OPTION_ONE.getDisplayName())),
+        entry(DisplayableTestEnum.OPTION_TWO.name(), "%s (%s)".formatted(DisplayableTestEnum.OPTION_TWO.getDescription(), DisplayableTestEnum.OPTION_TWO.getDisplayName())),
+        entry(DisplayableTestEnum.OPTION_THREE.name(), DisplayableTestEnum.OPTION_THREE.getDisplayName())
     );
   }
 
   enum DisplayableTestEnum implements Displayable {
-    OPTION_THREE(3, "third one"),
-    OPTION_ONE(1, "text"),
-    OPTION_TWO(2, "second text");
+    OPTION_THREE(3, "third one", ""),
+    OPTION_ONE(1, "text", "first description"),
+    OPTION_TWO(2, "second text", "second descriptions");
 
     private final int displayOrder;
     private final String displayName;
+    private final String description;
 
-    DisplayableTestEnum(int displayOrder, String displayName) {
+    DisplayableTestEnum(int displayOrder, String displayName, String description) {
       this.displayOrder = displayOrder;
       this.displayName = displayName;
+      this.description = description;
     }
 
     @Override
@@ -48,6 +62,11 @@ class DisplayableEnumOptionUtilTest {
     @Override
     public String getEnumName() {
       return this.name();
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
     }
 
   }

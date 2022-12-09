@@ -45,7 +45,7 @@
   pageSize=PageSize.FULL_WIDTH
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap
-  notificationBannerContent=notificationBanner>
+  notificationBanner=notificationBanner>
 
     <@fdsForm.htmlForm>
         <@fdsAccordion.accordion accordionId="summaryaccordian">
