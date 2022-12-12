@@ -39,9 +39,9 @@ class PermeabilityPersistenceServiceTest {
   void savePermeabilityDetail_verifyMethodCall() {
     when(permeabilityDetailRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());
-    var form = PermeabilityDryWellFormValidatorTest.getValidFormWithPermeability().getPermeabilityForm();
-    var permeabilityDryWellForm = new PermeabilityDryWellForm();
-    permeabilityDryWellForm.setPermeabilityForm(form);
+    var form = PermeabilityFormValidatorTest.getValidFormWithPermeability().getPermeabilityValuesForm();
+    var permeabilityDryWellForm = new PermeabilityForm();
+    permeabilityDryWellForm.setPermeabilityValuesForm(form);
     permeabilityDryWellForm.setHasPermeability(true);
 
     var captor = ArgumentCaptor.forClass(PermeabilityDetail.class);
@@ -54,7 +54,6 @@ class PermeabilityPersistenceServiceTest {
             PermeabilityDetail::getHasPermeability,
             PermeabilityDetail::getKvKhSourceOther,
             PermeabilityDetail::getSourceOther,
-            PermeabilityDetail::getKvKhAverageMethodUsedOther,
             PermeabilityDetail::getSubmissionDetail,
             PermeabilityDetail::getAverageMethodUsed,
             PermeabilityDetail::getPermeabilitySource,
@@ -71,7 +70,6 @@ class PermeabilityPersistenceServiceTest {
             permeabilityDryWellForm.getHasPermeability(),
             form.getOtherKvKhSource(),
             form.getOtherPermeabilitySource(),
-            form.getKvKhAverageMethodUsedOther(),
             submissionDetail,
             form.getAverageMethodUsed(),
             form.getPermeabilitySource(),
@@ -91,17 +89,16 @@ class PermeabilityPersistenceServiceTest {
   void savePermeabilityDetail_otherSource_verifyMethodCall() {
     when(permeabilityDetailRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());
-    var form = PermeabilityDryWellFormValidatorTest.getValidFormWithPermeability().getPermeabilityForm();
-    var permeabilityDryWellForm = new PermeabilityDryWellForm();
+    var form = PermeabilityFormValidatorTest.getValidFormWithPermeability().getPermeabilityValuesForm();
+    var permeabilityDryWellForm = new PermeabilityForm();
 
     form.setPermeabilitySource(PermeabilitySource.OTHER);
     form.setOtherPermeabilitySource("other source");
     form.setKvKhSource(PermeabilitySource.OTHER);
     form.setOtherKvKhSource("kvhk other");
-    form.setKvKhAverageMethodUsed(PermeabilitySource.OTHER);
-    form.setKvKhAverageMethodUsedOther("average method other");
+    form.setKvKhAverageMethodUsed(AverageMethod.ARITHMETIC);
 
-    permeabilityDryWellForm.setPermeabilityForm(form);
+    permeabilityDryWellForm.setPermeabilityValuesForm(form);
     permeabilityDryWellForm.setHasPermeability(true);
 
     var captor = ArgumentCaptor.forClass(PermeabilityDetail.class);
@@ -114,7 +111,6 @@ class PermeabilityPersistenceServiceTest {
             PermeabilityDetail::getHasPermeability,
             PermeabilityDetail::getKvKhSourceOther,
             PermeabilityDetail::getSourceOther,
-            PermeabilityDetail::getKvKhAverageMethodUsedOther,
             PermeabilityDetail::getSubmissionDetail,
             PermeabilityDetail::getAverageMethodUsed,
             PermeabilityDetail::getPermeabilitySource,
@@ -131,7 +127,6 @@ class PermeabilityPersistenceServiceTest {
             permeabilityDryWellForm.getHasPermeability(),
             form.getOtherKvKhSource(),
             form.getOtherPermeabilitySource(),
-            form.getKvKhAverageMethodUsedOther(),
             submissionDetail,
             form.getAverageMethodUsed(),
             form.getPermeabilitySource(),

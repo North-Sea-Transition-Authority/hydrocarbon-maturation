@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @Service
 class PermeabilityPersistenceService {
@@ -18,38 +19,18 @@ class PermeabilityPersistenceService {
   }
 
   @Transactional
-  public void savePermeabilityDetail(PermeabilityDryWellForm form, SubmissionDetail submissionDetail) {
+  public void savePermeabilityDetail(PermeabilityForm form, SubmissionDetail submissionDetail) {
     var permeabilityDetail = getPermeabilityDetail(submissionDetail)
         .orElse(new PermeabilityDetail());
-    var permeabilityForm = form.getPermeabilityForm();
     permeabilityDetail.setSubmissionDetail(submissionDetail);
-    permeabilityDetail.setHasPermeability(form.getHasPermeability());
-    if (BooleanUtils.isTrue(form.getHasPermeability())) {
-      permeabilityDetail.setPermeabilityAverage(
-          permeabilityForm.getPermeabilityAverage().createBigDecimalOrNull());
-      permeabilityDetail.setPermeabilityComments(permeabilityForm.getPermeabilityComments());
-      permeabilityDetail.setPermeabilityMax(permeabilityForm.getPermeabilityMax().createBigDecimalOrNull());
-      permeabilityDetail.setPermeabilityMin(permeabilityForm.getPermeabilityMin().createBigDecimalOrNull());
-      permeabilityDetail.setPermeabilitySource(permeabilityForm.getPermeabilitySource());
-      permeabilityDetail.setAverageMethodUsed(permeabilityForm.getAverageMethodUsed());
-      permeabilityDetail.setKvKhAverage(permeabilityForm.getKvKhAverage().createBigDecimalOrNull());
-      permeabilityDetail.setKvKhComments(permeabilityForm.getKvKhComments());
-      permeabilityDetail.setKvKhMax(permeabilityForm.getKvKhMax().createBigDecimalOrNull());
-      permeabilityDetail.setKvKhMin(permeabilityForm.getKvKhMin().createBigDecimalOrNull());
-      permeabilityDetail.setKvKhAverageMethodUsed(permeabilityForm.getKvKhAverageMethodUsed());
-      permeabilityDetail.setKvKhSource(permeabilityForm.getKvKhSource());
 
-      if (permeabilityForm.getKvKhAverageMethodUsed() == PermeabilitySource.OTHER) {
-        permeabilityDetail.setKvKhAverageMethodUsedOther(permeabilityForm.getKvKhAverageMethodUsedOther());
+    if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
+      permeabilityDetail.setHasPermeability(form.getHasPermeability());
+      if (BooleanUtils.isTrue(form.getHasPermeability())) {
+        setPermeabilityDetails(permeabilityDetail, form.getPermeabilityValuesForm());
       }
-
-      if (permeabilityForm.getKvKhSource() == PermeabilitySource.OTHER) {
-        permeabilityDetail.setKvKhSourceOther(permeabilityForm.getOtherKvKhSource());
-      }
-
-      if (permeabilityForm.getPermeabilitySource() == PermeabilitySource.OTHER) {
-        permeabilityDetail.setSourceOther(permeabilityForm.getOtherPermeabilitySource());
-      }
+    } else {
+      setPermeabilityDetails(permeabilityDetail, form.getPermeabilityValuesForm());
     }
 
     permeabilityDetailRepository.save(permeabilityDetail);
@@ -57,5 +38,29 @@ class PermeabilityPersistenceService {
 
   Optional<PermeabilityDetail> getPermeabilityDetail(SubmissionDetail submissionDetail) {
     return permeabilityDetailRepository.findBySubmissionDetail(submissionDetail);
+  }
+
+  private void setPermeabilityDetails(PermeabilityDetail permeabilityDetail, PermeabilityValuesForm permeabilityValuesForm) {
+    permeabilityDetail.setPermeabilityAverage(
+        permeabilityValuesForm.getPermeabilityAverage().createBigDecimalOrNull());
+    permeabilityDetail.setPermeabilityComments(permeabilityValuesForm.getPermeabilityComments());
+    permeabilityDetail.setPermeabilityMax(permeabilityValuesForm.getPermeabilityMax().createBigDecimalOrNull());
+    permeabilityDetail.setPermeabilityMin(permeabilityValuesForm.getPermeabilityMin().createBigDecimalOrNull());
+    permeabilityDetail.setPermeabilitySource(permeabilityValuesForm.getPermeabilitySource());
+    permeabilityDetail.setAverageMethodUsed(permeabilityValuesForm.getAverageMethodUsed());
+    permeabilityDetail.setKvKhAverage(permeabilityValuesForm.getKvKhAverage().createBigDecimalOrNull());
+    permeabilityDetail.setKvKhComments(permeabilityValuesForm.getKvKhComments());
+    permeabilityDetail.setKvKhMax(permeabilityValuesForm.getKvKhMax().createBigDecimalOrNull());
+    permeabilityDetail.setKvKhMin(permeabilityValuesForm.getKvKhMin().createBigDecimalOrNull());
+    permeabilityDetail.setKvKhAverageMethodUsed(permeabilityValuesForm.getKvKhAverageMethodUsed());
+    permeabilityDetail.setKvKhSource(permeabilityValuesForm.getKvKhSource());
+
+    if (permeabilityValuesForm.getKvKhSource() == PermeabilitySource.OTHER) {
+      permeabilityDetail.setKvKhSourceOther(permeabilityValuesForm.getOtherKvKhSource());
+    }
+
+    if (permeabilityValuesForm.getPermeabilitySource() == PermeabilitySource.OTHER) {
+      permeabilityDetail.setSourceOther(permeabilityValuesForm.getOtherPermeabilitySource());
+    }
   }
 }

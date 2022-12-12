@@ -51,7 +51,7 @@ class PermeabilityControllerTest extends AbstractControllerTest {
   private SubmissionDetailService submissionDetailService;
 
   @MockBean
-  private PermeabilityDryWellFormService permeabilityDryWellFormService;
+  private PermeabilityFormService permeabilityFormService;
 
   @MockBean
   private PermeabilityPersistenceService permeabilityPersistenceService;
@@ -60,15 +60,14 @@ class PermeabilityControllerTest extends AbstractControllerTest {
 
   @BeforeAll
   static void setup() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
   }
 
   @Test
   void getPermeabilityPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
-    when(permeabilityDryWellFormService.getPermeabilityForm(submissionDetail)).thenReturn(new PermeabilityDryWellForm());
+    when(permeabilityFormService.getPermeabilityForm(submissionDetail)).thenReturn(new PermeabilityForm());
 
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
         .getPermeabilityPage(submissionDetail.getId(), null)))
@@ -83,8 +82,8 @@ class PermeabilityControllerTest extends AbstractControllerTest {
   void savePermeabilityDetails_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
-    var bindingResult = new BeanPropertyBindingResult(PermeabilityDryWellForm.class, "form");
-    when(permeabilityDryWellFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    var bindingResult = new BeanPropertyBindingResult(PermeabilityForm.class, "form");
+    when(permeabilityFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermeabilityController.class)
@@ -96,9 +95,10 @@ class PermeabilityControllerTest extends AbstractControllerTest {
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
             .getTaskList(submissionDetail.getId()))));
 
-    verify(permeabilityDryWellFormService, times(1)).validate(any(), any(), eq(validationType));
+    verify(permeabilityFormService, times(1)).validate(any(), any(), eq(validationType), eq(
+        SubmissionType.POST_DRILL_DRY_HOLE));
     verify(permeabilityPersistenceService, times(1))
-        .savePermeabilityDetail(any(PermeabilityDryWellForm.class), eq(submissionDetail));
+        .savePermeabilityDetail(any(PermeabilityForm.class), eq(submissionDetail));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
@@ -107,9 +107,9 @@ class PermeabilityControllerTest extends AbstractControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
 
-    var bindingResult = new BeanPropertyBindingResult(PermeabilityDryWellForm.class, "form");
+    var bindingResult = new BeanPropertyBindingResult(PermeabilityForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(permeabilityDryWellFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(permeabilityFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermeabilityController.class)
@@ -119,18 +119,19 @@ class PermeabilityControllerTest extends AbstractControllerTest {
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(permeabilityDryWellFormService, times(1)).validate(any(), any(), eq(validationType));
+    verify(permeabilityFormService, times(1)).validate(any(), any(), eq(validationType), any());
     verify(permeabilityPersistenceService, never())
         .savePermeabilityDetail(any(), any());
   }
 
-  @Test
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY"})
   void getPermeabilityPageModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
-    var form = new PermeabilityDryWellForm();
+    var form = new PermeabilityForm();
 
-    when(permeabilityDryWellFormService.getPermeabilityForm(submissionDetail)).thenReturn(form);
+    when(permeabilityFormService.getPermeabilityForm(submissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
@@ -147,7 +148,7 @@ class PermeabilityControllerTest extends AbstractControllerTest {
             entry("source", DisplayableEnumOptionUtil.getDisplayableOptions(PermeabilitySource.class))
         );
 
-    assertEquals(PermeabilityDryWellForm.class, modelMap.get("form").getClass());
+    assertEquals(PermeabilityForm.class, modelMap.get("form").getClass());
 
     @SuppressWarnings(value="unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

@@ -1,0 +1,1 @@
+ALTER TABLE permeability_details DROP COLUMN kv_kh_average_method_used_other;

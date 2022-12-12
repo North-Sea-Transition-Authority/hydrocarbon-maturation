@@ -39,8 +39,6 @@ class PermeabilityDetail implements SubmissionDetailChildEntity {
   @Enumerated(EnumType.STRING)
   private AverageMethod averageMethodUsed;
 
-  private String kvKhAverageMethodUsedOther;
-
   @Column(name = "source")
   private PermeabilitySource permeabilitySource;
 
@@ -54,7 +52,7 @@ class PermeabilityDetail implements SubmissionDetailChildEntity {
 
   private BigDecimal kvKhAverage;
 
-  private PermeabilitySource kvKhAverageMethodUsed;
+  private AverageMethod kvKhAverageMethodUsed;
 
   private PermeabilitySource kvKhSource;
 
@@ -151,12 +149,12 @@ class PermeabilityDetail implements SubmissionDetailChildEntity {
     this.kvKhAverage = kvKhAverage;
   }
 
-  public PermeabilitySource getKvKhAverageMethodUsed() {
+  public AverageMethod getKvKhAverageMethodUsed() {
     return kvKhAverageMethodUsed;
   }
 
   public void setKvKhAverageMethodUsed(
-      PermeabilitySource kvKhAverageMethodUsed) {
+      AverageMethod kvKhAverageMethodUsed) {
     this.kvKhAverageMethodUsed = kvKhAverageMethodUsed;
   }
 
@@ -199,13 +197,5 @@ class PermeabilityDetail implements SubmissionDetailChildEntity {
 
   public void setKvKhSourceOther(String kvKhSourceOther) {
     this.kvKhSourceOther = kvKhSourceOther;
-  }
-
-  public String getKvKhAverageMethodUsedOther() {
-    return kvKhAverageMethodUsedOther;
-  }
-
-  public void setKvKhAverageMethodUsedOther(String kvKhAverageMethodUsedOther) {
-    this.kvKhAverageMethodUsedOther = kvKhAverageMethodUsedOther;
   }
 }

@@ -11,18 +11,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Service
 public class PermeabilitySubmissionService implements SectionSubmissionService {
 
-  private final PermeabilityDryWellFormService permeabilityDryWellFormService;
+  private final PermeabilityFormService permeabilityFormService;
 
   @Autowired
-  public PermeabilitySubmissionService(PermeabilityDryWellFormService permeabilityDryWellFormService) {
-    this.permeabilityDryWellFormService = permeabilityDryWellFormService;
+  public PermeabilitySubmissionService(PermeabilityFormService permeabilityFormService) {
+    this.permeabilityFormService = permeabilityFormService;
   }
 
   @Override
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    var form = permeabilityDryWellFormService.getPermeabilityForm(submissionDetail);
+    var form = permeabilityFormService.getPermeabilityForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = permeabilityDryWellFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = permeabilityFormService.validate(form, bindingResult,
+        ValidationType.FULL, submissionDetail.getSubmissionType());
     return !bindingResult.hasErrors();
   }
 }

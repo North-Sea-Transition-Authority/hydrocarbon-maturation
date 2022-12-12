@@ -18,7 +18,7 @@
       labelText="Do you have permeability details?"
       hiddenContent=true>
       <@fdsRadio.radioYes path="form.hasPermeability">
-        <@permeability.permeabilityForm
+        <@permeability.permeabilityValuesForm
           form=form
           methodUsed=methodUsed
           source=source/>

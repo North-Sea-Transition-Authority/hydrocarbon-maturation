@@ -20,16 +20,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
-class PermeabilityDryWellFormServiceTest {
+class PermeabilityFormServiceTest {
 
   @Mock
-  private PermeabilityDryWellFormValidator permeabilityDryWellFormValidator;
+  private PermeabilityFormValidator permeabilityFormValidator;
 
   @Mock
   private PermeabilityPersistenceService permeabilityPersistenceService;
 
   @InjectMocks
-  private PermeabilityDryWellFormService permeabilityDryWellFormService;
+  private PermeabilityFormService permeabilityFormService;
 
   private SubmissionDetail submissionDetail;
 
@@ -41,34 +41,34 @@ class PermeabilityDryWellFormServiceTest {
 
   @Test
   void validate_verifyMethodCall() {
-    var form = new PermeabilityDryWellForm();
+    var form = new PermeabilityForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    permeabilityDryWellFormService.validate(form, bindingResult, ValidationType.FULL);
-    verify(permeabilityDryWellFormValidator, times(1)).validate(form, bindingResult, ValidationType.FULL);
+    permeabilityFormService.validate(form, bindingResult, ValidationType.FULL, SubmissionType.CREATE_DISCOVERY);
+    verify(permeabilityFormValidator, times(1)).validate(form, bindingResult,
+        ValidationType.FULL, SubmissionType.CREATE_DISCOVERY);
   }
 
   @Test
   void permeabilityDetailToForm_newEntity_thenEmptyForm() {
     when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail)).thenReturn(Optional.empty());
 
-    assertThat(permeabilityDryWellFormService.getPermeabilityForm(submissionDetail))
+    assertThat(permeabilityFormService.getPermeabilityForm(submissionDetail))
         .extracting(
-            form -> form.getPermeabilityForm().getPermeabilityMin().asBigDecimal(),
-            form -> form.getPermeabilityForm().getPermeabilityMax().asBigDecimal(),
-            form -> form.getPermeabilityForm().getPermeabilityAverage().asBigDecimal(),
-            form -> form.getPermeabilityForm().getAverageMethodUsed(),
-            form -> form.getPermeabilityForm().getPermeabilitySource(),
-            form -> form.getPermeabilityForm().getOtherPermeabilitySource(),
-            form -> form.getPermeabilityForm().getPermeabilityComments(),
-            form -> form.getPermeabilityForm().getKvKhMin().asBigDecimal(),
-            form -> form.getPermeabilityForm().getKvKhMax().asBigDecimal(),
-            form -> form.getPermeabilityForm().getKvKhAverage().asBigDecimal(),
-            form -> form.getPermeabilityForm().getKvKhAverageMethodUsed(),
-            form -> form.getPermeabilityForm().getKvKhAverageMethodUsedOther(),
-            form -> form.getPermeabilityForm().getKvKhSource(),
-            form -> form.getPermeabilityForm().getOtherKvKhSource(),
-            form -> form.getPermeabilityForm().getKvKhComments())
+            form -> form.getPermeabilityValuesForm().getPermeabilityMin().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getPermeabilityMax().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getPermeabilityAverage().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getAverageMethodUsed(),
+            form -> form.getPermeabilityValuesForm().getPermeabilitySource(),
+            form -> form.getPermeabilityValuesForm().getOtherPermeabilitySource(),
+            form -> form.getPermeabilityValuesForm().getPermeabilityComments(),
+            form -> form.getPermeabilityValuesForm().getKvKhMin().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getKvKhMax().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getKvKhAverage().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getKvKhAverageMethodUsed(),
+            form -> form.getPermeabilityValuesForm().getKvKhSource(),
+            form -> form.getPermeabilityValuesForm().getOtherKvKhSource(),
+            form -> form.getPermeabilityValuesForm().getKvKhComments())
         .containsExactly(
             Optional.empty(),
             Optional.empty(),
@@ -80,7 +80,6 @@ class PermeabilityDryWellFormServiceTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            null,
             null,
             null,
             null,
@@ -99,7 +98,7 @@ class PermeabilityDryWellFormServiceTest {
     filledEntity.setPermeabilityMin(BigDecimal.ONE);
     filledEntity.setPermeabilityAverage(BigDecimal.ONE);
     filledEntity.setPermeabilitySource(PermeabilitySource.OTHER);
-    filledEntity.setKvKhAverageMethodUsed(PermeabilitySource.OTHER);
+    filledEntity.setKvKhAverageMethodUsed(AverageMethod.ARITHMETIC);
     filledEntity.setKvKhComments("comments");
     filledEntity.setKvKhMax(BigDecimal.ONE);
     filledEntity.setKvKhMin(BigDecimal.ONE);
@@ -107,28 +106,26 @@ class PermeabilityDryWellFormServiceTest {
     filledEntity.setKvKhAverage(BigDecimal.ONE);
     filledEntity.setSourceOther("comments");
     filledEntity.setKvKhSourceOther("comments");
-    filledEntity.setKvKhAverageMethodUsedOther("comments");
 
     when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail))
         .thenReturn(Optional.of(filledEntity));
 
-    assertThat(permeabilityDryWellFormService.getPermeabilityForm(submissionDetail))
+    assertThat(permeabilityFormService.getPermeabilityForm(submissionDetail))
         .extracting(
-            form -> form.getPermeabilityForm().getPermeabilityMin().asBigDecimal(),
-            form -> form.getPermeabilityForm().getPermeabilityMax().asBigDecimal(),
-            form -> form.getPermeabilityForm().getPermeabilityAverage().asBigDecimal(),
-            form -> form.getPermeabilityForm().getAverageMethodUsed(),
-            form -> form.getPermeabilityForm().getPermeabilitySource(),
-            form -> form.getPermeabilityForm().getOtherPermeabilitySource(),
-            form -> form.getPermeabilityForm().getPermeabilityComments(),
-            form -> form.getPermeabilityForm().getKvKhMin().asBigDecimal(),
-            form -> form.getPermeabilityForm().getKvKhMax().asBigDecimal(),
-            form -> form.getPermeabilityForm().getKvKhAverage().asBigDecimal(),
-            form -> form.getPermeabilityForm().getKvKhAverageMethodUsed(),
-            form -> form.getPermeabilityForm().getKvKhAverageMethodUsedOther(),
-            form -> form.getPermeabilityForm().getKvKhSource(),
-            form -> form.getPermeabilityForm().getOtherKvKhSource(),
-            form -> form.getPermeabilityForm().getKvKhComments())
+            form -> form.getPermeabilityValuesForm().getPermeabilityMin().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getPermeabilityMax().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getPermeabilityAverage().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getAverageMethodUsed(),
+            form -> form.getPermeabilityValuesForm().getPermeabilitySource(),
+            form -> form.getPermeabilityValuesForm().getOtherPermeabilitySource(),
+            form -> form.getPermeabilityValuesForm().getPermeabilityComments(),
+            form -> form.getPermeabilityValuesForm().getKvKhMin().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getKvKhMax().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getKvKhAverage().asBigDecimal(),
+            form -> form.getPermeabilityValuesForm().getKvKhAverageMethodUsed(),
+            form -> form.getPermeabilityValuesForm().getKvKhSource(),
+            form -> form.getPermeabilityValuesForm().getOtherKvKhSource(),
+            form -> form.getPermeabilityValuesForm().getKvKhComments())
         .containsExactly(
             Optional.of(BigDecimal.ONE),
             Optional.of(BigDecimal.ONE),
@@ -140,8 +137,7 @@ class PermeabilityDryWellFormServiceTest {
             Optional.of(BigDecimal.ONE),
             Optional.of(BigDecimal.ONE),
             Optional.of(BigDecimal.ONE),
-            PermeabilitySource.OTHER,
-            "comments",
+            AverageMethod.ARITHMETIC,
             PermeabilitySource.OTHER,
             "comments",
             "comments"

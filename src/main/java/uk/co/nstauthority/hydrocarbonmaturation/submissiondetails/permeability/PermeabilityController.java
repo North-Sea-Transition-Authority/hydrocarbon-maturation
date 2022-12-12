@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -27,7 +28,7 @@ public class PermeabilityController {
 
   private final SubmissionDetailService submissionDetailService;
   private final ControllerHelperService controllerHelperService;
-  private final PermeabilityDryWellFormService permeabilityDryWellFormService;
+  private final PermeabilityFormService permeabilityFormService;
   private final PermeabilityPersistenceService permeabilityPersistenceService;
 
   public static final String PAGE_NAME = "Permeability";
@@ -35,29 +36,30 @@ public class PermeabilityController {
   @Autowired
   public PermeabilityController(SubmissionDetailService submissionDetailService,
                                 ControllerHelperService controllerHelperService,
-                                PermeabilityDryWellFormService permeabilityDryWellFormService,
+                                PermeabilityFormService permeabilityFormService,
                                 PermeabilityPersistenceService permeabilityPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
-    this.permeabilityDryWellFormService = permeabilityDryWellFormService;
+    this.permeabilityFormService = permeabilityFormService;
     this.permeabilityPersistenceService = permeabilityPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getPermeabilityPage(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                          @ModelAttribute("form") PermeabilityDryWellForm form) {
+                                          @ModelAttribute("form") PermeabilityForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getPermeabilityModelAndView(
-        permeabilityDryWellFormService.getPermeabilityForm(submissionDetail), submissionDetail);
+        permeabilityFormService.getPermeabilityForm(submissionDetail), submissionDetail);
   }
 
   @PostMapping
   public ModelAndView savePermeabilityDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                              @ModelAttribute("form") PermeabilityDryWellForm form,
+                                              @ModelAttribute("form") PermeabilityForm form,
                                               BindingResult bindingResult,
                                               ValidationType validationType) {
-    bindingResult = permeabilityDryWellFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = permeabilityFormService.validate(form, bindingResult,
+        validationType, submissionDetail.getSubmissionType());
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getPermeabilityModelAndView(form, submissionDetail),
@@ -68,8 +70,17 @@ public class PermeabilityController {
     );
   }
 
-  private ModelAndView getPermeabilityModelAndView(PermeabilityDryWellForm form, SubmissionDetail submissionDetail) {
-    var modelAndView = new ModelAndView("remi/submissiondetails/permeability/permeabilityDryWell")
+  private ModelAndView getPermeabilityModelAndView(PermeabilityForm form, SubmissionDetail submissionDetail) {
+    var viewName = "";
+    var submissionType = submissionDetail.getSubmissionType();
+    if (submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+      viewName = "remi/submissiondetails/permeability/permeabilityDiscovery";
+    } else {
+      viewName = "remi/submissiondetails/permeability/permeabilityDryWell";
+    }
+
+    var modelAndView = new ModelAndView(viewName)
         .addObject("form", form)
         .addObject("methodUsed", DisplayableEnumOptionUtil.getDisplayableOptions(AverageMethod.class))
         .addObject("source", DisplayableEnumOptionUtil.getDisplayableOptions(PermeabilitySource.class));

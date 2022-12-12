@@ -37,10 +37,6 @@ public class PermeabilitySummaryService {
     var kvKhAverageMethodUsed = permeabilityDetail.getKvKhAverageMethodUsed() != null
         ? permeabilityDetail.getKvKhAverageMethodUsed().getDisplayName()
         : "";
-    var kvKhAverageMethodUsedOther = "";
-    if (permeabilityDetail.getKvKhAverageMethodUsed() == PermeabilitySource.OTHER) {
-      kvKhAverageMethodUsedOther = permeabilityDetail.getKvKhAverageMethodUsedOther();
-    }
     var kvKhSource = permeabilityDetail.getKvKhSource() != null
         ? permeabilityDetail.getKvKhSource().getDisplayName()
         : "";
@@ -65,7 +61,6 @@ public class PermeabilitySummaryService {
         NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhMax(), kvKhUnits),
         NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhAverage(), kvKhUnits),
         kvKhAverageMethodUsed,
-        kvKhAverageMethodUsedOther,
         kvKhSource,
         otherKvKhSource,
         ObjectUtils.defaultIfNull(permeabilityDetail.getKvKhComments(), "")

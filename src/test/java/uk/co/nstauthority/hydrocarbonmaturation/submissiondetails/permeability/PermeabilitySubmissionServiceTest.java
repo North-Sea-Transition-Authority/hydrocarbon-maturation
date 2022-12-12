@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 class PermeabilitySubmissionServiceTest {
 
   @Mock
-  private PermeabilityDryWellFormService permeabilityDryWellFormService;
+  private PermeabilityFormService permeabilityFormService;
 
   @InjectMocks
   private PermeabilitySubmissionService permeabilitySubmissionService;
@@ -29,12 +29,12 @@ class PermeabilitySubmissionServiceTest {
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var form = new PermeabilityDryWellForm();
+    var form = new PermeabilityForm();
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
-    when(permeabilityDryWellFormService.getPermeabilityForm(submissionDetail)).thenReturn(form);
+    when(permeabilityFormService.getPermeabilityForm(submissionDetail)).thenReturn(form);
 
-    when(permeabilityDryWellFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(permeabilityFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
         .thenReturn(emptyBindingResult);
 
     assertTrue(permeabilitySubmissionService.isSectionSubmittable(submissionDetail));
@@ -44,13 +44,13 @@ class PermeabilitySubmissionServiceTest {
   @Test
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var form = new PermeabilityDryWellForm();
+    var form = new PermeabilityForm();
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(permeabilityDryWellFormService.getPermeabilityForm(submissionDetail)).thenReturn(form);
+    when(permeabilityFormService.getPermeabilityForm(submissionDetail)).thenReturn(form);
 
-    when(permeabilityDryWellFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(permeabilityFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
         .thenReturn(bindingResultWithError);
 
     assertFalse(permeabilitySubmissionService.isSectionSubmittable(submissionDetail));

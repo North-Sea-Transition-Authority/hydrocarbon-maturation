@@ -46,7 +46,6 @@ class PermeabilitySummaryServiceTest {
             PermeabilityDetailSummaryView::kvKhMax,
             PermeabilityDetailSummaryView::kvKhAverage,
             PermeabilityDetailSummaryView::kvKhAverageMethodUsed,
-            PermeabilityDetailSummaryView::kvKhAverageMethodUsedOther,
             PermeabilityDetailSummaryView::kvKhSource,
             PermeabilityDetailSummaryView::otherKvKhSource,
             PermeabilityDetailSummaryView::kvKhComments)
@@ -77,7 +76,6 @@ class PermeabilitySummaryServiceTest {
             PermeabilityDetailSummaryView::kvKhMax,
             PermeabilityDetailSummaryView::kvKhAverage,
             PermeabilityDetailSummaryView::kvKhAverageMethodUsed,
-            PermeabilityDetailSummaryView::kvKhAverageMethodUsedOther,
             PermeabilityDetailSummaryView::kvKhSource,
             PermeabilityDetailSummaryView::otherKvKhSource,
             PermeabilityDetailSummaryView::kvKhComments)
@@ -108,7 +106,6 @@ class PermeabilitySummaryServiceTest {
             PermeabilityDetailSummaryView::kvKhMax,
             PermeabilityDetailSummaryView::kvKhAverage,
             PermeabilityDetailSummaryView::kvKhAverageMethodUsed,
-            PermeabilityDetailSummaryView::kvKhAverageMethodUsedOther,
             PermeabilityDetailSummaryView::kvKhSource,
             PermeabilityDetailSummaryView::otherKvKhSource,
             PermeabilityDetailSummaryView::kvKhComments)
@@ -126,7 +123,6 @@ class PermeabilitySummaryServiceTest {
             permeabilityDetail.getKvKhMax().toString() + " kv/kh",
             permeabilityDetail.getKvKhAverage().toString() + " kv/kh",
             permeabilityDetail.getKvKhAverageMethodUsed().getDisplayName(),
-            permeabilityDetail.getKvKhAverageMethodUsedOther(),
             permeabilityDetail.getKvKhSource().getDisplayName(),
             permeabilityDetail.getKvKhSourceOther(),
             permeabilityDetail.getKvKhComments()
@@ -138,8 +134,7 @@ class PermeabilitySummaryServiceTest {
     var permeabilityDetail = getPermeabilityDetail();
 
     permeabilityDetail.setAverageMethodUsed(AverageMethod.GEOMETRIC);
-    permeabilityDetail.setKvKhAverageMethodUsed(PermeabilitySource.SIDEWALL);
-    permeabilityDetail.setPermeabilitySource(PermeabilitySource.SIDEWALL);
+    permeabilityDetail.setPermeabilitySource(PermeabilitySource.OTHER);
     permeabilityDetail.setKvKhSource(PermeabilitySource.SIDEWALL);
 
     when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail))
@@ -162,7 +157,6 @@ class PermeabilitySummaryServiceTest {
             PermeabilityDetailSummaryView::kvKhMax,
             PermeabilityDetailSummaryView::kvKhAverage,
             PermeabilityDetailSummaryView::kvKhAverageMethodUsed,
-            PermeabilityDetailSummaryView::kvKhAverageMethodUsedOther,
             PermeabilityDetailSummaryView::kvKhSource,
             PermeabilityDetailSummaryView::otherKvKhSource,
             PermeabilityDetailSummaryView::kvKhComments)
@@ -174,13 +168,12 @@ class PermeabilitySummaryServiceTest {
             permeabilityDetail.getPermeabilityAverage().toString() + " md",
             permeabilityDetail.getAverageMethodUsed().getDisplayName(),
             permeabilityDetail.getPermeabilitySource().getDisplayName(),
-            "",
+            "comments",
             permeabilityDetail.getPermeabilityComments(),
             permeabilityDetail.getKvKhMin().toString() + " kv/kh",
             permeabilityDetail.getKvKhMax().toString() + " kv/kh",
             permeabilityDetail.getKvKhAverage().toString() + " kv/kh",
             permeabilityDetail.getKvKhAverageMethodUsed().getDisplayName(),
-            "",
             permeabilityDetail.getKvKhSource().getDisplayName(),
             "",
             permeabilityDetail.getKvKhComments()
@@ -192,7 +185,7 @@ class PermeabilitySummaryServiceTest {
 
     permeabilityDetail.setPermeabilitySource(PermeabilitySource.OTHER);
     permeabilityDetail.setKvKhSource(PermeabilitySource.OTHER);
-    permeabilityDetail.setKvKhAverageMethodUsed(PermeabilitySource.OTHER);
+    permeabilityDetail.setKvKhAverageMethodUsed(AverageMethod.ARITHMETIC);
     permeabilityDetail.setPermeabilityAverage(BigDecimal.ONE);
     permeabilityDetail.setPermeabilityMin(BigDecimal.ONE);
     permeabilityDetail.setPermeabilityMax(BigDecimal.ONE);
@@ -204,7 +197,6 @@ class PermeabilitySummaryServiceTest {
     permeabilityDetail.setKvKhAverage(BigDecimal.ONE);
     permeabilityDetail.setKvKhComments("comments");
     permeabilityDetail.setKvKhSourceOther("comments");
-    permeabilityDetail.setKvKhAverageMethodUsedOther("comments");
     permeabilityDetail.setAverageMethodUsed(AverageMethod.ARITHMETIC);
     permeabilityDetail.setHasPermeability(true);
     permeabilityDetail.setSourceOther("comments");
