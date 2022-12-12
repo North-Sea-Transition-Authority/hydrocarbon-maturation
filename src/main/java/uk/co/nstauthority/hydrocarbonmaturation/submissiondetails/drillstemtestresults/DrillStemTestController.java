@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtest
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -61,6 +62,10 @@ public class DrillStemTestController {
         getDrillStemTestModelAndView(form, submissionDetail),
         () -> {
           drillStemTestInitialPersistenceService.saveInitialDrillStemTest(form, submissionDetail);
+          if (BooleanUtils.isTrue(form.getHasDrillStemTestResult())) {
+            return ReverseRouter.redirect(on(DrillStemTestResultController.class)
+                .getCreateNewDrillStemTestResultPage(submissionDetailId));
+          }
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );

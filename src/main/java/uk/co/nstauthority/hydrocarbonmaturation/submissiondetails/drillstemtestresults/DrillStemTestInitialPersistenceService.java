@@ -17,12 +17,13 @@ class DrillStemTestInitialPersistenceService {
   }
 
   @Transactional
-  public void saveInitialDrillStemTest(DrillStemTestInitialForm form, SubmissionDetail submissionDetail) {
+  public DrillStemTest saveInitialDrillStemTest(DrillStemTestInitialForm form, SubmissionDetail submissionDetail) {
     var drillStemTest = getDrillStemTestBySubmissionDetail(submissionDetail)
         .orElse(new DrillStemTest());
     drillStemTest.setSubmissionDetail(submissionDetail);
     drillStemTest.setHasDrillStemTestResults(form.getHasDrillStemTestResult());
     drillStemTestRepository.save(drillStemTest);
+    return drillStemTest;
   }
 
   Optional<DrillStemTest> getDrillStemTestBySubmissionDetail(SubmissionDetail submissionDetail) {

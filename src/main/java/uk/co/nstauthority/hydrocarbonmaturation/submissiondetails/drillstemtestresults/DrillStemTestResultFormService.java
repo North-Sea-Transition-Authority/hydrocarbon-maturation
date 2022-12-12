@@ -1,0 +1,45 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+
+@Service
+class DrillStemTestResultFormService {
+
+  private final DrillStemTestResultFormValidator drillStemTestResultFormValidator;
+
+  @Autowired
+  DrillStemTestResultFormService(DrillStemTestResultFormValidator drillStemTestResultFormValidator) {
+    this.drillStemTestResultFormValidator = drillStemTestResultFormValidator;
+  }
+
+  DrillStemTestResultForm getDrillStemTestResultForm(DrillStemTestResult drillStemTestResult) {
+    return drillStemTestResultEntityToResultForm(drillStemTestResult);
+  }
+
+  BindingResult validate(DrillStemTestResultForm form,
+                         BindingResult bindingResult,
+                         ValidationType validationType) {
+    drillStemTestResultFormValidator.validate(form, bindingResult, validationType);
+    return bindingResult;
+  }
+
+  private DrillStemTestResultForm drillStemTestResultEntityToResultForm(DrillStemTestResult drillStemTestResult) {
+    var form = new DrillStemTestResultForm();
+    form.setBhfp(DecimalInput.createDecimalInput(drillStemTestResult.getBhfp()));
+    form.setBottomDepth(DecimalInput.createDecimalInput(drillStemTestResult.getBottomDepth()));
+    form.setCommentsInterpretation(drillStemTestResult.getCommentsInterpretation());
+    form.setFlowDuration(DecimalInput.createDecimalInput(drillStemTestResult.getFlowDuration()));
+    form.setFormationName(drillStemTestResult.getFormationName());
+    form.setGasFlowrate(DecimalInput.createDecimalInput(drillStemTestResult.getGasFlowrate()));
+    form.setOilFlowrate(DecimalInput.createDecimalInput(drillStemTestResult.getOilFlowrate()));
+    form.setTopDepth(DecimalInput.createDecimalInput(drillStemTestResult.getTopDepth()));
+    form.setWhfp(DecimalInput.createDecimalInput(drillStemTestResult.getWhfp()));
+    form.setWaterFlowrate(DecimalInput.createDecimalInput(drillStemTestResult.getWaterFlowrate()));
+
+    return form;
+  }
+}

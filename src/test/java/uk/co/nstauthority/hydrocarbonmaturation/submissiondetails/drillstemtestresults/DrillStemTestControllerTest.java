@@ -98,6 +98,29 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
   }
 
   @Test
+  void saveDrillStemTestPage_whenValidForm_AndYesDrillStemResult_assertRedirection() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+        .thenReturn(submissionDetail);
+    when(drillStemTestFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
+
+    var form = new DrillStemTestInitialForm();
+    form.setHasDrillStemTestResult(true);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(DrillStemTestController.class)
+                .saveDrillStemTestDetails(submissionDetail.getId(), null, null)))
+                .with(user(USER))
+                .with(csrf())
+                .flashAttr("form", form))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(DrillStemTestResultController.class)
+            .getCreateNewDrillStemTestResultPage(submissionDetail.getId()))));
+
+    verify(drillStemTestPersistenceService, times(1))
+        .saveInitialDrillStemTest(any(DrillStemTestInitialForm.class), eq(submissionDetail));
+  }
+
+  @Test
   void saveDrillStemTestPage_whenInvalidForm_assertStatusOk() throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 

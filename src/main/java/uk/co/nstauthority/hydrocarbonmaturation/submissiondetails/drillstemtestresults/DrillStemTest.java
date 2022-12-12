@@ -13,7 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Subm
 
 @Entity
 @Table(name = "drill_stem_tests")
-class DrillStemTest implements SubmissionDetailChildEntity {
+public class DrillStemTest implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
