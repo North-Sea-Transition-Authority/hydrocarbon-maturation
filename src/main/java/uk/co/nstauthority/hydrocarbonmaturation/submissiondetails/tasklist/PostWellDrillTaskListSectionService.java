@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSubmissionService;
 
@@ -19,12 +22,15 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
 
   private final DryWellDetailsSubmissionService dryWellDetailsSubmissionService;
   private final DiscoveryWellDetailsSubmissionService discoveryWellDetailsSubmissionService;
+  private final DrillStemTestSubmissionService drillStemTestSubmissionService;
 
   @Autowired
   PostWellDrillTaskListSectionService(DryWellDetailsSubmissionService dryWellDetailsSubmissionService,
-                                      DiscoveryWellDetailsSubmissionService discoveryWellDetailsSubmissionService) {
+                                      DiscoveryWellDetailsSubmissionService discoveryWellDetailsSubmissionService,
+                                      DrillStemTestSubmissionService drillStemTestSubmissionService) {
     this.dryWellDetailsSubmissionService = dryWellDetailsSubmissionService;
     this.discoveryWellDetailsSubmissionService = discoveryWellDetailsSubmissionService;
+    this.drillStemTestSubmissionService = drillStemTestSubmissionService;
   }
 
   @Override
@@ -50,6 +56,7 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
               ReverseRouter.route(on(DiscoveryWellDetailsController.class)
                   .getDiscoveryWellDetails(submissionDetail.getId(), null)))
       );
+      addDrillStemTestItem(items, submissionDetail);
     }
 
     if (!items.isEmpty()) {
@@ -63,8 +70,22 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
       return dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail);
+    } else if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
+        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+      return discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)
+          && drillStemTestSubmissionService.isSectionSubmittable(submissionDetail);
     } else {
       return true;
     }
+  }
+
+  private void addDrillStemTestItem(List<TaskListItem> items, SubmissionDetail submissionDetail) {
+    items.add(
+        new TaskListItem("Drill stem test results",
+            TaskListLabel.notStartedOrComplete(
+                drillStemTestSubmissionService.isSectionSubmittable(submissionDetail)),
+            ReverseRouter.route(
+                on(DrillStemTestController.class).getDrillStemTestPage(submissionDetail.getId(), null)))
+    );
   }
 }

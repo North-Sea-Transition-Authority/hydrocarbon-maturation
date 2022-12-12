@@ -23,3 +23,6 @@ CVE-2022-41854
 
 # Postgres vulnerability
 CVE-2022-41946
+
+# org.springframework:spring-web vulnerability, fixed in 6.0.0
+CVE-2016-1000027
