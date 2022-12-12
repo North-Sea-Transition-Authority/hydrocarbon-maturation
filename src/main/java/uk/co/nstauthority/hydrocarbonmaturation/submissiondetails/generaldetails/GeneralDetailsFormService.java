@@ -14,10 +14,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -65,7 +67,6 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     form.setResourceName(generalDetail.getResourceName());
     form.setOnshoreOffshore(generalDetail.getOnshoreOffshore());
     form.setResourceLocatedInUkcs(generalDetail.getResourceLocatedInUkcs());
-    form.setInformationSource(generalDetail.getInformationSource());
     form.setResourceOnALicence(generalDetail.getResourceOnALicence());
     var organisationId = generalDetail.getOrganisationId();
 
@@ -84,7 +85,12 @@ public class GeneralDetailsFormService implements SubmissionFormService {
       );
     }
 
-    form.setOtherSourceOfInformation(generalDetail.getOtherInformationSource());
+    var submissionType = generalDetail.getSubmissionDetail().getSubmissionType();
+    if (submissionType == SubmissionType.CREATE_PROSPECT || submissionType == SubmissionType.PROSPECT_UPDATE
+        || submissionType == SubmissionType.CREATE_DISCOVERY || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+      form.setInformationSource(generalDetail.getInformationSource());
+      form.setOtherSourceOfInformation(generalDetail.getOtherInformationSource());
+    }
 
     if (generalDetail.getResourceLocatedInUkcs() != null && !generalDetail.getResourceLocatedInUkcs()) {
 
@@ -171,7 +177,13 @@ public class GeneralDetailsFormService implements SubmissionFormService {
 
   @Override
   public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
-    generalDetailsFormValidator.validate(form, bindingResult, validationType);
+    throw new ActionNotAllowedException("Must supply submission type to this validator");
+  }
+
+  @Override
+  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
+                                ValidationType validationType, SubmissionType submissionType) {
+    generalDetailsFormValidator.validate(form, bindingResult, validationType, submissionType);
     return bindingResult;
   }
 }

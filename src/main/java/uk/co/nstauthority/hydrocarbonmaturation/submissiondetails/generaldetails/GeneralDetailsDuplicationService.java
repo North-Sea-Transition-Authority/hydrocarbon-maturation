@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,16 +14,19 @@ class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationSe
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private final LicencePersistenceService licencePersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final EntityManager entityManager;
 
   @Autowired
   GeneralDetailsDuplicationService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                    QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                    LicencePersistenceService licencePersistenceService,
-                                   SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+                                   SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
+                                   EntityManager entityManager) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.licencePersistenceService = licencePersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.entityManager = entityManager;
   }
 
   @Override
@@ -35,6 +39,7 @@ class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationSe
               generalDetail,
               GeneralDetail.class
           );
+          preventCopyingForward(newGeneralDetail);
 
           quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail).forEach(quadrantAndBlock ->
               submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newGeneralDetail, quadrantAndBlock,
@@ -43,5 +48,14 @@ class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationSe
               submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newGeneralDetail, licence,
                   Licence.class));
         });
+  }
+
+  @Transactional
+  void preventCopyingForward(GeneralDetail generalDetail) {
+    generalDetail.setInformationSource(null);
+    generalDetail.setLicenceApplicationReference(null);
+    generalDetail.setLicenceApplicationId(null);
+    generalDetail.setLicenceApplicationInfoSource(null);
+    entityManager.persist(generalDetail);
   }
 }

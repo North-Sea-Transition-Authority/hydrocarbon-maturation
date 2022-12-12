@@ -31,13 +31,15 @@
         ${generalDetailValues.percentageLocatedInUkcs()}
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Information source">
-      ${generalDetailValues.informationSource()}
-    </@fdsSummaryList.summaryListRowNoAction>
-    <#if generalDetailValues.isLicenceApplicationInfoSource()>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Licence application">
-        ${generalDetailValues.licenceApplication()}
+    <#if generalDetailValues.submissionType() != "POST_DRILL_DRY_HOLE">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Information source">
+        ${generalDetailValues.informationSource()}
       </@fdsSummaryList.summaryListRowNoAction>
+      <#if generalDetailValues.isLicenceApplicationInfoSource()>
+        <@fdsSummaryList.summaryListRowNoAction keyText="Licence application">
+          ${generalDetailValues.licenceApplication()}
+        </@fdsSummaryList.summaryListRowNoAction>
+      </#if>
     </#if>
     <@fdsSummaryList.summaryListRowNoAction keyText="Quadrant and blocks">
         <#list generalDetailValues.quadAndBlockDisplayList() as quadAndBlock>

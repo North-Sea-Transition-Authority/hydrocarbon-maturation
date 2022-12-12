@@ -4,12 +4,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +32,9 @@ class GeneralDetailsDuplicationServiceTest {
   private LicencePersistenceService licencePersistenceService;
 
   @Mock
+  private EntityManager entityManager;
+
+  @Mock
   private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
 
   @InjectMocks
@@ -39,15 +44,19 @@ class GeneralDetailsDuplicationServiceTest {
   void duplicateSubmissionSection_GeneralDetailExists_DoesDuplicate() {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = mock(SubmissionDetail.class);
-
+    var newGeneralDetail = new GeneralDetail();
     var generalDetail = mock(GeneralDetail.class);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
         .thenReturn(Optional.of(generalDetail));
-
+    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, generalDetail,
+        GeneralDetail.class))
+        .thenReturn(newGeneralDetail);
     generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
     verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, generalDetail,
         GeneralDetail.class);
+    verify(entityManager, times(1))
+        .persist(newGeneralDetail);
   }
 
   @Test
@@ -92,12 +101,15 @@ class GeneralDetailsDuplicationServiceTest {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = mock(SubmissionDetail.class);
     var generalDetail = mock(GeneralDetail.class);
+    var newGeneralDetail = new GeneralDetail();
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
         .thenReturn(Optional.of(generalDetail));
 
     when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
         .thenReturn(Collections.emptyList());
-
+    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, generalDetail,
+        GeneralDetail.class))
+        .thenReturn(newGeneralDetail);
     generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
     verify(submissionDuplicationPersistenceService, never())

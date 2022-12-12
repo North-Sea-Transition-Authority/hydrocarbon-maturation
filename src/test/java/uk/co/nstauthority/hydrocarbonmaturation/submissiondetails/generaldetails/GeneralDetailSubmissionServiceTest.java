@@ -34,7 +34,7 @@ class GeneralDetailSubmissionServiceTest {
 
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
 
-    when(generalDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(generalDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
         .thenReturn(emptyBindingResult);
 
     assertTrue(generalDetailSubmissionService.isSectionSubmittable(submissionDetail));
@@ -50,7 +50,7 @@ class GeneralDetailSubmissionServiceTest {
 
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
 
-    when(generalDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(generalDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
         .thenReturn(bindingResultWithError);
 
     assertFalse(generalDetailSubmissionService.isSectionSubmittable(submissionDetail));

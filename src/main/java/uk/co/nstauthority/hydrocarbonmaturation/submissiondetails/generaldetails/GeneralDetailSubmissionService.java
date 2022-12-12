@@ -22,7 +22,8 @@ public class GeneralDetailSubmissionService implements SectionSubmissionService 
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = generalDetailsFormService.getGeneralDetailsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = generalDetailsFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = generalDetailsFormService.validate(form, bindingResult,
+        ValidationType.FULL, submissionDetail.getSubmissionType());
     return !bindingResult.hasErrors();
   }
 }

@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -58,8 +59,8 @@ public class GeneralDetailsController {
   public ModelAndView saveGeneralDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                          @ModelAttribute("form") GeneralDetailsForm form, BindingResult bindingResult,
                                          ValidationType validationType) {
-    bindingResult = generalDetailsFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail.getSubmissionType());
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getGeneralDetailsModelAndView(form, submissionDetail),
@@ -71,12 +72,14 @@ public class GeneralDetailsController {
   }
 
   private ModelAndView getGeneralDetailsModelAndView(GeneralDetailsForm form, SubmissionDetail submissionDetail) {
+    var submissionType = submissionDetail.getSubmissionType();
+
     var modelAndView =  new ModelAndView("remi/submissiondetails/generalDetails")
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
-        .addObject("informationSources", InformationSource.getInformationSource())
         .addObject("licenceApplicationEndpoint",
             SearchSelectorService.route(on(LicenceApplicationRestController.class)
                 .searchLicenceApplicationsWithManualEntry(null)))
+        .addObject("submissionType", submissionType)
         .addObject("licenceApplication",
             generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
         .addObject("organisationUnitEndpoint",
@@ -93,6 +96,14 @@ public class GeneralDetailsController {
             SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
         .addObject("alreadyAddedLicences", generalDetailsFormService.getLicenceViews(
             form));
+
+    if (submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.PROSPECT_UPDATE) {
+      modelAndView.addObject("informationSources", InformationSource.getInformationSource());
+    } else if (submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+      modelAndView.addObject("informationSources", InformationSource.getDiscoveryInformationSource());
+    }
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;

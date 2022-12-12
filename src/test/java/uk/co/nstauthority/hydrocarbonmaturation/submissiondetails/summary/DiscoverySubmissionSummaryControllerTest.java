@@ -71,7 +71,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
     oilFluidPropertySummaryView =  OilFluidPropertySummaryView.empty();
     generalFluidPropertySummaryView = GeneralFluidPropertySummaryView.empty();
     permeabilityDetailSummaryView = PermeabilityDetailSummaryView.empty();
-    generalDetailSummaryView = GeneralDetailSummaryView.empty("Prospect");
+    generalDetailSummaryView = GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(), "Prospect");
   }
 
   @Test

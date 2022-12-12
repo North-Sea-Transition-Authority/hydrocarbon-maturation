@@ -34,7 +34,7 @@ public class GeneralDetailSummaryService {
           .toList();
       return createSummaryViewFromGeneralDetail(detail, quadrantAndBlocks, licences);
     })
-    .orElse(GeneralDetailSummaryView.empty(getResourceTypeDisplay(submissionDetail)));
+    .orElse(GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(), getResourceTypeDisplay(submissionDetail)));
   }
 
   private GeneralDetailSummaryView createSummaryViewFromGeneralDetail(GeneralDetail detail,
@@ -50,6 +50,7 @@ public class GeneralDetailSummaryService {
       isLicenceApplicationInfoSource = true;
     }
     return new GeneralDetailSummaryView(
+        detail.getSubmissionDetail().getSubmissionType(),
         getResourceNameDisplay(detail),
         getOnShoreOffShoreDisplay(detail),
         BooleanUtil.yesNoFromBoolean(detail.getResourceOnALicence(), ""),

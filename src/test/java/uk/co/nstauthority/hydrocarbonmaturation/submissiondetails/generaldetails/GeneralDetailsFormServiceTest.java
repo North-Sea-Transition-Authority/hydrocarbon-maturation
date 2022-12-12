@@ -25,6 +25,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.Refe
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,7 +70,7 @@ class GeneralDetailsFormServiceTest {
         licenceQueryService,
         licencePersistenceService);
     var submissionDetailId = UUID.randomUUID();
-    submissionDetail = new SubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(submissionDetailId);
   }
 
@@ -77,8 +79,9 @@ class GeneralDetailsFormServiceTest {
     var form = new GeneralDetailsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var validationType = ValidationType.FULL;
-    generalDetailsFormService.validate(form, bindingResult, validationType);
-    verify(generalDetailsFormValidator, times(1)).validate(form, bindingResult, validationType);
+    generalDetailsFormService.validate(form, bindingResult, validationType, SubmissionType.CREATE_PROSPECT);
+    verify(generalDetailsFormValidator, times(1)).validate(form, bindingResult,
+        validationType, SubmissionType.CREATE_PROSPECT);
   }
 
   @Test

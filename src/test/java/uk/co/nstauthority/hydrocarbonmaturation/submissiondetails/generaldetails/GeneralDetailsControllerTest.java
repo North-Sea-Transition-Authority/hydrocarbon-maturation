@@ -43,6 +43,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -90,7 +91,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
   void saveGeneralDetailsPage_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
-    when(generalDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(generalDetailsFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
@@ -100,7 +101,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(validationType));
+    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any());
     verify(generalDetailsPersistenceService, times(1)).saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail));
   }
 
@@ -111,7 +112,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
 
     var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(generalDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(generalDetailsFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
@@ -120,12 +121,12 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(validationType));
+    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any());
     verify(generalDetailsPersistenceService, never()).saveGeneralDetails(any(), any());
   }
 
   @Test
-  void getGeneralDetailsModelAndView_assertModelProperties() throws Exception {
+  void getGeneralDetailsModelAndView_prospectSubmission_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
@@ -172,6 +173,61 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+    );
+  }
+
+  @Test
+  void getGeneralDetailsModelAndView_discoverySubmission_assertModelProperties() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    var form = new GeneralDetailsForm();
+    var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
+    var preselectedOrganisation = Map.of("25", "Shell Gas");
+
+    when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
+    when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(
+        preselectedLicenceApplication);
+    when(generalDetailsFormService.getPreSelectedOrganisation(
+        form.getResponsibleOrganisationId()))
+        .thenReturn(preselectedOrganisation);
+
+    var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);
+    var quadrantBlockViewList = List.of(quadrantBlockView1);
+    when(generalDetailsFormService.getQuadrantAndBlockViews(form)).thenReturn(quadrantBlockViewList);
+
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
+            entry("informationSources", InformationSource.getDiscoveryInformationSource()),
+            entry("licenceApplication", preselectedLicenceApplication),
+            entry("licenceApplicationEndpoint",
+                SearchSelectorService.route(
+                    on(LicenceApplicationRestController.class).searchLicenceApplicationsWithManualEntry(null))),
+            entry("quadrantBlocksApiEndpoint",
+                SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null))),
+            entry("resourceType", ResourceType.PROSPECT.name().toLowerCase()),
+            entry("organisationUnitEndpoint",
+                SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null))),
+            entry("responsibleOrganisation", preselectedOrganisation),
+            entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList)
+        );
+    assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
+
+    @SuppressWarnings(value = "unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+            TaskListController.PAGE_NAME)
     );
   }
 }

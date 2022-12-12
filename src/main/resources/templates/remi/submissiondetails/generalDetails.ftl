@@ -65,27 +65,32 @@ breadcrumbsMap=breadcrumbsMap>
           </@fdsRadio.radioNo>
       </@fdsRadio.radioGroup>
 
-      <@fdsRadio.radioGroup path="form.informationSource" labelText="Source of Information" hiddenContent=true>
+      <#if submissionType == "PROSPECT_UPDATE"
+        || submissionType == "CREATE_PROSPECT"
+        || submissionType == "CREATE_DISCOVERY"
+        || submissionType == "UPDATE_DISCOVERY">
+        <@fdsRadio.radioGroup path="form.informationSource" labelText="Source of information" hiddenContent=true>
           <#assign firstItem=true/>
           <#list informationSources as key, value>
               <@fdsRadio.radioItem path="form.informationSource" itemMap={key : value} isFirstItem=firstItem>
-                  <#if key == "LICENCE_APPLICATION">
-                    <@fdsSearchSelector.searchSelectorRest
-                      path="form.licenceApplication"
-                      restUrl=springUrl(licenceApplicationEndpoint)
-                      labelText="Licence application round and reference"
-                      selectorMinInputLength=3
-                      nestingPath="form.informationSource"
-                      preselectedItems=licenceApplication!{}/>
-                  </#if>
+                <#if key == "LICENCE_APPLICATION">
+                  <@fdsSearchSelector.searchSelectorRest
+                    path="form.licenceApplication"
+                    restUrl=springUrl(licenceApplicationEndpoint)
+                    labelText="Licence application round and reference"
+                    selectorMinInputLength=3
+                    nestingPath="form.informationSource"
+                    preselectedItems=licenceApplication!{}/>
+                </#if>
                 <#if key == "OTHER">
                   <@fdsTextInput.textInput path="form.otherSourceOfInformation"
-                  labelText="Provide the source of information for this ${resourceType} submission" nestingPath="form.informationSource"/>
+                    labelText="Provide the source of information for this ${resourceType} submission" nestingPath="form.informationSource"/>
                 </#if>
                 <#assign firstItem=false/>
               </@fdsRadio.radioItem>
           </#list>
-      </@fdsRadio.radioGroup>
+        </@fdsRadio.radioGroup>
+      </#if>
 
       <@fdsAddToList.addToList
         pathForList="form.quadrantBlocks"

@@ -3,6 +3,7 @@
 <#import '../summarylistcards/dryWellSummaryCard.ftl' as dryWellSummary>
 <#import '../summarylistcards/permeabilitySummaryCard.ftl' as permeabilitySummary>
 <#import '../summarylistcards/reservoirPropertiesSummaryCard.ftl' as reservoirPropertiesSummary>
+<#import '../summarylistcards/generaldetailsSummaryCard.ftl' as generalDetailsSummary>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -22,6 +23,9 @@ breadcrumbsMap=breadcrumbsMap>
 
     <@fdsForm.htmlForm>
         <@fdsAccordion.accordion accordionId="summaryaccordian">
+            <@fdsAccordion.accordionSection sectionHeading="General details">
+                <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
+            </@fdsAccordion.accordionSection>
             <@fdsAccordion.accordionSection sectionHeading="Post well drill" summaryText="Dry well details">
                 <@dryWellSummary.dryWellDetailCard dryWellValues=dryWellDetailsSummaryView/>
             </@fdsAccordion.accordionSection>

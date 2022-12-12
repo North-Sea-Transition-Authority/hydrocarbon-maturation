@@ -48,6 +48,8 @@ public class PostDrillDryWellSubmissionSummaryController {
     var modelAndView = new ModelAndView("remi/submissiondetails/dryWellSubmissionSummary")
         .addObject("dryWellDetailsSummaryView",
             postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("generalDetailsSummaryView",
+            postDrillDryWellSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)))
         .addObject("permeabiltySummaryView",
             postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
