@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults;
 
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,27 @@ class DrillStemTestInitialPersistenceService {
     var drillStemTest = getDrillStemTestBySubmissionDetail(submissionDetail)
         .orElse(new DrillStemTest());
     drillStemTest.setSubmissionDetail(submissionDetail);
-    drillStemTest.setHasDrillStemTestResults(form.getHasDrillStemTestResult());
+    if (BooleanUtils.isFalse(form.getHasDrillStemTestResult())) {
+      //saves only the 'no' option
+      drillStemTest.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.NO);
+    } else {
+      drillStemTest.setDrillStemTestSummaryOption(null);
+    }
+    drillStemTestRepository.save(drillStemTest);
+    return drillStemTest;
+  }
+
+  @Transactional
+  public DrillStemTest saveDrillStemTest(DrillStemTestSummaryForm form, SubmissionDetail submissionDetail) {
+    var drillStemTest = getDrillStemTestBySubmissionDetail(submissionDetail)
+        .orElse(new DrillStemTest());
+    drillStemTest.setSubmissionDetail(submissionDetail);
+    if (form.getDrillStemTestSummaryOption() == DrillStemTestSummaryOptions.NO) {
+      //saves only the 'no' option
+      drillStemTest.setDrillStemTestSummaryOption(form.getDrillStemTestSummaryOption());
+    } else {
+      drillStemTest.setDrillStemTestSummaryOption(null);
+    }
     drillStemTestRepository.save(drillStemTest);
     return drillStemTest;
   }

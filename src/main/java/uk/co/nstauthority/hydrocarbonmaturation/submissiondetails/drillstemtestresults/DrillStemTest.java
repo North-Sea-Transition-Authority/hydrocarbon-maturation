@@ -1,7 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults;
 
 import java.util.UUID;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -24,7 +27,9 @@ public class DrillStemTest implements SubmissionDetailChildEntity {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
-  private Boolean hasDrillStemTestResults;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "has_drill_stem_test")
+  private DrillStemTestSummaryOptions drillStemTestSummaryOption;
 
   public UUID getId() {
     return id;
@@ -44,12 +49,13 @@ public class DrillStemTest implements SubmissionDetailChildEntity {
     this.submissionDetail = submissionDetail;
   }
 
-  public Boolean getHasDrillStemTestResults() {
-    return hasDrillStemTestResults;
+  public DrillStemTestSummaryOptions getDrillStemTestSummaryOption() {
+    return drillStemTestSummaryOption;
   }
 
-  public void setHasDrillStemTestResults(Boolean hasDrillStemTestResults) {
-    this.hasDrillStemTestResults = hasDrillStemTestResults;
+  public void setDrillStemTestSummaryOption(
+      DrillStemTestSummaryOptions drillStemTestSummaryOptions) {
+    this.drillStemTestSummaryOption = drillStemTestSummaryOptions;
   }
 }
 

@@ -40,7 +40,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -133,7 +132,8 @@ class DrillStemTestResultControllerTest extends AbstractControllerTest {
                 .with(csrf())
                 .params(ControllerTestUtils.validationPostParams(validationType)))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(DrillStemTestSummaryController.class)
+            .getDrillStemTestSummaryPage(submissionDetail.getId()))));
 
     verify(drillStemTestResultPersistenceService, times(1))
         .saveDrillStemTestResult(any(DrillStemTestResultForm.class), eq(drillStemTest), eq(drillStemTestId));
@@ -182,7 +182,8 @@ class DrillStemTestResultControllerTest extends AbstractControllerTest {
                 .with(csrf())
                 .params(ControllerTestUtils.validationPostParams(validationType)))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(DrillStemTestSummaryController.class)
+            .getDrillStemTestSummaryPage(submissionDetail.getId()))));
 
     verify(drillStemTestResultPersistenceService, times(1))
         .saveDrillStemTestResult(any(DrillStemTestResultForm.class), eq(drillStemTest), eq(drillStemTestResult.getId()));

@@ -44,7 +44,7 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
-  private DrillStemTestInitialFormService drillStemTestFormService;
+  private DrillStemTestFormService drillStemTestFormService;
 
   @MockBean
   private SubmissionDetailService submissionDetailService;

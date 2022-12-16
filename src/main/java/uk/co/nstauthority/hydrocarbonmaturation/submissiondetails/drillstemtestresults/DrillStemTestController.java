@@ -25,7 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @RequestMapping("/submission-details/{submissionDetailId}/drill-stem-test")
 public class DrillStemTestController {
 
-  private final DrillStemTestInitialFormService drillStemTestInitialFormService;
+  private final DrillStemTestFormService drillStemTestFormService;
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService;
@@ -33,11 +33,11 @@ public class DrillStemTestController {
   public static final String PAGE_NAME = "Drill stem test results";
 
   @Autowired
-  public DrillStemTestController(DrillStemTestInitialFormService drillStemTestInitialFormService,
+  public DrillStemTestController(DrillStemTestFormService drillStemTestFormService,
                                  ControllerHelperService controllerHelperService,
                                  SubmissionDetailService submissionDetailService,
                                  DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService) {
-    this.drillStemTestInitialFormService = drillStemTestInitialFormService;
+    this.drillStemTestFormService = drillStemTestFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.drillStemTestInitialPersistenceService = drillStemTestInitialPersistenceService;
@@ -48,7 +48,7 @@ public class DrillStemTestController {
                                            @ModelAttribute("form") DrillStemTestInitialForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getDrillStemTestModelAndView(
-        drillStemTestInitialFormService.getDrillStemTestInitialForm(submissionDetail), submissionDetail);
+        drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail), submissionDetail);
   }
 
   @PostMapping
@@ -56,7 +56,7 @@ public class DrillStemTestController {
                                                @ModelAttribute("form") DrillStemTestInitialForm form,
                                                BindingResult bindingResult) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = drillStemTestInitialFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getDrillStemTestModelAndView(form, submissionDetail),
@@ -82,5 +82,4 @@ public class DrillStemTestController {
         modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }
-
 }

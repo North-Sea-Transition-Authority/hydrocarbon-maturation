@@ -22,7 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 class DrillStemTestSubmissionServiceTest {
 
   @Mock
-  private DrillStemTestInitialFormService dryWellDetailsFormService;
+  private DrillStemTestFormService dryWellDetailsFormService;
 
   @InjectMocks
   private DrillStemTestSubmissionService dryWellDetailsSubmissionService;

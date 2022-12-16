@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTest;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResult;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryOptions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
@@ -79,7 +80,7 @@ class SubmissionDuplicationPersistenceServiceTest {
     var submissionDetail = createSubmissionDetail();
     var oldDrillStem = new DrillStemTest();
     oldDrillStem.setSubmissionDetail(submissionDetail);
-    oldDrillStem.setHasDrillStemTestResults(true);
+    oldDrillStem.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.NO);
     testEntityManager.persistAndFlush(oldDrillStem);
     var drillStemTestResult = createDrillStemTestResult(oldDrillStem);
     var newDrillStem = new DrillStemTest();

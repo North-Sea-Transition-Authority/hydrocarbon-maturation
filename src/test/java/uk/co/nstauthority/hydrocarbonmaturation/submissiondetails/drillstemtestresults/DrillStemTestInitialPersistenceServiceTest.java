@@ -34,9 +34,9 @@ class DrillStemTestInitialPersistenceServiceTest {
   }
 
   @Test
-  void saveDrillStemTest_whenGivenAForm_verifyCreated_Entity() {
+  void saveInitialDrillStemTest_whenGivenAnInitialForm_verifyCreated_Entity() {
     var form = new DrillStemTestInitialForm();
-    form.setHasDrillStemTestResult(true);
+    form.setHasDrillStemTestResult(false);
 
     var drillStemTestCaptor = ArgumentCaptor.forClass(DrillStemTest.class);
     drillStemTestInitialPersistenceService.saveInitialDrillStemTest(form, submissionDetail);
@@ -46,16 +46,57 @@ class DrillStemTestInitialPersistenceServiceTest {
 
     assertThat(savedDrillStemTest)
         .extracting(
-            DrillStemTest::getHasDrillStemTestResults,
+            DrillStemTest::getDrillStemTestSummaryOption,
             DrillStemTest::getSubmissionDetail)
         .containsExactly(
-            form.getHasDrillStemTestResult(),
+            DrillStemTestSummaryOptions.NO,
             submissionDetail
         );
   }
 
   @Test
-  void saveDrillStemTest_whenGivenEmptyForm_verifyCreated_Entity() {
+  void saveDrillStemTest_whenGivenSummaryForm() {
+    var form = new DrillStemTestSummaryForm();
+    form.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.NO);
+
+    var drillStemTestCaptor = ArgumentCaptor.forClass(DrillStemTest.class);
+    drillStemTestInitialPersistenceService.saveDrillStemTest(form, submissionDetail);
+
+    verify(drillStemTestRepository, times(1)).save(drillStemTestCaptor.capture());
+    var savedDrillStemTest = drillStemTestCaptor.getValue();
+
+    assertThat(savedDrillStemTest)
+        .extracting(
+            DrillStemTest::getDrillStemTestSummaryOption,
+            DrillStemTest::getSubmissionDetail)
+        .containsExactly(
+            DrillStemTestSummaryOptions.NO,
+            submissionDetail
+        );
+  }
+
+  @Test
+  void saveDrillStemTest_whenGivenEmptySummaryForm() {
+    var form = new DrillStemTestSummaryForm();
+
+    var drillStemTestCaptor = ArgumentCaptor.forClass(DrillStemTest.class);
+    drillStemTestInitialPersistenceService.saveDrillStemTest(form, submissionDetail);
+
+    verify(drillStemTestRepository, times(1)).save(drillStemTestCaptor.capture());
+    var savedDrillStemTest = drillStemTestCaptor.getValue();
+
+    assertThat(savedDrillStemTest)
+        .extracting(
+            DrillStemTest::getDrillStemTestSummaryOption,
+            DrillStemTest::getSubmissionDetail)
+        .containsExactly(
+            null,
+            submissionDetail
+        );
+  }
+
+  @Test
+  void saveInitialDrillStemTest_whenGivenEmptyInitialForm_verifyCreated_Entity() {
     var form = new DrillStemTestInitialForm();
 
     var drillStemTestCaptor = ArgumentCaptor.forClass(DrillStemTest.class);
@@ -66,7 +107,7 @@ class DrillStemTestInitialPersistenceServiceTest {
 
     assertThat(savedDrillStemTest)
         .extracting(
-            DrillStemTest::getHasDrillStemTestResults,
+            DrillStemTest::getDrillStemTestSummaryOption,
             DrillStemTest::getSubmissionDetail)
         .containsExactly(
             null,

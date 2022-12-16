@@ -11,18 +11,18 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Service
 public class DrillStemTestSubmissionService implements SectionSubmissionService {
 
-  private final DrillStemTestInitialFormService drillStemTestInitialFormService;
+  private final DrillStemTestFormService drillStemTestFormService;
 
   @Autowired
-  public DrillStemTestSubmissionService(DrillStemTestInitialFormService drillStemTestInitialFormService) {
-    this.drillStemTestInitialFormService = drillStemTestInitialFormService;
+  public DrillStemTestSubmissionService(DrillStemTestFormService drillStemTestFormService) {
+    this.drillStemTestFormService = drillStemTestFormService;
   }
 
   @Override
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    var form = drillStemTestInitialFormService.getDrillStemTestInitialForm(submissionDetail);
+    var form = drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = drillStemTestInitialFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL);
     return !bindingResult.hasErrors();
   }
 }

@@ -10,7 +10,7 @@ public abstract class PartialFullFormValidator implements SmartValidator, Submis
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (SubmissionForm) target;
-    var validationType = (ValidationType) validationHints[0];
+    var validationType = SubmissionFormValidationUtils.extractValidationTypeFromHints(validationHints);
 
     switch (validationType) {
       case FULL -> validateFull(form, errors);

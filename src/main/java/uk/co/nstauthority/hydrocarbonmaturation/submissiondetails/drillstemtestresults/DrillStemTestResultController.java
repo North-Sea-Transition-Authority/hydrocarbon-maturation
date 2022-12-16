@@ -83,7 +83,8 @@ public class DrillStemTestResultController {
               form,
               drillStemTest,
               drillStemTestResult.getId());
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+          return ReverseRouter.redirect(on(DrillStemTestSummaryController.class)
+              .getDrillStemTestSummaryPage(submissionDetailId));
         }
     );
   }
@@ -106,7 +107,8 @@ public class DrillStemTestResultController {
               form,
               drillStemTestResult.getDrillStemTest(),
               drillStemTestResultId);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+          return ReverseRouter.redirect(on(DrillStemTestSummaryController.class)
+              .getDrillStemTestSummaryPage(submissionDetailId));
         }
     );
   }
