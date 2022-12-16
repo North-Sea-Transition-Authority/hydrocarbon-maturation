@@ -2,10 +2,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import java.math.BigDecimal;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -18,6 +20,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValidator {
 
   private SubmissionType submissionType;
+  private final LicenceQueryService licenceQueryService;
+
+  @Autowired
+  GeneralDetailsFormValidator(LicenceQueryService licenceQueryService) {
+    this.licenceQueryService = licenceQueryService;
+  }
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -54,6 +62,11 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
     GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
+
+    if (!generalDetailsForm.getLicences().isEmpty() && BooleanUtils.isTrue(generalDetailsForm.getResourceOnALicence())) {
+      validateExtantLicences(generalDetailsForm, errors);
+    }
+
     partialValidationPercentageLocatedInUkcs(generalDetailsForm, errors);
   }
 
@@ -71,6 +84,8 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
         && generalDetailsForm.getLicences().isEmpty()) {
       errors.rejectValue("licenceSelect", "licenceSelect.required",
           "You must select at least one licence");
+    } else {
+      validateExtantLicences(generalDetailsForm, errors);
     }
 
     ValidationUtils.rejectIfEmpty(errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
@@ -119,5 +134,17 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.valueOf(0.1))
         .setMaxValue(BigDecimal.valueOf(100));
+  }
+
+  private void validateExtantLicences(GeneralDetailsForm form, Errors errors) {
+    var licences = licenceQueryService.getLicencesByIds(form.getLicences());
+
+    var invalidLicenceSelected = licences
+        .stream()
+        .anyMatch(licence -> !LicenceQueryService.isLicenceStatusValid(licence.licenceStatus()));
+
+    if (invalidLicenceSelected) {
+      errors.rejectValue("licenceSelect", "licenceSelect.notValid", "You must only select extant licences");
+    }
   }
 }

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
@@ -221,8 +222,8 @@ class GeneralDetailsFormServiceTest {
     var genDetail = getGeneralDetail(submissionDetail);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(genDetail));
-    var licence1 = new LicenceView("ref", 1);
-    var licence2 = new LicenceView("ref2", 2);
+    var licence1 = new LicenceView("ref", 1, LicenceStatus.EXTANT);
+    var licence2 = new LicenceView("ref2", 2, LicenceStatus.EXTANT);
 
     when(licenceQueryService.getLicencesByIds(form.getLicences()))
         .thenReturn(List.of(licence1, licence2));
@@ -231,11 +232,12 @@ class GeneralDetailsFormServiceTest {
 
     assertThat(selectorViews)
         .extracting(
-            LicenceSelectorView::getId,
-            LicenceSelectorView::getName)
+            LicenceView::getId,
+            LicenceView::getName,
+            LicenceView::isValid)
         .containsExactly(
-            tuple("1", "ref"),
-            tuple("2", "ref2")
+            tuple("1", "ref", true),
+            tuple("2", "ref2", true)
         );
   }
 

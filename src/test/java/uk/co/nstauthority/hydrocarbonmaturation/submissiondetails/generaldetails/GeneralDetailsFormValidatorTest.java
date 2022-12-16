@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,11 +15,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
@@ -29,9 +35,12 @@ class GeneralDetailsFormValidatorTest {
 
   private GeneralDetailsFormValidator generalDetailsFormValidator;
 
+  @Mock
+  private LicenceQueryService licenceQueryService;
+
   @BeforeEach
   void setup() {
-    generalDetailsFormValidator = new GeneralDetailsFormValidator();
+    generalDetailsFormValidator = new GeneralDetailsFormValidator(licenceQueryService);
   }
 
   @Test
@@ -196,6 +205,27 @@ class GeneralDetailsFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validateLicences_whenNotExtantLicence(ValidationType validationType) {
+    var form = getValidForm();
+    form.setLicences(List.of("1", "2"));
+
+    when(licenceQueryService.getLicencesByIds(List.of("1", "2")))
+        .thenReturn(List.of(
+            new LicenceView("Licence1", 1, LicenceStatus.EXTANT),
+            new LicenceView("Licence2", 2, LicenceStatus.SURRENDERED)));
+
+
+    var bindingResult = validateGeneralDetailsForm(form, validationType);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("licenceSelect", Set.of("licenceSelect.notValid"))
+        );
+  }
+
   private BindingResult validateGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -212,7 +242,7 @@ class GeneralDetailsFormValidatorTest {
     form.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
     form.setQuadrantBlocks(List.of("27/10"));
     form.setResponsibleOrganisationId("25");
-    form.setLicences(List.of("EL101"));
+    form.setLicences(List.of("122"));
     form.setResourceOnALicence(true);
     return form;
   }

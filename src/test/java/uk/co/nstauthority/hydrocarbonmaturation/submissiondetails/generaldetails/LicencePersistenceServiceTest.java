@@ -45,7 +45,7 @@ class LicencePersistenceServiceTest {
             .withLicenceId(25)
             .withLicenceRef("ref")
             .build();
-    var licenceView = new LicenceView(licence.getLicenceRef(), licence.getId());
+    var licenceView = new LicenceView(licence.getLicenceRef(), licence.getId(), licence.getLicenceStatus());
 
     when(licenceQueryService.getLicencesByIds(licenceIds))
         .thenReturn(List.of(licenceView));

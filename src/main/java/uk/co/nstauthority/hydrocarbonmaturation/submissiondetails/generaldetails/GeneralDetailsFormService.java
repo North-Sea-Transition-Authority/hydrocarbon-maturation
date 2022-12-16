@@ -111,7 +111,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
 
     var licences = licenceQueryService.getLicencesByIds(licenceIds)
         .stream()
-        .map(LicenceView::getSelectionId)
+        .map(LicenceView::getId)
         .toList();
 
     form.setLicences(licences);
@@ -142,20 +142,12 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     return preSelectedOrganisation;
   }
 
-  List<LicenceSelectorView> getLicenceViews(GeneralDetailsForm form) {
+  List<LicenceView> getLicenceViews(GeneralDetailsForm form) {
     if (ObjectUtils.isEmpty(form.getLicences())) {
       return Collections.emptyList();
     }
 
-    return licenceQueryService.getLicencesByIds(form.getLicences())
-        .stream()
-        .map(licence -> {
-          var isValid = true;
-          return new LicenceSelectorView(
-              licence.getSelectionId(),
-              licence.getSelectionText(),
-              isValid);
-        }).toList();
+    return licenceQueryService.getLicencesByIds(form.getLicences());
   }
 
   public Map<String, String> getPreSelectedLicenceApplication(String licenceApplication) {

@@ -55,6 +55,10 @@ public class LicenceQueryService {
         .toList();
   }
 
+  public static boolean isLicenceStatusValid(LicenceStatus licenceStatus) {
+    return licenceStatus == LicenceStatus.EXTANT;
+  }
+
   private Optional<LicenceView> findLicence(Integer licenceId) {
     return energyPortalApiWrapper.makeRequest(((logCorrelationId, requestPurpose) ->
         licenceApi.findLicence(
@@ -62,10 +66,10 @@ public class LicenceQueryService {
             LICENCE_PROJECTION_ROOT,
             requestPurpose,
             logCorrelationId)))
-        .map(item -> new LicenceView(item.getLicenceRef(), item.getId()));
+        .map(item -> new LicenceView(item.getLicenceRef(), item.getId(), item.getLicenceStatus()));
   }
 
   private LicenceView getLicenceView(Licence licence) {
-    return new LicenceView(licence.getLicenceRef(), licence.getId());
+    return new LicenceView(licence.getLicenceRef(), licence.getId(), licence.getLicenceStatus());
   }
 }
