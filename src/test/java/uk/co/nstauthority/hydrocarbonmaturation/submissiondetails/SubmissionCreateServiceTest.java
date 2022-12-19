@@ -23,6 +23,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -45,6 +47,9 @@ class SubmissionCreateServiceTest {
   @Mock
   private SubmissionDetailDuplicationService submissionDetailDuplicationService;
 
+  @Mock
+  private ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+
   @InjectMocks
   private SubmissionCreateService submissionCreateService;
 
@@ -56,6 +61,8 @@ class SubmissionCreateServiceTest {
 
     submissionCreateService.createInitialProspect();
 
+    verify(responsibleTeamPersistenceService, times(1))
+        .saveResponsibleTeamForResource(resource, ResponsibleTeamType.EXPLORATION);
     verify(submissionDetailService, times(1)).createInitialSubmissionDetail(resource, SubmissionType.CREATE_PROSPECT);
   }
 
@@ -146,7 +153,8 @@ class SubmissionCreateServiceTest {
     submissionCreateService.createNewDiscovery(form);
 
     verify(resourceLinkService).createNewResourceLink(prospectResource, discoveryResource);
-
+    verify(responsibleTeamPersistenceService, times(1))
+        .saveResponsibleTeamForResource(discoveryResource, ResponsibleTeamType.EXPLORATION);
     verify(submissionDetailDuplicationService)
         .duplicateSubmissionDetailSections(submissionDetail, submissionDetailNew);
   }

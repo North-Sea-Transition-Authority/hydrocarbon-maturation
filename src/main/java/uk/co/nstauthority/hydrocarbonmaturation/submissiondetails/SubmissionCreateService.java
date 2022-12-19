@@ -11,6 +11,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 
@@ -22,23 +24,27 @@ public class SubmissionCreateService {
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final ResourceLinkService resourceLinkService;
   private final SubmissionDetailDuplicationService submissionDetailDuplicationService;
+  private final ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
 
   @Autowired
   public SubmissionCreateService(ResourceService resourceService,
                                  SubmissionDetailService submissionDetailService,
                                  GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                  ResourceLinkService resourceLinkService,
-                                 SubmissionDetailDuplicationService submissionDetailDuplicationService) {
+                                 SubmissionDetailDuplicationService submissionDetailDuplicationService,
+                                 ResponsibleTeamPersistenceService responsibleTeamPersistenceService) {
     this.resourceService = resourceService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.resourceLinkService = resourceLinkService;
     this.submissionDetailDuplicationService = submissionDetailDuplicationService;
+    this.responsibleTeamPersistenceService = responsibleTeamPersistenceService;
   }
 
   @Transactional
   public SubmissionDetail createInitialProspect() {
     var resource = resourceService.createResource(ResourceType.PROSPECT);
+    responsibleTeamPersistenceService.saveResponsibleTeamForResource(resource, ResponsibleTeamType.EXPLORATION);
     return submissionDetailService.createInitialSubmissionDetail(resource, SubmissionType.CREATE_PROSPECT);
   }
 
@@ -76,6 +82,7 @@ public class SubmissionCreateService {
   @Transactional
   public SubmissionDetail createNewDiscovery(StartDiscoveryForm form) {
     var discoveryResource = resourceService.createResource(ResourceType.DISCOVERY);
+    responsibleTeamPersistenceService.saveResponsibleTeamForResource(discoveryResource, ResponsibleTeamType.EXPLORATION);
     var oldSubmissionDetail = getSubmissionDetailByGeneralDetail(form.getProspectSelectedOption());
     var prospectResource = oldSubmissionDetail.getResourceId();
 
