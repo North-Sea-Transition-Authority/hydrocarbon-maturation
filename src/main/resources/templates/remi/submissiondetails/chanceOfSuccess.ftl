@@ -10,8 +10,8 @@
   pageSize=PageSize.TWO_THIRDS_COLUMN
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>
+  <div data-module="chance-of-success">
   <@fdsForm.htmlForm>
-    <div id="chanceOfSuccessForm"></div>
     <h2 class="govuk-heading-l">Play chance of success</h2>
     <@fdsDetails.summaryDetails summaryTitle="How is a play defined?">
       <p class="govuk-body">
@@ -111,4 +111,5 @@
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
 
   </@fdsForm.htmlForm>
+  </div>
 </@defaultPage>

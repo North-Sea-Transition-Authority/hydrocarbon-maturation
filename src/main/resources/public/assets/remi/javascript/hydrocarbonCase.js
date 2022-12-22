@@ -1,24 +1,24 @@
-let summaryListValue = document.querySelector("dt.fds-data-items-list__key");
+let summaryListValue;
 let total = 0;
 
-export function hydrocarbonCaseHandler() {
-  let form = document.querySelector('form');
-
-  calculateTotalHydrocarbonCase();
-  setTotalHydrocarbonProbability();
+export function hydrocarbonCaseHandler(module) {
+  let form = module.querySelector('form');
+  summaryListValue = module.querySelector("dt.fds-data-items-list__key");
+  calculateTotalHydrocarbonCase(module);
+  setTotalHydrocarbonProbability(module);
   form.addEventListener('input', function () {
-    calculateTotalHydrocarbonCase();
-    setTotalHydrocarbonProbability();
+    calculateTotalHydrocarbonCase(module);
+    setTotalHydrocarbonProbability(module);
   });
 }
 
-function calculateTotalHydrocarbonCase() {
-  let gasOnly = document.getElementById("gasOnlyProbability-decimalInputValue").value.trim()
-  let oilOnly = document.getElementById("oilOnlyProbability-decimalInputValue").value.trim()
-  let oilAndGas = document.getElementById("oilAndGasProbability-decimalInputValue").value.trim()
-  let gasOnlyTicked = eval(document.getElementById("gasOnlyCaseType").getAttribute('aria-expanded'))
-  let oilOnlyTicked = eval(document.getElementById("oilOnlyCaseType").getAttribute('aria-expanded'))
-  let oilAndGasTicked = eval(document.getElementById("oilAndGasCaseType").getAttribute('aria-expanded'))
+function calculateTotalHydrocarbonCase(module) {
+  let gasOnly = module.querySelector("#gasOnlyProbability-decimalInputValue").value.trim()
+  let oilOnly = module.querySelector("#oilOnlyProbability-decimalInputValue").value.trim()
+  let oilAndGas = module.querySelector("#oilAndGasProbability-decimalInputValue").value.trim()
+  let gasOnlyTicked = eval(module.querySelector("#gasOnlyCaseType").getAttribute('aria-expanded'))
+  let oilOnlyTicked = eval(module.querySelector("#oilOnlyCaseType").getAttribute('aria-expanded'))
+  let oilAndGasTicked = eval(module.querySelector("#oilAndGasCaseType").getAttribute('aria-expanded'))
   total = 0;
 
   if (gasOnlyTicked

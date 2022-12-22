@@ -1,27 +1,30 @@
-let percentListKeyElements = document.getElementsByClassName("fds-data-items-list__key")
-let totalPlayChanceOfSuccess = percentListKeyElements[0];
-let totalProspectSpecificChance = percentListKeyElements[1]
-let overallChanceElem = percentListKeyElements[2]
+let percentListKeyElements;
+let totalPlayChanceOfSuccess;
+let totalProspectSpecificChance;
+let overallChanceElem;
 
-export function chanceOfSuccessFormHandler() {
-  calculateTotals()
-
-  let form = document.querySelector('form');
+export function chanceOfSuccessFormHandler(module) {
+  let form = module.querySelector('form');
+  percentListKeyElements = module.getElementsByClassName("fds-data-items-list__key")
+  totalPlayChanceOfSuccess = percentListKeyElements[0];
+  totalProspectSpecificChance = percentListKeyElements[1];
+  overallChanceElem = percentListKeyElements[2];
+  calculateTotals(module)
   form.addEventListener('input', function () {
-    calculateTotals()
+    calculateTotals(module)
   });
 }
 
-function calculateTotals() {
-    let totalPlayChanceOfSuccess = calculateTotalPlayChanceOfSuccess();
-    let totalProspectSpecificChance = calculateTotalProspectSpecificChance();
+function calculateTotals(module) {
+    let totalPlayChanceOfSuccess = calculateTotalPlayChanceOfSuccess(module);
+    let totalProspectSpecificChance = calculateTotalProspectSpecificChance(module);
     calculateOverallChanceOfSuccess(totalProspectSpecificChance, totalPlayChanceOfSuccess);
   }
 
-function calculateTotalPlayChanceOfSuccess() {
-    let sourcePercentage = document.getElementById("playChanceOfSuccess-sourcePercentage-decimalInputValue").value.trim();
-    let reservoirPercentage = document.getElementById("playChanceOfSuccess-reservoirPercentage-decimalInputValue").value.trim();
-    let topSealPercentage = document.getElementById("playChanceOfSuccess-topSealPercentage-decimalInputValue").value.trim();
+function calculateTotalPlayChanceOfSuccess(module) {
+    let sourcePercentage = module.querySelector("#playChanceOfSuccess-sourcePercentage-decimalInputValue").value.trim();
+    let reservoirPercentage = module.querySelector("#playChanceOfSuccess-reservoirPercentage-decimalInputValue").value.trim();
+    let topSealPercentage = module.querySelector("#playChanceOfSuccess-topSealPercentage-decimalInputValue").value.trim();
     let total = 0;
 
     if (!isNaN(sourcePercentage)
@@ -37,12 +40,12 @@ function calculateTotalPlayChanceOfSuccess() {
     return total;
   }
 
-function calculateTotalProspectSpecificChance() {
-    let reservoirPercentage = document.getElementById("prospectSpecificChanceOfSuccess-chanceOfSuccessDetailsForm-sourcePercentage-decimalInputValue").value.trim();
-    let sourcePercentage = document.getElementById("prospectSpecificChanceOfSuccess-chanceOfSuccessDetailsForm-reservoirPercentage-decimalInputValue").value.trim();
-    let topSealPercentage = document.getElementById("prospectSpecificChanceOfSuccess-chanceOfSuccessDetailsForm-topSealPercentage-decimalInputValue").value.trim();
-    let trapPercentage = document.getElementById("prospectSpecificChanceOfSuccess-trapPercentage-decimalInputValue").value.trim();
-    let migrationPercentage = document.getElementById("prospectSpecificChanceOfSuccess-migrationPercentage-decimalInputValue").value.trim();
+function calculateTotalProspectSpecificChance(module) {
+    let reservoirPercentage = module.querySelector("#prospectSpecificChanceOfSuccess-chanceOfSuccessDetailsForm-sourcePercentage-decimalInputValue").value.trim();
+    let sourcePercentage = module.querySelector("#prospectSpecificChanceOfSuccess-chanceOfSuccessDetailsForm-reservoirPercentage-decimalInputValue").value.trim();
+    let topSealPercentage = module.querySelector("#prospectSpecificChanceOfSuccess-chanceOfSuccessDetailsForm-topSealPercentage-decimalInputValue").value.trim();
+    let trapPercentage = module.querySelector("#prospectSpecificChanceOfSuccess-trapPercentage-decimalInputValue").value.trim();
+    let migrationPercentage = module.querySelector("#prospectSpecificChanceOfSuccess-migrationPercentage-decimalInputValue").value.trim();
 
     let total = 0;
 

@@ -2,15 +2,15 @@ import {hydrocarbonCaseHandler} from "./hydrocarbonCase.js";
 import {chanceOfSuccessFormHandler} from "./chanceOfSuccess.js";
 
 // Init Hydrocarbon Case
-const hydroCarbonCase = document.getElementById("oilOnlyCaseType");
+const hydrocarbonCase = document.querySelector("[data-module='hydrocarbon-case']");
 
-if(hydroCarbonCase != null) {
-  hydrocarbonCaseHandler();
+if(hydrocarbonCase != null) {
+  hydrocarbonCaseHandler(hydrocarbonCase);
 }
 
 // Init chance of success
-const chanceOfSuccess = document.getElementById("playChanceOfSuccess-sourcePercentage-decimalInputValue");
+const chanceOfSuccess = document.querySelector("[data-module='chance-of-success']");
 
 if(chanceOfSuccess != null) {
-  chanceOfSuccessFormHandler();
+  chanceOfSuccessFormHandler(chanceOfSuccess);
 }

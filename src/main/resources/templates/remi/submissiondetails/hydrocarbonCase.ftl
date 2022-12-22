@@ -10,6 +10,8 @@
   pageSize=PageSize.TWO_THIRDS_COLUMN
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>
+
+  <div data-module="hydrocarbon-case">
   <@fdsForm.htmlForm>
     <@fdsCheckbox.checkboxGroup
       path="form.oilOnlyCaseType"
@@ -38,5 +40,5 @@
 
     <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>
-
+  </div>
 </@defaultPage>
