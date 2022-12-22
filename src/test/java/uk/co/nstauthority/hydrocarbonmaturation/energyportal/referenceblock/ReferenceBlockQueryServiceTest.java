@@ -59,7 +59,7 @@ class ReferenceBlockQueryServiceTest {
 
     referenceBlockQueryService.getReferenceBlocksByRefsIn(blockRefs);
 
-    verify(referenceBlockApi, times(3)).findReferenceBlockByExactBlogRef(
+    verify(referenceBlockApi, times(3)).findReferenceBlockByBlockRef(
         anyString(),
         eq(ReferenceBlockQueryService.REFERENCE_BLOCK_PROJECTION_ROOT),
         any(),

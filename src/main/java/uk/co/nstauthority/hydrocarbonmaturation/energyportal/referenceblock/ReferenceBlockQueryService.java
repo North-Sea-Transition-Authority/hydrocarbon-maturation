@@ -51,7 +51,7 @@ public class ReferenceBlockQueryService {
 
   private Optional<ReferenceBlock> getReferenceBlock(String blockRef) {
     return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        referenceBlockApi.findReferenceBlockByExactBlogRef(
+        referenceBlockApi.findReferenceBlockByBlockRef(
             blockRef,
             REFERENCE_BLOCK_PROJECTION_ROOT,
             requestPurpose,
