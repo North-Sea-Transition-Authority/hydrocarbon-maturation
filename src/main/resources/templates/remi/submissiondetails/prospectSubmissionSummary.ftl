@@ -43,6 +43,7 @@
   htmlTitle=pageTitle
   pageHeading=pageTitle
   pageSize=PageSize.FULL_WIDTH
+  wrapperWidth=true
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap
   notificationBanner=notificationBanner>

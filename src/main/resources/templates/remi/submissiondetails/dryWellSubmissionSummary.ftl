@@ -15,11 +15,12 @@
 <#-- @ftlvariable name="mixedCase" type="Boolean" -->
 
 <@defaultPage
-htmlTitle=pageTitle
-pageHeading=pageTitle
-pageSize=PageSize.FULL_WIDTH
-errorItems=errorList
-breadcrumbsMap=breadcrumbsMap>
+  htmlTitle=pageTitle
+  pageHeading=pageTitle
+  pageSize=PageSize.FULL_WIDTH
+  errorItems=errorList
+  wrapperWidth=true
+  breadcrumbsMap=breadcrumbsMap>
 
     <@fdsForm.htmlForm>
         <@fdsAccordion.accordion accordionId="summaryaccordian">
