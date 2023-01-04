@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -171,6 +172,200 @@ class ReservoirPropertiesFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(
+      value = ProbabilityDistributionType.class,
+      mode = EnumSource.Mode.EXCLUDE,
+      names = {"CUSTOM", "NOT_CALCULATED"})
+  void validate_whenInvalidExceedenceForm_whenDiscovery_whenMixedHydrocarbon_fullValidation_thenValidationErrors(
+      ProbabilityDistributionType probabilityDistributionType) {
+    var form = getFormWithInvalidDistributions(probabilityDistributionType);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    reservoirPropertiesFormValidator.validate(form, bindingResult,
+        new ReservoirPropertiesValidatorHints(
+            ValidationType.FULL, SubmissionType.CREATE_DISCOVERY, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error",
+                Set.of("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("grossReservoirThickness." + probabilityDistributionType.getPath() + ".error",
+                Set.of("grossReservoirThickness." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("grossRockVolume." + probabilityDistributionType.getPath() + ".error",
+                Set.of("grossRockVolume." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error",
+                Set.of("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("netToGross." + probabilityDistributionType.getPath() + ".error",
+                Set.of("netToGross." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("netPorosity." + probabilityDistributionType.getPath() + ".error",
+                Set.of("netPorosity." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("depthToOilWaterContact." + probabilityDistributionType.getPath() + ".error",
+                Set.of("depthToOilWaterContact." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("depthToGasWaterContact." + probabilityDistributionType.getPath() + ".error",
+                Set.of("depthToGasWaterContact." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("depthToGasOilContact." + probabilityDistributionType.getPath() + ".error",
+                Set.of("depthToGasOilContact." + probabilityDistributionType.getPath() + ".error.error")))
+        .doesNotContainKey("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error");
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(
+            "Gross rock volume (GRV) distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Percentage of GRV which is oil bearing distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Average net pay thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to gas oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ProbabilityDistributionType.class,
+      mode = EnumSource.Mode.EXCLUDE,
+      names = {"CUSTOM", "NOT_CALCULATED"})
+  void validate_whenInvalidExceedenceForm_whenDiscovery_whenMixedHydrocarbon_partialValidation_thenValidationErrors(
+      ProbabilityDistributionType probabilityDistributionType) {
+    var form = getFormWithInvalidDistributions(probabilityDistributionType);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    reservoirPropertiesFormValidator.validate(form, bindingResult,
+        new ReservoirPropertiesValidatorHints(
+            ValidationType.PARTIAL, SubmissionType.CREATE_DISCOVERY, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error",
+                Set.of("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("grossReservoirThickness." + probabilityDistributionType.getPath() + ".error",
+                Set.of("grossReservoirThickness." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("grossRockVolume." + probabilityDistributionType.getPath() + ".error",
+                Set.of("grossRockVolume." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error",
+                Set.of("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("netToGross." + probabilityDistributionType.getPath() + ".error",
+                Set.of("netToGross." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("netPorosity." + probabilityDistributionType.getPath() + ".error",
+                Set.of("netPorosity." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("depthToOilWaterContact." + probabilityDistributionType.getPath() + ".error",
+                Set.of("depthToOilWaterContact." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("depthToGasWaterContact." + probabilityDistributionType.getPath() + ".error",
+                Set.of("depthToGasWaterContact." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("depthToGasOilContact." + probabilityDistributionType.getPath() + ".error",
+                Set.of("depthToGasOilContact." + probabilityDistributionType.getPath() + ".error.error")))
+        .doesNotContainKey("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error");
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(
+            "Gross rock volume (GRV) distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Percentage of GRV which is oil bearing distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Average net pay thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to gas oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenInvalidExceedenceForm_whenDiscovery_whenGasHydrocarbon_thenValidationErrors(
+      ValidationType validationType) {
+    var form = getFormWithInvalidDistributions(ProbabilityDistributionType.NORMAL);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    reservoirPropertiesFormValidator.validate(form, bindingResult,
+        new ReservoirPropertiesValidatorHints(
+            validationType, SubmissionType.CREATE_DISCOVERY, HydrocarbonsDiscovered.GAS_ONLY));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("averageNetPayThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("averageNetPayThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("grossReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("grossReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("percentOfGrvOilBearing." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("percentOfGrvOilBearing." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("netToGross." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("netToGross." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("netPorosity." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("netPorosity." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("depthToGasWaterContact." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("depthToGasWaterContact." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")))
+        .doesNotContainKey("depthToHydrocarbonContact." + ProbabilityDistributionType.NORMAL.getPath() + ".error");
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(
+            "Gross rock volume (GRV) distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Percentage of GRV which is oil bearing distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Average net pay thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Depth to gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenInvalidExceedenceForm_whenDiscovery_whenOilHydrocarbon_thenValidationErrors(
+      ValidationType validationType) {
+    var form = getFormWithInvalidDistributions(ProbabilityDistributionType.NORMAL);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    reservoirPropertiesFormValidator.validate(form, bindingResult,
+        new ReservoirPropertiesValidatorHints(
+            validationType, SubmissionType.CREATE_DISCOVERY, HydrocarbonsDiscovered.OIL_ONLY));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("averageNetPayThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("averageNetPayThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("grossReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("grossReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("percentOfGrvOilBearing." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("percentOfGrvOilBearing." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("netToGross." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("netToGross." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("netPorosity." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("netPorosity." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("depthToOilWaterContact." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("depthToOilWaterContact." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")))
+        .doesNotContainKey("depthToHydrocarbonContact." + ProbabilityDistributionType.NORMAL.getPath() + ".error");
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(
+            "Gross rock volume (GRV) distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Percentage of GRV which is oil bearing distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Average net pay thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+        );
+  }
+
   @Test
   void partialValidation_whenProspectSubmission_withValidForm() {
     var form = new ReservoirPropertiesForm();
@@ -182,7 +377,7 @@ class ReservoirPropertiesFormValidatorTest {
   private BindingResult validateReservoirProperties(ReservoirPropertiesForm form, ValidationType validationType, SubmissionType submissionType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    reservoirPropertiesFormValidator.validate(form, bindingResult, validationType, submissionType);
+    reservoirPropertiesFormValidator.validate(form, bindingResult, new ReservoirPropertiesValidatorHints(validationType, submissionType, null));
     return bindingResult;
   }
 
@@ -200,7 +395,9 @@ class ReservoirPropertiesFormValidatorTest {
     form.setNetPorosity(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setNetToGross(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setPercentOfGrvOilBearing(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
-
+    form.setDepthToOilWaterContact(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
+    form.setDepthToGasWaterContact(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
+    form.setDepthToGasOilContact(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     return form;
   }
 
@@ -218,7 +415,9 @@ class ReservoirPropertiesFormValidatorTest {
     form.setNetPorosity(probabilityDistributionForm);
     form.setNetToGross(probabilityDistributionForm);
     form.setPercentOfGrvOilBearing(probabilityDistributionForm);
-
+    form.setDepthToOilWaterContact(probabilityDistributionForm);
+    form.setDepthToGasWaterContact(probabilityDistributionForm);
+    form.setDepthToGasOilContact(probabilityDistributionForm);
     return form;
   }
 
@@ -236,7 +435,9 @@ class ReservoirPropertiesFormValidatorTest {
     form.setNetPorosity(probabilityDistributionForm);
     form.setNetToGross(probabilityDistributionForm);
     form.setPercentOfGrvOilBearing(probabilityDistributionForm);
-
+    form.setDepthToOilWaterContact(probabilityDistributionForm);
+    form.setDepthToGasWaterContact(probabilityDistributionForm);
+    form.setDepthToGasOilContact(probabilityDistributionForm);
     return form;
   }
 }

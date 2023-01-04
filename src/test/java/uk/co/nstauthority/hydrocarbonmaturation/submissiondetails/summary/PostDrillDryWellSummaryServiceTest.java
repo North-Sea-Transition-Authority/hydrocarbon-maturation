@@ -41,7 +41,8 @@ class PostDrillDryWellSummaryServiceTest {
     postDrillDryWellSummaryService = new PostDrillDryWellSummaryService(
         dryWellDetailsSummaryService,
         permeabilitySummaryService,
-        generalDetailSummaryService, reservoirPropertiesSummaryService
+        generalDetailSummaryService,
+        reservoirPropertiesSummaryService
     );
   }
 

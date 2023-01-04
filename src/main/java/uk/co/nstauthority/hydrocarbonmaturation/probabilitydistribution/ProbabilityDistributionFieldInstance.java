@@ -70,6 +70,21 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.FT_TVDSS,
       "Depth to hydrocarbon contact"
   ),
+  DEPTH_TO_OIL_WATER_CONTACT(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      "Depth to oil water contact"
+  ),
+  DEPTH_TO_GAS_WATER_CONTACT(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      "Depth to gas water contact"
+  ),
+  DEPTH_TO_GAS_OIL_CONTACT(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      "Depth to gas-oil contact"
+  ),
   // Gas case volumetrics
   GAS_HYDROCARBON_SATURATION(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),

@@ -104,6 +104,13 @@ public class ProbabilityDistributionTemplateService {
     );
 
     checkAvailabilityAndAddProbabilityInputs(
+        behaviour.isMostLikelyAvailable(),
+        behaviour.isMostLikelyRequired(),
+        ProbabilityOfExceedanceType.MOST_LIKELY,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
         behaviour.isMaxAvailable(),
         behaviour.isMaxRequired(),
         ProbabilityOfExceedanceType.MAX,

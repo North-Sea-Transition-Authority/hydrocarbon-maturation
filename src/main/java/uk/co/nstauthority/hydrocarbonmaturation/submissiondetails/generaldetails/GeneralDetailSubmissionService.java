@@ -23,7 +23,7 @@ public class GeneralDetailSubmissionService implements SectionSubmissionService 
     var form = generalDetailsFormService.getGeneralDetailsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult = generalDetailsFormService.validate(form, bindingResult,
-        ValidationType.FULL, submissionDetail.getSubmissionType());
+        ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

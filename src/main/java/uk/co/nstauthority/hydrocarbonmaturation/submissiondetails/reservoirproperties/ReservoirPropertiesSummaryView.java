@@ -10,5 +10,6 @@ public record ReservoirPropertiesSummaryView(SubmissionType submissionType,
                                              String lithology,
                                              String reservoirFacies,
                                              String reservoirConnectivity,
-                                             List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
+                                             List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews,
+                                             List<ProbabilityDistributionSummaryView> listOfDepthToContactDistributions) {
 }

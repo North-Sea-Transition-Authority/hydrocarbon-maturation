@@ -8,7 +8,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -100,8 +99,13 @@ class ReservoirPropertiesDuplicationServiceTest {
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
-    whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
-        .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
+    if (submissionType == SubmissionType.UPDATE_DISCOVERY) {
+      whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
+          .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
+    } else {
+      whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
+          .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
+    }
 
     reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -118,8 +122,13 @@ class ReservoirPropertiesDuplicationServiceTest {
     var newSubmissionDetail = new SubmissionDetail();
     newSubmissionDetail.setSubmissionType(submissionType);
 
-    whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(oldSubmissionDetail)
-        .thenReturn(Collections.emptyList());
+    if (submissionType == SubmissionType.UPDATE_DISCOVERY) {
+      whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
+          .thenReturn(List.of());
+    } else {
+      whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(oldSubmissionDetail)
+          .thenReturn(List.of());
+    }
 
     reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -134,8 +143,13 @@ class ReservoirPropertiesDuplicationServiceTest {
     var newSubmissionDetail = new SubmissionDetail();
     newSubmissionDetail.setSubmissionType(submissionType);
 
-    whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
-        .thenReturn(Collections.emptyList());
+    if (submissionType == SubmissionType.UPDATE_DISCOVERY) {
+      whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
+          .thenReturn(List.of());
+    } else {
+      whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
+          .thenReturn(List.of());
+    }
 
     reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -197,6 +211,20 @@ class ReservoirPropertiesDuplicationServiceTest {
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
         ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY
+    )));
+  }
+
+  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(SubmissionDetail oldSubmissionDetail) {
+    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY,
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
     )));
   }
 }

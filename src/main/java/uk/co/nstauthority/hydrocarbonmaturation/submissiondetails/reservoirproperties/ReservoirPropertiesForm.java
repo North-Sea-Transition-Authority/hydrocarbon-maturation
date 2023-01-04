@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 class ReservoirPropertiesForm implements SubmissionForm {
@@ -15,6 +16,9 @@ class ReservoirPropertiesForm implements SubmissionForm {
   private ProbabilityDistributionForm netToGross = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm netPorosity = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm depthToHydrocarbonContact = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToOilWaterContact = createCustomProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToGasWaterContact = createCustomProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToGasOilContact = createCustomProbabilityDistributionForm();
   private String reservoirFacies;
   private String reservoirConnectivity;
 
@@ -119,5 +123,38 @@ class ReservoirPropertiesForm implements SubmissionForm {
 
   public void setReservoirConnectivity(String reservoirConnectivity) {
     this.reservoirConnectivity = reservoirConnectivity;
+  }
+
+  public ProbabilityDistributionForm getDepthToOilWaterContact() {
+    return depthToOilWaterContact;
+  }
+
+  public void setDepthToOilWaterContact(
+      ProbabilityDistributionForm depthToOilWaterContact) {
+    this.depthToOilWaterContact = depthToOilWaterContact;
+  }
+
+  public ProbabilityDistributionForm getDepthToGasWaterContact() {
+    return depthToGasWaterContact;
+  }
+
+  public void setDepthToGasWaterContact(
+      ProbabilityDistributionForm depthToGasWaterContact) {
+    this.depthToGasWaterContact = depthToGasWaterContact;
+  }
+
+  public ProbabilityDistributionForm getDepthToGasOilContact() {
+    return depthToGasOilContact;
+  }
+
+  public void setDepthToGasOilContact(
+      ProbabilityDistributionForm depthToGasOilContact) {
+    this.depthToGasOilContact = depthToGasOilContact;
+  }
+
+  private ProbabilityDistributionForm createCustomProbabilityDistributionForm() {
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
+    return probabilityDistributionForm;
   }
 }

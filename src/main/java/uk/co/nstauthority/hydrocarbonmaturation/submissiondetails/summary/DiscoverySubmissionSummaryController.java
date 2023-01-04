@@ -54,6 +54,8 @@ public class DiscoverySubmissionSummaryController {
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)))
         .addObject("gasFluidPropertiesSummaryView",
             discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("reservoirPropertiesSummaryView",
+            discoverySummaryService.getReservoirPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("generalFluidPropertiesSummaryView",
             discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("oilFluidPropertiesSummaryView",

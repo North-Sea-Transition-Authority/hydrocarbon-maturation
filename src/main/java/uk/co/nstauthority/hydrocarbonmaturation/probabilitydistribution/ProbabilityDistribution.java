@@ -53,6 +53,8 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
 
   private BigDecimal constantValue;
 
+  private BigDecimal mostLikelyValue;
+
   public UUID getId() {
     return id;
   }
@@ -165,5 +167,13 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
 
   public void setConstantValue(BigDecimal constantValue) {
     this.constantValue = constantValue;
+  }
+
+  public BigDecimal getMostLikelyValue() {
+    return mostLikelyValue;
+  }
+
+  public void setMostLikelyValue(BigDecimal mostLikelyValue) {
+    this.mostLikelyValue = mostLikelyValue;
   }
 }

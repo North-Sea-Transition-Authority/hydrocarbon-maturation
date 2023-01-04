@@ -23,7 +23,7 @@ public class PermeabilitySubmissionService implements SectionSubmissionService {
     var form = permeabilityFormService.getPermeabilityForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult = permeabilityFormService.validate(form, bindingResult,
-        ValidationType.FULL, submissionDetail.getSubmissionType());
+        ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

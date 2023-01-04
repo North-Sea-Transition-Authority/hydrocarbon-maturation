@@ -5,16 +5,22 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
 public class DiscoveryWellDetailsPersistenceService {
 
   private final DiscoveryWellDetailsRepository discoveryWellDetailsRepository;
+  private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Autowired
-  public DiscoveryWellDetailsPersistenceService(DiscoveryWellDetailsRepository discoveryWellDetailsRepository) {
+  public DiscoveryWellDetailsPersistenceService(
+      DiscoveryWellDetailsRepository discoveryWellDetailsRepository,
+      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
     this.discoveryWellDetailsRepository = discoveryWellDetailsRepository;
+    this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
   }
 
   @Transactional
@@ -46,7 +52,12 @@ public class DiscoveryWellDetailsPersistenceService {
     discoveryWellDetails.setTotalDepthFormation(form.getWellDetailsForm().getTotalDepthFormation());
     discoveryWellDetails.setTotalWellCost(form.getDryHoleCost().createBigDecimalOrNull());
     discoveryWellDetails.setTotalDepthFormationComments(form.getWellDetailsForm().getTotalDepthFormationComments());
+
+    if (discoveryWellDetails.getHydrocarbonsDiscovered() != form.getHydrocarbonsDiscovered()) {
+      cleanHydrocarbonsDiscovered(submissionDetail, form.getHydrocarbonsDiscovered());
+    }
     discoveryWellDetails.setHydrocarbonsDiscovered(form.getHydrocarbonsDiscovered());
+
     discoveryWellDetailsRepository.save(discoveryWellDetails);
   }
 
@@ -64,5 +75,41 @@ public class DiscoveryWellDetailsPersistenceService {
 
   public boolean isDiscoveryMixed(DiscoveryWellDetail discoveryWellDetail) {
     return discoveryWellDetail.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS;
+  }
+
+  private void cleanHydrocarbonsDiscovered(SubmissionDetail submissionDetail,
+                                           HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
+          submissionDetail
+      );
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
+          submissionDetail
+      );
+    } else if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
+          submissionDetail
+      );
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
+          submissionDetail
+      );
+    } else if (hydrocarbonsDiscovered == null) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
+          submissionDetail
+      );
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
+          submissionDetail
+      );
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
+          submissionDetail
+      );
+    }
   }
 }

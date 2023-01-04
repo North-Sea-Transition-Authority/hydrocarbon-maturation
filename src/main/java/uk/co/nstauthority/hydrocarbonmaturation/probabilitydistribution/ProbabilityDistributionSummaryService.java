@@ -42,6 +42,8 @@ public class ProbabilityDistributionSummaryService {
     var p1 = Objects.requireNonNullElse(probabilityDistribution.getP1(), "").toString();
     var min = Objects.requireNonNullElse(probabilityDistribution.getMinValue(), "").toString();
     var max = Objects.requireNonNullElse(probabilityDistribution.getMaxValue(), "").toString();
+    var mostLikely = Objects.requireNonNullElse(probabilityDistribution.getMostLikelyValue(), "").toString();
+
     var probabilityDistributionType = "";
 
     if (probabilityDistribution.getDistributionType() != null) {
@@ -62,6 +64,7 @@ public class ProbabilityDistributionSummaryService {
         meanOrConstant,
         p10,
         p1,
+        mostLikely,
         max,
         units);
   }

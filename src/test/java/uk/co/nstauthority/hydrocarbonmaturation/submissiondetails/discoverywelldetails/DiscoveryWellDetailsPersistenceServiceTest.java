@@ -20,6 +20,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
@@ -30,6 +32,9 @@ class DiscoveryWellDetailsPersistenceServiceTest {
 
   @Mock
   private DiscoveryWellDetailsRepository discoveryWellDetailsRepository;
+
+  @Mock
+  private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @InjectMocks
   private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
@@ -161,6 +166,95 @@ class DiscoveryWellDetailsPersistenceServiceTest {
         assertTrue(discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWellDetail));
       }
     }
+  }
+
+  @ParameterizedTest
+  @EnumSource(HydrocarbonsDiscovered.class)
+  void saveDiscoveryWellDetails_whenGivenAForm_verifyDeletedProbabilityDistribution(
+      HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+    var form = getFilledForm();
+    form.setHydrocarbonsDiscovered(hydrocarbonsDiscovered);
+    var discoveryWellDetailArgumentCaptor = ArgumentCaptor.forClass(DiscoveryWellDetail.class);
+    discoveryWellDetailsPersistenceService.saveDiscoveryWellDetails(form, submissionDetail);
+
+    verify(discoveryWellDetailsRepository, times(1))
+        .save(discoveryWellDetailArgumentCaptor.capture());
+    var savedDiscoveryWellDetail = discoveryWellDetailArgumentCaptor.getValue();
+    var detailForm = form.getWellDetailsForm();
+    assertThat(savedDiscoveryWellDetail)
+        .extracting(
+            DiscoveryWellDetail::getDryWellName,
+            DiscoveryWellDetail::getLatitudeDegrees,
+            DiscoveryWellDetail::getLatitudeMinutes,
+            DiscoveryWellDetail::getLatitudeMinutes,
+            DiscoveryWellDetail::getLongitudeDegrees,
+            DiscoveryWellDetail::getLongitudeMinutes,
+            DiscoveryWellDetail::getLongitudeSeconds,
+            DiscoveryWellDetail::getLongitudeHemisphere,
+            DiscoveryWellDetail::getDatum,
+            DiscoveryWellDetail::getTotalDepthFormation,
+            DiscoveryWellDetail::getTotalDepthFormationComments,
+            DiscoveryWellDetail::getDataAcquisitionProgramme,
+            DiscoveryWellDetail::getGeophysicalUpdateCommentary,
+            DiscoveryWellDetail::getDiscoveryStatus,
+            DiscoveryWellDetail::getChanceOfCommercialityComments,
+            DiscoveryWellDetail::getTotalWellCost,
+            DiscoveryWellDetail::getHydrocarbonsDiscovered,
+            DiscoveryWellDetail::getSuccessRelatedCosts)
+        .containsExactly(
+            detailForm.getDryWell(),
+            detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            detailForm.getCoordinateInputForm().getLongitudeHemisphere(),
+            detailForm.getReservoirDatum(),
+            detailForm.getTotalDepthFormation(),
+            detailForm.getTotalDepthFormationComments(),
+            detailForm.getDataAcquisitionProgramme(),
+            detailForm.getGeophysicalUpdate(),
+            form.getDiscoveryStatus(),
+            form.getChanceOfCommercialityComments(),
+            form.getDryHoleCost().createBigDecimalOrNull(),
+            form.getHydrocarbonsDiscovered(),
+            form.getSuccessRelatedCosts().createBigDecimalOrNull()
+        );
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
+      verify(probabilityDistributionPersistenceService).deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT, submissionDetail);
+      verify(probabilityDistributionPersistenceService).deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT, submissionDetail);
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
+      verify(probabilityDistributionPersistenceService).deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT, submissionDetail);
+      verify(probabilityDistributionPersistenceService).deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT, submissionDetail);
+    }
+  }
+
+  @Test
+  void saveDiscoveryWellDetails_whenGivenAFormNoHydrocarbons_verifyDeletedProbabilityDistribution() {
+    var form = getFilledForm();
+    form.setHydrocarbonsDiscovered(null);
+    var wellDetails = new DiscoveryWellDetail();
+    wellDetails.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(wellDetails));
+
+    var discoveryWellDetailArgumentCaptor = ArgumentCaptor.forClass(DiscoveryWellDetail.class);
+    discoveryWellDetailsPersistenceService.saveDiscoveryWellDetails(form, submissionDetail);
+
+    verify(discoveryWellDetailsRepository, times(1))
+        .save(discoveryWellDetailArgumentCaptor.capture());
+    verify(probabilityDistributionPersistenceService).deleteProbabilityDistribution(
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT, submissionDetail);
+    verify(probabilityDistributionPersistenceService).deleteProbabilityDistribution(
+        ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT, submissionDetail);
+    verify(probabilityDistributionPersistenceService).deleteProbabilityDistribution(
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT, submissionDetail);
   }
 
   private DiscoveryWellDetailsForm getFilledForm() {

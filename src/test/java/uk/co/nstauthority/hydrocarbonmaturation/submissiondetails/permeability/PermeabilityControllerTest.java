@@ -95,8 +95,8 @@ class PermeabilityControllerTest extends AbstractControllerTest {
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
             .getTaskList(submissionDetail.getId()))));
 
-    verify(permeabilityFormService, times(1)).validate(any(), any(), eq(validationType), eq(
-        SubmissionType.POST_DRILL_DRY_HOLE));
+    verify(permeabilityFormService, times(1)).validate(any(), any(),
+        eq(validationType), eq(submissionDetail));
     verify(permeabilityPersistenceService, times(1))
         .savePermeabilityDetail(any(PermeabilityForm.class), eq(submissionDetail));
   }

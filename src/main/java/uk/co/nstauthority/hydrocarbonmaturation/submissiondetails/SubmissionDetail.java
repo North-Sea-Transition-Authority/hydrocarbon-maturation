@@ -93,4 +93,23 @@ public class SubmissionDetail {
   public void setVersionNumber(Integer versionNumber) {
     this.versionNumber = versionNumber;
   }
+
+  public boolean isProspectSubmission() {
+    return submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.PROSPECT_UPDATE;
+  }
+
+  public boolean isDryWellOrDiscoverySubmission() {
+    return submissionType == SubmissionType.POST_DRILL_DRY_HOLE
+        || isDiscoverySubmission();
+  }
+
+  public boolean isDiscoverySubmission() {
+    return submissionType == SubmissionType.UPDATE_DISCOVERY
+        || submissionType == SubmissionType.CREATE_DISCOVERY;
+  }
+
+  public boolean isDryWellSubmission() {
+    return submissionType == SubmissionType.POST_DRILL_DRY_HOLE;
+  }
 }

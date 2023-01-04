@@ -41,4 +41,7 @@ public interface ProbabilityDistributionTypeBehaviour {
 
   boolean isMaxRequired();
 
+  boolean isMostLikelyAvailable();
+
+  boolean isMostLikelyRequired();
 }

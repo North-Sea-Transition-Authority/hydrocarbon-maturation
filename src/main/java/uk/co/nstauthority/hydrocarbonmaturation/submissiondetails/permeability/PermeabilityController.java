@@ -59,7 +59,7 @@ public class PermeabilityController {
                                               ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     bindingResult = permeabilityFormService.validate(form, bindingResult,
-        validationType, submissionDetail.getSubmissionType());
+        validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getPermeabilityModelAndView(form, submissionDetail),

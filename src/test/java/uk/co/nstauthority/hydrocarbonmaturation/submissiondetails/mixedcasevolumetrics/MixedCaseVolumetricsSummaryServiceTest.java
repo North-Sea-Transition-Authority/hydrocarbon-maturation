@@ -61,7 +61,7 @@ class MixedCaseVolumetricsSummaryServiceTest {
         "test", "type", "20",
         "20", "20", "20",
         "20", "20", "20",
-        "20", "20", "unit");
+        "20", "10", "20", "unit");
 
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))

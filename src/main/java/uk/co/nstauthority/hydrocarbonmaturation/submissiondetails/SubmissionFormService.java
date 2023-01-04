@@ -10,7 +10,7 @@ public interface SubmissionFormService {
   default BindingResult validate(SubmissionForm form,
                                  BindingResult bindingResult,
                                  ValidationType validationType,
-                                 SubmissionType submissionType) {
+                                 SubmissionDetail submissionDetail) {
     return validate(form, bindingResult, validationType);
   }
 }

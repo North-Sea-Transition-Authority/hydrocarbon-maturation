@@ -174,8 +174,8 @@ public class GeneralDetailsFormService implements SubmissionFormService {
 
   @Override
   public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionType submissionType) {
-    generalDetailsFormValidator.validate(form, bindingResult, validationType, submissionType);
+                                ValidationType validationType, SubmissionDetail submissionDetail) {
+    generalDetailsFormValidator.validate(form, bindingResult, validationType, submissionDetail.getSubmissionType());
     return bindingResult;
   }
 }

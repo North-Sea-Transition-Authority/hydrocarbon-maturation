@@ -19,7 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -33,6 +33,7 @@ public class ReservoirPropertiesController {
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
+  private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
 
   public static final String PAGE_NAME = "Reservoir properties";
 
@@ -41,12 +42,14 @@ public class ReservoirPropertiesController {
                                        ReservoirPropertiesFormService reservoirPropertiesFormService,
                                        ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
                                        SubmissionDetailService submissionDetailService,
-                                       ProbabilityDistributionTemplateService probabilityDistributionTemplateService) {
+                                       ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
+                                       DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService) {
     this.controllerHelperService = controllerHelperService;
     this.reservoirPropertiesFormService = reservoirPropertiesFormService;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
+    this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
   }
 
   @GetMapping
@@ -63,7 +66,7 @@ public class ReservoirPropertiesController {
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     bindingResult = reservoirPropertiesFormService.validate(form, bindingResult,
-        validationType, submissionDetail.getSubmissionType());
+        validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getReservoirPropertiesWithErrors(bindingResult, form, submissionDetail),
@@ -78,10 +81,56 @@ public class ReservoirPropertiesController {
     var modelAndView = new ModelAndView("remi/submissiondetails/reservoirProperties")
         .addObject("form", form)
         .addObject("submissionType", submissionDetail.getSubmissionType());
-    addProbabilityTemplates(modelAndView, submissionDetail);
 
+    addProbabilityTemplates(modelAndView, submissionDetail);
+    if (submissionDetail.isDiscoverySubmission()) {
+      modelAndView = addHydrocarbonsDiscoveredAndDiscoveryTemplates(modelAndView, submissionDetail);
+    }
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
+  }
+
+  private ModelAndView addHydrocarbonsDiscoveredAndDiscoveryTemplates(ModelAndView modelAndView,
+                                                                      SubmissionDetail submissionDetail) {
+    return discoveryWellDetailsPersistenceService
+        .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
+        .map(discoveryWell -> {
+          var gasCase = discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWell);
+          var oilCase = discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWell);
+          var mixedCase = discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWell);
+          modelAndView
+              .addObject("gasCase", gasCase)
+              .addObject("oilCase", oilCase)
+              .addObject("mixedCase", mixedCase);
+          if (oilCase || mixedCase) {
+            modelAndView
+                .addObject("depthToOilWaterContactTemplate",
+                    probabilityDistributionTemplateService
+                        .getProbabilityDistributionTemplateForInstance(
+                            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT))
+                .addObject("depthToOilWaterContactError", ProbabilityDistributionTypeError.emptyError());
+          }
+          if (gasCase || mixedCase) {
+            modelAndView
+                .addObject("depthToGasWaterContactTemplate",
+                    probabilityDistributionTemplateService
+                        .getProbabilityDistributionTemplateForInstance(
+                            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT))
+                .addObject("depthToGasWaterContactError", ProbabilityDistributionTypeError.emptyError());
+          }
+          if (mixedCase) {
+            modelAndView.addObject("depthToGasOilContactTemplate",
+                probabilityDistributionTemplateService
+                .getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT))
+                .addObject("depthToGasOilContactError", ProbabilityDistributionTypeError.emptyError());
+          }
+          return modelAndView;
+        })
+        .orElseGet(() -> modelAndView
+            .addObject("gasCase", false)
+            .addObject("oilCase", false)
+            .addObject("mixedCase", false));
   }
 
   private void addProbabilityTemplates(ModelAndView modelAndView, SubmissionDetail submissionDetail) {
@@ -111,9 +160,7 @@ public class ReservoirPropertiesController {
                 .getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
         .addObject("netPorosityError", ProbabilityDistributionTypeError.emptyError());
-    var submissionType = submissionDetail.getSubmissionType();
-    if (submissionType == SubmissionType.CREATE_PROSPECT
-        || submissionType == SubmissionType.PROSPECT_UPDATE) {
+    if (submissionDetail.isProspectSubmission()) {
       modelAndView
           .addObject("depthToHydrocarbonContactTemplate",
               probabilityDistributionTemplateService
@@ -125,9 +172,7 @@ public class ReservoirPropertiesController {
                   .getProbabilityDistributionTemplateForInstance(
                       ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT))
           .addObject("averageNetPayThicknessError", ProbabilityDistributionTypeError.emptyError());
-    } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
-        || submissionType == SubmissionType.CREATE_DISCOVERY
-        || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    } else if (submissionDetail.isDryWellOrDiscoverySubmission()) {
       modelAndView.addObject("averageNetPayThicknessOptionalTemplate",
           probabilityDistributionTemplateService
               .getProbabilityDistributionTemplateForInstance(
@@ -167,9 +212,7 @@ public class ReservoirPropertiesController {
                 "netPorosity",
                 form.getNetPorosity()));
 
-    var submissionType = submissionDetail.getSubmissionType();
-    if (submissionType == SubmissionType.CREATE_PROSPECT
-        || submissionType == SubmissionType.PROSPECT_UPDATE) {
+    if (submissionDetail.isProspectSubmission()) {
       modelAndView
           .addObject("depthToHydrocarbonContactError",
           probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
@@ -181,9 +224,7 @@ public class ReservoirPropertiesController {
               bindingResult,
               "averageNetPayThickness",
               form.getAverageNetPayThickness()));
-    } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
-        || submissionType == SubmissionType.CREATE_DISCOVERY
-        || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    } else if (submissionDetail.isDryWellOrDiscoverySubmission()) {
       modelAndView.addObject("averageNetPayThicknessOptionalError",
           probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
               bindingResult,
@@ -191,6 +232,33 @@ public class ReservoirPropertiesController {
               form.getAverageNetPayThickness()
           ));
     }
+
+    if (submissionDetail.isDiscoverySubmission()) {
+      addDiscoveryTemplatesWithErrors(modelAndView, form, bindingResult);
+    }
+
     return modelAndView;
+  }
+
+  private void addDiscoveryTemplatesWithErrors(ModelAndView modelAndView,
+                                               ReservoirPropertiesForm form,
+                                               BindingResult bindingResult) {
+    modelAndView
+        .addObject("depthToOilWaterContactError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "depthToOilWaterContact",
+                form.getDepthToOilWaterContact()))
+        .addObject("depthToGasWaterContactError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "depthToGasWaterContact",
+                form.getDepthToGasWaterContact()))
+        .addObject("depthToGasOilContactError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "depthToGasOilContact",
+                form.getDepthToGasOilContact()
+            ));
   }
 }

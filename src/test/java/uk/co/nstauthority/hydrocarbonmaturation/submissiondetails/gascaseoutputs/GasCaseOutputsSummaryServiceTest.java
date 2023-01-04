@@ -72,7 +72,7 @@ class GasCaseOutputSummaryServiceTest {
         "test", "type", "20",
         "20", "20", "20",
         "20", "20", "20",
-        "20", "20", "unit");
+        "20", "20", "10", "unit");
 
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(submissionDetail))
         .thenReturn(Optional.of(gasCaseOutput));

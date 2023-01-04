@@ -44,9 +44,9 @@ class PermeabilityFormServiceTest {
     var form = new PermeabilityForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    permeabilityFormService.validate(form, bindingResult, ValidationType.FULL, SubmissionType.CREATE_DISCOVERY);
+    permeabilityFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     verify(permeabilityFormValidator, times(1)).validate(form, bindingResult,
-        ValidationType.FULL, SubmissionType.CREATE_DISCOVERY);
+        ValidationType.FULL, SubmissionType.POST_DRILL_DRY_HOLE);
   }
 
   @Test

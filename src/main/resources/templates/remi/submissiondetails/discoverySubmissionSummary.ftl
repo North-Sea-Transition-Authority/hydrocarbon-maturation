@@ -1,6 +1,7 @@
 <#include '../layout/layout.ftl'>
 
 <#import '../summarylistcards/permeabilitySummaryCard.ftl' as permeabilitySummary>
+<#import '../summarylistcards/reservoirPropertiesSummaryCard.ftl' as reservoirPropertiesSummary>
 <#import '../summarylistcards/gasFluidSummaryCard.ftl' as gasFluidSummary>
 <#import '../summarylistcards/generalFluidSummaryCard.ftl' as generalFluidSummary>
 <#import '../summarylistcards/oilFluidSummaryCard.ftl' as oilFluidSummary>
@@ -25,6 +26,8 @@
         <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
       </@fdsAccordion.accordionSection>
       <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">
+        <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard
+            reservoirPropertiesValues=reservoirPropertiesSummaryView/>
         <@permeabilitySummary.permeabilityDetailsSummaryCard
           permeabilityDetailsValues=permeabiltySummaryView
           optionalPermeability=false/>

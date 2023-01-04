@@ -77,10 +77,10 @@ class MixedCaseOutputSummaryServiceTest {
   @Test
   void getMixedCaseOutputSummaryFromSubmissionDetail_whenPresent_notEmptySummary() {
     var testSummary = new ProbabilityDistributionSummaryView(
-        "test", "type", "20",
+         "test", "type", "20",
         "20", "20", "20",
         "20", "20", "20",
-        "20", "20", "unit");
+        "20", "", "20", "unit");
 
     when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(submissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));

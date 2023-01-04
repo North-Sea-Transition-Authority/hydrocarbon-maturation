@@ -26,6 +26,8 @@ class ReservoirPropertiesPersistenceServiceTest {
   private ReservoirPropertiesRepository reservoirPropertiesRepository;
   @Mock
   private static ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+
+  @Mock
   private static ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
 
   private static SubmissionDetail submissionDetail;
@@ -102,19 +104,52 @@ class ReservoirPropertiesPersistenceServiceTest {
   }
 
   @Test
+  void saveReservoirProperties_whenDiscoverySubmission_givenAForm_verifyCreated_Entity() {
+    var form = getValidForm();
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verifyProbabilityTablesSaved(form);
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
+
+    var savedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getSubmissionDetail,
+            ReservoirProperty::getFormationName,
+            ReservoirProperty::getAgeStage,
+            ReservoirProperty::getLithology,
+            ReservoirProperty::getReservoirConnectivity,
+            ReservoirProperty::getReservoirFacies
+        )
+        .containsExactly(
+            submissionDetail,
+            form.getFormationName(),
+            form.getAgeStageOrSeries(),
+            form.getLithology(),
+            form.getReservoirConnectivity(),
+            form.getReservoirFacies()
+        );
+  }
+
+  @Test
   void getTrapProperty_verifyMethodCall() {
     reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail);
     verify(reservoirPropertiesRepository, times(1)).findBySubmissionDetail(submissionDetail);
   }
 
   private void verifyProbabilityTablesSaved(ReservoirPropertiesForm form) {
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT
-        || submissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE) {
+    var submissionType = submissionDetail.getSubmissionType();
+    if (submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.PROSPECT_UPDATE) {
       verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
           ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
           form.getAverageNetPayThickness(),
           submissionDetail);
-    } else if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE){
+    } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
+        || submissionType == SubmissionType.CREATE_DISCOVERY){
       verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
           ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY,
           form.getAverageNetPayThickness(),
@@ -136,8 +171,8 @@ class ReservoirPropertiesPersistenceServiceTest {
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
         form.getGrossRockVolume(),
         submissionDetail);
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT
-        || submissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE) {
+    if (submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.PROSPECT_UPDATE) {
       verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
           ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
           form.getDepthToHydrocarbonContact(),
@@ -147,6 +182,34 @@ class ReservoirPropertiesPersistenceServiceTest {
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
         form.getGrossReservoirThickness(),
         submissionDetail);
+
+    if (submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+      verify(probabilityDistributionPersistenceService, times(1))
+          .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
+              submissionDetail);
+      verify(probabilityDistributionPersistenceService, times(1))
+          .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
+              submissionDetail);
+      verify(probabilityDistributionPersistenceService, times(1))
+          .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
+              submissionDetail);
+
+      verify(probabilityDistributionPersistenceService, times(1))
+          .saveProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
+              form.getDepthToGasWaterContact(),
+              submissionDetail);
+      verify(probabilityDistributionPersistenceService, times(1))
+          .saveProbabilityDistribution(
+              ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
+              form.getDepthToOilWaterContact(),
+              submissionDetail);
+      verify(probabilityDistributionPersistenceService, times(1))
+          .saveProbabilityDistribution(
+              ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
+              form.getDepthToGasOilContact(),
+              submissionDetail);
+    }
   }
 
   private ReservoirPropertiesForm getValidForm() {
@@ -170,6 +233,13 @@ class ReservoirPropertiesPersistenceServiceTest {
         ProbabilityDistributionTestUtil.getValidProbabilityDistributionForm(ProbabilityDistributionType.LOGNORMAL));
     form.setGrossReservoirThickness(
         ProbabilityDistributionTestUtil.getValidProbabilityDistributionForm(ProbabilityDistributionType.LOGNORMAL));
+    form.setDepthToGasOilContact(
+        ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
+    form.setDepthToGasWaterContact(
+        ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
+    form.setDepthToOilWaterContact(
+        ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
+
     return form;
   }
 }

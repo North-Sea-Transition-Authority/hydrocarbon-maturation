@@ -8,19 +8,25 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 
 @Service
 public class ReservoirPropertiesSummaryService {
-  private ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
-  private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
+
+  private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
+  private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
+  private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
 
   @Autowired
   public ReservoirPropertiesSummaryService(
       ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
-      ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
+      ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
+      DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService) {
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
+    this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
   }
 
   public ReservoirPropertiesSummaryView getReservoirPropertiesSummaryFromSubmissionDetail(
@@ -35,7 +41,7 @@ public class ReservoirPropertiesSummaryService {
                                                                                 ReservoirProperty reservoirProperty) {
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
     ProbabilityDistributionSummaryView averageNetPayThickness;
-    if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
+    if (submissionDetail.isDryWellOrDiscoverySubmission()) {
       averageNetPayThickness = probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY,
@@ -80,13 +86,47 @@ public class ReservoirPropertiesSummaryService {
             submissionDetail);
     listOfSummaryViews.add(netPorosity);
 
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT
-        || submissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE) {
+    if (submissionDetail.isProspectSubmission()) {
       var depthToHydrocarbonContact =
           probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
               submissionDetail);
       listOfSummaryViews.add(depthToHydrocarbonContact);
+    }
+
+    var listOfDepthToContactDistributions  = new ArrayList<ProbabilityDistributionSummaryView>();
+
+    if (submissionDetail.isDiscoverySubmission()) {
+      discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
+          .map(DiscoveryWellDetail::getHydrocarbonsDiscovered)
+          .ifPresent(hydrocarbonsDiscovered -> {
+            if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
+                || hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
+              var depthToOilWaterContact =
+                  probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+                      ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
+                      submissionDetail
+                  );
+              listOfDepthToContactDistributions.add(depthToOilWaterContact);
+            }
+            if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
+                || hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
+              var depthToGasWaterContact =
+                  probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+                      ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
+                      submissionDetail
+                  );
+              listOfDepthToContactDistributions.add(depthToGasWaterContact);
+            }
+            if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+              var depthToGasOilContact =
+                  probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+                      ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
+                      submissionDetail
+                  );
+              listOfDepthToContactDistributions.add(depthToGasOilContact);
+            }
+          });
     }
 
     return new ReservoirPropertiesSummaryView(
@@ -96,7 +136,8 @@ public class ReservoirPropertiesSummaryService {
         Objects.requireNonNullElse(reservoirProperty.getLithology(), ""),
         Objects.requireNonNullElse(reservoirProperty.getReservoirFacies(), ""),
         Objects.requireNonNullElse(reservoirProperty.getReservoirConnectivity(), ""),
-        listOfSummaryViews
+        listOfSummaryViews,
+        listOfDepthToContactDistributions
     );
   }
 }

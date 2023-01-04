@@ -187,6 +187,19 @@ public class ProbabilityDistributionValidationUtil {
           errors
       );
 
+      //validate most likely input
+      validateInput(
+          behaviour.isMostLikelyAvailable(),
+          behaviour.isMostLikelyRequired(),
+          formField,
+          typePath,
+          ProbabilityOfExceedanceType.MOST_LIKELY.getPath(),
+          probabilityOfExceedanceForm.getMostLikely(),
+          units,
+          validationType,
+          errors
+      );
+
       // validate Max input
       validateInput(
           behaviour.isMaxAvailable(),

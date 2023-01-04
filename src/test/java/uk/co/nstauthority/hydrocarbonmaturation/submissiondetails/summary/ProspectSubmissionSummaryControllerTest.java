@@ -100,6 +100,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
         "lithology",
         "facies",
         "connectivity",
+        new ArrayList<>(),
         new ArrayList<>());
     trapPropertiesSummaryView = new TrapPropertiesSummaryView(
         "desc",

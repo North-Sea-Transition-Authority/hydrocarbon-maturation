@@ -13,6 +13,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproper
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 
 @Service
 class DiscoverySummaryService {
@@ -22,18 +24,21 @@ class DiscoverySummaryService {
   private final GeneralFluidPropertySummaryService generalFluidPropertySummaryService;
   private final PermeabilitySummaryService permeabilitySummaryService;
   private final GeneralDetailSummaryService generalDetailSummaryService;
+  private final ReservoirPropertiesSummaryService reservoirPropertiesSummaryService;
 
   @Autowired
   DiscoverySummaryService(GasFluidPropertySummaryService gasFluidPropertySummaryService,
                           OilFluidPropertySummaryService oilFluidPropertySummaryService,
                           GeneralFluidPropertySummaryService generalFluidPropertySummaryService,
                           PermeabilitySummaryService permeabilitySummaryService,
-                          GeneralDetailSummaryService generalDetailSummaryService) {
+                          GeneralDetailSummaryService generalDetailSummaryService,
+                          ReservoirPropertiesSummaryService reservoirPropertiesSummaryService) {
     this.gasFluidPropertySummaryService = gasFluidPropertySummaryService;
     this.oilFluidPropertySummaryService = oilFluidPropertySummaryService;
     this.generalFluidPropertySummaryService = generalFluidPropertySummaryService;
     this.permeabilitySummaryService = permeabilitySummaryService;
     this.generalDetailSummaryService = generalDetailSummaryService;
+    this.reservoirPropertiesSummaryService = reservoirPropertiesSummaryService;
   }
 
   public GasFluidPropertySummaryView getGasFluidPropertySummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -51,6 +56,11 @@ class DiscoverySummaryService {
 
   public PermeabilityDetailSummaryView getPermeabilitySummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return permeabilitySummaryService.getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public ReservoirPropertiesSummaryView getReservoirPropertySummaryViewFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
+    return reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
   }
 
   public GeneralDetailSummaryView getGeneralDetailsSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {

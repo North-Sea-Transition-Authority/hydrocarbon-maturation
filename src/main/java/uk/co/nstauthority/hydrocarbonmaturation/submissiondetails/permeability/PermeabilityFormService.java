@@ -34,8 +34,8 @@ class PermeabilityFormService implements SubmissionFormService {
   public BindingResult validate(SubmissionForm form,
                                 BindingResult bindingResult,
                                 ValidationType validationType,
-                                SubmissionType submissionType) {
-    permeabilityFormValidator.validate(form, bindingResult, validationType, submissionType);
+                                SubmissionDetail submissionDetail) {
+    permeabilityFormValidator.validate(form, bindingResult, validationType, submissionDetail.getSubmissionType());
     return bindingResult;
   }
 

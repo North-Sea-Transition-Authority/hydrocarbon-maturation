@@ -60,7 +60,7 @@ public class GeneralDetailsController {
                                          @ModelAttribute("form") GeneralDetailsForm form, BindingResult bindingResult,
                                          ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail.getSubmissionType());
+    bindingResult = generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getGeneralDetailsModelAndView(form, submissionDetail),

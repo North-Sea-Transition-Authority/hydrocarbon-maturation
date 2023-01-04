@@ -14,15 +14,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +41,9 @@ class ReservoirPropertiesFormServiceTest {
   private static ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
 
   @Mock
+  private static DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
+
+  @Mock
   private static ProbabilityDistributionFormService probabilityDistributionFormService;
 
   private static SubmissionDetail submissionDetail;
@@ -44,7 +51,8 @@ class ReservoirPropertiesFormServiceTest {
   @BeforeEach
   void setUp() {
     reservoirPropertiesFormService = new ReservoirPropertiesFormService(reservoirPropertiesFormValidator,
-        reservoirPropertiesPersistenceService, probabilityDistributionFormService);
+        reservoirPropertiesPersistenceService, probabilityDistributionFormService,
+        discoveryWellDetailsPersistenceService);
 
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
@@ -53,10 +61,22 @@ class ReservoirPropertiesFormServiceTest {
   void validate_verifyMethodCall() {
     var form = new ReservoirPropertiesForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var captor = ArgumentCaptor.forClass(ReservoirPropertiesValidatorHints.class);
+    reservoirPropertiesFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    verify(reservoirPropertiesFormValidator, times(1))
+        .validate(eq(form), eq(bindingResult), captor.capture());
 
-    reservoirPropertiesFormService.validate(form, bindingResult, ValidationType.FULL, SubmissionType.CREATE_PROSPECT);
-    verify(reservoirPropertiesFormValidator, times(1)).validate(form, bindingResult, ValidationType.FULL,
-        SubmissionType.CREATE_PROSPECT);
+    assertThat(captor.getValue())
+        .hasOnlyFields("hydrocarbonsDiscovered")
+        .extracting(
+            ReservoirPropertiesValidatorHints::getValidationType,
+            ReservoirPropertiesValidatorHints::getSubmissionType,
+            ReservoirPropertiesValidatorHints::getHydrocarbonsDiscovered)
+        .containsExactly(
+            ValidationType.FULL,
+            submissionDetail.getSubmissionType(),
+            null
+        );
   }
 
   @Test
@@ -66,7 +86,7 @@ class ReservoirPropertiesFormServiceTest {
 
     assertThatThrownBy(() -> reservoirPropertiesFormService.validate(form, bindingResult, ValidationType.FULL))
         .isExactlyInstanceOf(ActionNotAllowedException.class)
-        .hasMessage("Must supply submission type to this validator");
+        .hasMessage("Must supply submission form validator hints to this validator");
   }
 
   @Test
@@ -164,6 +184,37 @@ class ReservoirPropertiesFormServiceTest {
             probabilityDistributionForm.getNormal().getMax(),
             probabilityDistributionForm.getNormal().getConstant()
         );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_DISCOVERY", "UPDATE_DISCOVERY"})
+  void reservoirPropertiesEntityToForm_whenCreateDiscovery_thenVerifyDIscoveryDistributionEntityToForm(
+      SubmissionType submissionType) {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    submissionDetail.setSubmissionType(submissionType);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    var discoveryWellDetail = new DiscoveryWellDetail();
+
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(discoveryWellDetail));
+    when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(any()))
+        .thenReturn(true);
+
+    reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail);
+
+    verify(probabilityDistributionFormService, times(1))
+        .probabilityDistributionEntityToForm(submissionDetail,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT);
+    verify(probabilityDistributionFormService, times(1))
+        .probabilityDistributionEntityToForm(submissionDetail,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT);
+    verify(probabilityDistributionFormService, times(1))
+        .probabilityDistributionEntityToForm(submissionDetail,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
+    verify(probabilityDistributionFormService, times(1))
+        .probabilityDistributionEntityToForm(submissionDetail,
+            ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
   }
 
   private ReservoirProperty getReservoirProperty(SubmissionDetail submissionDetail) {

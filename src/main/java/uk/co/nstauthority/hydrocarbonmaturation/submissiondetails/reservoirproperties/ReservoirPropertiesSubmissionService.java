@@ -24,7 +24,7 @@ public class ReservoirPropertiesSubmissionService implements SectionSubmissionSe
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult = reservoirPropertiesFormService.validate(
         form, bindingResult,
-        ValidationType.FULL, submissionDetail.getSubmissionType());
+        ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

@@ -38,18 +38,26 @@
       <@fdsTextInput.textInput path="form.ageStageOrSeries" labelText="Age stage or series"/>
       <@fdsTextInput.textInput path="form.lithology" labelText="Lithology"/>
       <#if submissionType == "POST_DRILL_DRY_HOLE">
+        <#assign optionalFaciesAndConnectivity = true />
+      </#if>
+      <#if submissionType == "CREATE_DISCOVERY" || submissionType == "UPDATE_DISCOVERY">
+        <#assign optionalFaciesAndConnectivity = false/>
+      </#if>
+      <#if submissionType == "POST_DRILL_DRY_HOLE"
+        || submissionType == "CREATE_DISCOVERY"
+        || submissionType == "UPDATE_DISCOVERY">
         <@fdsTextarea.textarea
           path="form.reservoirFacies"
           labelText="Reservoir facies"
-          optionalLabel=true
+          optionalLabel=optionalFaciesAndConnectivity
           hintText="Describe the facies, depositional environments and impact on reservoir development and performance"/>
         <@fdsTextarea.textarea
           path="form.reservoirConnectivity"
-          optionalLabel=true
+          optionalLabel=optionalFaciesAndConnectivity
           labelText="Reservoir connectivity"
           hintText="Comment on sandbody geometry and architecture, fault compartmentalisation, aquifer size and connectivity"/>
       </#if>
-     </@fdsFieldset.fieldset>
+   </@fdsFieldset.fieldset>
     <#if submissionType == "CREATE_PROSPECT" || submissionType == "PROSPECT_UPDATE">
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionTypePath="form.averageNetPayThickness.probabilityDistributionType"
@@ -57,7 +65,9 @@
         formId="averageNetPayThickness"
         template=averageNetPayThicknessTemplate
         error=averageNetPayThicknessError/>
-    <#elseif submissionType == "POST_DRILL_DRY_HOLE" || submissionType == "CREATE_DISCOVERY">
+    <#elseif submissionType == "POST_DRILL_DRY_HOLE"
+      || submissionType == "CREATE_DISCOVERY"
+      || submissionType == "UPDATE_DISCOVERY">
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionTypePath="form.averageNetPayThickness.probabilityDistributionType"
         labelText="Average net pay thickness distribution used"
@@ -107,6 +117,32 @@
         formId="depthToHydrocarbonContact"
         template=depthToHydrocarbonContactTemplate
         error=depthToHydrocarbonContactError/>
+    </#if>
+    <#if submissionType == "CREATE_DISCOVERY" || submissionType == "UPDATE_DISCOVERY">
+      <#if oilCase || mixedCase>
+        <@probabilityDistribution.probabilityDistributionCustomTemplate
+          probabilityDistributionTypePath="form.depthToOilWaterContact.probabilityDistributionType"
+          labelText="Depth to oil water contact distribution used"
+          formId="depthToOilWaterContact"
+          template=depthToOilWaterContactTemplate
+          error=depthToOilWaterContactError/>
+      </#if>
+      <#if gasCase || mixedCase>
+        <@probabilityDistribution.probabilityDistributionCustomTemplate
+          probabilityDistributionTypePath="form.depthToGasWaterContact.probabilityDistributionType"
+          labelText="Depth to gas water contact distribution used"
+          formId="depthToGasWaterContact"
+          template=depthToGasWaterContactTemplate
+          error=depthToGasWaterContactError/>
+      </#if>
+      <#if mixedCase>
+        <@probabilityDistribution.probabilityDistributionCustomTemplate
+          probabilityDistributionTypePath="form.depthToGasOilContact.probabilityDistributionType"
+          labelText="Depth to gas oil contact distribution used"
+          formId="depthToGasOilContact"
+          template=depthToGasOilContactTemplate
+          error=depthToGasOilContactError/>
+      </#if>
     </#if>
     <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>

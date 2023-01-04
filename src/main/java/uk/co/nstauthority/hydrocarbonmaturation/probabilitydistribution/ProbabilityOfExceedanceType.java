@@ -13,6 +13,7 @@ public enum ProbabilityOfExceedanceType implements Displayable {
   P10("P10", "p10"),
   P1("P1", "p1"),
   MAX("Max", "max"),
+  MOST_LIKELY("Most likely", "mostLikely"),
   CONSTANT("Constant", "constant");
 
   private final String displayName;

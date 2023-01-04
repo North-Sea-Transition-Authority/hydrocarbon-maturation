@@ -68,6 +68,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
         "lithology",
         "facies",
         "connectivity",
+        new ArrayList<>(),
         new ArrayList<>());
   }
 

@@ -73,6 +73,8 @@ public class ProbabilityDistributionFormService {
     exceedanceForm.setMax(DecimalInput.createDecimalInput(max));
     var constant = probabilityDistribution.getConstantValue();
     exceedanceForm.setConstant(DecimalInput.createDecimalInput(constant));
+    var mostLikely = probabilityDistribution.getMostLikelyValue();
+    exceedanceForm.setMostLikely(DecimalInput.createDecimalInput(mostLikely));
     return exceedanceForm;
   }
 }

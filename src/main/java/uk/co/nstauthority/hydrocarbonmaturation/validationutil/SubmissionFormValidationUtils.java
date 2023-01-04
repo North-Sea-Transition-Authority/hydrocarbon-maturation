@@ -25,4 +25,12 @@ public class SubmissionFormValidationUtils {
         .findFirst()
         .orElse(null);
   }
+
+  public static SubmissionFormValidatorHints extractValidatorHints(Object[] validationHints) {
+    return Arrays.stream(validationHints)
+        .filter(SubmissionFormValidatorHints.class::isInstance)
+        .map(SubmissionFormValidatorHints.class::cast)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Cannot get SubmissionFormValidatorHints"));
+  }
 }

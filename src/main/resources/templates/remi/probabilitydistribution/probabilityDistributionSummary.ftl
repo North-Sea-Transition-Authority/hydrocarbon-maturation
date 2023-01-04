@@ -31,6 +31,38 @@
 
 </#macro>
 
+<#macro minMaxMostLikelyTable
+  probabilityDistributions = []>
+  <@minMaxMostLikelyHeader>
+    <#list probabilityDistributions as probabilityDistribution>
+      <tr class="govuk-table__row">
+        <th scope="row" class="govuk-table__header">${probabilityDistribution.probabilityDistributionName()}</th>
+        <td class="govuk-table__cell govuk-table__cell--numeric">${probabilityDistribution.min()}</td>
+        <td class="govuk-table__cell govuk-table__cell--numeric">${probabilityDistribution.mostLikely()}</td>
+        <td class="govuk-table__cell govuk-table__cell--numeric">${probabilityDistribution.max()}</td>
+        <td class="govuk-table__cell">${probabilityDistribution.units()}</td>
+      </tr>
+    </#list>
+  </@minMaxMostLikelyHeader>
+</#macro>
+
+<#macro minMaxMostLikelyHeader>
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th scope="col" class="govuk-table__header"/>
+      <th scope="col" class="govuk-table__header govuk-table__header--numeric">Min</th>
+      <th scope="col" class="govuk-table__header govuk-table__header--numeric">Most likely</th>
+      <th scope="col" class="govuk-table__header govuk-table__header--numeric">Max</th>
+      <th scope="col" class="govuk-table__header">Units</th>
+    </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      <#nested>
+    </tbody>
+  </table>
+</#macro>
+
 <#macro probabilityDistributionTableHeader
   withDistributionType=true>
   <table class="govuk-table">
@@ -39,19 +71,21 @@
       <th scope="col" class="govuk-table__header"/>
       <#if withDistributionType>
         <th scope="col" class="govuk-table__header">Distribution type</th>
+      </#if>
+      <#if withDistributionType>
         <th scope="col" class="govuk-table__header govuk-table__header--numeric">Min</th>
       </#if>
       <th scope="col" class="govuk-table__header govuk-table__header--numeric">P99</th>
       <th scope="col" class="govuk-table__header govuk-table__header--numeric">P90</th>
       <th scope="col" class="govuk-table__header govuk-table__header--numeric">Mode</th>
       <th scope="col" class="govuk-table__header govuk-table__header--numeric">P50</th>
-      <th scope="col" class="govuk-table__header govuk-table__header--numeric">Mean/constant</th>
+      <th scope="col" class="govuk-table__header govuk-table__header--numeric">Mean / constant</th>
       <th scope="col" class="govuk-table__header govuk-table__header--numeric">P10</th>
       <th scope="col" class="govuk-table__header govuk-table__header--numeric">P1</th>
       <#if withDistributionType>
         <th scope="col" class="govuk-table__header govuk-table__header--numeric">Max</th>
       </#if>
-      <th scope="col" class="govuk-table__header govuk-table__header--numeric">Units</th>
+      <th scope="col" class="govuk-table__header">Units</th>
     </tr>
     </thead>
     <tbody class="govuk-table__body">

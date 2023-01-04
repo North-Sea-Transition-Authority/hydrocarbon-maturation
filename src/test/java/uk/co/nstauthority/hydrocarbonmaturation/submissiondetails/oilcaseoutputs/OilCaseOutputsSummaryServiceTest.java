@@ -76,7 +76,7 @@ class OilCaseOutputSummaryServiceTest {
         "test", "type", "20",
         "20", "20", "20",
         "20", "20", "20",
-        "20", "20", "unit");
+        "20", "", "20", "unit");
 
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
         .thenReturn(Optional.of(oilCaseOutput));

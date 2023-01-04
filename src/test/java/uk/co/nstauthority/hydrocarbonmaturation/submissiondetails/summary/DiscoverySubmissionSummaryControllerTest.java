@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,12 +30,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ContextConfiguration(classes = DiscoverySubmissionSummaryController.class)
@@ -62,6 +65,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   private GeneralFluidPropertySummaryView generalFluidPropertySummaryView;
   private PermeabilityDetailSummaryView permeabilityDetailSummaryView;
   private GeneralDetailSummaryView generalDetailSummaryView;
+  private ReservoirPropertiesSummaryView reservoirPropertiesSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -72,6 +76,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
     generalFluidPropertySummaryView = GeneralFluidPropertySummaryView.empty();
     permeabilityDetailSummaryView = PermeabilityDetailSummaryView.empty();
     generalDetailSummaryView = GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(), "Prospect");
+    reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(SubmissionType.CREATE_DISCOVERY,
+        "", "", "", "", "", List.of(), List.of());
   }
 
   @Test
@@ -87,6 +93,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(generalFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
+    when(discoverySummaryService.getReservoirPropertySummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirPropertiesSummaryView);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
@@ -133,6 +141,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
         .thenReturn(generalFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
+    when(discoverySummaryService.getReservoirPropertySummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirPropertiesSummaryView);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
@@ -148,6 +158,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView),
             entry("permeabiltySummaryView", permeabilityDetailSummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
+            entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
             entry("gasOnlyDiscovery", false),
             entry("oilOnlyDiscovery", false),
             entry("mixedDiscovery", false)

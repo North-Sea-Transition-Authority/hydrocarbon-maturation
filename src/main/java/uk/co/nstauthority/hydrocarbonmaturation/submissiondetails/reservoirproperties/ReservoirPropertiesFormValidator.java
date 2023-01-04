@@ -5,16 +5,20 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 
 @Service
 class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionFormValidator {
 
   private SubmissionType submissionType;
+  private HydrocarbonsDiscovered hydrocarbonsDiscovered;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -28,8 +32,11 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
-    var validationType = SubmissionFormValidationUtils.extractValidationTypeFromHints(validationHints);
-    submissionType = SubmissionFormValidationUtils.extractSubmissionTypeFromHints(validationHints);
+    var validatorHints = SubmissionFormValidationUtils.extractValidatorHints(validationHints);
+    submissionType = validatorHints.getSubmissionType();
+    var validationType = validatorHints.getValidationType();
+    hydrocarbonsDiscovered = extractHydrocarbonsDiscoveredFromHints(validatorHints);
+
     var form = (ReservoirPropertiesForm) target;
 
     switch (validationType) {
@@ -94,6 +101,38 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
           "Depth to hydrocarbon contact distribution used"
       );
     }
+
+    if (submissionType == SubmissionType.CREATE_DISCOVERY || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+          || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+        ProbabilityDistributionValidationUtil.validateCustomPartial(
+            reservoirForm.getDepthToOilWaterContact(),
+            errors,
+            "depthToOilWaterContact",
+            "Depth to oil water contact",
+            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
+        );
+      }
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+          || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+        ProbabilityDistributionValidationUtil.validateCustomPartial(
+            reservoirForm.getDepthToGasWaterContact(),
+            errors,
+            "depthToGasWaterContact",
+            "Depth to gas water contact",
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT
+        );
+      }
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+        ProbabilityDistributionValidationUtil.validateCustomPartial(
+            reservoirForm.getDepthToGasOilContact(),
+            errors,
+            "depthToGasOilContact",
+            "Depth to gas oil contact",
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT
+        );
+      }
+    }
   }
 
   @Override
@@ -102,6 +141,13 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "ageStageOrSeries", "ageStageOrSeries.required",
         "Enter an age stage or series");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithology", "lithology.required", "Enter a lithology");
+
+    if (submissionType == SubmissionType.CREATE_DISCOVERY || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirFacies",
+          "reservoirFacies.required", "Enter the reservoir facies");
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirConnectivity",
+          "reservoirConnectivity.required", "Enter the reservoir connectivity");
+    }
 
     var reservoirForm = ((ReservoirPropertiesForm) form);
 
@@ -183,6 +229,49 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
           "depthToHydrocarbonContact",
           "Depth to hydrocarbon contact distribution used"
       );
+    }
+
+    if (submissionType == SubmissionType.CREATE_DISCOVERY || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+          || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+        ProbabilityDistributionValidationUtil.validateCustomFull(
+            reservoirForm.getDepthToOilWaterContact(),
+            errors,
+            "depthToOilWaterContact",
+            "Depth to oil water contact",
+            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
+        );
+      }
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+          || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+        ProbabilityDistributionValidationUtil.validateCustomFull(
+            reservoirForm.getDepthToGasWaterContact(),
+            errors,
+            "depthToGasWaterContact",
+            "Depth to gas water contact",
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT
+        );
+
+        if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+          ProbabilityDistributionValidationUtil.validateCustomFull(
+              reservoirForm.getDepthToGasOilContact(),
+              errors,
+              "depthToGasOilContact",
+              "Depth to gas oil contact",
+              ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT
+          );
+        }
+      }
+    }
+  }
+
+  private HydrocarbonsDiscovered extractHydrocarbonsDiscoveredFromHints(
+      SubmissionFormValidatorHints submissionFormValidatorHints) {
+    if (submissionFormValidatorHints.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
+        || submissionFormValidatorHints.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+      return ((ReservoirPropertiesValidatorHints) submissionFormValidatorHints).getHydrocarbonsDiscovered();
+    } else {
+      return null;
     }
   }
 }

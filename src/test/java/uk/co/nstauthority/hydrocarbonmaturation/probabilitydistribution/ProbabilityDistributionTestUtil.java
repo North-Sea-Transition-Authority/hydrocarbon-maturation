@@ -179,6 +179,9 @@ public class ProbabilityDistributionTestUtil {
     if (behaviour.isConstantAvailable()) {
       probabilityOfExceedanceForm.setConstant(DecimalInputTestUtil.getDecimalInput(10));
     }
+    if (behaviour.isMostLikelyAvailable()) {
+      probabilityOfExceedanceForm.setMostLikely(DecimalInputTestUtil.getDecimalInput(5));
+    }
     return probabilityOfExceedanceForm;
   }
 }

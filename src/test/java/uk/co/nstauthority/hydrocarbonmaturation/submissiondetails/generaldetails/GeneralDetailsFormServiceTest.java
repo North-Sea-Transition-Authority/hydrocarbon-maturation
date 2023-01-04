@@ -80,7 +80,7 @@ class GeneralDetailsFormServiceTest {
     var form = new GeneralDetailsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var validationType = ValidationType.FULL;
-    generalDetailsFormService.validate(form, bindingResult, validationType, SubmissionType.CREATE_PROSPECT);
+    generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
     verify(generalDetailsFormValidator, times(1)).validate(form, bindingResult,
         validationType, SubmissionType.CREATE_PROSPECT);
   }
