@@ -3,6 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.mvc;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.ui.Model;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.InvalidAuthenticationException;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
@@ -19,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ControllerAdvice
 public class DefaultPageControllerAdvice {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPageControllerAdvice.class);
 
   private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
   private final TopNavigationService topNavigationService;
@@ -82,6 +86,10 @@ public class DefaultPageControllerAdvice {
   }
 
   private void addUser(Model model) {
-    model.addAttribute("loggedInUser", userDetailService.getUserDetail());
+    try {
+      model.addAttribute("loggedInUser", userDetailService.getUserDetail());
+    } catch (InvalidAuthenticationException e) {
+      LOGGER.error("Could not get logged in user", e);
+    }
   }
 }

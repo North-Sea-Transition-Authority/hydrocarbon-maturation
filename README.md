@@ -58,7 +58,10 @@ track changes over time.
 | FILE_UPLOAD_ALLOWED_EXTENSIONS  | Allowed file extensions for document uploads                                                       |
 | REMI_ENERGY_PORTAL_API_URL      | The energy portal API URL                                                                          |
 | REMI_ENERGY_PORTAL_API_TOKEN    | Security key for access the energy portal API                                                      |
-| REMI_ENERGY_PORTAL_LOGOUT_URL   | Energy Portal logout URL                                                                           |
+| REMI_EMAIL_MODE                 | Can be test or production. Test mode will redirect all outbound emails to the test recipient(s)    |
+| REMI_EMAIL_TEST_RECIPIENT       | If email is test mode, who to send emails to. Value can be a CSV list                              |
+| NOTIFY_API_KEY                  | The GOV.UK Notify key                                                                              |
+| NOTIFY_CALLBACK_TOKEN           | The GOV.UK Notify callback token                                                                   |
 
 ### 3. Initialise the Fivium Design System
 - `git submodule update --init --recursive`

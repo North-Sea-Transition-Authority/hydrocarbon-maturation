@@ -41,20 +41,23 @@ dependencies {
 		implementation "org.opensaml:opensaml-saml-api:4.2.0"
 		implementation "org.opensaml:opensaml-saml-impl:4.2.0"
 	}
-  implementation 'org.apache.commons:commons-lang3:3.12.0'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-freemarker'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-quartz'
 	implementation 'org.springframework.security:spring-security-saml2-service-provider'
 	implementation 'org.springframework.session:spring-session-core'
 	implementation 'org.springframework.session:spring-session-jdbc'
 	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
+	implementation 'commons-validator:commons-validator:1.7'
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.338'
 	implementation 'fi.solita.clamav:clamav-client:1.0.1'
 	implementation 'uk.co.fivium.energyportalapi:client:develop-SNAPSHOT'
+	implementation 'uk.co.fivium:fivium-notify-spring-boot-starter:3.17.2-3.2-SNAPSHOT'
 
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
