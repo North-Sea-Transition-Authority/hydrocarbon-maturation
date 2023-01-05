@@ -12,14 +12,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDeleteResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/supporting-documents")
+@AccessibleByServiceUsers
 public class SubmissionSupportingDocumentsController {
 
   private final SupportingDocumentService supportingDocumentService;
@@ -37,6 +41,7 @@ public class SubmissionSupportingDocumentsController {
 
   @PostMapping("upload/{supportingDocumentType}")
   @ResponseBody
+  @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
   public FileUploadResult upload(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                  @PathVariable("supportingDocumentType") SupportingDocumentType supportingDocumentType,
                                  @RequestParam("file") MultipartFile multipartFile) {
@@ -46,6 +51,11 @@ public class SubmissionSupportingDocumentsController {
 
   @GetMapping("download/{uploadedFileId}")
   @ResponseBody
+  @HasSubmissionStatus(statuses = {
+      SubmissionDetailStatus.DRAFT,
+      SubmissionDetailStatus.APPROVED,
+      SubmissionDetailStatus.SUBMITTED}
+  )
   public ResponseEntity<InputStreamResource> download(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                       @PathVariable("uploadedFileId") UUID uploadedFileId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
@@ -56,6 +66,7 @@ public class SubmissionSupportingDocumentsController {
 
   @PostMapping("delete/{uploadedFileId}")
   @ResponseBody
+  @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
   public FileDeleteResult delete(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                  @PathVariable("uploadedFileId") UUID uploadedFileId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);

@@ -14,6 +14,7 @@ CVE-2022-38749
 CVE-2022-38750
 CVE-2022-38751
 CVE-2022-38752
+CVE-2022-1471
 
 # Spring security core vulnerabilities
 CVE-2022-31692
@@ -24,8 +25,5 @@ CVE-2022-41854
 # Postgres vulnerability
 CVE-2022-41946
 
-# org.springframework:spring-web vulnerability, fixed in 6.0.0
+# Spring web
 CVE-2016-1000027
-
-# Snakeyaml vulnerability
-CVE-2022-1471

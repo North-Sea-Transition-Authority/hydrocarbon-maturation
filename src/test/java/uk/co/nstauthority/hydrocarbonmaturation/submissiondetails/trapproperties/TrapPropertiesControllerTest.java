@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -34,14 +34,13 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -58,9 +57,6 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
   TrapPropertiesFormService trapPropertiesFormService;
 
   @MockBean
-  SubmissionDetailService submissionDetailService;
-
-  @MockBean
   TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
   @MockBean
@@ -69,23 +65,21 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
   @Autowired
   ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
-  private static TrapPropertiesForm form;
-  private static UUID submissionDetailId;
-  private static SubmissionDetail submissionDetail;
-  private static BindingResult bindingResult;
-  private static FileUploadTemplate fileUploadTemplate;
+  private TrapPropertiesForm form;
+  private UUID submissionDetailId;
+  private BindingResult bindingResult;
+  private FileUploadTemplate fileUploadTemplate;
 
-  @BeforeAll
-  static void setup() {
+  @BeforeEach
+  void setup() {
     form = new TrapPropertiesForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
 
     fileUploadTemplate = new FileUploadTemplate("", "", "", "", "");
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
   }
 
-  @Test
+  @SecurityTest
   void getTrapProperties_assertOK() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
@@ -96,6 +90,15 @@ class TrapPropertiesControllerTest extends AbstractControllerTest {
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/trapProperties"));
+  }
+
+  @Test
+  void getTrapProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 
   @ParameterizedTest(name = "controller validation - {0}")

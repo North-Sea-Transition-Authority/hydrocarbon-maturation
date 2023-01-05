@@ -19,6 +19,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,10 +32,9 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -52,35 +52,39 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
   @MockBean
   private GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
 
-  @MockBean
-  private SubmissionDetailService submissionDetailService;
-
-  private SubmissionDetail submissionDetail;
-
   private BindingResult bindingResult;
-
   private GasFluidPropertyForm gasFluidPropertyForm;
+  private UUID submissionDetailId;
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    submissionDetailId = submissionDetail.getId();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     gasFluidPropertyForm = new GasFluidPropertyForm();
     bindingResult = new BeanPropertyBindingResult(gasFluidPropertyForm, "form");
   }
 
-  @Test
+  @SecurityTest
   void getGasFluidProperties_assertStatusOk() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail))
         .thenReturn(new GasFluidPropertyForm());
 
     mockMvc.perform(
-        get(ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(submissionDetail.getId())))
+        get(ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(submissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/gasFluidProperties"));
+  }
+
+  @SecurityTest
+  void getGasFluidProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 
   @ParameterizedTest
@@ -88,18 +92,18 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
   void saveGasFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(gasFluidPropertyFormService.validate(any(), any(), any()))
         .thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GasFluidPropertyController.class)
-            .saveGasFluidProperties(submissionDetail.getId(), null, null, null)))
+            .saveGasFluidProperties(submissionDetailId, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId()))));
+            .getTaskList(submissionDetailId))));
 
     verify(gasFluidPropertyPersistenceService, times(1))
         .saveGasFluidProperty(any(GasFluidPropertyForm.class), eq(submissionDetail));
@@ -112,11 +116,11 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
   void saveGasFluidProperties_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(gasFluidPropertyFormService.validate(any(), any(), any())).thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GasFluidPropertyController.class)
-            .saveGasFluidProperties(submissionDetail.getId(), null, null, null)))
+            .saveGasFluidProperties(submissionDetailId, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -131,7 +135,7 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
   @Test
   void getGasFluidPropertiesModelAndView_assertModelProperties() throws Exception {
     var form = new GasFluidPropertyForm();
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail))
         .thenReturn(form);
@@ -139,7 +143,7 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
             get(ReverseRouter.route(on(GasFluidPropertyController.class)
-                .getGasFluidProperties(submissionDetail.getId())))
+                .getGasFluidProperties(submissionDetailId)))
                 .with(user(USER))).andReturn().getModelAndView())
         .getModelMap();
 
@@ -151,7 +155,7 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME)
+            .getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)

@@ -6,13 +6,13 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @ContextConfiguration(classes = LicenceApplicationRestController.class)
@@ -32,7 +32,7 @@ class LicenceApplicationRestControllerTest extends AbstractControllerTest {
   void setUp() {
   }
 
-  @Test
+  @SecurityTest
   void searchLicenceApplications() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(LicenceApplicationRestController.class)
             .searchLicenceApplicationsWithManualEntry(null)))

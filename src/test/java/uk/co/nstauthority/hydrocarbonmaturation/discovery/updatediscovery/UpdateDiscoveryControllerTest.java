@@ -15,7 +15,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,11 +24,10 @@ import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ContextConfiguration(classes = UpdateDiscoveryController.class)
@@ -38,13 +37,10 @@ class UpdateDiscoveryControllerTest extends AbstractControllerTest {
 
   @MockBean
   private UpdateDiscoveryService updateDiscoveryService;
+  private UUID submissionDetailId;
 
-  private static SubmissionDetail submissionDetail;
-  private static UUID submissionDetailId;
-
-  @BeforeAll
-  static void setup() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  @BeforeEach
+  void setup() {
     submissionDetailId = submissionDetail.getId();
   }
 
@@ -75,7 +71,7 @@ class UpdateDiscoveryControllerTest extends AbstractControllerTest {
         );
   }
 
-  @Test
+  @SecurityTest
   void createUpdateDiscovery_asValidForm_assertRedirect() throws Exception {
     var form = new UpdateDiscoveryForm();
 
@@ -95,7 +91,7 @@ class UpdateDiscoveryControllerTest extends AbstractControllerTest {
     verify(updateDiscoveryService, times(1)).createUpdateDiscovery(any(UpdateDiscoveryForm.class));
   }
 
-  @Test
+  @SecurityTest
   void createUpdateDiscovery_asInvalidForm_assertIsOk() throws Exception {
     var form = new UpdateDiscoveryForm();
 

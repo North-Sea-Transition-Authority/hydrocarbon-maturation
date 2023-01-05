@@ -31,11 +31,10 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -51,9 +50,6 @@ class AdditionalInformationControllerTest extends AbstractControllerTest {
   private AdditionalInformationFormService additionalInformationFormService;
 
   @MockBean
-  private SubmissionDetailService submissionDetailService;
-
-  @MockBean
   private AdditionalInformationPersistenceService additionalInformationPersistenceService;
 
   @MockBean
@@ -61,7 +57,6 @@ class AdditionalInformationControllerTest extends AbstractControllerTest {
 
   private AdditionalInformationForm form;
   private BindingResult bindingResult;
-  private SubmissionDetail submissionDetail;
   private FileUploadTemplate fileUploadTemplate;
 
   @BeforeEach
@@ -69,12 +64,10 @@ class AdditionalInformationControllerTest extends AbstractControllerTest {
     form = new AdditionalInformationForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
     fileUploadTemplate = new FileUploadTemplate("", "", "", "", "");
   }
 
-  @Test
+  @SecurityTest
   void getAdditionalInformationPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(additionalInformationFormService.getAdditionalInformationForm(submissionDetail)).thenReturn(new AdditionalInformationForm());
@@ -85,6 +78,15 @@ class AdditionalInformationControllerTest extends AbstractControllerTest {
         get(ReverseRouter.route(on(AdditionalInformationController.class).getAdditionalInformation(submissionDetail.getId(), form)))
             .with(user(USER)))
         .andExpect(status().isOk());
+  }
+
+  @SecurityTest
+  void getAdditionalInformationPage_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(AdditionalInformationController.class).getAdditionalInformation(submissionDetail.getId(), form)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 
 

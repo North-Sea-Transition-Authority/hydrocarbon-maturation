@@ -32,15 +32,13 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.DryWellRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
@@ -57,24 +55,16 @@ class DiscoveryWellDetailsControllerTest extends AbstractControllerTest {
   private DiscoveryWellDetailsFormService discoveryWellDetailsFormService;
 
   @MockBean
-  private SubmissionDetailService submissionDetailService;
-
-  @MockBean
   private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
-
-  private SubmissionDetail submissionDetail;
   private UUID submissionDetailId;
 
   @BeforeEach
   void setup() {
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     submissionDetailId = submissionDetail.getId();
-    var resource = new Resource();
-    resource.setType(ResourceType.PROSPECT);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
   }
 
-  @Test
+  @SecurityTest
   void getDiscoveryWellDetails_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(discoveryWellDetailsFormService.getDiscoveryWellDetailsForm(submissionDetail)).thenReturn(new DiscoveryWellDetailsForm());
@@ -83,6 +73,15 @@ class DiscoveryWellDetailsControllerTest extends AbstractControllerTest {
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/wellDrillDetails/discoveryWellDrillDetails"));
+  }
+
+  @SecurityTest
+  void getDiscoveryWellDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DiscoveryWellDetailsController.class).getDiscoveryWellDetails(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 
   @ParameterizedTest(name = "controller validation - {0}")

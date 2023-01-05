@@ -26,10 +26,9 @@ import org.springframework.ui.ModelMap;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
@@ -43,10 +42,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @ContextConfiguration(classes = DiscoverySubmissionSummaryController.class)
 class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
 
-  private static final ServiceUserDetail NSTA_USER = ServiceUserDetailTestUtil.Builder().build();
-
-  @MockBean
-  private SubmissionDetailService submissionDetailService;
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private SubmissionSummaryFormService submissionSummaryFormService;
@@ -58,7 +54,6 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
 
   private static UUID submissionDetailId;
-  private static SubmissionDetail submissionDetail;
 
   private GasFluidPropertySummaryView gasFluidPropertySummaryView;
   private OilFluidPropertySummaryView oilFluidPropertySummaryView;
@@ -69,7 +64,6 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     submissionDetailId = submissionDetail.getId();
     gasFluidPropertySummaryView =  GasFluidPropertySummaryView.empty();
     oilFluidPropertySummaryView =  OilFluidPropertySummaryView.empty();
@@ -80,7 +74,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
         "", "", "", "", "", List.of(), List.of());
   }
 
-  @Test
+  @SecurityTest
   void showSubmissionSummary_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
@@ -98,12 +92,21 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
-                .with(user(NSTA_USER)))
+                .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/discoverySubmissionSummary"));
   }
 
-  @Test
+  @SecurityTest
+  void showSubmissionSummary_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().is4xxClientError());
+  }
+
+  @SecurityTest
   void processSubmission_assertRedirection() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
@@ -120,12 +123,23 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId)))
-                .with(user(NSTA_USER))
+                .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
 
     verify(submissionDetailService, times(1)).completeSubmission(submissionDetail);
+  }
+
+  @SecurityTest
+  void processSubmission__andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is4xxClientError());
   }
 
   @Test
@@ -146,7 +160,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
-                .with(user(NSTA_USER)))
+                .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
 

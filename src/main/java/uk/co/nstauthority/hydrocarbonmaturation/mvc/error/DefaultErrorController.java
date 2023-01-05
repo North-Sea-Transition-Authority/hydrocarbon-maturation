@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.Unauthenticated;
 
 @Controller
+@Unauthenticated
 public class DefaultErrorController implements ErrorController {
 
   private final ErrorService errorService;

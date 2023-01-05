@@ -1,0 +1,51 @@
+package uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules;
+
+import java.lang.annotation.Annotation;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+
+@Component
+public class SubmissionStatusInterceptorRule implements SubmissionInterceptorSecurityRule {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SubmissionStatusInterceptorRule.class);
+
+  @Override
+  public Class<? extends Annotation> supports() {
+    return HasSubmissionStatus.class;
+  }
+
+  @Override
+  public SecurityRuleResult check(Object annotation,
+                                  HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  ServiceUserDetail userDetails,
+                                  SubmissionDetail submissionDetail) {
+    var expectedStatuses = ((HasSubmissionStatus) annotation).statuses();
+    var expectedStatusList = CollectionUtils.arrayToList(expectedStatuses);
+    var submissionStatus = submissionDetail.getStatus();
+
+    if (expectedStatusList.contains(submissionStatus)) {
+      return SecurityRuleResult.continueAsNormal();
+    }
+
+    var userId = userDetails.wuaId();
+    var submissionDetailId = submissionDetail.getId();
+
+    LOGGER.warn("User {} attempted to access submission {} with status {}. Expected status(s) {}",
+        userId,
+        submissionDetailId,
+        submissionStatus,
+        expectedStatuses);
+
+    return SecurityRuleResult.checkFailedWithStatus(HttpStatus.FORBIDDEN);
+  }
+}

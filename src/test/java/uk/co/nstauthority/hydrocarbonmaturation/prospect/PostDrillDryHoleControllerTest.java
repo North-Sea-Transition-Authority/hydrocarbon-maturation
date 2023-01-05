@@ -16,7 +16,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import static uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter.emptyBindingResult;
 
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -25,6 +25,7 @@ import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -32,8 +33,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDr
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
@@ -44,17 +43,14 @@ class PostDrillDryHoleControllerTest extends AbstractControllerTest {
 
   @MockBean
   private PostDrillDryHoleService postDrillDryHoleService;
+  private UUID submissionDetailId;
 
-  private static SubmissionDetail submissionDetail;
-  private static UUID submissionDetailId;
-
-  @BeforeAll
-  static void setup() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  @BeforeEach
+  void setup() {
     submissionDetailId = submissionDetail.getId();
   }
 
-  @Test
+  @SecurityTest
   void getPostDrillDryHolePage_assertOk() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(PostDrillDryHoleController.class).getPostDrillDryHolePage(null)))
@@ -89,7 +85,7 @@ class PostDrillDryHoleControllerTest extends AbstractControllerTest {
         );
   }
 
-  @Test
+  @SecurityTest
   void createPostDrillDryHole_asValidForm_assertRedirect() throws Exception {
     var form = new PostDrillDryHoleForm();
 
@@ -107,7 +103,7 @@ class PostDrillDryHoleControllerTest extends AbstractControllerTest {
             TaskListController.class).getTaskList(submissionDetailId))));
   }
 
-  @Test
+  @SecurityTest
   void createPostDrillDryHole_asInvalidForm_assertIsOk() throws Exception {
     var form = new PostDrillDryHoleForm();
 

@@ -15,7 +15,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.io.IOException;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
@@ -27,13 +26,12 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @ContextConfiguration(classes = SubmissionSupportingDocumentsController.class)
 class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest {
@@ -44,20 +42,15 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest
   SupportingDocumentService supportingDocumentService;
 
   @MockBean
-  SubmissionDetailService submissionDetailService;
-
-  @MockBean
   FileUploadService fileUploadService;
 
   private UUID submissionDetailId;
-  private SubmissionDetail submissionDetail;
   private SupportingDocumentType supportingDocumentType;
   private UploadedFile uploadedFile;
   private MultipartFile multipartFile;
 
   @BeforeEach
   void setUp() throws IOException {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
     uploadedFile = FileTestUtil.createValidUploadedFile();
     multipartFile = FileTestUtil.createMultipartFileMock();
@@ -65,7 +58,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest
     supportingDocumentType = SupportingDocumentType.MAP_OF_OPPORTUNITY;
   }
 
-  @Test
+  @SecurityTest
   void upload_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
@@ -80,7 +73,19 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest
     verify(supportingDocumentService).processFileUpload(submissionDetail, supportingDocumentType, mockMultipartFile);
   }
 
-  @Test
+  @SecurityTest
+  void upload_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    MockMultipartFile mockMultipartFile = new MockMultipartFile("file", (byte[]) null);
+    mockMvc.perform(multipart(ReverseRouter.route(
+            on(SubmissionSupportingDocumentsController.class).upload(submissionDetailId, supportingDocumentType, null)))
+            .file(mockMultipartFile)
+            .with(user(USER))
+            .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
   void download_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(supportingDocumentService.findUploadedFileOrThrow(submissionDetail, uploadedFile.getId())).thenReturn(uploadedFile);
@@ -107,7 +112,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest
         );
   }
 
-  @Test
+  @SecurityTest
   void delete_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
@@ -118,5 +123,16 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractControllerTest
         .andExpect(status().isOk());
 
     verify(supportingDocumentService, times(1)).deleteFile(submissionDetail, uploadedFile.getId());
+  }
+
+  @SecurityTest
+  void delete_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+
+    mockMvc.perform(post(
+            ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).delete(submissionDetailId, uploadedFile.getId())))
+            .with(user(USER))
+            .with(csrf()))
+        .andExpect(status().isForbidden());
   }
 }

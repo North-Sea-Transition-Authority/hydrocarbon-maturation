@@ -19,9 +19,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.Objects;
-import org.junit.jupiter.api.BeforeAll;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.ui.ModelMap;
@@ -31,11 +31,10 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ContextConfiguration(classes = DrillStemTestController.class)
@@ -47,59 +46,64 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
   private DrillStemTestFormService drillStemTestFormService;
 
   @MockBean
-  private SubmissionDetailService submissionDetailService;
-
-  @MockBean
   private DrillStemTestInitialPersistenceService drillStemTestPersistenceService;
 
-  @Autowired
-  private ControllerHelperService controllerHelperService;
+  private DrillStemTestInitialForm form;
+  private BindingResult bindingResult;
+  private UUID submissionDetailId;
 
-  private static DrillStemTestInitialForm form;
-  private static BindingResult bindingResult;
-  private static SubmissionDetail submissionDetail;
-
-  @BeforeAll
-  static void setUp() {
+  @BeforeEach
+  void setUp() {
     form = new DrillStemTestInitialForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetailId = submissionDetail.getId();
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
   }
 
-  @Test
+  @SecurityTest
   void getDrillStemTestPage_assertStatusOk() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail)).thenReturn(form);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(DrillStemTestController.class).getDrillStemTestPage(submissionDetail.getId(), null)))
+            get(ReverseRouter.route(on(DrillStemTestController.class).getDrillStemTestPage(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/drillstemtest/drillStemTestInitial"));
   }
 
-  @Test
+  @SecurityTest
+  void getDrillStemTestPage_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DrillStemTestController.class).getDrillStemTestPage(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
   void saveDrillStemTestPage_whenValidForm_assertRedirection() throws Exception {
     when(drillStemTestFormService.validate(any(), any(), any())).thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetail.getId(), null, null)))
+                .saveDrillStemTestDetails(submissionDetailId, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
     verify(drillStemTestPersistenceService, times(1))
         .saveInitialDrillStemTest(any(DrillStemTestInitialForm.class), eq(submissionDetail));
   }
 
-  @Test
+  @SecurityTest
   void saveDrillStemTestPage_whenValidForm_AndYesDrillStemResult_assertRedirection() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(drillStemTestFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
 
@@ -108,28 +112,28 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetail.getId(), null, null)))
+                .saveDrillStemTestDetails(submissionDetailId, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .flashAttr("form", form))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(DrillStemTestResultController.class)
-            .getCreateNewDrillStemTestResultPage(submissionDetail.getId()))));
+            .getCreateNewDrillStemTestResultPage(submissionDetailId))));
 
     verify(drillStemTestPersistenceService, times(1))
         .saveInitialDrillStemTest(any(DrillStemTestInitialForm.class), eq(submissionDetail));
   }
 
-  @Test
+  @SecurityTest
   void saveDrillStemTestPage_whenInvalidForm_assertStatusOk() throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(drillStemTestFormService.validate(any(), any(), any())).thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetail.getId(), null, null)))
+                .saveDrillStemTestDetails(submissionDetailId, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
@@ -139,7 +143,7 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
 
   @Test
   void getDrillStemTestModelAndView_assertModelProperties() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     var form = new DrillStemTestInitialForm();
     when(drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail))
@@ -148,7 +152,7 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
     ModelMap modelMap = Objects.requireNonNull(
         mockMvc.perform(
                 get(ReverseRouter.route(on(DrillStemTestController.class)
-                    .getDrillStemTestPage(submissionDetail.getId(), null)))
+                    .getDrillStemTestPage(submissionDetailId, null)))
                     .with(user(USER)))
             .andReturn()
             .getModelAndView()).getModelMap();
@@ -158,7 +162,7 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
         .contains(
             entry("form", form),
             entry("actionUrl", ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetail.getId(), null, null))))
+                .saveDrillStemTestDetails(submissionDetailId, null, null))))
         .containsKeys("breadcrumbsMap");
   }
 }

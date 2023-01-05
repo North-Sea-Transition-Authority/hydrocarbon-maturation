@@ -20,7 +20,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,10 +32,9 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -51,30 +49,21 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
   SourceAndSealFormService sourceAndSealFormService;
 
   @MockBean
-  SubmissionDetailService submissionDetailService;
-
-  @MockBean
   SourceAndSealPersistenceService sourceAndSealPersistenceService;
 
   private SourceAndSealForm form;
   private BindingResult bindingResult;
 
-  private static UUID submissionDetailId;
-  private static SubmissionDetail submissionDetail;
-
-  @BeforeAll
-  static void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    submissionDetailId = submissionDetail.getId();
-  }
+  private UUID submissionDetailId;
 
   @BeforeEach
   void setup() {
     form = new SourceAndSealForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetailId = submissionDetail.getId();
   }
 
-  @Test
+  @SecurityTest
   void getSourceAndSealDetails_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(new SourceAndSealForm());
@@ -85,6 +74,17 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/sourceAndSeal"));
   }
+
+  @SecurityTest
+  void getSourceAndSealDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})

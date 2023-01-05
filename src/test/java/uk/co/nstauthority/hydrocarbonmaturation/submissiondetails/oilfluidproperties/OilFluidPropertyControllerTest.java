@@ -19,6 +19,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,10 +32,9 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -52,35 +52,41 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
   @MockBean
   private OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
 
-  @MockBean
-  private SubmissionDetailService submissionDetailService;
-
-  private SubmissionDetail submissionDetail;
-
   private BindingResult bindingResult;
 
   private OilFluidPropertyForm oilFluidPropertyForm;
+  
+  private UUID submissionDetailId;
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    submissionDetailId = submissionDetail.getId();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     oilFluidPropertyForm = new OilFluidPropertyForm();
     bindingResult = new BeanPropertyBindingResult(oilFluidPropertyForm, "form");
   }
 
-  @Test
+  @SecurityTest
   void getOilFluidProperties_assertStatusOk() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(oilFluidPropertyFormService.getOilFluidPropertyForm(submissionDetail))
         .thenReturn(new OilFluidPropertyForm());
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(submissionDetail.getId())))
+            get(ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(submissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/oilFluidProperties"));
+  }
+
+  @SecurityTest
+  void getOilFluidProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 
   @ParameterizedTest
@@ -88,18 +94,18 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
   void saveOilFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(oilFluidPropertyFormService.validate(any(), any(), any()))
         .thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(OilFluidPropertyController.class)
-                .saveOilFluidProperties(submissionDetail.getId(), null, null, null)))
+                .saveOilFluidProperties(submissionDetailId, null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId()))));
+            .getTaskList(submissionDetailId))));
 
     verify(oilFluidPropertyPersistenceService, times(1))
         .saveOilFluidProperty(any(OilFluidPropertyForm.class), eq(submissionDetail));
@@ -112,11 +118,11 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
   void saveOilFluidProperties_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(oilFluidPropertyFormService.validate(any(), any(), any())).thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(OilFluidPropertyController.class)
-                .saveOilFluidProperties(submissionDetail.getId(), null, null, null)))
+                .saveOilFluidProperties(submissionDetailId, null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
@@ -131,7 +137,7 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
   @Test
   void getOilFluidPropertiesModelAndView_assertModelProperties() throws Exception {
     var form = new OilFluidPropertyForm();
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(oilFluidPropertyFormService.getOilFluidPropertyForm(submissionDetail))
         .thenReturn(form);
@@ -139,7 +145,7 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                 get(ReverseRouter.route(on(OilFluidPropertyController.class)
-                    .getOilFluidProperties(submissionDetail.getId())))
+                    .getOilFluidProperties(submissionDetailId)))
                     .with(user(USER))).andReturn().getModelAndView())
         .getModelMap();
 
@@ -151,7 +157,7 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME)
+            .getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)

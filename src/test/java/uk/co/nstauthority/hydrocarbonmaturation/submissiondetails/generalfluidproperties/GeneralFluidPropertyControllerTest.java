@@ -19,6 +19,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,10 +32,9 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -52,35 +52,41 @@ class GeneralFluidPropertyControllerTest extends AbstractControllerTest {
   @MockBean
   private GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService;
 
-  @MockBean
-  private SubmissionDetailService submissionDetailService;
-
-  private SubmissionDetail submissionDetail;
-
   private BindingResult bindingResult;
 
   private GeneralFluidPropertyForm generalFluidPropertyForm;
+  
+  private UUID submissionDetailId;
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    submissionDetailId = submissionDetail.getId();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     generalFluidPropertyForm = new GeneralFluidPropertyForm();
     bindingResult = new BeanPropertyBindingResult(generalFluidPropertyForm, "form");
   }
 
-  @Test
+  @SecurityTest
   void getGeneralFluidProperties_assertStatusOk() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail))
         .thenReturn(new GeneralFluidPropertyForm());
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetail.getId())))
+            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/generalFluidProperties"));
+  }
+
+  @SecurityTest
+  void getGeneralFluidProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 
   @ParameterizedTest
@@ -88,18 +94,18 @@ class GeneralFluidPropertyControllerTest extends AbstractControllerTest {
   void saveGeneralFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(generalFluidPropertyFormService.validate(any(), any(), any()))
         .thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GeneralFluidPropertyController.class)
-                .saveGeneralFluidProperties(submissionDetail.getId(), null, null, null)))
+                .saveGeneralFluidProperties(submissionDetailId, null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId()))));
+            .getTaskList(submissionDetailId))));
 
     verify(generalFluidPropertyPersistenceService, times(1))
         .saveGeneralFluidProperty(any(GeneralFluidPropertyForm.class), eq(submissionDetail));
@@ -112,11 +118,11 @@ class GeneralFluidPropertyControllerTest extends AbstractControllerTest {
   void saveGeneralFluidProperties_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(generalFluidPropertyFormService.validate(any(), any(), any())).thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GeneralFluidPropertyController.class)
-                .saveGeneralFluidProperties(submissionDetail.getId(), null, null, null)))
+                .saveGeneralFluidProperties(submissionDetailId, null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
@@ -131,7 +137,7 @@ class GeneralFluidPropertyControllerTest extends AbstractControllerTest {
   @Test
   void getGeneralFluidPropertiesModelAndView_assertModelProperties() throws Exception {
     var form = new GeneralFluidPropertyForm();
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail))
         .thenReturn(form);
@@ -139,7 +145,7 @@ class GeneralFluidPropertyControllerTest extends AbstractControllerTest {
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                 get(ReverseRouter.route(on(GeneralFluidPropertyController.class)
-                    .getGeneralFluidProperties(submissionDetail.getId())))
+                    .getGeneralFluidProperties(submissionDetailId)))
                     .with(user(USER))).andReturn().getModelAndView())
         .getModelMap();
 
@@ -151,7 +157,7 @@ class GeneralFluidPropertyControllerTest extends AbstractControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME)
+            .getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)

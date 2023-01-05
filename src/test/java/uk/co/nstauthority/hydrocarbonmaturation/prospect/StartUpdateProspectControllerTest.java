@@ -9,12 +9,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectController;
@@ -24,16 +24,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCrea
 @ContextConfiguration(classes = StartUpdateProspectController.class)
 class StartUpdateProspectControllerTest extends AbstractControllerTest {
 
-  private static final ServiceUserDetail NSTA_USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private SubmissionCreateService submissionCreateService;
 
-  @Test
+  @SecurityTest
   void getStartUpdatePage() throws Exception {
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage()))
-            .with(user(NSTA_USER)))
+            .with(user(USER)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView();
@@ -48,11 +48,11 @@ class StartUpdateProspectControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()));
   }
 
-  @Test
+  @SecurityTest
   void updateProspect() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(on(StartUpdateProspectController.class).updateProspect()))
-            .with(user(NSTA_USER))
+            .with(user(USER))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(UpdateProspectController.class).getUpdatePage(null))));

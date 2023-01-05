@@ -16,7 +16,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import static uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter.emptyBindingResult;
 
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -25,6 +25,7 @@ import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -32,8 +33,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpd
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -42,17 +41,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @ContextConfiguration(classes = UpdateProspectController.class)
 class UpdateProspectControllerTest extends AbstractControllerTest {
 
-  private static final ServiceUserDetail NSTA_USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private UpdateProspectService updateProspectService;
 
-  private static SubmissionDetail submissionDetail;
-  private static UUID submissionDetailId;
+  private UUID submissionDetailId;
 
-  @BeforeAll
-  static void setup() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  @BeforeEach
+  void setup() {
     submissionDetailId = submissionDetail.getId();
   }
 
@@ -63,7 +60,7 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(UpdateProspectController.class).getUpdatePage(null)))
             .flashAttr("form", form)
-            .with(user(NSTA_USER)))
+            .with(user(USER)))
         .andReturn()
         .getModelAndView();
 
@@ -83,7 +80,7 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
                 .searchProspects(null, SubmissionType.PROSPECT_UPDATE)));
   }
 
-  @Test
+  @SecurityTest
   void updateProspect_asValidForm_assertRedirect() throws Exception {
     var form = new UpdateProspectForm();
 
@@ -94,14 +91,14 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         post(ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, null)))
             .flashAttr("form", form)
-            .with(user(NSTA_USER))
+            .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(
             TaskListController.class).getTaskList(submissionDetailId))));
   }
 
-  @Test
+  @SecurityTest
   void updateProspect_asInvalidForm_assertIsOk() throws Exception {
     var form = new UpdateProspectForm();
 
@@ -112,7 +109,7 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
     var modelAndView = mockMvc.perform(
         post(ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, null)))
             .flashAttr("form", form)
-            .with(user(NSTA_USER))
+            .with(user(USER))
             .with(csrf()))
         .andExpect(status().isOk())
         .andReturn()

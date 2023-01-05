@@ -15,7 +15,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,12 +24,11 @@ import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
@@ -41,12 +40,10 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
   @MockBean
   private StartDiscoveryService startDiscoveryService;
 
-  private static SubmissionDetail submissionDetail;
-  private static UUID submissionDetailId;
+  private UUID submissionDetailId;
 
-  @BeforeAll
-  static void setup() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  @BeforeEach
+  void setUp() {
     submissionDetailId = submissionDetail.getId();
   }
 
@@ -77,7 +74,7 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
         );
   }
 
-  @Test
+  @SecurityTest
   void startDiscovery_asValidForm_assertRedirect() throws Exception {
     var form = new StartDiscoveryForm();
 
@@ -95,7 +92,7 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
   }
 
-  @Test
+  @SecurityTest
   void startDiscovery_asInvalidForm_assertIsOk() throws Exception {
     var form = new StartDiscoveryForm();
 

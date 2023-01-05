@@ -33,13 +33,12 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -51,9 +50,6 @@ class OilCaseVolumetricsControllerTest extends AbstractControllerTest {
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
-  private SubmissionDetailService submissionDetailService;
-
-  @MockBean
   private OilCaseVolumetricsFormService oilCaseVolumetricsFormService;
 
   @MockBean
@@ -62,21 +58,18 @@ class OilCaseVolumetricsControllerTest extends AbstractControllerTest {
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
-  private static OilCaseVolumetricsForm form;
-  private static UUID submissionDetailId;
-  private static SubmissionDetail submissionDetail;
-  private static BindingResult bindingResult;
+  private OilCaseVolumetricsForm form;
+  private UUID submissionDetailId;
+  private BindingResult bindingResult;
 
   @BeforeEach
   void setUp() {
     form = new OilCaseVolumetricsForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
   }
 
-  @Test
+  @SecurityTest
   void getOilCaseVolumetrics_assertOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail)).thenReturn(new OilCaseVolumetricsForm());
@@ -86,6 +79,15 @@ class OilCaseVolumetricsControllerTest extends AbstractControllerTest {
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/oilCaseVolumetrics"));
+  }
+
+  @SecurityTest
+  void getOilCaseVolumetrics_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(OilCaseVolumetricsController.class).getOilCaseVolumetrics(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 
   @ParameterizedTest(name = "controller validation - {0}")

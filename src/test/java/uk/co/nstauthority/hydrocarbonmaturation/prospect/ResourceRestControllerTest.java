@@ -10,13 +10,13 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.SubmissionQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
@@ -41,7 +41,7 @@ class ResourceRestControllerTest extends AbstractControllerTest {
     when(searchSelectorService.search(eq("searchTerm"), anyList())).thenReturn(searchItems);
   }
 
-  @Test
+  @SecurityTest
   void searchProspects() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.PROSPECT_UPDATE)))
             .param("term", "searchTerm")
@@ -50,7 +50,7 @@ class ResourceRestControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
   }
 
-  @Test
+  @SecurityTest
   void searchDiscoveries() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class).searchDiscoveries(null)))
             .param("term", "searchTerm")

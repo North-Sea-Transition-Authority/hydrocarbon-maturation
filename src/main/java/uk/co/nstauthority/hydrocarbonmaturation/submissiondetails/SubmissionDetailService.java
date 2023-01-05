@@ -24,7 +24,7 @@ public class SubmissionDetailService {
     this.clock = clock;
   }
 
-  Optional<SubmissionDetail> getSubmissionDetail(UUID id) {
+  public Optional<SubmissionDetail> getSubmissionDetail(UUID id) {
     return submissionDetailRepository.findById(id);
   }
 

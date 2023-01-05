@@ -25,7 +25,8 @@
   breadcrumbsMap={}
   wrapperWidth=false
   notificationBanner=""
-  singleErrorMessage="">
+  singleErrorMessage=""
+  topNavigation=true>
 
     <#assign fullWidthColumn=false />
     <#assign oneHalfColumn=false />
@@ -116,7 +117,7 @@
       twoThirdsColumn=twoThirdsColumn
       twoThirdsOneThirdColumn=twoThirdsOneThirdColumn
       oneQuarterColumn=oneQuarterColumn
-      topNavigation=true
+      topNavigation=topNavigation
       errorItems=errorItems
       backLink=backLink
       backLinkUrl=backLinkUrl

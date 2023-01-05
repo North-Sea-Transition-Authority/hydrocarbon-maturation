@@ -20,10 +20,11 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
@@ -35,7 +36,7 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
   @MockBean
   SubmissionTypeSelectService submissionTypeSelectService;
 
-  @Test
+  @SecurityTest
   void startSubmission_whenValidFormAndCreateProspect_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -51,7 +52,7 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartProspectController.class).getStartPage())));
   }
 
-  @Test
+  @SecurityTest
   void startSubmission_whenValidFormAndUpdateProspect_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -66,7 +67,7 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage())));
   }
 
-  @Test
+  @SecurityTest
   void startSubmission_whenValidFormAndDiscovery_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -81,7 +82,7 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage())));
   }
 
-  @Test
+  @SecurityTest
   void startSubmission_whenValidFormAndUpdateDiscovery_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -97,7 +98,7 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage())));
   }
 
-  @Test
+  @SecurityTest
   void startSubmission_whenInValidForm_assertStatusOk() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");

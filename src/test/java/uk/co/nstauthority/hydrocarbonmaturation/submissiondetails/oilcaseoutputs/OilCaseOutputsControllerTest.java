@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
@@ -33,13 +32,12 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -51,9 +49,6 @@ class OilCaseOutputsControllerTest extends AbstractControllerTest {
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
-  private SubmissionDetailService submissionDetailService;
-
-  @MockBean
   private OilCaseOutputsFormService oilCaseOutputsFormService;
 
   @MockBean
@@ -62,30 +57,24 @@ class OilCaseOutputsControllerTest extends AbstractControllerTest {
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
-  private static OilCaseOutputsForm form;
-  private static UUID submissionDetailId;
-  private static SubmissionDetail submissionDetail;
-  private static BindingResult bindingResult;
+  private OilCaseOutputsForm form;
+  private UUID submissionDetailId;
+  private BindingResult bindingResult;
 
   @BeforeEach
   void setUp() {
     form = new OilCaseOutputsForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
   }
 
-  @Test
+  @SecurityTest
   void getOilCaseOutputs_assertOk() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail)).thenReturn(new OilCaseOutputsForm());
-
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(
         get(ReverseRouter.route(on(OilCaseOutputsController.class).getOilCaseOutputs(submissionDetailId, null)))
             .with(user(USER)))
-        .andExpect(status().isOk())
-        .andExpect(view().name("remi/submissiondetails/oilCaseOutputs"));
+        .andExpect(status().isForbidden());
   }
 
   @ParameterizedTest(name = "controller validation - {0}")

@@ -15,8 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryController;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 
@@ -25,8 +24,7 @@ class StartUpdateDiscoverySubmissionControllerTest extends AbstractControllerTes
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
-
-  @Test
+  @SecurityTest
   void getStartPostDrillDryHolePage_assertStatusOk() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage()))
@@ -34,7 +32,7 @@ class StartUpdateDiscoverySubmissionControllerTest extends AbstractControllerTes
         .andExpect(status().isOk());
   }
 
-  @Test
+  @SecurityTest
   void startPostDrillDryHole_assertRedirection() throws Exception {
     mockMvc.perform(
             post(ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).startUpdateDiscovery()))

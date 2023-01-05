@@ -9,30 +9,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 
 @ContextConfiguration(classes = StartPostDrillDiscoveryController.class)
 class StartPostDrillDiscoveryControllerTest extends AbstractControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
-  private SubmissionDetail submissionDetail;
-
-  @BeforeEach
-  void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-  }
-
-  @Test
+  @SecurityTest
   void getStartPostDrillDiscoveryPage() throws Exception {
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage()))
@@ -51,7 +41,7 @@ class StartPostDrillDiscoveryControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()));
   }
 
-  @Test
+  @SecurityTest
   void startPostDrillDiscovery() throws Exception {
     mockMvc.perform(
             post(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).startPostDrillDiscovery()))

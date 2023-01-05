@@ -5,13 +5,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @ContextConfiguration(classes = OrganisationUnitRestController.class)
@@ -27,7 +27,7 @@ class OrganisationUnitRestControllerTest extends AbstractControllerTest {
   @MockBean
   SearchSelectorService searchSelectorService;
 
-  @Test
+  @SecurityTest
   void searchOrganisationUnits() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(OrganisationUnitRestController.class)
             .searchOrganisationUnits(null)))

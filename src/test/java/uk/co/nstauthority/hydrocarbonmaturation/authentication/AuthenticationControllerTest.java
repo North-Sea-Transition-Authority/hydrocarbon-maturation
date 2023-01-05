@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @WebMvcTest
@@ -43,14 +43,14 @@ class AuthenticationControllerTest extends AbstractControllerTest {
 
   }
 
-  @Test
+  @SecurityTest
   void authenticationRequired() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(TestAuthenticationController.class).renderSecured())))
         .andExpect(status().isUnauthorized());
   }
 
-  @Test
+  @SecurityTest
   @WithMockUser
   void authorisedRequest() throws Exception {
     var expectedUser = ServiceUserDetailTestUtil.Builder()

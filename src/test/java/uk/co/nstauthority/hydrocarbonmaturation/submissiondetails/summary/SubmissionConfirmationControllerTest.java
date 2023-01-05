@@ -11,7 +11,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Objects;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,10 +19,9 @@ import org.springframework.ui.ModelMap;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -33,19 +32,14 @@ class SubmissionConfirmationControllerTest extends AbstractControllerTest {
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
-  SubmissionDetailService submissionDetailService;
-
-  @MockBean
   GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
-  private static UUID submissionDetailId;
-  private static SubmissionDetail submissionDetail;
-  private static String prospectName;
-  private static GeneralDetail generalDetail;
+  private UUID submissionDetailId;
+  private String prospectName;
+  private GeneralDetail generalDetail;
 
-  @BeforeAll
-  static void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  @BeforeEach
+  void setUp() {
     submissionDetailId = submissionDetail.getId();
 
     generalDetail = new GeneralDetail();
@@ -53,8 +47,9 @@ class SubmissionConfirmationControllerTest extends AbstractControllerTest {
     generalDetail.setResourceName(prospectName);
   }
 
-  @Test
-  void showSubmissionConfirmation_assertStatusOk() throws Exception {
+  @SecurityTest
+  void showSubmissionConfirmation_andSubmissionAutoApproved_assertStatusOk() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     when(generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail)).thenReturn(generalDetail);
@@ -66,8 +61,31 @@ class SubmissionConfirmationControllerTest extends AbstractControllerTest {
         .andExpect(view().name("remi/submissiondetails/submissionConfirmation"));
   }
 
+  @SecurityTest
+  void showSubmissionConfirmation_andSubmissionSubmitted_assertStatusOk() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+
+    when(generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail)).thenReturn(generalDetail);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isOk())
+        .andExpect(view().name("remi/submissiondetails/submissionConfirmation"));
+  }
+
+  @SecurityTest
+  void showSubmissionConfirmation_andStatusIsNotDraft_assertForbidden() throws Exception {
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
   @Test
   void getSubmissionConfirmationModelAndView_assertModelProperties() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail)).thenReturn(generalDetail);
 

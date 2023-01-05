@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
 
 @Controller
 @RequestMapping("/permission-management/regulator")
+@AccessibleByServiceUsers
 public class RegulatorTeamManagementController extends AbstractRegulatorPermissionManagement {
 
   private final TeamMemberViewService teamMemberViewService;
@@ -45,7 +46,6 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
   }
 
   @GetMapping
-  @AccessibleByServiceUsers
   public ModelAndView renderMemberListRedirect() {
 
     var team = regulatorTeamService.getRegulatorTeamForUser(userDetailService.getUserDetail())
