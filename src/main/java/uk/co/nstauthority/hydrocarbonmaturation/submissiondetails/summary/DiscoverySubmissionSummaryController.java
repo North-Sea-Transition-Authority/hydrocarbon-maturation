@@ -15,7 +15,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
@@ -24,24 +23,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 public class DiscoverySubmissionSummaryController {
 
-  private final DiscoverySummaryService discoverySummaryService;
   private final SubmissionDetailService submissionDetailService;
-  private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
+  private final SubmissionSummaryModelService submissionSummaryModelService;
 
   public static final String PAGE_NAME = "Check your answers before submitting";
 
   @Autowired
-  public DiscoverySubmissionSummaryController(DiscoverySummaryService discoverySummaryService,
-                                              SubmissionDetailService submissionDetailService,
-                                              DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService) {
-    this.discoverySummaryService = discoverySummaryService;
+  public DiscoverySubmissionSummaryController(SubmissionDetailService submissionDetailService,
+                                              SubmissionSummaryModelService submissionSummaryModelService) {
     this.submissionDetailService = submissionDetailService;
-    this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
+    this.submissionSummaryModelService = submissionSummaryModelService;
   }
 
   @GetMapping
   public ModelAndView showSubmissionSummary(@PathVariable("submissionDetailId") UUID submissionDetailId) {
-    return getSubmissionSummaryModelAndView(submissionDetailId);
+    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    return getSubmissionSummaryModelAndView(submissionDetail);
   }
 
   @PostMapping
@@ -51,45 +48,17 @@ public class DiscoverySubmissionSummaryController {
     return ReverseRouter.redirect(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId));
   }
 
-  private ModelAndView getSubmissionSummaryModelAndView(UUID submissionDetailId) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var modelAndView = new ModelAndView("remi/submissiondetails/discoverySubmissionSummary")
-        .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)))
-        .addObject("gasFluidPropertiesSummaryView",
-            discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("reservoirPropertiesSummaryView",
-            discoverySummaryService.getReservoirPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("generalFluidPropertiesSummaryView",
-            discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("oilFluidPropertiesSummaryView",
-            discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("permeabiltySummaryView",
-            discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("generalDetailsSummaryView",
-            discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail));
+  private ModelAndView getSubmissionSummaryModelAndView(SubmissionDetail submissionDetail) {
+    var modelAndView = submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(
+        submissionDetail,
+        "remi/submissiondetails/summary/discoverySubmissionSummary"
+    );
 
-    modelAndView = addHydrocarbonsDiscoveredToModelAndView(submissionDetail, modelAndView);
+    modelAndView
+        .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())));
+
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
 
     return modelAndView;
-  }
-
-  private ModelAndView addHydrocarbonsDiscoveredToModelAndView(SubmissionDetail submissionDetail,
-                                                               ModelAndView modelAndView) {
-    return discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
-        .map(discoveryWellDetail -> {
-          modelAndView.addObject("gasOnlyDiscovery",
-              discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail));
-          modelAndView.addObject("oilOnlyDiscovery",
-              discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWellDetail));
-          modelAndView.addObject("mixedDiscovery",
-              discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail));
-          return modelAndView;
-        }).orElseGet(() -> {
-          modelAndView.addObject("gasOnlyDiscovery", false);
-          modelAndView.addObject("oilOnlyDiscovery", false);
-          modelAndView.addObject("mixedDiscovery", false);
-          return modelAndView;
-        });
   }
 }

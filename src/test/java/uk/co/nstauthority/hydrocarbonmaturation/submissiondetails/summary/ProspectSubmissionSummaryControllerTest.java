@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.ui.ModelMap;
+import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
@@ -34,9 +35,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
@@ -49,22 +49,17 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 @ContextConfiguration(classes = ProspectSubmissionSummaryController.class)
 class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
 
+  public static final String VIEW_NAME = "remi/submissiondetails/summary/prospectSubmissionSummary";
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
-
-  @MockBean
-  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
-
-  @MockBean
-  private HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   @MockBean
   private SubmissionSummaryFormService submissionSummaryFormService;
 
   @MockBean
-  private ProspectSubmissionService prospectSubmissionService;
+  private SubmissionSummaryModelService submissionSummaryModelService;
 
   @MockBean
-  private ProspectSummaryService prospectSummaryService;
+  private ProspectSubmissionService prospectSubmissionService;
 
   private UUID submissionDetailId;
 
@@ -80,6 +75,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
   private MixedCaseOutputsSummaryView mixedCaseOutputsSummaryView;
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
   private OpportunityDetailsSummaryView opportunityDetailsSummaryView;
+  private GasCaseOutputsSummaryView gasCaseOutputsSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -116,6 +112,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
     oilCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
     gasCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
+    gasCaseOutputsSummaryView = GasCaseOutputsSummaryView.empty();
     mixedCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty();
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
@@ -124,36 +121,13 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
   @SecurityTest
   void showSubmissionSummary_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalDetailSummaryView);
-    when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(sourceAndSealSummaryView);
-    when(prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(hydrocarbonCaseSummaryView);
-    when(prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirPropertiesSummaryView);
-    when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(chanceOfSuccessSummaryView);
-    when(prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(oilCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(gasCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(oilCaseOutputsSummaryView);
-    when(prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(mixedCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(mixedCaseOutputsSummaryView);
-    when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(trapPropertiesSummaryView);
-    when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(opportunityDetailsSummaryView);
+    mockCreateProspectSubmissionSummaryModelAndView();
 
     mockMvc.perform(
         get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
             .with(user(USER)))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/submissiondetails/prospectSubmissionSummary"));
+        .andExpect(view().name(VIEW_NAME));
   }
 
   @SecurityTest
@@ -170,6 +144,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
   void processSubmission_assertRedirection() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
+    mockCreateProspectSubmissionSummaryModelAndView();
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
@@ -184,34 +159,10 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalDetailSummaryView);
-    when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(sourceAndSealSummaryView);
-    when(prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(hydrocarbonCaseSummaryView);
-    when(prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirPropertiesSummaryView);
-    when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(chanceOfSuccessSummaryView);
-    when(prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(oilCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(gasCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(oilCaseOutputsSummaryView);
-    when(prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(mixedCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(mixedCaseOutputsSummaryView);
-    when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(trapPropertiesSummaryView);
-    when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(opportunityDetailsSummaryView);
-    when(prospectSubmissionService.isSubmissionSubmittable(submissionDetail))
-        .thenReturn(true);
+    when(prospectSubmissionService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
+    mockCreateProspectSubmissionSummaryModelAndView();
 
-    ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
             .with(user(USER)))
         .andReturn()
@@ -234,5 +185,28 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
             entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
     );
+  }
+
+  private void mockCreateProspectSubmissionSummaryModelAndView() {
+    var modelAndView = new ModelAndView(VIEW_NAME)
+        .addObject("generalDetailsSummaryView", generalDetailSummaryView)
+        .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
+        .addObject("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView)
+        .addObject("hydrocarbonCaseSummaryView", hydrocarbonCaseSummaryView)
+        .addObject("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView)
+        .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
+        .addObject("oilCaseVolumetricsSummaryView", oilCaseVolumetricsSummaryView)
+        .addObject("oilCaseOutputsSummaryView", oilCaseOutputsSummaryView)
+        .addObject("gasCaseVolumetricsSummaryView", gasCaseVolumetricsSummaryView)
+        .addObject("gasCaseOutputsSummaryView", gasCaseOutputsSummaryView)
+        .addObject("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView)
+        .addObject("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView)
+        .addObject("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
+        .addObject("submittable", true)
+        .addObject("gasCase", true)
+        .addObject("oilCase", true)
+        .addObject("mixedCase", true);
+    doReturn(modelAndView).when(submissionSummaryModelService).createProspectSubmissionSummaryModelAndView(submissionDetail,
+        VIEW_NAME);
   }
 }

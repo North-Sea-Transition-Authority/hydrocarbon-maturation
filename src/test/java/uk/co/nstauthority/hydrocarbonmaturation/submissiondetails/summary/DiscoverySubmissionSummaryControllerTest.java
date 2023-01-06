@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.ui.ModelMap;
+import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
@@ -30,7 +30,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView;
@@ -42,16 +41,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @ContextConfiguration(classes = DiscoverySubmissionSummaryController.class)
 class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
 
+  public static final String VIEW_NAME = "remi/submissiondetails/summary/discoverySubmissionSummary";
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
-  private SubmissionSummaryFormService submissionSummaryFormService;
-
-  @MockBean
-  private DiscoverySummaryService discoverySummaryService;
-
-  @MockBean
-  private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
+  private SubmissionSummaryModelService submissionSummaryModelService;
 
   private static UUID submissionDetailId;
 
@@ -77,24 +71,13 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   @SecurityTest
   void showSubmissionSummary_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(permeabilityDetailSummaryView);
-    when(discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(oilFluidPropertySummaryView);
-    when(discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(gasFluidPropertySummaryView);
-    when(discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalFluidPropertySummaryView);
-    when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalDetailSummaryView);
-    when(discoverySummaryService.getReservoirPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirPropertiesSummaryView);
+    mockCreateDiscoverySubmissionSummaryModelAndView();
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/submissiondetails/discoverySubmissionSummary"));
+        .andExpect(view().name(VIEW_NAME));
   }
 
   @SecurityTest
@@ -109,17 +92,6 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   @SecurityTest
   void processSubmission_assertRedirection() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
-    when(discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(permeabilityDetailSummaryView);
-    when(discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(oilFluidPropertySummaryView);
-    when(discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(gasFluidPropertySummaryView);
-    when(discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalFluidPropertySummaryView);
-    when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalDetailSummaryView);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId)))
@@ -145,20 +117,9 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(permeabilityDetailSummaryView);
-    when(discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(oilFluidPropertySummaryView);
-    when(discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(gasFluidPropertySummaryView);
-    when(discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalFluidPropertySummaryView);
-    when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalDetailSummaryView);
-    when(discoverySummaryService.getReservoirPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirPropertiesSummaryView);
+    mockCreateDiscoverySubmissionSummaryModelAndView();
 
-    ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
                 .with(user(USER)))
         .andReturn()
@@ -170,12 +131,27 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("gasFluidPropertiesSummaryView", gasFluidPropertySummaryView),
             entry("generalFluidPropertiesSummaryView", generalFluidPropertySummaryView),
             entry("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView),
-            entry("permeabiltySummaryView", permeabilityDetailSummaryView),
+            entry("permeabilitySummaryView", permeabilityDetailSummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
             entry("gasOnlyDiscovery", false),
             entry("oilOnlyDiscovery", false),
             entry("mixedDiscovery", false)
         );
+  }
+
+  private void mockCreateDiscoverySubmissionSummaryModelAndView() {
+    var modelAndView = new ModelAndView(VIEW_NAME)
+        .addObject("generalDetailsSummaryView", generalDetailSummaryView)
+        .addObject("gasFluidPropertiesSummaryView", gasFluidPropertySummaryView)
+        .addObject("generalFluidPropertiesSummaryView", generalFluidPropertySummaryView)
+        .addObject("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView)
+        .addObject("permeabilitySummaryView", permeabilityDetailSummaryView)
+        .addObject("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView)
+        .addObject("gasOnlyDiscovery", false)
+        .addObject("oilOnlyDiscovery", false)
+        .addObject("mixedDiscovery", false);
+    doReturn(modelAndView).when(submissionSummaryModelService).createDiscoverySubmissionSummaryModelAndView(submissionDetail,
+        VIEW_NAME);
   }
 }

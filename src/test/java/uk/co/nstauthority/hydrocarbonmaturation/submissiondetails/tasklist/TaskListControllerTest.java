@@ -12,7 +12,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,8 +21,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = TaskListController.class)
@@ -33,9 +30,6 @@ class TaskListControllerTest extends AbstractControllerTest {
 
   @MockBean
   private TaskListService taskListService;
-
-  @MockBean
-  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   private UUID submissionDetailId;
 
@@ -48,11 +42,9 @@ class TaskListControllerTest extends AbstractControllerTest {
   void getTaskList() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
-
-    var generalDetail = new GeneralDetail();
-    generalDetail.setResourceName("pros123");
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(generalDetail));
+    var prospectName = "pros123";
+    when(submissionDetailService.getResourceNameOrEmpty(submissionDetail)).thenReturn(prospectName);
+    when(submissionDetailService.getSubmissionTypeName(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
 
     var taskListSections = List.of(
         new TaskListSection("Reservoir", 10, List.of(
@@ -93,7 +85,7 @@ class TaskListControllerTest extends AbstractControllerTest {
     assertThat(modelMap)
         .contains(
             entry("taskListSections", taskListSections),
-            entry("resourceName", "pros123")
+            entry("resourceName", prospectName)
         );
 
     @SuppressWarnings(value="unchecked")

@@ -18,6 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionDetailServiceTest {
@@ -25,6 +27,8 @@ class SubmissionDetailServiceTest {
   private static final Instant INSTANT = Instant.now();
   @Mock
   private SubmissionDetailRepository submissionDetailRepository;
+  @Mock
+  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   private SubmissionDetailService submissionDetailService;
 
@@ -32,8 +36,8 @@ class SubmissionDetailServiceTest {
 
   @BeforeEach
   void setUp() {
-    Clock clock = Clock.fixed(Instant.from(INSTANT), ZoneId.systemDefault());
-    submissionDetailService = new SubmissionDetailService(submissionDetailRepository, clock);
+    var clock = Clock.fixed(Instant.from(INSTANT), ZoneId.systemDefault());
+    submissionDetailService = new SubmissionDetailService(submissionDetailRepository, generalDetailsPersistenceService, clock);
     submissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
   }
 
@@ -102,5 +106,27 @@ class SubmissionDetailServiceTest {
     submissionDetailService.getSubmissionDetailsForResource(resource);
 
     verify(submissionDetailRepository, times(1)).findSubmissionDetailsByResourceId(resource);
+  }
+
+  @Test
+  void deleteSubmission() {
+    var submissionDetail = new SubmissionDetail();
+    submissionDetailService.deleteSubmission(submissionDetail);
+
+    assertThat(submissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.DELETED);
+  }
+
+  @Test
+  void getResourceName() {
+    var submissionDetail = new SubmissionDetail();
+    var generalDetail = new GeneralDetail();
+    var resourceName = "name";
+    generalDetail.setResourceName(resourceName);
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+
+    var resourceNameOptional = submissionDetailService.getResourceName(submissionDetail);
+
+    assertThat(resourceNameOptional).isEqualTo(Optional.of(resourceName));
   }
 }

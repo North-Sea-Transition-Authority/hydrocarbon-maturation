@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,7 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.ui.ModelMap;
+import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
@@ -38,12 +39,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @ContextConfiguration(classes = PostDrillDryWellSubmissionSummaryController.class)
 class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractControllerTest {
 
+  public static final String VIEW_NAME = "remi/submissiondetails/summary/dryWellSubmissionSummary";
+
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
-  private PostDrillDryWellSummaryService postDrillDryWellSummaryService;
+  private SubmissionSummaryModelService submissionSummaryModelService;
 
-  private UUID submissionDetailId;
+  private static UUID submissionDetailId;
   private DryWellDetailsSummaryView dryWellDetailsSummaryView;
   private PermeabilityDetailSummaryView permeabilityDetailSummaryView;
   private ReservoirPropertiesSummaryView reservoirPropertiesSummaryView;
@@ -70,21 +73,14 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
   @SecurityTest
   void showSubmissionSummary_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(dryWellDetailsSummaryView);
-    when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(permeabilityDetailSummaryView);
-    when(postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirPropertiesSummaryView);
-    when(postDrillDryWellSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalDetailSummaryView);
+    mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
     mockMvc.perform(
         get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
             .showSubmissionSummary(submissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/submissiondetails/dryWellSubmissionSummary"));
+        .andExpect(view().name(VIEW_NAME));
   }
 
   @SecurityTest
@@ -114,17 +110,10 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
 
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
-    when(postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(dryWellDetailsSummaryView);
-    when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(permeabilityDetailSummaryView);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirPropertiesSummaryView);
-    when(postDrillDryWellSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalDetailSummaryView);
+    mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
-    ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
             .showSubmissionSummary(submissionDetailId)))
             .with(user(USER)))
@@ -135,8 +124,19 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
         .contains(
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
             entry("dryWellDetailsSummaryView", dryWellDetailsSummaryView),
-            entry("permeabiltySummaryView", permeabilityDetailSummaryView),
+            entry("permeabilitySummaryView", permeabilityDetailSummaryView),
+            entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView)
         );
+  }
+
+  private void mockCreatePostDrillDryWellSubmissionSummaryModelAndView() {
+    var modelAndView = new ModelAndView(VIEW_NAME)
+        .addObject("generalDetailsSummaryView", generalDetailSummaryView)
+        .addObject("dryWellDetailsSummaryView", dryWellDetailsSummaryView)
+        .addObject("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView)
+        .addObject("permeabilitySummaryView", permeabilityDetailSummaryView);
+    doReturn(modelAndView).when(submissionSummaryModelService).createPostDrillDryWellSubmissionSummaryModelAndView(submissionDetail,
+        VIEW_NAME);
   }
 }

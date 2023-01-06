@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 
 @Service
 public class SubmissionDetailService {
@@ -16,11 +18,14 @@ public class SubmissionDetailService {
   public static final Integer FIRST_VERSION = 1;
 
   private final SubmissionDetailRepository submissionDetailRepository;
+  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final Clock clock;
 
   @Autowired
-  public SubmissionDetailService(SubmissionDetailRepository submissionDetailRepository, Clock clock) {
+  public SubmissionDetailService(SubmissionDetailRepository submissionDetailRepository,
+                                 GeneralDetailsPersistenceService generalDetailsPersistenceService, Clock clock) {
     this.submissionDetailRepository = submissionDetailRepository;
+    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.clock = clock;
   }
 
@@ -64,5 +69,23 @@ public class SubmissionDetailService {
 
   public List<SubmissionDetail> getSubmissionDetailsForResource(Resource resource) {
     return submissionDetailRepository.findSubmissionDetailsByResourceId(resource);
+  }
+
+  @Transactional
+  public void deleteSubmission(SubmissionDetail submissionDetail) {
+    submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
+  }
+
+  public Optional<String> getResourceName(SubmissionDetail submissionDetail) {
+    return generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
+        .map(GeneralDetail::getResourceName);
+  }
+
+  public String getResourceNameOrEmpty(SubmissionDetail submissionDetail) {
+    return getResourceName(submissionDetail).orElse("");
+  }
+
+  public String getSubmissionTypeName(SubmissionDetail submissionDetail) {
+    return submissionDetail.getSubmissionType().getTypeName();
   }
 }

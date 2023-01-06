@@ -18,7 +18,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
@@ -26,29 +25,25 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @RequestMapping("/submission-details/{submissionDetailId}/summary")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 public class ProspectSubmissionSummaryController {
-
-  private final ProspectSummaryService prospectSummaryService;
   private final SubmissionDetailService submissionDetailService;
   private final ControllerHelperService controllerHelperService;
-  private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
-  private final ProspectSubmissionService prospectSubmissionService;
   private final SubmissionSummaryFormService submissionSummaryFormService;
+  private final SubmissionSummaryModelService submissionSummaryModelService;
+  private final ProspectSubmissionService prospectSubmissionService;
 
   public static final String PAGE_NAME = "Check your answers before submitting";
 
   @Autowired
-  public ProspectSubmissionSummaryController(ProspectSummaryService prospectSummaryService,
-                                             SubmissionDetailService submissionDetailService,
+  public ProspectSubmissionSummaryController(SubmissionDetailService submissionDetailService,
                                              ControllerHelperService controllerHelperService,
-                                             HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
-                                             ProspectSubmissionService prospectSubmissionService,
-                                             SubmissionSummaryFormService submissionSummaryFormService) {
-    this.prospectSummaryService = prospectSummaryService;
+                                             SubmissionSummaryFormService submissionSummaryFormService,
+                                             SubmissionSummaryModelService submissionSummaryModelService,
+                                             ProspectSubmissionService prospectSubmissionService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
-    this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
-    this.prospectSubmissionService = prospectSubmissionService;
     this.submissionSummaryFormService = submissionSummaryFormService;
+    this.submissionSummaryModelService = submissionSummaryModelService;
+    this.prospectSubmissionService = prospectSubmissionService;
   }
 
   @GetMapping
@@ -76,40 +71,15 @@ public class ProspectSubmissionSummaryController {
   }
 
   private ModelAndView getSubmissionSummaryModelAndView(SubmissionSummaryForm form, SubmissionDetail submissionDetail) {
-    var modelAndView = new ModelAndView("remi/submissiondetails/prospectSubmissionSummary")
+    var modelAndView = submissionSummaryModelService.createProspectSubmissionSummaryModelAndView(
+        submissionDetail,
+        "remi/submissiondetails/summary/prospectSubmissionSummary"
+    );
+
+    modelAndView
         .addObject("form", form)
-        .addObject("generalDetailsSummaryView",
-            prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("sourceAndSealSummaryView",
-            prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("chanceOfSuccessSummaryView",
-            prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("hydrocarbonCaseSummaryView",
-            prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("reservoirPropertiesSummaryView",
-            prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("trapPropertiesSummaryView",
-            prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("oilCaseVolumetricsSummaryView",
-            prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("oilCaseOutputsSummaryView",
-            prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("gasCaseVolumetricsSummaryView",
-            prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("gasCaseOutputsSummaryView",
-            prospectSummaryService.getGasCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("mixedCaseVolumetricsSummaryView",
-            prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("mixedCaseOutputsSummaryView",
-            prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("opportunityDetailsSummaryView",
-            prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("submittable", prospectSubmissionService.isSubmissionSubmittable(submissionDetail))
-        .addObject("gasCase", hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail))
-        .addObject("oilCase", hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail))
-        .addObject("mixedCase", hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail))
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())))
-        .addObject("submissionType", submissionDetail.getSubmissionType());
+        .addObject("submittable", prospectSubmissionService.isSubmissionSubmittable(submissionDetail));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
 

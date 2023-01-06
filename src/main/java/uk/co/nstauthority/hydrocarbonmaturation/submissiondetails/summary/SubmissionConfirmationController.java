@@ -14,7 +14,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
@@ -23,21 +22,18 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 public class SubmissionConfirmationController {
 
   private final SubmissionDetailService submissionDetailService;
-  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   @Autowired
-  public SubmissionConfirmationController(SubmissionDetailService submissionDetailService,
-                                          GeneralDetailsPersistenceService generalDetailsPersistenceService) {
+  public SubmissionConfirmationController(SubmissionDetailService submissionDetailService) {
     this.submissionDetailService = submissionDetailService;
-    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
   }
 
   @GetMapping
   public ModelAndView showSubmissionConfirmation(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var generalDetail = generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail);
+    var resourceName = submissionDetailService.getResourceNameOrEmpty(submissionDetail);
 
-    return getSubmissionConfirmationModelAndView(generalDetail.getResourceName(), submissionDetail.getSubmissionType());
+    return getSubmissionConfirmationModelAndView(resourceName, submissionDetail.getSubmissionType());
   }
 
   private ModelAndView getSubmissionConfirmationModelAndView(String prospectName, SubmissionType submissionType) {
