@@ -70,7 +70,7 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage()),
             ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY))
+            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
         );
   }
 
@@ -80,7 +80,7 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     when(startDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
-    when(startDiscoveryService.createNewDiscovery(form)).thenReturn(submissionDetail);
+    when(startDiscoveryService.createNewDiscoveryFromProspect(form)).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
@@ -120,10 +120,10 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage()),
             ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY))
+            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
         );
 
     verify(startDiscoveryService, times(1)).validate(any(), any());
-    verify(startDiscoveryService, never()).createNewDiscovery(any());
+    verify(startDiscoveryService, never()).createNewDiscoveryFromProspect(any());
   }
 }

@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -11,20 +12,21 @@ import static org.mockito.Mockito.when;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -130,7 +132,7 @@ class SubmissionCreateServiceTest {
   }
 
   @Test
-  void createNewDiscovery_Successful_verifySubmissionCreated() {
+  void createNewDiscoveryFromProspect_Successful_verifySubmissionCreated() {
     var form = new StartDiscoveryForm();
     form.setProspectSelectedOption(UUID.randomUUID().toString());
 
@@ -147,10 +149,10 @@ class SubmissionCreateServiceTest {
     when(resourceService.createResource(ResourceType.DISCOVERY)).thenReturn(discoveryResource);
     when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption())))
         .thenReturn(generalDetail);
-    when(submissionDetailService.createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY))
+    when(submissionDetailService.createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
         .thenReturn(submissionDetailNew);
 
-    submissionCreateService.createNewDiscovery(form);
+    submissionCreateService.createNewDiscoveryFromProspect(form);
 
     verify(resourceLinkService).createNewResourceLink(prospectResource, discoveryResource);
     verify(responsibleTeamPersistenceService, times(1))
@@ -179,5 +181,18 @@ class SubmissionCreateServiceTest {
 
     verify(submissionDetailDuplicationService)
         .duplicateSubmissionDetailSections(submissionDetail, submissionDetailNew);
+  }
+
+  @Test
+  void createDiscovery_verifyMethodCalls() {
+    var captor = ArgumentCaptor.forClass(Resource.class);
+
+    submissionCreateService.createDiscovery();
+
+    verify(resourceService, times(1)).createResource(ResourceType.DISCOVERY);
+    verify(responsibleTeamPersistenceService, times(1))
+        .saveResponsibleTeamForResource(captor.capture(), eq(ResponsibleTeamType.EXPLORATION));
+    verify(submissionDetailService, times(1))
+        .createInitialSubmissionDetail(captor.getValue(), SubmissionType.CREATE_DISCOVERY);
   }
 }

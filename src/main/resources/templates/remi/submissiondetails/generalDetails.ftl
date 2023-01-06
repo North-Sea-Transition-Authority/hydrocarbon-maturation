@@ -65,10 +65,7 @@ breadcrumbsMap=breadcrumbsMap>
           </@fdsRadio.radioNo>
       </@fdsRadio.radioGroup>
 
-      <#if submissionType == "PROSPECT_UPDATE"
-        || submissionType == "CREATE_PROSPECT"
-        || submissionType == "CREATE_DISCOVERY"
-        || submissionType == "UPDATE_DISCOVERY">
+      <#if discoverySubmission || prospectSubmission>
         <@fdsRadio.radioGroup path="form.informationSource" labelText="Source of information" hiddenContent=true>
           <#assign firstItem=true/>
           <#list informationSources as key, value>

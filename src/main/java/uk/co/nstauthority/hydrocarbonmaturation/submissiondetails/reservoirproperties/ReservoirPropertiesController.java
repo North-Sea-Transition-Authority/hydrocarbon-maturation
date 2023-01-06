@@ -83,7 +83,9 @@ public class ReservoirPropertiesController {
   private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/reservoirProperties")
         .addObject("form", form)
-        .addObject("submissionType", submissionDetail.getSubmissionType());
+        .addObject("discoverySubmission", submissionDetail.isDiscoverySubmission())
+        .addObject("prospectSubmission", submissionDetail.isProspectSubmission())
+        .addObject("dryHoleSubmission", submissionDetail.isDryWellSubmission());
 
     addProbabilityTemplates(modelAndView, submissionDetail);
     if (submissionDetail.isDiscoverySubmission()) {

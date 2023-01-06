@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
@@ -41,8 +40,7 @@ class AverageHydrocarbonPropertiesTaskListSectionService implements TaskListSect
 
   @Override
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
-        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionDetail.isDiscoverySubmission()) {
       var items = new ArrayList<TaskListItem>();
 
       var hydrocarbonsDiscovered = discoveryWellDetailsPersistenceService
@@ -79,8 +77,7 @@ class AverageHydrocarbonPropertiesTaskListSectionService implements TaskListSect
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
-        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionDetail.isDiscoverySubmission()) {
       return gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail);
     } else {
       return true;

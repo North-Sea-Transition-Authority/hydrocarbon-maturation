@@ -55,13 +55,13 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
   private BindingResult bindingResult;
 
   private OilFluidPropertyForm oilFluidPropertyForm;
-  
+
   private UUID submissionDetailId;
 
   @BeforeEach
   void setUp() {
     submissionDetailId = submissionDetail.getId();
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     oilFluidPropertyForm = new OilFluidPropertyForm();
     bindingResult = new BeanPropertyBindingResult(oilFluidPropertyForm, "form");
   }

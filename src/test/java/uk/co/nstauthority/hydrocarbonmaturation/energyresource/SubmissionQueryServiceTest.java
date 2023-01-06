@@ -72,7 +72,7 @@ class SubmissionQueryServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, mode = EnumSource.Mode.EXCLUDE, names = {"CREATE_PROSPECT", "UPDATE_DISCOVERY"})
+  @EnumSource(value = SubmissionType.class, mode = EnumSource.Mode.EXCLUDE, names = {"CREATE_PROSPECT", "UPDATE_DISCOVERY", "CREATE_DISCOVERY_FROM_PROSPECT"})
   void getLatestProspectsByNameForSubmissionType_whenDryHoleSubmissionPresent_noProspects(SubmissionType submissionType) {
     var generalDetail1 = createGeneralDetail(
         "prospect1", ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED);
@@ -85,11 +85,13 @@ class SubmissionQueryServiceTest {
 
     var submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
     var submissionDetail2 = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    generalDetail1.setSubmissionDetail(submissionDetail);
+    generalDetail2.setSubmissionDetail(submissionDetail2);
 
     when(submissionDetailService.getLatestSubmissionDetailForResourceOrThrow(generalDetail1.getSubmissionDetail().getResourceId()))
-        .thenReturn(submissionDetail);
+        .thenReturn(generalDetail1.getSubmissionDetail());
     when(submissionDetailService.getLatestSubmissionDetailForResourceOrThrow(generalDetail2.getSubmissionDetail().getResourceId()))
-        .thenReturn(submissionDetail2);
+        .thenReturn(generalDetail2.getSubmissionDetail());
 
     var result = submissionQueryService
         .getLatestProspectsByNameForSubmissionType(searchTerm, submissionType);
@@ -240,7 +242,7 @@ class SubmissionQueryServiceTest {
     when(resourceLinkService.getResourceLinksByProspect(generalDetail1.getSubmissionDetail().getResourceId()))
         .thenReturn(List.of(resourceLink));
     var result =
-        submissionQueryService.getLatestProspectsByNameForSubmissionType(searchTerm, SubmissionType.CREATE_DISCOVERY);
+        submissionQueryService.getLatestProspectsByNameForSubmissionType(searchTerm, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
 
     assertThat(result)
         .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
@@ -263,7 +265,7 @@ class SubmissionQueryServiceTest {
         .thenReturn(generalDetail1.getSubmissionDetail());
 
     var result =
-        submissionQueryService.getLatestProspectsByNameForSubmissionType(searchTerm, SubmissionType.CREATE_DISCOVERY);
+        submissionQueryService.getLatestProspectsByNameForSubmissionType(searchTerm, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
 
     assertThat(result).isEmpty();
   }

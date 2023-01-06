@@ -1,28 +1,26 @@
 <#include '../layout/layout.ftl'>
 
-<#assign pageTitle = "Post-drill discovery submission" />
+<#assign pageTitle = "Create a new post-drill discovery" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
-<#-- @ftlvariable name="prospectSelectedOption" type="String" -->
 
 <@defaultPage
-  htmlTitle=pageTitle
-  pageHeading=pageTitle
-  pageSize=PageSize.TWO_THIRDS_COLUMN
-  backLinkUrl=springUrl(backLinkUrl)>
-    <@fdsForm.htmlForm actionUrl=springUrl(actionUrl)>
-      <@fdsSearchSelector.searchSelectorRest path="form.prospectSelectedOption" restUrl=springUrl(prospectApiEndpoint) labelText="What prospect is being updated?" selectorMinInputLength=3/>
-      <@fdsDetails.summaryDetails summaryTitle="The prospect I want to update is not listed">
-        <p class="govuk-body">
-          Only prospects that exist on an extant licence are shown.
-        </p>
-        <p class="govuk-body">
-          If the prospect you want to update is not shown in the list then you must contact the operator responsible for the prospect to provide you with access to their organisation.        </p>
-        <p class="govuk-body">
-          If you are already part of the organisation then contact the NSTA for advice.
-        </p>
-      </@fdsDetails.summaryDetails>
-      <@fdsAction.submitButtons primaryButtonText="Save and continue" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl="${springUrl(backLinkUrl)}"/>
-    </@fdsForm.htmlForm>
+htmlTitle=pageTitle
+pageHeading=pageTitle
+pageSize=PageSize.TWO_THIRDS_COLUMN
+backLinkUrl=springUrl(backLinkUrl)>
+  <@fdsStartPage.startPage startActionText="Start now" startActionUrl=actionUrl>
+    <p class="govuk-body">
+      Use this service to create a new discovery.
+    </p>
+    <p class="govuk-body">
+      You will be required to provide information about what was discovered, the trap, reservoir, oil or gas volumes and fluid properties.
+    </p>
+    <p class="govuk-body">
+      If this discovery is being created as a result of an active prospect being progressed, then you should use the post-drill discovery submission to progress that prospect.
+    </p>
+    <p class="govuk-body">
+      This option should only be used when describing an existing discovery that is being relicensed.
+    </p>
+  </@fdsStartPage.startPage>
 </@defaultPage>

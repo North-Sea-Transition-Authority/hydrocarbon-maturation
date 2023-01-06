@@ -102,12 +102,9 @@ public class SubmissionQueryService {
   private boolean filterSubmissionByOtherSubmissions(SubmissionDetail submission,
                                                      SubmissionType submissionType) {
     var status = submission.getStatus();
-    var type = submission.getSubmissionType();
     //ensures only approved prospect submissions can be shown on search selectors
-    if ((type != SubmissionType.CREATE_PROSPECT
-        && status != SubmissionDetailStatus.APPROVED)
-        || (type != SubmissionType.PROSPECT_UPDATE
-        && status != SubmissionDetailStatus.APPROVED)) {
+    if (!submission.isProspectSubmission()
+        || status != SubmissionDetailStatus.APPROVED) {
       return false;
     }
 
@@ -124,7 +121,8 @@ public class SubmissionQueryService {
             return false;
           }
           return submissionType != SubmissionType.PROSPECT_UPDATE
-              || existingSubmissionType != SubmissionType.CREATE_DISCOVERY;
+              || !(existingSubmissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
+              || existingSubmissionType == SubmissionType.CREATE_DISCOVERY);
         });
   }
 

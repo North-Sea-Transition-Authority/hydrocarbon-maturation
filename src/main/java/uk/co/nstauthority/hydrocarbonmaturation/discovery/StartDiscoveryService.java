@@ -19,8 +19,12 @@ class StartDiscoveryService {
     this.startDiscoveryFormValidator = startDiscoveryFormValidator;
   }
 
-  SubmissionDetail createNewDiscovery(StartDiscoveryForm form) {
-    return submissionCreateService.createNewDiscovery(form);
+  SubmissionDetail createNewDiscoveryFromProspect(StartDiscoveryForm form) {
+    return submissionCreateService.createNewDiscoveryFromProspect(form);
+  }
+
+  SubmissionDetail createNewDiscovery() {
+    return submissionCreateService.createDiscovery();
   }
 
   public BindingResult validate(StartDiscoveryForm form, BindingResult bindingResult) {

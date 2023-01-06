@@ -102,7 +102,9 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
       );
     }
 
-    if (submissionType == SubmissionType.CREATE_DISCOVERY || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.UPDATE_DISCOVERY
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
       if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
           || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
         ProbabilityDistributionValidationUtil.validateCustomPartial(
@@ -142,7 +144,9 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         "Enter an age stage or series");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithology", "lithology.required", "Enter a lithology");
 
-    if (submissionType == SubmissionType.CREATE_DISCOVERY || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.UPDATE_DISCOVERY
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirFacies",
           "reservoirFacies.required", "Enter the reservoir facies");
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirConnectivity",
@@ -231,7 +235,9 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
       );
     }
 
-    if (submissionType == SubmissionType.CREATE_DISCOVERY || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.UPDATE_DISCOVERY
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
       if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
           || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
         ProbabilityDistributionValidationUtil.validateCustomFull(
@@ -268,7 +274,8 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
   private HydrocarbonsDiscovered extractHydrocarbonsDiscoveredFromHints(
       SubmissionFormValidatorHints submissionFormValidatorHints) {
     if (submissionFormValidatorHints.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
-        || submissionFormValidatorHints.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+        || submissionFormValidatorHints.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY
+        || submissionFormValidatorHints.getSubmissionType() == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
       return ((ReservoirPropertiesValidatorHints) submissionFormValidatorHints).getHydrocarbonsDiscovered();
     } else {
       return null;

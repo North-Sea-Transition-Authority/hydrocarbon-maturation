@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -68,6 +69,21 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
+  void startSubmission_whenValidFormAndDiscoveryFromProspect_assertRedirection() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+
+    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+            .with(user(USER))
+            .with(csrf())
+            .param("submissionType", SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT.name()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage())));
+  }
+
+  @Test
   void startSubmission_whenValidFormAndDiscovery_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -79,7 +95,7 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
             .with(csrf())
             .param("submissionType", SubmissionType.CREATE_DISCOVERY.name()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage())));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(StartDiscoveryController.class).startDiscovery())));
   }
 
   @SecurityTest

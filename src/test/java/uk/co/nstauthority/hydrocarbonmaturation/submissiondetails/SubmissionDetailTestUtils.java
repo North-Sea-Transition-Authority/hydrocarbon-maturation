@@ -20,7 +20,7 @@ public class SubmissionDetailTestUtils {
   }
 
   public static SubmissionDetail createNewDiscoverySubmissionDetail() {
-    return createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+    return createSubmissionDetail(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
   }
 
   public static SubmissionDetail createNewDiscoveryUpdateSubmissionDetail() {

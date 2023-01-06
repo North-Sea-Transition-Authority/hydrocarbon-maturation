@@ -332,7 +332,7 @@ class ReservoirPropertiesFormValidatorTest {
 
     reservoirPropertiesFormValidator.validate(form, bindingResult,
         new ReservoirPropertiesValidatorHints(
-            validationType, SubmissionType.CREATE_DISCOVERY, HydrocarbonsDiscovered.OIL_ONLY));
+            validationType, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT, HydrocarbonsDiscovered.OIL_ONLY));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)

@@ -80,7 +80,14 @@ public class SubmissionCreateService {
   }
 
   @Transactional
-  public SubmissionDetail createNewDiscovery(StartDiscoveryForm form) {
+  public SubmissionDetail createDiscovery() {
+    var resource = resourceService.createResource(ResourceType.DISCOVERY);
+    responsibleTeamPersistenceService.saveResponsibleTeamForResource(resource, ResponsibleTeamType.EXPLORATION);
+    return submissionDetailService.createInitialSubmissionDetail(resource, SubmissionType.CREATE_DISCOVERY);
+  }
+
+  @Transactional
+  public SubmissionDetail createNewDiscoveryFromProspect(StartDiscoveryForm form) {
     var discoveryResource = resourceService.createResource(ResourceType.DISCOVERY);
     responsibleTeamPersistenceService.saveResponsibleTeamForResource(discoveryResource, ResponsibleTeamType.EXPLORATION);
     var oldSubmissionDetail = getSubmissionDetailByGeneralDetail(form.getProspectSelectedOption());
@@ -89,7 +96,7 @@ public class SubmissionCreateService {
     resourceLinkService.createNewResourceLink(prospectResource, discoveryResource);
 
     var newSubmissionDetail =
-        submissionDetailService.createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY);
+        submissionDetailService.createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);

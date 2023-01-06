@@ -46,7 +46,7 @@ public class PostDrillDiscoveryController {
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getStartDiscoveryModelAndView(form),
         () -> {
-          var submissionDetail = startDiscoveryService.createNewDiscovery(form);
+          var submissionDetail = startDiscoveryService.createNewDiscoveryFromProspect(form);
           return ReverseRouter.redirect(on(TaskListController.class)
               .getTaskList(submissionDetail.getId()));
         }
@@ -54,13 +54,14 @@ public class PostDrillDiscoveryController {
   }
 
   private ModelAndView getStartDiscoveryModelAndView(StartDiscoveryForm form) {
-    return new ModelAndView("remi/discovery/newDiscovery")
+    return new ModelAndView("remi/discovery/newDiscoveryFromProspect")
         .addObject("backLinkUrl",
             ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage()))
-        .addObject("actionUrl", ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
+        .addObject("actionUrl", ReverseRouter.route(on(PostDrillDiscoveryController.class)
+            .startDiscovery(null, null)))
         .addObject("form", form)
         .addObject("prospectApiEndpoint",
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchProspects(null, SubmissionType.CREATE_DISCOVERY)));
+                .searchProspects(null, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT)));
   }
 }

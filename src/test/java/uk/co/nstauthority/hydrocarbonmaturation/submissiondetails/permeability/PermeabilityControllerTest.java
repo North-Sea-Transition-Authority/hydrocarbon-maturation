@@ -131,7 +131,7 @@ class PermeabilityControllerTest extends AbstractControllerTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY"})
+  @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY_FROM_PROSPECT"})
   void getPermeabilityPageModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);

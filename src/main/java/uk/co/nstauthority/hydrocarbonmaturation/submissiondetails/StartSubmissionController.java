@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -51,8 +52,10 @@ public class StartSubmissionController {
           case PROSPECT_UPDATE -> ReverseRouter.redirect(on(StartUpdateProspectController.class).getStartUpdatePage());
           case POST_DRILL_DRY_HOLE ->
               ReverseRouter.redirect(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage());
-          case CREATE_DISCOVERY ->
+          case CREATE_DISCOVERY_FROM_PROSPECT ->
               ReverseRouter.redirect(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage());
+          case CREATE_DISCOVERY ->
+              ReverseRouter.redirect(on(StartDiscoveryController.class).startDiscovery());
           case UPDATE_DISCOVERY ->
               ReverseRouter.redirect(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage());
         });

@@ -143,7 +143,7 @@ class OpportunityTaskListSectionServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY"})
+  @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY_FROM_PROSPECT"})
   void isSectionSubmittable_whenNotProspectSubmissionAndSubmittable_assertTrue(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
@@ -154,7 +154,7 @@ class OpportunityTaskListSectionServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY"})
+  @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY_FROM_PROSPECT"})
   void isSectionSubmittable_whenNotProspectSubmissionAndNotSubmittable_assertFalse(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);

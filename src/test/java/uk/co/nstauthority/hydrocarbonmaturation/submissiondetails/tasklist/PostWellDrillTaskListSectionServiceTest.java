@@ -68,7 +68,7 @@ class PostWellDrillTaskListSectionServiceTest {
 
   @Test
   void getSection_discoverySubmission() {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     var taskListSectionOptional = postWellDrillTaskListSectionService.getSection(submissionDetail);
 
     var section = taskListSectionOptional.get();
@@ -126,7 +126,7 @@ class PostWellDrillTaskListSectionServiceTest {
 
   @Test
   void isSectionSubmittable_discoverySubmissionWhenSubmittable_assertTrue() {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     when(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
@@ -135,7 +135,7 @@ class PostWellDrillTaskListSectionServiceTest {
 
   @Test
   void isSectionSubmittable_discoverySubmissionWhenOneSectionNotSubmittable_assertFalse() {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     when(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
 
     assertFalse(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));

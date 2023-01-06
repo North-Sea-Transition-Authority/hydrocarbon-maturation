@@ -23,7 +23,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -75,14 +74,13 @@ public class GeneralDetailsController {
   }
 
   private ModelAndView getGeneralDetailsModelAndView(GeneralDetailsForm form, SubmissionDetail submissionDetail) {
-    var submissionType = submissionDetail.getSubmissionType();
-
     var modelAndView =  new ModelAndView("remi/submissiondetails/generalDetails")
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("licenceApplicationEndpoint",
             SearchSelectorService.route(on(LicenceApplicationRestController.class)
                 .searchLicenceApplicationsWithManualEntry(null)))
-        .addObject("submissionType", submissionType)
+        .addObject("discoverySubmission", submissionDetail.isDiscoverySubmission())
+        .addObject("prospectSubmission", submissionDetail.isProspectSubmission())
         .addObject("licenceApplication",
             generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
         .addObject("organisationUnitEndpoint",
@@ -100,11 +98,9 @@ public class GeneralDetailsController {
         .addObject("alreadyAddedLicences", generalDetailsFormService.getLicenceViews(
             form));
 
-    if (submissionType == SubmissionType.CREATE_PROSPECT
-        || submissionType == SubmissionType.PROSPECT_UPDATE) {
+    if (submissionDetail.isProspectSubmission()) {
       modelAndView.addObject("informationSources", InformationSource.getInformationSource());
-    } else if (submissionType == SubmissionType.CREATE_DISCOVERY
-        || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    } else if (submissionDetail.isDiscoverySubmission()) {
       modelAndView.addObject("informationSources", InformationSource.getDiscoveryInformationSource());
     }
 

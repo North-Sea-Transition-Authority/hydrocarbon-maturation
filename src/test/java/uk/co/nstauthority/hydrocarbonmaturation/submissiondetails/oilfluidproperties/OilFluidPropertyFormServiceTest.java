@@ -38,7 +38,7 @@ class OilFluidPropertyFormServiceTest {
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     submissionDetailId = submissionDetail.getId();
   }
 

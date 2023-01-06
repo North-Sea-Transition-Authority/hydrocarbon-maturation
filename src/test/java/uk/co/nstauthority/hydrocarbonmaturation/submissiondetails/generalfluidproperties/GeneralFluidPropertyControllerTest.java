@@ -55,13 +55,13 @@ class GeneralFluidPropertyControllerTest extends AbstractControllerTest {
   private BindingResult bindingResult;
 
   private GeneralFluidPropertyForm generalFluidPropertyForm;
-  
+
   private UUID submissionDetailId;
 
   @BeforeEach
   void setUp() {
     submissionDetailId = submissionDetail.getId();
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     generalFluidPropertyForm = new GeneralFluidPropertyForm();
     bindingResult = new BeanPropertyBindingResult(generalFluidPropertyForm, "form");
   }

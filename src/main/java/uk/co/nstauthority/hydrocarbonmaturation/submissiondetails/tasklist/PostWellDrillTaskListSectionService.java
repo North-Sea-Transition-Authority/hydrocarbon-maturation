@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestController;
@@ -37,7 +36,7 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
     var items = new ArrayList<TaskListItem>();
 
-    if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
+    if (submissionDetail.isDryWellSubmission()) {
       items.add(
           new TaskListItem("Dry well details",
               TaskListLabel.notStartedOrComplete(
@@ -47,8 +46,7 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
       );
     }
 
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
-        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionDetail.isDiscoverySubmission()) {
       items.add(
           new TaskListItem("Discovery well details",
               TaskListLabel.notStartedOrComplete(
@@ -68,10 +66,9 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
+    if (submissionDetail.isDryWellSubmission()) {
       return dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail);
-    } else if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
-        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+    } else if (submissionDetail.isDiscoverySubmission()) {
       return discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)
           && drillStemTestSubmissionService.isSectionSubmittable(submissionDetail);
     } else {

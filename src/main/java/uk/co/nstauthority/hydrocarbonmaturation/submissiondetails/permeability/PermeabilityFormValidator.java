@@ -46,7 +46,7 @@ class PermeabilityFormValidator implements SmartValidator, SubmissionFormValidat
   public void validatePartial(SubmissionForm form, Errors errors) {
     var permeabilityForm = (PermeabilityForm) form;
 
-    if (submissionType == SubmissionType.CREATE_DISCOVERY
+    if (submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
         || submissionType == SubmissionType.UPDATE_DISCOVERY
         || submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.PROSPECT_UPDATE

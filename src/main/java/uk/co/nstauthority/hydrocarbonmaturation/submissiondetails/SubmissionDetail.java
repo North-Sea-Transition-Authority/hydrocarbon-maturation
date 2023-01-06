@@ -106,7 +106,8 @@ public class SubmissionDetail {
 
   public boolean isDiscoverySubmission() {
     return submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY;
+        || submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT;
   }
 
   public boolean isDryWellSubmission() {

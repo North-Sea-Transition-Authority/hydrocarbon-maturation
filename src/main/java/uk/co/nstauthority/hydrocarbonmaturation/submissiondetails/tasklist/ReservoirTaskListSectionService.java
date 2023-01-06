@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
@@ -39,9 +38,7 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
             ReverseRouter.route(
                 on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetail.getId())))));
 
-    if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE
-        || submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
-        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionDetail.isDryWellOrDiscoverySubmission()) {
       items.add(new TaskListItem("Permeability",
           TaskListLabel.notStartedOrComplete(permeabilitySubmissionService.isSectionSubmittable(submissionDetail)),
           ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(submissionDetail.getId(), null)))
@@ -53,9 +50,7 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE
-        || submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
-        || submissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionDetail.isDryWellOrDiscoverySubmission()) {
       return reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail)
           && permeabilitySubmissionService.isSectionSubmittable(submissionDetail);
     }

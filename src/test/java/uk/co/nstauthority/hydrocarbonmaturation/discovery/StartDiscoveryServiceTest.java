@@ -33,10 +33,17 @@ class StartDiscoveryServiceTest {
   }
 
   @Test
-  void createNewDiscovery_verifyCreatedDiscovery() {
-    startDiscoveryService.createNewDiscovery(startDiscoveryForm);
+  void createNewDiscoveryFromProspect_verifyCreatedDiscovery() {
+    startDiscoveryService.createNewDiscoveryFromProspect(startDiscoveryForm);
 
-    verify(submissionCreateService, times(1)).createNewDiscovery(startDiscoveryForm);
+    verify(submissionCreateService, times(1)).createNewDiscoveryFromProspect(startDiscoveryForm);
+  }
+
+  @Test
+  void createNewDiscovery_verifyCreatedDiscovery() {
+    startDiscoveryService.createNewDiscovery();
+
+    verify(submissionCreateService, times(1)).createDiscovery();
   }
 
   @Test

@@ -177,7 +177,7 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
 
   @Test
   void getGeneralDetailsModelAndView_discoverySubmission_assertModelProperties() throws Exception {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");

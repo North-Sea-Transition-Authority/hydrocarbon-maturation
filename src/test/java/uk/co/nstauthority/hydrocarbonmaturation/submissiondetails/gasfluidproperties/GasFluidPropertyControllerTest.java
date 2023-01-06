@@ -59,17 +59,16 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
   @BeforeEach
   void setUp() {
     submissionDetailId = submissionDetail.getId();
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     gasFluidPropertyForm = new GasFluidPropertyForm();
     bindingResult = new BeanPropertyBindingResult(gasFluidPropertyForm, "form");
   }
 
   @SecurityTest
   void getGasFluidProperties_assertStatusOk() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
-        .thenReturn(submissionDetail);
     when(gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail))
         .thenReturn(new GasFluidPropertyForm());
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
         get(ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(submissionDetailId)))
@@ -92,8 +91,7 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
   void saveGasFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(gasFluidPropertyFormService.validate(any(), any(), any()))
         .thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
-        .thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GasFluidPropertyController.class)
@@ -135,10 +133,9 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
   @Test
   void getGasFluidPropertiesModelAndView_assertModelProperties() throws Exception {
     var form = new GasFluidPropertyForm();
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
-        .thenReturn(submissionDetail);
     when(gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail))
         .thenReturn(form);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(

@@ -19,7 +19,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -75,9 +74,7 @@ public class PermeabilityController {
 
   private ModelAndView getPermeabilityModelAndView(PermeabilityForm form, SubmissionDetail submissionDetail) {
     var viewName = "";
-    var submissionType = submissionDetail.getSubmissionType();
-    if (submissionType == SubmissionType.CREATE_DISCOVERY
-        || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionDetail.isDiscoverySubmission()) {
       viewName = "remi/submissiondetails/permeability/permeabilityDiscovery";
     } else {
       viewName = "remi/submissiondetails/permeability/permeabilityDryWell";

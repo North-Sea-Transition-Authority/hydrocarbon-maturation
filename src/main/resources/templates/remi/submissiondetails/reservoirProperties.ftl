@@ -37,15 +37,13 @@
       <@fdsTextInput.textInput path="form.formationName" labelText="Formation name"/>
       <@fdsTextInput.textInput path="form.ageStageOrSeries" labelText="Age stage or series"/>
       <@fdsTextInput.textInput path="form.lithology" labelText="Lithology"/>
-      <#if submissionType == "POST_DRILL_DRY_HOLE">
+      <#if dryHoleSubmission>
         <#assign optionalFaciesAndConnectivity = true />
       </#if>
-      <#if submissionType == "CREATE_DISCOVERY" || submissionType == "UPDATE_DISCOVERY">
+      <#if discoverySubmission>
         <#assign optionalFaciesAndConnectivity = false/>
       </#if>
-      <#if submissionType == "POST_DRILL_DRY_HOLE"
-        || submissionType == "CREATE_DISCOVERY"
-        || submissionType == "UPDATE_DISCOVERY">
+      <#if dryHoleSubmission || discoverySubmission>
         <@fdsTextarea.textarea
           path="form.reservoirFacies"
           labelText="Reservoir facies"
@@ -58,16 +56,14 @@
           hintText="Comment on sandbody geometry and architecture, fault compartmentalisation, aquifer size and connectivity"/>
       </#if>
    </@fdsFieldset.fieldset>
-    <#if submissionType == "CREATE_PROSPECT" || submissionType == "PROSPECT_UPDATE">
+    <#if prospectSubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionTypePath="form.averageNetPayThickness.probabilityDistributionType"
         labelText="Average net pay thickness distribution used"
         formId="averageNetPayThickness"
         template=averageNetPayThicknessTemplate
         error=averageNetPayThicknessError/>
-    <#elseif submissionType == "POST_DRILL_DRY_HOLE"
-      || submissionType == "CREATE_DISCOVERY"
-      || submissionType == "UPDATE_DISCOVERY">
+    <#elseif dryHoleSubmission || discoverySubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionTypePath="form.averageNetPayThickness.probabilityDistributionType"
         labelText="Average net pay thickness distribution used"
@@ -110,7 +106,7 @@
       template=netPorosityTemplate
       error=netPorosityError/>
 
-    <#if submissionType == "CREATE_PROSPECT" || submissionType == "PROSPECT_UPDATE">
+    <#if prospectSubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionTypePath="form.depthToHydrocarbonContact.probabilityDistributionType"
         labelText="Depth to hydrocarbon contact distribution used"
@@ -118,7 +114,7 @@
         template=depthToHydrocarbonContactTemplate
         error=depthToHydrocarbonContactError/>
     </#if>
-    <#if submissionType == "CREATE_DISCOVERY" || submissionType == "UPDATE_DISCOVERY">
+    <#if discoverySubmission>
       <#if oilCase || mixedCase>
         <@probabilityDistribution.probabilityDistributionCustomTemplate
           probabilityDistributionTypePath="form.depthToOilWaterContact.probabilityDistributionType"

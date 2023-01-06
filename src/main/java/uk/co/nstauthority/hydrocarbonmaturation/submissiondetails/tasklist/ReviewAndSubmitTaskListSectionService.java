@@ -39,7 +39,7 @@ public class ReviewAndSubmitTaskListSectionService implements TaskListSectionSer
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
                   .showSubmissionSummary(submissionDetail.getId()))));
-      case CREATE_DISCOVERY, UPDATE_DISCOVERY ->
+      case CREATE_DISCOVERY_FROM_PROSPECT, UPDATE_DISCOVERY, CREATE_DISCOVERY ->
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(DiscoverySubmissionSummaryController.class)
                   .showSubmissionSummary(submissionDetail.getId()))));

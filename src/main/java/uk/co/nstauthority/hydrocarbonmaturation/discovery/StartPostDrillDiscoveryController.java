@@ -18,7 +18,7 @@ public class StartPostDrillDiscoveryController {
 
   @GetMapping
   public ModelAndView getStartPostDrillDiscoveryPage() {
-    return new ModelAndView("remi/discovery/startDiscovery")
+    return new ModelAndView("remi/discovery/startDiscoveryFromProspect")
         .addObject("actionUrl",
             ReverseRouter.route(on(StartPostDrillDiscoveryController.class).startPostDrillDiscovery()))
         .addObject("backLinkUrl", ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()));

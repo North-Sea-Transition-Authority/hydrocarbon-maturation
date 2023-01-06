@@ -19,7 +19,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -85,9 +84,8 @@ public class GeneralDetailsFormService implements SubmissionFormService {
       );
     }
 
-    var submissionType = generalDetail.getSubmissionDetail().getSubmissionType();
-    if (submissionType == SubmissionType.CREATE_PROSPECT || submissionType == SubmissionType.PROSPECT_UPDATE
-        || submissionType == SubmissionType.CREATE_DISCOVERY || submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    var submissionDetail = generalDetail.getSubmissionDetail();
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDiscoverySubmission()) {
       form.setInformationSource(generalDetail.getInformationSource());
       form.setOtherSourceOfInformation(generalDetail.getOtherInformationSource());
     }

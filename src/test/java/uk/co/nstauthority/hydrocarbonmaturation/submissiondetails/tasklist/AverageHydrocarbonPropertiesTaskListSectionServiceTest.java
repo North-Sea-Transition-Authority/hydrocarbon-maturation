@@ -192,7 +192,7 @@ class AverageHydrocarbonPropertiesTaskListSectionServiceTest {
 
   @Test
   void isSectionSubmittable_whenDiscovery_assertTrue() {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     when(gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     var submittable = averageHydrocarbonPropertiesTaskListSectionService.isSectionSubmittable(submissionDetail);

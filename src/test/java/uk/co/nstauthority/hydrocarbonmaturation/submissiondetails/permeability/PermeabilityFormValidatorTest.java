@@ -44,7 +44,7 @@ class PermeabilityFormValidatorTest {
     var form = getValidFormWithPermeability();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(form, bindingResult, validationType, SubmissionType.CREATE_DISCOVERY);
+    permeabilityFormValidator.validate(form, bindingResult, validationType, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -114,7 +114,7 @@ class PermeabilityFormValidatorTest {
     var form = new PermeabilityForm();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(form, bindingResult, ValidationType.FULL, SubmissionType.CREATE_DISCOVERY);
+    permeabilityFormValidator.validate(form, bindingResult, ValidationType.FULL, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
         .containsExactly(
