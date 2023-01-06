@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.co.fivium.notify.library.model.NotifyCallback;
 import uk.co.fivium.notify.library.service.FiviumNotifyCallbackAccessDeniedException;
 import uk.co.fivium.notify.library.service.FiviumNotifyCallbackService;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.Unauthenticated;
 
 /**
  * Rest controller to handle GOV.UK Notify callback requests. A callback message is formatted in JSON.
  * For more information about callbacks visit https://docs.notifications.service.gov.uk/java.html#callbacks
  */
 @RestController
+@Unauthenticated
 public class NotifyCallbackController {
 
   private final FiviumNotifyCallbackService fiviumNotifyCallbackService;

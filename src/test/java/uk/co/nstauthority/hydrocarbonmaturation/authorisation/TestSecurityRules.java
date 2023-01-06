@@ -32,5 +32,6 @@ public class TestSecurityRules {
   final ArchRule securityTestAnnotationRule = classes()
       .that().haveSimpleNameEndingWith("ControllerTest")
       .and().doNotHaveSimpleName("AbstractControllerTest")
+      .and().doNotHaveSimpleName("RealSecurityAbstractControllerTest")
       .should(containAtLeastOneSecurityTest);
 }

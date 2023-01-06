@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -16,6 +15,7 @@ import uk.co.fivium.notify.library.model.NotifyCallback;
 import uk.co.fivium.notify.library.service.FiviumNotifyCallbackAccessDeniedException;
 import uk.co.fivium.notify.library.service.FiviumNotifyCallbackService;
 import uk.co.nstauthority.hydrocarbonmaturation.RealSecurityAbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @ContextConfiguration(classes = {NotifyCallbackController.class})
@@ -26,7 +26,7 @@ class NotifyCallbackControllerTest extends RealSecurityAbstractControllerTest {
   @MockBean
   FiviumNotifyCallbackService fiviumNotifyCallbackService;
 
-  @Test
+  @SecurityTest
   void notifyCallback_assertStatusOk() throws Exception {
     var notifyCallback = NotifyCallbackTestUtil.createNotifyCallback("test@email.com", NotifyCallback.NotifyCallbackStatus.TEMPORARY_FAILURE);
     mockMvc.perform(
@@ -38,7 +38,7 @@ class NotifyCallbackControllerTest extends RealSecurityAbstractControllerTest {
     ;
   }
 
-  @Test
+  @SecurityTest
   void notifyCallback_InvalidBearerToken_assertStatusForbidden() throws Exception {
     var notifyCallback = NotifyCallbackTestUtil.createNotifyCallback("test@email.com", NotifyCallback.NotifyCallbackStatus.TEMPORARY_FAILURE);
 
