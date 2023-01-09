@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 
@@ -141,5 +143,28 @@ class DrillStemTestInitialPersistenceServiceTest {
     var result = drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail);
 
     assertThat(result).isEqualTo(Optional.of(drillStemTest));
+  }
+
+  @Test
+  void getDrillStemTestBySubmissionDetailOrThrow_verifyReturned() {
+    var drillStemTest = mock(DrillStemTest.class);
+    when(drillStemTestRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(drillStemTest));
+
+    var result = drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail);
+
+    assertThat(result).isEqualTo(drillStemTest);
+  }
+
+  @Test
+  void getDrillStemTestBySubmissionDetailOrThrow_verifyThrown() {
+    when(drillStemTestRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    assertThatThrownBy(()->
+        drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
+        .isExactlyInstanceOf(RemiEntityNotFoundException.class)
+        .hasMessage("Drill stem test not found for submission with id %s"
+            .formatted(submissionDetail.getId().toString()));
   }
 }

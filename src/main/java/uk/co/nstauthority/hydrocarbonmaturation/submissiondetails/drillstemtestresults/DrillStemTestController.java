@@ -32,6 +32,7 @@ public class DrillStemTestController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService;
+  private final DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
 
   public static final String PAGE_NAME = "Drill stem test results";
 
@@ -39,19 +40,26 @@ public class DrillStemTestController {
   public DrillStemTestController(DrillStemTestFormService drillStemTestFormService,
                                  ControllerHelperService controllerHelperService,
                                  SubmissionDetailService submissionDetailService,
-                                 DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService) {
+                                 DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService,
+                                 DrillStemTestResultPersistenceService drillStemTestResultPersistenceService) {
     this.drillStemTestFormService = drillStemTestFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.drillStemTestInitialPersistenceService = drillStemTestInitialPersistenceService;
+    this.drillStemTestResultPersistenceService = drillStemTestResultPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getDrillStemTestPage(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                            @ModelAttribute("form") DrillStemTestInitialForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    return getDrillStemTestModelAndView(
-        drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail), submissionDetail);
+
+    if (drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail).isEmpty()) {
+      return getDrillStemTestModelAndView(form, submissionDetail);
+    } else {
+      return ReverseRouter.redirect(on(DrillStemTestSummaryController.class)
+          .getDrillStemTestSummaryPage(submissionDetailId));
+    }
   }
 
   @PostMapping

@@ -13,6 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResultsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryService;
@@ -40,6 +41,9 @@ class DiscoverySummaryServiceTest {
 
   @Mock
   private GeneralDetailSummaryService generalDetailSummaryService;
+
+  @Mock
+  private DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
 
   @Mock
   private OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
@@ -107,6 +111,14 @@ class DiscoverySummaryServiceTest {
 
     verify(generalDetailSummaryService, times(1))
         .getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getDrillStemTestSummaryViewFromSubmissionDetail() {
+    discoverySummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(drillStemTestResultsSummaryService, times(1))
+        .getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
   }
 
   @Test

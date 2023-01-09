@@ -22,6 +22,7 @@
 <#-- @ftlvariable name="gasCaseOutputsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService" -->
 <#-- @ftlvariable name="mixedCaseVolumetricsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView" -->
 <#-- @ftlvariable name="mixedCaseOutputsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView" -->
+<#-- @ftlvariable name="drillStemTestSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -46,7 +47,8 @@
       gasCaseVolumetricsSummaryView=gasCaseVolumetricsSummaryView
       gasCaseOutputsSummaryView=gasCaseOutputsSummaryView
       mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
-      mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView/>
+      mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
+      drillStemTestSummaryView=drillStemTestSummaryView/>
 
     <@fdsAction.submitButtons
       primaryButtonText="Submit"

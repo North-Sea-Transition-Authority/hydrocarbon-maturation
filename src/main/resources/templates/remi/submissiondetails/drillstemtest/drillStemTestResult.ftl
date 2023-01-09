@@ -29,13 +29,13 @@
       nestingPath="form.bottomDepth"/>
     <@fdsTextInput.textInput
       path="form.bhfp.decimalInputValue"
-      labelText="BHFP"
+      labelText="Bottomhole flowing pressure"
       suffix="psia"
       inputClass="govuk-input--width-5"
       nestingPath="form.bhfp"/>
     <@fdsTextInput.textInput
       path="form.whfp.decimalInputValue"
-      labelText="WHFP"
+      labelText="Wellhead flowing pressure"
       suffix="psia"
       inputClass="govuk-input--width-5"
       nestingPath="form.whfp"/>

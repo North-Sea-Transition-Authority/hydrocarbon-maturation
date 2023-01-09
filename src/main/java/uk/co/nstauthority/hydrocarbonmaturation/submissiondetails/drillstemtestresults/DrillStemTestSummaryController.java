@@ -33,6 +33,7 @@ public class DrillStemTestSummaryController {
   private final ControllerHelperService controllerHelperService;
   private final DrillStemTestFormService drillStemTestFormService;
   private final SubmissionDetailService submissionDetailService;
+  private final DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
 
   public static final String PAGE_NAME = "Drill stem test results";
 
@@ -41,19 +42,29 @@ public class DrillStemTestSummaryController {
                                         DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService,
                                         ControllerHelperService controllerHelperService,
                                         DrillStemTestFormService drillStemTestFormService,
-                                        SubmissionDetailService submissionDetailService) {
+                                        SubmissionDetailService submissionDetailService,
+                                        DrillStemTestResultsSummaryService drillStemTestResultsSummaryService) {
     this.drillStemTestResultPersistenceService = drillStemTestResultPersistenceService;
     this.drillStemTestInitialPersistenceService = drillStemTestInitialPersistenceService;
     this.controllerHelperService = controllerHelperService;
     this.drillStemTestFormService = drillStemTestFormService;
     this.submissionDetailService = submissionDetailService;
+    this.drillStemTestResultsSummaryService = drillStemTestResultsSummaryService;
   }
 
   @GetMapping
   public ModelAndView getDrillStemTestSummaryPage(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    return getDrillStemTestSummaryModelAndView(
-        drillStemTestFormService.getDrillStemTestSummaryForm(submissionDetail), submissionDetail);
+    var drillStemTest = drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail);
+    var drillStemTestResults = drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest);
+
+    if (drillStemTestResults.isEmpty()) {
+      return ReverseRouter.redirect(on(DrillStemTestController.class)
+          .getDrillStemTestPage(submissionDetailId, null));
+    } else {
+      return getDrillStemTestSummaryModelAndView(
+          drillStemTestFormService.getDrillStemTestSummaryForm(submissionDetail), submissionDetail);
+    }
   }
 
   @PostMapping
@@ -66,12 +77,10 @@ public class DrillStemTestSummaryController {
         bindingResult,
         getDrillStemTestSummaryModelAndView(form, submissionDetail),
         () -> {
-          var drillStemTest = drillStemTestInitialPersistenceService.saveDrillStemTest(form, submissionDetail);
+          drillStemTestInitialPersistenceService.saveDrillStemTest(form, submissionDetail);
           if (form.getDrillStemTestSummaryOption() == DrillStemTestSummaryOptions.YES_NOW) {
             return ReverseRouter.redirect(on(DrillStemTestResultController.class)
                 .getCreateNewDrillStemTestResultPage(submissionDetailId));
-          } else if (form.getDrillStemTestSummaryOption() == DrillStemTestSummaryOptions.YES_LATER) {
-            drillStemTestResultPersistenceService.createNewDrillStemTestResult(drillStemTest);
           }
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
@@ -85,7 +94,9 @@ public class DrillStemTestSummaryController {
             ReverseRouter.route(on(DrillStemTestController.class)
                 .saveDrillStemTestDetails(submissionDetail.getId(), null, null)))
         .addObject("drillStemTestSummaryOptions",
-            DisplayableEnumOptionUtil.getDisplayableOptions(DrillStemTestSummaryOptions.class));
+            DisplayableEnumOptionUtil.getDisplayableOptions(DrillStemTestSummaryOptions.class))
+        .addObject("drillStemTestResultSummaryList", drillStemTestResultsSummaryService
+            .getDrillStemTestResultSummaryViewsFromSubmissionDetail(submissionDetail));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView, PAGE_NAME, submissionDetail);

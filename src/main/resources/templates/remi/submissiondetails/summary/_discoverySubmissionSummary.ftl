@@ -12,6 +12,7 @@
 <#import '../../summarylistcards/gasCaseOutputsSummaryCard.ftl' as gasCaseOutputsSummary>
 <#import '../../summarylistcards/mixedCaseVolumetricsSummaryCard.ftl' as mixedCaseVolumetricsSummary>
 <#import '../../summarylistcards/mixedCaseOutputsSummaryCard.ftl' as mixedCaseOutputsSummary>
+<#import '../../summarylistcards/drillstemtest/drillStemTestSummary.ftl' as drillStemTestSummary>
 
 <#macro discoverySubmissionSummary
   generalDetailsSummaryView
@@ -28,10 +29,14 @@
   gasCaseVolumetricsSummaryView
   gasCaseOutputsSummaryView
   mixedCaseVolumetricsSummaryView
-  mixedCaseOutputsSummaryView>
+  mixedCaseOutputsSummaryView
+  drillStemTestSummaryView>
   <@fdsAccordion.accordion accordionId="summaryaccordian">
     <@fdsAccordion.accordionSection sectionHeading="General details">
         <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
+    </@fdsAccordion.accordionSection>
+    <@fdsAccordion.accordionSection sectionHeading="Post well drill">
+      <@drillStemTestSummary.drillStemTest drillStemTestValues=drillStemTestSummaryView/>
     </@fdsAccordion.accordionSection>
     <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">
         <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResultsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
@@ -41,6 +43,7 @@ class DiscoverySummaryService {
   private final OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
   private final GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
   private final GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
+  private final DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
 
   @Autowired
   DiscoverySummaryService(GasFluidPropertySummaryService gasFluidPropertySummaryService,
@@ -49,6 +52,7 @@ class DiscoverySummaryService {
                           PermeabilitySummaryService permeabilitySummaryService,
                           GeneralDetailSummaryService generalDetailSummaryService,
                           ReservoirPropertiesSummaryService reservoirPropertiesSummaryService,
+                          DrillStemTestResultsSummaryService drillStemTestResultsSummaryService,
                           MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService,
                           MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService,
                           OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService,
@@ -61,6 +65,7 @@ class DiscoverySummaryService {
     this.permeabilitySummaryService = permeabilitySummaryService;
     this.generalDetailSummaryService = generalDetailSummaryService;
     this.reservoirPropertiesSummaryService = reservoirPropertiesSummaryService;
+    this.drillStemTestResultsSummaryService = drillStemTestResultsSummaryService;
     this.mixedCaseVolumetricsSummaryService = mixedCaseVolumetricsSummaryService;
     this.mixedCaseOutputsSummaryService = mixedCaseOutputsSummaryService;
     this.oilCaseVolumetricsSummaryService = oilCaseVolumetricsSummaryService;
@@ -93,6 +98,10 @@ class DiscoverySummaryService {
 
   public GeneralDetailSummaryView getGeneralDetailsSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public DrillStemTestSummaryView getDrillStemTestSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+    return drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
   }
 
   public OilCaseOutputsSummaryView getOilCaseOutputsSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {

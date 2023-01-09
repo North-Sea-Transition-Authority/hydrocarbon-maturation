@@ -5,6 +5,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
@@ -49,5 +50,11 @@ class DrillStemTestInitialPersistenceService {
 
   Optional<DrillStemTest> getDrillStemTestBySubmissionDetail(SubmissionDetail submissionDetail) {
     return drillStemTestRepository.findBySubmissionDetail(submissionDetail);
+  }
+
+  DrillStemTest getDrillStemTestBySubmissionDetailOrThrow(SubmissionDetail submissionDetail) {
+    return getDrillStemTestBySubmissionDetail(submissionDetail)
+        .orElseThrow(() -> new RemiEntityNotFoundException("Drill stem test not found for submission with id %s"
+            .formatted(submissionDetail.getId().toString())));
   }
 }

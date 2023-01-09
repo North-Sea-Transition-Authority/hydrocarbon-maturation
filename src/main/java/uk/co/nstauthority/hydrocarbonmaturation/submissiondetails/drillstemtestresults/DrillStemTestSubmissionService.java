@@ -12,10 +12,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class DrillStemTestSubmissionService implements SectionSubmissionService {
 
   private final DrillStemTestFormService drillStemTestFormService;
+  private final DrillStemTestResultFormService drillStemTestResultFormService;
+  private final DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
 
   @Autowired
-  public DrillStemTestSubmissionService(DrillStemTestFormService drillStemTestFormService) {
+  public DrillStemTestSubmissionService(DrillStemTestFormService drillStemTestFormService,
+                                        DrillStemTestResultFormService drillStemTestResultFormService,
+                                        DrillStemTestResultPersistenceService drillStemTestResultPersistenceService) {
     this.drillStemTestFormService = drillStemTestFormService;
+    this.drillStemTestResultFormService = drillStemTestResultFormService;
+    this.drillStemTestResultPersistenceService = drillStemTestResultPersistenceService;
   }
 
   @Override
@@ -23,6 +29,8 @@ public class DrillStemTestSubmissionService implements SectionSubmissionService 
     var form = drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL);
-    return !bindingResult.hasErrors();
+    var drillStemTestResults = drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail);
+    var hasErrors = drillStemTestResultFormService.validateDrillStemTestResults(drillStemTestResults, ValidationType.FULL);
+    return !bindingResult.hasErrors() && !hasErrors;
   }
 }

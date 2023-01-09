@@ -54,6 +54,12 @@ class DrillStemTestResultPersistenceService {
                 .formatted(drillStemTestResultId.toString())));
   }
 
+  public List<DrillStemTestResult> getDrillStemTestResultsBySubmissionDetail(SubmissionDetail submissionDetail) {
+    return drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail)
+        .map(drillStemTestResultRepository::findAllByDrillStemTest)
+        .orElseGet(List::of);
+  }
+
   List<DrillStemTestResult> getDrillStemTestResultsByDrillStemTest(DrillStemTest drillStemTest) {
     return drillStemTestResultRepository.findAllByDrillStemTest(drillStemTest);
   }
@@ -68,5 +74,10 @@ class DrillStemTestResultPersistenceService {
     drillStemTestResult.setDrillStemTest(drillStemTest);
     drillStemTestResultRepository.save(drillStemTestResult);
     return drillStemTestResult;
+  }
+
+  @Transactional
+  public void deleteDrillStemTestResult(DrillStemTestResult drillStemTestResult) {
+    drillStemTestResultRepository.delete(drillStemTestResult);
   }
 }

@@ -1,14 +1,19 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -44,7 +49,7 @@ class DrillStemTestResultFormServiceTest {
 
   @Test
   void getDrillStemTestResultForm_ExistingEntity_filledForm() {
-    var drillStemTestResult = getDrillStemTestResult();
+    var drillStemTestResult = getDrillStemTestResult(drillStemTest);
 
     var form = drillStemTestResultFormService.getDrillStemTestResultForm(drillStemTestResult);
 
@@ -115,9 +120,56 @@ class DrillStemTestResultFormServiceTest {
         .containsOnlyNulls();
   }
 
-  private DrillStemTestResult getDrillStemTestResult() {
-    var drillStemTestResult = new DrillStemTestResult();
+  @Test
+  void validateDrillStemTestResults_whenAllValid() {
+    var drillStemTest = mock(DrillStemTest.class);
+    var drillStemTestResult = getDrillStemTestResult(drillStemTest);
+    var drillStemTestResult1 = getDrillStemTestResult(drillStemTest);
+    drillStemTestResult1.setFormationName("otherName");
+    var captor = ArgumentCaptor.forClass(DrillStemTestResultForm.class);
 
+    var hasErrors = drillStemTestResultFormService.validateDrillStemTestResults(List.of(drillStemTestResult1, drillStemTestResult), ValidationType.FULL);
+
+    assertThat(hasErrors).isFalse();
+    verify(drillStemTestResultFormValidator, times(2))
+        .validate(captor.capture(), any(), eq(ValidationType.FULL));
+
+    var values = captor.getAllValues();
+
+    assertThat(values.get(1))
+        .extracting(
+            DrillStemTestResultForm::getCommentsInterpretation,
+            theForm -> theForm.getBhfp().createIntegerOrNull(),
+            theForm -> theForm.getBottomDepth().createBigDecimalOrNull(),
+            theForm -> theForm.getFlowDuration().createBigDecimalOrNull(),
+            DrillStemTestResultForm::getFormationName,
+            theForm -> theForm.getGasFlowrate().createBigDecimalOrNull(),
+            theForm -> theForm.getTopDepth().createBigDecimalOrNull(),
+            theForm -> theForm.getOilFlowrate().createBigDecimalOrNull(),
+            theForm -> theForm.getWaterFlowrate().createBigDecimalOrNull(),
+            theForm -> theForm.getWhfp().createIntegerOrNull())
+        .containsExactly(
+            "comment",
+            drillStemTestResult.getBhfp(),
+            drillStemTestResult.getBottomDepth(),
+            drillStemTestResult.getFlowDuration(),
+            drillStemTestResult.getFormationName(),
+            drillStemTestResult.getGasFlowrate(),
+            drillStemTestResult.getTopDepth(),
+            drillStemTestResult.getOilFlowrate(),
+            drillStemTestResult.getWaterFlowrate(),
+            drillStemTestResult.getWhfp()
+        );
+
+    assertThat(values.get(0))
+        .extracting(
+            DrillStemTestResultForm::getFormationName)
+        .isEqualTo("otherName");
+  }
+
+  public static DrillStemTestResult getDrillStemTestResult(DrillStemTest drillStemTest) {
+    var drillStemTestResult = new DrillStemTestResult();
+    drillStemTestResult.setId(UUID.randomUUID());
     drillStemTestResult.setDrillStemTest(drillStemTest);
     drillStemTestResult.setFormationName("formation");
     drillStemTestResult.setBhfp(1);

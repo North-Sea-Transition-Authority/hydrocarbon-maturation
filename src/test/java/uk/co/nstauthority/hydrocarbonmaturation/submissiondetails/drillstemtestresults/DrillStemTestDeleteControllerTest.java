@@ -1,0 +1,159 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults;
+
+import static org.assertj.core.api.AssertionsForClassTypes.entry;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
+import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTestUtil.notificationBanner;
+
+import java.util.List;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+
+@ContextConfiguration(classes = DrillStemTestDeleteController.class)
+class DrillStemTestDeleteControllerTest extends AbstractControllerTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+
+  @MockBean
+  private DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
+
+  @MockBean
+  private DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
+  private DrillStemTest drillStemTest;
+  private UUID drillStemTestResultId;
+
+  @BeforeEach
+  void setUp() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    drillStemTest = new DrillStemTest();
+    drillStemTestResultId = UUID.randomUUID();
+  }
+
+  @SecurityTest
+  void getDrillStemTestResultDeleteConfirmationPage_assertStatusOk() throws Exception {
+    var drillStemTestResult = mock(DrillStemTestResult.class);
+
+    when(drillStemTestResultPersistenceService.getDrillStemTestResultByIdOrThrow(drillStemTestResultId))
+        .thenReturn(drillStemTestResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+        .thenReturn(submissionDetail);
+    when(drillStemTestResultsSummaryService.createSummaryViewFromDrillStemTestResult(drillStemTestResult, DrillStemTestResultSummaryMode.VIEW, 1))
+        .thenReturn(DrillStemTestResultSummaryView.empty(1, "", ""));
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DrillStemTestDeleteController.class)
+                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), drillStemTestResultId)))
+                .with(user(USER)))
+        .andExpect(status().isOk())
+        .andExpect(view().name("remi/submissiondetails/drillstemtest/drillStemTestResultDeleteConfirmation"));
+  }
+
+  @Test
+  void getDrillStemTestResultDeleteConfirmationPage_assertModelProperties() throws Exception {
+    var drillStemTestResult = mock(DrillStemTestResult.class);
+    var summaryView = DrillStemTestResultSummaryView.empty(1, "url", "url");
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+        .thenReturn(submissionDetail);
+    when(drillStemTestResultPersistenceService.getDrillStemTestResultByIdOrThrow(drillStemTestResultId))
+        .thenReturn(drillStemTestResult);
+    when(drillStemTestResultsSummaryService.createSummaryViewFromDrillStemTestResult(drillStemTestResult, DrillStemTestResultSummaryMode.VIEW, 1))
+        .thenReturn(summaryView);
+
+    var modelMap = mockMvc.perform(
+            get(ReverseRouter.route(on(DrillStemTestDeleteController.class)
+                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), drillStemTestResultId)))
+                .with(user(USER)))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getModelAndView()
+        .getModel();
+
+    assertThat(modelMap)
+        .contains(
+            entry("actionUrl", ReverseRouter.route(on(DrillStemTestDeleteController.class)
+                .deleteDrillStemTestResult(submissionDetail.getId(), drillStemTestResult.getId(), null))),
+            entry("backToSummaryUrl", ReverseRouter.route(on(DrillStemTestSummaryController.class)
+                .getDrillStemTestSummaryPage(submissionDetail.getId()))),
+            entry("drillStemTestResultSummaryView", summaryView))
+        .containsKey("breadcrumbsMap");
+  }
+
+  @SecurityTest
+  void deleteDrillStemTestResult_lastResult_assertRedirectToInitialPage() throws Exception {
+    var drillStemTestResult = new DrillStemTestResult();
+    drillStemTestResult.setFormationName("The name");
+
+    when(drillStemTestResultPersistenceService.getDrillStemTestResultByIdOrThrow(drillStemTestResultId))
+        .thenReturn(drillStemTestResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+        .thenReturn(submissionDetail);
+    when(drillStemTestResultPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
+        .thenReturn(drillStemTest);
+    when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
+        .thenReturn(List.of());
+    var expectedBannerImplementation = NotificationBanner.builder()
+        .withBannerType(NotificationBannerType.SUCCESS)
+        .withContent("The drill stem test result with formation name The name has been deleted.")
+        .withTitle("Drill stem test result deleted")
+        .build();
+    mockMvc.perform(
+            post(ReverseRouter.route(on(DrillStemTestDeleteController.class)
+                .deleteDrillStemTestResult(submissionDetail.getId(), drillStemTestResultId, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(
+            redirectedUrl(ReverseRouter.route(on(DrillStemTestResultController.class)
+                .getDrillStemTestResultPage(submissionDetail.getId(), null))))
+        .andExpect(notificationBanner(expectedBannerImplementation));
+
+    verify(drillStemTestResultPersistenceService).deleteDrillStemTestResult(drillStemTestResult);
+  }
+
+  @Test
+  void deleteDrillStemTestResult_lastResult_assertRedirectToSummaryPage() throws Exception {
+    var drillStemTestResult = new DrillStemTestResult();
+
+    when(drillStemTestResultPersistenceService.getDrillStemTestResultByIdOrThrow(drillStemTestResultId))
+        .thenReturn(drillStemTestResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+        .thenReturn(submissionDetail);
+    when(drillStemTestResultPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
+        .thenReturn(drillStemTest);
+    when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
+        .thenReturn(List.of(drillStemTestResult));
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(DrillStemTestDeleteController.class)
+                .deleteDrillStemTestResult(submissionDetail.getId(), drillStemTestResultId, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(
+            redirectedUrl(ReverseRouter.route(on(DrillStemTestSummaryController.class)
+                .getDrillStemTestSummaryPage(submissionDetail.getId()))));
+
+    verify(drillStemTestResultPersistenceService).deleteDrillStemTestResult(drillStemTestResult);
+  }
+}

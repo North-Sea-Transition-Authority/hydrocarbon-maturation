@@ -1,4 +1,5 @@
 <#include '../../layout/layout.ftl'>
+<#import '../../summarylistcards/drillstemtest/drillStemTestResultSummaryCard.ftl' as drillStemTestResultCard>
 
 <#assign pageTitle = "Drill stem test results" />
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
@@ -11,6 +12,10 @@
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>
     <@fdsForm.htmlForm>
+      <#list drillStemTestResultSummaryList as drillStemTestResultValue>
+        <@drillStemTestResultCard.drillStemTestResult drillStemTestResultValues=drillStemTestResultValue/>
+      </#list>
+
       <@fdsRadio.radioGroup
         path="form.drillStemTestSummaryOption"
         fieldsetHeadingClass="govuk-fieldset__legend--l"
@@ -23,6 +28,6 @@
         </#list>
       </@fdsRadio.radioGroup>
 
-      <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
+      <@fdsAction.button buttonText="Save and continue" buttonValue=springUrl(actionUrl)/>
     </@fdsForm.htmlForm>
 </@defaultPage>

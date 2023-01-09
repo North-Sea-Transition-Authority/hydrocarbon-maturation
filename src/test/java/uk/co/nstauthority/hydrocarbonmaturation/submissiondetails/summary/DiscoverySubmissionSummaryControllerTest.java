@@ -32,6 +32,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView;
@@ -64,6 +66,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   private OilCaseOutputsSummaryView oilCaseOutputsSummaryView;
   private ProbabilityDistributionsFormSummaryView probabilityDistributionsFormSummaryView;
 
+  private DrillStemTestSummaryView drillStemTestSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -73,6 +76,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
     generalFluidPropertySummaryView = GeneralFluidPropertySummaryView.empty();
     permeabilityDetailSummaryView = PermeabilityDetailSummaryView.empty();
     generalDetailSummaryView = GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(), "Prospect");
+    drillStemTestSummaryView = DrillStemTestSummaryView.empty();
     reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(SubmissionType.CREATE_DISCOVERY,
         "", "", "", "", "", List.of(), List.of());
     mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty();
@@ -147,6 +151,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView),
             entry("permeabilitySummaryView", permeabilityDetailSummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
+            entry("drillStemTestSummaryView", drillStemTestSummaryView),
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
             entry("oilCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView),
             entry("oilCaseOutputsSummaryView", oilCaseOutputsSummaryView),
@@ -167,6 +172,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
         .addObject("generalFluidPropertiesSummaryView", generalFluidPropertySummaryView)
         .addObject("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView)
         .addObject("permeabilitySummaryView", permeabilityDetailSummaryView)
+        .addObject("drillStemTestSummaryView", drillStemTestSummaryView)
         .addObject("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView)
         .addObject("oilCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView)
         .addObject("oilCaseOutputsSummaryView", oilCaseOutputsSummaryView)

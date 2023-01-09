@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -143,8 +145,6 @@ class DrillStemTestResultPersistenceServiceTest {
 
   @Test
   void getDrillStemTestResultByIdOrThrow() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-
     var drillStemTestResult = mock(DrillStemTestResult.class);
 
     when(drillStemTestResultRepository.findById(any()))
@@ -156,11 +156,12 @@ class DrillStemTestResultPersistenceServiceTest {
 
   @Test
   void getDrillStemTestResultByIdOrThrow_verifyThrown() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    when(drillStemTestResultRepository.findById(any()))
+        .thenReturn(Optional.empty());
 
     assertThatThrownBy(() ->
         drillStemTestResultPersistenceService
-            .getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
+            .getDrillStemTestResultByIdOrThrow(UUID.randomUUID()))
         .isExactlyInstanceOf(RemiEntityNotFoundException.class);
   }
 
@@ -171,6 +172,30 @@ class DrillStemTestResultPersistenceServiceTest {
 
     verify(drillStemTestResultRepository, times(1))
         .findAllByDrillStemTest(drillStemTest);
+  }
+
+  @Test
+  void getDrillStemTestResultsBySubmissionDetail_foundDrillStemTest() {
+    var submissionDetail = new SubmissionDetail();
+    var drillStemTest = mock(DrillStemTest.class);
+    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(drillStemTest));
+
+    drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail);
+
+    verify(drillStemTestResultRepository, times(1))
+        .findAllByDrillStemTest(drillStemTest);
+  }
+
+  @Test
+  void getDrillStemTestResultsBySubmissionDetail_notFoundDrillStemTest() {
+    var submissionDetail = new SubmissionDetail();
+    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    var result = drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail);
+    assertThat(result).isEmpty();
+    verifyNoInteractions(drillStemTestResultRepository);
   }
 
   @Test
@@ -204,6 +229,15 @@ class DrillStemTestResultPersistenceServiceTest {
         .containsOnly(drillStemTest, null);
     verify(drillStemTestResultRepository, times(1))
         .save(result);
+  }
+
+  @Test
+  void deleteDrillStemTestResult_verifyMethodCall() {
+    var drillStemTestResult = mock(DrillStemTestResult.class);
+
+    drillStemTestResultPersistenceService.deleteDrillStemTestResult(drillStemTestResult);
+
+    verify(drillStemTestResultRepository, times(1)).delete(drillStemTestResult);
   }
 
   public static DrillStemTestResultForm getFilledDrillStemTestResultForm() {

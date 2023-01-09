@@ -1,7 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -18,6 +20,18 @@ class DrillStemTestResultFormService {
 
   DrillStemTestResultForm getDrillStemTestResultForm(DrillStemTestResult drillStemTestResult) {
     return drillStemTestResultEntityToResultForm(drillStemTestResult);
+  }
+
+  public boolean validateDrillStemTestResults(List<DrillStemTestResult> drillStemTestResultList, ValidationType validationType) {
+    for (var result : drillStemTestResultList) {
+      var form = drillStemTestResultEntityToResultForm(result);
+      var bindingResult = new BeanPropertyBindingResult(form, "form");
+      validate(form, bindingResult, validationType);
+      if (bindingResult.hasErrors()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   BindingResult validate(DrillStemTestResultForm form,

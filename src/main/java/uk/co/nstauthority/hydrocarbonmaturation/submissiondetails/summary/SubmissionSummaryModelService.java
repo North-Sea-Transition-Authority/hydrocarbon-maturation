@@ -122,7 +122,9 @@ public class SubmissionSummaryModelService {
         .addObject("mixedCaseVolumetricsSummaryView",
             prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("mixedCaseOutputsSummaryView",
-            prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail));
+            prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("drillStemTestSummaryView",
+            discoverySummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail));
 
     return addHydrocarbonsDiscoveredToModelAndView(submissionDetail, modelAndView);
   }

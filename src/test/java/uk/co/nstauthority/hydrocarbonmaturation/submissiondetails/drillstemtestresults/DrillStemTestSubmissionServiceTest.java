@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,8 +25,14 @@ class DrillStemTestSubmissionServiceTest {
   @Mock
   private DrillStemTestFormService dryWellDetailsFormService;
 
+  @Mock
+  private DrillStemTestResultFormService drillStemTestResultFormService;
+
+  @Mock
+  private DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
+
   @InjectMocks
-  private DrillStemTestSubmissionService dryWellDetailsSubmissionService;
+  private DrillStemTestSubmissionService drillStemTestSubmissionService;
 
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
@@ -38,7 +45,7 @@ class DrillStemTestSubmissionServiceTest {
     when(dryWellDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
         .thenReturn(emptyBindingResult);
 
-    assertTrue(dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
   }
 
   @Test
@@ -53,6 +60,44 @@ class DrillStemTestSubmissionServiceTest {
     when(dryWellDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
         .thenReturn(bindingResult);
 
-    assertFalse(dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_verifyErrorInDrillStemTestResult() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    var form = new DrillStemTestInitialForm();
+    var emptyBindingResult = ReverseRouter.emptyBindingResult();
+    var drillStemTestResults = List.of(new DrillStemTestResult());
+
+    when(dryWellDetailsFormService.getDrillStemTestInitialForm(submissionDetail))
+        .thenReturn(form);
+    when(dryWellDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+        .thenReturn(emptyBindingResult);
+    when(drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail))
+        .thenReturn(drillStemTestResults);
+    when(drillStemTestResultFormService.validateDrillStemTestResults(drillStemTestResults, ValidationType.FULL))
+        .thenReturn(true);
+
+    assertFalse(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_verifyDrillStemTestResultsValidated() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    var form = new DrillStemTestInitialForm();
+    var emptyBindingResult = ReverseRouter.emptyBindingResult();
+    var drillStemTestResults = List.of(new DrillStemTestResult());
+
+    when(dryWellDetailsFormService.getDrillStemTestInitialForm(submissionDetail))
+        .thenReturn(form);
+    when(dryWellDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+        .thenReturn(emptyBindingResult);
+    when(drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail))
+        .thenReturn(drillStemTestResults);
+    when(drillStemTestResultFormService.validateDrillStemTestResults(drillStemTestResults, ValidationType.FULL))
+        .thenReturn(false);
+
+    assertTrue(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
   }
 }
