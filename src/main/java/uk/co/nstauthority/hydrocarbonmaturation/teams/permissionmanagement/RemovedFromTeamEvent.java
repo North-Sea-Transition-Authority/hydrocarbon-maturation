@@ -10,12 +10,11 @@ public class RemovedFromTeamEvent extends ApplicationEvent {
   @Serial
   private static final long serialVersionUID = 7459965432418347644L;
   private final TeamMember teamMember;
-
   private final WebUserAccountId instigatingUserWebUserAccountId;
 
   public RemovedFromTeamEvent(Object source,
-                                TeamMember teamMember,
-                                WebUserAccountId instigatingUserWebUserAccountId) {
+                              TeamMember teamMember,
+                              WebUserAccountId instigatingUserWebUserAccountId) {
     super(source);
     this.teamMember = teamMember;
     this.instigatingUserWebUserAccountId = instigatingUserWebUserAccountId;

@@ -20,6 +20,7 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 import org.springframework.security.web.SecurityFilterChain;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlResponseParser;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceLogoutSuccessHandler;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
 
 @Configuration
 public class WebSecurityConfiguration {
@@ -27,14 +28,17 @@ public class WebSecurityConfiguration {
   private final SamlProperties samlProperties;
   private final SamlResponseParser samlResponseParser;
   private final ServiceLogoutSuccessHandler serviceLogoutSuccessHandler;
+  private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
 
   @Autowired
   public WebSecurityConfiguration(SamlProperties samlProperties,
                                   SamlResponseParser samlResponseParser,
-                                  ServiceLogoutSuccessHandler serviceLogoutSuccessHandler) {
+                                  ServiceLogoutSuccessHandler serviceLogoutSuccessHandler,
+                                  EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration) {
     this.samlProperties = samlProperties;
     this.samlResponseParser = samlResponseParser;
     this.serviceLogoutSuccessHandler = serviceLogoutSuccessHandler;
+    this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
   }
 
   @Bean
@@ -44,6 +48,8 @@ public class WebSecurityConfiguration {
 
     httpSecurity
         .authorizeHttpRequests()
+        .mvcMatchers("/*")
+          .hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
         .mvcMatchers(
             "/assets/**",
             "/notify/callback"

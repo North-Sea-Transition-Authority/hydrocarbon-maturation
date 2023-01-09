@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
 
-  local-db:
+  remi-db:
     image: postgres:14.3-alpine
     ports:
       - "5432:5432"

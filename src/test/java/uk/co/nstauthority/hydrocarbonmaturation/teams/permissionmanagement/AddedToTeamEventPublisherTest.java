@@ -36,7 +36,7 @@ class AddedToTeamEventPublisherTest {
 
     var addedToTeamEventCaptor = ArgumentCaptor.forClass(AddedToTeamEvent.class);
 
-    addedToTeamEventPublisher.publish(teamId, addedWebUserAccountId, rolesGranted, instigatingUser);
+    addedToTeamEventPublisher.publish(teamId, addedWebUserAccountId, rolesGranted, new WebUserAccountId(instigatingUser.wuaId()));
 
     verify(applicationEventPublisher, times(1)).publishEvent(addedToTeamEventCaptor.capture());
 
