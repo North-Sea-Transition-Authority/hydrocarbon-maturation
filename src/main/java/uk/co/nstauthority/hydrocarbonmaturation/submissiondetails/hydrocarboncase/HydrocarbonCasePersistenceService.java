@@ -50,29 +50,20 @@ public class HydrocarbonCasePersistenceService {
     hydrocarbonCaseRepository.save(hydrocarbonCase);
   }
 
-  Optional<HydrocarbonCaseDetail> getHydrocarbonCaseDetail(SubmissionDetail submissionDetail) {
+  public Optional<HydrocarbonCaseDetail> getHydrocarbonCaseDetail(SubmissionDetail submissionDetail) {
     return hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail);
   }
 
   //Checks if there is gas present in the hydrocarbon case
-  public boolean isGasOnlyPresent(SubmissionDetail submissionDetail) {
-    return getHydrocarbonCaseDetail(submissionDetail)
-        .stream().anyMatch(hydrocarbonCaseDetail ->
-            hydrocarbonCaseDetail.getGasOnly() != null
-                && hydrocarbonCaseDetail.getGasOnly());
+  public boolean isGasOnlyPresent(HydrocarbonCaseDetail hydrocarbonCaseDetail) {
+    return hydrocarbonCaseDetail.getGasOnly() != null && hydrocarbonCaseDetail.getGasOnly();
   }
 
-  public boolean isOilOnlyPresent(SubmissionDetail submissionDetail) {
-    return getHydrocarbonCaseDetail(submissionDetail)
-        .stream().anyMatch(hydrocarbonCaseDetail ->
-            hydrocarbonCaseDetail.getOilOnly() != null
-                && hydrocarbonCaseDetail.getOilOnly());
+  public boolean isOilOnlyPresent(HydrocarbonCaseDetail hydrocarbonCaseDetail) {
+    return hydrocarbonCaseDetail.getOilOnly() != null && hydrocarbonCaseDetail.getOilOnly();
   }
 
-  public boolean isMixedOilAndGasPresent(SubmissionDetail submissionDetail) {
-    return getHydrocarbonCaseDetail(submissionDetail)
-        .stream().anyMatch(hydrocarbonCaseDetail ->
-            hydrocarbonCaseDetail.getOilAndGas() != null
-                && hydrocarbonCaseDetail.getOilAndGas());
+  public boolean isMixedOilAndGasPresent(HydrocarbonCaseDetail hydrocarbonCaseDetail) {
+    return hydrocarbonCaseDetail.getOilAndGas() != null && hydrocarbonCaseDetail.getOilAndGas();
   }
 }

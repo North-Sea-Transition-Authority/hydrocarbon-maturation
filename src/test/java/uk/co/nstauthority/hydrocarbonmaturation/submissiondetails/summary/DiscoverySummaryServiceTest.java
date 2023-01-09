@@ -11,9 +11,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySummaryService;
 
@@ -34,6 +40,24 @@ class DiscoverySummaryServiceTest {
 
   @Mock
   private GeneralDetailSummaryService generalDetailSummaryService;
+
+  @Mock
+  private OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
+
+  @Mock
+  private OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
+
+  @Mock
+  private GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
+
+  @Mock
+  private GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
+
+  @Mock
+  private MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService;
+
+  @Mock
+  private MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService;
 
   @InjectMocks
   private DiscoverySummaryService discoverySummaryService;
@@ -83,5 +107,53 @@ class DiscoverySummaryServiceTest {
 
     verify(generalDetailSummaryService, times(1))
         .getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getOilCaseVolumetricsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(oilCaseVolumetricsSummaryService, times(1))
+        .getOilCaseVolumetricsSummaryView(submissionDetail);
+  }
+
+  @Test
+  void getOilCaseOutputsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(oilCaseOutputsSummaryService, times(1))
+        .getOilCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getGasCaseVolumetricsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(gasCaseVolumetricsSummaryService, times(1))
+        .getGasCaseVolumetricsSummaryView(submissionDetail);
+  }
+
+  @Test
+  void getGasCaseOutputsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getGasCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(gasCaseOutputsSummaryService, times(1))
+        .getGasCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getMixedCaseVolumetricsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(mixedCaseVolumetricsSummaryService, times(1))
+        .getMixedCaseVolumetricsSummaryView(submissionDetail);
+  }
+
+  @Test
+  void getMixedCaseOutputsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(mixedCaseOutputsSummaryService, times(1))
+        .getMixedCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
   }
 }

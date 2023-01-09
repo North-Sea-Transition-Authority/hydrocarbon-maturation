@@ -5,10 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -128,62 +126,48 @@ class HydrocarbonCasePersistenceServiceTest {
   @Test
   void isGasOnlyPresent_whenGasOnly_isTrue() {
     hydrocarbonCase.setGasOnly(true);
-    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertTrue(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail));
+    assertTrue(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase));
   }
 
   @Test
   void isGasOnlyPresent_whenOilAndGas_isFalse() {
     hydrocarbonCase.setOilAndGas(true);
     hydrocarbonCase.setOilAndGasProbability(BigDecimal.valueOf(1.5));
-    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertFalse(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail));
+    assertFalse(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase));
   }
 
   @Test
   void isGasOnlyPresent_whenNoGas_isFalse() {
-    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertFalse(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail));
+    assertFalse(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase));
   }
 
   @Test
   void isMixedPresent_whenGasAndOil_isTrue() {
     hydrocarbonCase.setOilAndGas(true);
-    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertTrue(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail));
+    assertTrue(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase));
   }
 
   @Test
   void isMixedPresent_whenOilOnlyAndGasOnly_isFalse() {
     hydrocarbonCase.setOilOnly(true);
     hydrocarbonCase.setGasOnly(true);
-    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertFalse(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail));
-  }
-
-  @Test
-  void isMixedPresent_whenNothing_isFalse() {
-    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertFalse(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail));
+    assertFalse(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase));
   }
 
   @Test
   void isOilOnlyPresent_whenGasOnly_isTrue() {
     hydrocarbonCase.setOilOnly(true);
-    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertTrue(hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail));
+    assertTrue(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase));
   }
 
   @Test
   void isOilOnlyPresent_whenOilAndGas_isFalse() {
     hydrocarbonCase.setOilAndGas(true);
-    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertFalse(hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail));
+    assertFalse(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase));
   }
 
   @Test
   void isOilOnlyPresent_whenNoGas_isFalse() {
-    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
-    assertFalse(hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail));
+    assertFalse(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase));
   }
 }

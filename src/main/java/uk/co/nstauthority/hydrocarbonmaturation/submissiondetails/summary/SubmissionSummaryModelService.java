@@ -38,7 +38,7 @@ public class SubmissionSummaryModelService {
   }
 
   public ModelAndView createProspectSubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
-    return new ModelAndView(viewName)
+    var modelAndView = new ModelAndView(viewName)
         .addObject("generalDetailsSummaryView",
             prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("sourceAndSealSummaryView",
@@ -64,10 +64,24 @@ public class SubmissionSummaryModelService {
         .addObject("mixedCaseOutputsSummaryView",
             prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",
-            prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("gasCase", hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail))
-        .addObject("oilCase", hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail))
-        .addObject("mixedCase", hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail));
+            prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail));
+
+    hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail)
+        .ifPresentOrElse(hydrocarbonCaseDetail ->
+                modelAndView
+                    .addObject("gasCase",
+                        hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCaseDetail))
+                    .addObject("oilCase",
+                        hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCaseDetail))
+                    .addObject("mixedCase",
+                        hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail)),
+            () ->
+                modelAndView
+                    .addObject("gasCase", false)
+                    .addObject("oilCase", false)
+                    .addObject("mixedCase", false)
+        );
+    return modelAndView;
   }
 
   public ModelAndView createPostDrillDryWellSubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
@@ -96,7 +110,19 @@ public class SubmissionSummaryModelService {
         .addObject("permeabilitySummaryView",
             discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("generalDetailsSummaryView",
-            discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail));
+            discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("oilCaseVolumetricsSummaryView",
+            prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("oilCaseOutputsSummaryView",
+            prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("gasCaseVolumetricsSummaryView",
+            prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("gasCaseOutputsSummaryView",
+            prospectSummaryService.getGasCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("mixedCaseVolumetricsSummaryView",
+            prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("mixedCaseOutputsSummaryView",
+            prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail));
 
     return addHydrocarbonsDiscoveredToModelAndView(submissionDetail, modelAndView);
   }

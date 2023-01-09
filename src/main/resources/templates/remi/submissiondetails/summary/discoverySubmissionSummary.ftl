@@ -15,6 +15,13 @@
 <#-- @ftlvariable name="oilFluidPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryView" -->
 <#-- @ftlvariable name="gasFluidPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView" -->
 <#-- @ftlvariable name="generalFluidPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView" -->
+<#-- @ftlvariable name="reservoirPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView" -->
+<#-- @ftlvariable name="oilCaseOutputsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView" -->
+<#-- @ftlvariable name="oilCaseVolumetricsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView" -->
+<#-- @ftlvariable name="gasCaseVolumetricsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView" -->
+<#-- @ftlvariable name="gasCaseOutputsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService" -->
+<#-- @ftlvariable name="mixedCaseVolumetricsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView" -->
+<#-- @ftlvariable name="mixedCaseOutputsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -32,7 +39,14 @@
       mixedDiscovery=mixedDiscovery
       oilFluidPropertiesSummaryView=oilFluidPropertiesSummaryView
       gasFluidPropertiesSummaryView=gasFluidPropertiesSummaryView
-      generalFluidPropertiesSummaryView=generalFluidPropertiesSummaryView/>
+      generalFluidPropertiesSummaryView=generalFluidPropertiesSummaryView
+      reservoirPropertiesSummaryView=reservoirPropertiesSummaryView
+      oilCaseOutputsSummaryView=oilCaseOutputsSummaryView
+      oilCaseVolumetricsSummaryView=oilCaseVolumetricsSummaryView
+      gasCaseVolumetricsSummaryView=gasCaseVolumetricsSummaryView
+      gasCaseOutputsSummaryView=gasCaseOutputsSummaryView
+      mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
+      mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView/>
 
     <@fdsAction.submitButtons
       primaryButtonText="Submit"

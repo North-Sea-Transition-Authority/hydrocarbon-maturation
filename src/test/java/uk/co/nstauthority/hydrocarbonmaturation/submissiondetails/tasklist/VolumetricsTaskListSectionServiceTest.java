@@ -2,10 +2,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,10 +18,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSubmissionService;
@@ -54,6 +59,9 @@ class VolumetricsTaskListSectionServiceTest {
   @Mock
   private MixedCaseVolumetricsSubmissionService mixedCaseVolumetricsSubmissionService;
 
+  @Mock
+  private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
+
   @InjectMocks
   private VolumetricsTaskListSectionService volumetricsTaskListSectionService;
 
@@ -79,9 +87,63 @@ class VolumetricsTaskListSectionServiceTest {
     when(oilCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail)).thenReturn(true);
-    when(hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail)).thenReturn(true);
-    when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail)).thenReturn(true);
+    var hydrocarbonCase = new HydrocarbonCaseDetail();
+    when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
+        .thenReturn(Optional.of(hydrocarbonCase));
+    when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(true);
+    when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(true);
+    when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(true);
+    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail);
+
+    var section = taskListSectionOptional.get();
+    assertThat(section)
+        .extracting(TaskListSection::items)
+        .isEqualTo(List.of(
+            new TaskListItem("Oil case volumetrics parameters",
+                TaskListLabel.COMPLETE,
+                ReverseRouter.route(on(OilCaseVolumetricsController.class)
+                    .getOilCaseVolumetrics(submissionDetail.getId(), null))),
+            new TaskListItem(
+                "Oil case outputs (resources)",
+                TaskListLabel.COMPLETE,
+                ReverseRouter.route(on(OilCaseOutputsController.class)
+                    .getOilCaseOutputs(submissionDetail.getId(), null))),
+            new TaskListItem("Gas case volumetrics parameters",
+                TaskListLabel.COMPLETE,
+                ReverseRouter.route(on(GasCaseVolumetricsController.class)
+                    .getGasCaseVolumetrics(submissionDetail.getId(), null))),
+            new TaskListItem(
+                "Gas case outputs (resources)",
+                TaskListLabel.COMPLETE,
+                ReverseRouter.route(on(GasCaseOutputsController.class)
+                    .getGasCaseOutputs(submissionDetail.getId(), null))),
+            new TaskListItem("Mixed case volumetrics parameters",
+                TaskListLabel.COMPLETE,
+                ReverseRouter.route(on(MixedCaseVolumetricsController.class)
+                    .getMixedCaseVolumetrics(submissionDetail.getId(), null))),
+            new TaskListItem(
+                "Mixed case outputs (resources)",
+                TaskListLabel.COMPLETE,
+                ReverseRouter.route(on(MixedCaseOutputsController.class)
+                    .getMixedCaseOutputs(submissionDetail.getId(), null))))
+        );
+  }
+
+  @Test
+  void getSection_discoverySubmission_whenAllCases_assertItems() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    var discoveryWellDetail = new DiscoveryWellDetail();
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(discoveryWellDetail));
+    when(gasCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(oilCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail)).thenReturn(true);
+    when(discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWellDetail)).thenReturn(true);
+    when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail)).thenReturn(true);
     var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail);
 
     var section = taskListSectionOptional.get();
@@ -120,9 +182,12 @@ class VolumetricsTaskListSectionServiceTest {
 
   @Test
   void isSectionSubmittable_whenAllCasesAndProspectSubmissionAndSubmittableItems_assertTrue() {
-    when(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail)).thenReturn(true);
-    when(hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail)).thenReturn(true);
-    when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail)).thenReturn(true);
+    var hydrocarbonCase = new HydrocarbonCaseDetail();
+    when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
+        .thenReturn(Optional.of(hydrocarbonCase));
+    when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(true);
+    when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(true);
+    when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(true);
     when(gasCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(oilCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
@@ -137,16 +202,31 @@ class VolumetricsTaskListSectionServiceTest {
   void isSectionSubmittable_whenNoCasesAndProspectUpdateSubmissionAndSubmittableItems_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
 
-    when(hydrocarbonCasePersistenceService.isGasOnlyPresent(submissionDetail)).thenReturn(false);
-    when(hydrocarbonCasePersistenceService.isOilOnlyPresent(submissionDetail)).thenReturn(false);
-    when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(submissionDetail)).thenReturn(false);
+    when(hydrocarbonCasePersistenceService.isGasOnlyPresent(any())).thenReturn(false);
+    when(hydrocarbonCasePersistenceService.isOilOnlyPresent(any())).thenReturn(false);
+    when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(any())).thenReturn(false);
 
     assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 
   @Test
-  void isSectionSubmittable_whenNotProspectSubmission_assertTrue() {
+  void isSectionSubmittable_whenNotProspectOrDiscoverySubmission_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_whenPostDrillSubmission_assertTrue() {
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_whenDiscoverySubmission_whenMixedDiscovery_assertTrue() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(any())).thenReturn(true);
+    when(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 }

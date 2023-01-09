@@ -32,7 +32,8 @@ class MixedCaseOutputsDuplicationService implements SubmissionSectionDuplication
   @Override
   @Transactional
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (!Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.PROSPECT_UPDATE)) {
+    if (!Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.PROSPECT_UPDATE)
+        && !Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.UPDATE_DISCOVERY)) {
       return;
     }
 

@@ -14,7 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Subm
 
 @Entity
 @Table(name = "hydrocarbon_case_details")
-class HydrocarbonCaseDetail implements SubmissionDetailChildEntity {
+public class HydrocarbonCaseDetail implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")

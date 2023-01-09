@@ -28,11 +28,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
@@ -55,6 +59,11 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   private PermeabilityDetailSummaryView permeabilityDetailSummaryView;
   private GeneralDetailSummaryView generalDetailSummaryView;
   private ReservoirPropertiesSummaryView reservoirPropertiesSummaryView;
+  private MixedCaseOutputsSummaryView mixedCaseOutputsSummaryView;
+  private GasCaseOutputsSummaryView gasCaseOutputsSummaryView;
+  private OilCaseOutputsSummaryView oilCaseOutputsSummaryView;
+  private ProbabilityDistributionsFormSummaryView probabilityDistributionsFormSummaryView;
+
 
   @BeforeEach
   void setUp() {
@@ -66,6 +75,11 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
     generalDetailSummaryView = GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(), "Prospect");
     reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(SubmissionType.CREATE_DISCOVERY,
         "", "", "", "", "", List.of(), List.of());
+    mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty();
+    gasCaseOutputsSummaryView = GasCaseOutputsSummaryView.empty();
+    oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
+    probabilityDistributionsFormSummaryView = new ProbabilityDistributionsFormSummaryView(List.of());
+
   }
 
   @SecurityTest
@@ -134,6 +148,12 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
             entry("permeabilitySummaryView", permeabilityDetailSummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
+            entry("oilCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView),
+            entry("oilCaseOutputsSummaryView", oilCaseOutputsSummaryView),
+            entry("gasCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView),
+            entry("gasCaseOutputsSummaryView", gasCaseOutputsSummaryView),
+            entry("mixedCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView),
+            entry("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView),
             entry("gasOnlyDiscovery", false),
             entry("oilOnlyDiscovery", false),
             entry("mixedDiscovery", false)
@@ -148,6 +168,12 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
         .addObject("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView)
         .addObject("permeabilitySummaryView", permeabilityDetailSummaryView)
         .addObject("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView)
+        .addObject("oilCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView)
+        .addObject("oilCaseOutputsSummaryView", oilCaseOutputsSummaryView)
+        .addObject("gasCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView)
+        .addObject("gasCaseOutputsSummaryView", gasCaseOutputsSummaryView)
+        .addObject("mixedCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView)
+        .addObject("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView)
         .addObject("gasOnlyDiscovery", false)
         .addObject("oilOnlyDiscovery", false)
         .addObject("mixedDiscovery", false);
