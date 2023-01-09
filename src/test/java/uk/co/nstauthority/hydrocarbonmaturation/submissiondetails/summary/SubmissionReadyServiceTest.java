@@ -16,9 +16,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 
 @ExtendWith(MockitoExtension.class)
-class ProspectSubmissionServiceTest {
+class SubmissionReadyServiceTest {
 
-  private ProspectSubmissionService prospectSubmissionService;
+  private SubmissionReadyService submissionReadyService;
   private List<TaskListSectionService> taskListSectionServices;
   private SubmissionDetail submissionDetail;
 
@@ -34,7 +34,7 @@ class ProspectSubmissionServiceTest {
     taskListSectionServices = new ArrayList<>();
     taskListSectionServices.add(taskListSectionService);
     taskListSectionServices.add(taskListSectionService2);
-    prospectSubmissionService = new ProspectSubmissionService(taskListSectionServices);
+    submissionReadyService = new SubmissionReadyService(taskListSectionServices);
   }
 
   @Test
@@ -42,7 +42,7 @@ class ProspectSubmissionServiceTest {
     when(taskListSectionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(taskListSectionService2.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
-    assertTrue(prospectSubmissionService.isSubmissionSubmittable(submissionDetail));
+    assertTrue(submissionReadyService.isSubmissionSubmittable(submissionDetail));
   }
 
   @Test
@@ -50,6 +50,6 @@ class ProspectSubmissionServiceTest {
     when(taskListSectionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(taskListSectionService2.isSectionSubmittable(submissionDetail)).thenReturn(false);
 
-    assertFalse(prospectSubmissionService.isSubmissionSubmittable(submissionDetail));
+    assertFalse(submissionReadyService.isSubmissionSubmittable(submissionDetail));
   }
 }

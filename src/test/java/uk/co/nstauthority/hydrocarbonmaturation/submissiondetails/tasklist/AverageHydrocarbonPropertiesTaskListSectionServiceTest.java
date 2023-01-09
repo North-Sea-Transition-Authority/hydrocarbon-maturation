@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -191,12 +192,97 @@ class AverageHydrocarbonPropertiesTaskListSectionServiceTest {
   }
 
   @Test
-  void isSectionSubmittable_whenDiscovery_assertTrue() {
+  void isSectionSubmittable_whenDiscovery_andAllItemsComplete() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    when(gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    var discoveryWellDetail = new DiscoveryWellDetail();
+    discoveryWellDetail.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
 
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(discoveryWellDetail));
+
+    when(gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(oilFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     var submittable = averageHydrocarbonPropertiesTaskListSectionService.isSectionSubmittable(submissionDetail);
 
     assertTrue(submittable);
+  }
+
+  @Test
+  void isSectionSubmittable_whenDiscovery_andGasNotComplete() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var discoveryWellDetail = new DiscoveryWellDetail();
+    discoveryWellDetail.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(discoveryWellDetail));
+
+    when(oilFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    var submittable = averageHydrocarbonPropertiesTaskListSectionService.isSectionSubmittable(submissionDetail);
+
+    assertFalse(submittable);
+  }
+
+  @Test
+  void isSectionSubmittable_whenDiscovery_andOilNotComplete() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var discoveryWellDetail = new DiscoveryWellDetail();
+    discoveryWellDetail.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(discoveryWellDetail));
+
+    when(oilFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    var submittable = averageHydrocarbonPropertiesTaskListSectionService.isSectionSubmittable(submissionDetail);
+
+    assertFalse(submittable);
+  }
+
+  @Test
+  void isSectionSubmittable_whenDiscovery_andGeneralPropertiesNotComplete() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var discoveryWellDetail = new DiscoveryWellDetail();
+    discoveryWellDetail.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(discoveryWellDetail));
+
+    when(gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(oilFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    var submittable = averageHydrocarbonPropertiesTaskListSectionService.isSectionSubmittable(submissionDetail);
+
+    assertFalse(submittable);
+  }
+
+  @Test
+  void isSectionSubmittable_whenDiscovery_andOilOnly_andOilNotComplete() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var discoveryWellDetail = new DiscoveryWellDetail();
+    discoveryWellDetail.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(discoveryWellDetail));
+
+    when(oilFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    var submittable = averageHydrocarbonPropertiesTaskListSectionService.isSectionSubmittable(submissionDetail);
+
+    assertFalse(submittable);
+  }
+
+  @Test
+  void isSectionSubmittable_whenDiscovery_andGasOnly_andGasNotComplete() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var discoveryWellDetail = new DiscoveryWellDetail();
+    discoveryWellDetail.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
+
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(discoveryWellDetail));
+
+    when(gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    var submittable = averageHydrocarbonPropertiesTaskListSectionService.isSectionSubmittable(submissionDetail);
+
+    assertFalse(submittable);
   }
 }

@@ -19,7 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 class SubmissionSummaryFormServiceTest {
 
   @Mock
-  private ProspectSubmissionService prospectSubmissionService;
+  private SubmissionReadyService submissionReadyService;
 
   @Mock
   private SubmissionSummaryFormValidator submissionSummaryFormValidator;
@@ -39,7 +39,7 @@ class SubmissionSummaryFormServiceTest {
   void validate_verifyMethodCall(Boolean submissionSubmittable) {
     var submissionSummaryForm = new SubmissionSummaryForm();
     var bindingResult = new BeanPropertyBindingResult(submissionSummaryForm, "form");
-    when(prospectSubmissionService.isSubmissionSubmittable(submissionDetail)).thenReturn(submissionSubmittable);
+    when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(submissionSubmittable);
 
     submissionSummaryFormService.validate(submissionSummaryForm, bindingResult, submissionDetail);
 

@@ -29,7 +29,7 @@ public class ProspectSubmissionSummaryController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionSummaryFormService submissionSummaryFormService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
-  private final ProspectSubmissionService prospectSubmissionService;
+  private final SubmissionReadyService submissionReadyService;
 
   public static final String PAGE_NAME = "Check your answers before submitting";
 
@@ -38,19 +38,18 @@ public class ProspectSubmissionSummaryController {
                                              ControllerHelperService controllerHelperService,
                                              SubmissionSummaryFormService submissionSummaryFormService,
                                              SubmissionSummaryModelService submissionSummaryModelService,
-                                             ProspectSubmissionService prospectSubmissionService) {
+                                             SubmissionReadyService submissionReadyService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
     this.submissionSummaryFormService = submissionSummaryFormService;
     this.submissionSummaryModelService = submissionSummaryModelService;
-    this.prospectSubmissionService = prospectSubmissionService;
+    this.submissionReadyService = submissionReadyService;
   }
 
   @GetMapping
-  public ModelAndView showSubmissionSummary(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                            @ModelAttribute("form") SubmissionSummaryForm submissionSummaryForm) {
+  public ModelAndView showSubmissionSummary(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    return getSubmissionSummaryModelAndView(submissionSummaryForm, submissionDetail);
+    return getSubmissionSummaryModelAndView(new SubmissionSummaryForm(), submissionDetail);
   }
 
   @PostMapping
@@ -79,7 +78,7 @@ public class ProspectSubmissionSummaryController {
     modelAndView
         .addObject("form", form)
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())))
-        .addObject("submittable", prospectSubmissionService.isSubmissionSubmittable(submissionDetail));
+        .addObject("submittable", submissionReadyService.isSubmissionSubmittable(submissionDetail));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
 

@@ -7,12 +7,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 
 @Service
-class ProspectSubmissionService {
+class SubmissionReadyService {
 
   private final List<TaskListSectionService> taskListSectionServices;
 
   @Autowired
-  public ProspectSubmissionService(List<TaskListSectionService> taskListSectionServices) {
+  public SubmissionReadyService(List<TaskListSectionService> taskListSectionServices) {
     this.taskListSectionServices = taskListSectionServices;
   }
 

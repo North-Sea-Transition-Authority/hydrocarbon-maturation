@@ -1,10 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Service
 public class SubmissionSummaryModelService {
@@ -13,17 +18,20 @@ public class SubmissionSummaryModelService {
   private final DiscoverySummaryService discoverySummaryService;
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
   private final PostDrillDryWellSummaryService postDrillDryWellSummaryService;
+  private final SubmissionReadyService submissionReadyService;
 
   SubmissionSummaryModelService(ProspectSummaryService prospectSummaryService,
                                 HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
                                 DiscoverySummaryService discoverySummaryService,
                                 DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
-                                PostDrillDryWellSummaryService postDrillDryWellSummaryService) {
+                                PostDrillDryWellSummaryService postDrillDryWellSummaryService,
+                                SubmissionReadyService submissionReadyService) {
     this.prospectSummaryService = prospectSummaryService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
     this.discoverySummaryService = discoverySummaryService;
     this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
     this.postDrillDryWellSummaryService = postDrillDryWellSummaryService;
+    this.submissionReadyService = submissionReadyService;
   }
 
   public ModelAndView createSummaryForSubmissionTypeToModelAndView(SubmissionDetail submissionDetail, String viewName) {
@@ -35,6 +43,18 @@ public class SubmissionSummaryModelService {
       case CREATE_DISCOVERY, UPDATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT ->
           createDiscoverySubmissionSummaryModelAndView(submissionDetail, viewName);
     };
+  }
+
+  public void addCommonModelAttributes(ModelAndView modelAndView,
+                                       SubmissionSummaryForm form,
+                                       SubmissionDetail submissionDetail,
+                                       String pageName) {
+    modelAndView
+        .addObject("form", form)
+        .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())))
+        .addObject("submittable", submissionReadyService.isSubmissionSubmittable(submissionDetail));
+
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, pageName, submissionDetail);
   }
 
   public ModelAndView createProspectSubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {

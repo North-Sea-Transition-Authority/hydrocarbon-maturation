@@ -7,13 +7,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 
 @Service
 class SubmissionSummaryFormService {
-  private final ProspectSubmissionService prospectSubmissionService;
+  private final SubmissionReadyService submissionReadyService;
   private final SubmissionSummaryFormValidator submissionSummaryFormValidator;
 
   @Autowired
-  SubmissionSummaryFormService(ProspectSubmissionService prospectSubmissionService,
+  SubmissionSummaryFormService(SubmissionReadyService submissionReadyService,
                                SubmissionSummaryFormValidator submissionSummaryFormValidator) {
-    this.prospectSubmissionService = prospectSubmissionService;
+    this.submissionReadyService = submissionReadyService;
     this.submissionSummaryFormValidator = submissionSummaryFormValidator;
   }
 
@@ -23,7 +23,7 @@ class SubmissionSummaryFormService {
     submissionSummaryFormValidator.validate(
         form,
         bindingResult,
-        prospectSubmissionService.isSubmissionSubmittable(submissionDetail)
+        submissionReadyService.isSubmissionSubmittable(submissionDetail)
     );
     return bindingResult;
   }

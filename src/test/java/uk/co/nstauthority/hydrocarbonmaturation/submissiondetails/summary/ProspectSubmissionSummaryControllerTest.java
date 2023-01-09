@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
@@ -59,7 +61,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
   private SubmissionSummaryModelService submissionSummaryModelService;
 
   @MockBean
-  private ProspectSubmissionService prospectSubmissionService;
+  private SubmissionReadyService submissionReadyService;
 
   private UUID submissionDetailId;
 
@@ -124,7 +126,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
     mockCreateProspectSubmissionSummaryModelAndView();
 
     mockMvc.perform(
-        get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
+        get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name(VIEW_NAME));
@@ -135,7 +137,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
+            get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -157,13 +159,31 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
   }
 
   @Test
+  void processSubmission_whenInvalidForm_assertOk() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    var bindingResult = new BeanPropertyBindingResult(SubmissionSummaryForm.class, "form");
+    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
+    when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+
+    mockCreateProspectSubmissionSummaryModelAndView();
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(submissionDetailService, never()).completeSubmission(any());
+  }
+
+  @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(prospectSubmissionService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
+    when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
     mockCreateProspectSubmissionSummaryModelAndView();
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-        get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
+        get(ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -206,7 +226,9 @@ class ProspectSubmissionSummaryControllerTest extends AbstractControllerTest {
         .addObject("gasCase", true)
         .addObject("oilCase", true)
         .addObject("mixedCase", true);
-    doReturn(modelAndView).when(submissionSummaryModelService).createProspectSubmissionSummaryModelAndView(submissionDetail,
-        VIEW_NAME);
+    when(submissionSummaryModelService.createProspectSubmissionSummaryModelAndView(
+        submissionDetail,
+        VIEW_NAME
+    )).thenReturn(modelAndView);
   }
 }

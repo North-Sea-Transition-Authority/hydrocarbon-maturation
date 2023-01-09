@@ -78,9 +78,32 @@ class AverageHydrocarbonPropertiesTaskListSectionService implements TaskListSect
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     if (submissionDetail.isDiscoverySubmission()) {
-      return gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail);
-    } else {
-      return true;
+
+      var hydrocarbonsDiscovered = discoveryWellDetailsPersistenceService
+          .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
+          .map(DiscoveryWellDetail::getHydrocarbonsDiscovered).orElse(null);
+
+      // check oil properties are complete else section is incomplete
+      if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+          || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS)
+          && !oilFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)
+      ) {
+        return false;
+      }
+
+      // check gas properties are complete else section is incomplete
+      if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+          || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS)
+          && !gasFluidPropertySubmissionService.isSectionSubmittable(submissionDetail)
+      ) {
+        return false;
+      }
+
+      // check general properties are complete else section is incomplete,
+      // otherwise section is now complete
+      return generalFluidPropertySubmissionService.isSectionSubmittable(submissionDetail);
     }
+
+    return true;
   }
 }

@@ -35,7 +35,7 @@ class ReviewAndSubmitTaskListSectionServiceTest {
         .extracting(TaskListSection::items)
         .isEqualTo(List.of(
             new TaskListItem("Review and submit",
-                ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId(), null)))
+                ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId())))
         ));
   }
 

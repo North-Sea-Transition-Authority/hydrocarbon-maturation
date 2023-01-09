@@ -2,7 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
@@ -31,9 +34,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView;
@@ -52,6 +54,12 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
 
   @MockBean
   private SubmissionSummaryModelService submissionSummaryModelService;
+
+  @MockBean
+  private SubmissionSummaryFormService submissionSummaryFormService;
+
+  @MockBean
+  private SubmissionReadyService submissionReadyService;
 
   private static UUID submissionDetailId;
 
@@ -110,9 +118,10 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   @SecurityTest
   void processSubmission_assertRedirection() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-
+    when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
+    mockCreateDiscoverySubmissionSummaryModelAndView();
     mockMvc.perform(
-            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId)))
+            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
@@ -121,12 +130,30 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
     verify(submissionDetailService, times(1)).completeSubmission(submissionDetail);
   }
 
+  @Test
+  void processSubmission_whenInvalidForm_assertOk() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    var bindingResult = new BeanPropertyBindingResult(SubmissionSummaryForm.class, "form");
+    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
+    when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+
+    mockCreateDiscoverySubmissionSummaryModelAndView();
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+            .with(user(USER))
+            .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(submissionDetailService, never()).completeSubmission(any());
+  }
+
   @SecurityTest
-  void processSubmission__andStatusIsNotDraft_assertForbidden() throws Exception {
+  void processSubmission_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId)))
+            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is4xxClientError());
@@ -135,6 +162,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
     mockCreateDiscoverySubmissionSummaryModelAndView();
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -146,6 +174,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
     assertThat(modelMap)
         .contains(
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
+            entry("submittable", true),
             entry("gasFluidPropertiesSummaryView", gasFluidPropertySummaryView),
             entry("generalFluidPropertiesSummaryView", generalFluidPropertySummaryView),
             entry("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView),
@@ -182,8 +211,10 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
         .addObject("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView)
         .addObject("gasOnlyDiscovery", false)
         .addObject("oilOnlyDiscovery", false)
-        .addObject("mixedDiscovery", false);
-    doReturn(modelAndView).when(submissionSummaryModelService).createDiscoverySubmissionSummaryModelAndView(submissionDetail,
-        VIEW_NAME);
+        .addObject("mixedDiscovery", false)
+        .addObject("submittable", true);
+    when(submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(
+        submissionDetail, VIEW_NAME)
+    ).thenReturn(modelAndView);
   }
 }
