@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtest
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -188,11 +187,11 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
             .andReturn()
             .getModelAndView()).getModelMap();
 
-    assertEquals(DrillStemTestInitialForm.class, modelMap.get("form").getClass());
     assertThat(modelMap)
         .contains(
             entry("actionUrl", ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetailId, null, null))))
+                .saveDrillStemTestDetails(submissionDetailId, null, null))),
+            entry("form", form))
         .containsKeys("breadcrumbsMap");
   }
 }

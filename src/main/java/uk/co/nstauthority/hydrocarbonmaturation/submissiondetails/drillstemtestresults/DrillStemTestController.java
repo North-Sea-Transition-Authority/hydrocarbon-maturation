@@ -55,7 +55,8 @@ public class DrillStemTestController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
     if (drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail).isEmpty()) {
-      return getDrillStemTestModelAndView(form, submissionDetail);
+      return getDrillStemTestModelAndView(
+          drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail), submissionDetail);
     } else {
       return ReverseRouter.redirect(on(DrillStemTestSummaryController.class)
           .getDrillStemTestSummaryPage(submissionDetailId));
