@@ -15,7 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 
 @Entity
 @Table(name = "responsible_teams")
-class ResponsibleTeam {
+public class ResponsibleTeam {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -32,10 +32,6 @@ class ResponsibleTeam {
 
   public UUID getId() {
     return id;
-  }
-
-  public void setId(UUID id) {
-    this.id = id;
   }
 
   public Resource getResource() {

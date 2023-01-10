@@ -12,7 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Gene
 
 @Entity
 @Table(name = "general_details_licences")
-class Licence implements GeneralDetailChildEntity {
+public class Licence implements GeneralDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")

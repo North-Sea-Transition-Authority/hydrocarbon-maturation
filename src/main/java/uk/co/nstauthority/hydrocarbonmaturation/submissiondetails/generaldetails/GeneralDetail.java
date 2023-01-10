@@ -77,8 +77,8 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
     return resourceName;
   }
 
-  public void setResourceName(String prospectName) {
-    this.resourceName = prospectName;
+  public void setResourceName(String resourceName) {
+    this.resourceName = resourceName;
   }
 
   public OnshoreOffshore getOnshoreOffshore() {
@@ -94,8 +94,8 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
     return resourceLocatedInUkcs;
   }
 
-  public void setResourceLocatedInUkcs(Boolean prospectLocatedInUkcs) {
-    this.resourceLocatedInUkcs = prospectLocatedInUkcs;
+  public void setResourceLocatedInUkcs(Boolean resourceLocatedInUkcs) {
+    this.resourceLocatedInUkcs = resourceLocatedInUkcs;
   }
 
   public BigDecimal getPercentageLocatedInUkcs() {

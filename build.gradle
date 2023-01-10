@@ -60,6 +60,8 @@ dependencies {
 	implementation 'uk.co.fivium.digital.energyportalteamaccesslibrary:energy-portal-team-access-libray:develop-SNAPSHOT'
 	implementation 'uk.co.fivium:fivium-notify-spring-boot-starter:3.17.2-3.2-SNAPSHOT'
 
+	implementation 'org.springframework.boot:spring-boot-starter-jooq'
+
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 	runtimeOnly 'org.postgresql:postgresql'
