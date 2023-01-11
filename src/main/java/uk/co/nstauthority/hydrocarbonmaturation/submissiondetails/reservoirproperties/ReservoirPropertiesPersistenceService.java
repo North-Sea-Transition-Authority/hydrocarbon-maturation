@@ -106,7 +106,7 @@ class ReservoirPropertiesPersistenceService {
     }
 
     if (submissionDetail.isDiscoverySubmission()) {
-      saveDepthToContactProbabilityDistribution(submissionDetail, form);
+      saveDiscoveryProbabilityDistributions(submissionDetail, form);
     }
 
     reservoirPropertiesRepository.save(reservoirProperty);
@@ -116,8 +116,8 @@ class ReservoirPropertiesPersistenceService {
     return reservoirPropertiesRepository.findBySubmissionDetail(submissionDetail);
   }
 
-  private void saveDepthToContactProbabilityDistribution(SubmissionDetail submissionDetail,
-                                                         ReservoirPropertiesForm form) {
+  private void saveDiscoveryProbabilityDistributions(SubmissionDetail submissionDetail,
+                                                     ReservoirPropertiesForm form) {
     probabilityDistributionPersistenceService.deleteProbabilityDistribution(
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
         submissionDetail);

@@ -13,7 +13,7 @@
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 
-    <@fdsSummaryList.summaryListCard headingText="Mixed case outputs" summaryListId="mixedcaseoutputs">
+    <@fdsSummaryList.summaryListCard headingText="Mixed case outputs (resources)" summaryListId="mixedcaseoutputs">
         <@probabilityDistribution.probabilityDistributionTable
           withDistributionType=false
           probabilityDistributions=mixedCaseOutputsValues.probabilityDistributionSummaryViews()/>

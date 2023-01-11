@@ -85,13 +85,15 @@
       template=grossRockVolumeTemplate
       error=grossRockVolumeError/>
 
-    <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionTypePath="form.percentOfGrvOilBearing.probabilityDistributionType"
-      labelText="% of GRV which is oil bearing distribution used"
-      formId="percentOfGrvOilBearing"
-      template=percentOfGrvOilBearingTemplate
-      error=percentOfGrvOilBearingError/>
-
+    <#if dryHoleSubmission || mixedCase>
+      <@probabilityDistribution.probabilityDistributionTemplate
+        probabilityDistributionTypePath="form.percentOfGrvOilBearing.probabilityDistributionType"
+        labelText="% of GRV which is oil bearing distribution used"
+        formId="percentOfGrvOilBearing"
+        template=percentOfGrvOilBearingTemplate
+        error=percentOfGrvOilBearingError/>
+    </#if>
+      
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionTypePath="form.netToGross.probabilityDistributionType"
       labelText="Net-to-gross distribution used"

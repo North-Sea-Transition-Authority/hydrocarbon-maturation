@@ -73,7 +73,6 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   private GasCaseOutputsSummaryView gasCaseOutputsSummaryView;
   private OilCaseOutputsSummaryView oilCaseOutputsSummaryView;
   private ProbabilityDistributionsFormSummaryView probabilityDistributionsFormSummaryView;
-
   private DrillStemTestSummaryView drillStemTestSummaryView;
 
   @BeforeEach

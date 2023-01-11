@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -31,14 +32,18 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 public class ReservoirPropertiesController {
 
+  private static final String MIXED_CASE = "mixedCase";
+  private static final String GAS_CASE = "gasCase";
+  private static final String OIL_CASE = "oilCase";
+  public static final String PAGE_NAME = "Reservoir properties";
+
   private final ControllerHelperService controllerHelperService;
   private final ReservoirPropertiesFormService reservoirPropertiesFormService;
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
-
-  public static final String PAGE_NAME = "Reservoir properties";
+  private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   @Autowired
   public ReservoirPropertiesController(ControllerHelperService controllerHelperService,
@@ -46,13 +51,15 @@ public class ReservoirPropertiesController {
                                        ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
                                        SubmissionDetailService submissionDetailService,
                                        ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
-                                       DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService) {
+                                       DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
+                                       HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService) {
     this.controllerHelperService = controllerHelperService;
     this.reservoirPropertiesFormService = reservoirPropertiesFormService;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
+    this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
   }
 
   @GetMapping
@@ -90,9 +97,24 @@ public class ReservoirPropertiesController {
     addProbabilityTemplates(modelAndView, submissionDetail);
     if (submissionDetail.isDiscoverySubmission()) {
       modelAndView = addHydrocarbonsDiscoveredAndDiscoveryTemplates(modelAndView, submissionDetail);
+    } else if (submissionDetail.isProspectSubmission()) {
+      modelAndView = addHydrocarbonCase(modelAndView, submissionDetail);
     }
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
+  }
+
+  private ModelAndView addHydrocarbonCase(ModelAndView modelAndView, SubmissionDetail submissionDetail) {
+    return hydrocarbonCasePersistenceService
+        .getHydrocarbonCaseDetail(submissionDetail)
+        .map(hydrocarbonCaseDetail -> {
+          var mixedCase = hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail);
+          modelAndView
+              .addObject(MIXED_CASE, mixedCase);
+          return modelAndView;
+        })
+        .orElseGet(() -> modelAndView
+            .addObject(MIXED_CASE, false));
   }
 
   private ModelAndView addHydrocarbonsDiscoveredAndDiscoveryTemplates(ModelAndView modelAndView,
@@ -104,9 +126,9 @@ public class ReservoirPropertiesController {
           var oilCase = discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWell);
           var mixedCase = discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWell);
           modelAndView
-              .addObject("gasCase", gasCase)
-              .addObject("oilCase", oilCase)
-              .addObject("mixedCase", mixedCase);
+              .addObject(GAS_CASE, gasCase)
+              .addObject(OIL_CASE, oilCase)
+              .addObject(MIXED_CASE, mixedCase);
           if (oilCase || mixedCase) {
             modelAndView
                 .addObject("depthToOilWaterContactTemplate",
@@ -133,9 +155,9 @@ public class ReservoirPropertiesController {
           return modelAndView;
         })
         .orElseGet(() -> modelAndView
-            .addObject("gasCase", false)
-            .addObject("oilCase", false)
-            .addObject("mixedCase", false));
+            .addObject(GAS_CASE, false)
+            .addObject(OIL_CASE, false)
+            .addObject(MIXED_CASE, false));
   }
 
   private void addProbabilityTemplates(ModelAndView modelAndView, SubmissionDetail submissionDetail) {

@@ -299,8 +299,6 @@ class ReservoirPropertiesFormValidatorTest {
                 Set.of("grossReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
             entry("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
                 Set.of("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
-            entry("percentOfGrvOilBearing." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
-                Set.of("percentOfGrvOilBearing." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
             entry("netToGross." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
                 Set.of("netToGross." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
             entry("netPorosity." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
@@ -313,7 +311,6 @@ class ReservoirPropertiesFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
             "Gross rock volume (GRV) distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Percentage of GRV which is oil bearing distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
             "Average net pay thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
             "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
             "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
@@ -327,7 +324,6 @@ class ReservoirPropertiesFormValidatorTest {
   void validate_whenInvalidExceedenceForm_whenDiscovery_whenOilHydrocarbon_thenValidationErrors(
       ValidationType validationType) {
     var form = getFormWithInvalidDistributions(ProbabilityDistributionType.NORMAL);
-
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     reservoirPropertiesFormValidator.validate(form, bindingResult,
@@ -343,8 +339,6 @@ class ReservoirPropertiesFormValidatorTest {
                 Set.of("grossReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
             entry("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
                 Set.of("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
-            entry("percentOfGrvOilBearing." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
-                Set.of("percentOfGrvOilBearing." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
             entry("netToGross." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
                 Set.of("netToGross." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
             entry("netPorosity." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
@@ -357,12 +351,50 @@ class ReservoirPropertiesFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
             "Gross rock volume (GRV) distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Percentage of GRV which is oil bearing distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
             "Average net pay thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
             "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
             "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
             "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
             "Depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenInvalidExceedenceForm_whenDryHole_thenValidationErrors(
+      ValidationType validationType) {
+    var form = getFormWithInvalidDistributions(ProbabilityDistributionType.NORMAL);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    reservoirPropertiesFormValidator.validate(form, bindingResult,
+        new ReservoirPropertiesValidatorHints(
+            validationType, SubmissionType.POST_DRILL_DRY_HOLE, null));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("averageNetPayThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("averageNetPayThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("grossReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("grossReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("percentOfGrvOilBearing." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("percentOfGrvOilBearing." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("netToGross." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("netToGross." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("netPorosity." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("netPorosity." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")));
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(
+            "Gross rock volume (GRV) distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Percentage of GRV which is oil bearing distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Average net pay thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
+            "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent."
         );
   }
 
@@ -377,7 +409,10 @@ class ReservoirPropertiesFormValidatorTest {
   private BindingResult validateReservoirProperties(ReservoirPropertiesForm form, ValidationType validationType, SubmissionType submissionType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    reservoirPropertiesFormValidator.validate(form, bindingResult, new ReservoirPropertiesValidatorHints(validationType, submissionType, null));
+    reservoirPropertiesFormValidator.validate(
+        form, bindingResult,
+        new ReservoirPropertiesValidatorHints(
+            validationType, submissionType, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
     return bindingResult;
   }
 

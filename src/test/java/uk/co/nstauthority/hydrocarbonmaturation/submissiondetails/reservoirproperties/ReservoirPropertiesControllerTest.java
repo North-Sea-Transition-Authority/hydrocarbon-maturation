@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,6 +45,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -62,6 +65,9 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
 
   @MockBean
   private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
+
+  @MockBean
+  private HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
@@ -164,6 +170,11 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
 
+    var hydrocarbonCaseDetail = mock(HydrocarbonCaseDetail.class);
+    when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
+        .thenReturn(Optional.of(hydrocarbonCaseDetail));
+    when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail))
+        .thenReturn(true);
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId)))
@@ -204,7 +215,10 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
         .containsEntry("netPorosityTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
         .containsEntry("depthToHydrocarbonContactTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT));
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT))
+        .containsEntry("mixedCase", true)
+        .doesNotContainKeys("depthToGasOilContactTemplate",
+            "depthToGasWaterContactTemplate", "depthToOilWaterContactTemplate");
   }
 
   @Test
@@ -261,9 +275,126 @@ class ReservoirPropertiesControllerTest extends AbstractControllerTest {
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
         .containsEntry("depthToOilWaterContactTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT))
-        .containsEntry("depthToOilWaterContactTemplate", probabilityDistributionTemplateService
+        .containsEntry("depthToGasWaterContactTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT))
         .containsEntry("depthToGasOilContactTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT));
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT))
+        .containsEntry("mixedCase", true);
+  }
+
+  @Test
+  void getReservoirPropertiesModelAndView_whenDryHoleSubmission_assertModelProperties() throws Exception {
+    var form = new ReservoirPropertiesForm();
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
+
+    var modelMap = Objects.requireNonNull(
+        mockMvc.perform(
+            get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId)))
+                .with(user(USER)))
+            .andReturn()
+            .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap.get("form").getClass()).isEqualTo(ReservoirPropertiesForm.class);
+
+    @SuppressWarnings(value="unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+    );
+
+    assertThat(modelMap)
+        .containsEntry("form", form)
+        .containsEntry("averageNetPayThicknessOptionalError", ProbabilityDistributionTypeError.emptyError())
+        .containsEntry("grossReservoirThicknessError", ProbabilityDistributionTypeError.emptyError())
+        .containsEntry("grossRockVolumeError", ProbabilityDistributionTypeError.emptyError())
+        .containsEntry("percentOfGrvOilBearingError", ProbabilityDistributionTypeError.emptyError())
+        .containsEntry("netToGrossError", ProbabilityDistributionTypeError.emptyError())
+        .containsEntry("netPorosityError", ProbabilityDistributionTypeError.emptyError())
+        .containsEntry("averageNetPayThicknessOptionalTemplate", probabilityDistributionTemplateService
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY))
+        .containsEntry("grossReservoirThicknessTemplate", probabilityDistributionTemplateService
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
+        .containsEntry("grossRockVolumeTemplate", probabilityDistributionTemplateService
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
+        .containsEntry("percentOfGrvOilBearingTemplate", probabilityDistributionTemplateService
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+        .containsEntry("netToGrossTemplate", probabilityDistributionTemplateService
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
+        .containsEntry("netPorosityTemplate", probabilityDistributionTemplateService
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
+        .doesNotContainKeys("mixedCase", "depthToGasOilContactTemplate",
+            "depthToGasWaterContactTemplate", "depthToOilWaterContactTemplate");
+  }
+
+  @Test
+  void getReservoirPropertiesModelAndView_whenDiscoverySubmission_whenNoDiscoveryWell_assertHydrocarbonCasesFalse() throws Exception {
+    var form = new ReservoirPropertiesForm();
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .containsEntry("mixedCase", false)
+        .containsEntry("gasCase", false)
+        .containsEntry("oilCase", false)
+        .doesNotContainKeys("depthToGasOilContactTemplate",
+        "depthToGasWaterContactTemplate", "depthToOilWaterContactTemplate");
+  }
+
+  @Test
+  void saveReservoirProperties_whenDiscoverySubmission_whenErrors_assertErrorsAdded() throws Exception {
+    var form = new ReservoirPropertiesForm();
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
+    when(reservoirPropertiesFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
+
+    var modelMap = mockMvc.perform(
+            post(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .saveReservoirProperties(submissionDetailId, null, null, ValidationType.FULL)))
+                .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getModelAndView()
+        .getModelMap();
+
+    assertThat(modelMap)
+        .containsEntry("depthToOilWaterContactError",
+            probabilityDistributionTemplateService
+                .getProbabilityDistributionTypeError(bindingResult,
+                    "depthToOilWaterContact", form.getDepthToOilWaterContact()))
+        .containsEntry("depthToGasWaterContactError",
+            probabilityDistributionTemplateService
+                .getProbabilityDistributionTypeError(bindingResult,
+                    "depthToGasWaterContact", form.getDepthToGasWaterContact()))
+        .containsEntry("depthToGasOilContactError",
+            probabilityDistributionTemplateService
+                .getProbabilityDistributionTypeError(bindingResult,
+                    "depthToGasOilContact", form.getDepthToGasOilContact()))
+        .containsEntry("mixedCase", false)
+        .containsEntry("gasCase", false)
+        .containsEntry("oilCase", false);
   }
 }

@@ -11,6 +11,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -20,16 +23,19 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
+  private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   @Autowired
   public ReservoirPropertiesFormService(ReservoirPropertiesFormValidator reservoirPropertiesFormValidator,
                                         ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
                                         ProbabilityDistributionFormService probabilityDistributionFormService,
-                                        DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService) {
+                                        DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
+                                        HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService) {
     this.reservoirPropertiesFormValidator = reservoirPropertiesFormValidator;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.probabilityDistributionFormService = probabilityDistributionFormService;
     this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
+    this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
   }
 
   @Override
@@ -55,6 +61,28 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
               () ->
                   reservoirPropertiesFormValidator.validate(form, bindingResult,
                       new ReservoirPropertiesValidatorHints(validationType, submissionType, null)));
+      return bindingResult;
+    } else if (submissionDetail.isProspectSubmission()) {
+      hydrocarbonCasePersistenceService
+          .getHydrocarbonCaseDetail(submissionDetail)
+          .ifPresentOrElse(
+              hydrocarbonCaseDetail -> {
+                var mixedCase = hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail);
+                if (mixedCase) {
+                  reservoirPropertiesFormValidator.validate(form, bindingResult,
+                      new ReservoirPropertiesValidatorHints(
+                          validationType,
+                          submissionType,
+                          HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
+                }
+              },
+              () ->
+                  reservoirPropertiesFormValidator.validate(form, bindingResult,
+                      new ReservoirPropertiesValidatorHints(
+                          validationType,
+                          submissionType,
+                          null))
+          );
       return bindingResult;
     }
     reservoirPropertiesFormValidator.validate(
@@ -141,10 +169,17 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
         submissionDetail,
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY
     ));
-    form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING
-    ));
+
+    var hydrocarbonCaseDetail = hydrocarbonCasePersistenceService
+        .getHydrocarbonCaseDetail(submissionDetail)
+        .orElseGet(HydrocarbonCaseDetail::new);
+    if (hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail)
+        || submissionDetail.isDryWellSubmission()) {
+      form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING
+      ));
+    }
 
     return form;
   }

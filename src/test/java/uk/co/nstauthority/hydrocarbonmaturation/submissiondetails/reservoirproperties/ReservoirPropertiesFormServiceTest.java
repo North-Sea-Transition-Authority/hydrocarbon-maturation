@@ -27,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,13 +47,16 @@ class ReservoirPropertiesFormServiceTest {
   @Mock
   private static ProbabilityDistributionFormService probabilityDistributionFormService;
 
+  @Mock
+  private static HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+
   private static SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setUp() {
     reservoirPropertiesFormService = new ReservoirPropertiesFormService(reservoirPropertiesFormValidator,
         reservoirPropertiesPersistenceService, probabilityDistributionFormService,
-        discoveryWellDetailsPersistenceService);
+        discoveryWellDetailsPersistenceService, hydrocarbonCasePersistenceService);
 
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
