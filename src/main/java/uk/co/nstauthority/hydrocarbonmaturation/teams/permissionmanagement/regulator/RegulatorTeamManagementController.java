@@ -66,7 +66,7 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
 
     var user = userDetailService.getUserDetail();
 
-    var modelAndView = new ModelAndView("remi/permissionmanagement/regulator/regulatorTeamMembers")
+    var modelAndView = new ModelAndView("remi/permissionmanagement/teamMembers")
         .addObject("pageTitle", "Manage %s".formatted(customerConfigurationProperties.mnemonic()))
         .addObject("teamName", customerConfigurationProperties.mnemonic())
         .addObject("teamRoles", RegulatorTeamRole.values())

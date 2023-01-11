@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInter
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SubmissionHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.StringToSupportingDocumentTypeConverter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
 
 @Configuration
@@ -27,16 +28,19 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
   private final PermissionManagementHandlerInterceptor permissionManagementHandlerInterceptor;
   private final RegulatorPermissionManagementHandlerInterceptor regulatorPermissionManagementHandlerInterceptor;
+  private final IndustryPermissionManagementHandlerInterceptor industryPermissionManagementHandlerInterceptor;
   private final HasPermissionInterceptor hasPermissionInterceptor;
   private final SubmissionHandlerInterceptor submissionHandlerInterceptor;
 
   @Autowired
   public WebMvcConfiguration(PermissionManagementHandlerInterceptor permissionManagementHandlerInterceptor,
                              RegulatorPermissionManagementHandlerInterceptor regulatorPermissionManagementHandlerInterceptor,
+                             IndustryPermissionManagementHandlerInterceptor industryPermissionManagementHandlerInterceptor,
                              HasPermissionInterceptor hasPermissionInterceptor,
                              SubmissionHandlerInterceptor submissionHandlerInterceptor) {
     this.permissionManagementHandlerInterceptor = permissionManagementHandlerInterceptor;
     this.regulatorPermissionManagementHandlerInterceptor = regulatorPermissionManagementHandlerInterceptor;
+    this.industryPermissionManagementHandlerInterceptor = industryPermissionManagementHandlerInterceptor;
     this.hasPermissionInterceptor = hasPermissionInterceptor;
     this.submissionHandlerInterceptor = submissionHandlerInterceptor;
   }
@@ -63,6 +67,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         .addPathPatterns("/permission-management/**");
     registry.addInterceptor(regulatorPermissionManagementHandlerInterceptor)
         .addPathPatterns("/permission-management/regulator/**");
+    registry.addInterceptor(industryPermissionManagementHandlerInterceptor)
+        .addPathPatterns("/permission-management/industry/**");
     registry.addInterceptor(submissionHandlerInterceptor)
         .addPathPatterns(SUBMISSION_DETAILS_PATH);
     registry.addInterceptor(hasPermissionInterceptor)

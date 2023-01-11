@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator;
+package uk.co.nstauthority.hydrocarbonmaturation.teams;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,13 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
 @ExtendWith(MockitoExtension.class)
-class RegulatorTeamMemberRemovalServiceTest {
+class TeamMemberRemovalServiceTest {
 
   @Mock
   private TeamMemberService teamMemberService;
@@ -28,7 +25,7 @@ class RegulatorTeamMemberRemovalServiceTest {
   private TeamMemberRoleService teamMemberRoleService;
 
   @InjectMocks
-  private RegulatorTeamMemberRemovalService regulatorTeamMemberRemovalService;
+  private TeamMemberRemovalService teamMemberRemovalService;
 
   @Test
   void canRemoveTeamMember_whenNotAccessManager_thenTrue() {
@@ -49,7 +46,7 @@ class RegulatorTeamMemberRemovalServiceTest {
         List.of(accessManager, nonAccessManager)
     );
 
-    assertTrue(regulatorTeamMemberRemovalService.canRemoveTeamMember(team, nonAccessManager));
+    assertTrue(teamMemberRemovalService.canRemoveTeamMember(team, nonAccessManager));
   }
 
   @Test
@@ -71,7 +68,7 @@ class RegulatorTeamMemberRemovalServiceTest {
         List.of(firstAccessManager, secondAccessManager)
     );
 
-    assertTrue(regulatorTeamMemberRemovalService.canRemoveTeamMember(team, secondAccessManager));
+    assertTrue(teamMemberRemovalService.canRemoveTeamMember(team, secondAccessManager));
   }
 
   @Test
@@ -88,7 +85,7 @@ class RegulatorTeamMemberRemovalServiceTest {
         List.of(lastAccessManager)
     );
 
-    assertFalse(regulatorTeamMemberRemovalService.canRemoveTeamMember(team, lastAccessManager));
+    assertFalse(teamMemberRemovalService.canRemoveTeamMember(team, lastAccessManager));
   }
 
   @Test
@@ -105,7 +102,7 @@ class RegulatorTeamMemberRemovalServiceTest {
         List.of(nonAccessManager)
     );
 
-    assertFalse(regulatorTeamMemberRemovalService.canRemoveTeamMember(team, nonAccessManager));
+    assertFalse(teamMemberRemovalService.canRemoveTeamMember(team, nonAccessManager));
   }
 
   @Test
@@ -127,7 +124,7 @@ class RegulatorTeamMemberRemovalServiceTest {
         List.of(accessManager, nonAccessManager)
     );
 
-    regulatorTeamMemberRemovalService.removeTeamMember(team, nonAccessManager);
+    teamMemberRemovalService.removeTeamMember(team, nonAccessManager);
 
     verify(teamMemberRoleService, times(1)).removeMemberFromTeam(team, nonAccessManager);
   }
@@ -145,7 +142,7 @@ class RegulatorTeamMemberRemovalServiceTest {
     when(teamMemberService.getTeamMembers(team)).thenReturn(List.of(lastAccessManager));
 
     assertThatThrownBy(
-        () -> regulatorTeamMemberRemovalService.removeTeamMember(team, lastAccessManager)
+        () -> teamMemberRemovalService.removeTeamMember(team, lastAccessManager)
     )
         .isInstanceOf(IllegalStateException.class);
   }

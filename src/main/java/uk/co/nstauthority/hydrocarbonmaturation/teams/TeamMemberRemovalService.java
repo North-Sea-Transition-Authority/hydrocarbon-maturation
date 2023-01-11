@@ -1,30 +1,34 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator;
+package uk.co.nstauthority.hydrocarbonmaturation.teams;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMember;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
 @Service
-class RegulatorTeamMemberRemovalService {
+public class TeamMemberRemovalService {
 
   public static final String LAST_ACCESS_MANAGER_ERROR_MESSAGE = "You cannot remove the last access manager of a team";
+  public static final Set<? extends TeamRole> ACCESS_MANAGER_ROLES = Set.of(
+      RegulatorTeamRole.ACCESS_MANAGER,
+      IndustryTeamRole.ACCESS_MANAGER
+  );
 
   private final TeamMemberService teamMemberService;
 
   private final TeamMemberRoleService teamMemberRoleService;
 
   @Autowired
-  RegulatorTeamMemberRemovalService(TeamMemberService teamMemberService, TeamMemberRoleService teamMemberRoleService) {
+  TeamMemberRemovalService(TeamMemberService teamMemberService, TeamMemberRoleService teamMemberRoleService) {
     this.teamMemberService = teamMemberService;
     this.teamMemberRoleService = teamMemberRoleService;
   }
 
-  void removeTeamMember(Team team, TeamMember teamMember) {
+  public void removeTeamMember(Team team, TeamMember teamMember) {
     if (canRemoveTeamMember(team, teamMember)) {
       teamMemberRoleService.removeMemberFromTeam(team, teamMember);
     } else {
@@ -35,17 +39,17 @@ class RegulatorTeamMemberRemovalService {
     }
   }
 
-  boolean canRemoveTeamMember(Team team, TeamMember teamMember) {
+  public boolean canRemoveTeamMember(Team team, TeamMember teamMember) {
     var teamMembers = teamMemberService.getTeamMembers(team);
     var accessManagers = filterAccessManagers(teamMembers);
-    return accessManagers.stream().anyMatch(
-        tm -> !tm.wuaId().equals(teamMember.wuaId()));
+    return accessManagers.stream()
+        .anyMatch(tm -> !tm.wuaId().equals(teamMember.wuaId()));
   }
 
   private List<TeamMember> filterAccessManagers(Collection<TeamMember> teamMembers) {
     return teamMembers.stream()
-        .filter(teamMember ->
-            teamMember.roles().stream().anyMatch(teamRole -> teamRole.equals(RegulatorTeamRole.ACCESS_MANAGER)))
+        .filter(teamMember -> teamMember.roles().stream()
+            .anyMatch(ACCESS_MANAGER_ROLES::contains))
         .toList();
   }
 

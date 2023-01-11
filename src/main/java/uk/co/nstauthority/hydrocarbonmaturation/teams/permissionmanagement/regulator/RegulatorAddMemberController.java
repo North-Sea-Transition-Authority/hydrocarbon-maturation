@@ -116,8 +116,7 @@ class RegulatorAddMemberController extends AbstractRegulatorPermissionManagement
           var regulatorRoles = form.getRoles()
               .stream()
               .map(RegulatorTeamRole::getRoleFromString)
-              .filter(Optional::isPresent)
-              .map(Optional::get)
+              .flatMap(Optional::stream)
               .collect(Collectors.toSet());
 
           regulatorTeamService.addUserTeamRoles(team, energyPortalUser, regulatorRoles);
@@ -127,7 +126,7 @@ class RegulatorAddMemberController extends AbstractRegulatorPermissionManagement
   }
 
   private ModelAndView getAddTeamMemberModelAndView(TeamId teamId, AddTeamMemberForm form) {
-    return new ModelAndView("remi/permissionmanagement/regulator/regulatorAddTeamMember")
+    return new ModelAndView("remi/permissionmanagement/addTeamMember")
         .addObject("htmlTitle", "Add user to %s".formatted(customerConfigurationProperties.mnemonic()))
         .addObject("registrationUrl", energyPortalConfiguration.registrationUrl())
         .addObject("form", form)
@@ -145,7 +144,7 @@ class RegulatorAddMemberController extends AbstractRegulatorPermissionManagement
   private ModelAndView getAddTeamMemberRolesModelAndView(TeamId teamId,
                                                          EnergyPortalUserDto energyPortalUser,
                                                          TeamMemberRolesForm form) {
-    return new ModelAndView("remi/permissionmanagement/regulator/regulatorAddTeamMemberRoles")
+    return new ModelAndView("remi/permissionmanagement/addTeamMemberRoles")
         .addObject("pageTitle", "What actions does %s perform?".formatted(energyPortalUser.displayName()))
         .addObject("form", form)
         .addObject("roles", DisplayableEnumOptionUtil.getDisplayableOptionsWithDescription(RegulatorTeamRole.class))

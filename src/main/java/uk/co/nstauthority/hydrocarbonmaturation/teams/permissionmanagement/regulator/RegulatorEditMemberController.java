@@ -103,7 +103,7 @@ public class RegulatorEditMemberController extends AbstractRegulatorPermissionMa
   }
 
   private ModelAndView getEditModelAndView(TeamId teamId, TeamMemberView userView, TeamMemberRolesForm form) {
-    return new ModelAndView("remi/permissionmanagement/regulator/regulatorAddTeamMemberRoles")
+    return new ModelAndView("remi/permissionmanagement/addTeamMemberRoles")
         .addObject("form", form)
         .addObject("pageTitle", "What actions does %s perform?".formatted(userView.getDisplayName()))
         .addObject("roles", DisplayableEnumOptionUtil.getDisplayableOptionsWithDescription(RegulatorTeamRole.class))

@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
 @Service
@@ -26,7 +26,7 @@ public class TeamMemberService {
   public List<TeamMember> getTeamMembers(Team team) {
 
     // Group all roles based on the web user account id
-    Map<WebUserAccountId, List<TeamMemberRole>> wuaIdToRolesMap = teamMemberRoleRepository.findAllByTeam(team)
+    var wuaIdToRolesMap = teamMemberRoleRepository.findAllByTeam(team)
         .stream()
         .collect(Collectors.groupingBy(teamMemberRole -> new WebUserAccountId(teamMemberRole.getWuaId())));
 
@@ -51,7 +51,7 @@ public class TeamMemberService {
   }
 
   private TeamView createTeamView(Team team) {
-    return new TeamView(new TeamId(team.getUuid()), team.getTeamType());
+    return new TeamView(new TeamId(team.getUuid()), team.getTeamType(), team.getDisplayName());
   }
 
   public boolean isMemberOfTeam(TeamId teamId, ServiceUserDetail user) {
@@ -63,7 +63,7 @@ public class TeamMemberService {
   }
 
   public List<TeamMember> getUserAsTeamMembers(ServiceUserDetail user) {
-    Map<Team, List<TeamMemberRole>> teamRoleMap = teamMemberRoleRepository.findAllByWuaId(user.wuaId())
+    var teamRoleMap = teamMemberRoleRepository.findAllByWuaId(user.wuaId())
         .stream()
         .collect(Collectors.groupingBy(TeamMemberRole::getTeam));
 
@@ -81,6 +81,7 @@ public class TeamMemberService {
     return roles.stream()
         .map(teamMemberRole -> switch (team.getTeamType()) {
           case REGULATOR -> RegulatorTeamRole.valueOf(teamMemberRole.getRole());
+          case INDUSTRY -> IndustryTeamRole.valueOf(teamMemberRole.getRole());
         })
         .collect(Collectors.toSet());
   }

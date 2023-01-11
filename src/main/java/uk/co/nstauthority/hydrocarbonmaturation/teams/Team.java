@@ -23,6 +23,10 @@ public class Team {
   @Enumerated(EnumType.STRING)
   private TeamType teamType;
 
+  private String displayName;
+
+  private Integer organisationGroupId;
+
   public Team() {
   }
 
@@ -40,5 +44,21 @@ public class Team {
 
   public void setTeamType(TeamType teamType) {
     this.teamType = teamType;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
+
+  public Integer getOrganisationGroupId() {
+    return organisationGroupId;
+  }
+
+  public void setOrganisationGroupId(Integer organisationGroupId) {
+    this.organisationGroupId = organisationGroupId;
   }
 }

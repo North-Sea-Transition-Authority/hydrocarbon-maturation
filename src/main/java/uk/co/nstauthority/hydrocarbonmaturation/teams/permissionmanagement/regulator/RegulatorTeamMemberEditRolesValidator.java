@@ -9,6 +9,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMember;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRemovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
 
 @Service
@@ -24,12 +25,12 @@ class RegulatorTeamMemberEditRolesValidator implements SmartValidator {
   public static final String ROLES_NO_ACCESS_MANAGER_ERROR_MESSAGE =
       "There must always be at least one access manager in the team";
 
-  private final RegulatorTeamMemberRemovalService regulatorTeamMemberRemovalService;
+  private final TeamMemberRemovalService teamMemberRemovalService;
 
   @Autowired
   RegulatorTeamMemberEditRolesValidator(
-      RegulatorTeamMemberRemovalService regulatorTeamMemberRemovalService) {
-    this.regulatorTeamMemberRemovalService = regulatorTeamMemberRemovalService;
+      TeamMemberRemovalService teamMemberRemovalService) {
+    this.teamMemberRemovalService = teamMemberRemovalService;
   }
 
   @Override
@@ -74,6 +75,6 @@ class RegulatorTeamMemberEditRolesValidator implements SmartValidator {
     var isRemovingAccessManagerRole = Sets.difference(teamMember.roles(), Set.copyOf(newRoles))
         .contains(RegulatorTeamRole.ACCESS_MANAGER);
 
-    return !isRemovingAccessManagerRole || regulatorTeamMemberRemovalService.canRemoveTeamMember(team, teamMember);
+    return !isRemovingAccessManagerRole || teamMemberRemovalService.canRemoveTeamMember(team, teamMember);
   }
 }

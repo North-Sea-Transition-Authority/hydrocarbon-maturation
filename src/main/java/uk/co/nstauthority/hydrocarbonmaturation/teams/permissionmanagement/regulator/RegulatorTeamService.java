@@ -41,8 +41,12 @@ public class RegulatorTeamService {
     return teamService.getTeam(teamId, TeamType.REGULATOR);
   }
 
-  boolean isAccessManager(TeamId teamId, ServiceUserDetail user) {
+  public boolean isAccessManager(TeamId teamId, ServiceUserDetail user) {
     return teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name()));
+  }
+
+  public boolean isIndustryAccessManager(TeamId teamId, ServiceUserDetail user) {
+    return teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER.name()));
   }
 
   void addUserTeamRoles(Team team, EnergyPortalUserDto userToAdd, Set<RegulatorTeamRole> roles) {

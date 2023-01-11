@@ -28,6 +28,7 @@ public class TeamMemberViewTestUtil {
     private String contactEmail = "f.s@test.com";
     private String contactNumber = "+440000000000";
     private Set<TeamRole> roles = new HashSet<>();
+    private String displayName = "Team A";
 
     public Builder() {
     }
@@ -82,8 +83,13 @@ public class TeamMemberViewTestUtil {
       return this;
     }
 
+    public Builder withDisplayName(String displayName) {
+      this.displayName = displayName;
+      return this;
+    }
+
     public TeamMemberView build() {
-      return new TeamMemberView(wuaId, new TeamView(teamId, teamType), title, firstName, lastName, contactEmail,
+      return new TeamMemberView(wuaId, new TeamView(teamId, teamType, displayName), title, firstName, lastName, contactEmail,
           contactNumber, roles);
     }
   }

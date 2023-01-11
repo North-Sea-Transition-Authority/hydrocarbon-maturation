@@ -49,7 +49,7 @@ class TeamMemberServiceTest {
 
     var result = teamMemberService.getTeamMembers(team);
 
-    var teamView = new TeamView(new TeamId(team.getUuid()), team.getTeamType());
+    var teamView = new TeamView(new TeamId(team.getUuid()), team.getTeamType(), team.getDisplayName());
 
     var expectedTeamMember = new TeamMember(new WebUserAccountId(1L), teamView, Set.of(RegulatorTeamRole.ACCESS_MANAGER,
         RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER));
@@ -168,7 +168,7 @@ class TeamMemberServiceTest {
         .withWebUserAccountId(wuaId.id())
         .build();
 
-    var teamView = new TeamView(new TeamId(team.getUuid()), team.getTeamType());
+    var teamView = new TeamView(new TeamId(team.getUuid()), team.getTeamType(), team.getDisplayName());
 
     when(teamMemberRoleRepository.findAllByTeamAndWuaId(team, wuaId.id()))
         .thenReturn(List.of(role));
@@ -234,7 +234,7 @@ class TeamMemberServiceTest {
             Tuple.tuple(
                 new WebUserAccountId(user.wuaId()),
                 Set.of(RegulatorTeamRole.EXPLORATION),
-                new TeamView(new TeamId(team.getUuid()), team.getTeamType())
+                new TeamView(new TeamId(team.getUuid()), team.getTeamType(), team.getDisplayName())
             )
         );
   }

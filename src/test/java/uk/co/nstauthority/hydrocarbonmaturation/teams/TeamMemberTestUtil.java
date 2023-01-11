@@ -24,6 +24,7 @@ public class TeamMemberTestUtil {
     private Set<TeamRole> teamRoles = new HashSet<>();
     private TeamId teamId = new TeamId(UUID.randomUUID());
     private TeamType teamType = TeamType.REGULATOR;
+    private String displayName = "Team A";
 
     public TeamMemberBuilder withWebUserAccountId(long webUserAccountId) {
       this.webUserAccountId = new WebUserAccountId(webUserAccountId);
@@ -50,11 +51,16 @@ public class TeamMemberTestUtil {
       return this;
     }
 
+    public TeamMemberBuilder withDisplayName(String displayName) {
+      this.displayName = displayName;
+      return this;
+    }
+
     public TeamMember build() {
       if (teamRoles.isEmpty()) {
         teamRoles.add(RegulatorTeamRole.ACCESS_MANAGER);
       }
-      return new TeamMember(webUserAccountId, new TeamView(teamId, teamType), teamRoles);
+      return new TeamMember(webUserAccountId, new TeamView(teamId, teamType, displayName), teamRoles);
     }
 
   }

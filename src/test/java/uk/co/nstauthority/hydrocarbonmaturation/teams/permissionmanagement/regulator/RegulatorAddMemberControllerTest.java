@@ -169,7 +169,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
             get(ReverseRouter.route(on(RegulatorAddMemberController.class).renderAddTeamMember(teamId)))
                 .with(user(user)))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/permissionmanagement/regulator/regulatorAddTeamMember"))
+        .andExpect(view().name("remi/permissionmanagement/addTeamMember"))
         .andExpect(model().attribute("htmlTitle", "Add user to %s".formatted(customerMnemonic)))
         .andExpect(model().attribute(
             "backLinkUrl",
@@ -273,7 +273,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
                 .param("username", "")
         )
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/permissionmanagement/regulator/regulatorAddTeamMember"));
+        .andExpect(view().name("remi/permissionmanagement/addTeamMember"));
   }
 
   @Test
@@ -464,7 +464,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
                 .renderAddTeamMemberRoles(teamId, webUserAccountIdToAdd)))
                 .with(user(user)))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/permissionmanagement/regulator/regulatorAddTeamMemberRoles"))
+        .andExpect(view().name("remi/permissionmanagement/addTeamMemberRoles"))
         .andExpect(model().attribute(
             "pageTitle",
             "What actions does %s perform?".formatted(energyPortalUserToAdd.displayName())
@@ -642,7 +642,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
                 .param("roles", "")
         )
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/permissionmanagement/regulator/regulatorAddTeamMemberRoles"));
+        .andExpect(view().name("remi/permissionmanagement/addTeamMemberRoles"));
   }
 
   @Test

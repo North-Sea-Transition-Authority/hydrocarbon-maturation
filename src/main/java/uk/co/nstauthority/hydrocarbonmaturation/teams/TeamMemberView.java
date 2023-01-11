@@ -6,6 +6,8 @@ import java.util.Set;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryEditMemberController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryRemoveMemberController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorEditMemberController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorRemoveMemberController;
 
@@ -21,6 +23,8 @@ public record TeamMemberView(WebUserAccountId wuaId, TeamView teamView, String t
     return switch (teamView.teamType()) {
       case REGULATOR -> ReverseRouter.route(on(RegulatorRemoveMemberController.class)
           .renderRemoveMember(teamView.teamId(), wuaId));
+      case INDUSTRY -> ReverseRouter.route(on(IndustryRemoveMemberController.class)
+          .renderRemoveMember(teamView.teamId(), wuaId));
     };
   }
 
@@ -28,7 +32,8 @@ public record TeamMemberView(WebUserAccountId wuaId, TeamView teamView, String t
     return switch (teamView.teamType()) {
       case REGULATOR -> ReverseRouter.route(on(RegulatorEditMemberController.class)
           .renderEditMember(teamView.teamId(), wuaId));
+      case INDUSTRY -> ReverseRouter.route(on(IndustryEditMemberController.class)
+          .renderEditMember(teamView.teamId(), wuaId));
     };
   }
-
 }

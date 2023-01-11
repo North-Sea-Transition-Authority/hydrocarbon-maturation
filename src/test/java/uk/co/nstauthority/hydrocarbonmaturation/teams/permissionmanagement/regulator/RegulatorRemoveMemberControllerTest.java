@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRemovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewTestUtil;
@@ -44,7 +45,7 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
   private TeamMemberViewService teamMemberViewService;
 
   @MockBean
-  private RegulatorTeamMemberRemovalService regulatorTeamMemberRemovalService;
+  private TeamMemberRemovalService regulatorTeamMemberRemovalService;
 
   @MockBean
   private RegulatorTeamService regulatorTeamService;

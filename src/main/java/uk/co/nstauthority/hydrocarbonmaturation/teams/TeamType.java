@@ -2,7 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams;
 
 public enum TeamType {
 
-  REGULATOR("NSTA regulator", "Team for managing NSTA regulator users", 10);
+  REGULATOR("NSTA regulator", "Team for managing NSTA regulator users", 10),
+  INDUSTRY("Industry", "Teams for managing industry users", 20);
 
   private final String displayText;
   private final String hintText;

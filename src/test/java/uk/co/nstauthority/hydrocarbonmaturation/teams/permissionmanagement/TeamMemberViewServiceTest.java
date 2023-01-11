@@ -42,7 +42,7 @@ class TeamMemberViewServiceTest {
     var team = new Team(UUID.randomUUID());
     var wuaId = 100L;
 
-    var teamView = new TeamView(new TeamId(team.getUuid()), team.getTeamType());
+    var teamView = new TeamView(new TeamId(team.getUuid()), team.getTeamType(), team.getDisplayName());
 
     var teamMember = new TeamMember(new WebUserAccountId(wuaId), teamView,
         Set.of(RegulatorTeamRole.ACCESS_MANAGER, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER));
@@ -93,7 +93,7 @@ class TeamMemberViewServiceTest {
     var team = new Team(UUID.randomUUID());
     var wuaId = 100L;
 
-    var teamView = new TeamView(new TeamId(team.getUuid()), team.getTeamType());
+    var teamView = new TeamView(new TeamId(team.getUuid()), team.getTeamType(), team.getDisplayName());
 
     var teamMember = new TeamMember(new WebUserAccountId(wuaId), teamView,
         Set.of(RegulatorTeamRole.ACCESS_MANAGER, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER));

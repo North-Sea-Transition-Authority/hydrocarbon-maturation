@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.Notificat
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRemovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
@@ -32,7 +33,7 @@ public class RegulatorRemoveMemberController extends AbstractRegulatorPermission
   private final TeamMemberService teamMemberService;
   private final CustomerConfigurationProperties customerConfigurationProperties;
   private final TeamMemberViewService teamMemberViewService;
-  private final RegulatorTeamMemberRemovalService regulatorTeamMemberRemovalService;
+  private final TeamMemberRemovalService teamMemberRemovalService;
 
   @Autowired
   public RegulatorRemoveMemberController(
@@ -40,12 +41,12 @@ public class RegulatorRemoveMemberController extends AbstractRegulatorPermission
       TeamMemberService teamMemberService,
       CustomerConfigurationProperties customerConfigurationProperties,
       TeamMemberViewService teamMemberViewService,
-      RegulatorTeamMemberRemovalService regulatorTeamMemberRemovalService) {
+      TeamMemberRemovalService teamMemberRemovalService) {
     super(regulatorTeamService);
     this.teamMemberService = teamMemberService;
     this.customerConfigurationProperties = customerConfigurationProperties;
     this.teamMemberViewService = teamMemberViewService;
-    this.regulatorTeamMemberRemovalService = regulatorTeamMemberRemovalService;
+    this.teamMemberRemovalService = teamMemberRemovalService;
   }
 
   @GetMapping("/{wuaId}")
@@ -68,9 +69,9 @@ public class RegulatorRemoveMemberController extends AbstractRegulatorPermission
 
     var teamName = customerConfigurationProperties.mnemonic();
 
-    var canRemoveTeamMember = regulatorTeamMemberRemovalService.canRemoveTeamMember(team, teamMember);
+    var canRemoveTeamMember = teamMemberRemovalService.canRemoveTeamMember(team, teamMember);
 
-    return new ModelAndView("remi/permissionmanagement/regulator/regulatorRemoveTeamMember")
+    return new ModelAndView("remi/permissionmanagement/removeTeamMember")
         .addObject("pageTitle", getPageTitle(canRemoveTeamMember, teamMemberView, teamName))
         .addObject("teamName", teamName)
         .addObject("teamMember", teamMemberView)
@@ -96,11 +97,11 @@ public class RegulatorRemoveMemberController extends AbstractRegulatorPermission
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
             "No user [%s] in team [%s]".formatted(wuaId, teamId)));
 
-    if (regulatorTeamMemberRemovalService.canRemoveTeamMember(team, teamMember)) {
-      regulatorTeamMemberRemovalService.removeTeamMember(team, teamMember);
+    if (teamMemberRemovalService.canRemoveTeamMember(team, teamMember)) {
+      teamMemberRemovalService.removeTeamMember(team, teamMember);
     } else {
       return renderRemoveMember(teamId, wuaId)
-          .addObject("singleErrorMessage", RegulatorTeamMemberRemovalService.LAST_ACCESS_MANAGER_ERROR_MESSAGE);
+          .addObject("singleErrorMessage", TeamMemberRemovalService.LAST_ACCESS_MANAGER_ERROR_MESSAGE);
     }
 
     var userView = teamMemberViewService.getTeamMemberView(teamMember)

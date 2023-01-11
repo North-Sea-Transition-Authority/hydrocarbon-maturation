@@ -20,6 +20,7 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMember;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRemovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
 
@@ -27,7 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamM
 class RegulatorTeamMemberEditRolesValidatorTest {
 
   @Mock
-  private RegulatorTeamMemberRemovalService regulatorTeamMemberRemovalService;
+  private TeamMemberRemovalService regulatorTeamMemberRemovalService;
 
   @InjectMocks
   private RegulatorTeamMemberEditRolesValidator regulatorTeamMemberEditRolesValidator;
