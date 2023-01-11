@@ -58,6 +58,8 @@ public class WebSecurityConfiguration {
         .anyRequest()
           .authenticated()
         .and()
+        .exceptionHandling().accessDeniedPage("/access-denied")
+        .and()
         .saml2Login(saml2 -> saml2.authenticationManager(new ProviderManager(authenticationProvider)))
         .logout()
           .logoutSuccessHandler(serviceLogoutSuccessHandler);

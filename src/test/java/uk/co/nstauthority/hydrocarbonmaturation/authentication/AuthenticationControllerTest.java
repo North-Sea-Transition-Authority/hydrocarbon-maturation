@@ -8,7 +8,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,7 +50,6 @@ class AuthenticationControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  @WithMockUser
   void authorisedRequest() throws Exception {
     var expectedUser = ServiceUserDetailTestUtil.Builder()
         .withWuaId(100L)
