@@ -9,7 +9,8 @@
 <@defaultPage
   htmlTitle=pageTitle
   pageHeading=pageTitle
-  pageSize=PageSize.TWO_THIRDS_COLUMN>
+  pageSize=PageSize.TWO_THIRDS_COLUMN
+  noIndex=false>
   <@fdsAction.link linkText="Create submission" linkUrl=springUrl(startSubmissionUrl) linkClass="govuk-button"/>
 
   <#if workAreaItems?has_content>

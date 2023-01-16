@@ -26,7 +26,8 @@
   wrapperWidth=false
   notificationBanner=""
   singleErrorMessage=""
-  topNavigation=true>
+  topNavigation=true
+  noIndex=true>
 
     <#assign fullWidthColumn=false />
     <#assign oneHalfColumn=false />
@@ -129,6 +130,7 @@
       caption=caption
       customScriptContent=hydrocarbonScripts
       singleErrorMessage=singleErrorMessage
+      noIndex=noIndex
     >
         <#nested />
     </@fdsDefaultPageTemplate>
