@@ -48,4 +48,18 @@ class UserDetailServiceTest {
     assertThrowsExactly(InvalidAuthenticationException.class, () -> userDetailService.getUserDetail(),
         "ServiceSaml2Authentication not found in authentication context");
   }
+
+  @Test
+  void getUserWuaId_whenUserInContext_thenExpectedIdReturned() {
+    var user = ServiceUserDetailTestUtil.Builder()
+        .withWuaId(50L)
+        .build();
+
+    SamlAuthenticationUtil.Builder()
+        .withUser(user)
+        .setSecurityContext();
+
+    assertThat(userDetailService.getUserWuaId())
+        .isEqualTo(user.wuaId().intValue());
+  }
 }

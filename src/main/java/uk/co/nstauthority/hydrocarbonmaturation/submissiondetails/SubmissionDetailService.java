@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
@@ -20,13 +21,17 @@ public class SubmissionDetailService {
   private final SubmissionDetailRepository submissionDetailRepository;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final Clock clock;
+  private final UserDetailService userDetailService;
 
   @Autowired
   public SubmissionDetailService(SubmissionDetailRepository submissionDetailRepository,
-                                 GeneralDetailsPersistenceService generalDetailsPersistenceService, Clock clock) {
+                                 GeneralDetailsPersistenceService generalDetailsPersistenceService,
+                                 Clock clock,
+                                 UserDetailService userDetailService) {
     this.submissionDetailRepository = submissionDetailRepository;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.clock = clock;
+    this.userDetailService = userDetailService;
   }
 
   public Optional<SubmissionDetail> getSubmissionDetail(UUID id) {
@@ -51,8 +56,7 @@ public class SubmissionDetailService {
   SubmissionDetail createInitialSubmissionDetail(Resource resource, SubmissionType submissionType) {
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setResourceId(resource);
-    //TODO change created by wua id to be the actual user's id
-    submissionDetail.setCreatedByWuaId(1);
+    submissionDetail.setCreatedByWuaId(userDetailService.getUserWuaId());
     submissionDetail.setCreatedTimestamp(clock.instant());
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     submissionDetail.setSubmissionType(submissionType);
@@ -62,9 +66,20 @@ public class SubmissionDetailService {
   }
 
   @Transactional
-  public void completeSubmission(SubmissionDetail submissionDetail) {
+  public void approveSubmission(SubmissionDetail submissionDetail) {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setApprovedTimestamp(clock.instant());
+    submissionDetail.setApprovedByWuaId(userDetailService.getUserWuaId());
     submissionDetailRepository.save(submissionDetail);
+  }
+
+  @Transactional
+  public void completeSubmission(SubmissionDetail submissionDetail) {
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetail.setSubmittedTimestamp(clock.instant());
+    submissionDetail.setSubmittedByWuaId(userDetailService.getUserWuaId());
+    submissionDetailRepository.save(submissionDetail);
+    approveSubmission(submissionDetail);
   }
 
   public List<SubmissionDetail> getSubmissionDetailsForResource(Resource resource) {

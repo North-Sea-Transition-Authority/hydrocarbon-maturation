@@ -252,14 +252,65 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persistAndFlush(secondResponsibleTeam);
     entityManager.persistAndFlush(thirdSubmissionDetail);
 
+    var firstSubmittedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    firstSubmittedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    firstSubmittedSubmissionDetail.setId(null);
+    firstSubmittedSubmissionDetail.setSubmittedByWuaId(5);
+    firstSubmittedSubmissionDetail.setSubmittedTimestamp(firstSubmissionDetailTimeStamp);
+    firstSubmittedSubmissionDetail.setCreatedTimestamp(thirdSubmissionDetailTimeStamp);
+    firstSubmittedSubmissionDetail.getResourceId().setId(null);
+    entityManager.persistAndFlush(firstSubmittedSubmissionDetail.getResourceId());
+    var firstSubmittedResponsibleTeam = new ResponsibleTeam();
+    firstSubmittedResponsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    firstSubmittedResponsibleTeam.setResource(firstSubmittedSubmissionDetail.getResourceId());
+    entityManager.persistAndFlush(firstSubmittedResponsibleTeam);
+    entityManager.persistAndFlush(firstSubmittedSubmissionDetail);
+
+    var secondSubmittedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    secondSubmittedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    secondSubmittedSubmissionDetail.setId(null);
+    secondSubmittedSubmissionDetail.setSubmittedByWuaId(5);
+    secondSubmittedSubmissionDetail.setCreatedTimestamp(thirdSubmissionDetailTimeStamp);
+    secondSubmittedSubmissionDetail.setSubmittedTimestamp(secondSubmissionDetailTimestamp);
+    secondSubmittedSubmissionDetail.getResourceId().setId(null);
+    entityManager.persistAndFlush(secondSubmittedSubmissionDetail.getResourceId());
+    var secondSubmittedResponsibleTeam = new ResponsibleTeam();
+    secondSubmittedResponsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    secondSubmittedResponsibleTeam.setResource(secondSubmittedSubmissionDetail.getResourceId());
+    entityManager.persistAndFlush(secondSubmittedResponsibleTeam);
+    entityManager.persistAndFlush(secondSubmittedSubmissionDetail);
+
+    var thirdSubmittedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    thirdSubmittedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    thirdSubmittedSubmissionDetail.setId(null);
+    thirdSubmittedSubmissionDetail.setSubmittedByWuaId(5);
+    thirdSubmittedSubmissionDetail.setCreatedTimestamp(firstSubmissionDetailTimeStamp);
+    thirdSubmittedSubmissionDetail.setSubmittedTimestamp(thirdSubmissionDetailTimeStamp);
+    thirdSubmittedSubmissionDetail.getResourceId().setId(null);
+    entityManager.persistAndFlush(thirdSubmittedSubmissionDetail.getResourceId());
+    var thirdSubmittedResponsibleTeam = new ResponsibleTeam();
+    thirdSubmittedResponsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    thirdSubmittedResponsibleTeam.setResource(thirdSubmittedSubmissionDetail.getResourceId());
+    entityManager.persistAndFlush(thirdSubmittedResponsibleTeam);
+    entityManager.persistAndFlush(thirdSubmittedSubmissionDetail);
+
     var results = submissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
-    // asserts correct ordering of the list
+    // asserts correct ordering of the list, the items are ordered by submittedOn if its present otherwise createdOn
     assertThat(results)
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
             result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
         .containsExactly(
+            tuple(
+                firstSubmittedSubmissionDetail.getId(),
+                thirdSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS)),
+            tuple(
+                secondSubmittedSubmissionDetail.getId(),
+                thirdSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS)),
+            tuple(
+                thirdSubmittedSubmissionDetail.getId(),
+                firstSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS)),
             tuple(
                 firstSubmissionDetail.getId(),
                 firstSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS)),
@@ -269,6 +320,34 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
             tuple(
                 thirdSubmissionDetail.getId(),
                 thirdSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS))
+        );
+
+    //asserts the submittedOn timestamps
+    assertThat(results.get(0))
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
+            result -> result.getSubmittedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+        .containsExactly(
+              firstSubmittedSubmissionDetail.getId(),
+              firstSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS)
+    );
+
+    assertThat(results.get(1))
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
+            result -> result.getSubmittedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+        .containsExactly(
+            secondSubmittedSubmissionDetail.getId(),
+            secondSubmissionDetailTimestamp.truncatedTo(ChronoUnit.MILLIS)
+        );
+
+    assertThat(results.get(2))
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
+            result -> result.getSubmittedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+        .containsExactly(
+            thirdSubmittedSubmissionDetail.getId(),
+            thirdSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS)
         );
   }
 

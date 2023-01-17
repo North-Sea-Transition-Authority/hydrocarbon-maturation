@@ -16,11 +16,13 @@ class SubmissionWorkAreaQueryResult {
   private final List<Integer> licencesTheResourceIsOn;
   private final SubmissionDetailStatus status;
   private final Timestamp createdOn;
+  private final Timestamp submittedOn;
 
   SubmissionWorkAreaQueryResult(UUID submissionDetailId, String submissionType,
                                 String status, String resourceName,
                                 String centreOfInterestQuadBlock, Integer organisationResponsibleId,
-                                List<Integer> licencesTheResourceIsOn, Timestamp createdOn) {
+                                List<Integer> licencesTheResourceIsOn, Timestamp createdOn,
+                                Timestamp submittedOn) {
     this.submissionDetailId = submissionDetailId;
     this.submissionType = SubmissionType.valueOf(submissionType);
     this.resourceName = resourceName;
@@ -29,6 +31,7 @@ class SubmissionWorkAreaQueryResult {
     this.licencesTheResourceIsOn = licencesTheResourceIsOn;
     this.status = SubmissionDetailStatus.valueOf(status);
     this.createdOn = createdOn;
+    this.submittedOn = submittedOn;
   }
 
   UUID getSubmissionDetailId() {
@@ -61,5 +64,9 @@ class SubmissionWorkAreaQueryResult {
 
   Timestamp getCreatedOn() {
     return createdOn;
+  }
+
+  Timestamp getSubmittedOn() {
+    return submittedOn;
   }
 }

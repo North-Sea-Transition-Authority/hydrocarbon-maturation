@@ -30,6 +30,14 @@ public class SubmissionDetail {
 
   private Integer createdByWuaId;
 
+  private Integer submittedByWuaId;
+
+  private Integer approvedByWuaId;
+
+  private Instant submittedTimestamp;
+
+  private Instant approvedTimestamp;
+
   @Enumerated(EnumType.STRING)
   private SubmissionDetailStatus status;
 
@@ -92,6 +100,38 @@ public class SubmissionDetail {
 
   public void setVersionNumber(Integer versionNumber) {
     this.versionNumber = versionNumber;
+  }
+
+  public Integer getSubmittedByWuaId() {
+    return submittedByWuaId;
+  }
+
+  public void setSubmittedByWuaId(Integer submittedByWuaId) {
+    this.submittedByWuaId = submittedByWuaId;
+  }
+
+  public Integer getApprovedByWuaId() {
+    return approvedByWuaId;
+  }
+
+  public void setApprovedByWuaId(Integer approvedByWuaId) {
+    this.approvedByWuaId = approvedByWuaId;
+  }
+
+  public Instant getSubmittedTimestamp() {
+    return submittedTimestamp;
+  }
+
+  public void setSubmittedTimestamp(Instant submittedTimestamp) {
+    this.submittedTimestamp = submittedTimestamp;
+  }
+
+  public Instant getApprovedTimestamp() {
+    return approvedTimestamp;
+  }
+
+  public void setApprovedTimestamp(Instant approvedTimestamp) {
+    this.approvedTimestamp = approvedTimestamp;
   }
 
   public boolean isProspectSubmission() {

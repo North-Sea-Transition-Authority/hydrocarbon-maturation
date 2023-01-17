@@ -18,4 +18,8 @@ public class UserDetailService {
     }
   }
 
+  public Integer getUserWuaId() {
+    var user = getUserDetail();
+    return user.wuaId().intValue();
+  }
 }
