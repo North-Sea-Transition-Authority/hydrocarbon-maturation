@@ -18,7 +18,7 @@
   breadcrumbsMap=breadcrumbsMap
   caption=resourceName
 >
-  <#if submissionType == "CREATE_PROSPECT" || submissionType == "PROSPECT_UPDATE">
+  <#if submissionType == "CREATE_PROSPECT" || submissionType == "PROSPECT_UPDATE" || submissionType== "RELINQUISHMENT_PROSPECT">
     <@prospectSubmissionSummary.prospectSubmissionSummary
       generalDetailsSummaryView=generalDetailsSummaryView
       opportunityDetailsSummaryView=opportunityDetailsSummaryView
@@ -43,7 +43,9 @@
       dryWellDetailsSummaryView=dryWellDetailsSummaryView
       reservoirPropertiesSummaryView=reservoirPropertiesSummaryView
       permeabilitySummaryView=permeabilitySummaryView/>
-  <#elseif submissionType == "CREATE_DISCOVERY" || submissionType == "UPDATE_DISCOVERY">
+  <#elseif submissionType == "CREATE_DISCOVERY"
+  || submissionType == "UPDATE_DISCOVERY"
+  || submissionType == "CREATE_DISCOVERY_FROM_PROSPECT">
     <@discoverySubmissionSummary.discoverySubmissionSummary
       generalDetailsSummaryView=generalDetailsSummaryView
       permeabilitySummaryView=permeabilitySummaryView
@@ -52,7 +54,15 @@
       mixedDiscovery=mixedDiscovery
       oilFluidPropertiesSummaryView=oilFluidPropertiesSummaryView
       gasFluidPropertiesSummaryView=gasFluidPropertiesSummaryView
-      generalFluidPropertiesSummaryView=generalFluidPropertiesSummaryView/>
+      generalFluidPropertiesSummaryView=generalFluidPropertiesSummaryView
+      reservoirPropertiesSummaryView=reservoirPropertiesSummaryView
+      oilCaseOutputsSummaryView=oilCaseOutputsSummaryView
+      oilCaseVolumetricsSummaryView=oilCaseVolumetricsSummaryView
+      gasCaseVolumetricsSummaryView=gasCaseVolumetricsSummaryView
+      gasCaseOutputsSummaryView=gasCaseOutputsSummaryView
+      mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
+      mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
+      drillStemTestSummaryView=drillStemTestSummaryView/>
   </#if>
   <@fdsForm.htmlForm actionUrl=springUrl(deleteUrl)>
     <@fdsAction.submitButtons

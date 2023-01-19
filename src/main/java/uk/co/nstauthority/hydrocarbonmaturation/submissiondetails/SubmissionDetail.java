@@ -136,7 +136,8 @@ public class SubmissionDetail {
 
   public boolean isProspectSubmission() {
     return submissionType == SubmissionType.CREATE_PROSPECT
-        || submissionType == SubmissionType.PROSPECT_UPDATE;
+        || submissionType == SubmissionType.PROSPECT_UPDATE
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT;
   }
 
   public boolean isDryWellOrDiscoverySubmission() {

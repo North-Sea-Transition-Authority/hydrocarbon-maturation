@@ -50,6 +50,7 @@ class PermeabilityFormValidator implements SmartValidator, SubmissionFormValidat
         || submissionType == SubmissionType.UPDATE_DISCOVERY
         || submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.PROSPECT_UPDATE
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT
         || BooleanUtils.isTrue(permeabilityForm.getHasPermeability())) {
       DecimalInputValidator.configureOptionalValidator(
               errors,

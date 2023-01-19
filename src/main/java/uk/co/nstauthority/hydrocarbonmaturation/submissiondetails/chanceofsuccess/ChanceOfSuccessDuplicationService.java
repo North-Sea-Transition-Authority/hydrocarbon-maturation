@@ -25,7 +25,8 @@ class ChanceOfSuccessDuplicationService implements SubmissionSectionDuplicationS
   @Override
   @Transactional
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (!Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.PROSPECT_UPDATE)) {
+    if (!Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.PROSPECT_UPDATE)
+        && !Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.RELINQUISHMENT_PROSPECT)) {
       return;
     }
 

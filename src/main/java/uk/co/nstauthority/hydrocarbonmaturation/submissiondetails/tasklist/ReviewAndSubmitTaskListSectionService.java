@@ -31,7 +31,7 @@ public class ReviewAndSubmitTaskListSectionService implements TaskListSectionSer
 
   private List<TaskListItem> getTaskListItemsBySubmissionType(SubmissionDetail submissionDetail) {
     return switch (submissionDetail.getSubmissionType()) {
-      case CREATE_PROSPECT, PROSPECT_UPDATE ->
+      case CREATE_PROSPECT, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(ProspectSubmissionSummaryController.class)
                   .showSubmissionSummary(submissionDetail.getId()))));

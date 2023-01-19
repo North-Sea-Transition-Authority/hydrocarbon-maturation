@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -9,6 +10,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +19,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -25,11 +31,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.RelinquishmentForm;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionCreateServiceTest {
@@ -52,8 +62,15 @@ class SubmissionCreateServiceTest {
   @Mock
   private ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
 
+  @Mock
+  private UserDetailService userDetailService;
+
+  @Mock
+  private PermissionService permissionService;
+
   @InjectMocks
   private SubmissionCreateService submissionCreateService;
+
 
   @Test
   void createInitialProspect() {
@@ -194,5 +211,70 @@ class SubmissionCreateServiceTest {
         .saveResponsibleTeamForResource(captor.capture(), eq(ResponsibleTeamType.EXPLORATION));
     verify(submissionDetailService, times(1))
         .createInitialSubmissionDetail(captor.getValue(), SubmissionType.CREATE_DISCOVERY);
+  }
+
+  @Test
+  void getSubmissionTypeOptionsForUser_whenExplorationTeam_assertAllSubmissionTypes() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+    var teamMember = TeamMemberTestUtil
+        .Builder()
+        .withRole(RegulatorTeamRole.EXPLORATION)
+        .build();
+    when(userDetailService.getUserDetail()).thenReturn(user);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
+        .thenReturn(true);
+
+    var result = submissionCreateService.getSubmissionTypeOptionsForUser();
+
+    assertThat(result)
+        .extracting(Map::keySet)
+        .isEqualTo(
+            Set.of("CREATE_PROSPECT", "PROSPECT_UPDATE",
+                "POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY_FROM_PROSPECT",
+                "CREATE_DISCOVERY", "UPDATE_DISCOVERY",  "RELINQUISHMENT_PROSPECT")
+        );
+  }
+
+  @Test
+  void getSubmissionTypeOptionsForUser_whenNotExplorationTeam_assertAllSubmissionTypes() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+    var teamMember = TeamMemberTestUtil
+        .Builder()
+        .withRole(null)
+        .build();
+    when(userDetailService.getUserDetail()).thenReturn(user);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
+        .thenReturn(false);
+
+    var result = submissionCreateService.getSubmissionTypeOptionsForUser();
+
+    assertThat(result)
+        .extracting(Map::keySet)
+        .isEqualTo(
+            Set.of("CREATE_PROSPECT", "PROSPECT_UPDATE",
+                "POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY_FROM_PROSPECT",
+                "CREATE_DISCOVERY", "UPDATE_DISCOVERY")
+        );
+  }
+
+  @Test
+  void createRelinquishment_verifyMethodCalls() {
+    var relinquishmentForm = new RelinquishmentForm();
+    relinquishmentForm.setChosenResourceType(ResourceType.PROSPECT);
+    relinquishmentForm.setResourceSelectedOption(UUID.randomUUID().toString());
+    var generalDetails = new GeneralDetail();
+    var submissionDetail = new SubmissionDetail();
+    submissionDetail.setResourceId(new Resource());
+    generalDetails.setSubmissionDetail(submissionDetail);
+    when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(
+        UUID.fromString(relinquishmentForm.getResourceSelectedOption())))
+        .thenReturn(generalDetails);
+
+    var newSubmissionDetail = submissionCreateService.createRelinquishment(relinquishmentForm);
+
+    verify(submissionDetailService)
+        .createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.RELINQUISHMENT_PROSPECT);
+    verify(submissionDetailDuplicationService)
+        .duplicateSubmissionDetailSections(submissionDetail, newSubmissionDetail);
   }
 }

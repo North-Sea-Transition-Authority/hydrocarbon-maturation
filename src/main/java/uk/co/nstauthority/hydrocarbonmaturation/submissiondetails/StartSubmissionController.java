@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryController;
@@ -19,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
+import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.StartRelinquishmentSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
@@ -28,17 +30,21 @@ public class StartSubmissionController {
 
   private final SubmissionTypeSelectService submissionTypeSelectService;
   private final ControllerHelperService controllerHelperService;
+  private final SubmissionCreateService submissionCreateService;
 
   @Autowired
   public StartSubmissionController(SubmissionTypeSelectService submissionTypeSelectService,
-                                   ControllerHelperService controllerHelperService) {
+                                   ControllerHelperService controllerHelperService,
+                                   UserDetailService userDetailService,
+                                   SubmissionCreateService submissionCreateService) {
     this.submissionTypeSelectService = submissionTypeSelectService;
     this.controllerHelperService = controllerHelperService;
+    this.submissionCreateService = submissionCreateService;
   }
 
   @GetMapping
   public ModelAndView getSubmissionPurpose() {
-    return getSubmissionTypeModelAndView(new SubmissionTypeSelectForm());
+    return getSubmissionTypeModelAndViewForUser(new SubmissionTypeSelectForm());
   }
 
   @PostMapping
@@ -46,7 +52,7 @@ public class StartSubmissionController {
     bindingResult = submissionTypeSelectService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getSubmissionTypeModelAndView(form),
+        getSubmissionTypeModelAndViewForUser(form),
         () -> switch (form.getSubmissionType()) {
           case CREATE_PROSPECT -> ReverseRouter.redirect(on(StartProspectController.class).getStartPage());
           case PROSPECT_UPDATE -> ReverseRouter.redirect(on(StartUpdateProspectController.class).getStartUpdatePage());
@@ -58,12 +64,14 @@ public class StartSubmissionController {
               ReverseRouter.redirect(on(StartDiscoveryController.class).startDiscovery());
           case UPDATE_DISCOVERY ->
               ReverseRouter.redirect(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage());
+          case RELINQUISHMENT_PROSPECT -> //todo HM-372 add discovery relinquishment as possible option in this condition
+              ReverseRouter.redirect(on(StartRelinquishmentSubmissionController.class).getStartRelinquishmentPage());
         });
   }
 
-  ModelAndView getSubmissionTypeModelAndView(SubmissionTypeSelectForm submissionTypeSelectForm) {
+  ModelAndView getSubmissionTypeModelAndViewForUser(SubmissionTypeSelectForm submissionTypeSelectForm) {
     return new ModelAndView("remi/submissiondetails/startSubmission")
-        .addObject("submissionType", SubmissionType.getSubmissionTypes())
+        .addObject("submissionType", submissionCreateService.getSubmissionTypeOptionsForUser())
         .addObject("form", submissionTypeSelectForm)
         .addObject("actionUrl", ReverseRouter.route(on(StartSubmissionController.class).startSubmission(null, null)))
         .addObject("backLinkUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));

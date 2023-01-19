@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseController;
@@ -54,7 +53,8 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     return switch (submissionDetail.getSubmissionType()) {
-      case PROSPECT_UPDATE, CREATE_PROSPECT -> opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)
+      case PROSPECT_UPDATE, CREATE_PROSPECT, RELINQUISHMENT_PROSPECT ->
+          opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)
           && chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)
           && trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)
           && sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
@@ -89,8 +89,7 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
             ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetail.getId())))
     );
 
-    if (submissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE
-        || submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT) {
+    if (submissionDetail.isProspectSubmission()) {
       listOfItems.add(new TaskListItem(
           "Hydrocarbon case",
           TaskListLabel.notStartedOrComplete(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail)),

@@ -38,6 +38,15 @@ public class SubmissionDetailService {
     return submissionDetailRepository.findById(id);
   }
 
+  public Optional<SubmissionDetail> getLatestApprovedProspectSubmissionForResource(Resource resource) {
+    // Finds the latest prospect update or create update submission that is approved.
+    return submissionDetailRepository
+        .findFirstByResourceIdAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+            resource,
+            List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT),
+            SubmissionDetailStatus.APPROVED);
+  }
+
   Optional<SubmissionDetail> getLatestSubmissionDetailByResource(Resource resource) {
     return submissionDetailRepository.findFirstByResourceIdOrderByCreatedTimestampDesc(resource);
   }
@@ -89,6 +98,7 @@ public class SubmissionDetailService {
   @Transactional
   public void deleteSubmission(SubmissionDetail submissionDetail) {
     submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
+    submissionDetailRepository.save(submissionDetail);
   }
 
   public Optional<String> getResourceName(SubmissionDetail submissionDetail) {

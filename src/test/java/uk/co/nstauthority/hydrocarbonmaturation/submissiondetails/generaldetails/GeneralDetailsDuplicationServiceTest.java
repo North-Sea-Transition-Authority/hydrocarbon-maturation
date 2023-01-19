@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,7 +44,7 @@ class GeneralDetailsDuplicationServiceTest {
   @Test
   void duplicateSubmissionSection_GeneralDetailExists_DoesDuplicate() {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
     var newGeneralDetail = new GeneralDetail();
     var generalDetail = mock(GeneralDetail.class);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))

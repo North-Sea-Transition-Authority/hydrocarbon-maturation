@@ -71,7 +71,7 @@ class ReservoirPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE"})
+  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"})
   void duplicateSubmissionSection_ProbabilityDistributionsExist_ProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = new SubmissionDetail();
@@ -91,7 +91,7 @@ class ReservoirPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE"}, mode = EnumSource.Mode.EXCLUDE)
+  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"}, mode = EnumSource.Mode.EXCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsExist_NonProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = new SubmissionDetail();
@@ -116,7 +116,7 @@ class ReservoirPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE"})
+  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"})
   void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_ProspectUpdate_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = new SubmissionDetail();
@@ -137,7 +137,7 @@ class ReservoirPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE"}, mode = EnumSource.Mode.EXCLUDE)
+  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"}, mode = EnumSource.Mode.EXCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_NonProspectUpdate_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = new SubmissionDetail();

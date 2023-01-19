@@ -36,7 +36,7 @@ public class SubmissionSummaryModelService {
 
   public ModelAndView createSummaryForSubmissionTypeToModelAndView(SubmissionDetail submissionDetail, String viewName) {
     return switch (submissionDetail.getSubmissionType()) {
-      case CREATE_PROSPECT, PROSPECT_UPDATE ->
+      case CREATE_PROSPECT, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
           createProspectSubmissionSummaryModelAndView(submissionDetail, viewName);
       case POST_DRILL_DRY_HOLE ->
           createPostDrillDryWellSubmissionSummaryModelAndView(submissionDetail, viewName);

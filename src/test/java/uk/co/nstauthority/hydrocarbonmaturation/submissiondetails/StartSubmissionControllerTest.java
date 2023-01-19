@@ -22,12 +22,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryController;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
+import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.StartRelinquishmentSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = StartSubmissionController.class)
@@ -37,6 +37,9 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
 
   @MockBean
   SubmissionTypeSelectService submissionTypeSelectService;
+
+  @MockBean
+  SubmissionCreateService submissionCreateService;
 
   @SecurityTest
   void startSubmission_whenValidFormAndCreateProspect_assertRedirection() throws Exception {
@@ -116,6 +119,22 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
+  void startSubmission_whenValidFormAndProspectRelinquishment_assertRedirection() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+
+    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+            .with(user(USER))
+            .with(csrf())
+            .param("submissionType", SubmissionType.RELINQUISHMENT_PROSPECT.name()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(
+            ReverseRouter.route(on(StartRelinquishmentSubmissionController.class).getStartRelinquishmentPage())));
+  }
+
+  @SecurityTest
   void startSubmission_whenInValidForm_assertStatusOk() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -132,6 +151,9 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
 
   @Test
   void getSubmissionPurpose_assertModelProperties() throws Exception {
+    when(submissionCreateService.getSubmissionTypeOptionsForUser())
+        .thenReturn(SubmissionType.getSubmissionTypes());
+
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()))
             .with(user(USER)))

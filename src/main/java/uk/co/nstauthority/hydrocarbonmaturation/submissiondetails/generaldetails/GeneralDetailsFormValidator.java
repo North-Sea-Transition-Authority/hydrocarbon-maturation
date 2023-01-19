@@ -94,6 +94,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
     if (submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.PROSPECT_UPDATE
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT
         || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
         || submissionType == SubmissionType.UPDATE_DISCOVERY
         || submissionType == SubmissionType.CREATE_DISCOVERY) {

@@ -35,7 +35,7 @@ public class TeamManagementController {
   @GetMapping
   public ModelAndView renderTeamListOrRedirect() {
     var user = userDetailService.getUserDetail();
-    
+
     var teams = teamManagementService.getTeamsThatUserHasAccessTo(user);
 
     if (teams.isEmpty()) {

@@ -96,7 +96,8 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
     );
 
     if (submissionType == SubmissionType.CREATE_PROSPECT
-        || submissionType == SubmissionType.PROSPECT_UPDATE) {
+        || submissionType == SubmissionType.PROSPECT_UPDATE
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT) {
       ProbabilityDistributionValidationUtil.validatePartial(
           reservoirForm.getDepthToHydrocarbonContact(),
           errors,
@@ -200,7 +201,8 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
     );
 
     if (submissionType == SubmissionType.CREATE_PROSPECT
-        || submissionType == SubmissionType.PROSPECT_UPDATE) {
+        || submissionType == SubmissionType.PROSPECT_UPDATE
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT) {
       ValidationUtils.rejectIfEmpty(errors, "depthToHydrocarbonContact.probabilityDistributionType",
           "depthToHydrocarbonContact.probabilityDistributionType.required",
           "Select the depth to hydrocarbon contact distribution used");

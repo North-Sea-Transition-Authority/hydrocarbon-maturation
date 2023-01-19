@@ -52,6 +52,4 @@ public class TeamService {
   public List<Team> getAllTeams() {
     return teamRepository.findAll();
   }
-
-
 }

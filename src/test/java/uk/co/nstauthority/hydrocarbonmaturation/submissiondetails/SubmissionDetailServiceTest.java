@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -153,5 +154,20 @@ class SubmissionDetailServiceTest {
     var resourceNameOptional = submissionDetailService.getResourceName(submissionDetail);
 
     assertThat(resourceNameOptional).isEqualTo(Optional.of(resourceName));
+  }
+
+  @Test
+  void getLatestApprovedProspectSubmissionForResource_assertSubmissionDetailFound() {
+    var resource = new Resource();
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    when(submissionDetailRepository
+        .findFirstByResourceIdAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(resource,
+            List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT),
+            SubmissionDetailStatus.APPROVED))
+        .thenReturn(Optional.of(submissionDetail));
+
+    var result = submissionDetailService.getLatestApprovedProspectSubmissionForResource(resource);
+
+    assertThat(result).isEqualTo(Optional.of(submissionDetail));
   }
 }

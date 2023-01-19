@@ -43,7 +43,8 @@ class ResourceRestControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void searchProspects() throws Exception {
-    mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.PROSPECT_UPDATE)))
+    mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class)
+            .searchProspects(null, SubmissionType.PROSPECT_UPDATE)))
             .param("term", "searchTerm")
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))

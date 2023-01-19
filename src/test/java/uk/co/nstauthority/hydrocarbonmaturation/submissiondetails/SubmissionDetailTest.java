@@ -21,7 +21,8 @@ class SubmissionDetailTest {
   void isProspectSubmission(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     if (submissionType == SubmissionType.PROSPECT_UPDATE
-        || submissionType == SubmissionType.CREATE_PROSPECT) {
+        || submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT) {
       assertTrue(submissionDetail.isProspectSubmission());
     } else {
       assertFalse(submissionDetail.isProspectSubmission());

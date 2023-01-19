@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
 
@@ -39,7 +40,9 @@ class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationSe
               generalDetail,
               GeneralDetail.class
           );
-          preventCopyingForward(newGeneralDetail);
+          if (newSubmissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE) {
+            preventCopyingForward(newGeneralDetail);
+          }
 
           quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail).forEach(quadrantAndBlock ->
               submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newGeneralDetail, quadrantAndBlock,

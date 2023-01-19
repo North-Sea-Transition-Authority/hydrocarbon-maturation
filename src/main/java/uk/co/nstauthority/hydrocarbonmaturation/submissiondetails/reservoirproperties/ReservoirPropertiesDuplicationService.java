@@ -49,7 +49,8 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
         ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT
     ));
 
-    if (!Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.PROSPECT_UPDATE)) {
+    if (!Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.PROSPECT_UPDATE)
+        && !Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.RELINQUISHMENT_PROSPECT)) {
       applicableInstances.remove(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT);
     }
 

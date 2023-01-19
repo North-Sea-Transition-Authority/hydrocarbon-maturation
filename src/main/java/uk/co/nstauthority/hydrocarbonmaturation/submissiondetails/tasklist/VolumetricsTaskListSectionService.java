@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
@@ -62,7 +61,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
 
     var items = getTaskListItemsByHydrocarbonCase(submissionDetail);
 
-    if (items.isEmpty() || submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
+    if (items.isEmpty() || submissionDetail.isDryWellSubmission()) {
       return Optional.empty();
     }
 
