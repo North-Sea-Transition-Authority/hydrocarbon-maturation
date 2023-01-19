@@ -5,7 +5,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,6 +58,9 @@ class AdditionalInformationFormServiceTest {
   @Test
   void additionalInformationEntityToForm_newEntity_thenEmptyForm() {
     when(additionalInformationPersistenceService.getAdditionalInformation(submissionDetail)).thenReturn(Optional.empty());
+    var listOfUploads = List.of(getFileUploadForm());
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail,
+        SupportingDocumentType.ADDITIONAL_DOCUMENT)).thenReturn(listOfUploads);
 
     assertThat(additionalInformationFormService.getAdditionalInformationForm(submissionDetail))
         .extracting(
@@ -69,7 +71,7 @@ class AdditionalInformationFormServiceTest {
         )
         .containsExactly(
             null,
-            Collections.emptyList(),
+            listOfUploads,
             null,
             null
         );

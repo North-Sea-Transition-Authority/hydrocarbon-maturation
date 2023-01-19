@@ -57,12 +57,16 @@ public class TrapPropertiesFormService implements SubmissionFormService {
   }
 
   TrapPropertiesForm getTrapPropertiesForm(SubmissionDetail submissionDetail) {
-    List<FileUploadForm> prospectDepthMapUploads = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    var prospectDepthMapUploads = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP);
 
     return trapPropertiesPersistenceService.getTrapProperty(submissionDetail)
         .map(trapProperty -> trapPropertyEntityToForm(trapProperty, prospectDepthMapUploads))
-        .orElse(new TrapPropertiesForm());
+        .orElseGet(() -> {
+          var form = new TrapPropertiesForm();
+          form.setProspectDepthMap(prospectDepthMapUploads);
+          return form;
+        });
   }
 
   private TrapPropertiesForm trapPropertyEntityToForm(TrapProperty trapProperty,

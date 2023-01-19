@@ -32,12 +32,16 @@ class AdditionalInformationFormService implements SubmissionFormService {
   }
 
   AdditionalInformationForm getAdditionalInformationForm(SubmissionDetail submissionDetail) {
-    List<FileUploadForm> additionalDocumentsFileUploads = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    var additionalDocumentsFileUploads = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail, SupportingDocumentType.ADDITIONAL_DOCUMENT);
 
     return additionalInformationPersistenceService.getAdditionalInformation(submissionDetail)
         .map(additionalInformation -> additionalInformationEntityToForm(additionalInformation, additionalDocumentsFileUploads))
-        .orElse(new AdditionalInformationForm());
+        .orElseGet(() -> {
+          var form = new AdditionalInformationForm();
+          form.setAdditionalDocuments(additionalDocumentsFileUploads);
+          return form;
+        });
   }
 
   public List<UploadedFileView> getAdditionalDocumentUploads(AdditionalInformationForm additionalInformationForm) {

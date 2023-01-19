@@ -18,6 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +38,7 @@ class OpportunityDetailsFormServiceTest {
     opportunityDetailsFormService = new OpportunityDetailsFormService(opportunityDetailsFormValidator, opportunityDetailsPersistenceService,
         supportingDocumentService);
 
-    UUID submissionDetailId = UUID.randomUUID();
+    var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
   }
@@ -52,8 +53,11 @@ class OpportunityDetailsFormServiceTest {
   }
 
   @Test
-  void generalDetailEntityToForm_newEntity_thenEmptyForm() {
+  void opportunityDetailEntityToForm_newEntity_thenEmptyForm() {
     when(opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail)).thenReturn(Optional.empty());
+    var fileUploadFormList = List.of(mock(FileUploadForm.class));
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY))
+        .thenReturn(fileUploadFormList);
 
     assertThat(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail))
         .extracting(
@@ -61,21 +65,26 @@ class OpportunityDetailsFormServiceTest {
             OpportunityDetailsForm::getOtherTypeOfOpportunity,
             OpportunityDetailsForm::getOpportunityComments,
             OpportunityDetailsForm::getKeyEvaluationWorkCarriedOut,
-            OpportunityDetailsForm::getKeyWorkRequiredForFurtherMaturation
+            OpportunityDetailsForm::getKeyWorkRequiredForFurtherMaturation,
+            OpportunityDetailsForm::getMapOfOpportunity
         )
         .containsExactly(
             null,
             null,
             null,
             null,
-            null
+            null,
+            fileUploadFormList
         );
   }
 
   @Test
-  void generalDetailEntityToForm_existingEntity_thenPopulatedForm() {
+  void opportunityDetailEntityToForm_existingEntity_thenPopulatedForm() {
     var opportunityDetail = getOpportunityDetail(submissionDetail);
     when(opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail)).thenReturn(Optional.of(opportunityDetail));
+    var fileUploadFormList = List.of(mock(FileUploadForm.class));
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY))
+        .thenReturn(fileUploadFormList);
 
     assertThat(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail))
         .extracting(
@@ -83,21 +92,23 @@ class OpportunityDetailsFormServiceTest {
             OpportunityDetailsForm::getOtherTypeOfOpportunity,
             OpportunityDetailsForm::getOpportunityComments,
             OpportunityDetailsForm::getKeyEvaluationWorkCarriedOut,
-            OpportunityDetailsForm::getKeyWorkRequiredForFurtherMaturation
+            OpportunityDetailsForm::getKeyWorkRequiredForFurtherMaturation,
+            OpportunityDetailsForm::getMapOfOpportunity
         )
         .containsExactly(
             opportunityDetail.getOpportunityType(),
             opportunityDetail.getOtherTypeOfOpportunity(),
             opportunityDetail.getOpportunityComments(),
             opportunityDetail.getKeyEvaluationWorkCarriedOut(),
-            opportunityDetail.getKeyWorkRequiredForFurtherMaturation()
+            opportunityDetail.getKeyWorkRequiredForFurtherMaturation(),
+            fileUploadFormList
         );
   }
 
   @Test
   void getMapOfOpportunityUploads_VerifyCalls() {
-    FileUploadForm fileUploadForm1 = getFileUploadForm();
-    FileUploadForm fileUploadForm2 = getFileUploadForm();
+    var fileUploadForm1 = getFileUploadForm();
+    var fileUploadForm2 = getFileUploadForm();
 
     var form = new OpportunityDetailsForm();
     form.setMapOfOpportunity(List.of(fileUploadForm1, fileUploadForm2));
@@ -117,7 +128,7 @@ class OpportunityDetailsFormServiceTest {
   }
 
   private FileUploadForm getFileUploadForm() {
-    FileUploadForm fileUploadForm = new FileUploadForm();
+    var fileUploadForm = new FileUploadForm();
     fileUploadForm.setUploadedFileId(UUID.randomUUID());
     return fileUploadForm;
   }

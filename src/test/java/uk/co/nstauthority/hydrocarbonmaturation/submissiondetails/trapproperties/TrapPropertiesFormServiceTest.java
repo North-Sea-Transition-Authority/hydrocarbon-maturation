@@ -29,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -85,7 +86,11 @@ class TrapPropertiesFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA))
         .thenReturn(new ProbabilityDistributionForm());
-    assertThat(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail))
+    var fileUploadFormList = List.of(mock(FileUploadForm.class));
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP))
+        .thenReturn(fileUploadFormList);
+    var trapPropertiesForm = trapPropertiesFormService.getTrapPropertiesForm(submissionDetail);
+    assertThat(trapPropertiesForm)
         .extracting(
             TrapPropertiesForm::getTrapType,
             TrapPropertiesForm::getOtherTrapType,
@@ -103,6 +108,8 @@ class TrapPropertiesFormServiceTest {
             form -> form.getDepthToSpillPoint().getProbabilityDistributionType(),
             form -> form.getProductiveArea().getProbabilityDistributionType())
         .containsOnlyNulls();
+
+    assertThat(trapPropertiesForm.getProspectDepthMap()).isEqualTo(fileUploadFormList);
   }
 
   @Test
@@ -120,11 +127,15 @@ class TrapPropertiesFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA))
         .thenReturn(probabilityDistributionForm);
+    var fileUploadFormList = List.of(mock(FileUploadForm.class));
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP))
+        .thenReturn(fileUploadFormList);
     assertThat(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail))
         .extracting(
             TrapPropertiesForm::getTrapType,
             TrapPropertiesForm::getOtherTrapType,
             TrapPropertiesForm::getTrapDescription,
+            TrapPropertiesForm::getProspectDepthMap,
             form -> form.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
             form -> form.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
             form -> form.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
@@ -149,6 +160,7 @@ class TrapPropertiesFormServiceTest {
             trapProperty.getTrapType(),
             trapProperty.getOtherTrapType(),
             trapProperty.getTrapDescription(),
+            fileUploadFormList,
             trapProperty.getLatitudeDegrees(),
             trapProperty.getLatitudeMinutes(),
             trapProperty.getLatitudeSeconds(),
@@ -174,8 +186,8 @@ class TrapPropertiesFormServiceTest {
 
   @Test
   void getProspectDepthMapUploads_VerifyCalls() {
-    FileUploadForm fileUploadForm1 = getFileUploadForm();
-    FileUploadForm fileUploadForm2 = getFileUploadForm();
+    var fileUploadForm1 = getFileUploadForm();
+    var fileUploadForm2 = getFileUploadForm();
 
     var form = new TrapPropertiesForm();
     form.setProspectDepthMap(List.of(fileUploadForm1, fileUploadForm2));
@@ -251,7 +263,7 @@ class TrapPropertiesFormServiceTest {
   }
 
   private FileUploadForm getFileUploadForm() {
-    FileUploadForm fileUploadForm = new FileUploadForm();
+    var fileUploadForm = new FileUploadForm();
     fileUploadForm.setUploadedFileId(UUID.randomUUID());
     return fileUploadForm;
   }

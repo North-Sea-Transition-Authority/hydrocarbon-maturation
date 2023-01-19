@@ -36,7 +36,11 @@ class OpportunityDetailsFormService implements SubmissionFormService {
 
     return opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail)
         .map(opportunityDetail -> opportunityDetailEntityToForm(opportunityDetail, mapOfOpportunityFileUploads))
-        .orElse(new OpportunityDetailsForm());
+        .orElseGet(() -> {
+          var form = new OpportunityDetailsForm();
+          form.setMapOfOpportunity(mapOfOpportunityFileUploads);
+          return form;
+        });
   }
 
   private OpportunityDetailsForm opportunityDetailEntityToForm(OpportunityDetail opportunityDetail,
