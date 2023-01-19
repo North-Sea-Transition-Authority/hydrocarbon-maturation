@@ -24,12 +24,10 @@ repositories {
 		url "https://build.shibboleth.net/nexus/content/repositories/releases/"
 	}
 	maven {
-		url "http://nexus.fivium.local:8081/repository/maven-releases/"
-		allowInsecureProtocol = true
+		url "https://nexus.fivium.co.uk/repository/maven-releases/"
 	}
 	maven {
-		url "http://nexus.fivium.local:8081/repository/maven-snapshots/"
-		allowInsecureProtocol = true
+		url "https://nexus.fivium.co.uk/repository/maven-snapshots/"
 	}
 }
 
@@ -58,7 +56,7 @@ dependencies {
 	implementation 'fi.solita.clamav:clamav-client:1.0.1'
 	implementation 'uk.co.fivium.energyportalapi:client:v3.0.0'
 	implementation 'uk.co.fivium.digital.energyportalteamaccesslibrary:energy-portal-team-access-libray:develop-SNAPSHOT'
-	implementation 'uk.co.fivium:fivium-notify-spring-boot-starter:3.17.2-3.2-SNAPSHOT'
+	implementation 'uk.co.fivium:fivium-notify-spring-boot-starter:3.17.2-4.1-SNAPSHOT'
 
 	implementation 'org.springframework.boot:spring-boot-starter-jooq'
 
