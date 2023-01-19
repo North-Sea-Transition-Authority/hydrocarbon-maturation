@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
@@ -22,21 +22,32 @@ import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
 import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
-import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
+import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 
 @ExtendWith(MockitoExtension.class)
 class OrganisationGroupQueryServiceTest {
 
+  private static final ServiceConfigurationProperties serviceConfigurationProperties = new ServiceConfigurationProperties(
+      "name",
+      "mnemonic"
+  );
+
   @Mock
   private OrganisationApi organisationApi;
 
-  @InjectMocks
   private OrganisationGroupQueryService organisationGroupQueryService;
+
 
   private List<OrganisationGroup> groupList;
 
   @BeforeEach
   void setup() {
+    organisationGroupQueryService = new OrganisationGroupQueryService(
+        organisationApi,
+        new EnergyPortalApiWrapper(serviceConfigurationProperties)
+    );
+
     groupList = List.of(
         new OrganisationGroup(1, "Company 1", null, null, null, Collections.emptyList()),
         new OrganisationGroup(2, "Company 2", null, null, null, Collections.emptyList())
@@ -54,7 +65,7 @@ class OrganisationGroupQueryServiceTest {
     )).thenReturn(groupList);
 
     var organisationGroups =
-        organisationGroupQueryService.getOrganisationGroupsByName(searchTerm, "Test (getting companies who include 'company')");
+        organisationGroupQueryService.getOrganisationGroupsByName(searchTerm);
 
     var argumentCaptor = ArgumentCaptor.forClass(OrganisationGroupsProjectionRoot.class);
 
@@ -64,39 +75,26 @@ class OrganisationGroupQueryServiceTest {
         any(RequestPurpose.class)
     );
 
-    assertThat(organisationGroups).isEqualTo(groupList);
     assertThat(argumentCaptor.getValue().getFields()).containsKeys("organisationGroupId", "name");
-  }
-
-  @Test
-  void organisationGroupsToSearchResults() {
-    var organisationGroup = new OrganisationGroup(
-        1,
-        "Royal Dutch Shell",
-        "Shell",
-        "shell.com",
-        "ACTIVE",
-        Collections.emptyList());
-    var queryResults = List.of(organisationGroup);
-
-    var searchResults = organisationGroupQueryService
-        .organisationGroupsToSearchResult(queryResults);
-
-    assertThat(searchResults.getResults()).hasSize(1);
-
-    assertThat(searchResults.getResults().get(0))
+    assertThat(organisationGroups)
         .extracting(
-            RestSearchItem::id,
-            RestSearchItem::text
-        ).containsExactly(
-            String.valueOf(organisationGroup.getOrganisationGroupId()),
-            organisationGroup.getName()
+            OrganisationGroupDto::getOrganisationGroupId,
+            OrganisationGroupDto::getOrganisationGroupName
+        )
+        .containsExactly(
+            tuple(
+                groupList.get(0).getOrganisationGroupId(),
+                groupList.get(0).getName()
+            ),
+            tuple(
+                groupList.get(1).getOrganisationGroupId(),
+                groupList.get(1).getName()
+            )
         );
   }
 
   @Test
   void getOrganisationGroupById_verifyCallsApiWithCorrectParameters() {
-    var purpose = "TEST: get organisation group by ID";
     var argumentCaptor = ArgumentCaptor
         .forClass(OrganisationGroupProjectionRoot.class);
     var organisationGroup = new OrganisationGroup(
@@ -113,14 +111,13 @@ class OrganisationGroupQueryServiceTest {
         any(RequestPurpose.class)))
         .thenReturn(Optional.of(organisationGroup));
 
-    var returnedOrganisation = organisationGroupQueryService.getOrganisationGroupById(1, purpose);
+    var returnedOrganisation = organisationGroupQueryService.getOrganisationGroupById(1);
 
     verify(organisationApi).findOrganisationGroup(
         eq(organisationGroup.getOrganisationGroupId()),
         argumentCaptor.capture(),
         any(RequestPurpose.class));
 
-    assertThat(returnedOrganisation).contains(organisationGroup);
     assertThat(argumentCaptor.getValue().getFields())
         .containsOnly(
             entry("organisationGroupId", null),

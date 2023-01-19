@@ -12,7 +12,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,17 +20,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRemovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {IndustryRemoveMemberController.class})
@@ -48,6 +48,9 @@ class IndustryRemoveMemberControllerTest extends AbstractControllerTest {
   @MockBean
   private IndustryTeamService industryTeamService;
 
+  @MockBean
+  protected PermissionService permissionService;
+
   private Team industryTeam;
   private WebUserAccountId wuaId;
 
@@ -58,7 +61,6 @@ class IndustryRemoveMemberControllerTest extends AbstractControllerTest {
 
     industryTeam = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
-        .withId(UUID.randomUUID())
         .build();
 
     wuaId = new WebUserAccountId(Math.abs(new Random().nextLong()));
@@ -71,15 +73,14 @@ class IndustryRemoveMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderRemoveMember_whenNotLoggedIn_thenNotAuthorized() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(IndustryRemoveMemberController.class)
-        .renderRemoveMember(new TeamId(industryTeam.getUuid()), wuaId)))
+        .renderRemoveMember(industryTeam.toTeamId(), wuaId)))
     ).andExpect(status().isUnauthorized());
   }
 
   @SecurityTest
-  @Disabled("Disabled until HM-12 is done")
   void renderRemoveMember_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var teamId = new TeamId(industryTeam.getUuid());
+    var teamId = industryTeam.toTeamId();
 
     // Interceptor setup
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(
@@ -89,7 +90,7 @@ class IndustryRemoveMemberControllerTest extends AbstractControllerTest {
     ).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(IndustryRemoveMemberController.class)
-        .renderRemoveMember(new TeamId(industryTeam.getUuid()), wuaId)))
+        .renderRemoveMember(industryTeam.toTeamId(), wuaId)))
         .with(user(loggedInUser))
     ).andExpect(status().isForbidden());
   }
@@ -97,14 +98,9 @@ class IndustryRemoveMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderRemoveMember_whenAccessManagerAndUserCanBeRemoved_thenOk() throws Exception {
 
-    var teamId = new TeamId(industryTeam.getUuid());
+    var teamId = industryTeam.toTeamId();
 
-    // Interceptor setup
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(
-        teamId,
-        loggedInUser,
-        Set.of(ACCESS_MANAGER_ROLE.name()))
-    ).thenReturn(true);
+    when(permissionService.hasPermission(loggedInUser, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     // Endpoint setup
     var teamMember = TeamMemberTestUtil.Builder().build();
@@ -112,7 +108,7 @@ class IndustryRemoveMemberControllerTest extends AbstractControllerTest {
 
     var canRemoveTeamMember = true;
 
-    when(industryTeamService.getTeam(new TeamId(industryTeam.getUuid()))).thenReturn(Optional.of(industryTeam));
+    when(industryTeamService.getTeam(industryTeam.toTeamId())).thenReturn(Optional.of(industryTeam));
     when(teamMemberService.getTeamMember(industryTeam, wuaId)).thenReturn(Optional.of(teamMember));
     when(teamMemberViewService.getTeamMemberView(teamMember)).thenReturn(Optional.of(teamMemberView));
     when(industryTeamMemberRemovalService.canRemoveTeamMember(industryTeam, teamMember))
@@ -127,12 +123,12 @@ class IndustryRemoveMemberControllerTest extends AbstractControllerTest {
         .andExpect(model().attribute(
             "backLinkUrl",
             ReverseRouter.route(on(IndustryTeamManagementController.class)
-                .renderMemberList(new TeamId(industryTeam.getUuid())))
+                .renderMemberList(industryTeam.toTeamId()))
         ))
         .andExpect(model().attribute(
             "removeUrl",
             ReverseRouter.route(on(IndustryRemoveMemberController.class)
-                .removeMember(new TeamId(industryTeam.getUuid()), wuaId, null))
+                .removeMember(industryTeam.toTeamId(), wuaId, null))
         ))
         .andExpect(model().attribute("canRemoveTeamMember", canRemoveTeamMember))
         .andExpect(model().attribute(
@@ -146,14 +142,9 @@ class IndustryRemoveMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderRemoveMember_whenLastAccessManager_thenOk() throws Exception {
 
-    var teamId = new TeamId(industryTeam.getUuid());
+    var teamId = industryTeam.toTeamId();
 
-    // Interceptor setup
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(
-        teamId,
-        loggedInUser,
-        Set.of(ACCESS_MANAGER_ROLE.name()))
-    ).thenReturn(true);
+    when(permissionService.hasPermission(loggedInUser, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     // Endpoint setup
     var teamMember = TeamMemberTestUtil.Builder().build();

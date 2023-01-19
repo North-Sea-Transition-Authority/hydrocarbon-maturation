@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indu
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,25 +49,25 @@ class NewTeamFormValidatorTest {
   void validator_NoEnergyPortalOrganisation_ReturnError() {
     form.setOrganisationGroupId("1000");
 
-    when(organisationGroupQueryService.getOrganisationGroupById(eq(1000), any())).thenReturn(Optional.empty());
+    when(organisationGroupQueryService.getOrganisationGroupById(1000)).thenReturn(Optional.empty());
 
     validator.validate(form, bindingResult);
     assertThat(bindingResult.getFieldError(ORGANISATION_GROUP_ID)).isNotNull();
     assertThat(bindingResult.getFieldError(ORGANISATION_GROUP_ID).getCodes()).contains("organisationGroupId.doesNotExist");
 
-    verify(organisationGroupQueryService).getOrganisationGroupById(any(), any());
+    verify(organisationGroupQueryService).getOrganisationGroupById(any());
   }
 
   @Test
   void validator_AllValid_NoErrors() {
     form.setOrganisationGroupId("1000");
 
-    var orgGroup = new OrganisationGroup();
-    when(organisationGroupQueryService.getOrganisationGroupById(eq(1000), any())).thenReturn(Optional.of(orgGroup));
+    var orgGroup = new OrganisationGroupDto();
+    when(organisationGroupQueryService.getOrganisationGroupById(1000)).thenReturn(Optional.of(orgGroup));
 
     validator.validate(form, bindingResult);
     assertThat(bindingResult.getFieldError(ORGANISATION_GROUP_ID)).isNull();
 
-    verify(organisationGroupQueryService).getOrganisationGroupById(any(), any());
+    verify(organisationGroupQueryService).getOrganisationGroupById(any());
   }
 }

@@ -63,7 +63,6 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
 
     regulatorTeam = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
-        .withId(UUID.randomUUID())
         .build();
 
     wuaId = new WebUserAccountId(Math.abs(new Random().nextLong()));
@@ -76,14 +75,14 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderRemoveMember_whenNotLoggedIn_thenNotAuthorized() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(RegulatorRemoveMemberController.class)
-        .renderRemoveMember(new TeamId(regulatorTeam.getUuid()), wuaId)))
+        .renderRemoveMember(regulatorTeam.toTeamId(), wuaId)))
     ).andExpect(status().isUnauthorized());
   }
 
   @SecurityTest
   void renderRemoveMember_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var teamId = new TeamId(regulatorTeam.getUuid());
+    var teamId = regulatorTeam.toTeamId();
 
     // Interceptor setup
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(
@@ -95,7 +94,7 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
     when(regulatorTeamService.getRegulatorTeamForUser(loggedInUser)).thenReturn(Optional.empty());
 
     mockMvc.perform(get(ReverseRouter.route(on(RegulatorRemoveMemberController.class)
-        .renderRemoveMember(new TeamId(regulatorTeam.getUuid()), wuaId)))
+        .renderRemoveMember(regulatorTeam.toTeamId(), wuaId)))
         .with(user(loggedInUser))
     ).andExpect(status().isForbidden());
   }
@@ -103,7 +102,7 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderRemoveMember_whenAccessManagerAndUserCanBeRemoved_thenOk() throws Exception {
 
-    var teamId = new TeamId(regulatorTeam.getUuid());
+    var teamId = regulatorTeam.toTeamId();
 
     // Interceptor setup
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(
@@ -120,7 +119,7 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
 
     var teamName = applicationContext.getBean(CustomerConfigurationProperties.class).mnemonic();
 
-    when(regulatorTeamService.getTeam(new TeamId(regulatorTeam.getUuid()))).thenReturn(Optional.of(regulatorTeam));
+    when(regulatorTeamService.getTeam(regulatorTeam.toTeamId())).thenReturn(Optional.of(regulatorTeam));
     when(teamMemberService.getTeamMember(regulatorTeam, wuaId)).thenReturn(Optional.of(teamMember));
     when(teamMemberViewService.getTeamMemberView(teamMember)).thenReturn(Optional.of(teamMemberView));
     when(regulatorTeamMemberRemovalService.canRemoveTeamMember(regulatorTeam, teamMember))
@@ -135,12 +134,12 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
         .andExpect(model().attribute(
             "backLinkUrl",
             ReverseRouter.route(on(RegulatorTeamManagementController.class)
-                .renderMemberList(new TeamId(regulatorTeam.getUuid())))
+                .renderMemberList(regulatorTeam.toTeamId()))
         ))
         .andExpect(model().attribute(
             "removeUrl",
             ReverseRouter.route(on(RegulatorRemoveMemberController.class)
-                .removeMember(new TeamId(regulatorTeam.getUuid()), wuaId, null))
+                .removeMember(regulatorTeam.toTeamId(), wuaId, null))
         ))
         .andExpect(model().attribute("canRemoveTeamMember", canRemoveTeamMember))
         .andExpect(model().attribute(
@@ -154,7 +153,7 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderRemoveMember_whenLastAccessManager_thenOk() throws Exception {
 
-    var teamId = new TeamId(regulatorTeam.getUuid());
+    var teamId = regulatorTeam.toTeamId();
 
     // Interceptor setup
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(
@@ -171,7 +170,7 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
 
     var teamName = applicationContext.getBean(CustomerConfigurationProperties.class).mnemonic();
 
-    when(regulatorTeamService.getTeam(new TeamId(regulatorTeam.getUuid()))).thenReturn(Optional.of(regulatorTeam));
+    when(regulatorTeamService.getTeam(regulatorTeam.toTeamId())).thenReturn(Optional.of(regulatorTeam));
     when(teamMemberService.getTeamMember(regulatorTeam, wuaId)).thenReturn(Optional.of(teamMember));
     when(teamMemberViewService.getTeamMemberView(teamMember)).thenReturn(Optional.of(teamMemberView));
     when(regulatorTeamMemberRemovalService.canRemoveTeamMember(regulatorTeam, teamMember))
@@ -186,12 +185,12 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
         .andExpect(model().attribute(
             "backLinkUrl",
             ReverseRouter.route(on(RegulatorTeamManagementController.class)
-                .renderMemberList(new TeamId(regulatorTeam.getUuid())))
+                .renderMemberList(regulatorTeam.toTeamId()))
         ))
         .andExpect(model().attribute(
             "removeUrl",
             ReverseRouter.route(on(RegulatorRemoveMemberController.class)
-                .removeMember(new TeamId(regulatorTeam.getUuid()), wuaId, null))
+                .removeMember(regulatorTeam.toTeamId(), wuaId, null))
         ))
         .andExpect(model().attribute("canRemoveTeamMember", canRemoveTeamMember))
         .andExpect(model().attribute(

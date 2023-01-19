@@ -36,6 +36,13 @@ public abstract class AbstractHandlerInterceptor implements HandlerInterceptor {
     );
   }
 
+  public <A extends Annotation> A getAnnotationTyped(HandlerMethod handlerMethod, Class<A> annotation) {
+    return Objects.requireNonNullElse(
+        handlerMethod.getMethodAnnotation(annotation),
+        handlerMethod.getMethod().getDeclaringClass().getAnnotation(annotation)
+    );
+  }
+
   public static Optional<Parameter> getPathVariableByClass(HandlerMethod handlerMethod, Class<?> clazzOfPathVariable) {
     return Arrays.stream(handlerMethod.getMethod().getParameters())
         .filter(methodParameter -> methodParameter.getType().equals(clazzOfPathVariable)

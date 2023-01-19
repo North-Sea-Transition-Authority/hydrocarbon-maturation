@@ -6,7 +6,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstan
 public class TeamTestUtil {
 
   public static TeamView createTeamView(Team team) {
-    return new TeamView(new TeamId(team.getUuid()), team.getTeamType(), team.getDisplayName());
+    return new TeamView(team.toTeamId(), team.getTeamType(), team.getDisplayName());
   }
 
   private TeamTestUtil() {

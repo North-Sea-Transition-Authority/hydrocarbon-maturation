@@ -2,9 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -15,72 +12,52 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamManagementController;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamManagementController;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
+
 
 @Controller
 @RequestMapping("/permission-management")
 @AccessibleByServiceUsers
 public class TeamManagementController {
 
-  private final IndustryTeamService industryTeamService;
-  private final RegulatorTeamService regulatorTeamService;
+  public static final String NEW_TEAM_FORM_URL =
+      ReverseRouter.route(on(IndustryTeamManagementController.class).renderNewIndustryTeamForm(null));
+  private final TeamManagementService teamManagementService;
   private final UserDetailService userDetailService;
 
   @Autowired
-  TeamManagementController(IndustryTeamService industryTeamService,
-                           RegulatorTeamService regulatorTeamService,
+  TeamManagementController(TeamManagementService teamManagementService,
                            UserDetailService userDetailService) {
-    this.industryTeamService = industryTeamService;
-    this.regulatorTeamService = regulatorTeamService;
+    this.teamManagementService = teamManagementService;
     this.userDetailService = userDetailService;
   }
 
   @GetMapping
-  public ModelAndView renderTeamTypesOrRedirect() {
+  public ModelAndView renderTeamListOrRedirect() {
+    var user = userDetailService.getUserDetail();
+    
+    var teams = teamManagementService.getTeamsThatUserHasAccessTo(user);
 
-    var userDetail = userDetailService.getUserDetail();
-    var regulatorTeam = regulatorTeamService.getRegulatorTeamForUser(userDetail);
-    var industryTeams = industryTeamService.getIndustryTeamsForUser(userDetail);
-    var userIsInRegulatorTeam = regulatorTeam.isPresent();
-    var userIsInIndustryTeam = !industryTeams.isEmpty();
-
-    if (userIsInRegulatorTeam && userIsInIndustryTeam) {
-      return getTeamTypesModelAndView();
+    if (teams.isEmpty()) {
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          "User with ID %s is not a member of a team".formatted(user)
+      );
     }
 
-    if (userIsInRegulatorTeam) {
-      var teamId = TeamId.valueOf(regulatorTeam.get().getUuid());
+    if (teams.size() == 1) {
+      var team = teams.get(0);
+      return ReverseRouter.redirect(TeamManagementUtil.getRenderMemberListRoute(team.teamId(), team.teamType()));
+    }
+    var modelAndView = new ModelAndView("remi/permissionmanagement/teamList")
+        .addObject("pageTitle", "Choose team to manage")
+        .addObject("allTeams", teams);
 
-      if (regulatorTeamService.isIndustryAccessManager(teamId, userDetail)) {
-        return getTeamTypesModelAndView();
-      }
-
-      return ReverseRouter.redirect(on(RegulatorTeamManagementController.class).renderMemberList(teamId));
+    if (teamManagementService.isIndustryAccessManagerInRegulatorTeam(user)) {
+      modelAndView
+          .addObject("newTeamFormUrl", NEW_TEAM_FORM_URL);
     }
 
-    if (userIsInIndustryTeam) {
-      return ReverseRouter.redirect(on(IndustryTeamManagementController.class).renderTeamList());
-    }
-
-    throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        "User with ID %s is not a member of regulator or industry team".formatted(userDetail)
-    );
-  }
-
-  private ModelAndView getTeamTypesModelAndView() {
-    var teamTypeRouteMap = Arrays.stream(TeamType.values())
-        .sorted(Comparator.comparingInt(TeamType::getDisplayOrder))
-        .collect(StreamUtil.toLinkedHashMap(Function.identity(), ManagementRouteUtil::getRouteForTeamType));
-
-    return new ModelAndView("remi/permissionmanagement/teamTypes")
-        .addObject("pageTitle", "Manage teams")
-        .addObject("teamTypeRouteMap", teamTypeRouteMap);
+    return modelAndView;
   }
 }

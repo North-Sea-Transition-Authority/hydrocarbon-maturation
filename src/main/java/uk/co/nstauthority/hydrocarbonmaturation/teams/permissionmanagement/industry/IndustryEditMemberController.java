@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -24,12 +24,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
 
 @Controller
 @RequestMapping("/permission-management/industry/{teamId}/edit/{wuaId}")
-@AccessibleByServiceUsers
+@HasPermission(permissions = RolePermission.MANAGE_ORGANISATIONS)
 public class IndustryEditMemberController extends AbstractIndustryPermissionManagement {
   private final TeamMemberService teamMemberService;
   private final TeamMemberViewService teamMemberViewService;
@@ -44,7 +44,6 @@ public class IndustryEditMemberController extends AbstractIndustryPermissionMana
       TeamMemberRoleService teamMemberRoleService,
       ControllerHelperService controllerHelperService,
       IndustryTeamMemberEditRolesValidator industryTeamMemberEditRolesValidator,
-      TeamService teamService,
       IndustryTeamService industryTeamService) {
     super(industryTeamService);
     this.teamMemberService = teamMemberService;
@@ -53,7 +52,6 @@ public class IndustryEditMemberController extends AbstractIndustryPermissionMana
     this.controllerHelperService = controllerHelperService;
     this.industryTeamMemberEditRolesValidator = industryTeamMemberEditRolesValidator;
   }
-
 
   @GetMapping
   public ModelAndView renderEditMember(@PathVariable("teamId") TeamId teamId,

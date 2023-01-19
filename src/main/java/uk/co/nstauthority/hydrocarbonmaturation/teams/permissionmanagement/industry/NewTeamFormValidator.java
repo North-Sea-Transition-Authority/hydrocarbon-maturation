@@ -27,7 +27,6 @@ public class NewTeamFormValidator implements Validator {
   @Override
   public void validate(@NotNull Object target, @NotNull Errors errors) {
     var form = (NewTeamForm) target;
-    var purpose = "Check organisation group exists when creating a new team";
 
     ValidationUtils.rejectIfEmpty(errors,
         ORGANISATION_GROUP_ID_VALUE_PATH,
@@ -38,7 +37,7 @@ public class NewTeamFormValidator implements Validator {
     }
 
     var orgGroupId = Integer.parseInt(form.getOrganisationGroupId());
-    if (organisationGroupQueryService.getOrganisationGroupById(orgGroupId, purpose).isEmpty()) {
+    if (organisationGroupQueryService.getOrganisationGroupById(orgGroupId).isEmpty()) {
       errors.rejectValue(
           ORGANISATION_GROUP_ID_VALUE_PATH,
           "organisationGroupId.doesNotExist",

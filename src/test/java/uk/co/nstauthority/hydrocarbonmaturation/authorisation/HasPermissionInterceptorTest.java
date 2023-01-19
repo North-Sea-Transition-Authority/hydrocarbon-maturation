@@ -11,6 +11,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamR
 class HasPermissionInterceptorTest extends AbstractControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+
+  @Autowired
+  private PermissionService permissionService;
 
   @Test
   void preHandle_whenMethodHasNoSupportedAnnotations_thenOkResponse() throws Exception {

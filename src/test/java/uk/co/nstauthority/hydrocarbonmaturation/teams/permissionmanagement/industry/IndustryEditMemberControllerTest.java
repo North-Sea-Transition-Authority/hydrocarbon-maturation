@@ -11,10 +11,8 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,6 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -33,10 +32,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
 
@@ -54,10 +53,10 @@ class IndustryEditMemberControllerTest extends AbstractControllerTest {
   private TeamMemberRoleService teamMemberRoleService;
 
   @MockBean
-  private TeamService teamService;
+  IndustryTeamMemberEditRolesValidator industryTeamMemberEditRolesValidator;
 
   @MockBean
-  IndustryTeamMemberEditRolesValidator industryTeamMemberEditRolesValidator;
+  protected PermissionService permissionService;
 
   private Team industryTeam;
   private TeamView teamView;
@@ -68,7 +67,6 @@ class IndustryEditMemberControllerTest extends AbstractControllerTest {
   void setUp() {
     industryTeam = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
-        .withId(UUID.randomUUID())
         .build();
     teamView = TeamTestUtil.createTeamView(industryTeam);
     accessManager = ServiceUserDetailTestUtil.Builder()
@@ -87,7 +85,6 @@ class IndustryEditMemberControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  @Disabled("Disabled until HM-12 is done")
   void renderEditMember_whenNotAccessManager_thenForbidden() throws Exception {
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamView.teamId(), nonAccessManager,
@@ -133,6 +130,7 @@ class IndustryEditMemberControllerTest extends AbstractControllerTest {
   }
 
   private MvcResult makeValidRenderEditMemberRequest(Set<TeamRole> teamMemberRoles) throws Exception {
+    when(permissionService.hasPermission(accessManager, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamView.teamId(), accessManager,
         Set.of(IndustryTeamRole.ACCESS_MANAGER.name()))

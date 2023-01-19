@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +22,8 @@ class TeamServiceTest {
 
   @Mock
   private TeamRepository teamRepository;
+  @Mock
+  private TeamMemberRoleRepository teamMemberRoleRepository;
 
   @InjectMocks
   private TeamService teamService;
@@ -31,7 +34,7 @@ class TeamServiceTest {
     var team = TeamTestUtil.Builder().build();
 
     when(teamRepository.findByUuidAndTeamType(team.getUuid(), team.getTeamType())).thenReturn(Optional.of(team));
-    var result = teamService.getTeam(TeamId.valueOf(team.getUuid()), team.getTeamType());
+    var result = teamService.getTeam(team.toTeamId(), team.getTeamType());
 
     assertThat(result).contains(team);
     verify(teamRepository).findByUuidAndTeamType(team.getUuid(), team.getTeamType());
@@ -43,7 +46,7 @@ class TeamServiceTest {
     var team = TeamTestUtil.Builder().build();
 
     when(teamRepository.findByUuidAndTeamType(team.getUuid(), team.getTeamType())).thenReturn(Optional.empty());
-    var result = teamService.getTeam(TeamId.valueOf(team.getUuid()), team.getTeamType());
+    var result = teamService.getTeam(team.toTeamId(), team.getTeamType());
 
     assertThat(result).isEmpty();
     verify(teamRepository).findByUuidAndTeamType(team.getUuid(), team.getTeamType());
@@ -73,5 +76,57 @@ class TeamServiceTest {
 
     assertThat(result).containsExactly(team);
     verify(teamRepository, times(1)).findAllTeamsOfTypeThatUserIsMemberOf(user.wuaId(), teamType);
+  }
+
+  @Test
+  void getTeamsThatUserBelongsTo() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+
+    var team = new Team(UUID.randomUUID());
+    var teamMemberRole1 = new TeamMemberRole(UUID.randomUUID());
+    teamMemberRole1.setTeam(team);
+    var teamMemberRole2 = new TeamMemberRole(UUID.randomUUID());
+    teamMemberRole2.setTeam(team);
+
+    when(teamMemberRoleRepository.findAllByWuaId(user.wuaId())).thenReturn(List.of(teamMemberRole1, teamMemberRole2));
+
+    var result = teamService.getTeamsThatUserBelongsTo(user);
+
+    assertThat(result).isEqualTo(List.of(team));
+  }
+
+  @Test
+  void isUserInMultipleTeams_UserIsInOneTeam() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+
+    var team = new Team(UUID.randomUUID());
+    var teamMemberRole1 = new TeamMemberRole(UUID.randomUUID());
+    teamMemberRole1.setTeam(team);
+    var teamMemberRole2 = new TeamMemberRole(UUID.randomUUID());
+    teamMemberRole2.setTeam(team);
+
+    when(teamMemberRoleRepository.findAllByWuaId(user.wuaId())).thenReturn(List.of(teamMemberRole1, teamMemberRole2));
+
+    var result = teamService.isUserInMultipleTeams(user);
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void isUserInMultipleTeams_UserIsInTwoTeam() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+
+    var team1 = new Team(UUID.randomUUID());
+    var teamMemberRole1 = new TeamMemberRole(UUID.randomUUID());
+    teamMemberRole1.setTeam(team1);
+    var team2 = new Team(UUID.randomUUID());
+    var teamMemberRole2 = new TeamMemberRole(UUID.randomUUID());
+    teamMemberRole2.setTeam(team2);
+
+    when(teamMemberRoleRepository.findAllByWuaId(user.wuaId())).thenReturn(List.of(teamMemberRole1, teamMemberRole2));
+
+    var result = teamService.isUserInMultipleTeams(user);
+
+    assertThat(result).isTrue();
   }
 }

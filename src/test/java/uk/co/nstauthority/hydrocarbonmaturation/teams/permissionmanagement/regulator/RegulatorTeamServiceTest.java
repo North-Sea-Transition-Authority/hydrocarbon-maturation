@@ -69,7 +69,7 @@ class RegulatorTeamServiceTest {
 
     var team = TeamTestUtil.Builder().build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamService.getTeam(teamId, TeamType.REGULATOR)).thenReturn(Optional.of(team));
 
@@ -82,7 +82,7 @@ class RegulatorTeamServiceTest {
 
     var team = TeamTestUtil.Builder().build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamService.getTeam(teamId, TeamType.REGULATOR)).thenReturn(Optional.empty());
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
@@ -23,10 +23,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRemovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Controller
 @RequestMapping("/permission-management/industry/{teamId}/remove/{wuaId}")
-@AccessibleByServiceUsers
+@HasPermission(permissions = RolePermission.MANAGE_ORGANISATIONS)
 public class IndustryRemoveMemberController extends AbstractIndustryPermissionManagement {
   private final TeamMemberService teamMemberService;
   private final TeamMemberViewService teamMemberViewService;

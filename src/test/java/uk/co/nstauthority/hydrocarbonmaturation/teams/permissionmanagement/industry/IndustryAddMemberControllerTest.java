@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.EnergyPortalConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
@@ -33,6 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.AddTeamMemberValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = {
     IndustryAddMemberController.class,
@@ -52,8 +53,10 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @Autowired
   private ApplicationContext applicationContext;
 
+  @MockBean
+  protected PermissionService permissionService;
+
   @SecurityTest
-  @Disabled("Disabled until HM-12 is done")
   void renderAddTeamMember_whenNotAccessManager_thenForbidden() throws Exception {
 
     var user = ServiceUserDetailTestUtil.Builder().build();
@@ -62,10 +65,9 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name())))
-        .thenReturn(false);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(false);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(IndustryAddMemberController.class).renderAddTeamMember(teamId)))
@@ -82,10 +84,9 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name())))
-        .thenReturn(true);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
@@ -102,8 +103,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
 
     var teamId = new TeamId(UUID.randomUUID());
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name())))
-        .thenReturn(true);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.empty());
 
@@ -122,10 +122,9 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name())))
-        .thenReturn(true);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.empty());
 
@@ -144,10 +143,9 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name())))
-        .thenReturn(true);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
@@ -179,10 +177,9 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name())))
-        .thenReturn(true);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.empty());
 
@@ -194,7 +191,6 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
         .andExpect(status().isNotFound());
   }
 
-  @Disabled("Disabled until HM-12 is done")
   @Test
   void addMemberToTeamSubmission_whenNotAccessManager_thenForbidden() throws Exception {
 
@@ -204,10 +200,9 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name())))
-        .thenReturn(false);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(IndustryAddMemberController.class)
@@ -226,10 +221,9 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name())))
-        .thenReturn(true);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
@@ -251,10 +245,9 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name())))
-        .thenReturn(true);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
@@ -278,10 +271,9 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name())))
-        .thenReturn(true);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
 
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 

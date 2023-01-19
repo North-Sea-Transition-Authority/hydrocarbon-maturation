@@ -31,7 +31,6 @@ public class PermissionManagementHandlerInterceptor extends AbstractHandlerInter
   );
 
   private final TeamMemberService teamMemberService;
-
   private final UserDetailService userDetailService;
 
   @Autowired
@@ -57,7 +56,6 @@ public class PermissionManagementHandlerInterceptor extends AbstractHandlerInter
       if (hasAnnotation(handlerMethod, IsMemberOfTeam.class)) {
         checkIsMemberOfTeam(teamId, user);
       }
-
     }
 
     return true;

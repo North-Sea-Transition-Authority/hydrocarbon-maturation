@@ -74,7 +74,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.REGULATOR)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(false);
@@ -94,7 +94,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.REGULATOR)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(true);
@@ -133,7 +133,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(true);
@@ -155,7 +155,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.REGULATOR)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(true);
@@ -190,7 +190,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(true);
@@ -213,7 +213,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(false);
@@ -234,7 +234,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(true);
@@ -258,7 +258,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(true);
@@ -284,7 +284,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(true);
@@ -317,7 +317,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -344,7 +344,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -366,7 +366,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -390,7 +390,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -418,7 +418,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -445,7 +445,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -485,7 +485,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -509,7 +509,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -538,7 +538,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -563,7 +563,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -593,7 +593,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -622,7 +622,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
@@ -653,7 +653,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 

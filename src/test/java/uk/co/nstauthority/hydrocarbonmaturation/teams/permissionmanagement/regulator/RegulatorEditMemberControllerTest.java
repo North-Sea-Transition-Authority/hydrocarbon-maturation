@@ -62,7 +62,6 @@ class RegulatorEditMemberControllerTest extends AbstractControllerTest {
   void setUp() {
     regulatorTeam = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
-        .withId(UUID.randomUUID())
         .build();
     teamView = TeamTestUtil.createTeamView(regulatorTeam);
     accessManager = ServiceUserDetailTestUtil.Builder()

@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,7 +15,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView;
 
 @Service
 public class IndustryTeamService {
@@ -32,12 +30,6 @@ public class IndustryTeamService {
     this.teamService = teamService;
     this.teamMemberService = teamMemberService;
     this.teamMemberRoleService = teamMemberRoleService;
-  }
-
-  public List<TeamView> getIndustryTeamsForUser(ServiceUserDetail user) {
-    return teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.INDUSTRY).stream()
-        .map(TeamView::fromTeam)
-        .toList();
   }
 
   public boolean isAccessManager(TeamId teamId, ServiceUserDetail user) {
@@ -66,10 +58,6 @@ public class IndustryTeamService {
 
     teamMemberRoleService.updateUserTeamRoles(team, new WebUserAccountId(wuaId), Set.of("ACCESS_MANAGER"));
     return team;
-  }
-
-  public List<Team> getAllTeams() {
-    return teamService.getTeamsOfType(TeamType.INDUSTRY);
   }
 
   public Optional<Team> getTeamByOrganisationGroupId(int organisationGroupId) {

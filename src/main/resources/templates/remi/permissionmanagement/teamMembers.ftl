@@ -13,11 +13,18 @@
 
 <#assign pageTitle=teamName/>
 
+<#if backLinkUrl?has_content>
+    <#assign backLinkSpringUrl=springUrl(backLinkUrl)/>
+<#else>
+    <#assign backLinkSpringUrl=""/>
+</#if>
+
 <@defaultPage
   htmlTitle=pageTitle
   pageHeading=pageTitle
   errorItems=errorList
   pageSize=PageSize.FULL_WIDTH
+  backLinkUrl=backLinkSpringUrl
 >
 
     <@roleDescriptions.roleDescriptions roles=teamRoles/>

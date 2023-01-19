@@ -67,7 +67,6 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
     var user = ServiceUserDetailTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
-        .withId(UUID.randomUUID())
         .build();
 
     when(regulatorTeamService.getRegulatorTeamForUser(user)).thenReturn(Optional.of(team));
@@ -77,7 +76,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
                 .with(user(user)))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(RegulatorTeamManagementController.class)
-            .renderMemberList(new TeamId(team.getUuid()))
+            .renderMemberList(team.toTeamId())
         )));
   }
 
@@ -113,7 +112,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.REGULATOR)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(regulatorTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
@@ -149,7 +148,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.REGULATOR)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(regulatorTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
@@ -182,7 +181,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.REGULATOR)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(regulatorTeamService.isAccessManager(teamId, user)).thenReturn(true);
 

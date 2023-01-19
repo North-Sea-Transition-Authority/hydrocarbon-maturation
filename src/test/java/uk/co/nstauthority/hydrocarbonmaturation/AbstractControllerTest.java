@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
@@ -56,12 +57,11 @@ public abstract class AbstractControllerTest {
   @Autowired
   protected MockMvc mockMvc;
 
-  @Autowired
-  protected PermissionService permissionService;
-
   @MockBean
   protected TeamMemberService teamMemberService;
 
+  @MockBean
+  protected TeamService teamService;
   @MockBean
   protected UserDetailService userDetailService;
 

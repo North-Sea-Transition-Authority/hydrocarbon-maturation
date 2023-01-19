@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.authorisation;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
@@ -28,9 +29,14 @@ public class PermissionService {
       return false;
     }
 
-    return teamMembers
+    Stream<Set<TeamRole>> setStream = teamMembers
         .stream()
-        .map(TeamMember::roles)
+        .map(TeamMember::roles);
+    return isaBoolean(requiredPermissions, setStream);
+  }
+
+  private static boolean isaBoolean(Set<RolePermission> requiredPermissions, Stream<Set<TeamRole>> setStream) {
+    return setStream
         .flatMap(Collection::stream)
         .map(TeamRole::getRolePermissions)
         .flatMap(Collection::stream)

@@ -1,5 +1,6 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.scap.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pageTitle" type="java.lang.String" -->
+<#-- @ftlvariable name="backLinkUrl" type="java.lang.String" -->
 
 <#include "../layout/layout.ftl">
 
@@ -8,6 +9,7 @@
   pageHeading=pageTitle
   errorItems=errorList
   pageSize=PageSize.FULL_WIDTH
+  backLinkUrl=springUrl(backLinkUrl)
   >
     <@fdsForm.htmlForm actionUrl=springUrl(submitFormUrl)>
         <@fdsSearchSelector.searchSelectorRest path="form.organisationGroupId"

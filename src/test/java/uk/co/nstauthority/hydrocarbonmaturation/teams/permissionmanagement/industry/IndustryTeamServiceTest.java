@@ -47,7 +47,7 @@ class IndustryTeamServiceTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamService.getTeam(teamId, TeamType.INDUSTRY)).thenReturn(Optional.of(team));
 
@@ -62,7 +62,7 @@ class IndustryTeamServiceTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
 
     when(teamService.getTeam(teamId, TeamType.INDUSTRY)).thenReturn(Optional.empty());
 

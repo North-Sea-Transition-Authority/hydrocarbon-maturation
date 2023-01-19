@@ -51,7 +51,7 @@ public class TeamMemberService {
   }
 
   private TeamView createTeamView(Team team) {
-    return new TeamView(new TeamId(team.getUuid()), team.getTeamType(), team.getDisplayName());
+    return new TeamView(team.toTeamId(), team.getTeamType(), team.getDisplayName());
   }
 
   public boolean isMemberOfTeam(TeamId teamId, ServiceUserDetail user) {
@@ -85,5 +85,4 @@ public class TeamMemberService {
         })
         .collect(Collectors.toSet());
   }
-
 }

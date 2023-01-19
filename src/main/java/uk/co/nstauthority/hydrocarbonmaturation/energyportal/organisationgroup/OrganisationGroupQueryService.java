@@ -4,13 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
 import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
-import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
-import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 
 @Service
 public class OrganisationGroupQueryService {
@@ -22,26 +20,31 @@ public class OrganisationGroupQueryService {
       .organisationGroupId()
       .name();
   private final OrganisationApi organisationApi;
+  private final EnergyPortalApiWrapper energyPortalApiWrapper;
 
   @Autowired
-  public OrganisationGroupQueryService(OrganisationApi organisationApi) {
+  public OrganisationGroupQueryService(OrganisationApi organisationApi, EnergyPortalApiWrapper energyPortalApiWrapper) {
     this.organisationApi = organisationApi;
+    this.energyPortalApiWrapper = energyPortalApiWrapper;
   }
 
-  public List<OrganisationGroup> getOrganisationGroupsByName(String name, String purpose) {
-    return organisationApi.searchOrganisationGroups(name, ORGANISATION_GROUPS_PROJECTION_ROOT, new RequestPurpose(purpose));
+  public List<OrganisationGroupDto> getOrganisationGroupsByName(String name) {
+    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
+        organisationApi.searchOrganisationGroups(name, ORGANISATION_GROUPS_PROJECTION_ROOT, requestPurpose)).stream()
+        .map(this::fromOrganisationGroup)
+        .toList();
   }
 
-  public RestSearchResult organisationGroupsToSearchResult(List<OrganisationGroup> queryResults) {
-    return new RestSearchResult(queryResults.stream()
-        .map(organisationGroup -> new RestSearchItem(
-            organisationGroup.getOrganisationGroupId().toString(),
-            organisationGroup.getName()))
-        .toList());
+  public Optional<OrganisationGroupDto> getOrganisationGroupById(Integer id) {
+    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
+        organisationApi.findOrganisationGroup(id, ORGANISATION_GROUP_PROJECTION_ROOT, requestPurpose))
+        .map(this::fromOrganisationGroup);
   }
 
-  public Optional<OrganisationGroup> getOrganisationGroupById(Integer id, String purpose) {
-    return organisationApi.findOrganisationGroup(id, ORGANISATION_GROUP_PROJECTION_ROOT, new RequestPurpose(purpose));
+  private OrganisationGroupDto fromOrganisationGroup(OrganisationGroup organisationGroup) {
+    var dto = new OrganisationGroupDto();
+    dto.setOrganisationGroupId(organisationGroup.getOrganisationGroupId());
+    dto.setOrganisationGroupName(organisationGroup.getName());
+    return dto;
   }
-
 }

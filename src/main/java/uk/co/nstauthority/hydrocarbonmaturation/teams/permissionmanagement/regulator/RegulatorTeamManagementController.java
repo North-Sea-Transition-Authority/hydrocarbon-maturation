@@ -19,6 +19,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamManagementController;
 
 @Controller
 @RequestMapping("/permission-management/regulator")
@@ -30,19 +32,22 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
   private final UserDetailService userDetailService;
   private final CustomerConfigurationProperties customerConfigurationProperties;
   private final TeamMemberService teamMemberService;
+  private final TeamService teamService;
 
   @Autowired
   RegulatorTeamManagementController(TeamMemberViewService teamMemberViewService,
                                     RegulatorTeamService regulatorTeamService,
                                     UserDetailService userDetailService,
                                     CustomerConfigurationProperties customerConfigurationProperties,
-                                    TeamMemberService teamMemberService) {
+                                    TeamMemberService teamMemberService,
+                                    TeamService teamService) {
     super(regulatorTeamService);
     this.teamMemberViewService = teamMemberViewService;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
     this.customerConfigurationProperties = customerConfigurationProperties;
     this.teamMemberService = teamMemberService;
+    this.teamService = teamService;
   }
 
   @GetMapping
@@ -55,7 +60,7 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
         ));
 
     return ReverseRouter.redirect(on(RegulatorTeamManagementController.class)
-        .renderMemberList(new TeamId(team.getUuid())));
+        .renderMemberList(team.toTeamId()));
   }
 
   @GetMapping("/{teamId}")
@@ -71,6 +76,12 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
         .addObject("teamName", customerConfigurationProperties.mnemonic())
         .addObject("teamRoles", RegulatorTeamRole.values())
         .addObject("teamMembers", teamMemberViewService.getTeamMemberViewsForTeam(team));
+
+    if (teamService.isUserInMultipleTeams(user)) {
+      modelAndView
+          .addObject("backLinkUrl",
+              ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()));
+    }
 
     if (regulatorTeamService.isAccessManager(teamId, userDetailService.getUserDetail())) {
       modelAndView

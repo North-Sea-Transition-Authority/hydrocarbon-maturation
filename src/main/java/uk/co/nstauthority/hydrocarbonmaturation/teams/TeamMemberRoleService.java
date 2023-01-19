@@ -69,7 +69,7 @@ public class TeamMemberRoleService {
     );
 
     addedToTeamEventPublisher.publish(
-        new TeamId(team.getUuid()),
+        team.toTeamId(),
         targetUser,
         roles,
         instigationUser

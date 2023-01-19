@@ -1,7 +1,8 @@
 
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.scap.fds.ErrorItem>" -->
-<#-- @ftlvariable name="allTeams" type="java.util.List<uk.co.nstauthority.scap.permissionmanagement.TeamView>" -->
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
+<#-- @ftlvariable name="allTeams" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView>" -->
 <#-- @ftlvariable name="pageTitle" type="java.lang.String" -->
+<#-- @ftlvariable name="newTeamFormUrl" type="java.lang.String" -->
 
 <#include "../layout/layout.ftl">
 <@defaultPage
@@ -10,7 +11,9 @@
   errorItems=errorList
   pageSize=PageSize.FULL_WIDTH
 >
-  <@fdsAction.link linkText="Create organisation group team" linkClass="govuk-button" linkUrl=springUrl(newTeamFormUrl)/>
+  <#if newTeamFormUrl?has_content>
+    <@fdsAction.link linkText="Create organisation group team" linkClass="govuk-button" linkUrl=springUrl(newTeamFormUrl)/>
+  </#if>
 
   <table class="govuk-table">
     <thead class="govuk-table__head">

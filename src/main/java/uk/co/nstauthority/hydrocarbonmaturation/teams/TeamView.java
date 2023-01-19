@@ -1,14 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams;
 
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.ManagementRouteUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamManagementUtil;
 
 public record TeamView(TeamId teamId, TeamType teamType, String displayName) {
   public static TeamView fromTeam(Team team) {
-    var teamId = new TeamId(team.getUuid());
+    var teamId = team.toTeamId();
     return new TeamView(teamId, team.getTeamType(), team.getDisplayName());
   }
 
   public String manageUrl() {
-    return ManagementRouteUtil.getRouteForTeamIdAndTeamType(teamType, teamId);
+    return ReverseRouter.route(TeamManagementUtil.getRenderMemberListRoute(teamId, teamType));
   }
 }

@@ -6,24 +6,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @RestController
 @RequestMapping("/api")
 @AccessibleByServiceUsers
 public class OrganisationGroupRestController {
+  private final OrganisationGroupQueryService organisationGroupQueryService;
+  private final SearchSelectorService searchSelectorService;
 
-  public static final String REQUEST_PURPOSE = "Searching organisation groups";
-  private final OrganisationGroupQueryService organisationGroupService;
-
-  public OrganisationGroupRestController(OrganisationGroupQueryService organisationGroupService) {
-    this.organisationGroupService = organisationGroupService;
+  public OrganisationGroupRestController(OrganisationGroupQueryService organisationGroupQueryService,
+                                         SearchSelectorService searchSelectorService) {
+    this.organisationGroupQueryService = organisationGroupQueryService;
+    this.searchSelectorService = searchSelectorService;
   }
 
   @GetMapping("/organisation-group")
   public RestSearchResult getOrganisationGroupSearchResults(@RequestParam(value = "term", required = false) String term) {
-    var queryResults = organisationGroupService
-        .getOrganisationGroupsByName(term, REQUEST_PURPOSE);
-
-    return organisationGroupService.organisationGroupsToSearchResult(queryResults);
+    return searchSelectorService.search(term, organisationGroupQueryService::getOrganisationGroupsByName);
   }
 }

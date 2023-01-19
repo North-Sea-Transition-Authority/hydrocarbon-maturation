@@ -118,7 +118,7 @@ class TeamMemberRoleServiceTest {
         .isEqualTo(instigatingUser.wuaId());
 
     verify(addedToTeamEventPublisher, times(1)).publish(
-        new TeamId(team.getUuid()),
+        team.toTeamId(),
         new WebUserAccountId(userToAdd.webUserAccountId()),
         Set.of(role),
         new WebUserAccountId(instigatingUser.wuaId())

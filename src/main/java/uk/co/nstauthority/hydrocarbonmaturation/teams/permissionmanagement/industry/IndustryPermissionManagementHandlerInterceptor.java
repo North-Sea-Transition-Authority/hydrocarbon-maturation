@@ -27,7 +27,9 @@ public class IndustryPermissionManagementHandlerInterceptor extends AbstractHand
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IndustryPermissionManagementHandlerInterceptor.class);
 
-  private static final Set<Class<? extends Annotation>> SUPPORTED_SECURITY_ANNOTATIONS = Set.of(IndustryRolesAllowed.class);
+  private static final Set<Class<? extends Annotation>> SUPPORTED_SECURITY_ANNOTATIONS = Set.of(
+      IndustryRolesAllowed.class
+  );
 
   private final TeamMemberService teamMemberService;
 
@@ -54,20 +56,19 @@ public class IndustryPermissionManagementHandlerInterceptor extends AbstractHand
       var user = userDetailService.getUserDetail();
 
       if (hasAnnotation(handlerMethod, IndustryRolesAllowed.class)) {
-        checkIsMemberOfTeamWithRole(
-            teamId,
-            user,
-            ((IndustryRolesAllowed) getAnnotation(handlerMethod, IndustryRolesAllowed.class)).roles()
-        );
+        checkIsMemberOfTeamWithIndustryRole(teamId, user, getIndustryTeamRoles(handlerMethod));
       }
     }
 
     return true;
   }
 
-  private void checkIsMemberOfTeamWithRole(TeamId teamId, ServiceUserDetail user, IndustryTeamRole[] roles) {
+  private IndustryTeamRole[] getIndustryTeamRoles(HandlerMethod handlerMethod) {
+    return getAnnotationTyped(handlerMethod, IndustryRolesAllowed.class).roles();
+  }
 
-    var roleNames = Arrays.stream(roles)
+  private void checkIsMemberOfTeamWithIndustryRole(TeamId teamId, ServiceUserDetail user, IndustryTeamRole[] roles) {
+    var roleNames = Arrays.stream((roles))
         .map(IndustryTeamRole::name)
         .collect(Collectors.toSet());
 
@@ -80,4 +81,5 @@ public class IndustryPermissionManagementHandlerInterceptor extends AbstractHand
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, errorMessage);
     }
   }
+
 }

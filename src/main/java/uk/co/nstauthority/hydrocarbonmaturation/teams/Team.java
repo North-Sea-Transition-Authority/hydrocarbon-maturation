@@ -61,4 +61,8 @@ public class Team {
   public void setOrganisationGroupId(Integer organisationGroupId) {
     this.organisationGroupId = organisationGroupId;
   }
+
+  public TeamId toTeamId() {
+    return new TeamId(uuid);
+  }
 }
