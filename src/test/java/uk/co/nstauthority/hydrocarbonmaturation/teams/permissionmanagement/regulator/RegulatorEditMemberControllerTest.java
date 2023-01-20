@@ -42,9 +42,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamR
 class RegulatorEditMemberControllerTest extends AbstractControllerTest {
 
   @MockBean
-  private RegulatorTeamService regulatorTeamService;
-
-  @MockBean
   private TeamMemberViewService teamMemberViewService;
 
   @MockBean

@@ -62,7 +62,8 @@ public class SubmissionCreateService {
 
   @Transactional
   public SubmissionDetail createUpdateProspect(UpdateProspectForm form) {
-    var oldSubmissionDetail = getSubmissionDetailByGeneralDetail(form.getProspectSelectedOption());
+    var oldSubmissionDetail =
+        submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getProspectSelectedOption()));
     var resource = oldSubmissionDetail.getResourceId();
 
     var newSubmissionDetail =
@@ -79,7 +80,8 @@ public class SubmissionCreateService {
 
   @Transactional
   public SubmissionDetail createPostDrillDryHoleSubmission(PostDrillDryHoleForm form) {
-    var oldSubmissionDetail = getSubmissionDetailByGeneralDetail(form.getProspectSelectedOption());
+    var oldSubmissionDetail =
+        submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getProspectSelectedOption()));
     var resource = oldSubmissionDetail.getResourceId();
 
     var newSubmissionDetail =
@@ -102,7 +104,8 @@ public class SubmissionCreateService {
   public SubmissionDetail createNewDiscoveryFromProspect(StartDiscoveryForm form) {
     var discoveryResource = resourceService.createResource(ResourceType.DISCOVERY);
     responsibleTeamPersistenceService.saveResponsibleTeamForResource(discoveryResource, ResponsibleTeamType.EXPLORATION);
-    var oldSubmissionDetail = getSubmissionDetailByGeneralDetail(form.getProspectSelectedOption());
+    var oldSubmissionDetail =
+        submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getProspectSelectedOption()));
     var prospectResource = oldSubmissionDetail.getResourceId();
 
     resourceLinkService.createNewResourceLink(prospectResource, discoveryResource);
@@ -118,7 +121,8 @@ public class SubmissionCreateService {
 
   @Transactional
   public SubmissionDetail createUpdateDiscovery(UpdateDiscoveryForm form) {
-    var oldSubmissionDetail = getSubmissionDetailByGeneralDetail(form.getDiscoverySelectedOption());
+    var oldSubmissionDetail =
+        submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getDiscoverySelectedOption()));
     var resource = oldSubmissionDetail.getResourceId();
 
     var newSubmissionDetail =
@@ -132,7 +136,8 @@ public class SubmissionCreateService {
 
   @Transactional
   public SubmissionDetail createRelinquishment(RelinquishmentForm form) {
-    var oldSubmissionDetail = getSubmissionDetailByGeneralDetail(form.getResourceSelectedOption());
+    var oldSubmissionDetail =
+        submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getResourceSelectedOption()));
     var resource = oldSubmissionDetail.getResourceId();
 
     var newSubmissionDetail = submissionDetailService
@@ -152,11 +157,5 @@ public class SubmissionCreateService {
           .remove(SubmissionType.RELINQUISHMENT_PROSPECT.name());
     }
     return submissionTypeOptions;
-  }
-
-  private SubmissionDetail getSubmissionDetailByGeneralDetail(String generalDetailId) {
-    var previousGeneralDetail = generalDetailsPersistenceService
-        .getGeneralDetailByIdOrThrow(UUID.fromString(generalDetailId));
-    return previousGeneralDetail.getSubmissionDetail();
   }
 }

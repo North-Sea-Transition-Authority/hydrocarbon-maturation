@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SubmissionHandlerInterceptor;
@@ -35,6 +36,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnicalSupportConfigurationProperties;
 
 @WebMvcTest
@@ -44,6 +46,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     PermissionManagementHandlerInterceptor.class,
     RegulatorPermissionManagementHandlerInterceptor.class,
     IndustryPermissionManagementHandlerInterceptor.class,
+    AccessibleByRegulatorUsersInterceptor.class,
     HasPermissionInterceptor.class,
     PermissionService.class,
     SubmissionStatusInterceptorRule.class})
@@ -66,6 +69,9 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected SubmissionDetailService submissionDetailService;
+
+  @MockBean
+  protected RegulatorTeamService regulatorTeamService;
 
   protected static final UUID SUBMISSION_DETAIL_ID = UUID.randomUUID();
   protected SubmissionDetail submissionDetail;

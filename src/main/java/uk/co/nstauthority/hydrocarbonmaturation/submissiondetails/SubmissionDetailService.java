@@ -113,4 +113,9 @@ public class SubmissionDetailService {
   public String getSubmissionTypeName(SubmissionDetail submissionDetail) {
     return submissionDetail.getSubmissionType().getTypeName();
   }
+
+  public SubmissionDetail getSubmissionDetailByGeneralDetailOrThrow(UUID generalDetailId) {
+    var generalDetail = generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(generalDetailId);
+    return generalDetail.getSubmissionDetail();
+  }
 }

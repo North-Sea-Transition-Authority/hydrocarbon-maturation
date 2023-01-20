@@ -47,9 +47,6 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
   @MockBean
   private TeamMemberRemovalService regulatorTeamMemberRemovalService;
 
-  @MockBean
-  private RegulatorTeamService regulatorTeamService;
-
   @Autowired
   private ApplicationContext applicationContext;
 

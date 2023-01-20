@@ -75,6 +75,4 @@ public enum RegulatorTeamRole implements TeamRole {
       return Optional.empty();
     }
   }
-
-
 }

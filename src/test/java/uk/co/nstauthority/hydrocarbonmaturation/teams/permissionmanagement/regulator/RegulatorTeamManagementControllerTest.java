@@ -35,9 +35,6 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
   @MockBean
   private TeamMemberViewService teamMemberViewService;
 
-  @MockBean
-  private RegulatorTeamService regulatorTeamService;
-
   @Autowired
   private ApplicationContext applicationContext;
 

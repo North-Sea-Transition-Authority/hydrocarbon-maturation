@@ -51,9 +51,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 class RegulatorAddMemberControllerTest extends AbstractControllerTest {
 
   @MockBean
-  private RegulatorTeamService regulatorTeamService;
-
-  @MockBean
   private EnergyPortalUserService energyPortalUserService;
 
   @Autowired

@@ -93,11 +93,9 @@ class SubmissionCreateServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
+    when(submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getProspectSelectedOption())))
+        .thenReturn(submissionDetail);
     when(submissionDetailService.createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.PROSPECT_UPDATE)).thenReturn(submissionDetailNew);
-    var generalDetail = new GeneralDetail();
-    generalDetail.setSubmissionDetail(submissionDetail);
-    when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption())))
-        .thenReturn(generalDetail);
     var newGeneralDetail = new GeneralDetail();
     when(generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetailNew))
         .thenReturn(newGeneralDetail);
@@ -116,8 +114,8 @@ class SubmissionCreateServiceTest {
     var generalDetailId = UUID.randomUUID();
     form.setProspectSelectedOption(generalDetailId.toString());
 
-    doThrow(RemiEntityNotFoundException.class).when(generalDetailsPersistenceService)
-        .getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption()));
+    doThrow(RemiEntityNotFoundException.class).when(submissionDetailService)
+        .getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getProspectSelectedOption()));
 
     assertThatExceptionOfType(RemiEntityNotFoundException.class)
         .isThrownBy(()->submissionCreateService.createUpdateProspect(form));
@@ -133,12 +131,8 @@ class SubmissionCreateServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
-    var prospectName = "prospect-name";
-    var generalDetail = new GeneralDetail();
-    generalDetail.setSubmissionDetail(submissionDetail);
-    generalDetail.setResourceName(prospectName);
-    when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption())))
-        .thenReturn(generalDetail);
+    when(submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getProspectSelectedOption())))
+        .thenReturn(submissionDetail);
     when(submissionDetailService.createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.POST_DRILL_DRY_HOLE))
         .thenReturn(submissionDetailNew);
 
@@ -156,16 +150,14 @@ class SubmissionCreateServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
-    var generalDetail = new GeneralDetail();
-    generalDetail.setSubmissionDetail(submissionDetail);
     var discoveryResource = new Resource();
     discoveryResource.setType(ResourceType.DISCOVERY);
     var prospectResource = new Resource();
     prospectResource.setType(ResourceType.PROSPECT);
     submissionDetail.setResourceId(prospectResource);
     when(resourceService.createResource(ResourceType.DISCOVERY)).thenReturn(discoveryResource);
-    when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getProspectSelectedOption())))
-        .thenReturn(generalDetail);
+    when(submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getProspectSelectedOption())))
+        .thenReturn(submissionDetail);
     when(submissionDetailService.createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
         .thenReturn(submissionDetailNew);
 
@@ -185,12 +177,8 @@ class SubmissionCreateServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
-    var prospectName = "prospect-name";
-    var generalDetail = new GeneralDetail();
-    generalDetail.setSubmissionDetail(submissionDetail);
-    generalDetail.setResourceName(prospectName);
-    when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(UUID.fromString(form.getDiscoverySelectedOption())))
-        .thenReturn(generalDetail);
+    when(submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getDiscoverySelectedOption())))
+        .thenReturn(submissionDetail);
     when(submissionDetailService.createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.UPDATE_DISCOVERY))
         .thenReturn(submissionDetailNew);
 
@@ -262,13 +250,10 @@ class SubmissionCreateServiceTest {
     var relinquishmentForm = new RelinquishmentForm();
     relinquishmentForm.setChosenResourceType(ResourceType.PROSPECT);
     relinquishmentForm.setResourceSelectedOption(UUID.randomUUID().toString());
-    var generalDetails = new GeneralDetail();
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setResourceId(new Resource());
-    generalDetails.setSubmissionDetail(submissionDetail);
-    when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(
-        UUID.fromString(relinquishmentForm.getResourceSelectedOption())))
-        .thenReturn(generalDetails);
+    when(submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(relinquishmentForm.getResourceSelectedOption())))
+        .thenReturn(submissionDetail);
 
     var newSubmissionDetail = submissionCreateService.createRelinquishment(relinquishmentForm);
 
