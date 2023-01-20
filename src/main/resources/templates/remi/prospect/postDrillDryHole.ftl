@@ -15,7 +15,7 @@
     <@fdsSearchSelector.searchSelectorRest path="form.prospectSelectedOption" restUrl=springUrl(prospectApiEndpoint) labelText="What prospect is this for?" selectorMinInputLength=3/>
     <@fdsDetails.summaryDetails summaryTitle="The prospect for the post-drill dry hole submission is not listed">
       <p class="govuk-body">
-        Only prospects that exists on an extant licence are shown.
+        Only prospects that exists on an extant licence and have not been relinquished are shown.
       </p>
       <p class="govuk-body">
         If the prospect you want to update is not shown in the list then you must contact the operator responsible for the prospect to provide you with access to their organisation.

@@ -152,6 +152,32 @@ public class SubmissionDetail {
         || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY;
   }
 
+  public boolean isDraftOrSubmittedSubmission() {
+    return status == SubmissionDetailStatus.DRAFT
+        || status == SubmissionDetailStatus.SUBMITTED;
+  }
+
+  public boolean isDraftOrApprovedSubmission() {
+    return status == SubmissionDetailStatus.DRAFT
+        || status == SubmissionDetailStatus.APPROVED;
+  }
+
+  public boolean isProspectRelinquishment() {
+    return submissionType == SubmissionType.RELINQUISHMENT_PROSPECT;
+  }
+
+  public boolean isDiscoveryRelinquishment() {
+    return submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY;
+  }
+
+  public boolean isDiscoveryFromProspect() {
+    return submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT;
+  }
+
+  public boolean isDeletedSubmission() {
+    return status == SubmissionDetailStatus.DELETED;
+  }
+
   public boolean isDryWellSubmission() {
     return submissionType == SubmissionType.POST_DRILL_DRY_HOLE;
   }

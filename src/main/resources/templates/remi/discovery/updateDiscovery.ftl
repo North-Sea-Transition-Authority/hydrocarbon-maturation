@@ -20,6 +20,9 @@
       selectorMinInputLength=3/>
     <@fdsDetails.summaryDetails summaryTitle="The discovery I want to update is not listed">
       <p class="govuk-body">
+        Only discoveries that have not been relinquished are shown.
+      </p>
+      <p class="govuk-body">
         If the discovery you want to update is not shown in the list then you must contact the operator responsible for the prospect to provide you with access to their organisation.
       </p>
       <p class="govuk-body">

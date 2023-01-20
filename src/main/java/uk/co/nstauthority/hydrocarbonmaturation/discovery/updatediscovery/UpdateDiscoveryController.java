@@ -51,7 +51,7 @@ public class UpdateDiscoveryController {
   }
 
   private ModelAndView getDiscoveryPageModelAndView(UpdateDiscoveryForm form) {
-    return new ModelAndView("remi/prospect/updateDiscovery")
+    return new ModelAndView("remi/discovery/updateDiscovery")
         .addObject("form", form)
         .addObject("actionUrl",
             ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(form, null)))

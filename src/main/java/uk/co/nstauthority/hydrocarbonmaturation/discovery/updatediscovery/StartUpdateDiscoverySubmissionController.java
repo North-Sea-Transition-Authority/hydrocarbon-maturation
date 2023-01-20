@@ -18,7 +18,7 @@ public class StartUpdateDiscoverySubmissionController {
 
   @GetMapping
   public ModelAndView getStartUpdateDiscoveryPage() {
-    return new ModelAndView("remi/prospect/startUpdateDiscovery")
+    return new ModelAndView("remi/discovery/startUpdateDiscovery")
         .addObject("backLinkUrl",
             ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()))
         .addObject("actionUrl",

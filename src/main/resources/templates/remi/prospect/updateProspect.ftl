@@ -17,7 +17,7 @@
     <@fdsSearchSelector.searchSelectorRest path="form.prospectSelectedOption" restUrl=springUrl(prospectApiEndpoint) labelText="What prospect is being updated?" selectorMinInputLength=3/>
     <@fdsDetails.summaryDetails summaryTitle="The prospect I want to update is not listed">
       <p class="govuk-body">
-        Only prospects that exist on an extant licence are shown. Prospects that have already had a post-drill submission can no longer be updated here.
+        Only prospects that exist on an extant licence are shown. Prospects that have already had a post-drill or relinquishment submission can no longer be updated here.
       </p>
       <p class="govuk-body">
         If the prospect you want to update is not shown in the list then you must contact the operator responsible for the prospect to provide you with access to their organisation.

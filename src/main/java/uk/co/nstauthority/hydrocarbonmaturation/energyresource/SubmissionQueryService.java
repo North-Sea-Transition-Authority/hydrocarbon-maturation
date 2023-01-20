@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
+import static uk.co.nstauthority.hydrocarbonmaturation.energyresource.SubmissionFilterUtil.filterByResourceType;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -41,7 +43,7 @@ public class SubmissionQueryService {
         generalDetailsPersistenceService.getGeneralDetailsByName(name).stream()
         .map(detail -> detail.getSubmissionDetail().getResourceId())
         .distinct()
-        .filter(resource -> filterByResourceType(resource, ResourceType.DISCOVERY));
+        .filter(resource -> SubmissionFilterUtil.filterByResourceType(resource, ResourceType.DISCOVERY));
 
     //gets the latest general detail for each discovery
     Stream<SubmissionDetail> latestSubmissionsWhichCanBeSubmittedUpon =
@@ -84,13 +86,6 @@ public class SubmissionQueryService {
   }
 
   /**
-   * Ensures the correct resource type appears on search selectors.
-   */
-  private boolean filterByResourceType(Resource currentResource, ResourceType resourceType) {
-    return resourceType == currentResource.getType();
-  }
-
-  /**
    * Gets the discoveries linked to the prospect.
    */
   private List<Resource> getLinkedDiscoveries(Resource prospect) {
@@ -115,12 +110,9 @@ public class SubmissionQueryService {
 
     return otherSubmissionsOnResource
         .stream()
-        .noneMatch(submissionToBeChecked -> {
-          var submissionToBeCheckedType = submissionToBeChecked.getSubmissionType();
-          var submissionToBeCheckedStatus = submissionToBeChecked.getStatus();
-          return isSubmissionPreventingNewSubmission(
-              submissionToBeCheckedType, submissionToBeCheckedStatus, submissionToBeCreatedType);
-        });
+        .noneMatch(submissionToBeChecked ->
+            isSubmissionPreventingNewSubmission(submissionToBeChecked, submissionToBeCreatedType)
+        );
   }
 
   /** Checks other submissions on the prospect to determine whether a new submission can be made.
@@ -140,72 +132,38 @@ public class SubmissionQueryService {
     var otherSubmissionsOnResource =
         submissionDetailService.getSubmissionDetailsForResource(submission.getResourceId());
 
+    //True means the condition prevents the creation of a submission of type 'submissionToBeCreatedType',
+    //false means the submission does not prevent submissionToBeCreatedType
+    //and that the next submission for the resource should be checked
     return otherSubmissionsOnResource
         .stream()
-        .noneMatch(submissionToBeChecked -> {
-          //True means the condition prevents the creation of a submission of type 'submissionToBeCreatedType',
-          //false means the submission does not prevent submissionToBeCreatedType
-          //and that the next submission for the resource should be checked
-          var submissionToBeCheckedType = submissionToBeChecked.getSubmissionType();
-          var submissionToBeCheckedStatus = submissionToBeChecked.getStatus();
-          return isSubmissionPreventingNewSubmission(
-              submissionToBeCheckedType, submissionToBeCheckedStatus, submissionToBeCreatedType);
-        });
+        .noneMatch(submissionToBeChecked ->
+          isSubmissionPreventingNewSubmission(submissionToBeChecked, submissionToBeCreatedType)
+        );
   }
 
   /**
    *  Checks the business rules relating to other submissions on the same resource
    *  for the submission type that is being created.
-   * @param submissionToBeCheckedType The type of the old submission.
-   * @param submissionToBeCheckedStatus The status of the old submission.
+   * @param submissionToBeChecked The submission to be checked whether it prevents newSubmissionType from being submitted.
    * @param newSubmissionType The type of the submission being created.
    * @return True if the old submission prevents a new submission of type newSubmissionType.
    */
-  private boolean isSubmissionPreventingNewSubmission(SubmissionType submissionToBeCheckedType,
-                                                      SubmissionDetailStatus submissionToBeCheckedStatus,
+  private boolean isSubmissionPreventingNewSubmission(SubmissionDetail submissionToBeChecked,
                                                       SubmissionType newSubmissionType) {
     return switch (newSubmissionType) {
       case POST_DRILL_DRY_HOLE, CREATE_DISCOVERY_FROM_PROSPECT ->
-          isSubmissionPreventingDryHoleOrDiscovery(
-              submissionToBeCheckedType, submissionToBeCheckedStatus);
+          SubmissionFilterUtil.isSubmissionPreventingDryHoleOrDiscovery(submissionToBeChecked);
       case PROSPECT_UPDATE ->
-          isSubmissionPreventingProspectUpdate(
-              submissionToBeCheckedType, submissionToBeCheckedStatus);
+          SubmissionFilterUtil.isSubmissionPreventingProspectUpdate(submissionToBeChecked);
       case RELINQUISHMENT_PROSPECT ->
-          isSubmissionPreventingProspectRelinquishment(
-              submissionToBeCheckedType, submissionToBeCheckedStatus);
+          SubmissionFilterUtil.isSubmissionPreventingProspectRelinquishment(submissionToBeChecked);
       case RELINQUISHMENT_DISCOVERY ->
-          isSubmissionPreventingDiscoveryRelinquishment(
-              submissionToBeCheckedType, submissionToBeCheckedStatus);
+          SubmissionFilterUtil.isSubmissionPreventingDiscoveryRelinquishment(submissionToBeChecked);
       case UPDATE_DISCOVERY ->
-          isSubmissionPreventingDiscoveryUpdate(
-              submissionToBeCheckedType, submissionToBeCheckedStatus);
+          SubmissionFilterUtil.isSubmissionPreventingDiscoveryUpdate(submissionToBeChecked);
       default -> false;
     };
-  }
-
-  /**
-   * Discovery update can only be started on a discovery without another discovery update submission in
-   * draft and submitted status.
-   */
-  private boolean isSubmissionPreventingDiscoveryUpdate(SubmissionType submissionToBeCheckedType,
-                                                        SubmissionDetailStatus submissionToBeCheckedStatus) {
-    return (submissionToBeCheckedType == SubmissionType.UPDATE_DISCOVERY
-        && (submissionToBeCheckedStatus == SubmissionDetailStatus.DRAFT
-        || submissionToBeCheckedStatus == SubmissionDetailStatus.SUBMITTED));
-  }
-
-  /**
-   * Discovery relinquishment can be started if there are no DRAFT or SUBMITTED submissions on the resource (of any type)
-   * It also cannot be started if there is another relinquishment discovery submission in any status against it.
-   * This method returns true when a discovery relinquishment cannot be started based on these rules
-   */
-  private boolean isSubmissionPreventingDiscoveryRelinquishment(
-      SubmissionType submissionToBeCheckedType, SubmissionDetailStatus submissionToBeCheckedStatus) {
-    return (submissionToBeCheckedStatus == SubmissionDetailStatus.DRAFT
-        || submissionToBeCheckedStatus == SubmissionDetailStatus.SUBMITTED)
-        || (submissionToBeCheckedType == SubmissionType.RELINQUISHMENT_DISCOVERY
-        && submissionToBeCheckedStatus != SubmissionDetailStatus.DELETED);
   }
 
   /**
@@ -228,47 +186,6 @@ public class SubmissionQueryService {
     return !linkedDiscoverySubmissions.isEmpty()
         && (submissionTypeToBeCreated == SubmissionType.RELINQUISHMENT_PROSPECT
         || submissionTypeToBeCreated == SubmissionType.PROSPECT_UPDATE);
-  }
-
-  /**
-   * Prospect relinquishment can be started if there are no DRAFT or SUBMITTED submissions on the resource (of any type)
-   * Also that there are no discoveries and relinquishment submissions on it in any status.
-   * This method returns true when a prospect relinquishment cannot be started based on these rules
-   */
-  private boolean isSubmissionPreventingProspectRelinquishment(
-      SubmissionType submissionToBeCheckedType, SubmissionDetailStatus submissionToBeCheckedStatus) {
-    return (submissionToBeCheckedStatus == SubmissionDetailStatus.DRAFT
-        || submissionToBeCheckedStatus == SubmissionDetailStatus.SUBMITTED)
-        || (submissionToBeCheckedStatus != SubmissionDetailStatus.DELETED
-        && (submissionToBeCheckedType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
-        || submissionToBeCheckedType == SubmissionType.RELINQUISHMENT_PROSPECT));
-  }
-
-  /**
-   * Prospect update can only be started on a resource if there is no other draft or submitted prospect update on the resource.
-   * Also there cannot be a post drill dry hole or a discovery on the resource.
-   */
-  private boolean isSubmissionPreventingProspectUpdate(SubmissionType submissionToBeCheckedType,
-                                                       SubmissionDetailStatus submissionToBeCheckedStatus) {
-    return (submissionToBeCheckedType == SubmissionType.PROSPECT_UPDATE
-        && (submissionToBeCheckedStatus == SubmissionDetailStatus.DRAFT
-        || submissionToBeCheckedStatus == SubmissionDetailStatus.SUBMITTED))
-        || (submissionToBeCheckedStatus != SubmissionDetailStatus.DELETED
-        && (submissionToBeCheckedType == SubmissionType.POST_DRILL_DRY_HOLE
-        || submissionToBeCheckedType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT));
-  }
-
-  /**
-   * Dry hole and discovery submissions can only be made if there are no post drill dry hole submissions
-   * and when there is no prospect update submission with draft or submitted status.
-   */
-  private boolean isSubmissionPreventingDryHoleOrDiscovery(SubmissionType submissionToBeCheckedType,
-                                                           SubmissionDetailStatus submissionToBeCheckedStatus) {
-    return (submissionToBeCheckedStatus != SubmissionDetailStatus.DELETED
-        && submissionToBeCheckedType == SubmissionType.POST_DRILL_DRY_HOLE)
-        || (submissionToBeCheckedType == SubmissionType.PROSPECT_UPDATE
-        && (submissionToBeCheckedStatus == SubmissionDetailStatus.DRAFT
-        || submissionToBeCheckedStatus == SubmissionDetailStatus.SUBMITTED));
   }
 
   private ResourceView getResourceViewFromGeneralDetail(GeneralDetail generalDetail) {
