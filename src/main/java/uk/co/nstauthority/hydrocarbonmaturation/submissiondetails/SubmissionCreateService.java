@@ -13,6 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.Update
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.RelinquishmentForm;
@@ -136,12 +137,25 @@ public class SubmissionCreateService {
 
   @Transactional
   public SubmissionDetail createRelinquishment(RelinquishmentForm form) {
-    var oldSubmissionDetail =
-        submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(form.getResourceSelectedOption()));
+    String generalDetailId;
+    SubmissionType relinquishmentType;
+    switch (form.getChosenResourceType()) {
+      case PROSPECT -> {
+        generalDetailId = form.getProspectSelectedOption();
+        relinquishmentType = SubmissionType.RELINQUISHMENT_PROSPECT;
+      }
+      case DISCOVERY -> {
+        generalDetailId = form.getDiscoverySelectedOption();
+        relinquishmentType = SubmissionType.RELINQUISHMENT_DISCOVERY;
+      }
+      default -> throw new ActionNotAllowedException("You must create a relinquishment off of a discovery or prospect.");
+    }
+    var oldSubmissionDetail = submissionDetailService
+        .getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(generalDetailId));
     var resource = oldSubmissionDetail.getResourceId();
 
     var newSubmissionDetail = submissionDetailService
-        .createInitialSubmissionDetail(resource, SubmissionType.RELINQUISHMENT_PROSPECT);
+        .createInitialSubmissionDetail(resource, relinquishmentType);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -152,6 +166,10 @@ public class SubmissionCreateService {
   public Map<String, String> getSubmissionTypeOptionsForUser() {
     var userDetail = userDetailService.getUserDetail();
     var submissionTypeOptions = SubmissionType.getSubmissionTypes();
+
+    //this ensures only one relinquishment option appears in the startSubmissionController
+    submissionTypeOptions
+        .remove(SubmissionType.RELINQUISHMENT_DISCOVERY.name());
     if (!permissionService.hasPermission(userDetail, Set.of(RolePermission.EXPLORATION))) {
       submissionTypeOptions
           .remove(SubmissionType.RELINQUISHMENT_PROSPECT.name());

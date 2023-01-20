@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Controller
@@ -57,6 +58,7 @@ public class UpdateDiscoveryController {
         .addObject("backLinkUrl",
             ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage()))
         .addObject("discoveryApiEndpoint",
-            SearchSelectorService.route(on(ResourceRestController.class).searchDiscoveries(null)));
+            SearchSelectorService.route(on(ResourceRestController.class)
+                .searchDiscoveries(null, SubmissionType.UPDATE_DISCOVERY)));
   }
 }

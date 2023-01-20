@@ -40,7 +40,7 @@ public class SubmissionSummaryModelService {
           createProspectSubmissionSummaryModelAndView(submissionDetail, viewName);
       case POST_DRILL_DRY_HOLE ->
           createPostDrillDryWellSubmissionSummaryModelAndView(submissionDetail, viewName);
-      case CREATE_DISCOVERY, UPDATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT ->
+      case CREATE_DISCOVERY, UPDATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT, RELINQUISHMENT_DISCOVERY ->
           createDiscoverySubmissionSummaryModelAndView(submissionDetail, viewName);
     };
   }

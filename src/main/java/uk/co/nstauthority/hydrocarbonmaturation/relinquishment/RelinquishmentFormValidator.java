@@ -20,16 +20,12 @@ class RelinquishmentFormValidator implements Validator {
 
     ValidationUtils.rejectIfEmpty(errors, "chosenResourceType",
         "chosenResourceType.required", "Select a resource type for relinquishment");
-    if (form.getChosenResourceType() != null && form.getChosenResourceType() == ResourceType.PROSPECT) {
-      ValidationUtils.rejectIfEmpty(errors, "resourceSelectedOption",
-          "resourceSelectedOption.required", "Select a prospect for relinquishment");
+    if (form.getChosenResourceType() == ResourceType.PROSPECT) {
+      ValidationUtils.rejectIfEmpty(errors, "prospectSelectedOption",
+          "prospectSelectedOption.required", "Select a prospect for relinquishment");
     } else if (form.getChosenResourceType() == ResourceType.DISCOVERY) {
-      // todo HM-372 add discovery relinquishments, this conditional branch is just temporary to prevent an
-      //  exception when trying to submit a discovery relinquishment which is unfinished
-      errors.rejectValue(
-          "chosenResourceType",
-          "chosenResourceType.notImplemented",
-          "Discovery relinquishment is not implemented yet");
+      ValidationUtils.rejectIfEmpty(errors, "discoverySelectedOption",
+          "discoverySelectedOption.required", "Select a discovery for relinquishment");
     }
   }
 }

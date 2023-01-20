@@ -36,7 +36,8 @@ class SubmissionDetailTest {
     if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
         || submissionType == SubmissionType.CREATE_DISCOVERY
         || submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
+        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
       assertTrue(submissionDetail.isDryWellOrDiscoverySubmission());
     } else {
       assertFalse(submissionDetail.isDryWellOrDiscoverySubmission());
@@ -49,7 +50,8 @@ class SubmissionDetailTest {
     submissionDetail.setSubmissionType(submissionType);
     if (submissionType == SubmissionType.CREATE_DISCOVERY
         || submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
+        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
       assertTrue(submissionDetail.isDiscoverySubmission());
     } else {
       assertFalse(submissionDetail.isDiscoverySubmission());

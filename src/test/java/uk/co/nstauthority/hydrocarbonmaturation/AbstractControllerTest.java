@@ -62,8 +62,10 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected TeamMemberService teamMemberService;
+
   @MockBean
   protected TeamService teamService;
+
   @MockBean
   protected UserDetailService userDetailService;
 

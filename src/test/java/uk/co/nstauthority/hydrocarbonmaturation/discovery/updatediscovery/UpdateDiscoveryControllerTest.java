@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ContextConfiguration(classes = UpdateDiscoveryController.class)
@@ -67,7 +68,7 @@ class UpdateDiscoveryControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage()),
             ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchDiscoveries(null))
+            SearchSelectorService.route(on(ResourceRestController.class).searchDiscoveries(null, SubmissionType.UPDATE_DISCOVERY))
         );
   }
 
@@ -119,7 +120,8 @@ class UpdateDiscoveryControllerTest extends AbstractControllerTest {
             ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage()),
             ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchDiscoveries(null))
+            SearchSelectorService.route(on(ResourceRestController.class)
+                .searchDiscoveries(null, SubmissionType.UPDATE_DISCOVERY))
         );
 
     verify(updateDiscoveryService, times(1)).validate(any(), any());

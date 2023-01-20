@@ -37,11 +37,14 @@ public class ResourceRestController {
     );
   }
 
-  @GetMapping("/discoveries")
-  public RestSearchResult searchDiscoveries(@RequestParam("term") String searchTerm) {
+  @GetMapping("/discoveries/{submissionType}")
+  public RestSearchResult searchDiscoveries(@RequestParam("term") String searchTerm,
+                                            @PathVariable("submissionType") SubmissionType submissionType) {
     return searchSelectorService.search(
         searchTerm,
-        submissionQueryService.getLatestDiscoveriesByName(searchTerm)
+        submissionQueryService.getLatestDiscoveriesByNameForSubmissionType(
+            searchTerm,
+            submissionType)
     );
   }
 }

@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 
@@ -33,10 +36,16 @@ class DrillStemTestDuplicationServiceTest {
   @InjectMocks
   private DrillStemTestDuplicationService drillStemTestDuplicationService;
 
-  @Test
-  void duplicateSubmissionSection_DiscoveryUpdate_DrillStemTestResultExists_DoesDuplicate() {
-    var oldSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var newSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class,
+      names = {"UPDATE_DISCOVERY", "RELINQUISHMENT_DISCOVERY"},
+      mode = EnumSource.Mode.INCLUDE)
+  void duplicateSubmissionSection_DiscoveryUpdate_DrillStemTestResultExists_DoesDuplicate(
+      SubmissionType submissionType) {
+    var oldSubmissionDetail =
+        SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+    var newSubmissionDetail =
+        SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     var oldDrillStemTest = mock(DrillStemTest.class);
     var newDrillStemTest = mock(DrillStemTest.class);
 

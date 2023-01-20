@@ -11,7 +11,8 @@ public enum SubmissionType implements Displayable {
   CREATE_DISCOVERY_FROM_PROSPECT("Post-drill discovery", "Advise of a post-drill discovery", 40),
   CREATE_DISCOVERY("Post-drill discovery", "Create a new post-drill discovery", 50),
   UPDATE_DISCOVERY("Post-drill discovery update", "Update an existing discovery", 60),
-  RELINQUISHMENT_PROSPECT("Relinquishment", "Advise of a relinquishment", 70)
+  RELINQUISHMENT_PROSPECT("Relinquishment", "Advise of a relinquishment", 70),
+  RELINQUISHMENT_DISCOVERY("Relinquishment", "Advise of a relinquishment", 80)
   ;
 
   private final String typeName;

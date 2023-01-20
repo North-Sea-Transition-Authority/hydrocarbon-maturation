@@ -71,7 +71,10 @@ class ReservoirPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"})
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"},
+      mode = EnumSource.Mode.INCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsExist_ProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = new SubmissionDetail();
@@ -91,7 +94,10 @@ class ReservoirPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"}, mode = EnumSource.Mode.EXCLUDE)
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT", "CREATE_DISCOVERY", "CREATE_PROSPECT"},
+      mode = EnumSource.Mode.EXCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsExist_NonProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = new SubmissionDetail();
@@ -99,7 +105,8 @@ class ReservoirPropertiesDuplicationServiceTest {
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
-    if (submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionType == SubmissionType.UPDATE_DISCOVERY
+        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
       whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
           .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
     } else {
@@ -116,13 +123,18 @@ class ReservoirPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"})
+  @EnumSource(value = SubmissionType.class,
+      names = {"PROSPECT_UPDATE",
+          "RELINQUISHMENT_PROSPECT"},
+      mode = EnumSource.Mode.INCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_ProspectUpdate_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = new SubmissionDetail();
     newSubmissionDetail.setSubmissionType(submissionType);
 
-    if (submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionType == SubmissionType.UPDATE_DISCOVERY
+        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
       whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
           .thenReturn(List.of());
     } else {
@@ -137,13 +149,18 @@ class ReservoirPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"}, mode = EnumSource.Mode.EXCLUDE)
+  @EnumSource(value = SubmissionType.class, names = {
+      "PROSPECT_UPDATE",
+      "RELINQUISHMENT_PROSPECT",
+      "CREATE_PROSPECT",
+      "CREATE_DISCOVERY"}, mode = EnumSource.Mode.EXCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_NonProspectUpdate_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = new SubmissionDetail();
     newSubmissionDetail.setSubmissionType(submissionType);
 
-    if (submissionType == SubmissionType.UPDATE_DISCOVERY) {
+    if (submissionType == SubmissionType.UPDATE_DISCOVERY
+        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
       whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
           .thenReturn(List.of());
     } else {

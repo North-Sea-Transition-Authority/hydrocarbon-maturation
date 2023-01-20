@@ -64,7 +64,7 @@ public class StartSubmissionController {
               ReverseRouter.redirect(on(StartDiscoveryController.class).startDiscovery());
           case UPDATE_DISCOVERY ->
               ReverseRouter.redirect(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage());
-          case RELINQUISHMENT_PROSPECT -> //todo HM-372 add discovery relinquishment as possible option in this condition
+          case RELINQUISHMENT_PROSPECT, RELINQUISHMENT_DISCOVERY ->
               ReverseRouter.redirect(on(StartRelinquishmentSubmissionController.class).getStartRelinquishmentPage());
         });
   }

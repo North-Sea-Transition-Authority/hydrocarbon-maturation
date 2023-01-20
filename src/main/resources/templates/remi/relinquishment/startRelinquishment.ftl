@@ -1,7 +1,6 @@
 <#include '../layout/layout.ftl'>
 
 <#assign pageTitle = "Advise of a relinquishment" />
-<#--    todo ask for the wording of these pages-->
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 

@@ -17,7 +17,8 @@
     <#if reservoirPropertiesValues.submissionType() == "POST_DRILL_DRY_HOLE"
       || reservoirPropertiesValues.submissionType() == "CREATE_DISCOVERY"
       || reservoirPropertiesValues.submissionType() == "UPDATE_DISCOVERY"
-      || reservoirPropertiesValues.submissionType() == "CREATE_DISCOVERY_FROM_PROSPECT">
+      || reservoirPropertiesValues.submissionType() == "CREATE_DISCOVERY_FROM_PROSPECT"
+      || reservoirPropertiesValues.submissionType() == "RELINQUISHMENT_DISCOVERY">
       <@fdsSummaryList.summaryListRowNoAction keyText="Reservoir facies">
         ${reservoirPropertiesValues.reservoirFacies()}
       </@fdsSummaryList.summaryListRowNoAction>
@@ -31,7 +32,8 @@
     </@fdsSummaryList.summaryListCard>
     <#if (reservoirPropertiesValues.submissionType() == "CREATE_DISCOVERY"
     || reservoirPropertiesValues.submissionType() == "UPDATE_DISCOVERY"
-    || reservoirPropertiesValues.submissionType() == "CREATE_DISCOVERY_FROM_PROSPECT")
+    || reservoirPropertiesValues.submissionType() == "CREATE_DISCOVERY_FROM_PROSPECT"
+    || reservoirPropertiesValues.submissionType() == "RELINQUISHMENT_DISCOVERY")
     && reservoirPropertiesValues.listOfDepthToContactDistributions()?has_content>
       <@fdsSummaryList.summaryListCard headingText="Depth to hydrocarbon contact" summaryListId="reservoirpropertydistributions">
         <@probabilityDistribution.minMaxMostLikelyTable

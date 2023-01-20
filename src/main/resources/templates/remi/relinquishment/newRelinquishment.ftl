@@ -19,7 +19,7 @@
       nestingPath="form.chosenResourceType">
       <@fdsRadio.radioItem path="form.chosenResourceType" itemMap={"PROSPECT":  "Prospect"}>
         <@fdsSearchSelector.searchSelectorRest
-          path="form.resourceSelectedOption"
+          path="form.prospectSelectedOption"
           nestingPath="form.chosenResourceType"
           restUrl=springUrl(prospectApiEndpoint)
           labelText="What prospect is being relinquished?"
@@ -39,6 +39,21 @@
       <@fdsRadio.radioItem
         path="form.chosenResourceType"
         itemMap={"DISCOVERY":  "Discovery"}>
+        <@fdsSearchSelector.searchSelectorRest
+          path="form.discoverySelectedOption"
+          nestingPath="form.chosenResourceType"
+          restUrl=springUrl(discoveryApiEndpoint)
+          labelText="What discovery is being relinquished?"
+          selectorMinInputLength=3/>
+          <@fdsDetails.summaryDetails summaryTitle="The discovery I want to relinquish is not listed">
+            <p>
+              If the discovery you want to relinquish is not shown in the list then you must contact the operator responsible for the discovery
+              to provide you with access to their organisation.
+            </p>
+            <p>
+              If you are already part of the organisation then contact the NSTA for advice
+            </p>
+          </@fdsDetails.summaryDetails>
       </@fdsRadio.radioItem>
     </@fdsRadio.radioGroup>
     <@fdsAction.submitButtons primaryButtonText="Save and continue" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl="${springUrl(backLinkUrl)}"/>

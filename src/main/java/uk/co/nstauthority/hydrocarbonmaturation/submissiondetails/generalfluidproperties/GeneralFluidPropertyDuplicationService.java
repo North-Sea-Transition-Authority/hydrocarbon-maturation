@@ -21,7 +21,8 @@ class GeneralFluidPropertyDuplicationService implements SubmissionSectionDuplica
 
   @Override
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (newSubmissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+    if (newSubmissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY
+        || newSubmissionDetail.getSubmissionType() == SubmissionType.RELINQUISHMENT_DISCOVERY) {
       generalFluidPropertyPersistenceService.getGeneralFluidProperty(oldSubmissionDetail)
           .ifPresent(generalFluidProperty ->
               submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,

@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -28,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
@@ -246,13 +248,14 @@ class SubmissionCreateServiceTest {
   }
 
   @Test
-  void createRelinquishment_verifyMethodCalls() {
+  void createRelinquishment_whenProspect_verifyMethodCalls() {
     var relinquishmentForm = new RelinquishmentForm();
     relinquishmentForm.setChosenResourceType(ResourceType.PROSPECT);
-    relinquishmentForm.setResourceSelectedOption(UUID.randomUUID().toString());
+    relinquishmentForm.setProspectSelectedOption(UUID.randomUUID().toString());
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setResourceId(new Resource());
-    when(submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(relinquishmentForm.getResourceSelectedOption())))
+    when(submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(
+        UUID.fromString(relinquishmentForm.getProspectSelectedOption())))
         .thenReturn(submissionDetail);
 
     var newSubmissionDetail = submissionCreateService.createRelinquishment(relinquishmentForm);
@@ -261,5 +264,33 @@ class SubmissionCreateServiceTest {
         .createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.RELINQUISHMENT_PROSPECT);
     verify(submissionDetailDuplicationService)
         .duplicateSubmissionDetailSections(submissionDetail, newSubmissionDetail);
+  }
+
+  @Test
+  void createRelinquishment_whenDiscovery_verifyMethodCalls() {
+    var relinquishmentForm = new RelinquishmentForm();
+    relinquishmentForm.setChosenResourceType(ResourceType.DISCOVERY);
+    relinquishmentForm.setDiscoverySelectedOption(UUID.randomUUID().toString());
+    var submissionDetail = new SubmissionDetail();
+    submissionDetail.setResourceId(new Resource());
+    when(submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(
+        UUID.fromString(relinquishmentForm.getDiscoverySelectedOption())))
+        .thenReturn(submissionDetail);
+
+    var newSubmissionDetail = submissionCreateService.createRelinquishment(relinquishmentForm);
+
+    verify(submissionDetailService)
+        .createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.RELINQUISHMENT_DISCOVERY);
+    verify(submissionDetailDuplicationService)
+        .duplicateSubmissionDetailSections(submissionDetail, newSubmissionDetail);
+  }
+
+  @Test
+  void createRelinquishment_whenNotDiscoveryOrProspect_assertThrow() {
+    var relinquishmentForm = new RelinquishmentForm();
+    relinquishmentForm.setChosenResourceType(ResourceType.FIELD);
+    assertThatThrownBy(() -> submissionCreateService.createRelinquishment(relinquishmentForm))
+        .isExactlyInstanceOf(ActionNotAllowedException.class)
+        .hasMessage("You must create a relinquishment off of a discovery or prospect.");
   }
 }

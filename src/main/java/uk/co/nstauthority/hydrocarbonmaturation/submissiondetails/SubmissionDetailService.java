@@ -47,14 +47,16 @@ public class SubmissionDetailService {
             SubmissionDetailStatus.APPROVED);
   }
 
-  Optional<SubmissionDetail> getLatestSubmissionDetailByResource(Resource resource) {
-    return submissionDetailRepository.findFirstByResourceIdOrderByCreatedTimestampDesc(resource);
-  }
-
-  public SubmissionDetail getLatestSubmissionDetailForResourceOrThrow(Resource resource) {
-    return getLatestSubmissionDetailByResource(resource)
-        .orElseThrow(() -> new RemiEntityNotFoundException("Submission detail for resource with ID %s not found"
-            .formatted(resource.getId())));
+  public Optional<SubmissionDetail> getLatestApprovedDiscoverySubmissionDetailForResource(Resource resource) {
+    // Finds the latest approved discovery (update or create) submission that is approved for the resource.
+    return submissionDetailRepository
+        .findFirstByResourceIdAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+            resource,
+            List.of(
+                SubmissionType.CREATE_DISCOVERY,
+                SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
+                SubmissionType.UPDATE_DISCOVERY),
+            SubmissionDetailStatus.APPROVED);
   }
 
   public SubmissionDetail getSubmissionDetailForIdOrError(UUID id) {

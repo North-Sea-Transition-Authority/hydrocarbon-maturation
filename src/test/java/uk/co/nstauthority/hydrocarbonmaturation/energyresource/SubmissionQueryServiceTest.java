@@ -321,21 +321,24 @@ class SubmissionQueryServiceTest {
   }
 
   @Test
-  void getLatestDiscoveriesByName_oneDiscoveryOneProspect() {
+  void getLatestDiscoveriesByName_whenUpdateDiscovery_oneDiscoveryOneProspect() {
     var generalDetail1 = createGeneralDetail(
         "prospect1", ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, SubmissionType.PROSPECT_UPDATE);
     var generalDetail2 = createGeneralDetail(
-        "prospect2", ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_PROSPECT);
+        "prospect2", ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     var searchTerm = "prospect";
     when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm)).thenReturn(List.of(generalDetail1, generalDetail2));
     when(submissionDetailService
-        .getLatestSubmissionDetailForResourceOrThrow(generalDetail2.getSubmissionDetail().getResourceId()))
-        .thenReturn(generalDetail2.getSubmissionDetail());
+        .getLatestApprovedDiscoverySubmissionDetailForResource(generalDetail2.getSubmissionDetail().getResourceId()))
+        .thenReturn(Optional.of(generalDetail2.getSubmissionDetail()));
+    when(submissionDetailService.getSubmissionDetailsForResource(generalDetail2.getSubmissionDetail().getResourceId()))
+        .thenReturn(List.of(generalDetail2.getSubmissionDetail()));
     when(generalDetailsPersistenceService.getGeneralDetailOrThrow(generalDetail2.getSubmissionDetail())).thenReturn(generalDetail2);
     when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(generalDetail2.getSubmissionDetail()))
         .thenReturn(Optional.of("15/10"));
 
-    var result = submissionQueryService.getLatestDiscoveriesByName(searchTerm);
+    var result = submissionQueryService
+        .getLatestDiscoveriesByNameForSubmissionType(searchTerm, SubmissionType.UPDATE_DISCOVERY);
 
     assertThat(result)
         .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
@@ -425,6 +428,202 @@ class SubmissionQueryServiceTest {
     var result =
         submissionQueryService.getLatestProspectsByNameForSubmissionType(searchTerm,
             SubmissionType.RELINQUISHMENT_PROSPECT);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void getLatestDiscoveryByName_forDiscoveryRelinquishment_assertReturnsOne() {
+    var discovery = new Resource();
+    discovery.setType(ResourceType.DISCOVERY);
+    var oldGeneralDetail = createGeneralDetail(
+        "discovery old", ResourceType.DISCOVERY,
+        SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var generalDetailForResourceForRelinquishment = createGeneralDetail("discovery", ResourceType.DISCOVERY,
+        SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
+    generalDetailForResourceForRelinquishment.getSubmissionDetail().setResourceId(discovery);
+    oldGeneralDetail.getSubmissionDetail().setResourceId(discovery);
+
+    var searchTerm = "discovery";
+
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var submissionDetail2 = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail2.setStatus(SubmissionDetailStatus.APPROVED);
+
+    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
+        .thenReturn(List.of(
+            generalDetailForResourceForRelinquishment, oldGeneralDetail));
+    when(submissionDetailService
+        .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
+        .thenReturn(Optional.of(generalDetailForResourceForRelinquishment.getSubmissionDetail()));
+    when(submissionDetailService.getSubmissionDetailsForResource(discovery))
+        .thenReturn(List.of(submissionDetail, submissionDetail2));
+    when(generalDetailsPersistenceService.getGeneralDetailOrThrow(
+        generalDetailForResourceForRelinquishment.getSubmissionDetail()))
+        .thenReturn(generalDetailForResourceForRelinquishment);
+
+    var result =
+        submissionQueryService.getLatestDiscoveriesByNameForSubmissionType(searchTerm,
+            SubmissionType.RELINQUISHMENT_DISCOVERY);
+
+    assertThat(result)
+        .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
+        .containsExactly(
+            tuple(generalDetailForResourceForRelinquishment.getId().toString(), "discovery")
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
+  void getLatestDiscoveryByName_forDiscoveryRelinquishment_whenDeletedSubmission_assertReturnsOne(
+      SubmissionType submissionType) {
+    var discovery = new Resource();
+    discovery.setType(ResourceType.DISCOVERY);
+    var oldGeneralDetail = createGeneralDetail(
+        "discovery old", ResourceType.DISCOVERY,
+        SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var generalDetailForResourceForRelinquishment = createGeneralDetail("discovery", ResourceType.DISCOVERY,
+        SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
+    var deletedSubmission = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    deletedSubmission.setStatus(SubmissionDetailStatus.DELETED);
+    generalDetailForResourceForRelinquishment.getSubmissionDetail().setResourceId(discovery);
+    oldGeneralDetail.getSubmissionDetail().setResourceId(discovery);
+
+    var searchTerm = "discovery";
+
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var submissionDetail2 = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail2.setStatus(SubmissionDetailStatus.APPROVED);
+
+    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
+        .thenReturn(List.of(
+            generalDetailForResourceForRelinquishment, oldGeneralDetail));
+    when(submissionDetailService
+        .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
+        .thenReturn(Optional.of(generalDetailForResourceForRelinquishment.getSubmissionDetail()));
+    when(submissionDetailService.getSubmissionDetailsForResource(discovery))
+        .thenReturn(List.of(submissionDetail, submissionDetail2, deletedSubmission));
+    when(generalDetailsPersistenceService.getGeneralDetailOrThrow(
+        generalDetailForResourceForRelinquishment.getSubmissionDetail()))
+        .thenReturn(generalDetailForResourceForRelinquishment);
+
+    var result =
+        submissionQueryService.getLatestDiscoveriesByNameForSubmissionType(searchTerm,
+            SubmissionType.RELINQUISHMENT_DISCOVERY);
+
+    assertThat(result)
+        .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
+        .containsExactly(
+            tuple(generalDetailForResourceForRelinquishment.getId().toString(), "discovery")
+        );
+  }
+
+
+  @Test
+  void getLatestDiscoveryByName_forDiscoveryRelinquishment_whenDraftUpdatePresent_assertReturnsNothing() {
+    var discovery = new Resource();
+    discovery.setType(ResourceType.DISCOVERY);
+    var oldGeneralDetail = createGeneralDetail(
+        "discovery old", ResourceType.DISCOVERY,
+        SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var generalDetailForResourceForRelinquishment = createGeneralDetail("discovery", ResourceType.DISCOVERY,
+        SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
+    generalDetailForResourceForRelinquishment.getSubmissionDetail().setResourceId(discovery);
+    oldGeneralDetail.getSubmissionDetail().setResourceId(discovery);
+
+    var searchTerm = "discovery";
+
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var submissionDetail2 = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+    submissionDetail2.setStatus(SubmissionDetailStatus.APPROVED);
+
+    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
+        .thenReturn(List.of(
+            generalDetailForResourceForRelinquishment, oldGeneralDetail));
+    when(submissionDetailService
+        .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
+        .thenReturn(Optional.of(generalDetailForResourceForRelinquishment.getSubmissionDetail()));
+    when(submissionDetailService.getSubmissionDetailsForResource(discovery))
+        .thenReturn(List.of(submissionDetail, submissionDetail2));
+
+    var result =
+        submissionQueryService.getLatestDiscoveriesByNameForSubmissionType(searchTerm,
+            SubmissionType.RELINQUISHMENT_DISCOVERY);
+
+    assertThat(result).isEmpty();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionDetailStatus.class, names = {"DELETED"}, mode = EnumSource.Mode.EXCLUDE)
+  void getLatestDiscoveryByName_forDiscoveryRelinquishment_whenRelinquishmentPresentInStatus_assertReturnsNothing(
+      SubmissionDetailStatus status) {
+    var discovery = new Resource();
+    discovery.setType(ResourceType.DISCOVERY);
+    var oldGeneralDetail = createGeneralDetail(
+        "discovery old", ResourceType.DISCOVERY,
+        SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var generalDetailForResourceForRelinquishment = createGeneralDetail("discovery", ResourceType.DISCOVERY,
+        SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
+    generalDetailForResourceForRelinquishment.getSubmissionDetail().setResourceId(discovery);
+    oldGeneralDetail.getSubmissionDetail().setResourceId(discovery);
+
+    var searchTerm = "discovery";
+
+    var discoverySubmission = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryRelinquishment = SubmissionDetailTestUtils.createNewDiscoveryRelinquishmentSubmissionDetail();
+    discoverySubmission.setStatus(SubmissionDetailStatus.APPROVED);
+    discoveryRelinquishment.setStatus(status);
+
+    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
+        .thenReturn(List.of(
+            generalDetailForResourceForRelinquishment, oldGeneralDetail));
+    when(submissionDetailService
+        .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
+        .thenReturn(Optional.of(generalDetailForResourceForRelinquishment.getSubmissionDetail()));
+    when(submissionDetailService.getSubmissionDetailsForResource(discovery))
+        .thenReturn(List.of(discoverySubmission, discoveryRelinquishment));
+
+    var result =
+        submissionQueryService.getLatestDiscoveriesByNameForSubmissionType(searchTerm,
+            SubmissionType.RELINQUISHMENT_DISCOVERY);
+
+    assertThat(result).isEmpty();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionDetailStatus.class, names = {"DRAFT", "SUBMITTED"}, mode = EnumSource.Mode.INCLUDE)
+  void getLatestDiscoveryByName_forDiscoveryUpdate_whenDiscoveryUpdatePresentInStatus_assertReturnsNothing(
+      SubmissionDetailStatus status) {
+    var discovery = new Resource();
+    discovery.setType(ResourceType.DISCOVERY);
+    var generalDetails = createGeneralDetail("discovery", ResourceType.DISCOVERY,
+        SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
+    generalDetails.getSubmissionDetail().setResourceId(discovery);
+
+    var searchTerm = "discovery";
+
+    var discoverySubmission = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryUpdate = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    discoverySubmission.setStatus(SubmissionDetailStatus.APPROVED);
+    discoveryUpdate.setStatus(status);
+
+    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
+        .thenReturn(List.of(
+            generalDetails));
+    when(submissionDetailService
+        .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
+        .thenReturn(Optional.of(generalDetails.getSubmissionDetail()));
+    when(submissionDetailService.getSubmissionDetailsForResource(discovery))
+        .thenReturn(List.of(discoverySubmission,
+            discoveryUpdate,
+            generalDetails.getSubmissionDetail()));
+
+    var result =
+        submissionQueryService.getLatestDiscoveriesByNameForSubmissionType(searchTerm,
+            SubmissionType.UPDATE_DISCOVERY);
 
     assertThat(result).isEmpty();
   }

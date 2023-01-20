@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,12 +48,12 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
         ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT
     ));
 
-    if (!Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.PROSPECT_UPDATE)
-        && !Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.RELINQUISHMENT_PROSPECT)) {
+    if (!newSubmissionDetail.isProspectSubmission()) {
       applicableInstances.remove(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT);
     }
 
-    if (Objects.equals(newSubmissionDetail.getSubmissionType(), SubmissionType.UPDATE_DISCOVERY)) {
+    if (newSubmissionDetail.isDiscoverySubmission()
+        && newSubmissionDetail.getSubmissionType() != SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
       applicableInstances.remove(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
       applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
       applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT);
@@ -74,8 +73,10 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
             probabilityDistribution.setInstance(
                 ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
           }
+
           submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
-              ProbabilityDistribution.class);
+                ProbabilityDistribution.class);
+
           probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
         });
   }

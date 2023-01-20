@@ -74,6 +74,12 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
                           validationType,
                           submissionType,
                           HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
+                } else {
+                  reservoirPropertiesFormValidator.validate(form, bindingResult,
+                      new ReservoirPropertiesValidatorHints(
+                          validationType,
+                          submissionType,
+                          null));
                 }
               },
               () ->

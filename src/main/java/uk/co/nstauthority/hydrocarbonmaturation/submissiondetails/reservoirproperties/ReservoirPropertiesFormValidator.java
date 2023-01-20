@@ -122,7 +122,8 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
 
     if (submissionType == SubmissionType.CREATE_DISCOVERY
         || submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
+        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirFacies",
           "reservoirFacies.required", "Enter the reservoir facies");
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirConnectivity",
@@ -215,7 +216,8 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
       );
     } else if (submissionType == SubmissionType.CREATE_DISCOVERY
         || submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
+        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
       validateFullyDepthToFields(errors, reservoirForm, hydrocarbonsDiscovered);
     }
   }

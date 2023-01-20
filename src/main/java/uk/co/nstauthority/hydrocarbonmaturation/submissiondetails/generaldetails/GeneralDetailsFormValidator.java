@@ -97,7 +97,8 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
         || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT
         || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
         || submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY) {
+        || submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
       ValidationUtils.rejectIfEmpty(errors, "informationSource", "informationSource.required",
           "Select the source of information");
       if (generalDetailsForm.getInformationSource() == InformationSource.LICENCE_APPLICATION) {

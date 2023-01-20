@@ -45,7 +45,8 @@
       permeabilitySummaryView=permeabilitySummaryView/>
   <#elseif submissionType == "CREATE_DISCOVERY"
   || submissionType == "UPDATE_DISCOVERY"
-  || submissionType == "CREATE_DISCOVERY_FROM_PROSPECT">
+  || submissionType == "CREATE_DISCOVERY_FROM_PROSPECT"
+  || submissionType == "RELINQUISHMENT_DISCOVERY">
     <@discoverySubmissionSummary.discoverySubmissionSummary
       generalDetailsSummaryView=generalDetailsSummaryView
       permeabilitySummaryView=permeabilitySummaryView

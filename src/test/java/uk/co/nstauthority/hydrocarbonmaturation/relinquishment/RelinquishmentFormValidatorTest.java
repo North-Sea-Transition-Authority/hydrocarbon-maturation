@@ -33,8 +33,20 @@ class RelinquishmentFormValidatorTest {
   }
 
   @Test
-  void validate_whenValidForm_thenNoValidationErrors() {
+  void validate_whenValidProspectForm_thenNoValidationErrors() {
     var form = getValidForm();
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    relinquishmentFormValidator.validate(form, bindingResult);
+
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @Test
+  void validate_whenValidDiscoveryForm_thenNoValidationErrors() {
+    var form = new RelinquishmentForm();
+    form.setDiscoverySelectedOption(UUID.randomUUID().toString());
+    form.setChosenResourceType(ResourceType.DISCOVERY);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     relinquishmentFormValidator.validate(form, bindingResult);
@@ -56,7 +68,7 @@ class RelinquishmentFormValidatorTest {
   }
 
   @Test
-  void validate_whenEmptyResourceSelector_thenValidationErrors() {
+  void validate_whenEmptyProspectSelector_thenValidationErrors() {
     var form = new RelinquishmentForm();
     form.setChosenResourceType(ResourceType.PROSPECT);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -65,7 +77,7 @@ class RelinquishmentFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
-            entry("resourceSelectedOption", Set.of("resourceSelectedOption.required"))
+            entry("prospectSelectedOption", Set.of("prospectSelectedOption.required"))
         );
   }
 
@@ -79,13 +91,13 @@ class RelinquishmentFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
-            entry("chosenResourceType", Set.of("chosenResourceType.notImplemented"))
+            entry("discoverySelectedOption", Set.of("discoverySelectedOption.required"))
         );
   }
 
   private RelinquishmentForm getValidForm() {
     var form = new RelinquishmentForm();
-    form.setResourceSelectedOption(UUID.randomUUID().toString());
+    form.setProspectSelectedOption(UUID.randomUUID().toString());
     form.setChosenResourceType(ResourceType.PROSPECT);
     return form;
   }

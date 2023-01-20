@@ -43,7 +43,7 @@ public class NewRelinquishmentController {
 
   @PostMapping
   public ModelAndView createNewRelinquishmentSubmission(@Valid @ModelAttribute("form") RelinquishmentForm form,
-                                                         BindingResult bindingResult) {
+                                                        BindingResult bindingResult) {
     bindingResult = relinquishmentService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getNewRelinquishmentPageModelAndView(form),
@@ -59,6 +59,9 @@ public class NewRelinquishmentController {
         .addObject("prospectApiEndpoint",
             SearchSelectorService.route(on(ResourceRestController.class)
                 .searchProspects(null, SubmissionType.RELINQUISHMENT_PROSPECT)))
+        .addObject("discoveryApiEndpoint",
+            SearchSelectorService.route(on(ResourceRestController.class)
+                .searchDiscoveries(null, SubmissionType.RELINQUISHMENT_DISCOVERY)))
         .addObject("backLinkUrl",
             ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
                 .getStartRelinquishmentPage()))

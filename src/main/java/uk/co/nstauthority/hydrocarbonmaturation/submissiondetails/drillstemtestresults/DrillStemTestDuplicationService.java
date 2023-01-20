@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
 
@@ -27,7 +26,7 @@ class DrillStemTestDuplicationService implements SubmissionSectionDuplicationSer
   @Override
   @Transactional
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (newSubmissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+    if (newSubmissionDetail.isDiscoverySubmission()) {
       drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(oldSubmissionDetail)
           .ifPresent(drillStemTest -> {
             var newDrillStemTest = submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(

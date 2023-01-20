@@ -34,7 +34,8 @@ public class SubmissionQueryService {
     this.resourceLinkService = resourceLinkService;
   }
 
-  public List<ResourceView> getLatestDiscoveriesByName(String name) {
+  public List<ResourceView> getLatestDiscoveriesByNameForSubmissionType(String name,
+                                                                        SubmissionType submissionType) {
     //gets every discovery resource with the name specified
     Stream<Resource> distinctDiscoveries =
         generalDetailsPersistenceService.getGeneralDetailsByName(name).stream()
@@ -43,13 +44,15 @@ public class SubmissionQueryService {
         .filter(resource -> filterByResourceType(resource, ResourceType.DISCOVERY));
 
     //gets the latest general detail for each discovery
-    Stream<GeneralDetail> latestGeneralDetailsForResources =
+    Stream<SubmissionDetail> latestSubmissionsWhichCanBeSubmittedUpon =
         distinctDiscoveries
-            .map(submissionDetailService::getLatestSubmissionDetailForResourceOrThrow)
-            .map(generalDetailsPersistenceService::getGeneralDetailOrThrow);
+            .map(submissionDetailService::getLatestApprovedDiscoverySubmissionDetailForResource)
+            .flatMap(Optional::stream)
+            .filter(detail -> filterDiscoverySubmissionByOtherSubmissions(detail, submissionType));
 
     //Gets the list of resource views for discoveries to be displayed in a search selector.
-    return latestGeneralDetailsForResources
+    return latestSubmissionsWhichCanBeSubmittedUpon
+        .map(generalDetailsPersistenceService::getGeneralDetailOrThrow)
         .map(this::getResourceViewFromGeneralDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();
@@ -70,7 +73,7 @@ public class SubmissionQueryService {
         distinctProspectsForSubmissionType
             .map(submissionDetailService::getLatestApprovedProspectSubmissionForResource)
             .flatMap(Optional::stream)
-            .filter(detail -> filterSubmissionByOtherSubmissions(detail, submissionType));
+            .filter(detail -> filterProspectSubmissionByOtherSubmissions(detail, submissionType));
 
     //Gets the list of resource views for prospects to be displayed in a search selector
     return latestSubmissionsWhichCanBeSubmittedUpon
@@ -100,14 +103,35 @@ public class SubmissionQueryService {
     return linkedDiscoveries;
   }
 
-  /** Checks other submissions on the resource to determine whether a new submission can be made.
+  /** Checks other submissions on the discovery to determine whether a new submission can be made.
+  * @param submission Current latest approved submission being checked
+  * @param submissionToBeCreatedType Submission type that is being created
+  * @return if the submission should be available to be chosen
+  */
+  private boolean filterDiscoverySubmissionByOtherSubmissions(SubmissionDetail submission,
+                                                              SubmissionType submissionToBeCreatedType) {
+    var otherSubmissionsOnResource = submissionDetailService
+        .getSubmissionDetailsForResource(submission.getResourceId());
+
+    return otherSubmissionsOnResource
+        .stream()
+        .noneMatch(submissionToBeChecked -> {
+          var submissionToBeCheckedType = submissionToBeChecked.getSubmissionType();
+          var submissionToBeCheckedStatus = submissionToBeChecked.getStatus();
+          return isSubmissionPreventingNewSubmission(
+              submissionToBeCheckedType, submissionToBeCheckedStatus, submissionToBeCreatedType);
+        });
+  }
+
+  /** Checks other submissions on the prospect to determine whether a new submission can be made.
    * @param submission Current latest approved submission being checked
    * @param submissionToBeCreatedType Submission type that is being created
    * @return if the submission should be available to be chosen
    */
-  private boolean filterSubmissionByOtherSubmissions(SubmissionDetail submission,
-                                                     SubmissionType submissionToBeCreatedType) {
-    if (isLinkedDiscoveryPreventingSubmission(submissionToBeCreatedType, submission.getResourceId())) {
+  private boolean filterProspectSubmissionByOtherSubmissions(SubmissionDetail submission,
+                                                             SubmissionType submissionToBeCreatedType) {
+    if (isLinkedDiscoveryPreventingSubmission(
+        submissionToBeCreatedType, submission.getResourceId())) {
       // cannot start a prospect update or relinquishment on a prospect with a discovery submission on it
       return false;
     }
@@ -150,15 +174,46 @@ public class SubmissionQueryService {
       case RELINQUISHMENT_PROSPECT ->
           isSubmissionPreventingProspectRelinquishment(
               submissionToBeCheckedType, submissionToBeCheckedStatus);
+      case RELINQUISHMENT_DISCOVERY ->
+          isSubmissionPreventingDiscoveryRelinquishment(
+              submissionToBeCheckedType, submissionToBeCheckedStatus);
+      case UPDATE_DISCOVERY ->
+          isSubmissionPreventingDiscoveryUpdate(
+              submissionToBeCheckedType, submissionToBeCheckedStatus);
       default -> false;
     };
+  }
+
+  /**
+   * Discovery update can only be started on a discovery without another discovery update submission in
+   * draft and submitted status.
+   */
+  private boolean isSubmissionPreventingDiscoveryUpdate(SubmissionType submissionToBeCheckedType,
+                                                        SubmissionDetailStatus submissionToBeCheckedStatus) {
+    return (submissionToBeCheckedType == SubmissionType.UPDATE_DISCOVERY
+        && (submissionToBeCheckedStatus == SubmissionDetailStatus.DRAFT
+        || submissionToBeCheckedStatus == SubmissionDetailStatus.SUBMITTED));
+  }
+
+  /**
+   * Discovery relinquishment can be started if there are no DRAFT or SUBMITTED submissions on the resource (of any type)
+   * It also cannot be started if there is another relinquishment discovery submission in any status against it.
+   * This method returns true when a discovery relinquishment cannot be started based on these rules
+   */
+  private boolean isSubmissionPreventingDiscoveryRelinquishment(
+      SubmissionType submissionToBeCheckedType, SubmissionDetailStatus submissionToBeCheckedStatus) {
+    return (submissionToBeCheckedStatus == SubmissionDetailStatus.DRAFT
+        || submissionToBeCheckedStatus == SubmissionDetailStatus.SUBMITTED)
+        || (submissionToBeCheckedType == SubmissionType.RELINQUISHMENT_DISCOVERY
+        && submissionToBeCheckedStatus != SubmissionDetailStatus.DELETED);
   }
 
   /**
    * Prospect relinquishment and prospect update cannot be started on a resource with a discovery submission.
    * This method returns true if the linked discovery prevents the submission of submissionTypeToBeCreated
    */
-  private boolean isLinkedDiscoveryPreventingSubmission(SubmissionType submissionTypeToBeCreated, Resource prospect) {
+  private boolean isLinkedDiscoveryPreventingSubmission(SubmissionType submissionTypeToBeCreated,
+                                                        Resource prospect) {
     //gets discovery resources linked to the prospect
     var linkedDiscoveries = getLinkedDiscoveries(prospect);
     var linkedDiscoverySubmissions = new ArrayList<SubmissionDetail>();
