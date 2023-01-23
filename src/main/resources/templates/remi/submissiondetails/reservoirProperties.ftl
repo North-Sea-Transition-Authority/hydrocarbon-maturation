@@ -120,7 +120,7 @@
       <#if oilCase || mixedCase>
         <@probabilityDistribution.probabilityDistributionCustomTemplate
           probabilityDistributionTypePath="form.depthToOilWaterContact.probabilityDistributionType"
-          labelText="Depth to oil water contact distribution used"
+          labelText="Depth to oil water contact"
           formId="depthToOilWaterContact"
           template=depthToOilWaterContactTemplate
           error=depthToOilWaterContactError/>
@@ -128,7 +128,7 @@
       <#if gasCase || mixedCase>
         <@probabilityDistribution.probabilityDistributionCustomTemplate
           probabilityDistributionTypePath="form.depthToGasWaterContact.probabilityDistributionType"
-          labelText="Depth to gas water contact distribution used"
+          labelText="Depth to gas water contact"
           formId="depthToGasWaterContact"
           template=depthToGasWaterContactTemplate
           error=depthToGasWaterContactError/>
@@ -136,7 +136,7 @@
       <#if mixedCase>
         <@probabilityDistribution.probabilityDistributionCustomTemplate
           probabilityDistributionTypePath="form.depthToGasOilContact.probabilityDistributionType"
-          labelText="Depth to gas oil contact distribution used"
+          labelText="Depth to gas oil contact"
           formId="depthToGasOilContact"
           template=depthToGasOilContactTemplate
           error=depthToGasOilContactError/>
