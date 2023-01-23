@@ -83,7 +83,8 @@ class ChanceOfSuccessControllerTest extends AbstractControllerTest {
   void saveChanceOfSuccess_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(ChanceOfSuccessForm.class, "form");
-    when(chanceOfSuccessFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(chanceOfSuccessFormService.validate(any(), any(),
+        any(), eq(submissionDetail))).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ChanceOfSuccessController.class).saveChanceOfSuccess(submissionDetailId, null, null, null)))
@@ -93,7 +94,7 @@ class ChanceOfSuccessControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(chanceOfSuccessFormService, times(1)).validate(any(), any(), eq(validationType));
+    verify(chanceOfSuccessFormService, times(1)).validate(any(), any(), eq(validationType), eq(submissionDetail));
     verify(chanceOfSuccessPersistenceService, times(1)).saveChanceOfSuccess(any(ChanceOfSuccessForm.class), eq(submissionDetail));
   }
 
@@ -104,7 +105,7 @@ class ChanceOfSuccessControllerTest extends AbstractControllerTest {
 
     var bindingResult = new BeanPropertyBindingResult(ChanceOfSuccessForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(chanceOfSuccessFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(chanceOfSuccessFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ChanceOfSuccessController.class).saveChanceOfSuccess(submissionDetailId, null, null, null)))
@@ -113,7 +114,8 @@ class ChanceOfSuccessControllerTest extends AbstractControllerTest {
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(chanceOfSuccessFormService, times(1)).validate(any(), any(), eq(validationType));
+    verify(chanceOfSuccessFormService, times(1)).validate(any(), any(),
+        eq(validationType), eq(submissionDetail));
     verify(chanceOfSuccessPersistenceService, never()).saveChanceOfSuccess(any(), any());
   }
 

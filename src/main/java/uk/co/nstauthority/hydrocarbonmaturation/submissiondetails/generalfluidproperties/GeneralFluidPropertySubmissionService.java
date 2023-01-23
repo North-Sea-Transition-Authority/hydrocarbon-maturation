@@ -22,7 +22,8 @@ public class GeneralFluidPropertySubmissionService implements SectionSubmissionS
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = generalFluidPropertyFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = generalFluidPropertyFormService.validate(
+        form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

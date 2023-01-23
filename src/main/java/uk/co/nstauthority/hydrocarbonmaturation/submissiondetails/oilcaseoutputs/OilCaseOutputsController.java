@@ -65,8 +65,8 @@ public class OilCaseOutputsController {
                                          @Valid @ModelAttribute("form") OilCaseOutputsForm form,
                                          BindingResult bindingResult,
                                          ValidationType validationType) {
-    bindingResult = oilCaseOutputsFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = oilCaseOutputsFormService.validate(form, bindingResult, validationType, submissionDetail);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,

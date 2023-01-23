@@ -65,8 +65,9 @@ public class OilCaseVolumetricsController {
                                              @Valid @ModelAttribute("form") OilCaseVolumetricsForm form,
                                              BindingResult bindingResult,
                                              ValidationType validationType) {
-    bindingResult = oilCaseVolumetricsFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = oilCaseVolumetricsFormService.validate(form, bindingResult, validationType, submissionDetail);
+
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getOilVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetail),

@@ -34,7 +34,8 @@ class OilCaseVolumetricsSubmissionServiceTest {
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
     when(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail)).thenReturn(form);
-    when(oilCaseVolumetricsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(oilCaseVolumetricsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(oilCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail));
@@ -48,7 +49,8 @@ class OilCaseVolumetricsSubmissionServiceTest {
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
     when(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail)).thenReturn(form);
-    when(oilCaseVolumetricsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(oilCaseVolumetricsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(oilCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail));

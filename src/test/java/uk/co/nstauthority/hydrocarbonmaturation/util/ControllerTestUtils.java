@@ -13,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.Validator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -57,17 +58,21 @@ public class ControllerTestUtils {
   /**
    * Return a binding result with a validation error when the passed-in validation type is used.
    */
-  public static void failValidationWhenPost(SubmissionFormService service, Object form, ValidationType validationType) {
+  public static void failValidationWhenPost(
+      SubmissionFormService service, Object form, ValidationType validationType, SubmissionDetail submissionDetail) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult.addError(new ObjectError("fake", "fake"));
-    when(service.validate(any(), any(), eq(validationType))).thenReturn(bindingResult);
+    when(service.validate(any(), any(), eq(validationType), eq(submissionDetail)))
+        .thenReturn(bindingResult);
   }
 
   /**
    * Return a clean binding result when the passed-in validation type is used.
    */
-  public static void passValidationWhenPost(SubmissionFormService service, Object form, ValidationType validationType) {
-    when(service.validate(any(), any(), eq(validationType))).thenReturn(new BeanPropertyBindingResult(form, "form"));
+  public static void passValidationWhenPost(SubmissionFormService service, Object form,
+                                            ValidationType validationType, SubmissionDetail submissionDetail) {
+    when(service.validate(any(), any(), eq(validationType), eq(submissionDetail)))
+        .thenReturn(new BeanPropertyBindingResult(form, "form"));
   }
 
   public static MultiValueMap<String, String> validationPostParams(ValidationType validationType) {

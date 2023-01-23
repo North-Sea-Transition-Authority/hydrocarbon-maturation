@@ -66,9 +66,9 @@ public class AdditionalInformationController {
                                                 @ModelAttribute("form") AdditionalInformationForm form,
                                                 BindingResult bindingResult,
                                                 ValidationType validationType) {
-    bindingResult = additionalInformationFormService.validate(form, bindingResult, validationType);
-    var additionalDocumentUploads = additionalInformationFormService.getAdditionalDocumentUploads(form);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = additionalInformationFormService.validate(form, bindingResult, validationType, submissionDetail);
+    var additionalDocumentUploads = additionalInformationFormService.getAdditionalDocumentUploads(form);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getAdditionalInformationModelAndView(form, submissionDetail, additionalDocumentUploads),

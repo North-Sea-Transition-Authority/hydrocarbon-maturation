@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,6 +20,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,10 +50,16 @@ class GeneralFluidPropertyFormServiceTest {
     var form = new GeneralFluidPropertyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    generalFluidPropertyFormService.validate(form, bindingResult, ValidationType.FULL);
+    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
+
+    generalFluidPropertyFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
 
     verify(generalFluidPropertyFormValidator, times(1))
-        .validate(form, bindingResult, ValidationType.FULL);
+        .validate(eq(form), eq(bindingResult), captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(SubmissionFormValidatorHints::getSubmissionDetail, SubmissionFormValidatorHints::getValidationType)
+        .containsExactly(submissionDetail, ValidationType.FULL);
   }
 
   @Test

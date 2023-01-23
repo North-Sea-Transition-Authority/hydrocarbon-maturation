@@ -22,9 +22,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,9 +35,12 @@ class TrapPropertiesFormValidatorTest {
 
   private TrapPropertiesFormValidator trapPropertiesFormValidator;
 
+  private SubmissionDetail submissionDetail;
+
   @BeforeEach
   void setup() {
     trapPropertiesFormValidator = new TrapPropertiesFormValidator();
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @Test
@@ -237,7 +243,8 @@ class TrapPropertiesFormValidatorTest {
 
   private BindingResult validateTrapPropertiesForm(TrapPropertiesForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    trapPropertiesFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    trapPropertiesFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
     return bindingResult;
   }
 }

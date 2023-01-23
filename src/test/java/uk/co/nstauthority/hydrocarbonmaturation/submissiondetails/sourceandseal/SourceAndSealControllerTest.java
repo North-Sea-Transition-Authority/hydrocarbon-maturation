@@ -89,7 +89,7 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveSourceAndSealDetails_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(sourceAndSealFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(sourceAndSealFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -107,7 +107,7 @@ class SourceAndSealControllerTest extends AbstractControllerTest {
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveSourceAndSealDetails_fullValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(sourceAndSealFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(sourceAndSealFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(

@@ -3,18 +3,16 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class PermeabilityFormValidator implements SmartValidator, SubmissionFormValidator {
+class PermeabilityFormValidator extends PartialFullFormValidator {
 
   private SubmissionType submissionType;
 
@@ -25,8 +23,10 @@ class PermeabilityFormValidator implements SmartValidator, SubmissionFormValidat
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
-    var validationType = (ValidationType) validationHints[0];
-    submissionType = SubmissionFormValidationUtils.extractSubmissionTypeFromHints(validationHints);
+    var hints = SubmissionFormValidationUtils
+        .extractValidatorHints(validationHints);
+    var validationType = hints.getValidationType();
+    submissionType = hints.getSubmissionDetail().getSubmissionType();
 
     var form = (PermeabilityForm) target;
 
@@ -35,11 +35,6 @@ class PermeabilityFormValidator implements SmartValidator, SubmissionFormValidat
       case PARTIAL -> validatePartial(form, errors);
       default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
     }
-  }
-
-  @Override
-  public void validate(Object target, Errors errors) {
-    throw new ActionNotAllowedException("Incorrect parameters provided for validation");
   }
 
   @Override

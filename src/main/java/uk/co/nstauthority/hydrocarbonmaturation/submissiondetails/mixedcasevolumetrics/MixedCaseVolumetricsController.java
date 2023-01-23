@@ -65,8 +65,8 @@ public class MixedCaseVolumetricsController {
                                                @Valid @ModelAttribute("form") MixedCaseVolumetricsForm form,
                                                BindingResult bindingResult,
                                                ValidationType validationType) {
-    bindingResult = mixedCaseVolumetricsFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = mixedCaseVolumetricsFormService.validate(form, bindingResult, validationType, submissionDetail);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,

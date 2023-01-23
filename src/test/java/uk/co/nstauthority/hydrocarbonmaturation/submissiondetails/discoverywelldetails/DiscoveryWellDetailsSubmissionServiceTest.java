@@ -39,7 +39,8 @@ class DiscoveryWellDetailsSubmissionServiceTest {
     when(discoveryWellDetailsFormService.getDiscoveryWellDetailsForm(submissionDetail)).thenReturn(form);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(discoveryWellDetailsFormService.validate(form, bindingResult, ValidationType.FULL)).thenReturn(bindingResult);
+    when(discoveryWellDetailsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail))
+        .thenReturn(bindingResult);
 
     assertTrue(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail));
   }
@@ -51,7 +52,8 @@ class DiscoveryWellDetailsSubmissionServiceTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult.reject("testerror");
-    when(discoveryWellDetailsFormService.validate(eq(form), any(), eq(ValidationType.FULL))).thenReturn(bindingResult);
+    when(discoveryWellDetailsFormService.validate(eq(form), any(), eq(ValidationType.FULL), eq(submissionDetail)))
+        .thenReturn(bindingResult);
 
     assertFalse(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail));
   }

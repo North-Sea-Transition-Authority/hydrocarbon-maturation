@@ -87,11 +87,12 @@ class HydrocarbonCaseControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveHydrocarbonCase_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(hydrocarbonCaseFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(hydrocarbonCaseFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(HydrocarbonCaseController.class).saveHydrocarbonCase(submissionDetailId, form, bindingResult, null)))
+        post(ReverseRouter.route(on(HydrocarbonCaseController.class)
+            .saveHydrocarbonCase(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -108,7 +109,7 @@ class HydrocarbonCaseControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(hydrocarbonCaseFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(hydrocarbonCaseFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(

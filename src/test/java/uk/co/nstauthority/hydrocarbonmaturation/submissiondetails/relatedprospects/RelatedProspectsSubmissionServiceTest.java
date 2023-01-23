@@ -34,7 +34,8 @@ class RelatedProspectsSubmissionServiceTest {
 
     when(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail)).thenReturn(form);
 
-    when(relatedProspectsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(relatedProspectsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail));
@@ -50,7 +51,8 @@ class RelatedProspectsSubmissionServiceTest {
 
     when(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail)).thenReturn(form);
 
-    when(relatedProspectsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(relatedProspectsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail));

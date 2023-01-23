@@ -34,7 +34,8 @@ class MixedCaseOutputsSubmissionServiceTest {
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
     when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail)).thenReturn(form);
-    when(mixedCaseOutputsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(mixedCaseOutputsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail));
@@ -48,7 +49,8 @@ class MixedCaseOutputsSubmissionServiceTest {
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
     when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail)).thenReturn(form);
-    when(mixedCaseOutputsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(mixedCaseOutputsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail));

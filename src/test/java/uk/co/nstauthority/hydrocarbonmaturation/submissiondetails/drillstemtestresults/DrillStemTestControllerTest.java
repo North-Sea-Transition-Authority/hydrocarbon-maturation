@@ -112,7 +112,7 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
 
   @Test
   void saveDrillStemTestPage_whenValidForm_assertRedirection() throws Exception {
-    when(drillStemTestFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(drillStemTestFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -129,7 +129,7 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void saveDrillStemTestPage_whenValidForm_AndYesDrillStemResult_assertRedirection() throws Exception {
-    when(drillStemTestFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
+    when(drillStemTestFormService.validate(any(), any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     var form = new DrillStemTestInitialForm();
@@ -153,7 +153,7 @@ class DrillStemTestControllerTest extends AbstractControllerTest {
   void saveDrillStemTestPage_whenInvalidForm_assertStatusOk() throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(drillStemTestFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(drillStemTestFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(

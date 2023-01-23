@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -51,8 +52,10 @@ public class TrapPropertiesFormService implements SubmissionFormService {
   }
 
   @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
-    trapPropertiesFormValidator.validate(form, bindingResult, validationType);
+  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
+                                ValidationType validationType, SubmissionDetail submissionDetail) {
+    trapPropertiesFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
   }
 

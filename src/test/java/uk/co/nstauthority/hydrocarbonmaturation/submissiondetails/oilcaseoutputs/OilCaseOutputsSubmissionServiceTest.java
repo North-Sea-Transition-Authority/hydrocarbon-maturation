@@ -34,7 +34,8 @@ class OilCaseOutputsSubmissionServiceTest {
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
     when(oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail)).thenReturn(form);
-    when(oilCaseOutputsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(oilCaseOutputsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(oilCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail));
@@ -48,7 +49,8 @@ class OilCaseOutputsSubmissionServiceTest {
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
     when(oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail)).thenReturn(form);
-    when(oilCaseOutputsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(oilCaseOutputsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(oilCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail));

@@ -28,9 +28,12 @@ public class DrillStemTestSubmissionService implements SectionSubmissionService 
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     var drillStemTestResults = drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail);
-    var hasErrors = drillStemTestResultFormService.validateDrillStemTestResults(drillStemTestResults, ValidationType.FULL);
+    var hasErrors = drillStemTestResultFormService.validateDrillStemTestResults(
+        drillStemTestResults,
+        ValidationType.FULL,
+        submissionDetail);
     return !bindingResult.hasErrors() && !hasErrors;
   }
 }

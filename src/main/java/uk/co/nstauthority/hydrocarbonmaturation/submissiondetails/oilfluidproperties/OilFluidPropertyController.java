@@ -56,8 +56,9 @@ public class OilFluidPropertyController {
   public ModelAndView saveOilFluidProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                              @ModelAttribute("form") OilFluidPropertyForm form,
                                              BindingResult bindingResult, ValidationType validationType) {
-    bindingResult = oilFluidPropertyFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = oilFluidPropertyFormService.validate(form, bindingResult, validationType, submissionDetail);
+
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getOilFluidPropertiesModelAndView(form, submissionDetail),

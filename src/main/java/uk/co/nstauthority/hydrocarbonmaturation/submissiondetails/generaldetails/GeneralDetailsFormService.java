@@ -14,11 +14,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -166,14 +166,12 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   }
 
   @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
-    throw new ActionNotAllowedException("Must supply submission type to this validator");
-  }
-
-  @Override
   public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
                                 ValidationType validationType, SubmissionDetail submissionDetail) {
-    generalDetailsFormValidator.validate(form, bindingResult, validationType, submissionDetail.getSubmissionType());
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
   }
 }

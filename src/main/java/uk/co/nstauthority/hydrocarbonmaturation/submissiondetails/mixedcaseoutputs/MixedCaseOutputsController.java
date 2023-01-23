@@ -65,8 +65,8 @@ public class MixedCaseOutputsController {
                                          @Valid @ModelAttribute("form") MixedCaseOutputsForm form,
                                          BindingResult bindingResult,
                                          ValidationType validationType) {
-    bindingResult = mixedCaseOutputsFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = mixedCaseOutputsFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getMixedOutputsModelAndViewWithErrors(bindingResult, form, submissionDetail),

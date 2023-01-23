@@ -93,7 +93,7 @@ class GasCaseVolumetricsControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGasCaseVolumetrics_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(gasCaseVolumetricsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(gasCaseVolumetricsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -112,11 +112,12 @@ class GasCaseVolumetricsControllerTest extends AbstractControllerTest {
   void saveGasCaseVolumetrics_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(gasCaseVolumetricsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(gasCaseVolumetricsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(GasCaseVolumetricsController.class).saveGasCaseVolumetrics(submissionDetailId, form, bindingResult, null)))
+            post(ReverseRouter.route(on(GasCaseVolumetricsController.class)
+                .saveGasCaseVolumetrics(submissionDetailId, form, bindingResult, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))

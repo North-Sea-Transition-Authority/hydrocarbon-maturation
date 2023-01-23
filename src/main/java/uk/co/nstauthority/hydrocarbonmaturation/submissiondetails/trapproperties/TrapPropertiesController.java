@@ -74,10 +74,9 @@ public class TrapPropertiesController {
   public ModelAndView saveTrapProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                          @ModelAttribute("form") TrapPropertiesForm form, BindingResult bindingResult,
                                          ValidationType validationType) {
-
-    bindingResult = trapPropertiesFormService.validate(form, bindingResult, validationType);
     var prospectDepthMapUploads = trapPropertiesFormService.getProspectDepthMapUploads(form);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = trapPropertiesFormService.validate(form, bindingResult, validationType, submissionDetail);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,

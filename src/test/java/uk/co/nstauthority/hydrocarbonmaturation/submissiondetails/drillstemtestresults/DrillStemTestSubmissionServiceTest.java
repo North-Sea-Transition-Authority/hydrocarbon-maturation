@@ -42,7 +42,8 @@ class DrillStemTestSubmissionServiceTest {
 
     when(dryWellDetailsFormService.getDrillStemTestInitialForm(submissionDetail))
         .thenReturn(form);
-    when(dryWellDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(dryWellDetailsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
@@ -57,7 +58,8 @@ class DrillStemTestSubmissionServiceTest {
 
     when(dryWellDetailsFormService.getDrillStemTestInitialForm(submissionDetail))
         .thenReturn(form);
-    when(dryWellDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(dryWellDetailsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResult);
 
     assertFalse(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
@@ -72,11 +74,13 @@ class DrillStemTestSubmissionServiceTest {
 
     when(dryWellDetailsFormService.getDrillStemTestInitialForm(submissionDetail))
         .thenReturn(form);
-    when(dryWellDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(dryWellDetailsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail))
         .thenReturn(drillStemTestResults);
-    when(drillStemTestResultFormService.validateDrillStemTestResults(drillStemTestResults, ValidationType.FULL))
+    when(drillStemTestResultFormService.validateDrillStemTestResults(
+        drillStemTestResults, ValidationType.FULL, submissionDetail))
         .thenReturn(true);
 
     assertFalse(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
@@ -91,11 +95,13 @@ class DrillStemTestSubmissionServiceTest {
 
     when(dryWellDetailsFormService.getDrillStemTestInitialForm(submissionDetail))
         .thenReturn(form);
-    when(dryWellDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(dryWellDetailsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail))
         .thenReturn(drillStemTestResults);
-    when(drillStemTestResultFormService.validateDrillStemTestResults(drillStemTestResults, ValidationType.FULL))
+    when(drillStemTestResultFormService.validateDrillStemTestResults(
+        drillStemTestResults, ValidationType.FULL, submissionDetail))
         .thenReturn(false);
 
     assertTrue(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));

@@ -22,7 +22,7 @@ public class GasCaseVolumetricsSubmissionService implements SectionSubmissionSer
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = gasCaseVolumetricsFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = gasCaseVolumetricsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

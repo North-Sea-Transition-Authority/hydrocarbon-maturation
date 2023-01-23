@@ -16,8 +16,11 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,9 +28,12 @@ class MixedCaseVolumetricsFormValidatorTest {
 
   private MixedCaseVolumetricsFormValidator mixedCaseVolumetricsFormValidator;
 
+  private SubmissionDetail submissionDetail;
+
   @BeforeEach
   void setUp() {
     mixedCaseVolumetricsFormValidator = new MixedCaseVolumetricsFormValidator();
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @Test
@@ -47,7 +53,8 @@ class MixedCaseVolumetricsFormValidatorTest {
   void validate_whenValidForm_thenNoValidationErrors(ValidationType validationType) {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseVolumetricsFormValidator.validate(form, bindingResult, validationType);
+    mixedCaseVolumetricsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -55,7 +62,9 @@ class MixedCaseVolumetricsFormValidatorTest {
   void validate_whenInvalidForm_thenValidationErrors() {
     var form = new MixedCaseVolumetricsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseVolumetricsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    mixedCaseVolumetricsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -89,7 +98,8 @@ class MixedCaseVolumetricsFormValidatorTest {
   void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseVolumetricsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    mixedCaseVolumetricsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -123,7 +133,8 @@ class MixedCaseVolumetricsFormValidatorTest {
   void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseVolumetricsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    mixedCaseVolumetricsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)

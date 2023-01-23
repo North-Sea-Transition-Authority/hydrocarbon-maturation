@@ -100,7 +100,7 @@ class RelatedProspectsControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveRelatedProspectsPage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(relatedProspectsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(relatedProspectsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
@@ -121,7 +121,7 @@ class RelatedProspectsControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
-    when(relatedProspectsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(relatedProspectsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     mockMvc.perform(

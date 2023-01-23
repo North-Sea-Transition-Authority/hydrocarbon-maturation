@@ -22,7 +22,7 @@ public class ChanceOfSuccessSubmissionService implements SectionSubmissionServic
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = chanceOfSuccessFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = chanceOfSuccessFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

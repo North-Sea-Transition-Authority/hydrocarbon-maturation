@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,6 +11,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,8 +46,14 @@ class RelatedProspectsFormServiceTest {
     var form = new RelatedProspectsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    relatedProspectsFormService.validate(form, bindingResult, ValidationType.FULL);
-    verify(relatedProspectsFormValidator, times(1)).validate(form, bindingResult, ValidationType.FULL);
+    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
+    relatedProspectsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    verify(relatedProspectsFormValidator, times(1))
+        .validate(eq(form), eq(bindingResult), captor.capture());
+    assertThat(captor.getValue())
+        .extracting(SubmissionFormValidatorHints::getSubmissionDetail,
+            SubmissionFormValidatorHints::getValidationType)
+        .containsExactly(submissionDetail, ValidationType.FULL);
   }
 
   @Test

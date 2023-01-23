@@ -34,7 +34,8 @@ class TrapPropertiesSubmissionServiceTest {
 
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(form);
 
-    when(trapPropertiesFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(trapPropertiesFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail));
@@ -50,7 +51,8 @@ class TrapPropertiesSubmissionServiceTest {
 
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(form);
 
-    when(trapPropertiesFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(trapPropertiesFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail));

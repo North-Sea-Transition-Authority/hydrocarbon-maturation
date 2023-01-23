@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,9 +13,11 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,8 +46,14 @@ class HydrocarbonCaseFormServiceTest {
     var form = new HydrocarbonCaseForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    hydrocarbonCaseFormService.validate(form, bindingResult, ValidationType.FULL);
-    verify(hydrocarbonCaseFormValidator, times(1)).validate(form, bindingResult, ValidationType.FULL);
+    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
+
+    hydrocarbonCaseFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    verify(hydrocarbonCaseFormValidator, times(1))
+        .validate(eq(form), eq(bindingResult), captor.capture());
+
+    assertThat(captor.getValue().getValidationType())
+        .isEqualTo(ValidationType.FULL);
   }
 
   @Test

@@ -57,8 +57,8 @@ public class GeneralFluidPropertyController {
   public ModelAndView saveGeneralFluidProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                  @ModelAttribute("form") GeneralFluidPropertyForm form,
                                                  BindingResult bindingResult, ValidationType validationType) {
-    bindingResult = generalFluidPropertyFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = generalFluidPropertyFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getGeneralFluidPropertiesModelAndView(form, submissionDetail),

@@ -93,7 +93,7 @@ class MixedCaseOutputsControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveMixedCaseOutputs_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(mixedCaseOutputsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(mixedCaseOutputsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -112,7 +112,8 @@ class MixedCaseOutputsControllerTest extends AbstractControllerTest {
   void saveMixedCaseOutputs_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(mixedCaseOutputsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(mixedCaseOutputsFormService.validate(
+        any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(

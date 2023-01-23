@@ -6,14 +6,18 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,6 +25,13 @@ class RelatedProspectsFormValidatorTest {
 
   @InjectMocks
   private RelatedProspectsFormValidator relatedProspectsFormValidator;
+
+  static private SubmissionDetail submissionDetail;
+
+  @BeforeAll
+  static void setUp() {
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  }
 
   @Test
   void supports_whenRelatedProspectsFormClass_thenTrue() {
@@ -106,7 +117,8 @@ class RelatedProspectsFormValidatorTest {
   private BindingResult validateRelatedProspectsForm_fullValidation(RelatedProspectsForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    relatedProspectsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    relatedProspectsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     return bindingResult;
   }
@@ -114,7 +126,8 @@ class RelatedProspectsFormValidatorTest {
   private BindingResult validateRelatedProspectsForm_partialValidation(RelatedProspectsForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    relatedProspectsFormValidator.validate(form, bindingResult, ValidationType.PARTIAL);
+    relatedProspectsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.PARTIAL, submissionDetail));
 
     return bindingResult;
   }

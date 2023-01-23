@@ -34,7 +34,8 @@ class SourceAndSealSubmissionServiceTest {
 
     when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(form);
 
-    when(sourceAndSealFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(sourceAndSealFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail));
@@ -50,7 +51,8 @@ class SourceAndSealSubmissionServiceTest {
 
     when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(form);
 
-    when(sourceAndSealFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(sourceAndSealFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail));

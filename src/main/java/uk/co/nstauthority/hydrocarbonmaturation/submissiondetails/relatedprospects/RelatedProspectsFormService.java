@@ -14,6 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -83,8 +84,10 @@ class RelatedProspectsFormService implements SubmissionFormService {
   }
 
   @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
-    relatedProspectsFormValidator.validate(form, bindingResult, validationType);
+  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
+                                ValidationType validationType, SubmissionDetail submissionDetail) {
+    relatedProspectsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
   }
 }

@@ -92,7 +92,7 @@ class GeneralFluidPropertyControllerTest extends AbstractControllerTest {
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveGeneralFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
-    when(generalFluidPropertyFormService.validate(any(), any(), any()))
+    when(generalFluidPropertyFormService.validate(any(), any(), any(), eq(submissionDetail)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
@@ -110,14 +110,14 @@ class GeneralFluidPropertyControllerTest extends AbstractControllerTest {
     verify(generalFluidPropertyPersistenceService, times(1))
         .saveGeneralFluidProperty(any(GeneralFluidPropertyForm.class), eq(submissionDetail));
     verify(generalFluidPropertyFormService, times(1))
-        .validate(any(), any(), eq(validationType));
+        .validate(any(), any(), eq(validationType), eq(submissionDetail));
   }
 
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveGeneralFluidProperties_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(generalFluidPropertyFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(generalFluidPropertyFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -129,7 +129,7 @@ class GeneralFluidPropertyControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
 
     verify(generalFluidPropertyFormService, times(1))
-        .validate(any(), any(), eq(validationType));
+        .validate(any(), any(), eq(validationType), eq(submissionDetail));
     verify(generalFluidPropertyPersistenceService, never())
         .saveGeneralFluidProperty(any(), any());
   }

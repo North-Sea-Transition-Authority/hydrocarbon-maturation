@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,9 +16,12 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,6 +29,13 @@ class PermeabilityFormValidatorTest {
 
   @InjectMocks
   private PermeabilityFormValidator permeabilityFormValidator;
+
+  static private SubmissionDetail submissionDetail;
+
+  @BeforeAll
+  static void setUp() {
+    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+  }
 
   @Test
   void supports_whenPermeabilityDryWellFormClass_thenTrue() {
@@ -44,7 +55,12 @@ class PermeabilityFormValidatorTest {
     var form = getValidFormWithPermeability();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(form, bindingResult, validationType, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    permeabilityFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(
+            validationType,
+            submissionDetail));
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -53,9 +69,14 @@ class PermeabilityFormValidatorTest {
   @EnumSource(ValidationType.class)
   void validate_whenValidForm_withoutPermeability_thenNoValidationErrors(ValidationType validationType) {
     var form = getValidFormWithoutPermeability();
-
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(form, bindingResult, validationType, SubmissionType.POST_DRILL_DRY_HOLE);
+    permeabilityFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(
+            validationType,
+            submissionDetail));
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -72,7 +93,12 @@ class PermeabilityFormValidatorTest {
     form.getPermeabilityValuesForm().setKvKhMin(DecimalInput.createDecimalInput(BigDecimal.valueOf(5.5555)));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(form, bindingResult, validationType, SubmissionType.POST_DRILL_DRY_HOLE);
+    permeabilityFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(
+            validationType,
+            submissionDetail));
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(errors)
@@ -92,7 +118,12 @@ class PermeabilityFormValidatorTest {
     form.setHasPermeability(true);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(form, bindingResult, ValidationType.FULL, SubmissionType.POST_DRILL_DRY_HOLE);
+    permeabilityFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(
+            ValidationType.FULL,
+            submissionDetail));
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
         .containsExactly(
@@ -114,7 +145,12 @@ class PermeabilityFormValidatorTest {
     var form = new PermeabilityForm();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(form, bindingResult, ValidationType.FULL, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    permeabilityFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(
+            ValidationType.FULL,
+            submissionDetail));
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
         .containsExactly(
@@ -142,7 +178,11 @@ class PermeabilityFormValidatorTest {
     form.getPermeabilityValuesForm().setKvKhAverageMethodUsed(AverageMethod.ARITHMETIC);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(form, bindingResult, ValidationType.FULL, SubmissionType.POST_DRILL_DRY_HOLE);
+    permeabilityFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail)
+    );
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(errors)

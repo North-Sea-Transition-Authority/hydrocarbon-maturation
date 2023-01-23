@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -22,11 +24,13 @@ class DrillStemTestResultFormService {
     return drillStemTestResultEntityToResultForm(drillStemTestResult);
   }
 
-  public boolean validateDrillStemTestResults(List<DrillStemTestResult> drillStemTestResultList, ValidationType validationType) {
+  public boolean validateDrillStemTestResults(List<DrillStemTestResult> drillStemTestResultList,
+                                              ValidationType validationType,
+                                              SubmissionDetail submissionDetail) {
     for (var result : drillStemTestResultList) {
       var form = drillStemTestResultEntityToResultForm(result);
       var bindingResult = new BeanPropertyBindingResult(form, "form");
-      validate(form, bindingResult, validationType);
+      validate(form, bindingResult, validationType, submissionDetail);
       if (bindingResult.hasErrors()) {
         return true;
       }
@@ -36,8 +40,10 @@ class DrillStemTestResultFormService {
 
   BindingResult validate(DrillStemTestResultForm form,
                          BindingResult bindingResult,
-                         ValidationType validationType) {
-    drillStemTestResultFormValidator.validate(form, bindingResult, validationType);
+                         ValidationType validationType,
+                         SubmissionDetail submissionDetail) {
+    drillStemTestResultFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
   }
 

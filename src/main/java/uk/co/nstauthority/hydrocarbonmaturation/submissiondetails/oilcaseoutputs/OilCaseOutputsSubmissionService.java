@@ -22,7 +22,7 @@ public class OilCaseOutputsSubmissionService implements SectionSubmissionService
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = oilCaseOutputsFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = oilCaseOutputsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

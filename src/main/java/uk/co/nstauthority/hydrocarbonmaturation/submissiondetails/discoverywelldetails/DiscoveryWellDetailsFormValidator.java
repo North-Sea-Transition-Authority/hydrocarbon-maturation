@@ -2,38 +2,18 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywell
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.CoordinateInputValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
 
 @Service
-class DiscoveryWellDetailsFormValidator implements SubmissionFormValidator, SmartValidator {
-
-  @Override
-  public void validate(Object target, Errors errors, Object... validationHints) {
-    var form = (DiscoveryWellDetailsForm) target;
-    var validationType = (ValidationType) validationHints[0];
-
-    switch (validationType) {
-      case FULL -> validateFull(form, errors);
-      case PARTIAL -> validatePartial(form, errors);
-      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
-    }
-  }
+class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {
     return DiscoveryWellDetailsForm.class.equals(clazz);
-  }
-
-  @Override
-  public void validate(Object target, Errors errors) {
-    throw new ActionNotAllowedException("Incorrect parameters provided for validation");
   }
 
   @Override

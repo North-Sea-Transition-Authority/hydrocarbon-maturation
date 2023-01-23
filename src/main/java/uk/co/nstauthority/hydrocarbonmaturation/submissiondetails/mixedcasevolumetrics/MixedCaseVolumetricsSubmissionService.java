@@ -22,7 +22,7 @@ public class MixedCaseVolumetricsSubmissionService implements SectionSubmissionS
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = mixedCaseVolumetricsFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = mixedCaseVolumetricsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

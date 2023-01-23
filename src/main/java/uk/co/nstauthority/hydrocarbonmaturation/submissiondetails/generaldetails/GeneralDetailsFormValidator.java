@@ -39,8 +39,10 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
-    var validationType = SubmissionFormValidationUtils.extractValidationTypeFromHints(validationHints);
-    submissionType = SubmissionFormValidationUtils.extractSubmissionTypeFromHints(validationHints);
+    var validatorHints = SubmissionFormValidationUtils
+        .extractValidatorHints(validationHints);
+    var validationType = validatorHints.getValidationType();
+    submissionType = validatorHints.getSubmissionDetail().getSubmissionType();
     var form = (GeneralDetailsForm) target;
 
     validateAlways(errors);

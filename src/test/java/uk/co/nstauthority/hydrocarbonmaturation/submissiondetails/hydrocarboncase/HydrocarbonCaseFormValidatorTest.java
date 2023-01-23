@@ -13,8 +13,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,9 +25,12 @@ class HydrocarbonCaseFormValidatorTest {
 
   private HydrocarbonCaseFormValidator hydrocarbonCaseFormValidator;
 
+  private SubmissionDetail submissionDetail;
+
   @BeforeEach
   void setup() {
     hydrocarbonCaseFormValidator = new HydrocarbonCaseFormValidator();
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @Test
@@ -142,14 +148,16 @@ class HydrocarbonCaseFormValidatorTest {
   private BindingResult validateHydrocarbonCaseForm_fullValidation(HydrocarbonCaseForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    hydrocarbonCaseFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    hydrocarbonCaseFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
     return bindingResult;
   }
 
   private BindingResult validateHydrocarbonCaseForm_partialValidation(HydrocarbonCaseForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    hydrocarbonCaseFormValidator.validate(form, bindingResult, ValidationType.PARTIAL);
+    hydrocarbonCaseFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.PARTIAL, submissionDetail));
     return bindingResult;
   }
 

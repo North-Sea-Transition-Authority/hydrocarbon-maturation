@@ -13,6 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -50,8 +51,14 @@ class AdditionalInformationFormService implements SubmissionFormService {
   }
 
   @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
-    additionalInformationFormValidator.validate(form, bindingResult, validationType);
+  public BindingResult validate(SubmissionForm form,
+                                BindingResult bindingResult,
+                                ValidationType validationType,
+                                SubmissionDetail submissionDetail) {
+    additionalInformationFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
   }
 

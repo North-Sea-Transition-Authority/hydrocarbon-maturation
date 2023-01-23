@@ -67,7 +67,7 @@ public class OpportunityDetailsController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var mapOfOpportunityUploads = opportunityDetailsFormService.getMapOfOpportunityUploads(form);
 
-    bindingResult = opportunityDetailsFormService.validate(form, bindingResult, validationType);
+    bindingResult = opportunityDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getOpportunityDetailsModelAndView(form, submissionDetail, mapOfOpportunityUploads),
         () -> {

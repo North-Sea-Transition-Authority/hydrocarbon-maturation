@@ -62,8 +62,8 @@ public class DryWellDetailsController {
   public ModelAndView saveDryWellDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                          @ModelAttribute("form") DryWellDetailsForm form, BindingResult bindingResult,
                                          ValidationType validationType) {
-    bindingResult = dryWellDetailsFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = dryWellDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getDryWellDetailsModelAndView(form, submissionDetail),

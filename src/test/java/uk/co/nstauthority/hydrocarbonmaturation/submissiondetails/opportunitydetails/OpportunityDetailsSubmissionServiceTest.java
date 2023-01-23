@@ -34,7 +34,8 @@ class OpportunityDetailsSubmissionServiceTest {
 
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(form);
 
-    when(opportunityDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(opportunityDetailsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail));
@@ -50,7 +51,8 @@ class OpportunityDetailsSubmissionServiceTest {
 
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(form);
 
-    when(opportunityDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(opportunityDetailsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail));

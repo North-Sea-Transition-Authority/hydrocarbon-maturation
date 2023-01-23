@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 class GasFluidPropertyFormValidatorTest {
@@ -49,7 +50,8 @@ class GasFluidPropertyFormValidatorTest {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    gasFluidPropertyFormValidator.validate(form, bindingResult, validationType);
+    gasFluidPropertyFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -71,7 +73,8 @@ class GasFluidPropertyFormValidatorTest {
 
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasFluidPropertyFormValidator.validate(form, bindingResult, validationType);
+    gasFluidPropertyFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -94,7 +97,8 @@ class GasFluidPropertyFormValidatorTest {
     var form = new GasFluidPropertyForm();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasFluidPropertyFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    gasFluidPropertyFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -114,7 +118,8 @@ class GasFluidPropertyFormValidatorTest {
     form.setCondensatePresent(true);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasFluidPropertyFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    gasFluidPropertyFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 

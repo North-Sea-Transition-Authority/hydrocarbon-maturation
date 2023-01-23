@@ -89,7 +89,8 @@ class DiscoveryWellDetailsControllerTest extends AbstractControllerTest {
   void saveDiscoveryWellDetails_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(DiscoveryWellDetailsForm.class, "form");
-    when(discoveryWellDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(discoveryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail)))
+        .thenReturn(bindingResult);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DiscoveryWellDetailsController.class)
@@ -101,7 +102,8 @@ class DiscoveryWellDetailsControllerTest extends AbstractControllerTest {
         .andExpect(redirectedUrl(
             ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(discoveryWellDetailsFormService, times(1)).validate(any(), any(), eq(validationType));
+    verify(discoveryWellDetailsFormService, times(1)).validate(
+        any(), any(), eq(validationType), eq(submissionDetail));
     verify(discoveryWellDetailsPersistenceService, times(1))
         .saveDiscoveryWellDetails(any(DiscoveryWellDetailsForm.class), eq(submissionDetail));
   }
@@ -113,7 +115,7 @@ class DiscoveryWellDetailsControllerTest extends AbstractControllerTest {
 
     var bindingResult = new BeanPropertyBindingResult(DiscoveryWellDetailsForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(discoveryWellDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(discoveryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DiscoveryWellDetailsController.class)
@@ -123,7 +125,8 @@ class DiscoveryWellDetailsControllerTest extends AbstractControllerTest {
                 .with(user(USER)))
         .andExpect(status().isOk());
 
-    verify(discoveryWellDetailsFormService, times(1)).validate(any(), any(), eq(validationType));
+    verify(discoveryWellDetailsFormService, times(1)).validate(
+        any(), any(), eq(validationType), eq(submissionDetail));
     verify(discoveryWellDetailsPersistenceService, never()).saveDiscoveryWellDetails(any(), any());
   }
 

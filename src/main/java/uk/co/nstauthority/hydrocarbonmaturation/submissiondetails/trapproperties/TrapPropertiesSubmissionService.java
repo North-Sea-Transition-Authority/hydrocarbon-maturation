@@ -22,7 +22,7 @@ public class TrapPropertiesSubmissionService implements SectionSubmissionService
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = trapPropertiesFormService.getTrapPropertiesForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = trapPropertiesFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = trapPropertiesFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

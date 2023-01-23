@@ -22,7 +22,7 @@ public class OpportunityDetailsSubmissionService implements SectionSubmissionSer
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = opportunityDetailsFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = opportunityDetailsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

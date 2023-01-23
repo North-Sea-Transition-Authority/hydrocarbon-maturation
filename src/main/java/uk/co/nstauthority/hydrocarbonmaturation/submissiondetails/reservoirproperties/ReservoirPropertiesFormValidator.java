@@ -32,8 +32,9 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
-    var validatorHints = SubmissionFormValidationUtils.extractValidatorHints(validationHints);
-    submissionType = validatorHints.getSubmissionType();
+    var validatorHints = SubmissionFormValidationUtils
+        .extractValidatorHints(validationHints);
+    submissionType = validatorHints.getSubmissionDetail().getSubmissionType();
     var validationType = validatorHints.getValidationType();
     hydrocarbonsDiscovered = extractHydrocarbonsDiscoveredFromHints(validatorHints);
 

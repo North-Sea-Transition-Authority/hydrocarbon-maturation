@@ -25,9 +25,12 @@ import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,9 +41,12 @@ class GeneralDetailsFormValidatorTest {
   @Mock
   private LicenceQueryService licenceQueryService;
 
+  private SubmissionDetail submissionDetail;
+
   @BeforeEach
   void setup() {
     generalDetailsFormValidator = new GeneralDetailsFormValidator(licenceQueryService);
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @Test
@@ -229,7 +235,10 @@ class GeneralDetailsFormValidatorTest {
   private BindingResult validateGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    generalDetailsFormValidator.validate(form, bindingResult, validationType, SubmissionType.CREATE_PROSPECT);
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
   }
 

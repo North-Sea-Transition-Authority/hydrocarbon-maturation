@@ -55,8 +55,8 @@ public class ChanceOfSuccessController {
   public ModelAndView saveChanceOfSuccess(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                           @ModelAttribute("form") ChanceOfSuccessForm form, BindingResult bindingResult,
                                           ValidationType validationType) {
-    bindingResult = chanceOfSuccessFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = chanceOfSuccessFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getChanceOfSuccessModelAndView(form, submissionDetail),

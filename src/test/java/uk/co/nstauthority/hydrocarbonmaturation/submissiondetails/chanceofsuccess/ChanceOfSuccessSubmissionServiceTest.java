@@ -34,7 +34,8 @@ class ChanceOfSuccessSubmissionServiceTest {
 
     when(chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail)).thenReturn(form);
 
-    when(chanceOfSuccessFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(chanceOfSuccessFormService.validate(eq(form), any(BindingResult.class),
+        eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail));
@@ -50,7 +51,8 @@ class ChanceOfSuccessSubmissionServiceTest {
 
     when(chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail)).thenReturn(form);
 
-    when(chanceOfSuccessFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(chanceOfSuccessFormService.validate(eq(form), any(BindingResult.class),
+        eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail));

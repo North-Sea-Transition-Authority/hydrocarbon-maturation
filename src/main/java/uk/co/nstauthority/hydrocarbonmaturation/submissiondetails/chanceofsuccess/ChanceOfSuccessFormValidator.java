@@ -2,17 +2,14 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsucce
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PercentageValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
 
 @Service
-class ChanceOfSuccessFormValidator implements SmartValidator, SubmissionFormValidator {
+class ChanceOfSuccessFormValidator extends PartialFullFormValidator {
 
   private DecimalInputValidator playSourceValidator;
   private DecimalInputValidator playReservoirValidator;
@@ -30,29 +27,15 @@ class ChanceOfSuccessFormValidator implements SmartValidator, SubmissionFormVali
   private static final String WELL_MODIFIED_PERCENTAGE_ERROR_MESSAGE_PREFIX =
       "The well-modified chance of success";
 
-
-  @Override
-  public void validate(Object target, Errors errors, Object... validationHints) {
-    var validationType = SubmissionFormValidationUtils.extractValidationTypeFromHints(validationHints);
-    var form = (ChanceOfSuccessForm) target;
-
-    setupDecimalInputValidators(form, errors);
-
-    switch (validationType) {
-      case FULL -> validateFull(form, errors);
-      case PARTIAL -> validatePartial(form, errors);
-      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
-    }
-  }
-
   @Override
   public boolean supports(Class<?> clazz) {
     return ChanceOfSuccessForm.class.equals(clazz);
   }
 
   @Override
-  public void validate(Object target, Errors errors) {
-    throw new ActionNotAllowedException("Incorrect parameters provided for validation");
+  public void validate(Object target, Errors errors, Object... validationHints) {
+    setupDecimalInputValidators((ChanceOfSuccessForm) target, errors);
+    super.validate(target, errors, validationHints);
   }
 
   @Override

@@ -22,7 +22,7 @@ public class DryWellDetailsSubmissionService implements SectionSubmissionService
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = dryWellDetailsFormService.getDryWellDetailsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = dryWellDetailsFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = dryWellDetailsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

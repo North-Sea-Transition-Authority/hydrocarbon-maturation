@@ -34,7 +34,8 @@ class GasCaseOutputsSubmissionServiceTest {
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
     when(gasCaseOutputsFormService.getGasCaseOutputsForm(submissionDetail)).thenReturn(form);
-    when(gasCaseOutputsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(gasCaseOutputsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(gasCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail));
@@ -48,7 +49,8 @@ class GasCaseOutputsSubmissionServiceTest {
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
     when(gasCaseOutputsFormService.getGasCaseOutputsForm(submissionDetail)).thenReturn(form);
-    when(gasCaseOutputsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(gasCaseOutputsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(gasCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail));

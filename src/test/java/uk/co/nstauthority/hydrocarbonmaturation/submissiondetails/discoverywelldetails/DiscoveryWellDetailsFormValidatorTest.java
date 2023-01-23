@@ -16,10 +16,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,9 +30,12 @@ class DiscoveryWellDetailsFormValidatorTest {
 
   private DiscoveryWellDetailsFormValidator discoveryWellDetailsFormValidator;
 
+  private SubmissionDetail submissionDetail;
+
   @BeforeEach
   void setUp() {
     discoveryWellDetailsFormValidator = new DiscoveryWellDetailsFormValidator();
+    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
   }
 
   @Test
@@ -50,7 +56,8 @@ class DiscoveryWellDetailsFormValidatorTest {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    discoveryWellDetailsFormValidator.validate(form, bindingResult, validationType);
+    discoveryWellDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -60,7 +67,8 @@ class DiscoveryWellDetailsFormValidatorTest {
     var form = new DiscoveryWellDetailsForm();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    discoveryWellDetailsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    discoveryWellDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -105,7 +113,8 @@ class DiscoveryWellDetailsFormValidatorTest {
     form.setSuccessRelatedCosts(DecimalInput.createDecimalInput(bigDecimalWrongNumberOfDP));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    discoveryWellDetailsFormValidator.validate(form, bindingResult, validationType);
+    discoveryWellDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 

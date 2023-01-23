@@ -22,7 +22,7 @@ public class SourceAndSealSubmissionService implements SectionSubmissionService 
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = sourceAndSealFormService.getSourceAndSealForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = sourceAndSealFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = sourceAndSealFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

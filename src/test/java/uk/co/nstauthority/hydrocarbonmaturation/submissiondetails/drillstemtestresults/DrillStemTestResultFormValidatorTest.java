@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,8 +16,11 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,6 +28,13 @@ class DrillStemTestResultFormValidatorTest {
 
   @InjectMocks
   private DrillStemTestResultFormValidator drillStemTestResultFormValidator;
+
+  static private SubmissionDetail submissionDetail;
+
+  @BeforeAll
+  static void setUp() {
+    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+  }
 
   @Test
   void supports_whenDrillStemTestResultFormClass_thenTrue() {
@@ -43,7 +54,8 @@ class DrillStemTestResultFormValidatorTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    drillStemTestResultFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    drillStemTestResultFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -54,7 +66,8 @@ class DrillStemTestResultFormValidatorTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    drillStemTestResultFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    drillStemTestResultFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -79,7 +92,8 @@ class DrillStemTestResultFormValidatorTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    drillStemTestResultFormValidator.validate(form, bindingResult, validationType);
+    drillStemTestResultFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -103,7 +117,8 @@ class DrillStemTestResultFormValidatorTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    drillStemTestResultFormValidator.validate(form, bindingResult, validationType);
+    drillStemTestResultFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 

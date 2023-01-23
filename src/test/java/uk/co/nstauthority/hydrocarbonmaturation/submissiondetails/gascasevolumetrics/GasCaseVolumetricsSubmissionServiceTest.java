@@ -35,7 +35,8 @@ class GasCaseVolumetricsSubmissionServiceTest {
 
     when(gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(submissionDetail)).thenReturn(form);
 
-    when(gasCaseVolumetricsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(gasCaseVolumetricsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(gasCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail));
@@ -50,7 +51,8 @@ class GasCaseVolumetricsSubmissionServiceTest {
 
     when(gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(submissionDetail)).thenReturn(form);
 
-    when(gasCaseVolumetricsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(gasCaseVolumetricsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(gasCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail));

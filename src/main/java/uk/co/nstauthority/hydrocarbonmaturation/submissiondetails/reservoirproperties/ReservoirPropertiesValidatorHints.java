@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -10,9 +10,9 @@ public class ReservoirPropertiesValidatorHints extends SubmissionFormValidatorHi
   private HydrocarbonsDiscovered hydrocarbonsDiscovered;
 
   public ReservoirPropertiesValidatorHints(ValidationType validationType,
-                                           SubmissionType submissionType,
+                                           SubmissionDetail submissionDetail,
                                            HydrocarbonsDiscovered hydrocarbonsDiscovered) {
-    super(validationType, submissionType);
+    super(validationType, submissionDetail);
     this.hydrocarbonsDiscovered = hydrocarbonsDiscovered;
   }
 

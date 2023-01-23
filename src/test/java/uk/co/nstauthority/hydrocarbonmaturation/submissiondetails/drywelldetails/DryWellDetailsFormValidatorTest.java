@@ -14,10 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,9 +28,12 @@ class DryWellDetailsFormValidatorTest {
 
   private DryWellDetailsFormValidator dryWellDetailsFormValidator;
 
+  private SubmissionDetail submissionDetail;
+
   @BeforeEach
   void setUp() {
     dryWellDetailsFormValidator = new DryWellDetailsFormValidator();
+    submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
   }
 
   @Test
@@ -47,7 +53,8 @@ class DryWellDetailsFormValidatorTest {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    dryWellDetailsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    dryWellDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -57,7 +64,8 @@ class DryWellDetailsFormValidatorTest {
     var form = new DryWellDetailsForm();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    dryWellDetailsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    dryWellDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -86,7 +94,8 @@ class DryWellDetailsFormValidatorTest {
         BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    dryWellDetailsFormValidator.validate(form, bindingResult, ValidationType.PARTIAL);
+    dryWellDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.PARTIAL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 

@@ -65,8 +65,8 @@ public class GasCaseOutputsController {
                                          @Valid @ModelAttribute("form") GasCaseOutputsForm form,
                                          BindingResult bindingResult,
                                          ValidationType validationType) {
-    bindingResult = gasCaseOutputsFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = gasCaseOutputsFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getGasOutputsModelAndViewWithErrors(bindingResult, form, submissionDetail),

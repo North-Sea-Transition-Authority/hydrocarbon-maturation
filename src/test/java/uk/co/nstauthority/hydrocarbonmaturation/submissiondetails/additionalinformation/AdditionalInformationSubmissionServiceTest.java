@@ -35,7 +35,8 @@ class AdditionalInformationSubmissionServiceTest {
 
     when(additionalInformationFormService.getAdditionalInformationForm(submissionDetail)).thenReturn(form);
 
-    when(additionalInformationFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(additionalInformationFormService.validate(eq(form), any(BindingResult.class),
+        eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(additionalInformationSubmissionService.isSectionSubmittable(submissionDetail));
@@ -50,7 +51,8 @@ class AdditionalInformationSubmissionServiceTest {
 
     when(additionalInformationFormService.getAdditionalInformationForm(submissionDetail)).thenReturn(form);
 
-    when(additionalInformationFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(additionalInformationFormService.validate(eq(form), any(BindingResult.class),
+        eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(additionalInformationSubmissionService.isSectionSubmittable(submissionDetail));

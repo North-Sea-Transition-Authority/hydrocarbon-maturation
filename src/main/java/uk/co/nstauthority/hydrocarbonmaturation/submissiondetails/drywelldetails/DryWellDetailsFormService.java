@@ -9,6 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -51,8 +52,12 @@ class DryWellDetailsFormService implements SubmissionFormService {
   }
 
   @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
-    dryWellDetailsFormValidator.validate(form, bindingResult, validationType);
+  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
+                                ValidationType validationType, SubmissionDetail submissionDetail) {
+    dryWellDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
   }
 }

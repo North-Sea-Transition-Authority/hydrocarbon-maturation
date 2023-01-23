@@ -68,7 +68,7 @@ public class DrillStemTestController {
                                                @ModelAttribute("form") DrillStemTestInitialForm form,
                                                BindingResult bindingResult) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getDrillStemTestModelAndView(form, submissionDetail),

@@ -126,7 +126,7 @@ class DrillStemTestSummaryControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveDrillStemTestSummaryPage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(drillStemTestFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(drillStemTestFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
@@ -162,7 +162,7 @@ class DrillStemTestSummaryControllerTest extends AbstractControllerTest {
   void saveDrillStemTestSummaryPage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(drillStemTestFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(drillStemTestFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(drillStemTest));

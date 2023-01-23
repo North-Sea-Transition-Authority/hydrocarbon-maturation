@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 class GeneralFluidPropertyFormValidatorTest {
@@ -48,7 +49,8 @@ class GeneralFluidPropertyFormValidatorTest {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    generalFluidPropertyFormValidator.validate(form, bindingResult, validationType);
+    generalFluidPropertyFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -63,7 +65,8 @@ class GeneralFluidPropertyFormValidatorTest {
     form.setPressureAtDatumDepth(new DecimalInput("something"));
     form.setSaturationPressureAtDatumDepth(new DecimalInput("something"));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    generalFluidPropertyFormValidator.validate(form, bindingResult, validationType);
+    generalFluidPropertyFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -82,7 +85,8 @@ class GeneralFluidPropertyFormValidatorTest {
     var form = new GeneralFluidPropertyForm();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    generalFluidPropertyFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    generalFluidPropertyFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 

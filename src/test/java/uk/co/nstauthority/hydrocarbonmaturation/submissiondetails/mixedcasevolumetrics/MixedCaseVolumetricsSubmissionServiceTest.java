@@ -35,7 +35,8 @@ class MixedCaseVolumetricsSubmissionServiceTest {
 
     when(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail)).thenReturn(form);
 
-    when(mixedCaseVolumetricsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(mixedCaseVolumetricsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail));
@@ -50,7 +51,8 @@ class MixedCaseVolumetricsSubmissionServiceTest {
 
     when(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail)).thenReturn(form);
 
-    when(mixedCaseVolumetricsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(mixedCaseVolumetricsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail));

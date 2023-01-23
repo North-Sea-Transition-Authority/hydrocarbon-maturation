@@ -23,7 +23,8 @@ public class AdditionalInformationSubmissionService implements SectionSubmission
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = additionalInformationFormService.getAdditionalInformationForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = additionalInformationFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = additionalInformationFormService.validate(
+        form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

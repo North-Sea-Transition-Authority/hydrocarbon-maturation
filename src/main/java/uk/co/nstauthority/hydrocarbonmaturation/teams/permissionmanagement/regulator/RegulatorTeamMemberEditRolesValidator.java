@@ -10,7 +10,9 @@ import org.springframework.validation.SmartValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMember;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRemovalService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberEditRolesValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
 
 @Service
 class RegulatorTeamMemberEditRolesValidator implements SmartValidator {
@@ -36,7 +38,7 @@ class RegulatorTeamMemberEditRolesValidator implements SmartValidator {
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (TeamMemberRolesForm) target;
-    var validatorDto = (RegulatorTeamMemberEditRolesValidatorDto) validationHints[0];
+    var validatorHints = SubmissionFormValidationUtils.extractEditRolesValidatorHints(validationHints);
 
     Set<String> formRoles = form.getRoles() != null ? form.getRoles() : Set.of();
 
@@ -50,7 +52,7 @@ class RegulatorTeamMemberEditRolesValidator implements SmartValidator {
         .map(RegulatorTeamRole::valueOf)
         .toList();
 
-    if (!canUpdateTeamMemberWithNewRoles(validatorDto.team(), validatorDto.teamMember(), newRoles)) {
+    if (!canUpdateTeamMemberWithNewRoles(validatorHints.getTeam(), validatorHints.getTeamMember(), newRoles)) {
       errors.rejectValue(ROLES_FIELD_NAME, ROLES_NO_ACCESS_MANAGER_ERROR_CODE, ROLES_NO_ACCESS_MANAGER_ERROR_MESSAGE);
     }
   }
@@ -66,7 +68,7 @@ class RegulatorTeamMemberEditRolesValidator implements SmartValidator {
         "This validator [%s] requires a %s validation hint"
             .formatted(
                 this.getClass().getSimpleName(),
-                RegulatorTeamMemberEditRolesValidatorDto.class.getSimpleName()
+                TeamMemberEditRolesValidatorHints.class.getSimpleName()
             ));
   }
 

@@ -55,8 +55,9 @@ public class SourceAndSealController {
   public ModelAndView saveSourceAndSealDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                @ModelAttribute("form") SourceAndSealForm form, BindingResult bindingResult,
                                                ValidationType validationType) {
-    bindingResult = sourceAndSealFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = sourceAndSealFormService.validate(form, bindingResult, validationType, submissionDetail);
+
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getSourceAndSealModelAndView(form, submissionDetail),

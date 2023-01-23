@@ -71,8 +71,9 @@ public class DrillStemTestSummaryController {
   public ModelAndView saveDrillStemTestSummary(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                @ModelAttribute("form") DrillStemTestSummaryForm form,
                                                BindingResult bindingResult) {
-    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getDrillStemTestSummaryModelAndView(form, submissionDetail),

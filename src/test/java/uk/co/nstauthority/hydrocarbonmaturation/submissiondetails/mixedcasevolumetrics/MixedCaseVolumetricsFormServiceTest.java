@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,8 +41,16 @@ class MixedCaseVolumetricsFormServiceTest {
     var form = new MixedCaseVolumetricsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    mixedCaseVolumetricsFormService.validate(form, bindingResult, ValidationType.FULL);
-    verify(formValidator, times(1)).validate(form, bindingResult, ValidationType.FULL);
+    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
+
+    mixedCaseVolumetricsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    verify(formValidator, times(1)).validate(
+        eq(form), eq(bindingResult), captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(SubmissionFormValidatorHints::getSubmissionDetail,
+            SubmissionFormValidatorHints::getValidationType)
+        .containsExactly(submissionDetail, ValidationType.FULL);
   }
 
   @Test

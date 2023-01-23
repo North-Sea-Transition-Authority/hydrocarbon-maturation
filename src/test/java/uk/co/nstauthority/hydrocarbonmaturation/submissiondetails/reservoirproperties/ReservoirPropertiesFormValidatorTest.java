@@ -18,6 +18,8 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
@@ -29,9 +31,12 @@ class ReservoirPropertiesFormValidatorTest {
 
   private ReservoirPropertiesFormValidator reservoirPropertiesFormValidator;
 
+  private SubmissionDetail submissionDetail;
+
   @BeforeEach
   void setup() {
     reservoirPropertiesFormValidator = new ReservoirPropertiesFormValidator();
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @Test
@@ -182,10 +187,11 @@ class ReservoirPropertiesFormValidatorTest {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
 
     reservoirPropertiesFormValidator.validate(form, bindingResult,
         new ReservoirPropertiesValidatorHints(
-            ValidationType.FULL, SubmissionType.CREATE_DISCOVERY, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
+            ValidationType.FULL, submissionDetail, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -235,10 +241,11 @@ class ReservoirPropertiesFormValidatorTest {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
 
     reservoirPropertiesFormValidator.validate(form, bindingResult,
         new ReservoirPropertiesValidatorHints(
-            ValidationType.PARTIAL, SubmissionType.CREATE_DISCOVERY, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
+            ValidationType.PARTIAL, submissionDetail, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -285,10 +292,11 @@ class ReservoirPropertiesFormValidatorTest {
     var form = getFormWithInvalidDistributions(ProbabilityDistributionType.NORMAL);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
 
     reservoirPropertiesFormValidator.validate(form, bindingResult,
         new ReservoirPropertiesValidatorHints(
-            validationType, SubmissionType.CREATE_DISCOVERY, HydrocarbonsDiscovered.GAS_ONLY));
+            validationType, submissionDetail, HydrocarbonsDiscovered.GAS_ONLY));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -326,9 +334,10 @@ class ReservoirPropertiesFormValidatorTest {
     var form = getFormWithInvalidDistributions(ProbabilityDistributionType.NORMAL);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     reservoirPropertiesFormValidator.validate(form, bindingResult,
         new ReservoirPropertiesValidatorHints(
-            validationType, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT, HydrocarbonsDiscovered.OIL_ONLY));
+            validationType, submissionDetail, HydrocarbonsDiscovered.OIL_ONLY));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -365,10 +374,10 @@ class ReservoirPropertiesFormValidatorTest {
       ValidationType validationType) {
     var form = getFormWithInvalidDistributions(ProbabilityDistributionType.NORMAL);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     reservoirPropertiesFormValidator.validate(form, bindingResult,
         new ReservoirPropertiesValidatorHints(
-            validationType, SubmissionType.POST_DRILL_DRY_HOLE, null));
+            validationType, submissionDetail, null));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -406,13 +415,14 @@ class ReservoirPropertiesFormValidatorTest {
     assertFalse(bindingResult.hasErrors());
   }
 
-  private BindingResult validateReservoirProperties(ReservoirPropertiesForm form, ValidationType validationType, SubmissionType submissionType) {
+  private BindingResult validateReservoirProperties(
+      ReservoirPropertiesForm form, ValidationType validationType, SubmissionType submissionType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-
+    submissionDetail.setSubmissionType(submissionType);
     reservoirPropertiesFormValidator.validate(
         form, bindingResult,
         new ReservoirPropertiesValidatorHints(
-            validationType, submissionType, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
+            validationType, submissionDetail, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
     return bindingResult;
   }
 

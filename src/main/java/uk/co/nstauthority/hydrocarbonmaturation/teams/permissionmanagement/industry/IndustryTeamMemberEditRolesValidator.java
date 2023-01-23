@@ -12,7 +12,9 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMember;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRemovalService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberEditRolesValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
 
 
 @Service
@@ -41,7 +43,8 @@ class IndustryTeamMemberEditRolesValidator implements SmartValidator {
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (TeamMemberRolesForm) target;
-    var validatorDto = (IndustryTeamMemberEditRolesValidatorDto) validationHints[0];
+    var validatorDto = SubmissionFormValidationUtils
+        .extractEditRolesValidatorHints(validationHints);
 
     Set<String> formRoles = form.getRoles() != null ? form.getRoles() : Set.of();
 
@@ -66,7 +69,7 @@ class IndustryTeamMemberEditRolesValidator implements SmartValidator {
       );
     }
 
-    if (!canUpdateTeamMemberWithNewRoles(validatorDto.team(), validatorDto.teamMember(), validRolesFromForm)) {
+    if (!canUpdateTeamMemberWithNewRoles(validatorDto.getTeam(), validatorDto.getTeamMember(), validRolesFromForm)) {
       errors.rejectValue(ROLES_FIELD_NAME, ROLES_NO_ACCESS_MANAGER_ERROR_CODE, ROLES_NO_ACCESS_MANAGER_ERROR_MESSAGE);
     }
   }
@@ -82,7 +85,7 @@ class IndustryTeamMemberEditRolesValidator implements SmartValidator {
         "This validator [%s] requires a %s validation hint"
             .formatted(
                 this.getClass().getSimpleName(),
-                IndustryTeamMemberEditRolesValidatorDto.class.getSimpleName()
+                TeamMemberEditRolesValidatorHints.class.getSimpleName()
             ));
   }
 

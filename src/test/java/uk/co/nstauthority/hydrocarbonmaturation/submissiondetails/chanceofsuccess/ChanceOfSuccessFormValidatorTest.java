@@ -6,19 +6,30 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 class ChanceOfSuccessFormValidatorTest {
 
   private final ChanceOfSuccessFormValidator chanceOfSuccessFormValidator = new ChanceOfSuccessFormValidator();
+
+  private SubmissionDetail submissionDetail;
+
+  @BeforeEach
+  void setUp() {
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  }
 
   @Test
   void supports_whenChanceOfSuccessFormClass_thenTrue() {
@@ -294,9 +305,8 @@ class ChanceOfSuccessFormValidatorTest {
   private BindingResult validateChanceOfSuccessForm(ChanceOfSuccessForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    chanceOfSuccessFormValidator.validate(form, bindingResult, validationType);
+    chanceOfSuccessFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
   }
-
-
 }

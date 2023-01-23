@@ -22,7 +22,7 @@ public class GasFluidPropertySubmissionService implements SectionSubmissionServi
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = gasFluidPropertyFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = gasFluidPropertyFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

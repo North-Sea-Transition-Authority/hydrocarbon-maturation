@@ -75,7 +75,7 @@ public class DrillStemTestResultController {
     var drillStemTest = drillStemTestResultPersistenceService
         .getDrillStemTestBySubmissionDetailOrThrow(submissionDetail);
 
-    bindingResult = drillStemTestResultFormService.validate(form, bindingResult, validationType);
+    bindingResult = drillStemTestResultFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getDrillStemTestResultModelAndView(form, submissionDetail),
@@ -101,7 +101,7 @@ public class DrillStemTestResultController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var drillStemTestResult = drillStemTestResultPersistenceService
         .getDrillStemTestResultByIdOrThrow(drillStemTestResultId);
-    bindingResult = drillStemTestResultFormService.validate(form, bindingResult, validationType);
+    bindingResult = drillStemTestResultFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getDrillStemTestResultModelAndView(form, submissionDetail),

@@ -1,16 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.validationutil;
 
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 public class SubmissionFormValidatorHints {
 
   private ValidationType validationType;
+  private SubmissionDetail submissionDetail;
 
-  private SubmissionType submissionType;
-
-  public SubmissionFormValidatorHints(ValidationType validationType, SubmissionType submissionType) {
+  public SubmissionFormValidatorHints(ValidationType validationType, SubmissionDetail submissionDetail) {
     this.validationType = validationType;
-    this.submissionType = submissionType;
+    this.submissionDetail = submissionDetail;
   }
 
   public ValidationType getValidationType() {
@@ -21,12 +20,12 @@ public class SubmissionFormValidatorHints {
     this.validationType = validationType;
   }
 
-  public SubmissionType getSubmissionType() {
-    return submissionType;
+  public SubmissionDetail getSubmissionDetail() {
+    return submissionDetail;
   }
 
-  public void setSubmissionType(SubmissionType submissionType) {
-    this.submissionType = submissionType;
+  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
+    this.submissionDetail = submissionDetail;
   }
 }
 

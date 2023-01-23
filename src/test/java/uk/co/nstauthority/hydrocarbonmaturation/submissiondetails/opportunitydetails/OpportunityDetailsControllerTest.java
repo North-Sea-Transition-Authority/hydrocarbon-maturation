@@ -92,7 +92,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOpportunityDetailsPage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(opportunityDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(opportunityDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -112,7 +112,7 @@ class OpportunityDetailsControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
-    when(opportunityDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(opportunityDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
 
     mockMvc.perform(

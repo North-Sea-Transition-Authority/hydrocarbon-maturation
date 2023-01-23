@@ -12,7 +12,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,9 +24,12 @@ class SourceAndSealFormValidatorTest {
 
   private SourceAndSealFormValidator sourceAndSealFormValidator;
 
+  private SubmissionDetail submissionDetail;
+
   @BeforeEach
   void setup() {
     sourceAndSealFormValidator = new SourceAndSealFormValidator();
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @Test
@@ -72,17 +79,16 @@ class SourceAndSealFormValidatorTest {
   private BindingResult validateSourceAndSealForm_fullValidation(SourceAndSealForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    sourceAndSealFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    sourceAndSealFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
     return bindingResult;
   }
 
   private BindingResult validateSourceAndSealForm_partialValidation(SourceAndSealForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    sourceAndSealFormValidator.validate(form, bindingResult, ValidationType.PARTIAL);
+    sourceAndSealFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.PARTIAL, submissionDetail));
     return bindingResult;
-  }
-
-  private static class NonSupportedClass {
   }
 }

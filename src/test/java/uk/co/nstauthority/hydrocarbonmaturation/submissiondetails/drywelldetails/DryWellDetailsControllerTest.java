@@ -87,7 +87,7 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
   void saveDryWellDetails_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(DryWellDetailsForm.class, "form");
-    when(dryWellDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(dryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(DryWellDetailsController.class)
@@ -99,7 +99,8 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
         .andExpect(redirectedUrl(
             ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(dryWellDetailsFormService, times(1)).validate(any(), any(), eq(validationType));
+    verify(dryWellDetailsFormService, times(1)).validate(
+        any(), any(), eq(validationType), eq(submissionDetail));
     verify(dryWellDetailsPersistenceService, times(1))
         .saveDryWellDetails(any(DryWellDetailsForm.class), eq(submissionDetail));
   }
@@ -111,7 +112,7 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
 
     var bindingResult = new BeanPropertyBindingResult(DryWellDetailsForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(dryWellDetailsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(dryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(DryWellDetailsController.class)
@@ -121,7 +122,8 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(dryWellDetailsFormService, times(1)).validate(any(), any(), eq(validationType));
+    verify(dryWellDetailsFormService, times(1)).validate(
+        any(), any(), eq(validationType), eq(submissionDetail));
     verify(dryWellDetailsPersistenceService, never()).saveDryWellDetails(any(), any());
   }
 

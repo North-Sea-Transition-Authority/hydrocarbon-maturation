@@ -22,7 +22,8 @@ public class DiscoveryWellDetailsSubmissionService implements SectionSubmissionS
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = discoveryWellDetailsFormService.getDiscoveryWellDetailsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = discoveryWellDetailsFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = discoveryWellDetailsFormService.validate(
+        form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

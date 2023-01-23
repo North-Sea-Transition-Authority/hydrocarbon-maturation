@@ -93,7 +93,7 @@ class OilCaseVolumetricsControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOilCaseVolumetrics_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(oilCaseVolumetricsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(oilCaseVolumetricsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -113,7 +113,7 @@ class OilCaseVolumetricsControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
-    when(oilCaseVolumetricsFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(oilCaseVolumetricsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(OilCaseVolumetricsController.class).saveOilCaseVolumetrics(submissionDetailId, null, null, null)))

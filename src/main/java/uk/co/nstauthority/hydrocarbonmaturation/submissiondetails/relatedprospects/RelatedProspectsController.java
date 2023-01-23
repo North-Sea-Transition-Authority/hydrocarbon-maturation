@@ -64,7 +64,7 @@ public class RelatedProspectsController {
                                          BindingResult bindingResult, ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
-    bindingResult = relatedProspectsFormService.validate(form, bindingResult, validationType);
+    bindingResult = relatedProspectsFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getRelatedProspectsModelAndView(form, submissionDetail),
         () -> {

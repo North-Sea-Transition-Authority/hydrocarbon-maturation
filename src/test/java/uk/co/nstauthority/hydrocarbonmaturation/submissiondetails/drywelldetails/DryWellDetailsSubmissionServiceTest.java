@@ -32,7 +32,8 @@ class DryWellDetailsSubmissionServiceTest {
 
     when(dryWellDetailsFormService.getDryWellDetailsForm(submissionDetail))
         .thenReturn(form);
-    when(dryWellDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(dryWellDetailsFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail));

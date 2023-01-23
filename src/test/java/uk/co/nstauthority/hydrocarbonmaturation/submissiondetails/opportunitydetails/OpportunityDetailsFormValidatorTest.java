@@ -14,8 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,9 +26,12 @@ class OpportunityDetailsFormValidatorTest {
 
   private static OpportunityDetailsFormValidator opportunityDetailsFormValidator;
 
+  private static SubmissionDetail submissionDetail;
+
   @BeforeAll
   static void beforeAll() {
     opportunityDetailsFormValidator = new OpportunityDetailsFormValidator();
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @Test
@@ -124,7 +130,8 @@ class OpportunityDetailsFormValidatorTest {
   private BindingResult validateOpportunityDetailsForm_fullValidation(OpportunityDetailsForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    opportunityDetailsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    opportunityDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     return bindingResult;
   }
@@ -132,7 +139,10 @@ class OpportunityDetailsFormValidatorTest {
   private BindingResult validateOpportunityDetailsForm_partialValidation(OpportunityDetailsForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    opportunityDetailsFormValidator.validate(form, bindingResult, ValidationType.PARTIAL);
+    opportunityDetailsFormValidator.validate(
+        form,
+        bindingResult, new SubmissionFormValidatorHints(ValidationType.PARTIAL, submissionDetail)
+    );
 
     return bindingResult;
   }

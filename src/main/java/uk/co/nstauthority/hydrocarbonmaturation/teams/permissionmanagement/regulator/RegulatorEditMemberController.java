@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberEditRolesValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
 
 @Controller
@@ -90,7 +91,7 @@ public class RegulatorEditMemberController extends AbstractRegulatorPermissionMa
             "No roles found for user [%s] in team [%s]".formatted(wuaId, teamId)));
 
     regulatorTeamMemberEditRolesValidator.validate(form, bindingResult,
-        new RegulatorTeamMemberEditRolesValidatorDto(team, teamMember));
+        new TeamMemberEditRolesValidatorHints(team, teamMember));
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,

@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -18,7 +17,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
@@ -74,23 +72,13 @@ class ReservoirPropertiesFormServiceTest {
         .hasOnlyFields("hydrocarbonsDiscovered")
         .extracting(
             ReservoirPropertiesValidatorHints::getValidationType,
-            ReservoirPropertiesValidatorHints::getSubmissionType,
+            ReservoirPropertiesValidatorHints::getSubmissionDetail,
             ReservoirPropertiesValidatorHints::getHydrocarbonsDiscovered)
         .containsExactly(
             ValidationType.FULL,
-            submissionDetail.getSubmissionType(),
+            submissionDetail,
             null
         );
-  }
-
-  @Test
-  void validate_noSubmissionTypePassed_verifyExceptionThrown() {
-    var form = new ReservoirPropertiesForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    assertThatThrownBy(() -> reservoirPropertiesFormService.validate(form, bindingResult, ValidationType.FULL))
-        .isExactlyInstanceOf(ActionNotAllowedException.class)
-        .hasMessage("Must supply submission form validator hints to this validator");
   }
 
   @Test

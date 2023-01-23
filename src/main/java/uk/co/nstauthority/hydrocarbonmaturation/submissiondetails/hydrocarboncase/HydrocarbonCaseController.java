@@ -56,8 +56,8 @@ public class HydrocarbonCaseController {
   public ModelAndView saveHydrocarbonCase(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                           @ModelAttribute("form") HydrocarbonCaseForm form, BindingResult bindingResult,
                                           ValidationType validationType) {
-    bindingResult = hydrocarbonCaseFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = hydrocarbonCaseFormService.validate(form, bindingResult, validationType, submissionDetail);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,

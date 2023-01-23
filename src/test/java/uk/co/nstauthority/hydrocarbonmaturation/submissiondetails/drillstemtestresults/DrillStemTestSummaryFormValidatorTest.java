@@ -6,13 +6,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,6 +24,13 @@ class DrillStemTestSummaryFormValidatorTest {
 
   @InjectMocks
   private DrillStemTestSummaryFormValidator drillStemTestSummaryFormValidator;
+
+  static private SubmissionDetail submissionDetail;
+
+  @BeforeAll
+  static void setUp() {
+    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+  }
 
   @Test
   void supports_whenDrillStemTestSummaryFormClass_thenTrue() {
@@ -39,7 +50,8 @@ class DrillStemTestSummaryFormValidatorTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    drillStemTestSummaryFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    drillStemTestSummaryFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -50,7 +62,8 @@ class DrillStemTestSummaryFormValidatorTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    drillStemTestSummaryFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    drillStemTestSummaryFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 

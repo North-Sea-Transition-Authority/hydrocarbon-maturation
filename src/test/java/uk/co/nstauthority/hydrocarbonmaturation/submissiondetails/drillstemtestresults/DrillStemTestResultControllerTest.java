@@ -116,7 +116,7 @@ class DrillStemTestResultControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void updateDrillStemTestResultDetails_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(drillStemTestResultFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(drillStemTestResultFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(drillStemTestResultPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
@@ -147,7 +147,7 @@ class DrillStemTestResultControllerTest extends AbstractControllerTest {
   void updateDrillStemTestResultDetails_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(drillStemTestResultFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(drillStemTestResultFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(drillStemTestResultPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
         .thenReturn(drillStemTest);
@@ -166,7 +166,7 @@ class DrillStemTestResultControllerTest extends AbstractControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveNewDrillStemTestResult_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(drillStemTestResultFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(drillStemTestResultFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(drillStemTestResultPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))

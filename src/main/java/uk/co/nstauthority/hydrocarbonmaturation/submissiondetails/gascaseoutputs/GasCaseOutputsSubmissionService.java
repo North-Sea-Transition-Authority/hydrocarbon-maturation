@@ -20,7 +20,7 @@ public class GasCaseOutputsSubmissionService implements SectionSubmissionService
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = gasCaseOutputsFormService.getGasCaseOutputsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = gasCaseOutputsFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = gasCaseOutputsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

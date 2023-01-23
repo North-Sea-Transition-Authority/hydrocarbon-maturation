@@ -63,8 +63,8 @@ public class DiscoveryWellDetailsController {
                                                @ModelAttribute("form") DiscoveryWellDetailsForm form,
                                                BindingResult bindingResult,
                                                ValidationType validationType) {
-    bindingResult = discoveryWellDetailsFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = discoveryWellDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getDiscoveryWellDetailsModelAndView(form, submissionDetail),

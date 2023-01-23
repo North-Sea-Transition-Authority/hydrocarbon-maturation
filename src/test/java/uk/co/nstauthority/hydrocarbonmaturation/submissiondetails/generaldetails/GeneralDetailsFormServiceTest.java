@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,6 +15,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
@@ -27,7 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.Refe
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,9 +82,19 @@ class GeneralDetailsFormServiceTest {
     var form = new GeneralDetailsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var validationType = ValidationType.FULL;
+
+    var captor = ArgumentCaptor.forClass(
+        SubmissionFormValidatorHints.class);
+
     generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
-    verify(generalDetailsFormValidator, times(1)).validate(form, bindingResult,
-        validationType, SubmissionType.CREATE_PROSPECT);
+    verify(generalDetailsFormValidator, times(1)).validate(eq(form), eq(bindingResult),
+        captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            SubmissionFormValidatorHints::getValidationType,
+            SubmissionFormValidatorHints::getSubmissionDetail)
+        .containsExactly(validationType, submissionDetail);
   }
 
   @Test

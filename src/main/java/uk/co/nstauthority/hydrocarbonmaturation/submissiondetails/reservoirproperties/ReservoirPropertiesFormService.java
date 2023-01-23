@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -39,15 +38,8 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
   }
 
   @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType) {
-    throw new ActionNotAllowedException("Must supply submission form validator hints to this validator");
-  }
-
-  @Override
   public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
                                 ValidationType validationType, SubmissionDetail submissionDetail) {
-    var submissionType = submissionDetail.getSubmissionType();
-
     if (submissionDetail.isDiscoverySubmission()) {
       discoveryWellDetailsPersistenceService
           .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
@@ -56,11 +48,11 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
                   reservoirPropertiesFormValidator.validate(form, bindingResult,
                       new ReservoirPropertiesValidatorHints(
                           validationType,
-                          submissionType,
+                          submissionDetail,
                           discoveryWellDetail.getHydrocarbonsDiscovered())),
               () ->
                   reservoirPropertiesFormValidator.validate(form, bindingResult,
-                      new ReservoirPropertiesValidatorHints(validationType, submissionType, null)));
+                      new ReservoirPropertiesValidatorHints(validationType, submissionDetail, null)));
       return bindingResult;
     } else if (submissionDetail.isProspectSubmission()) {
       hydrocarbonCasePersistenceService
@@ -72,13 +64,13 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
                   reservoirPropertiesFormValidator.validate(form, bindingResult,
                       new ReservoirPropertiesValidatorHints(
                           validationType,
-                          submissionType,
+                          submissionDetail,
                           HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
                 } else {
                   reservoirPropertiesFormValidator.validate(form, bindingResult,
                       new ReservoirPropertiesValidatorHints(
                           validationType,
-                          submissionType,
+                          submissionDetail,
                           null));
                 }
               },
@@ -86,13 +78,13 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
                   reservoirPropertiesFormValidator.validate(form, bindingResult,
                       new ReservoirPropertiesValidatorHints(
                           validationType,
-                          submissionType,
+                          submissionDetail,
                           null))
           );
       return bindingResult;
     }
     reservoirPropertiesFormValidator.validate(
-        form, bindingResult, new ReservoirPropertiesValidatorHints(validationType, submissionType, null));
+        form, bindingResult, new ReservoirPropertiesValidatorHints(validationType, submissionDetail, null));
     return bindingResult;
   }
 

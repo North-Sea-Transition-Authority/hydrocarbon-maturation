@@ -18,8 +18,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,9 +30,12 @@ class OilCaseOutputsFormValidatorTest {
 
   private OilCaseOutputsFormValidator oilCaseOutputsFormValidator;
 
+  private SubmissionDetail submissionDetail;
+
   @BeforeEach
   void setUp() {
     oilCaseOutputsFormValidator = new OilCaseOutputsFormValidator();
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @Test
@@ -49,7 +55,8 @@ class OilCaseOutputsFormValidatorTest {
   void validate_whenValidForm_thenNoValidationErrors(ValidationType validationType) {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    oilCaseOutputsFormValidator.validate(form, bindingResult, validationType);
+    oilCaseOutputsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -57,7 +64,8 @@ class OilCaseOutputsFormValidatorTest {
   void validate_whenInvalidForm_thenValidationErrors() {
     var form = getFormWithEmptyDistributions(ProbabilityDistributionType.CUSTOM);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    oilCaseOutputsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    oilCaseOutputsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -79,7 +87,8 @@ class OilCaseOutputsFormValidatorTest {
     var form = getValidForm();
     form.setHasAssociatedGasRecoverableResources(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    oilCaseOutputsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    oilCaseOutputsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -98,7 +107,8 @@ class OilCaseOutputsFormValidatorTest {
   void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    oilCaseOutputsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    oilCaseOutputsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -124,7 +134,8 @@ class OilCaseOutputsFormValidatorTest {
   void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    oilCaseOutputsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    oilCaseOutputsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
@@ -157,7 +168,8 @@ class OilCaseOutputsFormValidatorTest {
   private BindingResult validateOilCaseOutputsForm_fullValidation(OilCaseOutputsForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    oilCaseOutputsFormValidator.validate(form, bindingResult, ValidationType.FULL);
+    oilCaseOutputsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     return bindingResult;
   }

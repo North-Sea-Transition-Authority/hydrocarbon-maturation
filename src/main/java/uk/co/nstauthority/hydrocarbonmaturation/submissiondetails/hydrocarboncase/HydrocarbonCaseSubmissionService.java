@@ -22,7 +22,8 @@ public class HydrocarbonCaseSubmissionService implements SectionSubmissionServic
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = hydrocarbonCaseFormService.getHydrocarbonCaseForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = hydrocarbonCaseFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = hydrocarbonCaseFormService.validate(
+        form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

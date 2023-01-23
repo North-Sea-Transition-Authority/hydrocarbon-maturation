@@ -57,8 +57,8 @@ public class GasFluidPropertyController {
   public ModelAndView saveGasFluidProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                              @ModelAttribute("form") GasFluidPropertyForm form,
                                              BindingResult bindingResult, ValidationType validationType) {
-    bindingResult = gasFluidPropertyFormService.validate(form, bindingResult, validationType);
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    bindingResult = gasFluidPropertyFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getGasFluidPropertiesModelAndView(form, submissionDetail),

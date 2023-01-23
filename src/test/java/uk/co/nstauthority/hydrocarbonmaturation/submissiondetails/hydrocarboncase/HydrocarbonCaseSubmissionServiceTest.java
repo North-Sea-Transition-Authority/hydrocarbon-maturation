@@ -34,7 +34,8 @@ class HydrocarbonCaseSubmissionServiceTest {
 
     when(hydrocarbonCaseFormService.getHydrocarbonCaseForm(submissionDetail)).thenReturn(form);
 
-    when(hydrocarbonCaseFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(hydrocarbonCaseFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail));
@@ -50,7 +51,8 @@ class HydrocarbonCaseSubmissionServiceTest {
 
     when(hydrocarbonCaseFormService.getHydrocarbonCaseForm(submissionDetail)).thenReturn(form);
 
-    when(hydrocarbonCaseFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL)))
+    when(hydrocarbonCaseFormService.validate(
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail));

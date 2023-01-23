@@ -22,7 +22,7 @@ public class RelatedProspectsSubmissionService implements SectionSubmissionServi
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = relatedProspectsFormService.getRelatedProspectsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = relatedProspectsFormService.validate(form, bindingResult, ValidationType.FULL);
+    bindingResult = relatedProspectsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

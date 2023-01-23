@@ -92,7 +92,7 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveOilFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
-    when(oilFluidPropertyFormService.validate(any(), any(), any()))
+    when(oilFluidPropertyFormService.validate(any(), any(), any(), eq(submissionDetail)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
@@ -110,14 +110,14 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
     verify(oilFluidPropertyPersistenceService, times(1))
         .saveOilFluidProperty(any(OilFluidPropertyForm.class), eq(submissionDetail));
     verify(oilFluidPropertyFormService, times(1))
-        .validate(any(), any(), eq(validationType));
+        .validate(any(), any(), eq(validationType), eq(submissionDetail));
   }
 
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveOilFluidProperties_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(oilFluidPropertyFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(oilFluidPropertyFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -129,7 +129,7 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
 
     verify(oilFluidPropertyFormService, times(1))
-        .validate(any(), any(), eq(validationType));
+        .validate(any(), any(), eq(validationType), eq(submissionDetail));
     verify(oilFluidPropertyPersistenceService, never())
         .saveOilFluidProperty(any(), any());
   }

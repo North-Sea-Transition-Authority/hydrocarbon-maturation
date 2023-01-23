@@ -89,7 +89,7 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveGasFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
-    when(gasFluidPropertyFormService.validate(any(), any(), any()))
+    when(gasFluidPropertyFormService.validate(any(), any(), any(), eq(submissionDetail)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
@@ -106,14 +106,14 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
     verify(gasFluidPropertyPersistenceService, times(1))
         .saveGasFluidProperty(any(GasFluidPropertyForm.class), eq(submissionDetail));
     verify(gasFluidPropertyFormService, times(1))
-        .validate(any(), any(), eq(validationType));
+        .validate(any(), any(), eq(validationType), eq(submissionDetail));
   }
 
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveGasFluidProperties_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(gasFluidPropertyFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(gasFluidPropertyFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -125,7 +125,7 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
 
     verify(gasFluidPropertyFormService, times(1))
-        .validate(any(), any(), eq(validationType));
+        .validate(any(), any(), eq(validationType), eq(submissionDetail));
     verify(gasFluidPropertyPersistenceService, never())
         .saveGasFluidProperty(any(), any());
   }

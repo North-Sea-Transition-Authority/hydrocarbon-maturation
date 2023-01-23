@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMember;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRemovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberEditRolesValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,7 +48,7 @@ class IndustryTeamMemberEditRolesValidatorTest {
 
     when(teamMemberRemovalService.canRemoveTeamMember(team, teamMember)).thenReturn(true);
 
-    var dto = new IndustryTeamMemberEditRolesValidatorDto(team, teamMember);
+    var dto = new TeamMemberEditRolesValidatorHints(team, teamMember);
     industryTeamMemberEditRolesValidator.validate(form, bindingResult, dto);
 
     assertFalse(bindingResult.hasErrors());
@@ -63,7 +64,7 @@ class IndustryTeamMemberEditRolesValidatorTest {
     var teamMember = new TeamMember(new WebUserAccountId(123L), teamView,
         Set.of(IndustryTeamRole.ACCESS_MANAGER));
 
-    var dto = new IndustryTeamMemberEditRolesValidatorDto(team, teamMember);
+    var dto = new TeamMemberEditRolesValidatorHints(team, teamMember);
     industryTeamMemberEditRolesValidator.validate(form, bindingResult, dto);
 
     assertTrue(bindingResult.hasErrors());
@@ -94,7 +95,7 @@ class IndustryTeamMemberEditRolesValidatorTest {
 
     when(teamMemberRemovalService.canRemoveTeamMember(team, teamMember)).thenReturn(false);
 
-    var dto = new IndustryTeamMemberEditRolesValidatorDto(team, teamMember);
+    var dto = new TeamMemberEditRolesValidatorHints(team, teamMember);
     industryTeamMemberEditRolesValidator.validate(form, bindingResult, dto);
 
     assertTrue(bindingResult.hasErrors());

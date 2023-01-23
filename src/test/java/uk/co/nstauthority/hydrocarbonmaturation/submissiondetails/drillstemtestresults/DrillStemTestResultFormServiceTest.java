@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,17 +37,23 @@ class DrillStemTestResultFormServiceTest {
   @BeforeEach
   void setUp() {
     drillStemTest = new DrillStemTest();
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     drillStemTest.setId(UUID.randomUUID());
+    drillStemTest.setSubmissionDetail(submissionDetail);
   }
 
   @Test
   void validate_verifyMethodCall() {
     var form = new DrillStemTestResultForm();
     var bindingResult = ReverseRouter.emptyBindingResult();
-    drillStemTestResultFormService.validate(form, bindingResult, ValidationType.FULL);
 
+    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
+
+    drillStemTestResultFormService.validate(form, bindingResult, ValidationType.FULL,
+        drillStemTest.getSubmissionDetail());
     verify(drillStemTestResultFormValidator, times(1))
-        .validate(form, bindingResult, ValidationType.FULL);
+        .validate(eq(form), eq(bindingResult), captor.capture());
+    Assertions.assertThat(captor.getValue().getValidationType()).isEqualTo(ValidationType.FULL);
   }
 
   @Test
@@ -127,12 +136,14 @@ class DrillStemTestResultFormServiceTest {
     var drillStemTestResult1 = getDrillStemTestResult(drillStemTest);
     drillStemTestResult1.setFormationName("otherName");
     var captor = ArgumentCaptor.forClass(DrillStemTestResultForm.class);
-
-    var hasErrors = drillStemTestResultFormService.validateDrillStemTestResults(List.of(drillStemTestResult1, drillStemTestResult), ValidationType.FULL);
+    var hintsCaptor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
+    var hasErrors = drillStemTestResultFormService
+        .validateDrillStemTestResults(List.of(drillStemTestResult1, drillStemTestResult), ValidationType.FULL,
+            drillStemTest.getSubmissionDetail());
 
     assertThat(hasErrors).isFalse();
     verify(drillStemTestResultFormValidator, times(2))
-        .validate(captor.capture(), any(), eq(ValidationType.FULL));
+        .validate(captor.capture(), any(), hintsCaptor.capture());
 
     var values = captor.getAllValues();
 
@@ -165,6 +176,8 @@ class DrillStemTestResultFormServiceTest {
         .extracting(
             DrillStemTestResultForm::getFormationName)
         .isEqualTo("otherName");
+    assertThat(hintsCaptor.getValue().getValidationType())
+        .isEqualTo(ValidationType.FULL);
   }
 
   public static DrillStemTestResult getDrillStemTestResult(DrillStemTest drillStemTest) {
