@@ -70,14 +70,16 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
             if (probabilityDistribution.getDistributionType() == ProbabilityDistributionType.NOT_CALCULATED) {
               return;
             }
-            probabilityDistribution.setInstance(
+            var newProbabilityDistribution =
+                submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                    newSubmissionDetail, probabilityDistribution, ProbabilityDistribution.class);
+            newProbabilityDistribution.setInstance(
                 ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
-          }
-
-          submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
+          } else {
+            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
+                probabilityDistribution,
                 ProbabilityDistribution.class);
-
-          probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
+          }
         });
   }
 }

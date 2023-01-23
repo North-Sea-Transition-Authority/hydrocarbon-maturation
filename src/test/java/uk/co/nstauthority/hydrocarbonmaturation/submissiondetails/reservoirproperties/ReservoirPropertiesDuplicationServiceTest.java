@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -184,9 +185,15 @@ class ReservoirPropertiesDuplicationServiceTest {
     averageNetPayProbDistribution.setDistributionType(ProbabilityDistributionType.CONSTANT);
     whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
         .thenReturn(List.of(averageNetPayProbDistribution));
+    var mockNetPayThickness = mock(ProbabilityDistribution.class);
+    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+        eq(newSubmissionDetail), any(), eq(ProbabilityDistribution.class)))
+        .thenReturn(mockNetPayThickness);
 
     reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
+    verify(mockNetPayThickness, times(1))
+        .setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
     verify(submissionDuplicationPersistenceService, times(1))
         .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
@@ -204,8 +211,7 @@ class ReservoirPropertiesDuplicationServiceTest {
 
     reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    verifyNoInteractions(submissionDuplicationPersistenceService);
   }
 
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(SubmissionDetail oldSubmissionDetail) {
