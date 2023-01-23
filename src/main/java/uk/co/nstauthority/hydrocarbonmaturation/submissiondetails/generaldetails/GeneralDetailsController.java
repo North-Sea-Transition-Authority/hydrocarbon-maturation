@@ -81,6 +81,8 @@ public class GeneralDetailsController {
                 .searchLicenceApplicationsWithManualEntry(null)))
         .addObject("discoverySubmission", submissionDetail.isDiscoverySubmission())
         .addObject("prospectSubmission", submissionDetail.isProspectSubmission())
+        .addObject("relinquishmentSubmission",
+            submissionDetail.isDiscoveryRelinquishment() || submissionDetail.isProspectRelinquishment())
         .addObject("licenceApplication",
             generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
         .addObject("organisationUnitEndpoint",

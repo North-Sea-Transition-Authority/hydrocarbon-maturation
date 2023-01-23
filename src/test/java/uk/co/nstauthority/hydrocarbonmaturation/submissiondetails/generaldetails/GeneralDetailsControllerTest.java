@@ -37,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -159,6 +160,9 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
             entry("quadrantBlocksApiEndpoint",
                 SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null))),
             entry("resourceType", ResourceType.PROSPECT.name().toLowerCase()),
+            entry("prospectSubmission", true),
+            entry("discoverySubmission", false),
+            entry("relinquishmentSubmission", false),
             entry("organisationUnitEndpoint",
                 SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null))),
             entry("responsibleOrganisation", preselectedOrganisation),
@@ -178,6 +182,9 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
   @Test
   void getGeneralDetailsModelAndView_discoverySubmission_assertModelProperties() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var discovery = new Resource();
+    discovery.setType(ResourceType.DISCOVERY);
+    submissionDetail.setResourceId(discovery);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
@@ -212,7 +219,10 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
                     on(LicenceApplicationRestController.class).searchLicenceApplicationsWithManualEntry(null))),
             entry("quadrantBlocksApiEndpoint",
                 SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null))),
-            entry("resourceType", ResourceType.PROSPECT.name().toLowerCase()),
+            entry("resourceType", ResourceType.DISCOVERY.name().toLowerCase()),
+            entry("prospectSubmission", false),
+            entry("discoverySubmission", true),
+            entry("relinquishmentSubmission", false),
             entry("organisationUnitEndpoint",
                 SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null))),
             entry("responsibleOrganisation", preselectedOrganisation),
@@ -228,5 +238,32 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
             TaskListController.PAGE_NAME)
     );
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"RELINQUISHMENT_PROSPECT", "RELINQUISHMENT_DISCOVERY"},
+      mode = EnumSource.Mode.INCLUDE)
+  void getGeneralDetailsModelAndView_relinquishmentSubmission_assertRelinquishmentTrue(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    var form = new GeneralDetailsForm();
+    when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
+
+    var modelMap = Objects.requireNonNull(
+        mockMvc.perform(
+            get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
+                .with(user(USER)))
+            .andReturn()
+            .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("prospectSubmission", submissionDetail.isProspectSubmission()),
+            entry("discoverySubmission", submissionDetail.isDiscoverySubmission()),
+            entry("relinquishmentSubmission", true)
+        );
   }
 }

@@ -16,7 +16,19 @@ pageHeading=pageTitle
 pageSize=PageSize.TWO_THIRDS_COLUMN
 errorItems=errorList
 breadcrumbsMap=breadcrumbsMap>
-
+  <#if relinquishmentSubmission>
+    <#assign guidanceTextOrganisation>
+      The responsible party will be removed from this ${resourceType} when the relinquishment submission is approved.
+    </#assign>
+    <#assign guidanceTextLicence>
+      The licence will be removed from this ${resourceType} when the relinquishment submission is approved.
+    </#assign>
+  <#else>
+    <#assign guidanceTextOrganisation>
+    </#assign>
+    <#assign guidanceTextLicence>
+    </#assign>
+  </#if>
     <@fdsForm.htmlForm>
 
       <@fdsTextInput.textInput path="form.resourceName" labelText="${resourceType?capitalize} name"/>
@@ -27,6 +39,7 @@ breadcrumbsMap=breadcrumbsMap>
         labelText="What organisation is responsible for this ${resourceType}?"
         selectorMinInputLength=3
         nestingPath="form.responsibleOrganisationId"
+        hintText=guidanceTextOrganisation
         preselectedItems=responsibleOrganisation!{}/>
       <@fdsRadio.radioGroup
         path="form.resourceOnALicence"
@@ -38,6 +51,7 @@ breadcrumbsMap=breadcrumbsMap>
             pathForSelector="form.licenceSelect"
             alreadyAdded=alreadyAddedLicences
             title=""
+            selectorHintText=guidanceTextLicence
             itemName="Licences"
             noItemText="No licence added"
             invalidItemText="This licence is not extant"
