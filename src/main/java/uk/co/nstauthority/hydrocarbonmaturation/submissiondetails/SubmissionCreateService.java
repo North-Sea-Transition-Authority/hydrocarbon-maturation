@@ -170,7 +170,8 @@ public class SubmissionCreateService {
     //this ensures only one relinquishment option appears in the startSubmissionController
     submissionTypeOptions
         .remove(SubmissionType.RELINQUISHMENT_DISCOVERY.name());
-    if (!permissionService.hasPermission(userDetail, Set.of(RolePermission.EXPLORATION))) {
+    if (!permissionService.hasPermission(
+        userDetail, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT))) {
       submissionTypeOptions
           .remove(SubmissionType.RELINQUISHMENT_PROSPECT.name());
     }

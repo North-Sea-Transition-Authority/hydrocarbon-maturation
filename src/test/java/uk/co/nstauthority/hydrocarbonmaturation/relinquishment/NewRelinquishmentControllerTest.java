@@ -55,7 +55,7 @@ class NewRelinquishmentControllerTest extends AbstractControllerTest {
 
   @Test
   void getRelinquishmentPage_assertModelProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
     var modelAndView = mockMvc.perform(
@@ -85,7 +85,7 @@ class NewRelinquishmentControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(RelinquishmentForm.class, "form");
     when(relinquishmentService.validate(any(), any())).thenReturn(bindingResult);
     when(relinquishmentService.createRelinquishment(form)).thenReturn(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
     mockMvc.perform(
@@ -106,7 +106,7 @@ class NewRelinquishmentControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(RelinquishmentForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
     when(relinquishmentService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
     var modelAndView = mockMvc.perform(

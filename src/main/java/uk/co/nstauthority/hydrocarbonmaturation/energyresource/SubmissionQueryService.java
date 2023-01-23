@@ -6,9 +6,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -16,6 +20,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 
 @Service
 public class SubmissionQueryService {
@@ -24,16 +30,25 @@ public class SubmissionQueryService {
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
   private final ResourceLinkService resourceLinkService;
+  private final UserDetailService userDetailService;
+  private final IndustryTeamService industryTeamService;
+  private final PermissionService permissionService;
 
   @Autowired
   SubmissionQueryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                          TrapPropertiesPersistenceService trapPropertiesPersistenceService,
                          SubmissionDetailService submissionDetailService,
-                         ResourceLinkService resourceLinkService) {
+                         ResourceLinkService resourceLinkService,
+                         UserDetailService userDetailService,
+                         IndustryTeamService industryTeamService,
+                         PermissionService permissionService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.resourceLinkService = resourceLinkService;
+    this.userDetailService = userDetailService;
+    this.industryTeamService = industryTeamService;
+    this.permissionService = permissionService;
   }
 
   public List<ResourceView> getLatestDiscoveriesByNameForSubmissionType(String name,
@@ -41,9 +56,9 @@ public class SubmissionQueryService {
     //gets every discovery resource with the name specified
     Stream<Resource> distinctDiscoveries =
         generalDetailsPersistenceService.getGeneralDetailsByName(name).stream()
-        .map(detail -> detail.getSubmissionDetail().getResourceId())
-        .distinct()
-        .filter(resource -> SubmissionFilterUtil.filterByResourceType(resource, ResourceType.DISCOVERY));
+            .map(detail -> detail.getSubmissionDetail().getResourceId())
+            .distinct()
+            .filter(resource -> SubmissionFilterUtil.filterByResourceType(resource, ResourceType.DISCOVERY));
 
     //gets the latest general detail for each discovery
     Stream<SubmissionDetail> latestSubmissionsWhichCanBeSubmittedUpon =
@@ -52,12 +67,37 @@ public class SubmissionQueryService {
             .flatMap(Optional::stream)
             .filter(detail -> filterDiscoverySubmissionByOtherSubmissions(detail, submissionType));
 
+    var user = userDetailService.getUserDetail();
+
     //Gets the list of resource views for discoveries to be displayed in a search selector.
     return latestSubmissionsWhichCanBeSubmittedUpon
         .map(generalDetailsPersistenceService::getGeneralDetailOrThrow)
+        .filter(generalDetail -> filterByResponsibleOrganisation(user, generalDetail, submissionType))
         .map(this::getResourceViewFromGeneralDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();
+  }
+
+  /**
+   * This filters out the resource if the user is not part of the team for the responsible organisation
+   * for the resource. Discovery and prospect relinquishment submissions can only be made by the responsible organisation.
+   * Or by the NSTA in the Exploration team.
+   */
+  private boolean filterByResponsibleOrganisation(
+      ServiceUserDetail user, GeneralDetail generalDetail, SubmissionType submissionType) {
+    if (permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION))) {
+      // NSTA users in the exploration team can relinquish exploration resources.
+      return true;
+    }
+
+    if (generalDetail.getOrganisationId() != null
+        && (submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT)) {
+      var responsibleOrganisationId = generalDetail.getOrganisationId();
+      return industryTeamService.isSubmitterForOrganisationUnit(user, responsibleOrganisationId);
+    }
+    return submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
+        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT;
   }
 
   public List<ResourceView> getLatestProspectsByNameForSubmissionType(String name, SubmissionType submissionType) {
@@ -77,9 +117,11 @@ public class SubmissionQueryService {
             .flatMap(Optional::stream)
             .filter(detail -> filterProspectSubmissionByOtherSubmissions(detail, submissionType));
 
+    var user = userDetailService.getUserDetail();
     //Gets the list of resource views for prospects to be displayed in a search selector
     return latestSubmissionsWhichCanBeSubmittedUpon
         .map(generalDetailsPersistenceService::getGeneralDetailOrThrow)
+        .filter(generalDetail -> filterByResponsibleOrganisation(user, generalDetail, submissionType))
         .map(this::getResourceViewFromGeneralDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();

@@ -33,7 +33,7 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractControllerTest
 
   @SecurityTest
   void getStartRelinquishmentPage_hasPermission_assertIsOk() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
     var modelAndView = mockMvc.perform(
@@ -56,7 +56,7 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractControllerTest
 
   @SecurityTest
   void startRelinquishment_hasPermission_assertRedirect() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
     mockMvc.perform(
@@ -71,7 +71,7 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractControllerTest
 
   @SecurityTest
   void getStartRelinquishmentPage_hasNoExplorationPermission_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(false);
 
     mockMvc.perform(
@@ -84,7 +84,7 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractControllerTest
 
   @SecurityTest
   void startRelinquishment_hasNoExplorationPermission_assertRedirect() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(false);
 
     mockMvc.perform(

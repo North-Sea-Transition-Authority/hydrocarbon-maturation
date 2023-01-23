@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
@@ -40,8 +41,7 @@ class OrganisationUnitQueryServiceTest {
   void setUp() {
     organisationUnitQueryService = new OrganisationUnitQueryService(
         organisationApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties)
-    );
+        new EnergyPortalApiWrapper(serviceConfigurationProperties));
   }
 
   @Test
@@ -101,6 +101,78 @@ class OrganisationUnitQueryServiceTest {
     )).thenReturn(Optional.empty());
 
     assertTrue(organisationUnitQueryService.findOrganisationUnit(organisationId).isEmpty());
+  }
+
+  @Test
+  void findOrganisationGroupIdsByUnitId_whenNoOrganisationsFound() {
+    var organisationId = 1;
+    var filter = OrganisationUnitQueryService.ORGANISATION_UNIT_GROUPS_PROJECTION_ROOT;
+    when(organisationApi.findOrganisationUnit(
+        eq(organisationId),
+        eq(filter),
+        any(),
+        any()
+    )).thenReturn(Optional.empty());
+
+    assertThat(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(organisationId)).isEmpty();
+  }
+
+  @Test
+  void findOrganisationGroupIdsByUnitId_whenOrganisationsFound() {
+    var orgnisationGroupId = 1;
+    var orgnisationGroupId2 = 2;
+
+    var organisationGroup = new OrganisationGroup();
+    organisationGroup.setOrganisationGroupId(orgnisationGroupId);
+
+    var organisationGroup2 = new OrganisationGroup();
+    organisationGroup2.setOrganisationGroupId(orgnisationGroupId2);
+
+    var organisationUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationId(ORGANISATION_UNIT_ID)
+        .withOrganisationName(ORGANISATION_UNIT_NAME)
+        .withOrganisationNumber(ORGANISATION_COMPANY_NUMBER)
+        .withOrganisationGroups(List.of(organisationGroup, organisationGroup2))
+        .build();
+
+    var filter = OrganisationUnitQueryService.ORGANISATION_UNIT_GROUPS_PROJECTION_ROOT;
+
+    when(organisationApi.findOrganisationUnit(
+        eq(ORGANISATION_UNIT_ID),
+        eq(filter),
+        any(),
+        any()
+    )).thenReturn(Optional.of(organisationUnit));
+
+    var expectedOrganisationGroupIdList =
+        organisationUnitQueryService.findOrganisationGroupIdsByUnitId(ORGANISATION_UNIT_ID);
+
+    assertThat(expectedOrganisationGroupIdList)
+        .containsExactly(1, 2);
+  }
+
+  @Test
+  void findOrganisationGroupIdsByUnitId_whenOrganisationGroupNotFound() {
+    var organisationUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationId(ORGANISATION_UNIT_ID)
+        .withOrganisationName(ORGANISATION_UNIT_NAME)
+        .withOrganisationNumber(ORGANISATION_COMPANY_NUMBER)
+        .withOrganisationGroups(null)
+        .build();
+
+    var filter = OrganisationUnitQueryService.ORGANISATION_UNIT_GROUPS_PROJECTION_ROOT;
+
+    when(organisationApi.findOrganisationUnit(
+        eq(ORGANISATION_UNIT_ID),
+        eq(filter),
+        any(),
+        any()
+    )).thenReturn(Optional.of(organisationUnit));
+
+    var expectedOrganisationGroupIdList =
+        organisationUnitQueryService.findOrganisationGroupIdsByUnitId(ORGANISATION_UNIT_ID);
+
+    assertThat(expectedOrganisationGroupIdList).isEmpty();
   }
 
   @Test

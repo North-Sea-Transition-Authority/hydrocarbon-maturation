@@ -211,7 +211,7 @@ class SubmissionCreateServiceTest {
         .withRole(RegulatorTeamRole.EXPLORATION)
         .build();
     when(userDetailService.getUserDetail()).thenReturn(user);
-    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
+    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
     var result = submissionCreateService.getSubmissionTypeOptionsForUser();
@@ -233,7 +233,7 @@ class SubmissionCreateServiceTest {
         .withRole(null)
         .build();
     when(userDetailService.getUserDetail()).thenReturn(user);
-    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
+    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(false);
 
     var result = submissionCreateService.getSubmissionTypeOptionsForUser();
