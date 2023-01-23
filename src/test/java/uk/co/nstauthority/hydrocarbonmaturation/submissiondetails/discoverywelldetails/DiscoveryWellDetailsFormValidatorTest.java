@@ -137,6 +137,27 @@ class DiscoveryWellDetailsFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenNegativeCostValues_thenValidationErrors(ValidationType validationType) {
+    var form = getValidForm();
+
+    form.setSuccessRelatedCosts(DecimalInput.createDecimalInput(-5));
+    form.setDryHoleCost(DecimalInput.createDecimalInput(-5));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    discoveryWellDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("dryHoleCost.decimalInputValue", Set.of("dryHoleCost.decimalInputValue.lessThanMinValue")),
+            entry("successRelatedCosts.decimalInputValue", Set.of("successRelatedCosts.decimalInputValue.lessThanMinValue"))
+        );
+  }
+
   private DiscoveryWellDetailsForm getValidForm() {
     var form = new DiscoveryWellDetailsForm();
     form.getWellDetailsForm().setDryWell("dryWellName");

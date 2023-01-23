@@ -10,6 +10,8 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
@@ -103,6 +105,25 @@ class DryWellDetailsFormValidatorTest {
         .contains(
             entry("drillDetailsForm.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue",
                 Set.of("drillDetailsForm.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue.lessThanMinValue"))
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenNegativeCostValue_thenValidationErrors(ValidationType validationType) {
+    var form = getValidForm();
+
+    form.setDryHoleCost(DecimalInput.createDecimalInput(-5));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    dryWellDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("dryHoleCost.decimalInputValue", Set.of("dryHoleCost.decimalInputValue.lessThanMinValue"))
         );
   }
 

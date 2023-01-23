@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails;
 
+import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -33,6 +34,7 @@ class DryWellDetailsFormValidator extends PartialFullFormValidator {
             "the dry well cost",
             dryWellForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
   }
 
@@ -89,6 +91,7 @@ class DryWellDetailsFormValidator extends PartialFullFormValidator {
         "the total well cost",
         dryWellForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
   }
 }

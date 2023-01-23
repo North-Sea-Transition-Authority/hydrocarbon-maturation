@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails;
 
+import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -33,6 +34,7 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
             "the total well cost",
             discoveryWellDetailsForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
 
     DecimalInputValidator.configureOptionalValidator(
@@ -41,6 +43,7 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
             "the success-related costs",
             discoveryWellDetailsForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
   }
 
@@ -76,11 +79,13 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
     DecimalInputValidator.configureValidator(errors, "dryHoleCost.decimalInputValue",
             "the total well cost", discoveryWellDetailsForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
 
     DecimalInputValidator.configureValidator(errors, "successRelatedCosts.decimalInputValue",
         "the success-related costs", discoveryWellDetailsForm.getSuccessRelatedCosts())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
   }
 }
