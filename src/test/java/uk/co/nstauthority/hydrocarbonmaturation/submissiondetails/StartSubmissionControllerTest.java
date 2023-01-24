@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -20,6 +21,7 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
@@ -28,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.StartRelinquishmentSubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = StartSubmissionController.class)
@@ -41,13 +44,17 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
   @MockBean
   SubmissionCreateService submissionCreateService;
 
+  @MockBean
+  PermissionService permissionService;
+
   @SecurityTest
   void startSubmission_whenValidFormAndCreateProspect_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     mockMvc.perform(
         post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
             .with(user(USER))
@@ -58,11 +65,30 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
+  void startSubmission_whenValidFormAndCreateProspect_whenNoPermission_assertForbidden() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(false);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+                .with(user(USER))
+                .with(csrf())
+                .param("submissionType", SubmissionType.CREATE_PROSPECT.name()))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
   void startSubmission_whenValidFormAndUpdateProspect_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
             .with(user(USER))
@@ -78,7 +104,8 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
             .with(user(USER))
             .with(csrf())
@@ -93,7 +120,8 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
             .with(user(USER))
             .with(csrf())
@@ -108,7 +136,8 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
             .with(user(USER))
             .with(csrf())
@@ -124,7 +153,8 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
             .with(user(USER))
             .with(csrf())
@@ -141,19 +171,32 @@ class StartSubmissionControllerTest extends AbstractControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().isOk());
   }
 
+  @SecurityTest
+  void getSubmissionPurpose_whenNoPermission_assertForbidden() throws Exception {
+    when(submissionCreateService.getSubmissionTypeOptionsForUser())
+        .thenReturn(SubmissionType.getSubmissionTypes());
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(false);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
 
   @Test
   void getSubmissionPurpose_assertModelProperties() throws Exception {
     when(submissionCreateService.getSubmissionTypeOptionsForUser())
         .thenReturn(SubmissionType.getSubmissionTypes());
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()))
             .with(user(USER)))

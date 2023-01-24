@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,12 +25,14 @@ import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = UpdateDiscoveryController.class)
 class UpdateDiscoveryControllerTest extends AbstractControllerTest {
@@ -38,6 +41,10 @@ class UpdateDiscoveryControllerTest extends AbstractControllerTest {
 
   @MockBean
   private UpdateDiscoveryService updateDiscoveryService;
+
+  @MockBean
+  private PermissionService permissionService;
+
   private UUID submissionDetailId;
 
   @BeforeEach
@@ -48,7 +55,8 @@ class UpdateDiscoveryControllerTest extends AbstractControllerTest {
   @Test
   void getUpdateDiscoveryPage_assertModelProperties() throws Exception {
     var form = new UpdateDiscoveryForm();
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     var modelAndView = mockMvc.perform(
             get(ReverseRouter.route(on(UpdateDiscoveryController.class).getUpdateDiscoveryPage(null)))
                 .flashAttr("form", form)
@@ -79,7 +87,8 @@ class UpdateDiscoveryControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
     when(updateDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
     when(updateDiscoveryService.createUpdateDiscovery(form)).thenReturn(submissionDetail);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     mockMvc.perform(
             post(ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)))
                 .flashAttr("form", form)
@@ -99,7 +108,8 @@ class UpdateDiscoveryControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
     when(updateDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     var modelAndView = mockMvc.perform(
             post(ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)))
                 .flashAttr("form", form)
@@ -126,5 +136,26 @@ class UpdateDiscoveryControllerTest extends AbstractControllerTest {
 
     verify(updateDiscoveryService, times(1)).validate(any(), any());
     verify(updateDiscoveryService, never()).createUpdateDiscovery(any());
+  }
+
+  @SecurityTest
+  void createUpdateDiscovery_whenNoPermission_assertForbidden() throws Exception {
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(false);
+    mockMvc.perform(
+            post(ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getUpdateDiscoveryPage_whenNoPermission_assertForbidden() throws Exception {
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(false);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(UpdateDiscoveryController.class).getUpdateDiscoveryPage(null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 }

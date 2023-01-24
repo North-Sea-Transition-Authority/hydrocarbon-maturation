@@ -11,8 +11,9 @@
   pageHeading=pageTitle
   pageSize=PageSize.TWO_THIRDS_COLUMN
   noIndex=false>
-  <@fdsAction.link linkText="Create submission" linkUrl=springUrl(startSubmissionUrl) linkClass="govuk-button"/>
-
+  <#if canCreateSubmissions>
+    <@fdsAction.link linkText="Create submission" linkUrl=springUrl(startSubmissionUrl) linkClass="govuk-button"/>
+  </#if>
   <#if workAreaItems?has_content>
     <@fdsResultList.resultList resultCount=workAreaItems?size>
       <#list workAreaItems as workAreaItem>

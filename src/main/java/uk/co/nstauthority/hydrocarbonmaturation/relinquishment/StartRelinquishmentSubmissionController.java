@@ -14,8 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 
 @Controller
 @RequestMapping("/start-relinquishment")
-@HasPermission(
-    permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
+@HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
 public class StartRelinquishmentSubmissionController {
 
   @GetMapping

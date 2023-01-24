@@ -14,9 +14,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -24,6 +24,7 @@ import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -31,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = PostDrillDiscoveryController.class)
 class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
@@ -40,6 +42,9 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
   @MockBean
   private StartDiscoveryService startDiscoveryService;
 
+  @MockBean
+  private PermissionService permissionService;
+
   private UUID submissionDetailId;
 
   @BeforeEach
@@ -47,8 +52,11 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
     submissionDetailId = submissionDetail.getId();
   }
 
-  @Test
+  @SecurityTest
   void getStartDiscoveryPage_assertModelProperties() throws Exception {
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
+
     var form = new StartDiscoveryForm();
 
     var modelAndView = mockMvc.perform(
@@ -81,6 +89,8 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     when(startDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
     when(startDiscoveryService.createNewDiscoveryFromProspect(form)).thenReturn(submissionDetail);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
@@ -99,7 +109,8 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
     when(startDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     var modelAndView = mockMvc.perform(
             post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
                 .flashAttr("form", form)
@@ -125,5 +136,27 @@ class PostDrillDiscoveryControllerTest extends AbstractControllerTest {
 
     verify(startDiscoveryService, times(1)).validate(any(), any());
     verify(startDiscoveryService, never()).createNewDiscoveryFromProspect(any());
+  }
+
+  @SecurityTest
+  void startDiscovery_whenNoPermission_assertIsForbidden() throws Exception {
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(false);
+    mockMvc.perform(
+            post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getStartDiscoveryPage_whenNoPermission_assertIsForbidden() throws Exception {
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(false);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(PostDrillDiscoveryController.class)
+                .getStartDiscoveryPage(null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 }

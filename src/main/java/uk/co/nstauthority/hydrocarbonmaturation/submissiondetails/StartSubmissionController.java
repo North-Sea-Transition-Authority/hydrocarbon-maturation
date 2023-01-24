@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
@@ -21,11 +21,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.StartRelinquishmentSubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
 @RequestMapping("/start-submission")
-@AccessibleByServiceUsers
+@HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
 public class StartSubmissionController {
 
   private final SubmissionTypeSelectService submissionTypeSelectService;

@@ -15,6 +15,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 import static uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter.emptyBindingResult;
 
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -36,6 +38,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdatePr
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 
 @ContextConfiguration(classes = UpdateProspectController.class)
@@ -45,6 +48,9 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
 
   @MockBean
   private UpdateProspectService updateProspectService;
+
+  @MockBean
+  private PermissionService permissionService;
 
   private UUID submissionDetailId;
 
@@ -56,7 +62,8 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
   @Test
   void getUpdatePage_assertModelProperties() throws Exception {
     var form = new UpdateProspectForm();
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(UpdateProspectController.class).getUpdatePage(null)))
             .flashAttr("form", form)
@@ -87,7 +94,8 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     when(updateProspectService.validate(any(), any())).thenReturn(bindingResult);
     when(updateProspectService.createUpdateProspect(form)).thenReturn(submissionDetail);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     mockMvc.perform(
         post(ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, null)))
             .flashAttr("form", form)
@@ -105,7 +113,8 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
     when(updateProspectService.validate(any(), any())).thenReturn(bindingResult);
-
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
     var modelAndView = mockMvc.perform(
         post(ReverseRouter.route(on(UpdateProspectController.class).updateProspect(null, null)))
             .flashAttr("form", form)
@@ -134,5 +143,30 @@ class UpdateProspectControllerTest extends AbstractControllerTest {
 
     verify(updateProspectService, times(1)).validate(any(), any());
     verify(updateProspectService, never()).createUpdateProspect(any());
+  }
+
+  @SecurityTest
+  void updateProspect_hasNoPermission_assertIsForbidden() throws Exception {
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(false);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(UpdateProspectController.class)
+                .updateProspect(null, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getUpdatePage_hasNoPermission_assertIsForbidden() throws Exception {
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(false);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(UpdateProspectController.class)
+                .getUpdatePage(null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
   }
 }
