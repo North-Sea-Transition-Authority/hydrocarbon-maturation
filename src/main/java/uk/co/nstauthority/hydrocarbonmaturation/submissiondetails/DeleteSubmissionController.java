@@ -28,12 +28,15 @@ public class DeleteSubmissionController {
 
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
+  private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
   @Autowired
   public DeleteSubmissionController(SubmissionDetailService submissionDetailService,
-                                    SubmissionSummaryModelService submissionSummaryModelService) {
+                                    SubmissionSummaryModelService submissionSummaryModelService,
+                                    SubmissionDetailPersistenceService submissionDetailPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionSummaryModelService = submissionSummaryModelService;
+    this.submissionDetailPersistenceService = submissionDetailPersistenceService;
   }
 
   @GetMapping
@@ -48,7 +51,7 @@ public class DeleteSubmissionController {
 
     modelAndView
         .addObject("pageName", pageName)
-        .addObject("resourceName", submissionDetailService.getResourceNameOrEmpty(submissionDetail))
+        .addObject("resourceName", submissionDetailService.getResourceNameOrDefault(submissionDetail))
         .addObject("submissionType", submissionDetail.getSubmissionType())
         .addObject("deleteUrl",
             ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(submissionDetailId, null)))
@@ -65,14 +68,14 @@ public class DeleteSubmissionController {
   public ModelAndView deleteSubmission(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                        RedirectAttributes redirectAttributes) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    submissionDetailService.deleteSubmission(submissionDetail);
+    submissionDetailPersistenceService.deleteSubmission(submissionDetail);
 
     var banner = NotificationBanner.builder()
         .withTitle("%s deleted".formatted(submissionDetailService.getSubmissionTypeName(submissionDetail)))
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent("%s for %s has been deleted"
             .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail),
-                submissionDetailService.getResourceNameOrEmpty(submissionDetail)))
+                submissionDetailService.getResourceNameOrDefault(submissionDetail)))
         .build();
 
     NotificationBannerUtil.applyNotificationBanner(redirectAttributes, banner);

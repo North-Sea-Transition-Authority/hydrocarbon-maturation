@@ -1,13 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
-import static uk.co.nstauthority.hydrocarbonmaturation.energyresource.SubmissionFilterUtil.filterByResourceType;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
@@ -54,15 +51,12 @@ public class SubmissionQueryService {
   public List<ResourceView> getLatestDiscoveriesByNameForSubmissionType(String name,
                                                                         SubmissionType submissionType) {
     //gets every discovery resource with the name specified
-    Stream<Resource> distinctDiscoveries =
-        generalDetailsPersistenceService.getGeneralDetailsByName(name).stream()
-            .map(detail -> detail.getSubmissionDetail().getResourceId())
-            .distinct()
-            .filter(resource -> SubmissionFilterUtil.filterByResourceType(resource, ResourceType.DISCOVERY));
+    var distinctDiscoveries =
+        submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.DISCOVERY, name);
 
     //gets the latest general detail for each discovery
-    Stream<SubmissionDetail> latestSubmissionsWhichCanBeSubmittedUpon =
-        distinctDiscoveries
+    var latestSubmissionsWhichCanBeSubmittedUpon =
+        distinctDiscoveries.stream()
             .map(submissionDetailService::getLatestApprovedDiscoverySubmissionDetailForResource)
             .flatMap(Optional::stream)
             .filter(detail -> filterDiscoverySubmissionByOtherSubmissions(detail, submissionType));
@@ -102,17 +96,13 @@ public class SubmissionQueryService {
 
   public List<ResourceView> getLatestProspectsByNameForSubmissionType(String name, SubmissionType submissionType) {
     //gets every prospect resource
-    Stream<Resource> distinctProspectsForSubmissionType =
-        generalDetailsPersistenceService.getGeneralDetailsByName(name)
-            .stream()
-            .map(detail -> detail.getSubmissionDetail().getResourceId())
-            .distinct()
-            .filter(resource -> filterByResourceType(resource, ResourceType.PROSPECT));
+    var distinctProspectsForSubmissionType =
+        submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, name);
 
     //gets the latest approved submission if any for each prospect and filters out submissions from which you
     //can't start a submission
-    Stream<SubmissionDetail> latestSubmissionsWhichCanBeSubmittedUpon =
-        distinctProspectsForSubmissionType
+    var latestSubmissionsWhichCanBeSubmittedUpon =
+        distinctProspectsForSubmissionType.stream()
             .map(submissionDetailService::getLatestApprovedProspectSubmissionForResource)
             .flatMap(Optional::stream)
             .filter(detail -> filterProspectSubmissionByOtherSubmissions(detail, submissionType));

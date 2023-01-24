@@ -64,7 +64,8 @@ class SubmissionQueryServiceTest {
     var generalDetail1 = createGeneralDetail("prospect1", ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, SubmissionType.PROSPECT_UPDATE);
     var generalDetail2 = createGeneralDetail("prospect2", ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_PROSPECT);
     var searchTerm = "prospect";
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm)).thenReturn(List.of(generalDetail1, generalDetail2));
+        when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetail1.getSubmissionDetail().getResourceId(), generalDetail2.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedProspectSubmissionForResource(generalDetail1.getSubmissionDetail().getResourceId()))
         .thenReturn(Optional.of(generalDetail1.getSubmissionDetail()));
@@ -99,8 +100,8 @@ class SubmissionQueryServiceTest {
         "prospect2", ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, SubmissionType.PROSPECT_UPDATE);
     var searchTerm = "prospect";
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(generalDetail1, generalDetail2));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetail1.getSubmissionDetail().getResourceId(), generalDetail2.getSubmissionDetail().getResourceId()));
 
     var postDrillDryWell = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
 
@@ -131,8 +132,8 @@ class SubmissionQueryServiceTest {
         "prospect2", ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, SubmissionType.PROSPECT_UPDATE);
     var searchTerm = "prospect";
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(generalDetail1, generalDetail2));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetail1.getSubmissionDetail().getResourceId(), generalDetail2.getSubmissionDetail().getResourceId()));
 
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
@@ -168,8 +169,8 @@ class SubmissionQueryServiceTest {
     var submissionDetail2 = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     discoverySubmission.setStatus(SubmissionDetailStatus.APPROVED);
     submissionDetail2.setStatus(SubmissionDetailStatus.APPROVED);
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(generalDetail1, generalDetail2));
+        when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetail1.getSubmissionDetail().getResourceId(), generalDetail2.getSubmissionDetail().getResourceId()));
     when(submissionDetailService.getSubmissionDetailsForResource(
         any())).thenReturn(List.of(discoverySubmission, submissionDetail2));
     when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(generalDetail1.getSubmissionDetail().getResourceId()))
@@ -189,7 +190,8 @@ class SubmissionQueryServiceTest {
     var generalDetail2 = createGeneralDetail(
         "prospect2", ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, SubmissionType.PROSPECT_UPDATE);
     var searchTerm = "prospect";
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm)).thenReturn(List.of(generalDetail1, generalDetail2));
+        when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetail1.getSubmissionDetail().getResourceId(), generalDetail2.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedProspectSubmissionForResource(generalDetail1.getSubmissionDetail().getResourceId()))
         .thenReturn(Optional.of(generalDetail1.getSubmissionDetail()));
@@ -229,8 +231,8 @@ class SubmissionQueryServiceTest {
     var deletedSubmission = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     deletedSubmission.setStatus(SubmissionDetailStatus.DELETED);
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(generalDetail1, generalDetail2));
+        when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetail1.getSubmissionDetail().getResourceId(), generalDetail2.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedProspectSubmissionForResource(generalDetail1.getSubmissionDetail().getResourceId()))
         .thenReturn(Optional.of(generalDetail1.getSubmissionDetail()));
@@ -273,8 +275,8 @@ class SubmissionQueryServiceTest {
     resourceLink.setProspectResource(generalDetail1.getSubmissionDetail().getResourceId());
     resourceLink.setDiscoveryResource(generalDetail2.getSubmissionDetail().getResourceId());
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(generalDetail1, generalDetail2));
+        when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetail1.getSubmissionDetail().getResourceId(), generalDetail2.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedProspectSubmissionForResource(generalDetail1.getSubmissionDetail().getResourceId()))
         .thenReturn(Optional.of(generalDetail1.getSubmissionDetail()));
@@ -300,7 +302,8 @@ class SubmissionQueryServiceTest {
     resourceLink.setProspectResource(generalDetail1.getSubmissionDetail().getResourceId());
     resourceLink.setDiscoveryResource(generalDetail2.getSubmissionDetail().getResourceId());
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm)).thenReturn(List.of(generalDetail1, generalDetail2));
+        when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetail1.getSubmissionDetail().getResourceId(), generalDetail2.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedProspectSubmissionForResource(generalDetail1.getSubmissionDetail().getResourceId()))
         .thenReturn(Optional.of(generalDetail1.getSubmissionDetail()));
@@ -325,8 +328,8 @@ class SubmissionQueryServiceTest {
         "prospect2", ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
     var searchTerm = "prospect";
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(generalDetail1, generalDetail2));
+        when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetail1.getSubmissionDetail().getResourceId(), generalDetail2.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedProspectSubmissionForResource(generalDetail1.getSubmissionDetail().getResourceId()))
         .thenReturn(Optional.empty());
@@ -345,7 +348,8 @@ class SubmissionQueryServiceTest {
     var generalDetail2 = createGeneralDetail(
         "prospect2", ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     var searchTerm = "prospect";
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm)).thenReturn(List.of(generalDetail1, generalDetail2));
+        when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.DISCOVERY, searchTerm))
+        .thenReturn(List.of(generalDetail2.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedDiscoverySubmissionDetailForResource(generalDetail2.getSubmissionDetail().getResourceId()))
         .thenReturn(Optional.of(generalDetail2.getSubmissionDetail()));
@@ -379,9 +383,8 @@ class SubmissionQueryServiceTest {
     generalDetailDryWellApproved.getSubmissionDetail().setResourceId(prospect);
     var searchTerm = "prospect";
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(
-            generalDetailForResourceForRelinquishment, generalDetailDryWellApproved));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(prospect));
     when(submissionDetailService.getSubmissionDetailsForResource(prospect))
         .thenReturn(
             List.of(generalDetailDryWellApproved.getSubmissionDetail(),
@@ -435,9 +438,8 @@ class SubmissionQueryServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     var submissionDetail2 = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(
-            generalDetailForResourceForRelinquishment));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetailForResourceForRelinquishment.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedProspectSubmissionForResource(prospect))
         .thenReturn(Optional.of(generalDetailForResourceForRelinquishment.getSubmissionDetail()));
@@ -472,9 +474,8 @@ class SubmissionQueryServiceTest {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     submissionDetail2.setStatus(SubmissionDetailStatus.APPROVED);
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(
-            generalDetailForResourceForRelinquishment, oldGeneralDetail));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.DISCOVERY, searchTerm))
+        .thenReturn(List.of(discovery));
     when(submissionDetailService
         .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
         .thenReturn(Optional.of(generalDetailForResourceForRelinquishment.getSubmissionDetail()));
@@ -520,9 +521,8 @@ class SubmissionQueryServiceTest {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     submissionDetail2.setStatus(SubmissionDetailStatus.APPROVED);
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(
-            generalDetailForResourceForRelinquishment, oldGeneralDetail));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.DISCOVERY, searchTerm))
+        .thenReturn(List.of(discovery));
     when(submissionDetailService
         .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
         .thenReturn(Optional.of(generalDetailForResourceForRelinquishment.getSubmissionDetail()));
@@ -566,9 +566,8 @@ class SubmissionQueryServiceTest {
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     submissionDetail2.setStatus(SubmissionDetailStatus.APPROVED);
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(
-            generalDetailForResourceForRelinquishment, oldGeneralDetail));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.DISCOVERY, searchTerm))
+        .thenReturn(List.of(discovery));
     when(submissionDetailService
         .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
         .thenReturn(Optional.of(generalDetailForResourceForRelinquishment.getSubmissionDetail()));
@@ -603,9 +602,8 @@ class SubmissionQueryServiceTest {
     discoverySubmission.setStatus(SubmissionDetailStatus.APPROVED);
     discoveryRelinquishment.setStatus(status);
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(
-            generalDetailForResourceForRelinquishment, oldGeneralDetail));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.DISCOVERY, searchTerm))
+        .thenReturn(List.of(discovery));
     when(submissionDetailService
         .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
         .thenReturn(Optional.of(generalDetailForResourceForRelinquishment.getSubmissionDetail()));
@@ -636,9 +634,8 @@ class SubmissionQueryServiceTest {
     discoverySubmission.setStatus(SubmissionDetailStatus.APPROVED);
     discoveryUpdate.setStatus(status);
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(
-            generalDetails));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.DISCOVERY, searchTerm))
+        .thenReturn(List.of(discovery));
     when(submissionDetailService
         .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
         .thenReturn(Optional.of(generalDetails.getSubmissionDetail()));
@@ -670,9 +667,8 @@ class SubmissionQueryServiceTest {
     var relinquishment = SubmissionDetailTestUtils.createNewDiscoveryRelinquishmentSubmissionDetail();
     relinquishment.setStatus(status);
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(
-            generalDetails));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.DISCOVERY, searchTerm))
+        .thenReturn(List.of(discovery));
     when(submissionDetailService
         .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
         .thenReturn(Optional.of(generalDetails.getSubmissionDetail()));
@@ -707,9 +703,8 @@ class SubmissionQueryServiceTest {
         .createSubmissionDetail(SubmissionType.RELINQUISHMENT_PROSPECT);
     relinquishment.setStatus(SubmissionDetailStatus.DRAFT);
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(
-            generalDetails));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetails.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedProspectSubmissionForResource(prospect))
         .thenReturn(Optional.of(generalDetails.getSubmissionDetail()));
@@ -741,9 +736,8 @@ class SubmissionQueryServiceTest {
     var deletedDiscoverySubmission = SubmissionDetailTestUtils
         .createSubmissionDetail(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     deletedDiscoverySubmission.setStatus(SubmissionDetailStatus.DELETED);
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(
-            generalDetails));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetails.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedProspectSubmissionForResource(prospect))
         .thenReturn(Optional.of(generalDetails.getSubmissionDetail()));
@@ -785,8 +779,8 @@ class SubmissionQueryServiceTest {
     generalDetails.setOrganisationId(null);
     var searchTerm = "prospect";
 
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(generalDetails));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
+        .thenReturn(List.of(generalDetails.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedProspectSubmissionForResource(prospect))
         .thenReturn(Optional.of(generalDetails.getSubmissionDetail()));
@@ -817,8 +811,8 @@ class SubmissionQueryServiceTest {
 
     when(permissionService.hasPermission(any(), eq(Set.of(RolePermission.EXPLORATION))))
         .thenReturn(false);
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(generalDetails));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.DISCOVERY, searchTerm))
+        .thenReturn(List.of(generalDetails.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
         .thenReturn(Optional.of(generalDetails.getSubmissionDetail()));
@@ -850,8 +844,8 @@ class SubmissionQueryServiceTest {
 
     when(permissionService.hasPermission(any(), eq(Set.of(RolePermission.EXPLORATION))))
         .thenReturn(true);
-    when(generalDetailsPersistenceService.getGeneralDetailsByName(searchTerm))
-        .thenReturn(List.of(generalDetails));
+    when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.DISCOVERY, searchTerm))
+        .thenReturn(List.of(generalDetails.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
         .getLatestApprovedDiscoverySubmissionDetailForResource(discovery))
         .thenReturn(Optional.of(generalDetails.getSubmissionDetail()));

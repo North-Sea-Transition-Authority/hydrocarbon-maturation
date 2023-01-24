@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
 import java.util.UUID;
 import javax.persistence.Entity;

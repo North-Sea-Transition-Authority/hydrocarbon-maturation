@@ -24,11 +24,11 @@
         hiddenContent=true>
           <@fdsRadio.radioYes path="form.relatedToAnotherProspect">
               <@fdsSearchSelector.searchSelectorRest
-                path="form.generalDetailIdOfRelatedProspect"
+                path="form.submissionDetailIdOfRelatedProspect"
                 restUrl=springUrl(prospectGroupsEndpoint)
                 labelText="What prospect or prospect group is this the same as?"
                 selectorMinInputLength=3
-                nestingPath="form.generalDetailIdOfRelatedProspect"
+                nestingPath="form.submissionDetailIdOfRelatedProspect"
                 preselectedItems=relatedSubmissionDetail!{}/>
                 <@fdsRadio.radioGroup
                   path="form.preferredView"

@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -15,13 +15,11 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -77,10 +75,8 @@ public class RelatedProspectsController {
     var modelAndView = new ModelAndView("remi/submissiondetails/relatedProspects")
         .addObject("pageTitle", PAGE_NAME)
         .addObject("form", form)
-        // TODO HM-200 - Create a rest controller for prospect and prospect groups
         .addObject("prospectGroupsEndpoint",
-            SearchSelectorService.route(on(ResourceRestController.class)
-                .searchProspects(null, SubmissionType.CREATE_PROSPECT)))
+            SearchSelectorService.route(on(ResourceGroupRestController.class).searchProspects(null)))
         .addObject("relatedSubmissionDetail", relatedProspectsFormService.getPreSelectedSubmissionDetail(form));
 
     return TaskListBreadcrumbUtil

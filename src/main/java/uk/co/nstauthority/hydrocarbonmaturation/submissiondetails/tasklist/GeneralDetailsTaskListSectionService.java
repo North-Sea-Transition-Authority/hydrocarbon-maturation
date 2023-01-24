@@ -15,8 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects.RelatedProspectsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects.RelatedProspectsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Service
@@ -48,7 +48,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var generalDetailSectionSubmittable = generalDetailSubmissionService.isSectionSubmittable(submissionDetail);
 
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT) {
+    if (isRelatedProspectsRequired(submissionDetail)) {
       return generalDetailSectionSubmittable && relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail);
     }
 
@@ -64,9 +64,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
             ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetail.getId(), null)))
     );
 
-    var hasExplorationRole =
-        permissionService.hasPermission(userDetailService.getUserDetail(), Set.of(RolePermission.EXPLORATION));
-    if (hasExplorationRole && submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT) {
+    if (isRelatedProspectsRequired(submissionDetail)) {
 
       listOfItems.add(
           new TaskListItem("Related prospects",
@@ -76,5 +74,12 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
     }
 
     return listOfItems;
+  }
+
+  private boolean isRelatedProspectsRequired(SubmissionDetail submissionDetail) {
+    var hasExplorationRole =
+        permissionService.hasPermission(userDetailService.getUserDetail(), Set.of(RolePermission.EXPLORATION));
+    var isCreateProspect = submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT;
+    return hasExplorationRole && isCreateProspect;
   }
 }

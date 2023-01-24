@@ -32,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView;
@@ -60,6 +61,9 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
 
   @MockBean
   private SubmissionReadyService submissionReadyService;
+
+  @MockBean
+  private SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
   private static UUID submissionDetailId;
 
@@ -126,7 +130,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
 
-    verify(submissionDetailService, times(1)).completeSubmission(submissionDetail);
+    verify(submissionDetailPersistenceService, times(1)).completeSubmission(submissionDetail);
   }
 
   @Test
@@ -144,7 +148,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(submissionDetailService, never()).completeSubmission(any());
+    verify(submissionDetailPersistenceService, never()).completeSubmission(any());
   }
 
   @SecurityTest

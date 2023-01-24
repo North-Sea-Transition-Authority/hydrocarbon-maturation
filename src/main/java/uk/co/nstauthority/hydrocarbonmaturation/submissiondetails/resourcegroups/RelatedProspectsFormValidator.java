@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ class RelatedProspectsFormValidator extends PartialFullFormValidator {
         "Select whether this prospect is a different view of another prospect in the service");
 
     if (BooleanUtils.isTrue(relatedProspectsForm.getRelatedToAnotherProspect())) {
-      ValidationUtils.rejectIfEmpty(errors, "generalDetailIdOfRelatedProspect", "generalDetailIdOfRelatedProspect.required",
+      ValidationUtils.rejectIfEmpty(errors, "submissionDetailIdOfRelatedProspect", "submissionDetailIdOfRelatedProspect.required",
           "Select a prospect or prospect group");
 
       ValidationUtils.rejectIfEmpty(errors, "preferredView", "preferredView.required",

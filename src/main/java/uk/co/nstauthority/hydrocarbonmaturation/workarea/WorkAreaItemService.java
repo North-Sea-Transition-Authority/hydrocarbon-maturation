@@ -2,9 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Service
@@ -57,11 +55,7 @@ class WorkAreaItemService {
   private String getHeadingText(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult) {
     return submissionWorkAreaQueryResult.getResourceName() != null
         ? submissionWorkAreaQueryResult.getResourceName() + getCentreOfInterestBlockDisplay(submissionWorkAreaQueryResult)
-        : "Created on %s"
-        .formatted(
-            LocalDateTime.ofInstant(
-                submissionWorkAreaQueryResult.getCreatedOn().toInstant(),
-                ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")));
+        : SubmissionDetailUtil.getDefaultForNamelessResource(submissionWorkAreaQueryResult.getCreatedOn().toInstant());
   }
 
   private String getActionUrl(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult) {

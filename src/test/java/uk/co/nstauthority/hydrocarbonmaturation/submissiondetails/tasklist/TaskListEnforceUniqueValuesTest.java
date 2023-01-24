@@ -95,7 +95,7 @@ class TaskListEnforceUniqueValuesTest {
         uniqueNamesList.size(),
         "Some sections don't have unique names for submission type %s for sections %s"
             .formatted(submissionType.getDisplayName(),
-        uniquenessNamesListViolationErrorMessagesSuffix));
+                uniquenessNamesListViolationErrorMessagesSuffix));
 
     assertEquals(
         originalSize,

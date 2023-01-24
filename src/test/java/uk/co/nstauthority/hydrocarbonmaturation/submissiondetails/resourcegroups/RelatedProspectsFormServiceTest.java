@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -16,10 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -30,7 +30,11 @@ class RelatedProspectsFormServiceTest {
   @Mock
   private RelatedProspectsPersistenceService relatedProspectsPersistenceService;
   @Mock
-  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private ResourceGroupQueryService resourceGroupQueryService;
+  @Mock
+  private ResourceGroupLinksRepository resourceGroupLinksRepository;
+  @Mock
+  private SubmissionDetailService submissionDetailService;
   @InjectMocks
   private RelatedProspectsFormService relatedProspectsFormService;
   private static SubmissionDetail submissionDetail;
@@ -63,7 +67,7 @@ class RelatedProspectsFormServiceTest {
     assertThat(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail))
         .extracting(
             RelatedProspectsForm::getRelatedToAnotherProspect,
-            RelatedProspectsForm::getGeneralDetailIdOfRelatedProspect,
+            RelatedProspectsForm::getSubmissionDetailIdOfRelatedProspect,
             RelatedProspectsForm::getPreferredView
         )
         .containsExactly(
@@ -74,30 +78,60 @@ class RelatedProspectsFormServiceTest {
   }
 
   @Test
-  void generalDetailEntityToForm_existingEntity_thenPopulatedForm() {
+  void relatedProspectEntityToForm_existingEntity_thenPopulatedForm() {
     var relatedProspect = getRelatedProspect(submissionDetail);
     when(relatedProspectsPersistenceService.getRelatedProspect(submissionDetail)).thenReturn(Optional.of(relatedProspect));
-
-    var generalDetail = new GeneralDetail();
-    var generalDetailId = UUID.randomUUID();
-    generalDetail.setId(generalDetailId);
-    when(generalDetailsPersistenceService.getGeneralDetailOrThrow(relatedProspect.getRelatedSubmissionDetail())).thenReturn(generalDetail);
+    var resourceGroupView = new ResourceGroupView(UUID.randomUUID(), "", null);
+    when(resourceGroupQueryService.getResourceGroupViewForSumbissionDetail(relatedProspect.getRelatedSubmissionDetail())).thenReturn(Optional.of(resourceGroupView));
 
     assertThat(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail))
         .extracting(
             RelatedProspectsForm::getRelatedToAnotherProspect,
-            RelatedProspectsForm::getGeneralDetailIdOfRelatedProspect,
+            RelatedProspectsForm::getSubmissionDetailIdOfRelatedProspect,
             RelatedProspectsForm::getPreferredView
         )
         .containsExactly(
             relatedProspect.getRelatedToAnotherProspect(),
-            generalDetailId.toString(),
+            relatedProspect.getRelatedSubmissionDetail().getId().toString(),
             relatedProspect.getPreferredView()
         );
   }
 
   @Test
-  void generalDetailEntityToForm_existingEntityButNotRelatedToAnotherProspect_thenPartiallyPopulatedForm() {
+  void relatedProspectEntityToForm_existingEntityButRelatedSubmissionDetailNoLongerPreferredView_thenPopulatedForm() {
+    var relatedProspect = getRelatedProspect(submissionDetail);
+    when(relatedProspectsPersistenceService.getRelatedProspect(submissionDetail)).thenReturn(Optional.of(relatedProspect));
+    when(resourceGroupQueryService.getResourceGroupViewForSumbissionDetail(relatedProspect.getRelatedSubmissionDetail()))
+        .thenReturn(Optional.empty());
+    var resourceGroupLink = new ResourceGroupLink();
+    var resourceGroupId = UUID.randomUUID();
+    resourceGroupLink.setResourceGroupId(resourceGroupId);
+    when(resourceGroupLinksRepository.findByResource(relatedProspect.getRelatedSubmissionDetail().getResourceId()))
+        .thenReturn(Optional.of(resourceGroupLink));
+    var resourceGroupLink2 = new ResourceGroupLink();
+    var resource = new Resource();
+    resourceGroupLink2.setResource(resource);
+    when(resourceGroupLinksRepository.findByResourceGroupIdAndPreferredViewIsTrue(resourceGroupId))
+        .thenReturn(Optional.of(resourceGroupLink2));
+    var submissionDetail2 = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(resource))
+        .thenReturn(Optional.of(submissionDetail2));
+
+    assertThat(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail))
+        .extracting(
+            RelatedProspectsForm::getRelatedToAnotherProspect,
+            RelatedProspectsForm::getSubmissionDetailIdOfRelatedProspect,
+            RelatedProspectsForm::getPreferredView
+        )
+        .containsExactly(
+            relatedProspect.getRelatedToAnotherProspect(),
+            submissionDetail2.getId().toString(),
+            relatedProspect.getPreferredView()
+        );
+  }
+
+  @Test
+  void relatedProspectEntityToForm_existingEntityButNotRelatedToAnotherProspect_thenPartiallyPopulatedForm() {
     var relatedProspect = getRelatedProspect(submissionDetail);
     relatedProspect.setRelatedToAnotherProspect(false);
     when(relatedProspectsPersistenceService.getRelatedProspect(submissionDetail)).thenReturn(Optional.of(relatedProspect));
@@ -105,7 +139,7 @@ class RelatedProspectsFormServiceTest {
     assertThat(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail))
         .extracting(
             RelatedProspectsForm::getRelatedToAnotherProspect,
-            RelatedProspectsForm::getGeneralDetailIdOfRelatedProspect,
+            RelatedProspectsForm::getSubmissionDetailIdOfRelatedProspect,
             RelatedProspectsForm::getPreferredView
         )
         .containsExactly(

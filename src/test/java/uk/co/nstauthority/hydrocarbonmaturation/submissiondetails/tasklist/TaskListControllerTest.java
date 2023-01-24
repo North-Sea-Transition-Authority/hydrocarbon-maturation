@@ -43,7 +43,7 @@ class TaskListControllerTest extends AbstractControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     var prospectName = "pros123";
-    when(submissionDetailService.getResourceNameOrEmpty(submissionDetail)).thenReturn(prospectName);
+    when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
     when(submissionDetailService.getSubmissionTypeName(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
 
     var taskListSections = List.of(

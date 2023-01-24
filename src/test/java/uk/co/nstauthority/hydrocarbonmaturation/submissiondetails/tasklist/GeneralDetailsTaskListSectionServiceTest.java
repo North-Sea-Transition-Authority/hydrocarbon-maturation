@@ -25,8 +25,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects.RelatedProspectsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects.RelatedProspectsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,9 +37,9 @@ class GeneralDetailsTaskListSectionServiceTest {
   @Mock
   private RelatedProspectsSubmissionService relatedProspectsSubmissionService;
   @Mock
-  private PermissionService permissionService;
-  @Mock
   private UserDetailService userDetailService;
+  @Mock
+  private PermissionService permissionService;
 
   @InjectMocks
   private GeneralDetailsTaskListSectionService generalDetailsTaskListSectionService;
@@ -125,10 +125,10 @@ class GeneralDetailsTaskListSectionServiceTest {
             TaskListSection::displayName,
             TaskListSection::displayOrder)
         .containsExactly(List.of(
-              new TaskListItem("General details",
-                  TaskListLabel.NOT_COMPLETE,
-                  ReverseRouter.route(on(GeneralDetailsController.class)
-                      .getGeneralDetails(submissionDetail.getId(), null)))
+                new TaskListItem("General details",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(GeneralDetailsController.class)
+                        .getGeneralDetails(submissionDetail.getId(), null)))
             ),
             "General details",
             10
@@ -161,7 +161,24 @@ class GeneralDetailsTaskListSectionServiceTest {
     submissionDetail.setSubmissionType(submissionType);
 
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+
     when(relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_PROSPECT"}, mode = EnumSource.Mode.INCLUDE)
+  void isSectionSubmittable_SubmissionTypeIsCreateProspectAndNstaUserDoesNotHaveCorrectRole_NotSubmittable(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
 
     assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -172,6 +189,10 @@ class GeneralDetailsTaskListSectionServiceTest {
     submissionDetail.setSubmissionType(submissionType);
 
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+
     when(relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
 
     assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));

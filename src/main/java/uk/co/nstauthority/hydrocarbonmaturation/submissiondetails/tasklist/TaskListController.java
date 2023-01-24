@@ -41,7 +41,7 @@ public class TaskListController {
     var modelAndView = new ModelAndView("remi/submissiondetails/tasklist/taskList")
         .addObject("taskListSections", sections)
         .addObject("submissionTypeName", submissionDetailService.getSubmissionTypeName(submissionDetail))
-        .addObject("resourceName", submissionDetailService.getResourceNameOrEmpty(submissionDetail))
+        .addObject("resourceName", submissionDetailService.getResourceNameOrDefault(submissionDetail))
         .addObject("deleteSubmissionUrl",
             ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(submissionId)));
 

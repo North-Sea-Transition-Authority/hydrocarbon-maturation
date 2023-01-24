@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -10,7 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 
 @Service
-class RelatedProspectsPersistenceService {
+public class RelatedProspectsPersistenceService {
 
   private final RelatedProspectsRepository relatedProspectsRepository;
   private final SubmissionDetailService submissionDetailService;
@@ -31,9 +31,9 @@ class RelatedProspectsPersistenceService {
     relatedProspect.setRelatedToAnotherProspect(form.getRelatedToAnotherProspect());
     if (BooleanUtils.isTrue(form.getRelatedToAnotherProspect())) {
 
-      Optional.ofNullable(form.getGeneralDetailIdOfRelatedProspect())
+      Optional.ofNullable(form.getSubmissionDetailIdOfRelatedProspect())
           .map(UUID::fromString)
-          .map(submissionDetailService::getSubmissionDetailByGeneralDetailOrThrow)
+          .map(submissionDetailService::getSubmissionDetailForIdOrError)
           .ifPresent(relatedProspect::setRelatedSubmissionDetail);
 
       relatedProspect.setPreferredView(form.getPreferredView());

@@ -41,7 +41,7 @@ class SubmissionConfirmationControllerTest extends AbstractControllerTest {
   void showSubmissionConfirmation_andSubmissionAutoApproved_assertStatusOk() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(submissionDetailService.getResourceNameOrEmpty(submissionDetail)).thenReturn(prospectName);
+    when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
 
     mockMvc.perform(
         get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))
@@ -54,7 +54,7 @@ class SubmissionConfirmationControllerTest extends AbstractControllerTest {
   void showSubmissionConfirmation_andSubmissionSubmitted_assertStatusOk() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(submissionDetailService.getResourceNameOrEmpty(submissionDetail)).thenReturn(prospectName);
+    when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))
@@ -75,7 +75,7 @@ class SubmissionConfirmationControllerTest extends AbstractControllerTest {
   void getSubmissionConfirmationModelAndView_assertModelProperties() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(submissionDetailService.getResourceNameOrEmpty(submissionDetail)).thenReturn(prospectName);
+    when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))

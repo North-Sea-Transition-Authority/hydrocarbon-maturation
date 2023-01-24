@@ -34,6 +34,7 @@ public class SubmissionCreateService {
   private final ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
   private final PermissionService permissionService;
   private final UserDetailService userDetailService;
+  private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
   @Autowired
   public SubmissionCreateService(ResourceService resourceService,
@@ -43,7 +44,8 @@ public class SubmissionCreateService {
                                  SubmissionDetailDuplicationService submissionDetailDuplicationService,
                                  ResponsibleTeamPersistenceService responsibleTeamPersistenceService,
                                  PermissionService permissionService,
-                                 UserDetailService userDetailService) {
+                                 UserDetailService userDetailService,
+                                 SubmissionDetailPersistenceService submissionDetailPersistenceService) {
     this.resourceService = resourceService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
@@ -52,13 +54,14 @@ public class SubmissionCreateService {
     this.responsibleTeamPersistenceService = responsibleTeamPersistenceService;
     this.permissionService = permissionService;
     this.userDetailService = userDetailService;
+    this.submissionDetailPersistenceService = submissionDetailPersistenceService;
   }
 
   @Transactional
   public SubmissionDetail createInitialProspect() {
     var resource = resourceService.createResource(ResourceType.PROSPECT);
     responsibleTeamPersistenceService.saveResponsibleTeamForResource(resource, ResponsibleTeamType.EXPLORATION);
-    return submissionDetailService.createInitialSubmissionDetail(resource, SubmissionType.CREATE_PROSPECT);
+    return submissionDetailPersistenceService.createInitialSubmissionDetail(resource, SubmissionType.CREATE_PROSPECT);
   }
 
   @Transactional
@@ -68,7 +71,7 @@ public class SubmissionCreateService {
     var resource = oldSubmissionDetail.getResourceId();
 
     var newSubmissionDetail =
-        submissionDetailService.createInitialSubmissionDetail(resource, SubmissionType.PROSPECT_UPDATE);
+        submissionDetailPersistenceService.createInitialSubmissionDetail(resource, SubmissionType.PROSPECT_UPDATE);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -86,7 +89,7 @@ public class SubmissionCreateService {
     var resource = oldSubmissionDetail.getResourceId();
 
     var newSubmissionDetail =
-        submissionDetailService.createInitialSubmissionDetail(resource, SubmissionType.POST_DRILL_DRY_HOLE);
+        submissionDetailPersistenceService.createInitialSubmissionDetail(resource, SubmissionType.POST_DRILL_DRY_HOLE);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -98,7 +101,7 @@ public class SubmissionCreateService {
   public SubmissionDetail createDiscovery() {
     var resource = resourceService.createResource(ResourceType.DISCOVERY);
     responsibleTeamPersistenceService.saveResponsibleTeamForResource(resource, ResponsibleTeamType.EXPLORATION);
-    return submissionDetailService.createInitialSubmissionDetail(resource, SubmissionType.CREATE_DISCOVERY);
+    return submissionDetailPersistenceService.createInitialSubmissionDetail(resource, SubmissionType.CREATE_DISCOVERY);
   }
 
   @Transactional
@@ -111,8 +114,10 @@ public class SubmissionCreateService {
 
     resourceLinkService.createNewResourceLink(prospectResource, discoveryResource);
 
-    var newSubmissionDetail =
-        submissionDetailService.createInitialSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var newSubmissionDetail = submissionDetailPersistenceService.createInitialSubmissionDetail(
+        discoveryResource,
+        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
+    );
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -127,7 +132,7 @@ public class SubmissionCreateService {
     var resource = oldSubmissionDetail.getResourceId();
 
     var newSubmissionDetail =
-        submissionDetailService.createInitialSubmissionDetail(resource, SubmissionType.UPDATE_DISCOVERY);
+        submissionDetailPersistenceService.createInitialSubmissionDetail(resource, SubmissionType.UPDATE_DISCOVERY);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -154,7 +159,7 @@ public class SubmissionCreateService {
         .getSubmissionDetailByGeneralDetailOrThrow(UUID.fromString(generalDetailId));
     var resource = oldSubmissionDetail.getResourceId();
 
-    var newSubmissionDetail = submissionDetailService
+    var newSubmissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(resource, relinquishmentType);
 
     submissionDetailDuplicationService

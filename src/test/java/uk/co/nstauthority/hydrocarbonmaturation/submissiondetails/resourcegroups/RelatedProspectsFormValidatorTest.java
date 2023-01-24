@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -81,14 +81,14 @@ class RelatedProspectsFormValidatorTest {
   void validate_whenInValidForm_noRelatedSubmissionDetail_thenValidationErrors() {
     var form = getValidRelatedProspectsForm();
     form.setRelatedToAnotherProspect(true);
-    form.setGeneralDetailIdOfRelatedProspect(null);
+    form.setSubmissionDetailIdOfRelatedProspect(null);
     form.setPreferredView(false);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateRelatedProspectsForm_fullValidation(form));
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("generalDetailIdOfRelatedProspect", Set.of("generalDetailIdOfRelatedProspect.required"))
+            entry("submissionDetailIdOfRelatedProspect", Set.of("submissionDetailIdOfRelatedProspect.required"))
         );
   }
 
@@ -96,7 +96,7 @@ class RelatedProspectsFormValidatorTest {
   void validate_whenInValidForm_noPreferredView_thenValidationErrors() {
     var form = getValidRelatedProspectsForm();
     form.setRelatedToAnotherProspect(true);
-    form.setGeneralDetailIdOfRelatedProspect("1a3");
+    form.setSubmissionDetailIdOfRelatedProspect("1a3");
     form.setPreferredView(null);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateRelatedProspectsForm_fullValidation(form));

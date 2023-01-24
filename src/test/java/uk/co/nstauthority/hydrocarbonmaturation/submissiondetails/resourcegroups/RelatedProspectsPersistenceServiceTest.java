@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -38,10 +38,10 @@ class RelatedProspectsPersistenceServiceTest {
 
   @Test
   void saveRelatedProspects_whenGivenAForm_verifyCreatedEntity() {
-    var generalIdOfRelatedProspect = UUID.randomUUID();
-    var form = getRelatedProspectForm(generalIdOfRelatedProspect);
+    var submissionDetailIdOfRelatedProspect = UUID.randomUUID();
+    var form = getRelatedProspectForm(submissionDetailIdOfRelatedProspect);
 
-    when(submissionDetailService.getSubmissionDetailByGeneralDetailOrThrow(generalIdOfRelatedProspect)).thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailIdOfRelatedProspect)).thenReturn(submissionDetail);
 
     var relatedProspectsArgumentCaptor = ArgumentCaptor.forClass(RelatedProspect.class);
     relatedProspectsPersistenceService.saveRelatedProspects(form, submissionDetail);
@@ -63,8 +63,8 @@ class RelatedProspectsPersistenceServiceTest {
 
   @Test
   void saveRelatedProspects_whenGivenAFormAndNotRelatedToAnotherProspect_verifyPartiallyCreatedEntity() {
-    var generalIdOfRelatedProspect = UUID.randomUUID();
-    var form = getRelatedProspectForm(generalIdOfRelatedProspect);
+    var submissionDetailIdOfRelatedProspect = UUID.randomUUID();
+    var form = getRelatedProspectForm(submissionDetailIdOfRelatedProspect);
     form.setRelatedToAnotherProspect(false);
 
     var relatedProspectsArgumentCaptor = ArgumentCaptor.forClass(RelatedProspect.class);
@@ -91,10 +91,10 @@ class RelatedProspectsPersistenceServiceTest {
     verify(relatedProspectsRepository, times(1)).findBySubmissionDetail(submissionDetail);
   }
 
-  private RelatedProspectsForm getRelatedProspectForm(UUID generalIdOfRelatedProspect) {
+  private RelatedProspectsForm getRelatedProspectForm(UUID submissionDetailIdOfRelatedProspect) {
     var form = new RelatedProspectsForm();
     form.setRelatedToAnotherProspect(true);
-    form.setGeneralDetailIdOfRelatedProspect(generalIdOfRelatedProspect.toString());
+    form.setSubmissionDetailIdOfRelatedProspect(submissionDetailIdOfRelatedProspect.toString());
     form.setPreferredView(false);
     return form;
   }

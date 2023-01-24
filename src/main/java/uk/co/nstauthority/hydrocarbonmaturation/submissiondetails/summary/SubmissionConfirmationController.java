@@ -31,7 +31,7 @@ public class SubmissionConfirmationController {
   @GetMapping
   public ModelAndView showSubmissionConfirmation(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var resourceName = submissionDetailService.getResourceNameOrEmpty(submissionDetail);
+    var resourceName = submissionDetailService.getResourceNameOrDefault(submissionDetail);
 
     return getSubmissionConfirmationModelAndView(resourceName, submissionDetail.getSubmissionType());
   }

@@ -15,7 +15,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -43,6 +42,9 @@ class DeleteSubmissionControllerTest extends AbstractControllerTest {
 
   @MockBean
   private SubmissionSummaryModelService submissionSummaryModelService;
+
+  @MockBean
+  private SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
   @BeforeEach
   void setUp() {
@@ -73,7 +75,7 @@ class DeleteSubmissionControllerTest extends AbstractControllerTest {
   @Test
   void showDeleteConfirmationPage_assertModelProperties() throws Exception {
     var resourceName = "ResourceName";
-    when(submissionDetailService.getResourceNameOrEmpty(submissionDetail)).thenReturn(resourceName);
+    when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(resourceName);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
     var modelMap = mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(SUBMISSION_DETAIL_ID)))
@@ -102,7 +104,7 @@ class DeleteSubmissionControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea())));
 
-    verify(submissionDetailService, times(1)).deleteSubmission(submissionDetail);
+    verify(submissionDetailPersistenceService, times(1)).deleteSubmission(submissionDetail);
   }
 
   private void mockCreatePostDrillDryWellSubmissionSummaryModelAndView() {

@@ -5,65 +5,28 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionDetailServiceTest {
-
-  private static final Instant INSTANT = Instant.now();
   @Mock
   private SubmissionDetailRepository submissionDetailRepository;
   @Mock
   private GeneralDetailsPersistenceService generalDetailsPersistenceService;
-  @Mock
-  private UserDetailService userDetailService;
 
+  @InjectMocks
   private SubmissionDetailService submissionDetailService;
 
-  private SubmissionDetail submissionDetail;
-
-  private final static Long USER_WUA_ID = 5L;
-
-  @BeforeEach
-  void setUp() {
-    var clock = Clock.fixed(Instant.from(INSTANT), ZoneId.systemDefault());
-    submissionDetailService = new SubmissionDetailService(submissionDetailRepository, generalDetailsPersistenceService,
-        clock, userDetailService);
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
-  }
-
-  @Test
-  void createInitialSubmissionDetail() {
-    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
-
-    var submissionType = SubmissionType.CREATE_PROSPECT;
-    var resource = new Resource();
-    var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
-    var submissionDetail = submissionDetailService.createInitialSubmissionDetail(resource, submissionType);
-    verify(submissionDetailRepository, times(1)).save(submissionDetailArgumentCaptor.capture());
-
-    var createdSubmissionDetail = submissionDetailArgumentCaptor.getValue();
-    assertThat(createdSubmissionDetail.getResourceId()).isEqualTo(resource);
-    assertThat(createdSubmissionDetail.getCreatedTimestamp()).isEqualTo(INSTANT);
-    assertThat(createdSubmissionDetail.getCreatedByWuaId()).isEqualTo(USER_WUA_ID.intValue());
-    assertThat(createdSubmissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.DRAFT);
-    assertThat(createdSubmissionDetail.getSubmissionType()).isEqualTo(submissionType);
-    assertThat(createdSubmissionDetail.getVersionNumber()).isEqualTo(SubmissionDetailService.FIRST_VERSION);
-  }
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
 
   @Test
   void getLatestApprovedDiscoverySubmissionDetailForResource_assertReturn() {
@@ -81,47 +44,12 @@ class SubmissionDetailServiceTest {
   }
 
   @Test
-  void completeSubmission_assertSubmittedBy() {
-    var submissionDetail = new SubmissionDetail();
-    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
-    submissionDetailService.completeSubmission(submissionDetail);
-
-    assertThat(submissionDetail.getSubmittedByWuaId())
-        .isEqualTo(USER_WUA_ID.intValue());
-    assertThat(submissionDetail.getSubmittedTimestamp()).isEqualTo(INSTANT);
-    assertThat(submissionDetail.getApprovedByWuaId())
-        .isEqualTo(USER_WUA_ID.intValue());
-    assertThat(submissionDetail.getApprovedTimestamp()).isEqualTo(INSTANT);
-    verify(submissionDetailRepository, times(2)).save(submissionDetail);
-  }
-
-  @Test
-  void approveSubmission_assertApprovedBy() {
-    var submissionDetail = new SubmissionDetail();
-    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
-    submissionDetailService.approveSubmission(submissionDetail);
-
-    assertThat(submissionDetail.getApprovedByWuaId())
-        .isEqualTo(USER_WUA_ID.intValue());
-    assertThat(submissionDetail.getApprovedTimestamp()).isEqualTo(INSTANT);
-    verify(submissionDetailRepository, times(1)).save(submissionDetail);
-  }
-
-  @Test
   void getSubmissionDetailsForResource_verifyMethodCall() {
     var resource = new Resource();
 
     submissionDetailService.getSubmissionDetailsForResource(resource);
 
     verify(submissionDetailRepository, times(1)).findSubmissionDetailsByResourceId(resource);
-  }
-
-  @Test
-  void deleteSubmission() {
-    var submissionDetail = new SubmissionDetail();
-    submissionDetailService.deleteSubmission(submissionDetail);
-
-    assertThat(submissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.DELETED);
   }
 
   @Test

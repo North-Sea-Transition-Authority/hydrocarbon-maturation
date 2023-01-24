@@ -1,11 +1,11 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedprospects;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 class RelatedProspectsForm implements SubmissionForm {
   private Boolean relatedToAnotherProspect;
 
-  private String generalDetailIdOfRelatedProspect;
+  private String submissionDetailIdOfRelatedProspect;
 
   private Boolean preferredView;
 
@@ -17,12 +17,12 @@ class RelatedProspectsForm implements SubmissionForm {
     this.relatedToAnotherProspect = relatedToAnotherProspect;
   }
 
-  public String getGeneralDetailIdOfRelatedProspect() {
-    return generalDetailIdOfRelatedProspect;
+  public String getSubmissionDetailIdOfRelatedProspect() {
+    return submissionDetailIdOfRelatedProspect;
   }
 
-  public void setGeneralDetailIdOfRelatedProspect(String generalDetailIdOfRelatedProspect) {
-    this.generalDetailIdOfRelatedProspect = generalDetailIdOfRelatedProspect;
+  public void setSubmissionDetailIdOfRelatedProspect(String submissionDetailIdOfRelatedProspect) {
+    this.submissionDetailIdOfRelatedProspect = submissionDetailIdOfRelatedProspect;
   }
 
   public Boolean getPreferredView() {
