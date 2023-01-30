@@ -10,14 +10,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 
 @Service
 public class ResourceGroupService {
-  private final RelatedProspectsRepository relatedProspectsRepository;
+  private final RelatedProspectsPersistenceService relatedProspectsPersistenceService;
   private final ResourceGroupLinksRepository resourceGroupLinksRepository;
   private final RelatedProspectsSubmissionService relatedProspectsSubmissionService;
 
-  public ResourceGroupService(RelatedProspectsRepository relatedProspectsRepository,
+  public ResourceGroupService(RelatedProspectsPersistenceService relatedProspectsPersistenceService,
                               ResourceGroupLinksRepository resourceGroupLinksRepository,
                               RelatedProspectsSubmissionService relatedProspectsSubmissionService) {
-    this.relatedProspectsRepository = relatedProspectsRepository;
+    this.relatedProspectsPersistenceService = relatedProspectsPersistenceService;
     this.resourceGroupLinksRepository = resourceGroupLinksRepository;
     this.relatedProspectsSubmissionService = relatedProspectsSubmissionService;
   }
@@ -28,7 +28,7 @@ public class ResourceGroupService {
       return;
     }
 
-    relatedProspectsRepository.findBySubmissionDetail(submissionDetail)
+    relatedProspectsPersistenceService.getRelatedProspectIfRelatedToAnotherProspect(submissionDetail)
         .ifPresent(relatedProspect -> {
 
           var relatedProspectResource = relatedProspect.getRelatedSubmissionDetail().getResourceId();
@@ -44,6 +44,7 @@ public class ResourceGroupService {
           }
         });
   }
+
 
   private void addToGroup(RelatedProspect relatedProspect,
                           Resource currentProspectResource,

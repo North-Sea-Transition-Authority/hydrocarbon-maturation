@@ -5,6 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -89,6 +90,28 @@ class RelatedProspectsPersistenceServiceTest {
   void getRelatedProspect_verifyMethodCall() {
     relatedProspectsPersistenceService.getRelatedProspect(submissionDetail);
     verify(relatedProspectsRepository, times(1)).findBySubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getRelatedProspectIfRelatedToAnotherProspect_RelatedToAnotherProspect() {
+    var relatedProspect = new RelatedProspect();
+    relatedProspect.setRelatedToAnotherProspect(true);
+    when(relatedProspectsRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(relatedProspect));
+
+    var result = relatedProspectsPersistenceService.getRelatedProspectIfRelatedToAnotherProspect(submissionDetail);
+
+    assertThat(result).isPresent();
+  }
+
+  @Test
+  void getRelatedProspectIfRelatedToAnotherProspect_NotRelatedToAnotherProspect() {
+    var relatedProspect = new RelatedProspect();
+    relatedProspect.setRelatedToAnotherProspect(false);
+    when(relatedProspectsRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(relatedProspect));
+
+    var result = relatedProspectsPersistenceService.getRelatedProspectIfRelatedToAnotherProspect(submissionDetail);
+
+    assertThat(result).isEmpty();
   }
 
   private RelatedProspectsForm getRelatedProspectForm(UUID submissionDetailIdOfRelatedProspect) {

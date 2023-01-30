@@ -48,4 +48,9 @@ public class RelatedProspectsPersistenceService {
   Optional<RelatedProspect> getRelatedProspect(SubmissionDetail submissionDetail) {
     return relatedProspectsRepository.findBySubmissionDetail(submissionDetail);
   }
+
+  Optional<RelatedProspect> getRelatedProspectIfRelatedToAnotherProspect(SubmissionDetail submissionDetail) {
+    return relatedProspectsRepository.findBySubmissionDetail(submissionDetail)
+        .filter(RelatedProspect::getRelatedToAnotherProspect);
+  }
 }
