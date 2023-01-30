@@ -33,5 +33,6 @@ public class TestSecurityRules {
       .that().haveSimpleNameEndingWith("ControllerTest")
       .and().doNotHaveSimpleName("AbstractControllerTest")
       .and().doNotHaveSimpleName("RealSecurityAbstractControllerTest")
+      .and().doNotHaveSimpleName("AbstractSubmissionControllerTest")
       .should(containAtLeastOneSecurityTest);
 }

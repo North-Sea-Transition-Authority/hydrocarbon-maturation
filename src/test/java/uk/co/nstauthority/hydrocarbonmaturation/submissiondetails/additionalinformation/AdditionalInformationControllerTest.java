@@ -28,7 +28,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -42,7 +42,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ContextConfiguration(classes = AdditionalInformationController.class)
-class AdditionalInformationControllerTest extends AbstractControllerTest {
+class AdditionalInformationControllerTest extends AbstractSubmissionControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -73,6 +73,7 @@ class AdditionalInformationControllerTest extends AbstractControllerTest {
     when(additionalInformationFormService.getAdditionalInformationForm(submissionDetail)).thenReturn(new AdditionalInformationForm());
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetail.getId(), SupportingDocumentType.ADDITIONAL_DOCUMENT))
         .thenReturn(fileUploadTemplate);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
         get(ReverseRouter.route(on(AdditionalInformationController.class).getAdditionalInformation(submissionDetail.getId(), form)))

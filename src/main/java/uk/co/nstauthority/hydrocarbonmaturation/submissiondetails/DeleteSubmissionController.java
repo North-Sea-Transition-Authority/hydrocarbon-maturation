@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
@@ -24,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/delete-submission")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
+@IsFromResponsibleTeam
 public class DeleteSubmissionController {
 
   private final SubmissionDetailService submissionDetailService;

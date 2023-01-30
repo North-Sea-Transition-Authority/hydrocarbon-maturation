@@ -29,7 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -44,7 +44,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = OilCaseOutputsController.class)
-class OilCaseOutputsControllerTest extends AbstractControllerTest {
+class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -74,6 +74,27 @@ class OilCaseOutputsControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         get(ReverseRouter.route(on(OilCaseOutputsController.class).getOilCaseOutputs(submissionDetailId, null)))
             .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getOilCaseOutputs_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(OilCaseOutputsController.class)
+                .getOilCaseOutputs(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void saveOilCaseOutputs_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            post(ReverseRouter.route(on(OilCaseOutputsController.class).saveOilCaseOutputs(
+                submissionDetailId, null, null, null)))
+                .with(user(USER))
+                .with(csrf()))
         .andExpect(status().isForbidden());
   }
 

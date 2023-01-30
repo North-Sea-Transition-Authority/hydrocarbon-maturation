@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
@@ -30,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/general-details")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
+@IsFromResponsibleTeam
 public class GeneralDetailsController {
 
   private final GeneralDetailsFormService generalDetailsFormService;

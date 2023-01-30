@@ -30,7 +30,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -49,15 +49,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = GeneralDetailsController.class)
-class GeneralDetailsControllerTest extends AbstractControllerTest {
+class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   GeneralDetailsFormService generalDetailsFormService;
-
-  @MockBean
-  GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   private UUID submissionDetailId;
 
@@ -67,9 +64,10 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void getGeneralDetails_assertStatusOk() throws Exception {
+  void getGeneralDetails_whenResponsibleOrganisation_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(new GeneralDetailsForm());
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
         get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
             .with(user(USER)))
@@ -83,6 +81,28 @@ class GeneralDetailsControllerTest extends AbstractControllerTest {
     mockMvc.perform(
             get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
                 .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getGeneralDetails_andNotResponsibleOrganisationOrTeam_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void saveGeneralDetails_andNotResponsibleOrganisationOrTeam_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GeneralDetailsController.class)
+                .saveGeneralDetails(submissionDetailId, null, null, null)))
+                .with(user(USER))
+                .with(csrf()))
         .andExpect(status().isForbidden());
   }
 

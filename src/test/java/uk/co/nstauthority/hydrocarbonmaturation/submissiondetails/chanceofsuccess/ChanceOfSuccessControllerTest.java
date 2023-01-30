@@ -29,7 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -41,7 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = ChanceOfSuccessController.class)
-class ChanceOfSuccessControllerTest extends AbstractControllerTest {
+class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -51,6 +51,8 @@ class ChanceOfSuccessControllerTest extends AbstractControllerTest {
   @MockBean
   ChanceOfSuccessPersistenceService chanceOfSuccessPersistenceService;
 
+
+
   private static UUID submissionDetailId;
 
   @BeforeEach
@@ -59,9 +61,10 @@ class ChanceOfSuccessControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void getGeneralDetails_assertStatusOk() throws Exception {
+  void getChanceOfSuccess_whenIsResponsibleOrganisation_assertStatusOk() throws Exception {
     when(chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail)).thenReturn(new ChanceOfSuccessForm());
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
         get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
             .with(user(USER)))
@@ -70,7 +73,27 @@ class ChanceOfSuccessControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void getGeneralDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
+  void getChanceOfSuccess_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void saveChanceOfSuccess_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ChanceOfSuccessController.class).saveChanceOfSuccess(
+                submissionDetailId, null, null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getChanceOfSuccess_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(
             get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
@@ -100,7 +123,7 @@ class ChanceOfSuccessControllerTest extends AbstractControllerTest {
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
-  void saveGeneralDetailsPage_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+  void saveChanceOfSuccess_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     var bindingResult = new BeanPropertyBindingResult(ChanceOfSuccessForm.class, "form");
@@ -120,9 +143,10 @@ class ChanceOfSuccessControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void getGeneralDetailsModelAndView_assertModelProperties() throws Exception {
+  void getChanceOfSuccessModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail)).thenReturn(new ChanceOfSuccessForm());
+
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(

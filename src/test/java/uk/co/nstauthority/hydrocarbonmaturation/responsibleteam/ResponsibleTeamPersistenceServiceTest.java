@@ -1,10 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.responsibleteam;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -12,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class ResponsibleTeamPersistenceServiceTest {
@@ -60,5 +65,30 @@ class ResponsibleTeamPersistenceServiceTest {
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA);
+  }
+
+  @Test
+  void getResponsibleTeamForResourceOrThrow_assertReturn() {
+    var resource = new Resource();
+    resource.setId(UUID.randomUUID());
+    var responsibleTeam = mock(ResponsibleTeam.class);
+    when(responsibleTeamRepository.findResponsibleTeamByResource(resource))
+        .thenReturn(Optional.of(responsibleTeam));
+    var result = responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(resource);
+    assertThat(result).isEqualTo(responsibleTeam);
+  }
+
+  @Test
+  void getResponsibleTeamForResourceOrThrow_assertThrows() {
+    var resource = new Resource();
+    resource.setId(UUID.randomUUID());
+    when(responsibleTeamRepository.findResponsibleTeamByResource(resource))
+        .thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> responsibleTeamPersistenceService
+        .getResponsibleTeamForResourceOrThrow(resource))
+        .hasMessage("Could not find the responsible team for resource with ID %s"
+            .formatted(resource.getId()))
+        .isExactlyInstanceOf(RemiEntityNotFoundException.class);
   }
 }

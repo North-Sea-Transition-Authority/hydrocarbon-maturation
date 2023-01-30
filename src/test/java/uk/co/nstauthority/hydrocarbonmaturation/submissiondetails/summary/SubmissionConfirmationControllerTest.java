@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.ui.ModelMap;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -24,7 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = SubmissionConfirmationController.class)
-class SubmissionConfirmationControllerTest extends AbstractControllerTest {
+class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -42,6 +42,7 @@ class SubmissionConfirmationControllerTest extends AbstractControllerTest {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
         get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))
@@ -55,6 +56,7 @@ class SubmissionConfirmationControllerTest extends AbstractControllerTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))
@@ -67,6 +69,16 @@ class SubmissionConfirmationControllerTest extends AbstractControllerTest {
   void showSubmissionConfirmation_andStatusIsNotDraft_assertForbidden() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void showSubmissionConfirmation_andNotInResponsibleOrganisationOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SubmissionConfirmationController.class)
+                .showSubmissionConfirmation(submissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }

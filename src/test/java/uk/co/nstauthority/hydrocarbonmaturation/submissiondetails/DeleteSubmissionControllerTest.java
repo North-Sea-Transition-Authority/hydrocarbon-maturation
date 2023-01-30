@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -34,7 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = DeleteSubmissionController.class)
-class DeleteSubmissionControllerTest extends AbstractControllerTest {
+class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   public static final String VIEW_NAME = "remi/submissiondetails/deleteConfirmation";
 
@@ -56,7 +56,7 @@ class DeleteSubmissionControllerTest extends AbstractControllerTest {
   @SecurityTest
   void showDeleteConfirmationPage_assertStatusOk() throws Exception {
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
-
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(SUBMISSION_DETAIL_ID)))
             .with(user(USER)))
         .andExpect(status().isOk());
@@ -68,6 +68,27 @@ class DeleteSubmissionControllerTest extends AbstractControllerTest {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
 
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(SUBMISSION_DETAIL_ID)))
+            .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void showDeleteConfirmationPage_andNotResponsibleOrganisationOrTeam_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+
+    mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(SUBMISSION_DETAIL_ID)))
+            .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void deleteSubmission_andNotResponsibleOrganisationOrTeam_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+
+    mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class)
+            .deleteSubmission(SUBMISSION_DETAIL_ID, null)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -96,7 +117,6 @@ class DeleteSubmissionControllerTest extends AbstractControllerTest {
 
   @Test
   void saveOpportunityDetailsPage_assertRedirection() throws Exception {
-
     mockMvc.perform(
             post(ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER))

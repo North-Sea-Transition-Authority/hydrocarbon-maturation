@@ -20,7 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-class OilCaseOutputSummaryServiceTest {
+class OilCaseOutputsSummaryServiceTest {
   @Mock
   private OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
 

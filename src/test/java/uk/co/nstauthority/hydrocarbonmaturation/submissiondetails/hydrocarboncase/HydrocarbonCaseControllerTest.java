@@ -30,7 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -42,7 +42,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = HydrocarbonCaseController.class)
-class HydrocarbonCaseControllerTest extends AbstractControllerTest {
+class HydrocarbonCaseControllerTest extends AbstractSubmissionControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -67,6 +67,7 @@ class HydrocarbonCaseControllerTest extends AbstractControllerTest {
   void getHydrocarbonCase_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(hydrocarbonCaseFormService.getHydrocarbonCaseForm(submissionDetail)).thenReturn(new HydrocarbonCaseForm());
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
         get(ReverseRouter.route(on(HydrocarbonCaseController.class).getHydrocarbonCase(submissionDetailId)))
@@ -80,6 +81,27 @@ class HydrocarbonCaseControllerTest extends AbstractControllerTest {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(
             get(ReverseRouter.route(on(HydrocarbonCaseController.class).getHydrocarbonCase(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getHydrocarbonCase_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(HydrocarbonCaseController.class)
+                .getHydrocarbonCase(submissionDetailId)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void saveHydrocarbonCase_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(HydrocarbonCaseController.class).saveHydrocarbonCase(
+                submissionDetailId, null, null, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }

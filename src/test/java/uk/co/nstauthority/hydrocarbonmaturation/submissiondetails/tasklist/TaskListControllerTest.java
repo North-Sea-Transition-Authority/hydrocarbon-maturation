@@ -16,7 +16,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -24,7 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = TaskListController.class)
-class TaskListControllerTest extends AbstractControllerTest {
+class TaskListControllerTest extends AbstractSubmissionControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -45,6 +45,7 @@ class TaskListControllerTest extends AbstractControllerTest {
     var prospectName = "pros123";
     when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
     when(submissionDetailService.getSubmissionTypeName(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     var taskListSections = List.of(
         new TaskListSection("Reservoir", 10, List.of(
@@ -94,5 +95,16 @@ class TaskListControllerTest extends AbstractControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE)
     );
+  }
+
+  @SecurityTest
+  void getTaskList_whenNotResponsibleOrganisationOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(TaskListController.class)
+                .getTaskList(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 }

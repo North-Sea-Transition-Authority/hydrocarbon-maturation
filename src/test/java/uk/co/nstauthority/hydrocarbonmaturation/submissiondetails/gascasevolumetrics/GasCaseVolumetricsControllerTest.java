@@ -30,7 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -45,7 +45,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = GasCaseVolumetricsController.class)
-class GasCaseVolumetricsControllerTest extends AbstractControllerTest {
+class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -73,6 +73,7 @@ class GasCaseVolumetricsControllerTest extends AbstractControllerTest {
   void getGasCaseVolumetrics_assertOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(submissionDetail)).thenReturn(new GasCaseVolumetricsForm());
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
         get(ReverseRouter.route(on(GasCaseVolumetricsController.class).getGasCaseVolumetrics(submissionDetailId, null)))
@@ -87,6 +88,27 @@ class GasCaseVolumetricsControllerTest extends AbstractControllerTest {
     mockMvc.perform(
             get(ReverseRouter.route(on(GasCaseVolumetricsController.class).getGasCaseVolumetrics(submissionDetailId, null)))
                 .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getGasCaseVolumetrics_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GasCaseVolumetricsController.class)
+                .getGasCaseVolumetrics(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void saveGasCaseVolumetrics_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GasCaseVolumetricsController.class).saveGasCaseVolumetrics(
+                submissionDetailId, null, null, null)))
+                .with(user(USER))
+                .with(csrf()))
         .andExpect(status().isForbidden());
   }
 

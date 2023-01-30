@@ -1,8 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.authorisation;
 
 import java.util.List;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.RegulatorResponsibleTeamInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionInterceptorSecurityRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.TeamMembershipInterceptorRule;
 
 public final class EndpointInterceptorOrder {
 
@@ -11,7 +13,9 @@ public final class EndpointInterceptorOrder {
   }
 
   private static final List<Class<? extends SubmissionInterceptorSecurityRule>> SUBMISSION_SECURITY_RULES = List.of(
-      SubmissionStatusInterceptorRule.class // check the status of the application
+      SubmissionStatusInterceptorRule.class, // check the status of the application
+      TeamMembershipInterceptorRule.class, // checks the responsible teams for the resource
+      RegulatorResponsibleTeamInterceptorRule.class // checks if user is regulator responsible for the resource
   );
 
   public static int orderForSubmission(Class<? extends SubmissionInterceptorSecurityRule> endpointInterceptorClass) {

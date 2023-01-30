@@ -30,7 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -45,7 +45,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = GasCaseOutputsController.class)
-class GasCaseOutputsControllerTest extends AbstractControllerTest {
+class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -70,9 +70,10 @@ class GasCaseOutputsControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void getGasCaseOutputs_assertOk() throws Exception {
+  void getGasCaseOutputs_whenUserIsResponsibleOrganisation_assertOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(gasCaseOutputsFormService.getGasCaseOutputsForm(submissionDetail)).thenReturn(new GasCaseOutputsForm());
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
         get(ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(submissionDetailId, null)))
@@ -87,6 +88,27 @@ class GasCaseOutputsControllerTest extends AbstractControllerTest {
     mockMvc.perform(
             get(ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(submissionDetailId, null)))
                 .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getGasCaseOutputs_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GasCaseOutputsController.class)
+                .getGasCaseOutputs(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void saveGasCaseOutputs_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GasCaseOutputsController.class).saveGasCaseOutputs(
+                submissionDetailId, null, null, null)))
+                .with(user(USER))
+                .with(csrf()))
         .andExpect(status().isForbidden());
   }
 
