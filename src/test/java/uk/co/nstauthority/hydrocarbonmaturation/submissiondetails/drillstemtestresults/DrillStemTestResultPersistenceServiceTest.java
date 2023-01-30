@@ -62,7 +62,8 @@ class DrillStemTestResultPersistenceServiceTest {
             DrillStemTestResult::getTopDepth,
             DrillStemTestResult::getOilFlowrate,
             DrillStemTestResult::getWaterFlowrate,
-            DrillStemTestResult::getWhfp)
+            DrillStemTestResult::getWhfp,
+            DrillStemTestResult::getTestNumber)
         .containsExactly(
             drillStemTest,
             "comment",
@@ -74,7 +75,8 @@ class DrillStemTestResultPersistenceServiceTest {
             form.getTopDepth().createBigDecimalOrNull(),
             form.getOilFlowrate().createBigDecimalOrNull(),
             form.getWaterFlowrate().createBigDecimalOrNull(),
-            form.getWhfp().createIntegerOrNull()
+            form.getWhfp().createIntegerOrNull(),
+            form.getTestNumber()
         );
   }
 
@@ -225,7 +227,8 @@ class DrillStemTestResultPersistenceServiceTest {
             DrillStemTestResult::getTopDepth,
             DrillStemTestResult::getOilFlowrate,
             DrillStemTestResult::getWaterFlowrate,
-            DrillStemTestResult::getWhfp)
+            DrillStemTestResult::getWhfp,
+            DrillStemTestResult::getTestNumber)
         .containsOnly(drillStemTest, null);
     verify(drillStemTestResultRepository, times(1))
         .save(result);
@@ -252,6 +255,7 @@ class DrillStemTestResultPersistenceServiceTest {
     form.setTopDepth(DecimalInput.createDecimalInput(BigDecimal.valueOf(1.22)));
     form.setCommentsInterpretation("comment");
     form.setFormationName("name");
+    form.setTestNumber("2a");
     return form;
   }
 }

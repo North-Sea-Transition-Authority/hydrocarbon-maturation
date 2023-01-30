@@ -5,6 +5,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 
 class DrillStemTestResultForm implements SubmissionForm {
 
+  private String testNumber;
   private String formationName;
   private DecimalInput topDepth = new DecimalInput();
   private DecimalInput bottomDepth = new DecimalInput();
@@ -15,6 +16,14 @@ class DrillStemTestResultForm implements SubmissionForm {
   private DecimalInput oilFlowrate = new DecimalInput();
   private DecimalInput waterFlowrate = new DecimalInput();
   private String commentsInterpretation;
+
+  public String getTestNumber() {
+    return testNumber;
+  }
+
+  public void setTestNumber(String testNumber) {
+    this.testNumber = testNumber;
+  }
 
   public String getFormationName() {
     return formationName;

@@ -31,9 +31,7 @@ public class DrillStemTestSubmissionService implements SectionSubmissionService 
     bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     var drillStemTestResults = drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail);
     var hasErrors = drillStemTestResultFormService.validateDrillStemTestResults(
-        drillStemTestResults,
-        ValidationType.FULL,
-        submissionDetail);
+        drillStemTestResults);
     return !bindingResult.hasErrors() && !hasErrors;
   }
 }

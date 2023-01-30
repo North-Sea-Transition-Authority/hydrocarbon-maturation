@@ -54,7 +54,7 @@ public class DrillStemTestResultsSummaryService {
     final String ftTvdss = "ft tvdss";
     final String bpd = "bpd";
     return new DrillStemTestResultSummaryView(
-        resultCounter.toString(),
+        StringUtils.defaultIfBlank(drillStemTestResult.getTestNumber(), resultCounter.toString()),
         StringUtils.defaultIfBlank(drillStemTestResult.getFormationName(), ""),
         NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getTopDepth(), ftTvdss),
         NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBottomDepth(), ftTvdss),

@@ -37,6 +37,7 @@ class DrillStemTestResultPersistenceService {
     drillStemTestResult.setOilFlowrate(form.getOilFlowrate().createBigDecimalOrNull());
     drillStemTestResult.setWhfp(form.getWhfp().createIntegerOrNull());
     drillStemTestResult.setWaterFlowrate(form.getWaterFlowrate().createBigDecimalOrNull());
+    drillStemTestResult.setTestNumber(form.getTestNumber());
     drillStemTestResultRepository.save(drillStemTestResult);
   }
 

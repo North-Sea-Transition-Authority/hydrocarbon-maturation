@@ -44,6 +44,8 @@ public class DrillStemTestResult implements DrillStemTestChildEntity {
 
   private String commentsInterpretation;
 
+  private String testNumber;
+
   public UUID getId() {
     return id;
   }
@@ -139,5 +141,13 @@ public class DrillStemTestResult implements DrillStemTestChildEntity {
 
   public void setCommentsInterpretation(String commentsInterpretation) {
     this.commentsInterpretation = commentsInterpretation;
+  }
+
+  public String getTestNumber() {
+    return testNumber;
+  }
+
+  public void setTestNumber(String testNumber) {
+    this.testNumber = testNumber;
   }
 }

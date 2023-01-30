@@ -80,7 +80,7 @@ class DrillStemTestSubmissionServiceTest {
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail))
         .thenReturn(drillStemTestResults);
     when(drillStemTestResultFormService.validateDrillStemTestResults(
-        drillStemTestResults, ValidationType.FULL, submissionDetail))
+        drillStemTestResults))
         .thenReturn(true);
 
     assertFalse(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
@@ -101,7 +101,7 @@ class DrillStemTestSubmissionServiceTest {
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail))
         .thenReturn(drillStemTestResults);
     when(drillStemTestResultFormService.validateDrillStemTestResults(
-        drillStemTestResults, ValidationType.FULL, submissionDetail))
+        drillStemTestResults))
         .thenReturn(false);
 
     assertTrue(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));

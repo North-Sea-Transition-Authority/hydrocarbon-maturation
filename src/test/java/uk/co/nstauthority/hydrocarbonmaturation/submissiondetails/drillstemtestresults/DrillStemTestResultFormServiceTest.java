@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import org.assertj.core.api.Assertions;
+import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,8 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class DrillStemTestResultFormServiceTest {
@@ -47,13 +45,16 @@ class DrillStemTestResultFormServiceTest {
     var form = new DrillStemTestResultForm();
     var bindingResult = ReverseRouter.emptyBindingResult();
 
-    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
+    var captor = ArgumentCaptor.forClass(
+        DrillStemTestResultFormValidatorHints.class);
 
-    drillStemTestResultFormService.validate(form, bindingResult, ValidationType.FULL,
-        drillStemTest.getSubmissionDetail());
+    drillStemTestResultFormService.validate(form, bindingResult, List.of("1", "2"));
     verify(drillStemTestResultFormValidator, times(1))
         .validate(eq(form), eq(bindingResult), captor.capture());
-    Assertions.assertThat(captor.getValue().getValidationType()).isEqualTo(ValidationType.FULL);
+    assertThat(captor.getValue())
+        .extracting(
+            DrillStemTestResultFormValidatorHints::getDrillStemTestTestNumbers)
+        .isEqualTo(List.of("1", "2"));
   }
 
   @Test
@@ -73,7 +74,8 @@ class DrillStemTestResultFormServiceTest {
             theForm -> theForm.getTopDepth().createBigDecimalOrNull(),
             theForm -> theForm.getOilFlowrate().createBigDecimalOrNull(),
             theForm -> theForm.getWaterFlowrate().createBigDecimalOrNull(),
-            theForm -> theForm.getWhfp().createIntegerOrNull())
+            theForm -> theForm.getWhfp().createIntegerOrNull(),
+            DrillStemTestResultForm::getTestNumber)
         .containsExactly(
             "comment",
             drillStemTestResult.getBhfp(),
@@ -84,7 +86,8 @@ class DrillStemTestResultFormServiceTest {
             drillStemTestResult.getTopDepth(),
             drillStemTestResult.getOilFlowrate(),
             drillStemTestResult.getWaterFlowrate(),
-            drillStemTestResult.getWhfp()
+            drillStemTestResult.getWhfp(),
+            drillStemTestResult.getTestNumber()
         );
   }
 
@@ -105,7 +108,8 @@ class DrillStemTestResultFormServiceTest {
             theForm -> theForm.getTopDepth().createBigDecimalOrNull(),
             theForm -> theForm.getOilFlowrate().createBigDecimalOrNull(),
             theForm -> theForm.getWaterFlowrate().createBigDecimalOrNull(),
-            theForm -> theForm.getWhfp().createIntegerOrNull())
+            theForm -> theForm.getWhfp().createIntegerOrNull(),
+            DrillStemTestResultForm::getTestNumber)
         .containsOnlyNulls();
   }
 
@@ -125,7 +129,8 @@ class DrillStemTestResultFormServiceTest {
             theForm -> theForm.getTopDepth().createBigDecimalOrNull(),
             theForm -> theForm.getOilFlowrate().createBigDecimalOrNull(),
             theForm -> theForm.getWaterFlowrate().createBigDecimalOrNull(),
-            theForm -> theForm.getWhfp().createIntegerOrNull())
+            theForm -> theForm.getWhfp().createIntegerOrNull(),
+            DrillStemTestResultForm::getTestNumber)
         .containsOnlyNulls();
   }
 
@@ -134,12 +139,13 @@ class DrillStemTestResultFormServiceTest {
     var drillStemTest = mock(DrillStemTest.class);
     var drillStemTestResult = getDrillStemTestResult(drillStemTest);
     var drillStemTestResult1 = getDrillStemTestResult(drillStemTest);
+    drillStemTestResult1.setTestNumber("2a");
     drillStemTestResult1.setFormationName("otherName");
     var captor = ArgumentCaptor.forClass(DrillStemTestResultForm.class);
-    var hintsCaptor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
+    var hintsCaptor = ArgumentCaptor
+        .forClass(DrillStemTestResultFormValidatorHints.class);
     var hasErrors = drillStemTestResultFormService
-        .validateDrillStemTestResults(List.of(drillStemTestResult1, drillStemTestResult), ValidationType.FULL,
-            drillStemTest.getSubmissionDetail());
+        .validateDrillStemTestResults(List.of(drillStemTestResult1, drillStemTestResult));
 
     assertThat(hasErrors).isFalse();
     verify(drillStemTestResultFormValidator, times(2))
@@ -158,7 +164,8 @@ class DrillStemTestResultFormServiceTest {
             theForm -> theForm.getTopDepth().createBigDecimalOrNull(),
             theForm -> theForm.getOilFlowrate().createBigDecimalOrNull(),
             theForm -> theForm.getWaterFlowrate().createBigDecimalOrNull(),
-            theForm -> theForm.getWhfp().createIntegerOrNull())
+            theForm -> theForm.getWhfp().createIntegerOrNull(),
+            DrillStemTestResultForm::getTestNumber)
         .containsExactly(
             "comment",
             drillStemTestResult.getBhfp(),
@@ -169,15 +176,57 @@ class DrillStemTestResultFormServiceTest {
             drillStemTestResult.getTopDepth(),
             drillStemTestResult.getOilFlowrate(),
             drillStemTestResult.getWaterFlowrate(),
-            drillStemTestResult.getWhfp()
+            drillStemTestResult.getWhfp(),
+            drillStemTestResult.getTestNumber()
         );
 
     assertThat(values.get(0))
         .extracting(
             DrillStemTestResultForm::getFormationName)
         .isEqualTo("otherName");
-    assertThat(hintsCaptor.getValue().getValidationType())
-        .isEqualTo(ValidationType.FULL);
+    AssertionsForInterfaceTypes.assertThat(hintsCaptor.getAllValues())
+        .extracting(DrillStemTestResultFormValidatorHints::getDrillStemTestTestNumbers)
+        .containsExactly(List.of(), List.of());
+  }
+
+  @Test
+  void validateForUpdate_assertRemovesNumberBeingUpdated() {
+    var form = new DrillStemTestResultForm();
+    var bindingResult = ReverseRouter.emptyBindingResult();
+
+    var captor = ArgumentCaptor.forClass(
+        DrillStemTestResultFormValidatorHints.class);
+    var drillStemTestResult = new DrillStemTestResult();
+    drillStemTestResult.setTestNumber("1");
+    var drillStemTestResult2 = new DrillStemTestResult();
+    drillStemTestResult2.setTestNumber("2");
+
+    drillStemTestResultFormService.validateForUpdate(form, bindingResult, List.of(drillStemTestResult, drillStemTestResult2), "1");
+
+    verify(drillStemTestResultFormValidator, times(1))
+        .validate(eq(form), eq(bindingResult), captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            DrillStemTestResultFormValidatorHints::getDrillStemTestTestNumbers)
+        .isEqualTo(
+            List.of("2"));
+  }
+
+  @Test
+  void getDrillStemTestResultNumbers() {
+    var drillStemTestResult = getDrillStemTestResult(drillStemTest);
+    drillStemTestResult.setTestNumber("1");
+    var drillStemTestResult2 = getDrillStemTestResult(drillStemTest);
+    drillStemTestResult2.setTestNumber("2");
+    var resultsNumbers = drillStemTestResultFormService.getDrillStemTestResultNumbers(
+        List.of(drillStemTestResult, drillStemTestResult2));
+
+    assertThat(resultsNumbers)
+        .isEqualTo(
+            List.of(
+                drillStemTestResult.getTestNumber(),
+                drillStemTestResult2.getTestNumber()));
   }
 
   public static DrillStemTestResult getDrillStemTestResult(DrillStemTest drillStemTest) {
@@ -194,6 +243,7 @@ class DrillStemTestResultFormServiceTest {
     drillStemTestResult.setOilFlowrate(BigDecimal.TEN);
     drillStemTestResult.setTopDepth(BigDecimal.ONE);
     drillStemTestResult.setWaterFlowrate(BigDecimal.valueOf(5));
+    drillStemTestResult.setTestNumber("1a");
 
     return drillStemTestResult;
   }

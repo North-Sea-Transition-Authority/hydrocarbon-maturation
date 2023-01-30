@@ -1,8 +1,8 @@
 <#include '../../layout/layout.ftl'>
 
 <#macro drillStemTestResult drillStemTestResultValues withResultNumber=true>
+  <#assign headingText = "Test number ${drillStemTestResultValues.testNumber()}"/>
   <#if drillStemTestResultValues.summaryMode() == "EDIT">
-    <#assign headingText = "Drill stem test result ${drillStemTestResultValues.resultNumber()}"/>
     <#assign content>
       <@fdsSummaryList.summaryListCardActionList>
         <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(drillStemTestResultValues.changeUrl()) itemText="Change" itemScreenReaderText="something"/>
@@ -10,7 +10,6 @@
       </@fdsSummaryList.summaryListCardActionList>
     </#assign>
   <#else>
-    <#assign headingText = "Drill stem test result"/>
     <#assign content = ""/>
   </#if>
 

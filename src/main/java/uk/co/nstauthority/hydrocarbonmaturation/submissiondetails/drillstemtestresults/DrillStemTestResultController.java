@@ -74,8 +74,11 @@ public class DrillStemTestResultController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var drillStemTest = drillStemTestResultPersistenceService
         .getDrillStemTestBySubmissionDetailOrThrow(submissionDetail);
-
-    bindingResult = drillStemTestResultFormService.validate(form, bindingResult, validationType, submissionDetail);
+    var drillStemTestResults = drillStemTestResultPersistenceService
+        .getDrillStemTestResultsByDrillStemTest(drillStemTest);
+    bindingResult = drillStemTestResultFormService.validate(
+        form, bindingResult,
+        drillStemTestResultFormService.getDrillStemTestResultNumbers(drillStemTestResults));
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getDrillStemTestResultModelAndView(form, submissionDetail),
@@ -96,12 +99,14 @@ public class DrillStemTestResultController {
   public ModelAndView updateDrillStemTestResultDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                        @PathVariable("drillStemTestResultId") UUID drillStemTestResultId,
                                                        @ModelAttribute("form") DrillStemTestResultForm form,
-                                                       BindingResult bindingResult,
-                                                       ValidationType validationType) {
+                                                       BindingResult bindingResult) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var drillStemTestResult = drillStemTestResultPersistenceService
         .getDrillStemTestResultByIdOrThrow(drillStemTestResultId);
-    bindingResult = drillStemTestResultFormService.validate(form, bindingResult, validationType, submissionDetail);
+    var drillStemTestResults = drillStemTestResultPersistenceService
+        .getDrillStemTestResultsByDrillStemTest(drillStemTestResult.getDrillStemTest());
+    bindingResult = drillStemTestResultFormService.validateForUpdate(form, bindingResult,
+        drillStemTestResults, drillStemTestResult.getTestNumber());
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getDrillStemTestResultModelAndView(form, submissionDetail),
@@ -119,7 +124,9 @@ public class DrillStemTestResultController {
   private ModelAndView getDrillStemTestResultModelAndView(DrillStemTestResultForm form,
                                                           SubmissionDetail submissionDetail) {
     var modelAndView =  new ModelAndView("remi/submissiondetails/drillstemtest/drillStemTestResult")
-        .addObject("form", form);
+        .addObject("form", form)
+        .addObject("cancelUrl", ReverseRouter.route(on(DrillStemTestSummaryController.class)
+            .getDrillStemTestSummaryPage(submissionDetail.getId())));
 
     var breadCrumbs = getBreadcrumbs(submissionDetail);
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadCrumbs);

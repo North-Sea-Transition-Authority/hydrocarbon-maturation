@@ -12,6 +12,11 @@
   breadcrumbsMap=breadcrumbsMap>
   <@fdsForm.htmlForm>
     <@fdsTextInput.textInput
+      path="form.testNumber"
+      labelText="Test number"
+      inputClass="govuk-input--width-5"
+      hintText="As recorded in the composite log on the final well report"/>
+    <@fdsTextInput.textInput
       path="form.formationName"
       labelText="Formation name"
       inputClass="govuk-input--width-20"/>
@@ -69,6 +74,10 @@
       labelText="Comments and interpretation"
       hintText="For example, evidence of depletion, connected volumes, or KH"/>
 
-    <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
+    <@fdsAction.submitButtons
+      primaryButtonText="Save and complete"
+      secondaryLinkText="Cancel"
+      linkSecondaryAction=true
+      linkSecondaryActionUrl="${springUrl(cancelUrl)}"/>
   </@fdsForm.htmlForm>
 </@defaultPage>

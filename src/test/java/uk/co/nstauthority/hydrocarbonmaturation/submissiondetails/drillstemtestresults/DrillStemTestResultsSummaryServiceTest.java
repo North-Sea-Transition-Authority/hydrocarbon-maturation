@@ -111,7 +111,7 @@ class DrillStemTestResultsSummaryServiceTest {
 
     assertThat(result.drillStemTestResultSummaryViews().get(0))
         .extracting(
-            DrillStemTestResultSummaryView::resultNumber,
+            DrillStemTestResultSummaryView::testNumber,
             DrillStemTestResultSummaryView::formationName,
             DrillStemTestResultSummaryView::topDepth,
             DrillStemTestResultSummaryView::bottomDepth,
@@ -126,7 +126,7 @@ class DrillStemTestResultsSummaryServiceTest {
             DrillStemTestResultSummaryView::changeUrl,
             DrillStemTestResultSummaryView::deleteUrl)
         .containsExactly(
-            "1",
+            "1a",
             "formation",
             "1 ft tvdss",
             "10 ft tvdss",
@@ -169,7 +169,7 @@ class DrillStemTestResultsSummaryServiceTest {
 
     assertThat(result.drillStemTestResultSummaryViews().get(0))
         .extracting(
-            DrillStemTestResultSummaryView::resultNumber,
+            DrillStemTestResultSummaryView::testNumber,
             DrillStemTestResultSummaryView::formationName,
             DrillStemTestResultSummaryView::topDepth,
             DrillStemTestResultSummaryView::bottomDepth,
@@ -184,7 +184,7 @@ class DrillStemTestResultsSummaryServiceTest {
             DrillStemTestResultSummaryView::changeUrl,
             DrillStemTestResultSummaryView::deleteUrl)
         .containsExactly(
-            "1",
+            "1a",
             "formation",
             "1 ft tvdss",
             "10 ft tvdss",
@@ -204,7 +204,7 @@ class DrillStemTestResultsSummaryServiceTest {
 
     assertThat(result.drillStemTestResultSummaryViews().get(1))
         .extracting(
-            DrillStemTestResultSummaryView::resultNumber,
+            DrillStemTestResultSummaryView::testNumber,
             DrillStemTestResultSummaryView::formationName,
             DrillStemTestResultSummaryView::topDepth,
             DrillStemTestResultSummaryView::bottomDepth,

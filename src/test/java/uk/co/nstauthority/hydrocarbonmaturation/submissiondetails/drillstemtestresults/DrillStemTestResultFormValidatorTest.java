@@ -1,11 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
@@ -55,7 +59,7 @@ class DrillStemTestResultFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     drillStemTestResultFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+        form, bindingResult, new DrillStemTestResultFormValidatorHints(List.of("1", "2")));
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -67,12 +71,13 @@ class DrillStemTestResultFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     drillStemTestResultFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+        form, bindingResult, new DrillStemTestResultFormValidatorHints(List.of("1", "2")));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
+            entry("testNumber", Set.of("testNumber.required")),
             entry("formationName", Set.of("formationName.required")),
             entry("topDepth.decimalInputValue", Set.of("topDepth.decimalInputValue.required")),
             entry("bottomDepth.decimalInputValue", Set.of("bottomDepth.decimalInputValue.required")),
@@ -85,6 +90,24 @@ class DrillStemTestResultFormValidatorTest {
         );
   }
 
+  @Test
+  void validate_whenValidForm_whenNonUniqueTestNumber_thenValidationErrors() {
+    var form = getValidForm();
+    form.setTestNumber("1");
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    drillStemTestResultFormValidator.validate(
+        form, bindingResult, new DrillStemTestResultFormValidatorHints(List.of("1", "2")));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("testNumber", Set.of("testNumber.notUnique"))
+        );
+  }
+
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void validate_whenWronglyFilledForm_thenValidationErrors(ValidationType validationType) {
@@ -93,7 +116,7 @@ class DrillStemTestResultFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     drillStemTestResultFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+        form, bindingResult, new DrillStemTestResultFormValidatorHints(List.of("1", "2")));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -110,15 +133,14 @@ class DrillStemTestResultFormValidatorTest {
         );
   }
 
-  @ParameterizedTest
-  @EnumSource(ValidationType.class)
-  void validate_whenWronglyDecimalPoints_thenValidationErrors(ValidationType validationType) {
+  @Test
+  void validate_whenWronglyDecimalPoints_thenValidationErrors() {
     var form = getFormWithWrongDecimalPointValues();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     drillStemTestResultFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+        form, bindingResult, new DrillStemTestResultFormValidatorHints(List.of()));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -135,6 +157,29 @@ class DrillStemTestResultFormValidatorTest {
         );
   }
 
+  @Test
+  void validate_whenHintsNotProvided_assertThrows() {
+    var form = new DrillStemTestResultForm();
+    var bindingResult = ReverseRouter.emptyBindingResult();
+
+    assertThatThrownBy(() -> drillStemTestResultFormValidator.validate(form, bindingResult))
+        .isExactlyInstanceOf(ActionNotAllowedException.class)
+        .hasMessage("You must provide DrillStemTestResultFormValidatorHints");
+  }
+
+  @Test
+  void validate_whenWrongHintsProvided_assertThrows() {
+    var form = new DrillStemTestResultForm();
+    var hints = new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail);
+    var bindingResult = ReverseRouter.emptyBindingResult();
+    assertThatThrownBy(() -> drillStemTestResultFormValidator.validate(
+        form,
+        bindingResult,
+        hints))
+        .isExactlyInstanceOf(IllegalStateException.class)
+        .hasMessage("Cannot get DrillStemTestResultFormValidatorHints");
+  }
+
   private DrillStemTestResultForm getFormWithWrongDecimalPointValues() {
     var form = new DrillStemTestResultForm();
     form.setBhfp(DecimalInput.createDecimalInput(BigDecimal.valueOf(2.5)));
@@ -147,6 +192,7 @@ class DrillStemTestResultFormValidatorTest {
     form.setTopDepth(DecimalInput.createDecimalInput(BigDecimal.valueOf(2.555)));
     form.setCommentsInterpretation("comment");
     form.setFormationName("name");
+    form.setTestNumber("2a");
     return form;
   }
 
@@ -162,6 +208,7 @@ class DrillStemTestResultFormValidatorTest {
     form.setTopDepth(DecimalInput.createDecimalInput(-1));
     form.setCommentsInterpretation("comment");
     form.setFormationName("name");
+    form.setTestNumber("2a");
     return form;
   }
 

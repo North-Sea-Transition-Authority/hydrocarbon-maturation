@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.validationutil;
 
 import java.util.Arrays;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResultFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberEditRolesValidatorHints;
 
 public class SubmissionFormValidationUtils {
@@ -16,6 +17,14 @@ public class SubmissionFormValidationUtils {
         .map(SubmissionFormValidatorHints.class::cast)
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("Cannot get SubmissionFormValidatorHints"));
+  }
+
+  public static DrillStemTestResultFormValidatorHints extractDrillStemTestResultFormHints(Object[] hints) {
+    return Arrays.stream(hints)
+        .filter(DrillStemTestResultFormValidatorHints.class::isInstance)
+        .map(DrillStemTestResultFormValidatorHints.class::cast)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Cannot get DrillStemTestResultFormValidatorHints"));
   }
 
   public static TeamMemberEditRolesValidatorHints extractEditRolesValidatorHints(Object[] validationHints) {

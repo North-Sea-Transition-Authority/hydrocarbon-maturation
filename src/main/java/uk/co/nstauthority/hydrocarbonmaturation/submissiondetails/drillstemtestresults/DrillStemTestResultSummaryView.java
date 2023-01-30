@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults;
 
-public record DrillStemTestResultSummaryView(String resultNumber,
+public record DrillStemTestResultSummaryView(String testNumber,
                                              String formationName,
                                              String topDepth,
                                              String bottomDepth,
