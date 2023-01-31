@@ -14,7 +14,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.configuration.JooqSchemaProvider
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
 @Service
@@ -78,7 +77,7 @@ class SubmissionWorkAreaQueryService {
   private Condition getSubmissionsForTeam() {
     var user = userDetailService.getUserDetail();
 
-    List<TeamRole> roles = teamMemberService.getUserAsTeamMembers(user)
+    var roles = teamMemberService.getUserAsTeamMembers(user)
         .stream()
         .flatMap(teamMember -> teamMember.roles().stream())
         .toList();

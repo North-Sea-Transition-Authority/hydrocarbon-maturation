@@ -18,10 +18,14 @@ class SubmissionWorkAreaQueryResult {
   private final Timestamp createdOn;
   private final Timestamp submittedOn;
 
-  SubmissionWorkAreaQueryResult(UUID submissionDetailId, String submissionType,
-                                String status, String resourceName,
-                                String centreOfInterestQuadBlock, Integer organisationResponsibleId,
-                                List<Integer> licencesTheResourceIsOn, Timestamp createdOn,
+  SubmissionWorkAreaQueryResult(UUID submissionDetailId,
+                                String submissionType,
+                                String status,
+                                String resourceName,
+                                String centreOfInterestQuadBlock,
+                                Integer organisationResponsibleId,
+                                List<Integer> licencesTheResourceIsOn,
+                                Timestamp createdOn,
                                 Timestamp submittedOn) {
     this.submissionDetailId = submissionDetailId;
     this.submissionType = SubmissionType.valueOf(submissionType);
