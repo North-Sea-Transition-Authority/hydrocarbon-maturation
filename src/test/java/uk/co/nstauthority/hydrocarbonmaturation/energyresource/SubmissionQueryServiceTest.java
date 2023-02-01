@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -55,6 +56,9 @@ class SubmissionQueryServiceTest {
 
   @Mock
   private PermissionService permissionService;
+
+  @Mock
+  private OrganisationUnitQueryService organisationUnitQueryService;
 
   @InjectMocks
   private SubmissionQueryService submissionQueryService;
@@ -404,9 +408,13 @@ class SubmissionQueryServiceTest {
       when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(
           generalDetailForResourceForRelinquishment.getSubmissionDetail()))
           .thenReturn(Optional.empty());
-      when(industryTeamService.isSubmitterForOrganisationUnit(
-          any(), eq(generalDetailForResourceForRelinquishment.getOrganisationId())))
+      when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(
+          generalDetailForResourceForRelinquishment.getOrganisationId()))
+          .thenReturn(List.of(1,2));
+      when(industryTeamService.isSubmitterForOrganisationGroups(
+          any(), eq(List.of(1,2))))
           .thenReturn(true);
+
     }
 
     var result =
@@ -484,9 +492,9 @@ class SubmissionQueryServiceTest {
     when(generalDetailsPersistenceService.getGeneralDetailOrThrow(
         generalDetailForResourceForRelinquishment.getSubmissionDetail()))
         .thenReturn(generalDetailForResourceForRelinquishment);
-    when(industryTeamService.isSubmitterForOrganisationUnit(
-        any(), eq(generalDetailForResourceForRelinquishment.getOrganisationId())))
+    when(permissionService.hasPermission(any(), eq(Set.of(RolePermission.EXPLORATION))))
         .thenReturn(true);
+
     var result =
         submissionQueryService.getLatestDiscoveriesByNameForSubmissionType(searchTerm,
             SubmissionType.RELINQUISHMENT_DISCOVERY);
@@ -531,8 +539,11 @@ class SubmissionQueryServiceTest {
     when(generalDetailsPersistenceService.getGeneralDetailOrThrow(
         generalDetailForResourceForRelinquishment.getSubmissionDetail()))
         .thenReturn(generalDetailForResourceForRelinquishment);
-    when(industryTeamService.isSubmitterForOrganisationUnit(
-        any(), eq(generalDetailForResourceForRelinquishment.getOrganisationId())))
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(
+        generalDetailForResourceForRelinquishment.getOrganisationId()))
+        .thenReturn(List.of(1,2));
+    when(industryTeamService.isSubmitterForOrganisationGroups(
+        any(), eq(List.of(1,2))))
         .thenReturn(true);
 
 
@@ -736,6 +747,8 @@ class SubmissionQueryServiceTest {
     var deletedDiscoverySubmission = SubmissionDetailTestUtils
         .createSubmissionDetail(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     deletedDiscoverySubmission.setStatus(SubmissionDetailStatus.DELETED);
+    when(permissionService.hasPermission(any(), eq(Set.of(RolePermission.EXPLORATION))))
+        .thenReturn(true);
     when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm))
         .thenReturn(List.of(generalDetails.getSubmissionDetail().getResourceId()));
     when(submissionDetailService
@@ -753,11 +766,6 @@ class SubmissionQueryServiceTest {
         .thenReturn(List.of(deletedDiscoverySubmission));
     when(generalDetailsPersistenceService.getGeneralDetailOrThrow(generalDetails.getSubmissionDetail()))
         .thenReturn(generalDetails);
-    if (submissionType== SubmissionType.RELINQUISHMENT_PROSPECT
-        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
-      when(industryTeamService.isSubmitterForOrganisationUnit(any(), eq(generalDetails.getOrganisationId())))
-          .thenReturn(true);
-    }
     var result =
         submissionQueryService.getLatestProspectsByNameForSubmissionType(searchTerm,
             submissionType);
@@ -820,9 +828,9 @@ class SubmissionQueryServiceTest {
         .thenReturn(List.of(generalDetails.getSubmissionDetail()));
     when(generalDetailsPersistenceService.getGeneralDetailOrThrow(generalDetails.getSubmissionDetail()))
         .thenReturn(generalDetails);
-    when(industryTeamService.isSubmitterForOrganisationUnit(
-        any(), eq(generalDetails.getOrganisationId())))
-        .thenReturn(false);
+//    when(industryTeamService.isSubmitterForOrganisationGroups(
+//        any(), eq(List.of(1,2))))
+//        .thenReturn(false);
 
     var result =
         submissionQueryService.getLatestDiscoveriesByNameForSubmissionType(searchTerm,

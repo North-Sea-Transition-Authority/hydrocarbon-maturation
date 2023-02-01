@@ -5,11 +5,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -30,6 +32,7 @@ public class SubmissionQueryService {
   private final UserDetailService userDetailService;
   private final IndustryTeamService industryTeamService;
   private final PermissionService permissionService;
+  private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
   SubmissionQueryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
@@ -38,7 +41,7 @@ public class SubmissionQueryService {
                          ResourceLinkService resourceLinkService,
                          UserDetailService userDetailService,
                          IndustryTeamService industryTeamService,
-                         PermissionService permissionService) {
+                         PermissionService permissionService, OrganisationUnitQueryService organisationUnitQueryService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.submissionDetailService = submissionDetailService;
@@ -46,6 +49,7 @@ public class SubmissionQueryService {
     this.userDetailService = userDetailService;
     this.industryTeamService = industryTeamService;
     this.permissionService = permissionService;
+    this.organisationUnitQueryService = organisationUnitQueryService;
   }
 
   public List<ResourceView> getLatestDiscoveriesByNameForSubmissionType(String name,
@@ -61,37 +65,7 @@ public class SubmissionQueryService {
             .flatMap(Optional::stream)
             .filter(detail -> filterDiscoverySubmissionByOtherSubmissions(detail, submissionType));
 
-    var user = userDetailService.getUserDetail();
-
-    //Gets the list of resource views for discoveries to be displayed in a search selector.
-    return latestSubmissionsWhichCanBeSubmittedUpon
-        .map(generalDetailsPersistenceService::getGeneralDetailOrThrow)
-        .filter(generalDetail -> filterByResponsibleOrganisation(user, generalDetail, submissionType))
-        .map(this::getResourceViewFromGeneralDetail)
-        .sorted(Comparator.comparing(ResourceView::getSelectionText))
-        .toList();
-  }
-
-  /**
-   * This filters out the resource if the user is not part of the team for the responsible organisation
-   * for the resource. Discovery and prospect relinquishment submissions can only be made by the responsible organisation.
-   * Or by the NSTA in the Exploration team.
-   */
-  private boolean filterByResponsibleOrganisation(
-      ServiceUserDetail user, GeneralDetail generalDetail, SubmissionType submissionType) {
-    if (permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION))) {
-      // NSTA users in the exploration team can relinquish exploration resources.
-      return true;
-    }
-
-    if (generalDetail.getOrganisationId() != null
-        && (submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
-        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT)) {
-      var responsibleOrganisationId = generalDetail.getOrganisationId();
-      return industryTeamService.isSubmitterForOrganisationUnit(user, responsibleOrganisationId);
-    }
-    return submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
-        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT;
+    return getResourceViewsForSubmissions(latestSubmissionsWhichCanBeSubmittedUpon, submissionType);
   }
 
   public List<ResourceView> getLatestProspectsByNameForSubmissionType(String name, SubmissionType submissionType) {
@@ -107,14 +81,44 @@ public class SubmissionQueryService {
             .flatMap(Optional::stream)
             .filter(detail -> filterProspectSubmissionByOtherSubmissions(detail, submissionType));
 
+    return getResourceViewsForSubmissions(latestSubmissionsWhichCanBeSubmittedUpon, submissionType);
+  }
+
+  private List<ResourceView> getResourceViewsForSubmissions(
+      Stream<SubmissionDetail> submissionDetailStream,
+      SubmissionType submissionType) {
     var user = userDetailService.getUserDetail();
+    var isExplorationTeam = permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION));
+
     //Gets the list of resource views for prospects to be displayed in a search selector
-    return latestSubmissionsWhichCanBeSubmittedUpon
+    return submissionDetailStream
         .map(generalDetailsPersistenceService::getGeneralDetailOrThrow)
-        .filter(generalDetail -> filterByResponsibleOrganisation(user, generalDetail, submissionType))
+        .filter(generalDetail -> isExplorationTeam
+            || filterByResponsibleOrganisation(user, generalDetail, submissionType))
         .map(this::getResourceViewFromGeneralDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();
+  }
+
+  /**
+   * This filters out the resource if the user is not part of the team for the responsible organisation
+   * for the resource. Discovery and prospect relinquishment submissions can only be made by the responsible organisation.
+   * Or by the NSTA in the Exploration team.
+   */
+  private boolean filterByResponsibleOrganisation(
+      ServiceUserDetail user, GeneralDetail generalDetail, SubmissionType submissionType) {
+    if (generalDetail.getOrganisationId() != null
+        && (submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT)) {
+      var responsibleOrganisationId = generalDetail.getOrganisationId();
+      var organisationGroupsIds = organisationUnitQueryService
+          .findOrganisationGroupIdsByUnitId(responsibleOrganisationId);
+      if (!organisationGroupsIds.isEmpty()) {
+        return industryTeamService.isSubmitterForOrganisationGroups(user, organisationGroupsIds);
+      }
+    }
+    return submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
+        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT;
   }
 
   /**

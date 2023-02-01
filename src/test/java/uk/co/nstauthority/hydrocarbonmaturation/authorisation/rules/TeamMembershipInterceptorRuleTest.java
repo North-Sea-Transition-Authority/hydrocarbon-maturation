@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
@@ -37,6 +39,9 @@ class TeamMembershipInterceptorRuleTest {
 
   @Mock
   private ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+
+  @Mock
+  private OrganisationUnitQueryService organisationUnitQueryService;
 
   @Mock
   private IndustryTeamService industryTeamService;
@@ -89,7 +94,9 @@ class TeamMembershipInterceptorRuleTest {
     generalDetail.setOrganisationId(1);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
-    when(industryTeamService.isSubmitterForOrganisationUnit(user, generalDetail.getOrganisationId()))
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(generalDetail.getOrganisationId()))
+        .thenReturn(List.of(1));
+    when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(true);
     var securityRuleResult = teamMembershipInterceptorRule
         .check(
@@ -117,7 +124,9 @@ class TeamMembershipInterceptorRuleTest {
     generalDetail.setOrganisationId(1);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
-    when(industryTeamService.isSubmitterForOrganisationUnit(user, generalDetail.getOrganisationId()))
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(generalDetail.getOrganisationId()))
+        .thenReturn(List.of(1));
+    when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(false);
     var securityRuleResult = teamMembershipInterceptorRule
         .check(
@@ -144,7 +153,9 @@ class TeamMembershipInterceptorRuleTest {
     generalDetail.setOrganisationId(1);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
-    when(industryTeamService.isSubmitterForOrganisationUnit(user, generalDetail.getOrganisationId()))
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(generalDetail.getOrganisationId()))
+        .thenReturn(List.of(1));
+    when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(false);
     var securityRuleResult = teamMembershipInterceptorRule
         .check(

@@ -49,6 +49,14 @@ public class TeamService {
     return teamRepository.findByOrganisationGroupId(organisationGroupId);
   }
 
+  public List<Integer> getOrganisationGroupsUserIsTeamMemberOf(ServiceUserDetail user) {
+    return teamMemberRoleRepository.findAllByWuaId(user.wuaId())
+        .stream()
+        .map(teamMemberRole -> teamMemberRole.getTeam().getOrganisationGroupId())
+        .distinct()
+        .toList();
+  }
+
   public List<Team> getAllTeams() {
     return teamRepository.findAll();
   }

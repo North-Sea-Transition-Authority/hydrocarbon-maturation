@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.RegulatorResponsibleTeamInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.TeamMembershipInterceptorRule;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
@@ -48,6 +50,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
 
   @MockBean
   protected ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+
+  @MockBean
+  protected OrganisationUnitQueryService organisationUnitQueryService;
 
   @MockBean
   protected IndustryTeamService industryTeamService;
@@ -82,7 +87,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     generalDetail.setOrganisationId(1);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
-    when(industryTeamService.isSubmitterForOrganisationUnit(user, 1))
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(generalDetail.getOrganisationId()))
+        .thenReturn(List.of(1));
+    when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(true);
   }
 
@@ -111,7 +118,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     generalDetail.setOrganisationId(1);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
-    when(industryTeamService.isSubmitterForOrganisationUnit(user, 1))
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(generalDetail.getOrganisationId()))
+        .thenReturn(List.of(1));
+    when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(false);
   }
 }

@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
@@ -23,17 +23,14 @@ public class IndustryTeamService {
   private final TeamService teamService;
   private final TeamMemberService teamMemberService;
   private final TeamMemberRoleService teamMemberRoleService;
-  private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
   IndustryTeamService(TeamService teamService,
                       TeamMemberService teamMemberService,
-                      TeamMemberRoleService teamMemberRoleService,
-                      OrganisationUnitQueryService organisationUnitQueryService) {
+                      TeamMemberRoleService teamMemberRoleService) {
     this.teamService = teamService;
     this.teamMemberService = teamMemberService;
     this.teamMemberRoleService = teamMemberRoleService;
-    this.organisationUnitQueryService = organisationUnitQueryService;
   }
 
   public boolean isAccessManager(TeamId teamId, ServiceUserDetail user) {
@@ -56,12 +53,11 @@ public class IndustryTeamService {
     teamMemberRoleService.addUserTeamRoles(team, userToAdd, rolesAsStrings);
   }
 
-  public boolean isSubmitterForOrganisationUnit(
+  public boolean isSubmitterForOrganisationGroups(
       ServiceUserDetail user,
-      Integer organisationUnitId) {
-    var organisationGroupsIds = organisationUnitQueryService
-        .findOrganisationGroupIdsByUnitId(organisationUnitId);
-    return organisationGroupsIds
+      List<Integer> organisationGroupIds) {
+
+    return organisationGroupIds
         .stream()
         .map(this::getTeamByOrganisationGroupId)
         .flatMap(Optional::stream)
@@ -84,4 +80,7 @@ public class IndustryTeamService {
     return teamService.getTeamByOrganisationGroupId(organisationGroupId);
   }
 
+  public List<Integer> getOrganisationGroupIdsForUser(ServiceUserDetail user) {
+    return teamService.getOrganisationGroupsUserIsTeamMemberOf(user);
+  }
 }

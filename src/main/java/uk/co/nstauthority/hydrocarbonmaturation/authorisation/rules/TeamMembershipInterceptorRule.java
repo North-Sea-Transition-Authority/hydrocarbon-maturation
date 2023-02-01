@@ -12,6 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
@@ -27,16 +28,19 @@ public class TeamMembershipInterceptorRule implements SubmissionInterceptorSecur
   private final PermissionService permissionService;
   private final ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
   private final IndustryTeamService industryTeamService;
+  private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
   public TeamMembershipInterceptorRule(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                        PermissionService permissionService,
                                        ResponsibleTeamPersistenceService responsibleTeamPersistenceService,
-                                       IndustryTeamService industryTeamService) {
+                                       IndustryTeamService industryTeamService,
+                                       OrganisationUnitQueryService organisationUnitQueryService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.permissionService = permissionService;
     this.responsibleTeamPersistenceService = responsibleTeamPersistenceService;
     this.industryTeamService = industryTeamService;
+    this.organisationUnitQueryService = organisationUnitQueryService;
   }
 
   @Override
@@ -61,8 +65,10 @@ public class TeamMembershipInterceptorRule implements SubmissionInterceptorSecur
         .getGeneralDetailBySubmissionDetail(submissionDetail)
         .map(GeneralDetail::getOrganisationId)
         .orElse(null);
+    var organisationGroups = organisationUnitQueryService
+        .findOrganisationGroupIdsByUnitId(responsibleOrganisationId);
     if (responsibleOrganisationId != null
-        && industryTeamService.isSubmitterForOrganisationUnit(userDetails, responsibleOrganisationId)) {
+        && industryTeamService.isSubmitterForOrganisationGroups(userDetails, organisationGroups)) {
       return SecurityRuleResult.continueAsNormal();
     }
 

@@ -4,6 +4,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecta
 
 class OrganisationUnitDto implements SearchSelectable {
   private Integer organisationUnitId;
+
   private String organisationUnitName;
   private String companyHouseNumber;
 

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -149,58 +150,77 @@ class IndustryTeamServiceTest {
   @Test
   void isSubmitterForOrganisationUnit_verifyMethodCalls() {
     var user = ServiceUserDetailTestUtil.Builder().build();
-    var organisationUnitId = 1;
-    var team = mock(Team.class);
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(organisationUnitId))
-        .thenReturn(List.of(1,2,3));
-    when(industryTeamService.getTeamByOrganisationGroupId(1))
+    var team = TeamTestUtil.Builder().build();
+    when(teamService.getTeamByOrganisationGroupId(1))
         .thenReturn(Optional.of(team));
-    when(industryTeamService.getTeamByOrganisationGroupId(2))
-        .thenReturn(Optional.of(team));
-    when(industryTeamService.getTeamByOrganisationGroupId(3))
-        .thenReturn(Optional.of(team));
-    var teamId = new TeamId(UUID.randomUUID());
-    when(team.toTeamId())
-        .thenReturn(teamId);
-    industryTeamService.isSubmitterForOrganisationUnit(user, organisationUnitId);
+    industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1,2,3));
+    verify(teamMemberService).isMemberOfTeamWithAnyRoleOf(team.toTeamId(),
+        user,
+        Set.of(IndustryTeamRole.SUBMITTER.name()));
+    verify(teamService).getTeamByOrganisationGroupId(1);
+    verify(teamService).getTeamByOrganisationGroupId(2);
+    verify(teamService).getTeamByOrganisationGroupId(3);
 
-    verify(teamMemberService, times(3))
-        .isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of("SUBMITTER"));
   }
 
   @Test
   void isSubmitterForOrganisationUnit_whenSubmitter_assertTrue() {
     var user = ServiceUserDetailTestUtil.Builder().build();
-    var organisationUnitId = 1;
     var team = mock(Team.class);
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(organisationUnitId))
-        .thenReturn(List.of(1,2));
-    when(industryTeamService.getTeamByOrganisationGroupId(1))
-        .thenReturn(Optional.of(team));
     var teamId = new TeamId(UUID.randomUUID());
-    when(team.toTeamId())
-        .thenReturn(teamId);
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of("SUBMITTER")))
-        .thenReturn(true);
+    when(team.toTeamId()).thenReturn(teamId);
+    when(teamService.getTeamByOrganisationGroupId(1))
+        .thenReturn(Optional.of(team));
 
-    assertTrue(industryTeamService.isSubmitterForOrganisationUnit(user, organisationUnitId));
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.SUBMITTER.name())))
+        .thenReturn(true);
+    assertTrue(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1, 2)));
   }
 
   @Test
   void isSubmitterForOrganisationUnit_whenNotSubmitter_assertFalse() {
     var user = ServiceUserDetailTestUtil.Builder().build();
-    var organisationUnitId = 1;
-    var team = mock(Team.class);
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(organisationUnitId))
-        .thenReturn(List.of(1,2));
-    when(industryTeamService.getTeamByOrganisationGroupId(1))
-        .thenReturn(Optional.of(team));
     var teamId = new TeamId(UUID.randomUUID());
-    when(team.toTeamId())
-        .thenReturn(teamId);
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of("SUBMITTER")))
-        .thenReturn(false);
+    var team = mock(Team.class);
+    when(team.toTeamId()).thenReturn(teamId);
 
-    assertFalse(industryTeamService.isSubmitterForOrganisationUnit(user, organisationUnitId));
+    when(teamService.getTeamByOrganisationGroupId(1))
+        .thenReturn(Optional.of(team));
+    when(teamService.getTeamByOrganisationGroupId(2))
+        .thenReturn(Optional.of(team));
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.SUBMITTER.name())))
+        .thenReturn(false);
+    assertFalse(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1, 2)));
+  }
+
+  @Test
+  void isSubmitterForOrganisationUnit_whenNotMemberOfTeam_assertFalse() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+
+    when(teamService.getTeamByOrganisationGroupId(1))
+        .thenReturn(Optional.empty());
+    when(teamService.getTeamByOrganisationGroupId(2))
+        .thenReturn(Optional.empty());
+
+    assertFalse(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1, 2)));
+    verifyNoInteractions(teamMemberService);
+  }
+
+  @Test
+  void getOrganisationGroupIdsForUser_verifyMethodCall() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+    industryTeamService.getOrganisationGroupIdsForUser(user);
+
+    verify(teamService).getOrganisationGroupsUserIsTeamMemberOf(user);
+  }
+
+  @Test
+  void getOrganisationGroupIdsForUser_assertReturn() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+    var expectedResult = List.of(1,2);
+    when(teamService.getOrganisationGroupsUserIsTeamMemberOf(user))
+        .thenReturn(expectedResult);
+    var result = industryTeamService.getOrganisationGroupIdsForUser(user);
+    assertThat(result).isEqualTo(expectedResult);
   }
 }

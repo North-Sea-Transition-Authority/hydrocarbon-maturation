@@ -19,6 +19,15 @@ public class OrganisationGroupQueryService {
   public static final OrganisationGroupProjectionRoot ORGANISATION_GROUP_PROJECTION_ROOT = new OrganisationGroupProjectionRoot()
       .organisationGroupId()
       .name();
+  public static final OrganisationGroupsProjectionRoot ORGANISATION_GROUPS_UNITS_PROJECTION_ROOT =
+      new OrganisationGroupsProjectionRoot()
+          .organisationGroupId()
+          .name()
+          .organisationUnits()
+          .organisationUnitId()
+          .name()
+          .registeredNumber()
+          .root();
   private final OrganisationApi organisationApi;
   private final EnergyPortalApiWrapper energyPortalApiWrapper;
 
@@ -32,6 +41,14 @@ public class OrganisationGroupQueryService {
     return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
         organisationApi.searchOrganisationGroups(name, ORGANISATION_GROUPS_PROJECTION_ROOT, requestPurpose)).stream()
         .map(this::fromOrganisationGroup)
+        .toList();
+  }
+
+  public List<OrganisationGroup> getOrganisationGroupsByIds(List<Integer> organisationGroups) {
+    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) -> organisationApi
+        .getAllOrganisationGroupsByIds(
+            organisationGroups, ORGANISATION_GROUPS_UNITS_PROJECTION_ROOT, requestPurpose))
+        .stream()
         .toList();
   }
 

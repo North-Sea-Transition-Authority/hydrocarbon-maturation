@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +17,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class OrganisationUnitQueryServiceTest {
@@ -28,6 +33,7 @@ class OrganisationUnitQueryServiceTest {
       "name",
       "mnemonic"
   );
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
   private static final Integer ORGANISATION_UNIT_ID = 1;
   private static final String ORGANISATION_UNIT_NAME = "Fivium";
   private static final String ORGANISATION_COMPANY_NUMBER = "15";
@@ -35,35 +41,67 @@ class OrganisationUnitQueryServiceTest {
   @Mock
   private static OrganisationApi organisationApi;
 
+  @Mock
+  private UserDetailService userDetailService;
+
+  @Mock
+  private IndustryTeamService industryTeamService;
+
+  @Mock
+  private RegulatorTeamService regulatorTeamService;
+
+  @Mock
+  private OrganisationGroupQueryService organisationGroupQueryService;
+
   private OrganisationUnitQueryService organisationUnitQueryService;
 
   @BeforeEach
   void setUp() {
     organisationUnitQueryService = new OrganisationUnitQueryService(
         organisationApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties));
+        new EnergyPortalApiWrapper(serviceConfigurationProperties),
+        userDetailService,
+        industryTeamService,
+        regulatorTeamService,
+        organisationGroupQueryService);
   }
 
   @Test
-  void getOrganisationUnits_whenNoOrganisationsFound() {
+  void getOrganisationUnits_whenNotRegulator_whenNoOrganisationsFound() {
     var organisationName = "name";
-    var filter = OrganisationUnitQueryService.ORGANISATION_UNITS_PROJECTION_ROOT;
-    when(organisationApi.searchOrganisationUnits(
-        eq(organisationName),
-        eq(filter),
-        any(),
-        any()
-    )).thenReturn(Collections.emptyList());
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(industryTeamService.getOrganisationGroupIdsForUser(USER))
+        .thenReturn(List.of());
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(false);
 
-    assertTrue(organisationUnitQueryService.getOrganisationSearchableResults(organisationName).isEmpty());
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+        .isEmpty();
   }
 
   @Test
-  void getOrganisationUnits_whenOrganisationsFound() {
+  void getOrganisationUnits_whenNotRegulator_whenInTeam_whenNoOrganisationUnitsFound() {
+    var organisationName = "name";
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(industryTeamService.getOrganisationGroupIdsForUser(USER))
+        .thenReturn(List.of(1,2));
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(false);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(1,2)))
+        .thenReturn(List.of());
+
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+        .isEmpty();
+  }
+
+  @Test
+  void getOrganisationUnits_whenRegulator_assertOrganisationFound() {
     var organisationName = "name";
     var organisationUnit = OrganisationUnitTestUtil.Builder().build();
     var filter = OrganisationUnitQueryService.ORGANISATION_UNITS_PROJECTION_ROOT;
-
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(true);
     when(organisationApi.searchOrganisationUnits(
         eq(organisationName),
         eq(filter),
@@ -87,6 +125,64 @@ class OrganisationUnitQueryServiceTest {
                 organisationUnit.getOrganisationUnitId().toString()
             )
         );
+  }
+
+  @Test
+  void getOrganisationSearchableResults_whenIndustryOrganisationMember_assertOrganisationFound() {
+    var organisationName = "name";
+    var organisationGroup = new OrganisationGroup();
+    organisationGroup.setOrganisationGroupId(1);
+    var organisationUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationGroups(List.of(organisationGroup))
+        .withOrganisationName("name")
+        .build();
+    organisationGroup.setOrganisationUnits(List.of(organisationUnit));
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(industryTeamService.getOrganisationGroupIdsForUser(USER))
+        .thenReturn(List.of(1));
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(false);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(1)))
+        .thenReturn(List.of(organisationGroup));
+
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+        .extracting(
+            OrganisationUnitDto::getOrganisationUnitId,
+            OrganisationUnitDto::getOrganisationUnitName,
+            OrganisationUnitDto::getCompanyHouseNumber,
+            OrganisationUnitDto::getSelectionText,
+            OrganisationUnitDto::getSelectionId
+        ).containsExactly(
+            tuple(
+                organisationUnit.getOrganisationUnitId(),
+                organisationUnit.getName(),
+                organisationUnit.getRegisteredNumber(),
+                "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber()),
+                organisationUnit.getOrganisationUnitId().toString()
+            )
+        );
+  }
+
+  @Test
+  void getOrganisationSearchableResults_whenWrongNameAndwhenIndustryOrganisationMember_assertNoOrganisationFound() {
+    var organisationName = "name";
+    var organisationGroup = new OrganisationGroup();
+    organisationGroup.setOrganisationGroupId(1);
+    var organisationUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationGroups(List.of(organisationGroup))
+        .withOrganisationName("wrong")
+        .build();
+    organisationGroup.setOrganisationUnits(List.of(organisationUnit));
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(industryTeamService.getOrganisationGroupIdsForUser(USER))
+        .thenReturn(List.of(1));
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(false);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(1)))
+        .thenReturn(List.of(organisationGroup));
+
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+        .isEmpty();
   }
 
   @Test

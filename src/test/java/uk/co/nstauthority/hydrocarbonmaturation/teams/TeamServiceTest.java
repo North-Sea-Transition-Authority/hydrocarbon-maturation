@@ -129,4 +129,22 @@ class TeamServiceTest {
 
     assertThat(result).isTrue();
   }
+
+  @Test
+  void getOrganisationGroupsUserIsTeamMemberOf_assertReturn() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+    var teamMemberRole = new TeamMemberRole();
+    var team = new Team();
+    team.setOrganisationGroupId(1);
+    teamMemberRole.setTeam(team);
+    var teamMemberRole2 = new TeamMemberRole();
+    var team2 = new Team();
+    team2.setOrganisationGroupId(2);
+    teamMemberRole2.setTeam(team2);
+    var listOfOrgGroupIds = List.of(teamMemberRole,teamMemberRole2);
+    when(teamMemberRoleRepository.findAllByWuaId(user.wuaId()))
+        .thenReturn(listOfOrgGroupIds);
+    assertThat(teamService.getOrganisationGroupsUserIsTeamMemberOf(user))
+        .isEqualTo(List.of(1,2));
+  }
 }

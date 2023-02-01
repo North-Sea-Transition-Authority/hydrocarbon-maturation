@@ -123,4 +123,69 @@ class OrganisationGroupQueryServiceTest {
             entry("organisationGroupId", null),
             entry("name", null));
   }
+
+  @Test
+  void getOrganisationGroupsByIds_whenOne_verifyApiCallsAndReturn() {
+    var organisationGroup = new OrganisationGroup(
+        1,
+        "Royal Dutch Shell",
+        "Shell",
+        "shell.com",
+        "ACTIVE",
+        Collections.emptyList());
+
+    when(organisationApi.getAllOrganisationGroupsByIds(
+        eq(List.of(organisationGroup.getOrganisationGroupId())),
+        any(OrganisationGroupsProjectionRoot.class),
+        any(RequestPurpose.class)))
+        .thenReturn(List.of(organisationGroup));
+
+    var returnedOrganisations = organisationGroupQueryService
+        .getOrganisationGroupsByIds(List.of(1));
+
+    verify(organisationApi).getAllOrganisationGroupsByIds(
+        eq(List.of(organisationGroup.getOrganisationGroupId())),
+        any(),
+        any(RequestPurpose.class));
+
+    assertThat(returnedOrganisations)
+        .isEqualTo(List.of(organisationGroup));
+  }
+
+  @Test
+  void getOrganisationGroupsByIds_whenTwo_verifyApiCallsAndReturn() {
+    var organisationGroup = new OrganisationGroup(
+        1,
+        "Royal Dutch Shell",
+        "Shell",
+        "shell.com",
+        "ACTIVE",
+        Collections.emptyList());
+
+    var organisationGroup2 = new OrganisationGroup(
+        2,
+        "Royal Dutch Shell",
+        "Shell",
+        "shell.com",
+        "ACTIVE",
+        Collections.emptyList());
+
+    when(organisationApi.getAllOrganisationGroupsByIds(
+        eq(List.of(organisationGroup.getOrganisationGroupId(), organisationGroup2.getOrganisationGroupId())),
+        any(OrganisationGroupsProjectionRoot.class),
+        any(RequestPurpose.class)))
+        .thenReturn(List.of(organisationGroup, organisationGroup2));
+
+    var returnedOrganisations = organisationGroupQueryService
+        .getOrganisationGroupsByIds(List.of(1, 2));
+
+    verify(organisationApi).getAllOrganisationGroupsByIds(
+        eq(List.of(organisationGroup.getOrganisationGroupId(),
+            organisationGroup2.getOrganisationGroupId())),
+        any(),
+        any(RequestPurpose.class));
+
+    assertThat(returnedOrganisations)
+        .isEqualTo(List.of(organisationGroup, organisationGroup2));
+  }
 }
