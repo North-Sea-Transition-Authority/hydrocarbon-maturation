@@ -116,7 +116,9 @@ public class SubmissionSummaryModelService {
         .addObject("reservoirPropertiesSummaryView",
             postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",
-            prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail));
+            prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("sourceAndSealSummaryView",
+            prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail));
   }
 
   public ModelAndView createDiscoverySubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
@@ -150,7 +152,9 @@ public class SubmissionSummaryModelService {
         .addObject("opportunityDetailsSummaryView",
             prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("discoveryWellDetailsSummaryView",
-            discoverySummaryService.getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(submissionDetail));
+            discoverySummaryService.getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("sourceAndSealSummaryView",
+            prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail));
 
     return addHydrocarbonsDiscoveredToModelAndView(submissionDetail, modelAndView);
   }

@@ -13,6 +13,7 @@
 <#-- @ftlvariable name="reservoirPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView" -->
 <#-- @ftlvariable name="permeabilitySummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView" -->
 <#-- @ftlvariable name="opportunityDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView" -->
+<#-- @ftlvariable name="sourceAndSealSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView" -->
 
 <#if !submittable>
     <#assign notificationBanner>
@@ -42,7 +43,8 @@
           dryWellDetailsSummaryView=dryWellDetailsSummaryView
           reservoirPropertiesSummaryView=reservoirPropertiesSummaryView
           permeabilitySummaryView=permeabilitySummaryView
-          opportunityDetailsSummaryView=opportunityDetailsSummaryView/>
+          opportunityDetailsSummaryView=opportunityDetailsSummaryView
+          sourceAndSealSummaryView=sourceAndSealSummaryView/>
         <#if !submittable>
             <@fdsCheckbox.checkbox
             labelText="I want to complete this submission without providing all the required information"

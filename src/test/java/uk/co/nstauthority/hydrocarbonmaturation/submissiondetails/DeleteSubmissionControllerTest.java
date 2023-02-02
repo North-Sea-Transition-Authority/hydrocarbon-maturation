@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -137,13 +138,16 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
         "connectivity",
         new ArrayList<>(),
         new ArrayList<>());
+    var sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     var opportunityDetailsView = OpportunityDetailsSummaryView.empty();
     var modelAndView = new ModelAndView(VIEW_NAME)
         .addObject("generalDetailsSummaryView", generalDetailSummaryView)
         .addObject("dryWellDetailsSummaryView", dryWellDetailsSummaryView)
         .addObject("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView)
         .addObject("permeabilitySummaryView", permeabilityDetailSummaryView)
-        .addObject("opportunityDetailsSummaryView", opportunityDetailsView);
+        .addObject("opportunityDetailsSummaryView", opportunityDetailsView)
+        .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView);
+
     doReturn(modelAndView).when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(submissionDetail, VIEW_NAME);
   }
 }

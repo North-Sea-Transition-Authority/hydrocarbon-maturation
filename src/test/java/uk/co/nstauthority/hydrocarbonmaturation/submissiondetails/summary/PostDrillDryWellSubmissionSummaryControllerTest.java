@@ -37,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ContextConfiguration(classes = PostDrillDryWellSubmissionSummaryController.class)
@@ -61,6 +62,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
   private PermeabilityDetailSummaryView permeabilityDetailSummaryView;
   private ReservoirPropertiesSummaryView reservoirPropertiesSummaryView;
   private GeneralDetailSummaryView generalDetailSummaryView;
+  private SourceAndSealSummaryView sourceAndSealSummaryView;
   private OpportunityDetailsSummaryView opportunityDetailsSummaryView;
 
   @BeforeEach
@@ -79,6 +81,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         "connectivity",
         new ArrayList<>(),
         new ArrayList<>());
+    sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
   }
 
@@ -171,8 +174,9 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
             entry("permeabilitySummaryView", permeabilityDetailSummaryView),
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
-            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
-
+            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
+            entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
+            entry("generalDetailsSummaryView", generalDetailSummaryView)
         );
   }
 
@@ -183,6 +187,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         .addObject("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView)
         .addObject("permeabilitySummaryView", permeabilityDetailSummaryView)
         .addObject("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
+        .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
         .addObject("submittable", true);
     when(submissionSummaryModelService.createPostDrillDryWellSubmissionSummaryModelAndView(
         submissionDetail,

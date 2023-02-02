@@ -25,6 +25,8 @@
 <#-- @ftlvariable name="mixedCaseOutputsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView" -->
 <#-- @ftlvariable name="drillStemTestSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView" -->
 <#-- @ftlvariable name="opportunityDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView" -->
+<#-- @ftlvariable name="sourceAndSealSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView" -->
+<#-- @ftlvariable name="discoveryWellDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView" -->
 
 <#if !submittable>
     <#assign notificationBanner>
@@ -65,8 +67,9 @@
       mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
       mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
       drillStemTestSummaryView=drillStemTestSummaryView
-      opportunityDetailsSummaryView=opportunityDetailsSummaryView/>
-      discoveryWellDetailSummaryView=discoveryWellDetailsSummaryView/>
+      opportunityDetailsSummaryView=opportunityDetailsSummaryView
+      discoveryWellDetailsSummaryView=discoveryWellDetailsSummaryView
+      sourceAndSealSummaryView=sourceAndSealSummaryView/>
       <#if !submittable>
           <@fdsCheckbox.checkbox
           labelText="I want to complete this submission without providing all the required information"

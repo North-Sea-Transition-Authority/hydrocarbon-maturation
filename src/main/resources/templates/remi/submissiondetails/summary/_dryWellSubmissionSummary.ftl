@@ -5,19 +5,22 @@
 <#import '../../summarylistcards/reservoirPropertiesSummaryCard.ftl' as reservoirPropertiesSummary>
 <#import '../../summarylistcards/generaldetailsSummaryCard.ftl' as generalDetailsSummary>
 <#import '../../summarylistcards/opportunityDetailsSummaryCard.ftl' as opportunityDetailsSummary>
+<#import '../../summarylistcards/sourceAndSealSummaryCard.ftl' as sourceAndSealSummary>
 
 <#macro dryWellSubmissionSummary
   generalDetailsSummaryView
   dryWellDetailsSummaryView
   reservoirPropertiesSummaryView
   permeabilitySummaryView
-  opportunityDetailsSummaryView>
+  opportunityDetailsSummaryView
+  sourceAndSealSummaryView>
     <@fdsAccordion.accordion accordionId="summaryaccordian">
         <@fdsAccordion.accordionSection sectionHeading="General details">
             <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
         </@fdsAccordion.accordionSection>
         <@fdsAccordion.accordionSection sectionHeading="Opportunity" summaryText="Opportunity details, trap properties, source and seal">
           <@opportunityDetailsSummary.opportunityDetailsSummaryCard opportunityDetailsValues=opportunityDetailsSummaryView/>
+          <@sourceAndSealSummary.sourceAndSealCard sourceAndSealValues=sourceAndSealSummaryView/>
         </@fdsAccordion.accordionSection>
         <@fdsAccordion.accordionSection sectionHeading="Post well drill" summaryText="Dry well details">
             <@dryWellSummary.dryWellDetailCard dryWellValues=dryWellDetailsSummaryView/>
