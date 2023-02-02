@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
@@ -136,11 +137,13 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
         "connectivity",
         new ArrayList<>(),
         new ArrayList<>());
+    var opportunityDetailsView = OpportunityDetailsSummaryView.empty();
     var modelAndView = new ModelAndView(VIEW_NAME)
         .addObject("generalDetailsSummaryView", generalDetailSummaryView)
         .addObject("dryWellDetailsSummaryView", dryWellDetailsSummaryView)
         .addObject("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView)
-        .addObject("permeabilitySummaryView", permeabilityDetailSummaryView);
+        .addObject("permeabilitySummaryView", permeabilityDetailSummaryView)
+        .addObject("opportunityDetailsSummaryView", opportunityDetailsView);
     doReturn(modelAndView).when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(submissionDetail, VIEW_NAME);
   }
 }

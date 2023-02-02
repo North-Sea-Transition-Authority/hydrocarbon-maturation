@@ -42,8 +42,7 @@ class PostDrillDryWellSummaryServiceTest {
         dryWellDetailsSummaryService,
         permeabilitySummaryService,
         generalDetailSummaryService,
-        reservoirPropertiesSummaryService
-    );
+        reservoirPropertiesSummaryService);
   }
 
   @Test

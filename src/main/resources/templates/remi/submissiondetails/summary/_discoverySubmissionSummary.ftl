@@ -13,6 +13,7 @@
 <#import '../../summarylistcards/mixedCaseVolumetricsSummaryCard.ftl' as mixedCaseVolumetricsSummary>
 <#import '../../summarylistcards/mixedCaseOutputsSummaryCard.ftl' as mixedCaseOutputsSummary>
 <#import '../../summarylistcards/drillstemtest/drillStemTestSummary.ftl' as drillStemTestSummary>
+<#import '../../summarylistcards/opportunityDetailsSummaryCard.ftl' as opportunityDetailsSummary>
 
 <#macro discoverySubmissionSummary
   generalDetailsSummaryView
@@ -30,11 +31,15 @@
   gasCaseOutputsSummaryView
   mixedCaseVolumetricsSummaryView
   mixedCaseOutputsSummaryView
-  drillStemTestSummaryView>
+  drillStemTestSummaryView
+  opportunityDetailsSummaryView>
   <@fdsAccordion.accordion accordionId="summaryaccordian">
     <@fdsAccordion.accordionSection sectionHeading="General details">
         <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
     </@fdsAccordion.accordionSection>
+      <@fdsAccordion.accordionSection sectionHeading="Opportunity" summaryText="Opportunity details, trap properties, source and seal">
+        <@opportunityDetailsSummary.opportunityDetailsSummaryCard opportunityDetailsValues=opportunityDetailsSummaryView/>
+      </@fdsAccordion.accordionSection>
     <@fdsAccordion.accordionSection sectionHeading="Post well drill">
       <@drillStemTestSummary.drillStemTest drillStemTestValues=drillStemTestSummaryView/>
     </@fdsAccordion.accordionSection>

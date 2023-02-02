@@ -42,7 +42,8 @@
       generalDetailsSummaryView=generalDetailsSummaryView
       dryWellDetailsSummaryView=dryWellDetailsSummaryView
       reservoirPropertiesSummaryView=reservoirPropertiesSummaryView
-      permeabilitySummaryView=permeabilitySummaryView/>
+      permeabilitySummaryView=permeabilitySummaryView
+      opportunityDetailsSummaryView=opportunityDetailsSummaryView/>
   <#elseif submissionType == "CREATE_DISCOVERY"
   || submissionType == "UPDATE_DISCOVERY"
   || submissionType == "CREATE_DISCOVERY_FROM_PROSPECT"
@@ -63,7 +64,8 @@
       gasCaseOutputsSummaryView=gasCaseOutputsSummaryView
       mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
       mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
-      drillStemTestSummaryView=drillStemTestSummaryView/>
+      drillStemTestSummaryView=drillStemTestSummaryView
+      opportunityDetailsSummaryView=opportunityDetailsSummaryView/>
   </#if>
   <@fdsForm.htmlForm actionUrl=springUrl(deleteUrl)>
     <@fdsAction.submitButtons

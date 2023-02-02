@@ -24,6 +24,7 @@
 <#-- @ftlvariable name="mixedCaseVolumetricsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView" -->
 <#-- @ftlvariable name="mixedCaseOutputsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView" -->
 <#-- @ftlvariable name="drillStemTestSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView" -->
+<#-- @ftlvariable name="opportunityDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView" -->
 
 <#if !submittable>
     <#assign notificationBanner>
@@ -63,7 +64,8 @@
       gasCaseOutputsSummaryView=gasCaseOutputsSummaryView
       mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
       mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
-      drillStemTestSummaryView=drillStemTestSummaryView/>
+      drillStemTestSummaryView=drillStemTestSummaryView
+      opportunityDetailsSummaryView=opportunityDetailsSummaryView/>
       <#if !submittable>
           <@fdsCheckbox.checkbox
           labelText="I want to complete this submission without providing all the required information"
