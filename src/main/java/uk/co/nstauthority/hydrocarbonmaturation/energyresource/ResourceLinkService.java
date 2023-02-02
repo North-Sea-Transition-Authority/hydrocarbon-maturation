@@ -26,4 +26,8 @@ public class ResourceLinkService {
   public List<ResourceLink> getResourceLinksByProspect(Resource prospect) {
     return resourceLinksRepository.findAllByProspectResource(prospect);
   }
+
+  public List<ResourceLink> getResourceLinksByDiscovery(Resource discovery) {
+    return resourceLinksRepository.findAllByDiscoveryResource(discovery);
+  }
 }

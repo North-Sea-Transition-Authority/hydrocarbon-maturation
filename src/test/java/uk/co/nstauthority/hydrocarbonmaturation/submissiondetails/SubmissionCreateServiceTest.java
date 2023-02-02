@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.RelinquishmentForm;
@@ -45,6 +46,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionCreateServiceTest {
+
+  private static final NewResourceForm newResourceForm = new NewResourceForm();
 
   @Mock
   private ResourceService resourceService;
@@ -83,7 +86,7 @@ class SubmissionCreateServiceTest {
 
     when(resourceService.createResource(ResourceType.PROSPECT)).thenReturn(resource);
 
-    submissionCreateService.createInitialProspect();
+    submissionCreateService.createInitialProspect(newResourceForm);
 
     verify(responsibleTeamPersistenceService, times(1))
         .saveResponsibleTeamForResource(resource, ResponsibleTeamType.EXPLORATION);
@@ -197,7 +200,7 @@ class SubmissionCreateServiceTest {
   void createDiscovery_verifyMethodCalls() {
     var captor = ArgumentCaptor.forClass(Resource.class);
 
-    submissionCreateService.createDiscovery();
+    submissionCreateService.createDiscovery(newResourceForm);
 
     verify(resourceService, times(1)).createResource(ResourceType.DISCOVERY);
     verify(responsibleTeamPersistenceService, times(1))

@@ -1,11 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
@@ -18,12 +21,15 @@ public class SubmissionDetailService {
 
   private final SubmissionDetailRepository submissionDetailRepository;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private final ResourceLinkService resourceLinkService;
 
   @Autowired
   public SubmissionDetailService(SubmissionDetailRepository submissionDetailRepository,
-                                 GeneralDetailsPersistenceService generalDetailsPersistenceService) {
+                                 GeneralDetailsPersistenceService generalDetailsPersistenceService,
+                                 ResourceLinkService resourceLinkService) {
     this.submissionDetailRepository = submissionDetailRepository;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
+    this.resourceLinkService = resourceLinkService;
   }
 
   public Optional<SubmissionDetail> getSubmissionDetail(UUID id) {
@@ -85,5 +91,24 @@ public class SubmissionDetailService {
   public SubmissionDetail getSubmissionDetailByGeneralDetailOrThrow(UUID generalDetailId) {
     var generalDetail = generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(generalDetailId);
     return generalDetail.getSubmissionDetail();
+  }
+
+  public Optional<SubmissionDetail> getLatestApprovedSubmissionForSubmission(SubmissionDetail submissionDetail) {
+    return switch (submissionDetail.getSubmissionType()) {
+      case UPDATE_DISCOVERY, CREATE_DISCOVERY, RELINQUISHMENT_DISCOVERY ->
+        getLatestApprovedDiscoverySubmissionDetailForResource(submissionDetail.getResourceId());
+      case POST_DRILL_DRY_HOLE, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
+        getLatestApprovedProspectSubmissionForResource(submissionDetail.getResourceId());
+      case CREATE_DISCOVERY_FROM_PROSPECT ->
+        resourceLinkService
+            .getResourceLinksByDiscovery(submissionDetail.getResourceId())
+            .stream()
+            .map(ResourceLink::getProspectResource)
+            .map(this::getLatestApprovedProspectSubmissionForResource)
+            .flatMap(Optional::stream)
+            .min(Comparator.comparing(SubmissionDetail::getApprovedTimestamp));
+      case CREATE_PROSPECT ->
+          Optional.of(submissionDetail);
+    };
   }
 }

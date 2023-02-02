@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
@@ -290,5 +291,37 @@ class GeneralDetailsPersistenceServiceTest {
   void getGeneralDetailsByName_verifyMethodCall() {
     generalDetailsPersistenceService.getGeneralDetailsByName("prospect");
     verify(generalDetailsRepository, times(1)).findByResourceNameContainingIgnoreCase("prospect");
+  }
+
+  @Test
+  void createInitialGeneralDetail_verifyMethodCall() {
+    var submissionDetail = new SubmissionDetail();
+    var resourceForm = new NewResourceForm();
+    var captor = ArgumentCaptor.forClass(GeneralDetail.class);
+    var organisationUnit = OrganisationUnitTestUtil.Builder().build();
+    when(organisationUnitQueryService.findOrganisationUnit(1))
+        .thenReturn(Optional.of(organisationUnit));
+    resourceForm.setResourceName("name");
+    resourceForm.setResponsibleOrganisationId("1");
+    resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    generalDetailsPersistenceService.createInitialGeneralDetail(resourceForm, submissionDetail);
+
+    verify(generalDetailsRepository).save(captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            GeneralDetail::getSubmissionDetail,
+            GeneralDetail::getResourceName,
+            GeneralDetail::getOrganisationId,
+            GeneralDetail::getOrganisationName,
+            GeneralDetail::getOrganisationRegisteredNumber,
+            GeneralDetail::getOnshoreOffshore)
+        .containsExactly(
+            submissionDetail,
+            resourceForm.getResourceName(),
+            organisationUnit.getOrganisationUnitId(),
+            organisationUnit.getName(),
+            organisationUnit.getRegisteredNumber(),
+            resourceForm.getOnshoreOffshore());
   }
 }

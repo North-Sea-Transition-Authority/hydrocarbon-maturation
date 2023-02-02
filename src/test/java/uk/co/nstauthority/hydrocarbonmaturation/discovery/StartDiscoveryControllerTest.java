@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.discovery;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -19,10 +20,10 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = StartDiscoveryController.class)
@@ -32,10 +33,12 @@ class StartDiscoveryControllerTest extends AbstractSubmissionControllerTest {
   private StartDiscoveryService startDiscoveryService;
 
   private SubmissionDetail submissionDetail;
+  private NewResourceForm form;
 
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    form = new NewResourceForm();
   }
 
   @SecurityTest
@@ -65,7 +68,7 @@ class StartDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void startDiscovery() throws Exception {
-    when(startDiscoveryService.createNewDiscovery()).thenReturn(submissionDetail);
+    when(startDiscoveryService.createNewDiscovery(any())).thenReturn(submissionDetail);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
@@ -74,13 +77,13 @@ class StartDiscoveryControllerTest extends AbstractSubmissionControllerTest {
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(GeneralDetailsController.class)
-            .getGeneralDetails(submissionDetail.getId(), null))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(NewDiscoveryController.class)
+            .getNewDiscoveryPage( null))));
   }
 
   @SecurityTest
   void startDiscovery_whenNoPermission() throws Exception {
-    when(startDiscoveryService.createNewDiscovery()).thenReturn(submissionDetail);
+    when(startDiscoveryService.createNewDiscovery(any())).thenReturn(submissionDetail);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(false);
 

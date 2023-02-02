@@ -9,4 +9,7 @@ import org.springframework.stereotype.Repository;
 interface ResourceLinksRepository extends CrudRepository<ResourceLink, UUID> {
 
   List<ResourceLink> findAllByProspectResource(Resource prospect);
+
+  List<ResourceLink> findAllByDiscoveryResource(Resource discovery);
+
 }

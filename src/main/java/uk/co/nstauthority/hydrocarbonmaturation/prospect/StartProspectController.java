@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.prospect;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,20 +10,12 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Controller
 @RequestMapping("/prospect/new")
 @HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
 public class StartProspectController {
-
-  private final StartProspectService startProspectService;
-
-  @Autowired
-  public StartProspectController(StartProspectService startProspectService) {
-    this.startProspectService = startProspectService;
-  }
 
   @GetMapping
   public ModelAndView getStartPage() {
@@ -35,7 +26,6 @@ public class StartProspectController {
 
   @PostMapping
   public ModelAndView startProspect() {
-    var submissionDetail =  startProspectService.createInitialProspect();
-    return ReverseRouter.redirect(on(GeneralDetailsController.class).getGeneralDetails(submissionDetail.getId(), null));
+    return ReverseRouter.redirect(on(NewProspectController.class).getNewProspectPage(null));
   }
 }

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,10 +28,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -232,13 +231,33 @@ class GeneralDetailsFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_OrganisationIdNull_whenRemovedAndInPreviousSubmission(ValidationType validationType) {
+    var form = getValidForm();
+    form.setResponsibleOrganisationId(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var generalDetail = new GeneralDetail();
+    generalDetail.setOrganisationId(2);
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.of(generalDetail)));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("responsibleOrganisationId", Set.of("responsibleOrganisationId.required"))
+        );
+  }
+
   private BindingResult validateGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new SubmissionFormValidatorHints(validationType, submissionDetail));
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.empty()));
     return bindingResult;
   }
 

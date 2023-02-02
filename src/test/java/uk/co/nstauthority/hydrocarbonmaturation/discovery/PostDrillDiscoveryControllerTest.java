@@ -83,7 +83,7 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
     var form = new StartDiscoveryForm();
 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
-    when(startDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
+    when(startDiscoveryService.validateDiscoveryFromProspect(any(), any())).thenReturn(bindingResult);
     when(startDiscoveryService.createNewDiscoveryFromProspect(form)).thenReturn(submissionDetail);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
@@ -104,7 +104,7 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
-    when(startDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
+    when(startDiscoveryService.validateDiscoveryFromProspect(any(), any())).thenReturn(bindingResult);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
     var modelAndView = mockMvc.perform(
@@ -130,7 +130,7 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
             SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
         );
 
-    verify(startDiscoveryService, times(1)).validate(any(), any());
+    verify(startDiscoveryService, times(1)).validateDiscoveryFromProspect(any(), any());
     verify(startDiscoveryService, never()).createNewDiscoveryFromProspect(any());
   }
 

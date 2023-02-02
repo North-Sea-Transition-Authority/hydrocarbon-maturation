@@ -14,6 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkServi
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.RelinquishmentForm;
@@ -58,10 +59,13 @@ public class SubmissionCreateService {
   }
 
   @Transactional
-  public SubmissionDetail createInitialProspect() {
+  public SubmissionDetail createInitialProspect(NewResourceForm form) {
     var resource = resourceService.createResource(ResourceType.PROSPECT);
     responsibleTeamPersistenceService.saveResponsibleTeamForResource(resource, ResponsibleTeamType.EXPLORATION);
-    return submissionDetailPersistenceService.createInitialSubmissionDetail(resource, SubmissionType.CREATE_PROSPECT);
+    var submissionDetail = submissionDetailPersistenceService
+        .createInitialSubmissionDetail(resource, SubmissionType.CREATE_PROSPECT);
+    generalDetailsPersistenceService.createInitialGeneralDetail(form, submissionDetail);
+    return submissionDetail;
   }
 
   @Transactional
@@ -98,10 +102,13 @@ public class SubmissionCreateService {
   }
 
   @Transactional
-  public SubmissionDetail createDiscovery() {
+  public SubmissionDetail createDiscovery(NewResourceForm form) {
     var resource = resourceService.createResource(ResourceType.DISCOVERY);
     responsibleTeamPersistenceService.saveResponsibleTeamForResource(resource, ResponsibleTeamType.EXPLORATION);
-    return submissionDetailPersistenceService.createInitialSubmissionDetail(resource, SubmissionType.CREATE_DISCOVERY);
+    var submissionDetail = submissionDetailPersistenceService
+        .createInitialSubmissionDetail(resource, SubmissionType.CREATE_DISCOVERY);
+    generalDetailsPersistenceService.createInitialGeneralDetail(form, submissionDetail);
+    return submissionDetail;
   }
 
   @Transactional

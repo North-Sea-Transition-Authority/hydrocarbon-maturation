@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -28,8 +29,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.Refe
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,6 +48,7 @@ class GeneralDetailsFormServiceTest {
   private static ReferenceBlockQueryService referenceBlockQueryService;
   private static LicencePersistenceService licencePersistenceService;
   private static LicenceQueryService licenceQueryService;
+  private static SubmissionDetailService submissionDetailService;
 
   private static SubmissionDetail submissionDetail;
 
@@ -60,6 +62,7 @@ class GeneralDetailsFormServiceTest {
     organisationUnitQueryService = mock(OrganisationUnitQueryService.class);
     licencePersistenceService = mock(LicencePersistenceService.class);
     licenceQueryService = mock(LicenceQueryService.class);
+    submissionDetailService = mock(SubmissionDetailService.class);
 
     SearchSelectorService searchSelectorService = new SearchSelectorService();
     generalDetailsFormService = new GeneralDetailsFormService(
@@ -71,7 +74,7 @@ class GeneralDetailsFormServiceTest {
         quadrantAndBlockPersistenceService,
         referenceBlockQueryService,
         licenceQueryService,
-        licencePersistenceService);
+        licencePersistenceService, submissionDetailService);
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(submissionDetailId);
@@ -84,7 +87,13 @@ class GeneralDetailsFormServiceTest {
     var validationType = ValidationType.FULL;
 
     var captor = ArgumentCaptor.forClass(
-        SubmissionFormValidatorHints.class);
+        GeneralDetailsFormValidatorHints.class);
+    var latestGeneralDetail = new GeneralDetail();
+    var mockLatestSubmission = mock(SubmissionDetail.class);
+    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(any()))
+        .thenReturn(Optional.of(mockLatestSubmission));
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(mockLatestSubmission))
+        .thenReturn(Optional.of(latestGeneralDetail));
 
     generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
     verify(generalDetailsFormValidator, times(1)).validate(eq(form), eq(bindingResult),
@@ -92,9 +101,10 @@ class GeneralDetailsFormServiceTest {
 
     assertThat(captor.getValue())
         .extracting(
-            SubmissionFormValidatorHints::getValidationType,
-            SubmissionFormValidatorHints::getSubmissionDetail)
-        .containsExactly(validationType, submissionDetail);
+            GeneralDetailsFormValidatorHints::getValidationType,
+            GeneralDetailsFormValidatorHints::getSubmissionDetail,
+            GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail)
+        .containsExactly(validationType, submissionDetail, Optional.of(latestGeneralDetail));
   }
 
   @Test

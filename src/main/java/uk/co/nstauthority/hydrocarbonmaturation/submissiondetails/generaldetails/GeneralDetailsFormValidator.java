@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Service
 class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValidator {
 
-  private SubmissionType submissionType;
   private final LicenceQueryService licenceQueryService;
+  private SubmissionType submissionType;
+  private Optional<GeneralDetail> latestApprovedGeneralDetail;
 
   @Autowired
   GeneralDetailsFormValidator(LicenceQueryService licenceQueryService) {
@@ -39,11 +41,13 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
-    var validatorHints = SubmissionFormValidationUtils
+    var validatorHints = (GeneralDetailsFormValidatorHints) SubmissionFormValidationUtils
         .extractValidatorHints(validationHints);
     var validationType = validatorHints.getValidationType();
     submissionType = validatorHints.getSubmissionDetail().getSubmissionType();
     var form = (GeneralDetailsForm) target;
+
+    latestApprovedGeneralDetail = validatorHints.getLatestApprovedGeneralDetail();
 
     validateAlways(errors);
 
@@ -64,6 +68,14 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
     GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
+
+    latestApprovedGeneralDetail.ifPresent(generalDetail -> {
+      if (generalDetail.getOrganisationId() != null) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId",
+            "responsibleOrganisationId.required",
+            "Enter the responsible organisation");
+      }
+    });
 
     if (!generalDetailsForm.getLicences().isEmpty() && BooleanUtils.isTrue(generalDetailsForm.getResourceOnALicence())) {
       validateExtantLicences(generalDetailsForm, errors);

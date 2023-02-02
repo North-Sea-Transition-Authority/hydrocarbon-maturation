@@ -16,7 +16,7 @@ public enum OnshoreOffshore implements Displayable {
     this.displayOrder = displayOrder;
   }
 
-  static Map<String, String> getOnshoreOffshore() {
+  public static Map<String, String> getOnshoreOffshore() {
     return DisplayableEnumOptionUtil.getDisplayableOptions(OnshoreOffshore.class);
   }
 

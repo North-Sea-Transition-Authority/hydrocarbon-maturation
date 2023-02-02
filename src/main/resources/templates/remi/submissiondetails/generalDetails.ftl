@@ -102,20 +102,23 @@ breadcrumbsMap=breadcrumbsMap>
           </#list>
         </@fdsRadio.radioGroup>
       </#if>
-
-      <@fdsAddToList.addToList
-        pathForList="form.quadrantBlocks"
-        pathForSelector="form.quadrantBlockSelect"
-        alreadyAdded=alreadyAddedQuadrantBlocks
-        title=""
-        itemName="Quadrant and block"
-        noItemText="No quadrant and block added"
-        invalidItemText="This quadrant and block is invalid"
-        addToListId="quadrant-block-table"
-        selectorInputWidth="48"
-        selectorLabelText="Select a quadrant and block to add to this ${resourceType}"
-        restUrl=springUrl(quadrantBlocksApiEndpoint)/>
-
+      <@fdsFieldset.fieldset
+        legendHeadingSize="h2"
+        legendHeadingClass="govuk-fieldset__legend--s"
+        legendHeading="What quadrants and blocks is this ${resourceType} located in?">
+        <@fdsAddToList.addToList
+          pathForList="form.quadrantBlocks"
+          pathForSelector="form.quadrantBlockSelect"
+          alreadyAdded=alreadyAddedQuadrantBlocks
+          title=""
+          itemName="Quadrant and block"
+          noItemText="No quadrant and block added"
+          invalidItemText="This quadrant and block is invalid"
+          addToListId="quadrant-block-table"
+          selectorInputWidth="48"
+          selectorLabelText="Select a quadrant and block to add to this ${resourceType}"
+          restUrl=springUrl(quadrantBlocksApiEndpoint)/>
+      </@fdsFieldset.fieldset>
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>

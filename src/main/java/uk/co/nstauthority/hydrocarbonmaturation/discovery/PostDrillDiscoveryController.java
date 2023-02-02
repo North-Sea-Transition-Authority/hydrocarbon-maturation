@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Controller
-@RequestMapping("/discovery/create")
+@RequestMapping("/discovery/create-from-prospect")
 @HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
 public class PostDrillDiscoveryController {
 
@@ -30,7 +30,7 @@ public class PostDrillDiscoveryController {
 
   @Autowired
   public PostDrillDiscoveryController(StartDiscoveryService startDiscoveryService,
-                                  ControllerHelperService controllerHelperService) {
+                                      ControllerHelperService controllerHelperService) {
     this.startDiscoveryService = startDiscoveryService;
     this.controllerHelperService = controllerHelperService;
   }
@@ -43,7 +43,7 @@ public class PostDrillDiscoveryController {
   @PostMapping
   public ModelAndView startDiscovery(@Valid @ModelAttribute("form") StartDiscoveryForm form,
                                      BindingResult bindingResult) {
-    bindingResult = startDiscoveryService.validate(form, bindingResult);
+    bindingResult = startDiscoveryService.validateDiscoveryFromProspect(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getStartDiscoveryModelAndView(form),
         () -> {

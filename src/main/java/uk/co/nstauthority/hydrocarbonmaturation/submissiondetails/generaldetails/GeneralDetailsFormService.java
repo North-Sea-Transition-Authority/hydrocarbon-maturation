@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -33,6 +34,8 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   private final ReferenceBlockQueryService referenceBlockQueryService;
   private final LicenceQueryService licenceQueryService;
   private final LicencePersistenceService licencePersistenceService;
+  private final SubmissionDetailService submissionDetailService;
+
 
   @Autowired
   public GeneralDetailsFormService(GeneralDetailsFormValidator generalDetailsFormValidator,
@@ -43,7 +46,8 @@ public class GeneralDetailsFormService implements SubmissionFormService {
                                    QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                    ReferenceBlockQueryService referenceBlockQueryService,
                                    LicenceQueryService licenceQueryService,
-                                   LicencePersistenceService licencePersistenceService) {
+                                   LicencePersistenceService licencePersistenceService,
+                                   SubmissionDetailService submissionDetailService) {
     this.generalDetailsFormValidator = generalDetailsFormValidator;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.searchSelectorService = searchSelectorService;
@@ -53,6 +57,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     this.referenceBlockQueryService = referenceBlockQueryService;
     this.licenceQueryService = licenceQueryService;
     this.licencePersistenceService = licencePersistenceService;
+    this.submissionDetailService = submissionDetailService;
   }
 
   GeneralDetailsForm getGeneralDetailsForm(SubmissionDetail submissionDetail) {
@@ -168,10 +173,17 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   @Override
   public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
                                 ValidationType validationType, SubmissionDetail submissionDetail) {
+    var latestApprovedSubmission = submissionDetailService
+        .getLatestApprovedSubmissionForSubmission(submissionDetail);
+    Optional<GeneralDetail> latestApprovedGeneralDetails = Optional.empty();
+    if (latestApprovedSubmission.isPresent()) {
+      latestApprovedGeneralDetails = generalDetailsPersistenceService
+          .getGeneralDetailBySubmissionDetail(latestApprovedSubmission.get());
+    }
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new SubmissionFormValidatorHints(validationType, submissionDetail));
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, latestApprovedGeneralDetails));
     return bindingResult;
   }
 }

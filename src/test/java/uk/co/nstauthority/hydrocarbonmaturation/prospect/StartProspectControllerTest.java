@@ -2,8 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.prospect;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -14,7 +12,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -22,8 +19,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
@@ -48,9 +43,6 @@ class StartProspectControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void startProspect_assertRedirection() throws Exception {
-    var submissionDetail = new SubmissionDetail();
-    submissionDetail.setId(UUID.randomUUID());
-    when(startProspectService.createInitialProspect()).thenReturn(submissionDetail);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
     mockMvc.perform(
@@ -58,9 +50,8 @@ class StartProspectControllerTest extends AbstractSubmissionControllerTest {
             .with(user(USER))
             .with(csrf()))
     .andExpect(status().is3xxRedirection())
-    .andExpect(redirectedUrl(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetail.getId(), null))));
-
-    verify(startProspectService, times(1)).createInitialProspect();
+    .andExpect(redirectedUrl(ReverseRouter.route(on(NewProspectController.class)
+        .getNewProspectPage(null))));
   }
 
   @Test

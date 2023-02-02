@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
@@ -95,6 +96,26 @@ public class GeneralDetailsPersistenceService {
 
     var licenceApplication = form.getLicenceApplication();
     setLicenceApplication(newGeneralDetail, licenceApplication, form.getInformationSource());
+
+    generalDetailsRepository.save(newGeneralDetail);
+  }
+
+  @Transactional
+  public void createInitialGeneralDetail(NewResourceForm form,
+                                         SubmissionDetail submissionDetail) {
+    var newGeneralDetail = new GeneralDetail();
+    newGeneralDetail.setSubmissionDetail(submissionDetail);
+    newGeneralDetail.setResourceName(form.getResourceName());
+    newGeneralDetail.setOnshoreOffshore(form.getOnshoreOffshore());
+    if (form.getResponsibleOrganisationId() != null) {
+      var organisationUnit = organisationUnitQueryService.findOrganisationUnit(
+          Integer.valueOf(form.getResponsibleOrganisationId()));
+      organisationUnit.ifPresent(unit -> {
+        newGeneralDetail.setOrganisationName(unit.getName());
+        newGeneralDetail.setOrganisationId(unit.getOrganisationUnitId());
+        newGeneralDetail.setOrganisationRegisteredNumber(unit.getRegisteredNumber());
+      });
+    }
 
     generalDetailsRepository.save(newGeneralDetail);
   }
