@@ -9,6 +9,21 @@ public class NumberUtil {
     throw new IllegalUtilClassInstantiationException(NumberUtil.class);
   }
 
+  public static String getNumberStringWithUnitsOrEmpty(BigDecimal number,
+                                                       String unitsPrefix,
+                                                       String unitsSuffix) {
+    return number != null
+        ? unitsPrefix + number + " " + unitsSuffix
+        : "";
+  }
+
+  public static String getNumberStringWithUnitsWithoutSpaceOrEmpty(BigDecimal number,
+                                                                   String units) {
+    return number != null
+        ? number + units
+        : "";
+  }
+
   public static String getNumberStringWithUnitsOrEmpty(BigDecimal number, String units) {
     return number != null
         ? number + " " + units

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResultsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
@@ -44,6 +46,7 @@ class DiscoverySummaryService {
   private final GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
   private final GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
   private final DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
+  private final DiscoveryWellDetailsSummaryService discoveryWellDetailsSummaryService;
 
   @Autowired
   DiscoverySummaryService(GasFluidPropertySummaryService gasFluidPropertySummaryService,
@@ -58,7 +61,8 @@ class DiscoverySummaryService {
                           OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService,
                           OilCaseOutputsSummaryService oilCaseOutputsSummaryService,
                           GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService,
-                          GasCaseOutputsSummaryService gasCaseOutputsSummaryService) {
+                          GasCaseOutputsSummaryService gasCaseOutputsSummaryService,
+                          DiscoveryWellDetailsSummaryService discoveryWellDetailsSummaryService) {
     this.gasFluidPropertySummaryService = gasFluidPropertySummaryService;
     this.oilFluidPropertySummaryService = oilFluidPropertySummaryService;
     this.generalFluidPropertySummaryService = generalFluidPropertySummaryService;
@@ -72,6 +76,12 @@ class DiscoverySummaryService {
     this.oilCaseOutputsSummaryService = oilCaseOutputsSummaryService;
     this.gasCaseVolumetricsSummaryService = gasCaseVolumetricsSummaryService;
     this.gasCaseOutputsSummaryService = gasCaseOutputsSummaryService;
+    this.discoveryWellDetailsSummaryService = discoveryWellDetailsSummaryService;
+  }
+
+  public DiscoveryWellDetailsSummaryView getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
+    return discoveryWellDetailsSummaryService.getDiscoveryWellDetailSummaryFromSubmissionDetail(submissionDetail);
   }
 
   public GasFluidPropertySummaryView getGasFluidPropertySummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {

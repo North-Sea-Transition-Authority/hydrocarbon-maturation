@@ -33,6 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
@@ -77,6 +78,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   private ProbabilityDistributionsFormSummaryView probabilityDistributionsFormSummaryView;
   private DrillStemTestSummaryView drillStemTestSummaryView;
   private OpportunityDetailsSummaryView opportunityDetailsSummaryView;
+  private DiscoveryWellDetailsSummaryView discoveryWellDetailsSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -94,7 +96,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
     probabilityDistributionsFormSummaryView = new ProbabilityDistributionsFormSummaryView(List.of());
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
-
+    discoveryWellDetailsSummaryView = DiscoveryWellDetailsSummaryView.empty();
   }
 
   @SecurityTest
@@ -202,6 +204,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
             entry("mixedCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView),
             entry("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView),
             entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
+            entry("discoveryWellDetailsSummaryView", discoveryWellDetailsSummaryView),
             entry("gasOnlyDiscovery", false),
             entry("oilOnlyDiscovery", false),
             entry("mixedDiscovery", false)
@@ -224,6 +227,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .addObject("mixedCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView)
         .addObject("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView)
         .addObject("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
+        .addObject("discoveryWellDetailsSummaryView", discoveryWellDetailsSummaryView)
         .addObject("gasOnlyDiscovery", false)
         .addObject("oilOnlyDiscovery", false)
         .addObject("mixedDiscovery", false)

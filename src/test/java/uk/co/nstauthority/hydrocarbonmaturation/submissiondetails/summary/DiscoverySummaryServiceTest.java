@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResultsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
@@ -63,6 +64,9 @@ class DiscoverySummaryServiceTest {
   @Mock
   private MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService;
 
+  @Mock
+  private DiscoveryWellDetailsSummaryService discoveryWellDetailsSummaryService;
+
   @InjectMocks
   private DiscoverySummaryService discoverySummaryService;
 
@@ -71,6 +75,14 @@ class DiscoverySummaryServiceTest {
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+  }
+
+  @Test
+  void getDiscoveryWellDetailsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(discoveryWellDetailsSummaryService, times(1))
+        .getDiscoveryWellDetailSummaryFromSubmissionDetail(submissionDetail);
   }
 
   @Test

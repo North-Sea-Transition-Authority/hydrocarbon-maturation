@@ -148,7 +148,9 @@ public class SubmissionSummaryModelService {
         .addObject("drillStemTestSummaryView",
             discoverySummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",
-            prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail));
+            prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("discoveryWellDetailsSummaryView",
+            discoverySummaryService.getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(submissionDetail));
 
     return addHydrocarbonsDiscoveredToModelAndView(submissionDetail, modelAndView);
   }

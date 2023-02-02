@@ -34,4 +34,16 @@ public class DisplayableEnumOptionUtil {
                 : display.getDisplayName()
         ));
   }
+
+  public static String getDisplayableOptionOrDefault(Displayable displayable, String defaultText) {
+    return displayable != null
+        ? displayable.getDisplayName()
+        : defaultText;
+  }
+
+  public static String getDisplayableOptionOrEmpty(Displayable displayable) {
+    return displayable != null
+        ? displayable.getDisplayName()
+        : "";
+  }
 }

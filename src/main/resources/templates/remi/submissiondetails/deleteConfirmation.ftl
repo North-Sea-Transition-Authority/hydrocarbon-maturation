@@ -65,7 +65,8 @@
       mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
       mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
       drillStemTestSummaryView=drillStemTestSummaryView
-      opportunityDetailsSummaryView=opportunityDetailsSummaryView/>
+      opportunityDetailsSummaryView=opportunityDetailsSummaryView
+      discoveryWellDetailSummaryView=discoveryWellDetailsSummaryView/>
   </#if>
   <@fdsForm.htmlForm actionUrl=springUrl(deleteUrl)>
     <@fdsAction.submitButtons

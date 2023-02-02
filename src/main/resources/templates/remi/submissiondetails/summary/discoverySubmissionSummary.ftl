@@ -66,6 +66,7 @@
       mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
       drillStemTestSummaryView=drillStemTestSummaryView
       opportunityDetailsSummaryView=opportunityDetailsSummaryView/>
+      discoveryWellDetailSummaryView=discoveryWellDetailsSummaryView/>
       <#if !submittable>
           <@fdsCheckbox.checkbox
           labelText="I want to complete this submission without providing all the required information"
