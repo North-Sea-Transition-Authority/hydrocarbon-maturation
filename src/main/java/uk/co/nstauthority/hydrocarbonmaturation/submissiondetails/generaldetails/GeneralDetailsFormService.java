@@ -36,7 +36,6 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   private final LicencePersistenceService licencePersistenceService;
   private final SubmissionDetailService submissionDetailService;
 
-
   @Autowired
   public GeneralDetailsFormService(GeneralDetailsFormValidator generalDetailsFormValidator,
                                    GeneralDetailsPersistenceService generalDetailsPersistenceService,
@@ -173,17 +172,52 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   @Override
   public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
                                 ValidationType validationType, SubmissionDetail submissionDetail) {
-    var latestApprovedSubmission = submissionDetailService
-        .getLatestApprovedSubmissionForSubmission(submissionDetail);
-    Optional<GeneralDetail> latestApprovedGeneralDetails = Optional.empty();
-    if (latestApprovedSubmission.isPresent()) {
-      latestApprovedGeneralDetails = generalDetailsPersistenceService
-          .getGeneralDetailBySubmissionDetail(latestApprovedSubmission.get());
-    }
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, latestApprovedGeneralDetails));
+        getValidationHints(submissionDetail, validationType));
     return bindingResult;
   }
+
+  public boolean hasLicencesOnEarlierSubmission(SubmissionDetail submissionDetail) {
+    if (submissionDetail.isFirstSubmissionOnResource()) {
+      return false;
+    }
+    return submissionDetailService
+        .getLatestApprovedSubmissionForSubmission(submissionDetail)
+        .map(generalDetailsPersistenceService::getGeneralDetailBySubmissionDetail)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .map(licencePersistenceService::getLicencesByGeneralDetail)
+        .map(item -> !item.isEmpty())
+        .orElse(false);
+  }
+
+  private GeneralDetailsFormValidatorHints getValidationHints(SubmissionDetail submissionDetail,
+                                                              ValidationType validationType) {
+    if (submissionDetail.isFirstSubmissionOnResource()) {
+      return new GeneralDetailsFormValidatorHints(
+          validationType,
+          submissionDetail,
+          Optional.empty(),
+          false);
+    }
+
+    var latestApprovedSubmission = submissionDetailService
+        .getLatestApprovedSubmissionForSubmission(submissionDetail);
+    Optional<GeneralDetail> latestApprovedGeneralDetails = Optional.empty();
+    var isLicencePresent = false;
+    if (latestApprovedSubmission.isPresent()) {
+      latestApprovedGeneralDetails = generalDetailsPersistenceService
+          .getGeneralDetailBySubmissionDetail(latestApprovedSubmission.get());
+      isLicencePresent = latestApprovedGeneralDetails
+          .filter(generalDetail ->
+              !licencePersistenceService.getLicencesByGeneralDetail(generalDetail)
+                  .isEmpty())
+          .isPresent();
+    }
+    return new GeneralDetailsFormValidatorHints(
+        validationType, submissionDetail, latestApprovedGeneralDetails, isLicencePresent);
+  }
+
 }

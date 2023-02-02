@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
@@ -20,8 +21,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Service
 class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValidator {
 
+  private static final String LICENCE_SELECT = "licenceSelect";
+
   private final LicenceQueryService licenceQueryService;
   private SubmissionType submissionType;
+  private boolean isLicencePresent;
   private Optional<GeneralDetail> latestApprovedGeneralDetail;
 
   @Autowired
@@ -36,7 +40,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   @Override
   public void validate(Object target, Errors errors) {
-    throw new ActionNotAllowedException("Incorrect parameters provided for validation");
+    throw new ActionNotAllowedException("Must provide GeneralDetailsFormValidatorHints");
   }
 
   @Override
@@ -45,11 +49,12 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
         .extractValidatorHints(validationHints);
     var validationType = validatorHints.getValidationType();
     submissionType = validatorHints.getSubmissionDetail().getSubmissionType();
+    isLicencePresent = validatorHints.getLicencePresent();
     var form = (GeneralDetailsForm) target;
 
     latestApprovedGeneralDetail = validatorHints.getLatestApprovedGeneralDetail();
 
-    validateAlways(errors);
+    validateAlways(form, errors);
 
     if (validationType.equals(ValidationType.PARTIAL)) {
       validatePartial(form, errors);
@@ -61,23 +66,42 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   }
 
-  public void validateAlways(Errors errors) {
+  public void validateAlways(GeneralDetailsForm form, Errors errors) {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "resourceName", "resourceName.required", "Enter the resource name");
+
+    latestApprovedGeneralDetail.ifPresent(generalDetail -> {
+      if (generalDetail.getOrganisationId() != null) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId",
+            "responsibleOrganisationId.required",
+            "You cannot remove the responsible organisation from a resource that has " +
+                "a responsible organisation on an earlier approved submission");
+      }
+
+      if (BooleanUtils.isTrue(generalDetail.getResourceOnALicence())
+          && submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
+          && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT) {
+        if (form.getResourceOnALicence() == null || !form.getResourceOnALicence()) {
+          errors.rejectValue("resourceOnALicence",
+              "resourceOnALicence.required",
+              "You cannot remove all licences from a resource that has " +
+                  "a licence on an earlier approved submission");
+        } else if (isLicencePresent && CollectionUtils.isEmpty(form.getLicences())) {
+          errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
+              "You cannot remove all licences from a resource that has " +
+                  "a licence on an earlier approved submission");
+        }
+      }
+    });
   }
 
   @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
     GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
 
-    latestApprovedGeneralDetail.ifPresent(generalDetail -> {
-      if (generalDetail.getOrganisationId() != null) {
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId",
-            "responsibleOrganisationId.required",
-            "Enter the responsible organisation");
-      }
-    });
-
-    if (!generalDetailsForm.getLicences().isEmpty() && BooleanUtils.isTrue(generalDetailsForm.getResourceOnALicence())) {
+    if (submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
+        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT
+        && !generalDetailsForm.getLicences().isEmpty()
+        && BooleanUtils.isTrue(generalDetailsForm.getResourceOnALicence())) {
       validateExtantLicences(generalDetailsForm, errors);
     }
 
@@ -91,15 +115,18 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId", "responsibleOrganisationId.required",
         "Enter the responsible organisation");
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "resourceOnALicence",
-        "resourceOnALicence.required", "Select whether the resource is on a licence");
+    if (submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
+        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "resourceOnALicence",
+          "resourceOnALicence.required", "Select whether the resource is on a licence");
 
-    if (BooleanUtils.isTrue(generalDetailsForm.getResourceOnALicence())
-        && generalDetailsForm.getLicences().isEmpty()) {
-      errors.rejectValue("licenceSelect", "licenceSelect.required",
-          "You must select at least one licence");
-    } else {
-      validateExtantLicences(generalDetailsForm, errors);
+      if (BooleanUtils.isTrue(generalDetailsForm.getResourceOnALicence())
+          && CollectionUtils.isEmpty(generalDetailsForm.getLicences())) {
+        errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
+            "You must select at least one licence");
+      } else {
+        validateExtantLicences(generalDetailsForm, errors);
+      }
     }
 
     ValidationUtils.rejectIfEmpty(errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
@@ -127,7 +154,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
     fullValidationPercentageLocatedInUkcs(generalDetailsForm, errors);
 
-    if (generalDetailsForm.getQuadrantBlocks().isEmpty()) {
+    if (CollectionUtils.isEmpty(generalDetailsForm.getQuadrantBlocks())) {
       errors.rejectValue("quadrantBlockSelect", "quadrantBlockSelect.notEmpty",
           "You must select at least one quadrant and block");
     }
@@ -161,7 +188,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
         .anyMatch(licence -> !LicenceQueryService.isLicenceStatusValid(licence.licenceStatus()));
 
     if (invalidLicenceSelected) {
-      errors.rejectValue("licenceSelect", "licenceSelect.notValid", "You must only select extant licences");
+      errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".notValid", "You must only select extant licences");
     }
   }
 }

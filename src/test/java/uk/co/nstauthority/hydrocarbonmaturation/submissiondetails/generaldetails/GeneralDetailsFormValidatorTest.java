@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,8 @@ import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
@@ -242,7 +245,8 @@ class GeneralDetailsFormValidatorTest {
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.of(generalDetail)));
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.of(generalDetail),
+            false));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -251,13 +255,70 @@ class GeneralDetailsFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenResourceNotOnLicence_WhenInPreviousSubmission(ValidationType validationType) {
+    var form = getValidForm();
+    form.setLicences(List.of("1"));
+    form.setLicenceSelect(null);
+    form.setResourceOnALicence(false);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var generalDetail = new GeneralDetail();
+    generalDetail.setResourceOnALicence(true);
+
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.of(generalDetail),
+            true));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("resourceOnALicence", Set.of("resourceOnALicence.required"))
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenNoLicenceSelected_WhenInPreviousSubmission(ValidationType validationType) {
+    var form = getValidForm();
+    form.setLicences(List.of());
+    form.setLicenceSelect(null);
+    form.setResourceOnALicence(true);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var generalDetail = new GeneralDetail();
+    generalDetail.setResourceOnALicence(true);
+
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.of(generalDetail),
+            true));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("licenceSelect", Set.of("licenceSelect.required"))
+        );
+  }
+
+  @Test
+  void validate_whenNoHintsProvided_assertThrow() {
+    assertThatThrownBy(() -> generalDetailsFormValidator
+        .validate(new GeneralDetailsForm(), ReverseRouter.emptyBindingResult()))
+        .hasMessage("Must provide GeneralDetailsFormValidatorHints")
+        .isExactlyInstanceOf(ActionNotAllowedException.class);
+  }
+
   private BindingResult validateGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.empty()));
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail,
+            Optional.empty(), false));
     return bindingResult;
   }
 

@@ -181,4 +181,9 @@ public class SubmissionDetail {
   public boolean isDryWellSubmission() {
     return submissionType == SubmissionType.POST_DRILL_DRY_HOLE;
   }
+
+  public boolean isFirstSubmissionOnResource() {
+    return submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.CREATE_DISCOVERY;
+  }
 }

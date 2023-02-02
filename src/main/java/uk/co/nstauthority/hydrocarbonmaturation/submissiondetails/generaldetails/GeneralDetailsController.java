@@ -100,7 +100,9 @@ public class GeneralDetailsController {
         .addObject("licenceEndpoint",
             SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
         .addObject("alreadyAddedLicences", generalDetailsFormService.getLicenceViews(
-            form));
+            form))
+        .addObject("hasLicencesOnEarlierSubmission", generalDetailsFormService
+            .hasLicencesOnEarlierSubmission(submissionDetail));
 
     if (submissionDetail.isProspectSubmission()) {
       modelAndView.addObject("informationSources", InformationSource.getInformationSource());

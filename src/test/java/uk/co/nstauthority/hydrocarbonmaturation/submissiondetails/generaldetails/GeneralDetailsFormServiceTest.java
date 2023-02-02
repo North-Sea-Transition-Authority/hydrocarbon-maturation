@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -81,11 +82,11 @@ class GeneralDetailsFormServiceTest {
   }
 
   @Test
-  void validate_verifyMethodCall() {
+  void validate_whenUpdate_whenNoLicence_verifyMethodCall() {
     var form = new GeneralDetailsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var validationType = ValidationType.FULL;
-
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     var captor = ArgumentCaptor.forClass(
         GeneralDetailsFormValidatorHints.class);
     var latestGeneralDetail = new GeneralDetail();
@@ -94,7 +95,8 @@ class GeneralDetailsFormServiceTest {
         .thenReturn(Optional.of(mockLatestSubmission));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(mockLatestSubmission))
         .thenReturn(Optional.of(latestGeneralDetail));
-
+    when(licencePersistenceService.getLicencesByGeneralDetail(latestGeneralDetail))
+        .thenReturn(List.of());
     generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
     verify(generalDetailsFormValidator, times(1)).validate(eq(form), eq(bindingResult),
         captor.capture());
@@ -103,8 +105,59 @@ class GeneralDetailsFormServiceTest {
         .extracting(
             GeneralDetailsFormValidatorHints::getValidationType,
             GeneralDetailsFormValidatorHints::getSubmissionDetail,
-            GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail)
-        .containsExactly(validationType, submissionDetail, Optional.of(latestGeneralDetail));
+            GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
+            GeneralDetailsFormValidatorHints::getLicencePresent)
+        .containsExactly(validationType, submissionDetail, Optional.of(latestGeneralDetail), false);
+  }
+
+  @Test
+  void validate_whenCreate_verifyMethodCall() {
+    var form = new GeneralDetailsForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var validationType = ValidationType.FULL;
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
+    var captor = ArgumentCaptor.forClass(
+        GeneralDetailsFormValidatorHints.class);
+    generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
+    verify(generalDetailsFormValidator, times(1)).validate(eq(form), eq(bindingResult),
+        captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            GeneralDetailsFormValidatorHints::getValidationType,
+            GeneralDetailsFormValidatorHints::getSubmissionDetail,
+            GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
+            GeneralDetailsFormValidatorHints::getLicencePresent)
+        .containsExactly(validationType, submissionDetail, Optional.empty(), false);
+  }
+
+  @Test
+  void validate_whenUpdate_whenLicences_assertHints() {
+    var form = new GeneralDetailsForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var validationType = ValidationType.FULL;
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var captor = ArgumentCaptor.forClass(
+        GeneralDetailsFormValidatorHints.class);
+    var latestGeneralDetail = new GeneralDetail();
+    var mockLatestSubmission = mock(SubmissionDetail.class);
+    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(any()))
+        .thenReturn(Optional.of(mockLatestSubmission));
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(mockLatestSubmission))
+        .thenReturn(Optional.of(latestGeneralDetail));
+    when(licencePersistenceService.getLicencesByGeneralDetail(latestGeneralDetail))
+        .thenReturn(List.of(mock(Licence.class)));
+    generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
+    verify(generalDetailsFormValidator, times(1)).validate(eq(form), eq(bindingResult),
+        captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            GeneralDetailsFormValidatorHints::getValidationType,
+            GeneralDetailsFormValidatorHints::getSubmissionDetail,
+            GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
+            GeneralDetailsFormValidatorHints::getLicencePresent)
+        .containsExactly(validationType, submissionDetail, Optional.of(latestGeneralDetail), true);
   }
 
   @Test
@@ -276,6 +329,71 @@ class GeneralDetailsFormServiceTest {
     var selectorViews = generalDetailsFormService.getLicenceViews(form);
 
     assertThat(selectorViews).isEmpty();
+  }
+
+  @Test
+  void hasLicencesOnEarlierSubmission_whenFirstSubmission_assertFalse() {
+    var newProspectSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var newDiscoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    assertThat(generalDetailsFormService.hasLicencesOnEarlierSubmission(newProspectSubmissionDetail))
+        .isFalse();
+    assertThat(generalDetailsFormService.hasLicencesOnEarlierSubmission(newDiscoverySubmissionDetail))
+        .isFalse();
+  }
+
+  @Test
+  void hasLicencesOnEarlierSubmission_whenNotFirstSubmissionAndNoLicence_assertFalse() {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
+    var approvedProspect = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+        .thenReturn(Optional.of(approvedProspect));
+    var generalDetail = new GeneralDetail();
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(approvedProspect))
+        .thenReturn(Optional.of(generalDetail));
+    when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
+        .thenReturn(List.of());
+
+    assertThat(generalDetailsFormService.hasLicencesOnEarlierSubmission(submissionDetail))
+        .isFalse();
+  }
+
+  @Test
+  void hasLicencesOnEarlierSubmission_whenLicenceFound_assertTrue() {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
+    var approvedProspect = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+        .thenReturn(Optional.of(approvedProspect));
+    var generalDetail = new GeneralDetail();
+    generalDetail.setResourceOnALicence(true);
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(approvedProspect))
+        .thenReturn(Optional.of(generalDetail));
+    when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
+        .thenReturn(List.of(mock(Licence.class)));
+
+    assertThat(generalDetailsFormService.hasLicencesOnEarlierSubmission(submissionDetail))
+        .isTrue();
+  }
+
+  @Test
+  void hasLicencesOnEarlierSubmission_whenEarlierSubmissionWithoutGeneralDetail_assertFalse() {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
+    var approvedProspect = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+        .thenReturn(Optional.of(approvedProspect));
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(approvedProspect))
+        .thenReturn(Optional.empty());
+    assertThat(generalDetailsFormService.hasLicencesOnEarlierSubmission(submissionDetail))
+        .isFalse();
+  }
+
+
+  @Test
+  void hasLicencesOnEarlierSubmission_whenEarlierSubmissionNotPresent_assertFalse() {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
+    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+        .thenReturn(Optional.empty());
+    assertThat(generalDetailsFormService.hasLicencesOnEarlierSubmission(submissionDetail))
+        .isFalse();
   }
 
   private GeneralDetail getGeneralDetail(SubmissionDetail submissionDetail) {

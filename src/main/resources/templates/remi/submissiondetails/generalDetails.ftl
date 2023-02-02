@@ -16,6 +16,14 @@ pageHeading=pageTitle
 pageSize=PageSize.TWO_THIRDS_COLUMN
 errorItems=errorList
 breadcrumbsMap=breadcrumbsMap>
+  <#if hasLicencesOnEarlierSubmission>
+    <#assign licenceHintText>
+      If this ${resourceType} is no longer licensed then you cannot remove all of the licences on this submission.
+      You must submit a relinquishment submission.
+    </#assign>
+  <#else>
+    <#assign licenceHintText = ""/>
+  </#if>
   <#if relinquishmentSubmission>
     <#assign guidanceTextOrganisation>
       The responsible party will be removed from this ${resourceType} when the relinquishment submission is approved.
@@ -41,28 +49,31 @@ breadcrumbsMap=breadcrumbsMap>
         nestingPath="form.responsibleOrganisationId"
         hintText=guidanceTextOrganisation
         preselectedItems=responsibleOrganisation!{}/>
-      <@fdsRadio.radioGroup
-        path="form.resourceOnALicence"
-        labelText="Is this ${resourceType} on a licence?"
-        hiddenContent=true>
-        <@fdsRadio.radioYes path="form.resourceOnALicence">
-          <@fdsAddToList.addToList
-            pathForList="form.licences"
-            pathForSelector="form.licenceSelect"
-            alreadyAdded=alreadyAddedLicences
-            title=""
-            selectorHintText=guidanceTextLicence
-            itemName="Licences"
-            noItemText="No licence added"
-            invalidItemText="This licence is not extant"
-            selectorMinInputLength=1
-            selectorNestingPath="form.resourceOnALicence"
-            addToListId="licence-table"
-            selectorLabelText="Select a licence to add to this ${resourceType}"
-            restUrl=springUrl(licenceEndpoint)/>
-        </@fdsRadio.radioYes>
-        <@fdsRadio.radioNo path="form.resourceOnALicence"/>
-      </@fdsRadio.radioGroup>
+      <#if !relinquishmentSubmission>
+        <@fdsRadio.radioGroup
+          path="form.resourceOnALicence"
+          labelText="Is this ${resourceType} on a licence?"
+          hiddenContent=true
+          hintText=licenceHintText>
+          <@fdsRadio.radioYes path="form.resourceOnALicence">
+            <@fdsAddToList.addToList
+              pathForList="form.licences"
+              pathForSelector="form.licenceSelect"
+              alreadyAdded=alreadyAddedLicences
+              title=""
+              selectorHintText=guidanceTextLicence
+              itemName="Licences"
+              noItemText="No licence added"
+              invalidItemText="This licence is not extant"
+              selectorMinInputLength=1
+              selectorNestingPath="form.resourceOnALicence"
+              addToListId="licence-table"
+              selectorLabelText="Select a licence to add to this ${resourceType}"
+              restUrl=springUrl(licenceEndpoint)/>
+          </@fdsRadio.radioYes>
+          <@fdsRadio.radioNo path="form.resourceOnALicence"/>
+        </@fdsRadio.radioGroup>
+      </#if>
 
       <@fdsRadio.radio path="form.onshoreOffshore" radioItems=onshoreOffshore labelText="Is this ${resourceType} onshore or offshore?"/>
 
