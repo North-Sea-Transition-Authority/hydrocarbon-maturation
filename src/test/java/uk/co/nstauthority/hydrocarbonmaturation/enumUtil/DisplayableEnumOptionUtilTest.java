@@ -34,6 +34,20 @@ class DisplayableEnumOptionUtilTest {
     );
   }
 
+  @Test
+  void getDisplayableOptionOrDefault() {
+    var option3 = DisplayableTestEnum.OPTION_THREE;
+    var option2 = DisplayableTestEnum.OPTION_TWO;
+    Displayable nullOption = null;
+
+    assertThat(DisplayableEnumOptionUtil.getDisplayableOptionOrDefault(nullOption, "default text"))
+        .isEqualTo("default text");
+    assertThat(DisplayableEnumOptionUtil.getDisplayableOptionOrDefault(option2, "default text"))
+        .isEqualTo("second text");
+    assertThat(DisplayableEnumOptionUtil.getDisplayableOptionOrDefault(option3, "default text"))
+        .isEqualTo("third one");
+  }
+
   enum DisplayableTestEnum implements Displayable {
     OPTION_THREE(3, "third one", ""),
     OPTION_ONE(1, "text", "first description"),

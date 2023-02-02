@@ -23,20 +23,30 @@ class DryWellDetail extends DrillDetail implements SubmissionDetailChildEntity {
 
   private BigDecimal dryHoleCost;
 
-  public DryHoleType getDryHoleType() {
+  private SourceFailureCategory sourceFailureCategory;
+
+  private ReservoirFailureCategory reservoirFailureCategory;
+
+  private SealFailureCategory sealFailureCategory;
+
+  private TrapFailureCategory trapFailureCategory;
+
+  private MigrationFailureCategory migrationFailureCategory;
+
+  DryHoleType getDryHoleType() {
     return dryHoleType;
   }
 
-  public void setDryHoleType(
+  void setDryHoleType(
       DryHoleType dryHoleType) {
     this.dryHoleType = dryHoleType;
   }
 
-  public String getDryHoleDescription() {
+  String getDryHoleDescription() {
     return dryHoleDescription;
   }
 
-  public void setDryHoleDescription(String dryHoleDescription) {
+  void setDryHoleDescription(String dryHoleDescription) {
     this.dryHoleDescription = dryHoleDescription;
   }
 
@@ -44,23 +54,68 @@ class DryWellDetail extends DrillDetail implements SubmissionDetailChildEntity {
     return dryHoleScope;
   }
 
-  public void setDryHoleScope(String dryHoleScope) {
+  void setDryHoleScope(String dryHoleScope) {
     this.dryHoleScope = dryHoleScope;
   }
 
-  public String getDryHoleComments() {
+  String getDryHoleComments() {
     return dryHoleComments;
   }
 
-  public void setDryHoleComments(String dryHoleComments) {
+  void setDryHoleComments(String dryHoleComments) {
     this.dryHoleComments = dryHoleComments;
   }
 
-  public BigDecimal getDryHoleCost() {
+  BigDecimal getDryHoleCost() {
     return dryHoleCost;
   }
 
-  public void setDryHoleCost(BigDecimal dryHoleCost) {
+  void setDryHoleCost(BigDecimal dryHoleCost) {
     this.dryHoleCost = dryHoleCost;
+  }
+
+  SourceFailureCategory getSourceFailureCategory() {
+    return sourceFailureCategory;
+  }
+
+  void setSourceFailureCategory(
+      SourceFailureCategory sourceFailureCategory) {
+    this.sourceFailureCategory = sourceFailureCategory;
+  }
+
+  ReservoirFailureCategory getReservoirFailureCategory() {
+    return reservoirFailureCategory;
+  }
+
+  void setReservoirFailureCategory(
+      ReservoirFailureCategory reservoirFailureCategory) {
+    this.reservoirFailureCategory = reservoirFailureCategory;
+  }
+
+  SealFailureCategory getSealFailureCategory() {
+    return sealFailureCategory;
+  }
+
+  void setSealFailureCategory(
+      SealFailureCategory sealFailureCategory) {
+    this.sealFailureCategory = sealFailureCategory;
+  }
+
+  TrapFailureCategory getTrapFailureCategory() {
+    return trapFailureCategory;
+  }
+
+  void setTrapFailureCategory(
+      TrapFailureCategory trapFailureCategory) {
+    this.trapFailureCategory = trapFailureCategory;
+  }
+
+  MigrationFailureCategory getMigrationFailureCategory() {
+    return migrationFailureCategory;
+  }
+
+  void setMigrationFailureCategory(
+      MigrationFailureCategory migrationFailureCategory) {
+    this.migrationFailureCategory = migrationFailureCategory;
   }
 }

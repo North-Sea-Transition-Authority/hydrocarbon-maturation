@@ -41,6 +41,11 @@ public class DryWellDetailsSummaryService {
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(dryWellDetail.getDryHoleType()),
         ObjectUtils.defaultIfNull(dryWellDetail.getDryHoleDescription(), ""),
         ObjectUtils.defaultIfNull(dryWellDetail.getDryHoleScope(), ""),
+        DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(dryWellDetail.getSourceFailureCategory()),
+        DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(dryWellDetail.getReservoirFailureCategory()),
+        DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(dryWellDetail.getSealFailureCategory()),
+        DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(dryWellDetail.getTrapFailureCategory()),
+        DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(dryWellDetail.getMigrationFailureCategory()),
         ObjectUtils.defaultIfNull(dryWellDetail.getDryHoleComments(), ""),
         NumberUtil.getNumberStringWithUnitsOrEmpty(dryWellDetail.getDryHoleCost(), "£", "million"));
   }

@@ -44,6 +44,41 @@
       hintText="Based on the location of the well, is there still considered to be a valid prospect on the mapped structure. For example, up-dip potential"
       optionalLabel=true
     />
+    <@fdsRadio.radioGroup path="form.sourceFailureCategory" labelText="Source failure categories for post-well analysis">
+      <#assign firstItem=true/>
+      <#list sourceFailureCategories as key, value>
+        <@fdsRadio.radioItem path="form.sourceFailureCategory" itemMap={key : value} isFirstItem=firstItem/>
+        <#assign firstItem=false/>
+      </#list>
+    </@fdsRadio.radioGroup>
+    <@fdsRadio.radioGroup path="form.reservoirFailureCategory" labelText="Reservoir failure categories for post-well analysis">
+      <#assign firstItem=true/>
+      <#list reservoirFailureCategories as key, value>
+          <@fdsRadio.radioItem path="form.reservoirFailureCategory" itemMap={key : value} isFirstItem=firstItem/>
+          <#assign firstItem=false/>
+      </#list>
+    </@fdsRadio.radioGroup>
+    <@fdsRadio.radioGroup path="form.sealFailureCategory" labelText="Seal failure categories for post-well analysis">
+      <#assign firstItem=true/>
+      <#list sealFailureCategories as key, value>
+        <@fdsRadio.radioItem path="form.sealFailureCategory" itemMap={key : value} isFirstItem=firstItem/>
+        <#assign firstItem=false/>
+      </#list>
+    </@fdsRadio.radioGroup>
+    <@fdsRadio.radioGroup path="form.trapFailureCategory" labelText="Trap failure categories for post-well analysis">
+      <#assign firstItem=true/>
+      <#list trapFailureCategories as key, value>
+        <@fdsRadio.radioItem path="form.trapFailureCategory" itemMap={key : value} isFirstItem=firstItem/>
+        <#assign firstItem=false/>
+      </#list>
+    </@fdsRadio.radioGroup>
+    <@fdsRadio.radioGroup path="form.migrationFailureCategory" labelText="Migration failure categories for post-well analysis">
+      <#assign firstItem=true/>
+      <#list migrationFailureCategories as key, value>
+        <@fdsRadio.radioItem path="form.migrationFailureCategory" itemMap={key : value} isFirstItem=firstItem/>
+        <#assign firstItem=false/>
+      </#list>
+    </@fdsRadio.radioGroup>
     <@fdsTextarea.textarea
       path="form.dryHoleComments"
       labelText="Dry hole comments"

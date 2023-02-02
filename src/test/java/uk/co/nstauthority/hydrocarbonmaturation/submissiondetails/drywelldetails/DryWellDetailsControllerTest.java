@@ -30,8 +30,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.DryWellRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -149,6 +147,16 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("form", form),
             entry("datumTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirDatum.class)),
             entry("dryHoleTypes", DisplayableEnumOptionUtil.getDisplayableOptions(DryHoleType.class)),
+            entry("sourceFailureCategories",
+                DisplayableEnumOptionUtil.getDisplayableOptions(SourceFailureCategory.class)),
+            entry("reservoirFailureCategories",
+            DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirFailureCategory.class)),
+            entry("sealFailureCategories",
+            DisplayableEnumOptionUtil.getDisplayableOptions(SealFailureCategory.class)),
+            entry("trapFailureCategories",
+            DisplayableEnumOptionUtil.getDisplayableOptions(TrapFailureCategory.class)),
+            entry("migrationFailureCategories",
+            DisplayableEnumOptionUtil.getDisplayableOptions(MigrationFailureCategory.class)),
             entry("dryWellEndpoint",
                 SearchSelectorService.route(on(DryWellRestController.class).searchDryWells(null))),
             entry("dryWell", preselectedWell)

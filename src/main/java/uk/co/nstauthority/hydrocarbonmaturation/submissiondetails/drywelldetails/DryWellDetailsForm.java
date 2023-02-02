@@ -12,6 +12,11 @@ class DryWellDetailsForm implements SubmissionForm {
   private String dryHoleScope;
   private String dryHoleComments;
   private DecimalInput dryHoleCost = new DecimalInput();
+  private SourceFailureCategory sourceFailureCategory;
+  private ReservoirFailureCategory reservoirFailureCategory;
+  private SealFailureCategory sealFailureCategory;
+  private TrapFailureCategory trapFailureCategory;
+  private MigrationFailureCategory migrationFailureCategory;
 
   public DryHoleType getDryHoleType() {
     return dryHoleType;
@@ -61,5 +66,50 @@ class DryWellDetailsForm implements SubmissionForm {
   public void setDrillDetailsForm(
       WellDetailsForm drillDetailsForm) {
     this.drillDetailsForm = drillDetailsForm;
+  }
+
+  public SourceFailureCategory getSourceFailureCategory() {
+    return sourceFailureCategory;
+  }
+
+  public void setSourceFailureCategory(
+      SourceFailureCategory sourceFailureCategory) {
+    this.sourceFailureCategory = sourceFailureCategory;
+  }
+
+  public ReservoirFailureCategory getReservoirFailureCategory() {
+    return reservoirFailureCategory;
+  }
+
+  public void setReservoirFailureCategory(
+      ReservoirFailureCategory reservoirFailureCategory) {
+    this.reservoirFailureCategory = reservoirFailureCategory;
+  }
+
+  public SealFailureCategory getSealFailureCategory() {
+    return sealFailureCategory;
+  }
+
+  public void setSealFailureCategory(
+      SealFailureCategory sealFailureCategory) {
+    this.sealFailureCategory = sealFailureCategory;
+  }
+
+  public TrapFailureCategory getTrapFailureCategory() {
+    return trapFailureCategory;
+  }
+
+  public void setTrapFailureCategory(
+      TrapFailureCategory trapFailureCategory) {
+    this.trapFailureCategory = trapFailureCategory;
+  }
+
+  public MigrationFailureCategory getMigrationFailureCategory() {
+    return migrationFailureCategory;
+  }
+
+  public void setMigrationFailureCategory(
+      MigrationFailureCategory migrationFailureCategory) {
+    this.migrationFailureCategory = migrationFailureCategory;
   }
 }

@@ -83,7 +83,18 @@ public class DryWellDetailsController {
         .addObject("dryHoleTypes", DisplayableEnumOptionUtil.getDisplayableOptions(DryHoleType.class))
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
         .addObject("dryWellEndpoint", SearchSelectorService.route(on(DryWellRestController.class).searchDryWells(null)))
-        .addObject("dryWell", dryWellDetailsFormService.getPreSelectedDryWell(form.getDrillDetailsForm().getDryWell()));
+        .addObject("dryWell", dryWellDetailsFormService.getPreSelectedDryWell(form.getDrillDetailsForm().getDryWell()))
+        .addObject("sourceFailureCategories",
+            DisplayableEnumOptionUtil.getDisplayableOptions(SourceFailureCategory.class))
+        .addObject("reservoirFailureCategories",
+            DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirFailureCategory.class))
+        .addObject("sealFailureCategories",
+            DisplayableEnumOptionUtil.getDisplayableOptions(SealFailureCategory.class))
+        .addObject("trapFailureCategories",
+            DisplayableEnumOptionUtil.getDisplayableOptions(TrapFailureCategory.class))
+        .addObject("migrationFailureCategories",
+            DisplayableEnumOptionUtil.getDisplayableOptions(MigrationFailureCategory.class))
+        ;
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView, PAGE_NAME, submissionDetail);

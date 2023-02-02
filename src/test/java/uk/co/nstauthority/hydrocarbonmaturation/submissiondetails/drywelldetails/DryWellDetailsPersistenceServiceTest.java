@@ -74,7 +74,12 @@ class DryWellDetailsPersistenceServiceTest {
             DryWellDetail::getDryHoleDescription,
             DryWellDetail::getDryHoleScope,
             DryWellDetail::getDryHoleComments,
-            DryWellDetail::getDryHoleCost)
+            DryWellDetail::getDryHoleCost,
+            DryWellDetail::getMigrationFailureCategory,
+            DryWellDetail::getReservoirFailureCategory,
+            DryWellDetail::getSourceFailureCategory,
+            DryWellDetail::getSealFailureCategory,
+            DryWellDetail::getTrapFailureCategory)
         .containsExactly(
             detailForm.getDryWell(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
@@ -93,7 +98,12 @@ class DryWellDetailsPersistenceServiceTest {
             form.getDryHoleDescription(),
             form.getDryHoleScope(),
             form.getDryHoleComments(),
-            form.getDryHoleCost().createBigDecimalOrNull()
+            form.getDryHoleCost().createBigDecimalOrNull(),
+            form.getMigrationFailureCategory(),
+            form.getReservoirFailureCategory(),
+            form.getSourceFailureCategory(),
+            form.getSealFailureCategory(),
+            form.getTrapFailureCategory()
         );
   }
 
@@ -127,7 +137,12 @@ class DryWellDetailsPersistenceServiceTest {
             DryWellDetail::getDryHoleDescription,
             DryWellDetail::getDryHoleScope,
             DryWellDetail::getDryHoleComments,
-            DryWellDetail::getDryHoleCost)
+            DryWellDetail::getDryHoleCost,
+            DryWellDetail::getMigrationFailureCategory,
+            DryWellDetail::getReservoirFailureCategory,
+            DryWellDetail::getSourceFailureCategory,
+            DryWellDetail::getSealFailureCategory,
+            DryWellDetail::getTrapFailureCategory)
         .containsExactly(
             detailForm.getDryWell(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
@@ -146,7 +161,12 @@ class DryWellDetailsPersistenceServiceTest {
             form.getDryHoleDescription(),
             form.getDryHoleScope(),
             form.getDryHoleComments(),
-            form.getDryHoleCost().createBigDecimalOrNull()
+            form.getDryHoleCost().createBigDecimalOrNull(),
+            form.getMigrationFailureCategory(),
+            form.getReservoirFailureCategory(),
+            form.getSourceFailureCategory(),
+            form.getSealFailureCategory(),
+            form.getTrapFailureCategory()
         );
   }
 
@@ -174,6 +194,11 @@ class DryWellDetailsPersistenceServiceTest {
     form.setDryHoleType(DryHoleType.GAS);
     form.setDryHoleCost(DecimalInput.createDecimalInput(BigDecimal.ONE));
     form.getDrillDetailsForm().setTotalDepthFormationComments("Depth comments");
+    form.setMigrationFailureCategory(MigrationFailureCategory.PROSPECT_NOT_ON_MIGRATION);
+    form.setSourceFailureCategory(SourceFailureCategory.SOURCE_NOT_MATURE);
+    form.setSealFailureCategory(SealFailureCategory.SEAL_LITHOLOGY_NOT_PRESENT);
+    form.setReservoirFailureCategory(ReservoirFailureCategory.RESERVOIR_INTERVAL_POOR_QUALITY);
+    form.setTrapFailureCategory(TrapFailureCategory.STRATIGRAPHIC_TRAP_COMPONENTS_NOT_PRESENT);
     return form;
   }
 

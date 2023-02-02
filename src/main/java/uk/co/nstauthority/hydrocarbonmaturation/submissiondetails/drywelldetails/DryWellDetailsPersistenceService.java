@@ -48,7 +48,11 @@ class DryWellDetailsPersistenceService {
     dryWellDetail.setDryHoleType(form.getDryHoleType());
     dryWellDetail.setDryHoleCost(form.getDryHoleCost().createBigDecimalOrNull());
     dryWellDetail.setTotalDepthFormationComments(detailForm.getTotalDepthFormationComments());
-
+    dryWellDetail.setMigrationFailureCategory(form.getMigrationFailureCategory());
+    dryWellDetail.setReservoirFailureCategory(form.getReservoirFailureCategory());
+    dryWellDetail.setSealFailureCategory(form.getSealFailureCategory());
+    dryWellDetail.setSourceFailureCategory(form.getSourceFailureCategory());
+    dryWellDetail.setTrapFailureCategory(form.getTrapFailureCategory());
     dryWellDetailsRepository.save(dryWellDetail);
   }
 

@@ -43,6 +43,21 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole scope for remaining potential">
       ${dryWellValues.dryHoleScope()}
     </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Source failure category for post-well analysis">
+      ${dryWellValues.sourceFailureCategory()}
+    </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Reservoir failure category for post-well analysis">
+      ${dryWellValues.reservoirFailureCategory()}
+    </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Seal failure category for post-well analysis">
+      ${dryWellValues.sealFailureCategory()}
+    </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Trap failure category for post-well analysis">
+      ${dryWellValues.trapFailureCategory()}
+    </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Migration failure category for post-well analysis">
+      ${dryWellValues.migrationFailureCategory()}
+    </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Total depth formation">
       ${dryWellValues.dryHoleComments()}
     </@fdsSummaryList.summaryListRowNoAction>

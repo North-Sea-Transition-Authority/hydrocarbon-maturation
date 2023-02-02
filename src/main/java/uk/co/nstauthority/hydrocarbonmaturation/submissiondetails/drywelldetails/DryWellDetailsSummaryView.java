@@ -16,6 +16,11 @@ public record DryWellDetailsSummaryView(String principalWell,
                                         String dryHoleType,
                                         String dryHoleDescription,
                                         String dryHoleScope,
+                                        String sourceFailureCategory,
+                                        String reservoirFailureCategory,
+                                        String sealFailureCategory,
+                                        String trapFailureCategory,
+                                        String migrationFailureCategory,
                                         String dryHoleComments,
                                         String dryHoleCost) {
 
@@ -25,6 +30,7 @@ public record DryWellDetailsSummaryView(String principalWell,
         "", "", "", "",
         "", "", "", "",
         "", "", "", "",
-        "", "");
+        "", "", "", "",
+        "", "", "");
   }
 }

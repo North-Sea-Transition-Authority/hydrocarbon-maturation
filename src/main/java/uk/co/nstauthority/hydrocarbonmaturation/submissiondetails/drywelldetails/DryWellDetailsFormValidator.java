@@ -31,7 +31,7 @@ class DryWellDetailsFormValidator extends PartialFullFormValidator {
     DecimalInputValidator.configureOptionalValidator(
             errors,
             "dryHoleCost.decimalInputValue",
-            "the dry well cost",
+            "The dry well cost",
             dryWellForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)
@@ -85,10 +85,45 @@ class DryWellDetailsFormValidator extends PartialFullFormValidator {
         "Select the dry hole shows type"
     );
 
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "sourceFailureCategory",
+        "sourceFailureCategory.required",
+        "Select the source failure category"
+    );
+
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "reservoirFailureCategory",
+        "reservoirFailureCategory.required",
+        "Select the reservoir failure category"
+    );
+
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "sealFailureCategory",
+        "sealFailureCategory.required",
+        "Select the seal failure category"
+    );
+
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "trapFailureCategory",
+        "trapFailureCategory.required",
+        "Select the trap failure category"
+    );
+
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "migrationFailureCategory",
+        "migrationFailureCategory.required",
+        "Select the migration failure category"
+    );
+
     DecimalInputValidator.configureValidator(
         errors,
         "dryHoleCost.decimalInputValue",
-        "the total well cost",
+        "The total well cost",
         dryWellForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)

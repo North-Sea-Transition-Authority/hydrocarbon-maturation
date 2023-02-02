@@ -43,7 +43,11 @@ class DryWellDetailsFormService implements SubmissionFormService {
     form.setDryHoleDescription(dryWellDetail.getDryHoleDescription());
     form.setDryHoleComments(dryWellDetail.getDryHoleComments());
     form.setDryHoleType(dryWellDetail.getDryHoleType());
-
+    form.setTrapFailureCategory(dryWellDetail.getTrapFailureCategory());
+    form.setSourceFailureCategory(dryWellDetail.getSourceFailureCategory());
+    form.setSealFailureCategory(dryWellDetail.getSealFailureCategory());
+    form.setReservoirFailureCategory(dryWellDetail.getReservoirFailureCategory());
+    form.setMigrationFailureCategory(dryWellDetail.getMigrationFailureCategory());
     return form;
   }
 

@@ -58,7 +58,47 @@ class DryWellDetailsSummaryServiceTest {
             DryWellDetailsSummaryView::dryHoleDescription,
             DryWellDetailsSummaryView::dryHoleScope,
             DryWellDetailsSummaryView::dryHoleComments,
-            DryWellDetailsSummaryView::dryHoleCost)
+            DryWellDetailsSummaryView::dryHoleCost,
+            DryWellDetailsSummaryView::migrationFailureCategory,
+            DryWellDetailsSummaryView::reservoirFailureCategory,
+            DryWellDetailsSummaryView::sourceFailureCategory,
+            DryWellDetailsSummaryView::sealFailureCategory,
+            DryWellDetailsSummaryView::trapFailureCategory)
+        .containsOnly("");
+  }
+
+  @Test
+  void getDryWellDetailSummaryFromSubmissionDetail_whenPresentButEmpty_emptySummary() {
+    when(dryWellDetailsPersistenceService.getDryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(new DryWellDetail()));
+
+    var view = dryWellDetailsSummaryService.getDryWellDetailSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(view)
+        .extracting(
+            DryWellDetailsSummaryView::principalWell,
+            DryWellDetailsSummaryView::latitudeDegrees,
+            DryWellDetailsSummaryView::latitudeMinutes,
+            DryWellDetailsSummaryView::latitudeSeconds,
+            DryWellDetailsSummaryView::longitudeDegrees,
+            DryWellDetailsSummaryView::longitudeMinutes,
+            DryWellDetailsSummaryView::longitudeSeconds,
+            DryWellDetailsSummaryView::longitudeHemisphere,
+            DryWellDetailsSummaryView::datum,
+            DryWellDetailsSummaryView::totalDepthFormation,
+            DryWellDetailsSummaryView::totalDepthFormationComments,
+            DryWellDetailsSummaryView::dataAcquisitionProgramme,
+            DryWellDetailsSummaryView::geophysicalUpdate,
+            DryWellDetailsSummaryView::dryHoleType,
+            DryWellDetailsSummaryView::dryHoleDescription,
+            DryWellDetailsSummaryView::dryHoleScope,
+            DryWellDetailsSummaryView::dryHoleComments,
+            DryWellDetailsSummaryView::dryHoleCost,
+            DryWellDetailsSummaryView::migrationFailureCategory,
+            DryWellDetailsSummaryView::reservoirFailureCategory,
+            DryWellDetailsSummaryView::sourceFailureCategory,
+            DryWellDetailsSummaryView::sealFailureCategory,
+            DryWellDetailsSummaryView::trapFailureCategory)
         .containsOnly("");
   }
 
@@ -84,6 +124,11 @@ class DryWellDetailsSummaryServiceTest {
     dryWellDetail.setDryHoleScope("scope");
     dryWellDetail.setDryHoleComments("comments");
     dryWellDetail.setDryHoleCost(BigDecimal.ONE);
+    dryWellDetail.setTrapFailureCategory(TrapFailureCategory.STRATIGRAPHIC_TRAP_COMPONENTS_NOT_PRESENT);
+    dryWellDetail.setMigrationFailureCategory(MigrationFailureCategory.PROSPECT_NOT_ON_MIGRATION);
+    dryWellDetail.setSourceFailureCategory(SourceFailureCategory.SOURCE_NOT_MATURE);
+    dryWellDetail.setSealFailureCategory(SealFailureCategory.SEAL_LITHOLOGY_PRESENT_POOR_QUALITY);
+    dryWellDetail.setReservoirFailureCategory(ReservoirFailureCategory.RESERVOIR_INTERVAL_NOT_PRESENT);
 
     when(dryWellDetailsPersistenceService.getDryWellDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(dryWellDetail));
@@ -109,7 +154,12 @@ class DryWellDetailsSummaryServiceTest {
             DryWellDetailsSummaryView::dryHoleDescription,
             DryWellDetailsSummaryView::dryHoleScope,
             DryWellDetailsSummaryView::dryHoleComments,
-            DryWellDetailsSummaryView::dryHoleCost)
+            DryWellDetailsSummaryView::dryHoleCost,
+            DryWellDetailsSummaryView::migrationFailureCategory,
+            DryWellDetailsSummaryView::reservoirFailureCategory,
+            DryWellDetailsSummaryView::sourceFailureCategory,
+            DryWellDetailsSummaryView::sealFailureCategory,
+            DryWellDetailsSummaryView::trapFailureCategory)
         .containsExactly(
             "wellname",
             BigDecimal.ONE + "°",
@@ -128,7 +178,12 @@ class DryWellDetailsSummaryServiceTest {
             "description",
             "scope",
             "comments",
-            "£" + BigDecimal.ONE + " million"
+            "£" + BigDecimal.ONE + " million",
+            MigrationFailureCategory.PROSPECT_NOT_ON_MIGRATION.getDisplayName(),
+            ReservoirFailureCategory.RESERVOIR_INTERVAL_NOT_PRESENT.getDisplayName(),
+            SourceFailureCategory.SOURCE_NOT_MATURE.getDisplayName(),
+            SealFailureCategory.SEAL_LITHOLOGY_PRESENT_POOR_QUALITY.getDisplayName(),
+            TrapFailureCategory.STRATIGRAPHIC_TRAP_COMPONENTS_NOT_PRESENT.getDisplayName()
         );
   }
 }

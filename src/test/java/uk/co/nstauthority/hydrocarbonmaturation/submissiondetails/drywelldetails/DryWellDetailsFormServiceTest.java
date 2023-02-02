@@ -107,14 +107,24 @@ class DryWellDetailsFormServiceTest {
             DryWellDetailsForm::getDryHoleDescription,
             DryWellDetailsForm::getDryHoleScope,
             DryWellDetailsForm::getDryHoleComments,
-            form1 -> form1.getDryHoleCost().asBigDecimal().get())
+            form1 -> form1.getDryHoleCost().asBigDecimal().get(),
+            DryWellDetailsForm::getMigrationFailureCategory,
+            DryWellDetailsForm::getReservoirFailureCategory,
+            DryWellDetailsForm::getSourceFailureCategory,
+            DryWellDetailsForm::getSealFailureCategory,
+            DryWellDetailsForm::getTrapFailureCategory)
         .containsExactly(
             detailForm,
             dryWellDetail.getDryHoleType(),
             dryWellDetail.getDryHoleDescription(),
             dryWellDetail.getDryHoleScope(),
             dryWellDetail.getDryHoleComments(),
-            dryWellDetail.getDryHoleCost()
+            dryWellDetail.getDryHoleCost(),
+            dryWellDetail.getMigrationFailureCategory(),
+            dryWellDetail.getReservoirFailureCategory(),
+            dryWellDetail.getSourceFailureCategory(),
+            dryWellDetail.getSealFailureCategory(),
+            dryWellDetail.getTrapFailureCategory()
         );
   }
 
@@ -139,7 +149,12 @@ class DryWellDetailsFormServiceTest {
             DryWellDetailsForm::getDryHoleDescription,
             DryWellDetailsForm::getDryHoleScope,
             DryWellDetailsForm::getDryHoleComments,
-            form1 -> form1.getDryHoleCost().asBigDecimal())
+            form1 -> form1.getDryHoleCost().asBigDecimal(),
+            DryWellDetailsForm::getMigrationFailureCategory,
+            DryWellDetailsForm::getReservoirFailureCategory,
+            DryWellDetailsForm::getSourceFailureCategory,
+            DryWellDetailsForm::getSealFailureCategory,
+            DryWellDetailsForm::getTrapFailureCategory)
         .containsExactly(
             detailForm,
             dryWellDetail.getDataAcquisitionProgramme(),
@@ -148,7 +163,12 @@ class DryWellDetailsFormServiceTest {
             dryWellDetail.getDryHoleDescription(),
             dryWellDetail.getDryHoleScope(),
             dryWellDetail.getDryHoleComments(),
-            Optional.empty()
+            Optional.empty(),
+            dryWellDetail.getMigrationFailureCategory(),
+            dryWellDetail.getReservoirFailureCategory(),
+            dryWellDetail.getSourceFailureCategory(),
+            dryWellDetail.getSealFailureCategory(),
+            dryWellDetail.getTrapFailureCategory()
         );
   }
 
@@ -174,6 +194,11 @@ class DryWellDetailsFormServiceTest {
     dryWellDetail.setDryHoleType(DryHoleType.GAS);
     dryWellDetail.setDryHoleCost(BigDecimal.ONE);
     dryWellDetail.setTotalDepthFormationComments("Depth comments");
+    dryWellDetail.setTrapFailureCategory(TrapFailureCategory.STRATIGRAPHIC_TRAP_COMPONENTS_NOT_PRESENT);
+    dryWellDetail.setMigrationFailureCategory(MigrationFailureCategory.PROSPECT_NOT_ON_MIGRATION);
+    dryWellDetail.setSourceFailureCategory(SourceFailureCategory.SOURCE_NOT_MATURE);
+    dryWellDetail.setSealFailureCategory(SealFailureCategory.SEAL_LITHOLOGY_PRESENT_POOR_QUALITY);
+    dryWellDetail.setReservoirFailureCategory(ReservoirFailureCategory.RESERVOIR_INTERVAL_NOT_PRESENT);
     return dryWellDetail;
   }
 }
