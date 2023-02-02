@@ -28,9 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -42,9 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = PermeabilityController.class)
-class PermeabilityControllerTest extends AbstractControllerTest {
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private PermeabilityFormService permeabilityFormService;
@@ -65,6 +61,7 @@ class PermeabilityControllerTest extends AbstractControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(permeabilityFormService.getPermeabilityForm(submissionDetail)).thenReturn(new PermeabilityForm());
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
         .getPermeabilityPage(submissionDetailId, null)))
@@ -82,6 +79,14 @@ class PermeabilityControllerTest extends AbstractControllerTest {
         .andExpect(status().isForbidden());
   }
 
+  @SecurityTest
+  void getPermeabilityPage_andUserNotInResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
+            .getPermeabilityPage(submissionDetailId, null)))
+            .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})

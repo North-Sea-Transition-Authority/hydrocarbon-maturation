@@ -47,8 +47,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = GasCaseVolumetricsController.class)
 class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
-
   @MockBean
   private GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
 

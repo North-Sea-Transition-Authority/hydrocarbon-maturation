@@ -23,10 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -42,15 +39,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 
 
 @ContextConfiguration(classes = UpdateProspectController.class)
-class UpdateProspectControllerTest extends AbstractControllerTest {
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+class UpdateProspectControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private UpdateProspectService updateProspectService;
-
-  @MockBean
-  private PermissionService permissionService;
 
   private UUID submissionDetailId;
 

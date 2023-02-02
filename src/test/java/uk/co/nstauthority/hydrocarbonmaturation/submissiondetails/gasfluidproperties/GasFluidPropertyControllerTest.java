@@ -29,9 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -42,9 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = GasFluidPropertyController.class)
-class GasFluidPropertyControllerTest extends AbstractControllerTest {
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private GasFluidPropertyFormService gasFluidPropertyFormService;
@@ -69,6 +65,7 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
     when(gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail))
         .thenReturn(new GasFluidPropertyForm());
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
         get(ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(submissionDetailId)))
@@ -80,6 +77,18 @@ class GasFluidPropertyControllerTest extends AbstractControllerTest {
   @SecurityTest
   void getGasFluidProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getGasFluidProperties_andNotResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+
     mockMvc.perform(
             get(ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(submissionDetailId)))
                 .with(user(USER)))

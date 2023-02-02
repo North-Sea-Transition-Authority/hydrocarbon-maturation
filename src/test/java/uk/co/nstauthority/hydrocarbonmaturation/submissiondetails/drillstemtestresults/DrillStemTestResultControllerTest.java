@@ -31,9 +31,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -42,9 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ContextConfiguration(classes = DrillStemTestResultController.class)
-class DrillStemTestResultControllerTest extends AbstractControllerTest {
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private DrillStemTestResultFormService drillStemTestResultFormService;
@@ -81,6 +77,7 @@ class DrillStemTestResultControllerTest extends AbstractControllerTest {
     when(drillStemTestResultFormService.getDrillStemTestResultForm(drillStemTestResult)).thenReturn(form);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultByIdOrThrow(drillStemTestId))
         .thenReturn(drillStemTestResult);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DrillStemTestResultController.class)
@@ -92,7 +89,6 @@ class DrillStemTestResultControllerTest extends AbstractControllerTest {
   @SecurityTest
   void getDrillStemTestResultPage_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
-
     mockMvc.perform(
             get(ReverseRouter.route(on(DrillStemTestResultController.class)
                 .getDrillStemTestResultPage(submissionDetailId, drillStemTestId)))
@@ -104,13 +100,33 @@ class DrillStemTestResultControllerTest extends AbstractControllerTest {
   void getCreateNewDrillStemTestResultPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
-
+    setUpWhenUserIsResponsibleTeam_passSecurity();
     mockMvc.perform(
             get(ReverseRouter.route(on(DrillStemTestResultController.class)
                 .getCreateNewDrillStemTestResultPage(submissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/drillstemtest/drillStemTestResult"));
+  }
+
+  @SecurityTest
+  void getDrillStemTestResultPage_whenNotResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DrillStemTestResultController.class)
+                .getDrillStemTestResultPage(submissionDetailId, drillStemTestId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getCreateNewDrillStemTestResultPage_whenNotResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DrillStemTestResultController.class)
+                .getCreateNewDrillStemTestResultPage(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 
   @ParameterizedTest(name = "controller validation - {0}")

@@ -26,9 +26,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
@@ -48,10 +46,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprope
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ContextConfiguration(classes = DiscoverySubmissionSummaryController.class)
-class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
+class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControllerTest {
 
   public static final String VIEW_NAME = "remi/submissiondetails/summary/discoverySubmissionSummary";
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -101,7 +98,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   void showSubmissionSummary_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     mockCreateDiscoverySubmissionSummaryModelAndView();
-
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
                 .with(user(USER)))
@@ -119,10 +116,20 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
+  void showSubmissionSummary_andUserNotInResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().is4xxClientError());
+  }
+
+  @SecurityTest
   void processSubmission_assertRedirection() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
     mockCreateDiscoverySubmissionSummaryModelAndView();
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
             post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
                 .with(user(USER))

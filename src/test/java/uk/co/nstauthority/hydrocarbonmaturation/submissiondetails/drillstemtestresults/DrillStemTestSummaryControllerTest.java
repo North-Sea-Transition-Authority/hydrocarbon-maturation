@@ -25,18 +25,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -44,9 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ContextConfiguration(classes = DrillStemTestSummaryController.class)
-class DrillStemTestSummaryControllerTest extends AbstractControllerTest {
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+class DrillStemTestSummaryControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private DrillStemTestFormService drillStemTestFormService;
@@ -59,9 +53,6 @@ class DrillStemTestSummaryControllerTest extends AbstractControllerTest {
 
   @MockBean
   private DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
-
-  @Autowired
-  private ControllerHelperService controllerHelperService;
 
   private DrillStemTestSummaryForm form;
   private BindingResult bindingResult;
@@ -83,6 +74,7 @@ class DrillStemTestSummaryControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void getDrillStemTestSummaryPage_assertStatusOk() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(drillStemTestFormService.getDrillStemTestSummaryForm(submissionDetail)).thenReturn(form);
     when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
@@ -104,6 +96,30 @@ class DrillStemTestSummaryControllerTest extends AbstractControllerTest {
                 .getDrillStemTestSummaryPage(submissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getDrillStemTestSummaryPage_andNotResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DrillStemTestSummaryController.class)
+                .getDrillStemTestSummaryPage(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void saveDrillStemTestSummaryPage_whenUserNotResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            post(ReverseRouter.route(on(DrillStemTestSummaryController.class)
+                .saveDrillStemTestSummary(submissionDetailId,null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
+
+    verify(drillStemTestResultPersistenceService, never()).createNewDrillStemTestResult(any());
+    verify(drillStemTestInitialPersistenceService, never()).saveInitialDrillStemTest(any(), any());
   }
 
   @Test

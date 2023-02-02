@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,9 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
@@ -31,9 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ContextConfiguration(classes = DrillStemTestDeleteController.class)
-class DrillStemTestDeleteControllerTest extends AbstractControllerTest {
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
@@ -60,6 +57,7 @@ class DrillStemTestDeleteControllerTest extends AbstractControllerTest {
         .thenReturn(submissionDetail);
     when(drillStemTestResultsSummaryService.createSummaryViewFromDrillStemTestResult(drillStemTestResult, DrillStemTestResultSummaryMode.VIEW, 1))
         .thenReturn(DrillStemTestResultSummaryView.empty(1, "", ""));
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DrillStemTestDeleteController.class)
@@ -112,6 +110,8 @@ class DrillStemTestDeleteControllerTest extends AbstractControllerTest {
         .thenReturn(drillStemTest);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
         .thenReturn(List.of());
+    setUpWhenUserIsResponsibleTeam_passSecurity();
+
     var expectedBannerImplementation = NotificationBanner.builder()
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent("The drill stem test result with formation name The name has been deleted.")
@@ -129,6 +129,32 @@ class DrillStemTestDeleteControllerTest extends AbstractControllerTest {
         .andExpect(notificationBanner(expectedBannerImplementation));
 
     verify(drillStemTestResultPersistenceService).deleteDrillStemTestResult(drillStemTestResult);
+  }
+
+  @SecurityTest
+  void getDrillStemTestResultDeleteConfirmationPage_whenNotResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DrillStemTestDeleteController.class)
+                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), drillStemTestResultId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+    verifyNoInteractions(drillStemTestResultPersistenceService);
+  }
+
+  @SecurityTest
+  void deleteDrillStemTestResult_whenNotResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(DrillStemTestDeleteController.class)
+                .deleteDrillStemTestResult(submissionDetail.getId(), drillStemTestResultId, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+
+    verifyNoInteractions(drillStemTestResultPersistenceService);
   }
 
   @Test

@@ -29,9 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -42,9 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = OilFluidPropertyController.class)
-class OilFluidPropertyControllerTest extends AbstractControllerTest {
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private OilFluidPropertyFormService oilFluidPropertyFormService;
@@ -72,7 +68,7 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
         .thenReturn(submissionDetail);
     when(oilFluidPropertyFormService.getOilFluidPropertyForm(submissionDetail))
         .thenReturn(new OilFluidPropertyForm());
-
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(submissionDetailId)))
                 .with(user(USER)))
@@ -83,6 +79,15 @@ class OilFluidPropertyControllerTest extends AbstractControllerTest {
   @SecurityTest
   void getOilFluidProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getOilFluidProperties_andNotResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(submissionDetailId)))
                 .with(user(USER)))

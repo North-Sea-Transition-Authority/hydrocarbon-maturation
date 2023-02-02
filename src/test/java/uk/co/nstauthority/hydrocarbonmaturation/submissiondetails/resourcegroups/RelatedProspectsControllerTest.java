@@ -30,8 +30,6 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -42,8 +40,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ContextConfiguration(classes = RelatedProspectsController.class)
 class RelatedProspectsControllerTest extends AbstractSubmissionControllerTest {
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   RelatedProspectsFormService relatedProspectsFormService;
@@ -66,7 +62,7 @@ class RelatedProspectsControllerTest extends AbstractSubmissionControllerTest {
   void getRelatedProspectsPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail)).thenReturn(new RelatedProspectsForm());
-    setUpWhenUserIsResponsibleTeam_passSecurity(USER);
+    setUpWhenUserIsResponsibleTeam_passSecurity();
 
     mockMvc.perform(
         get(ReverseRouter.route(on(RelatedProspectsController.class).getRelatedProspects(submissionDetailId, form)))

@@ -13,7 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
@@ -22,7 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
     AuthenticationControllerTest.TestAuthenticationController.class,
     UserDetailService.class
 })
-class AuthenticationControllerTest extends AbstractControllerTest {
+class AuthenticationControllerTest extends AbstractSubmissionControllerTest {
 
   @Controller
   @RequestMapping("/auth")

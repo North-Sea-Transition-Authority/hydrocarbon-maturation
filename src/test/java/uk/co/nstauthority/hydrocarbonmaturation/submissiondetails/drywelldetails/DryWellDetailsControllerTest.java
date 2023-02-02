@@ -29,7 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -45,9 +45,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = DryWellDetailsController.class)
-class DryWellDetailsControllerTest extends AbstractControllerTest {
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private DryWellDetailsFormService dryWellDetailsFormService;
@@ -66,6 +64,7 @@ class DryWellDetailsControllerTest extends AbstractControllerTest {
   void getDryWellDetails_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(dryWellDetailsFormService.getDryWellDetailsForm(submissionDetail)).thenReturn(new DryWellDetailsForm());
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
         get(ReverseRouter.route(on(DryWellDetailsController.class).getDryWellDetails(submissionDetailId, null)))
             .with(user(USER)))

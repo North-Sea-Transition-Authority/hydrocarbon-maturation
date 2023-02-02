@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbItem;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
@@ -25,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/drill-stem-test/{drillStemTestResultId}")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
+@IsFromResponsibleTeam
 class DrillStemTestDeleteController {
 
   private final DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;

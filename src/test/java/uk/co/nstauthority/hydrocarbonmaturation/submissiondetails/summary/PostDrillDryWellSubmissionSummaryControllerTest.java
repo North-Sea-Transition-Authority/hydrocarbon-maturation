@@ -26,9 +26,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailPersistenceService;
@@ -41,11 +39,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprope
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ContextConfiguration(classes = PostDrillDryWellSubmissionSummaryController.class)
-class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractControllerTest {
+class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmissionControllerTest {
 
   public static final String VIEW_NAME = "remi/submissiondetails/summary/dryWellSubmissionSummary";
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -87,7 +83,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
   void showSubmissionSummary_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
-
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
         get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
             .showSubmissionSummary(submissionDetailId)))
@@ -99,6 +95,17 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractController
   @SecurityTest
   void showSubmissionSummary_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
+                .showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void showSubmissionSummary_andUserNotInResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)

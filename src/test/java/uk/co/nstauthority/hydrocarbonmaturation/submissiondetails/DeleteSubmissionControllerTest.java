@@ -21,8 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
@@ -37,8 +35,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   public static final String VIEW_NAME = "remi/submissiondetails/deleteConfirmation";
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -66,7 +62,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
   void showDeleteConfirmationPage_andStatusIsNotDraft_assertForbidden() throws Exception {
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
-
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(SUBMISSION_DETAIL_ID)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
