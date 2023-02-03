@@ -5,10 +5,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
@@ -16,18 +14,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 class WorkAreaItemService {
 
   private final SubmissionWorkAreaQueryService submissionWorkAreaQueryService;
-  private final LicenceQueryService licenceQueryService;
-  private final OrganisationUnitQueryService organisationUnitQueryService;
-
-  private static final String DEFAULT_TEXT = "Not provided";
+  private final SubmissionDetailDisplayService submissionDetailDisplayService;
 
   @Autowired
   WorkAreaItemService(SubmissionWorkAreaQueryService submissionWorkAreaQueryService,
-                             LicenceQueryService licenceQueryService,
-                             OrganisationUnitQueryService organisationUnitQueryService) {
+                      SubmissionDetailDisplayService submissionDetailDisplayService) {
     this.submissionWorkAreaQueryService = submissionWorkAreaQueryService;
-    this.licenceQueryService = licenceQueryService;
-    this.organisationUnitQueryService = organisationUnitQueryService;
+    this.submissionDetailDisplayService = submissionDetailDisplayService;
   }
 
   List<WorkAreaItem> getWorkAreaItems() {
@@ -65,47 +58,13 @@ class WorkAreaItemService {
 
   private WorkAreaItemModelProperties getWorkAreaItemModelProperties(
       SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult) {
+    var organisationResponsibleId = submissionWorkAreaQueryResult.getOrganisationResponsibleId();
+    var licencesTheResourceIsOn = submissionWorkAreaQueryResult.getLicencesTheResourceIsOn();
+
     return new WorkAreaItemModelProperties()
         .addProperty("organisationResponsible",
-            getOrganisationResponsibleDisplay(submissionWorkAreaQueryResult.getOrganisationResponsibleId()))
-        .addProperty("licences", getLicencesForDisplay(submissionWorkAreaQueryResult.getLicencesTheResourceIsOn()))
-        .addProperty("submissionStatus", submissionWorkAreaQueryResult.getStatus().getDisplayName())
-        .addProperty("defaultText", DEFAULT_TEXT);
-  }
-
-  private String getOrganisationResponsibleDisplay(Integer organisationResponsibleId) {
-    if (organisationResponsibleId != null) {
-      return organisationUnitQueryService.findOrganisationUnit(organisationResponsibleId)
-          .map(organisationUnit -> {
-            if (organisationUnit.getRegisteredNumber() != null && organisationUnit.getName() != null) {
-              return organisationUnit.getName() + " (" + organisationUnit.getRegisteredNumber() + ")";
-            } else if (organisationUnit.getName() != null) {
-              return organisationUnit.getName();
-            } else {
-              return DEFAULT_TEXT;
-            }
-          })
-          .orElse(DEFAULT_TEXT);
-    }
-    return DEFAULT_TEXT;
-  }
-
-  private List<String> getLicencesForDisplay(List<Integer> licenceIds) {
-    if (licenceIds != null) {
-      var licences = licenceIds
-          .stream()
-          .map(Object::toString)
-          .toList();
-      if (!licences.isEmpty()) {
-        return licenceQueryService.getLicencesByIds(licences)
-            .stream()
-            .map(LicenceView::licenceRef)
-            .toList();
-      } else {
-        return List.of();
-      }
-    } else {
-      return List.of();
-    }
+            submissionDetailDisplayService.getOrganisationResponsibleDisplay(organisationResponsibleId))
+        .addProperty("licences", submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn))
+        .addProperty("submissionStatus", submissionWorkAreaQueryResult.getStatus().getDisplayName());
   }
 }

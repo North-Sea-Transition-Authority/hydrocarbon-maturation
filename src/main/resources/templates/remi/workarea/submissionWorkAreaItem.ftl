@@ -20,8 +20,6 @@
           <#list modelProperties["licences"] as licence>
             ${licence}
           </#list>
-        <#else>
-          ${modelProperties["defaultText"]}
         </#if>
       </#assign>
       <@fdsResultList.resultListDataValue

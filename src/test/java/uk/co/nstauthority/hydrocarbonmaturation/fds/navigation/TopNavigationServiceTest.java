@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchResourceRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -38,6 +39,11 @@ class TopNavigationServiceTest {
                 TopNavigationService.TEAM_MANAGEMENT_NAVIGATION_ITEM_TITLE,
                 StringUtils.stripEnd(
                     ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()), "/")
+            ),
+            Tuple.tuple(
+                TopNavigationService.SEARCH_RESOURCE_RECORDS,
+                StringUtils.stripEnd(
+                    ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()), "/")
             )
         );
   }

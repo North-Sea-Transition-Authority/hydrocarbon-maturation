@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -10,9 +11,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,10 +20,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,10 +32,7 @@ class WorkAreaItemServiceTest {
   private SubmissionWorkAreaQueryService submissionWorkAreaQueryService;
 
   @Mock
-  private LicenceQueryService licenceQueryService;
-
-  @Mock
-  private OrganisationUnitQueryService organisationUnitQueryService;
+  private SubmissionDetailDisplayService submissionDetailDisplayService;
 
   @InjectMocks
   private WorkAreaItemService workAreaItemService;
@@ -52,7 +47,6 @@ class WorkAreaItemServiceTest {
 
   @BeforeEach
   void setUp() {
-    queryResults = new ArrayList<>();
     queryResultWithEverythingFilledIn = SubmissionWorkAreaQueryResultTestUtil.builder()
         .withLicencesTheResourceIsOn(List.of(LICENCE_ID_1, LICENCE_ID_2)).build();
     queryResultWithoutLicencesAndBlock = SubmissionWorkAreaQueryResultTestUtil.builder()
@@ -62,16 +56,15 @@ class WorkAreaItemServiceTest {
         .withOrganisationResponsibleId(ORGANISATION_ID)
         .withLicencesTheResourceIsOn(null)
         .build();
-    queryResults.add(queryResultWithEverythingFilledIn);
-    queryResults.add(queryResultWithoutLicencesAndBlock);
+    queryResults = List.of(queryResultWithEverythingFilledIn, queryResultWithoutLicencesAndBlock);
   }
 
   @Test
   void getWorkAreaItems_twoItemsReturned_whenOrganisationAndLicencesNotFound_oneWithQuadBlocks() {
     when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(queryResults);
-    when(organisationUnitQueryService.findOrganisationUnit(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
-        .thenReturn(Optional.empty());
-    when(licenceQueryService.getLicencesByIds(List.of(LICENCE_ID_1.toString(), LICENCE_ID_2.toString())))
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(anyInt()))
+        .thenReturn("Not provided");
+    when(submissionDetailDisplayService.getLicencesForDisplay(List.of(LICENCE_ID_1, LICENCE_ID_2)))
         .thenReturn(List.of());
 
     var result = workAreaItemService.getWorkAreaItems();
@@ -101,15 +94,13 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"),
-            entry("defaultText", "Not provided"));
+            entry("submissionStatus", "Draft"));
 
     assertThat(result.get(1).modelProperties().getProperties())
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"),
-            entry("defaultText", "Not provided"));
+            entry("submissionStatus", "Draft"));
   }
 
   @Test
@@ -120,13 +111,13 @@ class WorkAreaItemServiceTest {
         .name("organisation")
         .registeredNumber("1")
         .build();
-    when(organisationUnitQueryService.findOrganisationUnit(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
-        .thenReturn(Optional.of(organisationUnit));
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
+        .thenReturn("organisation (1)");
     var licence1 = new LicenceView("licence1", LICENCE_ID_1, LicenceStatus.EXTANT);
     var licence2 = new LicenceView("licence2", LICENCE_ID_2, LicenceStatus.EXTANT);
     var licences = List.of(licence1, licence2);
-    when(licenceQueryService.getLicencesByIds(List.of(LICENCE_ID_1.toString(), LICENCE_ID_2.toString())))
-        .thenReturn(licences);
+    when(submissionDetailDisplayService.getLicencesForDisplay(List.of(LICENCE_ID_1, LICENCE_ID_2)))
+        .thenReturn(List.of(licence1.getName(), licence2.getName()));
 
     var result = workAreaItemService.getWorkAreaItems();
 
@@ -148,8 +139,7 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "organisation (1)"),
             entry("licences", List.of(licence1.getName(), licence2.getName())),
-            entry("submissionStatus", "Draft"),
-            entry("defaultText", "Not provided"));
+            entry("submissionStatus", "Draft"));
   }
 
   @Test
@@ -164,6 +154,9 @@ class WorkAreaItemServiceTest {
         .build();
 
     when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(submissionWorkAreaQueryResult));
+
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(null))
+        .thenReturn("Not provided");
 
     var result = workAreaItemService.getWorkAreaItems();
 
@@ -189,20 +182,15 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"),
-            entry("defaultText", "Not provided"));
+            entry("submissionStatus", "Draft"));
   }
 
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationWithoutNameFound() {
-    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(
-        queryResultWithEverythingFilledIn));
-    var organisationUnit = OrganisationUnit.newBuilder()
-        .name(null)
-        .registeredNumber("1")
-        .build();
-    when(organisationUnitQueryService.findOrganisationUnit(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
-        .thenReturn(Optional.of(organisationUnit));
+    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+        .thenReturn(List.of(queryResultWithEverythingFilledIn));
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
+        .thenReturn("Not provided");
 
     var result = workAreaItemService.getWorkAreaItems();
 
@@ -224,20 +212,15 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"),
-            entry("defaultText", "Not provided"));
+            entry("submissionStatus", "Draft"));
   }
 
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationWithoutNameAndNumberFound() {
     when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(
         queryResultWithEverythingFilledIn));
-    var organisationUnit = OrganisationUnit.newBuilder()
-        .name(null)
-        .registeredNumber(null)
-        .build();
-    when(organisationUnitQueryService.findOrganisationUnit(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
-        .thenReturn(Optional.of(organisationUnit));
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
+        .thenReturn("Not provided");
 
     var result = workAreaItemService.getWorkAreaItems();
 
@@ -259,8 +242,7 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"),
-            entry("defaultText", "Not provided"));
+            entry("submissionStatus", "Draft"));
   }
 
   @Test
@@ -271,21 +253,17 @@ class WorkAreaItemServiceTest {
         .build();
     when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(
         queryResultOnlyOrganisationName));
-    var organisationUnit = OrganisationUnit.newBuilder()
-        .name("organisation name")
-        .registeredNumber(null)
-        .build();
-    when(organisationUnitQueryService.findOrganisationUnit(ORGANISATION_ID))
-        .thenReturn(Optional.of(organisationUnit));
+    var organisationName = "organisation name";
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(ORGANISATION_ID))
+        .thenReturn(organisationName);
 
     var result = workAreaItemService.getWorkAreaItems();
 
     assertThat(result.get(0).modelProperties().getProperties())
         .containsExactly(
-            entry("organisationResponsible", "organisation name"),
+            entry("organisationResponsible", organisationName),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"),
-            entry("defaultText", "Not provided"));
+            entry("submissionStatus", "Draft"));
   }
 
 
@@ -297,6 +275,8 @@ class WorkAreaItemServiceTest {
         .build();
     when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(
         queryResultEmptyLicences));
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
+        .thenReturn("Not provided");
 
     var result = workAreaItemService.getWorkAreaItems();
 
@@ -304,7 +284,6 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"),
-            entry("defaultText", "Not provided"));
+            entry("submissionStatus", "Draft"));
   }
 }
