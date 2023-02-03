@@ -296,10 +296,70 @@ class GeneralDetailsFormValidatorTest {
         new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.of(generalDetail),
             true));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
+    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
             entry("licenceSelect", Set.of("licenceSelect.required"))
+        );
+    assertThat(extractedErrorMessages)
+        .containsExactly(
+            entry("licenceSelect", Set.of("You cannot remove all licences from a resource that has " +
+                "a licence on an earlier approved submission"))
+        );
+  }
+
+  @Test
+  void validate_whenNoLicenceSelected_WhenNotInPreviousSubmission() {
+    var form = getValidForm();
+    form.setLicences(List.of());
+    form.setLicenceSelect(null);
+    form.setResourceOnALicence(true);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var generalDetail = new GeneralDetail();
+    generalDetail.setResourceOnALicence(true);
+
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new GeneralDetailsFormValidatorHints(ValidationType.FULL, submissionDetail, Optional.of(generalDetail),
+            false));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("licenceSelect", Set.of("licenceSelect.required"))
+        );
+    assertThat(extractedErrorMessages)
+        .containsExactly(
+            entry("licenceSelect", Set.of("You must select at least one licence"))
+        );
+  }
+
+  @Test
+  void validate_whenResourceNotOnLicence_WhenInPreviousSubmission() {
+    var form = getValidForm();
+    form.setLicences(List.of());
+    form.setLicenceSelect(null);
+    form.setResourceOnALicence(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var generalDetail = new GeneralDetail();
+    generalDetail.setResourceOnALicence(true);
+
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new GeneralDetailsFormValidatorHints(ValidationType.FULL, submissionDetail, Optional.of(generalDetail),
+            true));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("resourceOnALicence", Set.of("resourceOnALicence.required"))
+        );
+    assertThat(extractedErrorMessages)
+        .containsExactly(
+            entry("resourceOnALicence", Set.of("You cannot remove all licences from a resource that has a" +
+                " licence on an earlier approved submission"))
         );
   }
 

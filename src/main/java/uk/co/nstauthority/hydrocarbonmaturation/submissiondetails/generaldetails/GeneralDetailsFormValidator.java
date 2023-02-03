@@ -27,6 +27,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   private SubmissionType submissionType;
   private boolean isLicencePresent;
   private Optional<GeneralDetail> latestApprovedGeneralDetail;
+  private boolean missingLicenceErrorPresent;
 
   @Autowired
   GeneralDetailsFormValidator(LicenceQueryService licenceQueryService) {
@@ -53,7 +54,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     var form = (GeneralDetailsForm) target;
 
     latestApprovedGeneralDetail = validatorHints.getLatestApprovedGeneralDetail();
-
+    missingLicenceErrorPresent = false;
     validateAlways(form, errors);
 
     if (validationType.equals(ValidationType.PARTIAL)) {
@@ -66,7 +67,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   }
 
-  public void validateAlways(GeneralDetailsForm form, Errors errors) {
+  private void validateAlways(GeneralDetailsForm form, Errors errors) {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "resourceName", "resourceName.required", "Enter the resource name");
 
     latestApprovedGeneralDetail.ifPresent(generalDetail -> {
@@ -85,10 +86,12 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
               "resourceOnALicence.required",
               "You cannot remove all licences from a resource that has " +
                   "a licence on an earlier approved submission");
+          missingLicenceErrorPresent = true;
         } else if (isLicencePresent && CollectionUtils.isEmpty(form.getLicences())) {
           errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
               "You cannot remove all licences from a resource that has " +
                   "a licence on an earlier approved submission");
+          missingLicenceErrorPresent = true;
         }
       }
     });
@@ -116,7 +119,8 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
         "Enter the responsible organisation");
 
     if (submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
-        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT) {
+        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT
+        && !missingLicenceErrorPresent) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "resourceOnALicence",
           "resourceOnALicence.required", "Select whether the resource is on a licence");
 
