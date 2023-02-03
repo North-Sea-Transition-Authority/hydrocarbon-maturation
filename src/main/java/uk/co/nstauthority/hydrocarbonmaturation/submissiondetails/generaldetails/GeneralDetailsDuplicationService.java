@@ -40,7 +40,8 @@ class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationSe
               generalDetail,
               GeneralDetail.class
           );
-          if (newSubmissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE) {
+          if (newSubmissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE
+              || newSubmissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
             preventCopyingForward(newGeneralDetail);
           }
 
@@ -56,6 +57,7 @@ class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationSe
   @Transactional
   void preventCopyingForward(GeneralDetail generalDetail) {
     generalDetail.setInformationSource(null);
+    generalDetail.setOtherInformationSource(null);
     generalDetail.setLicenceApplicationReference(null);
     generalDetail.setLicenceApplicationId(null);
     generalDetail.setLicenceApplicationInfoSource(null);

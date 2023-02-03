@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -14,11 +15,14 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,6 +62,45 @@ class GeneralDetailsDuplicationServiceTest {
         GeneralDetail.class);
     verify(entityManager, times(1))
         .persist(newGeneralDetail);
+  }
+
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"PROSPECT_UPDATE", "UPDATE_DISCOVERY"},
+      mode = EnumSource.Mode.INCLUDE)
+  void duplicateSubmissionSection_sourceOfInformationAndLicenceAppDoesNotCopyForward_DoesDuplicate(
+      SubmissionType submissionType) {
+    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    var generalDetail = new GeneralDetail();
+    generalDetail.setResourceName("Not null field");
+    generalDetail.setInformationSource(InformationSource.OTHER);
+    generalDetail.setOtherInformationSource("other info");
+    generalDetail.setLicenceApplicationId(1);
+    generalDetail.setLicenceApplicationReference("ref");
+    generalDetail.setLicenceApplicationInfoSource("source");
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, generalDetail,
+        GeneralDetail.class))
+        .thenReturn(generalDetail);
+    generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, generalDetail,
+        GeneralDetail.class);
+    verify(entityManager, times(1))
+        .persist(generalDetail);
+    assertThat(generalDetail)
+        .extracting(
+            GeneralDetail::getInformationSource,
+            GeneralDetail::getOtherInformationSource,
+            GeneralDetail::getLicenceApplicationInfoSource,
+            GeneralDetail::getLicenceApplicationId,
+            GeneralDetail::getLicenceApplicationReference,
+            GeneralDetail::getResourceName)
+        .containsOnly(null, "Not null field");
   }
 
   @Test
