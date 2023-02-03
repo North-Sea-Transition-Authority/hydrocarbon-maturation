@@ -16,6 +16,7 @@
 <#import '../../summarylistcards/opportunityDetailsSummaryCard.ftl' as opportunityDetailsSummary>
 <#import '../../summarylistcards/discoveryWellSummaryCard.ftl' as discoveryWellDetailSummary>
 <#import '../../summarylistcards/sourceAndSealSummaryCard.ftl' as sourceAndSealSummary>
+<#import '../../summarylistcards/trapPropertiesSummaryCard.ftl' as trapPropertiesSummary>
 
 <#macro discoverySubmissionSummary
   generalDetailsSummaryView
@@ -36,13 +37,15 @@
   drillStemTestSummaryView
   opportunityDetailsSummaryView
   discoveryWellDetailsSummaryView
-  sourceAndSealSummaryView>
+  sourceAndSealSummaryView
+  trapPropertiesSummaryView>
   <@fdsAccordion.accordion accordionId="summaryaccordian">
     <@fdsAccordion.accordionSection sectionHeading="General details">
         <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
     </@fdsAccordion.accordionSection>
     <@fdsAccordion.accordionSection sectionHeading="Opportunity" summaryText="Opportunity details, trap properties, source and seal">
       <@opportunityDetailsSummary.opportunityDetailsSummaryCard opportunityDetailsValues=opportunityDetailsSummaryView/>
+      <@trapPropertiesSummary.trapPropertiesSummaryCard trapPropertiesValues=trapPropertiesSummaryView/>
       <@sourceAndSealSummary.sourceAndSealCard sourceAndSealValues=sourceAndSealSummaryView/>
     </@fdsAccordion.accordionSection>
     <@fdsAccordion.accordionSection sectionHeading="Post well drill" summaryText="Discovery well details, drill stem test results">

@@ -21,10 +21,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocu
 @Service
 public class TrapPropertiesSummaryService {
 
-  private TrapPropertiesPersistenceService trapPropertiesPersistenceService;
-  private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
-  private FileUploadService fileUploadService;
-  private SupportingDocumentService supportingDocumentService;
+  private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
+  private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
+  private final FileUploadService fileUploadService;
+  private final SupportingDocumentService supportingDocumentService;
 
   @Autowired
   public TrapPropertiesSummaryService(TrapPropertiesPersistenceService trapPropertiesPersistenceService,

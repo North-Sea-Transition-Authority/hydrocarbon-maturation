@@ -19,4 +19,10 @@ public record TrapPropertiesSummaryView(String trapDescription,
                                         String quadAndBlockCentreOfInterest,
                                         List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews,
                                         Map<UploadedFile, String> prospectDepthMap) {
+  public static TrapPropertiesSummaryView empty() {
+    return new TrapPropertiesSummaryView("", "", "", "",
+        "", "", "", "",
+        "", "", "", "",
+        List.of(), Map.of());
+  }
 }

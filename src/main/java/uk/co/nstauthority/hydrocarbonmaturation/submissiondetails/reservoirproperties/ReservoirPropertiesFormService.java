@@ -133,6 +133,10 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
             submissionDetail,
             ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
         ));
+        form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+            submissionDetail,
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING
+        ));
       }
       if (discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail)
           || discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail)) {

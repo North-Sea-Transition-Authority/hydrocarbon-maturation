@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +21,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
@@ -91,22 +89,7 @@ class SubmissionSummaryModelServiceTest {
         "connectivity",
         new ArrayList<>(),
         new ArrayList<>());
-    trapPropertiesSummaryView = new TrapPropertiesSummaryView(
-        "desc",
-        "Other",
-        "other trap type",
-        "1",
-        "1",
-        "1",
-        "10",
-        "10",
-        "10",
-        "East",
-        ReservoirDatum.ED50.getDisplayName(),
-        "15/10",
-        new ArrayList<>(),
-        new HashMap<>()
-    );
+    trapPropertiesSummaryView = TrapPropertiesSummaryView.empty();
     chanceOfSuccessSummaryView = ChanceOfSuccessSummaryView.empty();
     oilCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
@@ -149,7 +132,7 @@ class SubmissionSummaryModelServiceTest {
           verify(submissionSummaryModelServiceSpy).createPostDrillDryWellSubmissionSummaryModelAndView(submissionDetail, viewName);
       case CREATE_DISCOVERY, UPDATE_DISCOVERY ->
           verify(submissionSummaryModelServiceSpy).createDiscoverySubmissionSummaryModelAndView(submissionDetail, viewName);
-    };
+    }
   }
 
   @Test
@@ -210,7 +193,10 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(reservoirPropertiesSummaryView);
     when(postDrillDryWellSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
-
+    when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(trapPropertiesSummaryView);
+    when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(opportunityDetailsSummaryView);
     var modelAndView =
         submissionSummaryModelService.createPostDrillDryWellSubmissionSummaryModelAndView(submissionDetail, "view-name");
 
@@ -219,8 +205,9 @@ class SubmissionSummaryModelServiceTest {
             entry("dryWellDetailsSummaryView", dryWellDetailsSummaryView),
             entry("permeabilitySummaryView", permeabilityDetailSummaryView),
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
-            entry("generalDetailsSummaryView", generalDetailSummaryView)
-        );
+            entry("generalDetailsSummaryView", generalDetailSummaryView),
+            entry("trapPropertiesSummaryView", trapPropertiesSummaryView)
+            );
   }
 
   @Test
@@ -236,7 +223,20 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(generalFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
-
+    when(prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(oilCaseVolumetricsSummaryView);
+    when(prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(gasCaseVolumetricsSummaryView);
+    when(prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(oilCaseOutputsSummaryView);
+    when(prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(mixedCaseVolumetricsSummaryView);
+    when(prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(mixedCaseOutputsSummaryView);
+    when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(trapPropertiesSummaryView);
+    when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(opportunityDetailsSummaryView);
     var modelAndView =
         submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(submissionDetail, "view-name");
 
@@ -247,6 +247,7 @@ class SubmissionSummaryModelServiceTest {
             entry("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView),
             entry("permeabilitySummaryView", permeabilityDetailSummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
+            entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
             entry("gasOnlyDiscovery", false),
             entry("oilOnlyDiscovery", false),
             entry("mixedDiscovery", false)

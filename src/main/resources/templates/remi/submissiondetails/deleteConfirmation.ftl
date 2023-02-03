@@ -44,7 +44,8 @@
       reservoirPropertiesSummaryView=reservoirPropertiesSummaryView
       permeabilitySummaryView=permeabilitySummaryView
       opportunityDetailsSummaryView=opportunityDetailsSummaryView
-      sourceAndSealSummaryView=sourceAndSealSummaryView/>
+      sourceAndSealSummaryView=sourceAndSealSummaryView
+      trapPropertiesSummaryView=trapPropertiesSummaryView/>
   <#elseif submissionType == "CREATE_DISCOVERY"
   || submissionType == "UPDATE_DISCOVERY"
   || submissionType == "CREATE_DISCOVERY_FROM_PROSPECT"
@@ -68,7 +69,8 @@
       drillStemTestSummaryView=drillStemTestSummaryView
       opportunityDetailsSummaryView=opportunityDetailsSummaryView
       discoveryWellDetailsSummaryView=discoveryWellDetailsSummaryView
-      sourceAndSealSummaryView=sourceAndSealSummaryView/>
+      sourceAndSealSummaryView=sourceAndSealSummaryView
+      trapPropertiesSummaryView=trapPropertiesSummaryView/>
   </#if>
   <@fdsForm.htmlForm actionUrl=springUrl(deleteUrl)>
     <@fdsAction.submitButtons
