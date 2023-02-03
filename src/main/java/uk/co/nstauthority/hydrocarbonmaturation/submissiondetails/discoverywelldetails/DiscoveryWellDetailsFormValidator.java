@@ -31,20 +31,29 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
     DecimalInputValidator.configureOptionalValidator(
             errors,
             "dryHoleCost.decimalInputValue",
-            "the total well cost",
+            "The total well cost",
             discoveryWellDetailsForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)
         .validate();
 
-    DecimalInputValidator.configureOptionalValidator(
+    var successRelatedCostValidator = DecimalInputValidator.configureOptionalValidator(
             errors,
             "successRelatedCosts.decimalInputValue",
-            "the success-related costs",
-            discoveryWellDetailsForm.getDryHoleCost())
+            "The success-related costs",
+            discoveryWellDetailsForm.getSuccessRelatedCosts());
+
+    successRelatedCostValidator
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)
         .validate();
+    if (errors.getFieldErrors("successRelatedCosts.decimalInputValue").isEmpty()) {
+      successRelatedCostValidator
+          .setMaxValue(discoveryWellDetailsForm.getDryHoleCost().createBigDecimalOrNull())
+          .overrideDefaultErrorMessage("The success related-costs must be less than total well cost of %s"
+              .formatted(discoveryWellDetailsForm.getDryHoleCost().createBigDecimalOrNull()))
+          .validate();
+    }
   }
 
   @Override
@@ -77,15 +86,27 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
         "discoveryStatus.required", "Enter the discovery status");
 
     DecimalInputValidator.configureValidator(errors, "dryHoleCost.decimalInputValue",
-            "the total well cost", discoveryWellDetailsForm.getDryHoleCost())
+            "The total well cost", discoveryWellDetailsForm.getDryHoleCost())
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)
         .validate();
 
-    DecimalInputValidator.configureValidator(errors, "successRelatedCosts.decimalInputValue",
-        "the success-related costs", discoveryWellDetailsForm.getSuccessRelatedCosts())
+    var successRelatedCostValidator = DecimalInputValidator.configureValidator(
+        errors,
+        "successRelatedCosts.decimalInputValue",
+        "The success-related costs",
+        discoveryWellDetailsForm.getSuccessRelatedCosts());
+
+    successRelatedCostValidator
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)
         .validate();
+    if (errors.getFieldErrors("successRelatedCosts.decimalInputValue").isEmpty()) {
+      successRelatedCostValidator
+          .setMaxValue(discoveryWellDetailsForm.getDryHoleCost().createBigDecimalOrNull())
+          .overrideDefaultErrorMessage("The success related-costs must be less than total well cost of %s"
+              .formatted(discoveryWellDetailsForm.getDryHoleCost().createBigDecimalOrNull()))
+          .validate();
+    }
   }
 }
