@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability;
 
+import java.math.BigDecimal;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -53,6 +54,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
               "Permeability (md) min",
               permeabilityForm.getPermeabilityValuesForm().getPermeabilityMin())
           .setMaxDecimalPlaces(2)
+          .setMinValue(BigDecimal.ZERO)
           .validate();
 
       DecimalInputValidator.configureOptionalValidator(
@@ -61,6 +63,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
               "Permeability (md) max",
               permeabilityForm.getPermeabilityValuesForm().getPermeabilityMax())
           .setMaxDecimalPlaces(2)
+          .setMinValue(BigDecimal.ZERO)
           .validate();
 
       DecimalInputValidator.configureOptionalValidator(
@@ -69,6 +72,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
               "Permeability (md) average",
               permeabilityForm.getPermeabilityValuesForm().getPermeabilityAverage())
           .setMaxDecimalPlaces(2)
+          .setMinValue(BigDecimal.ZERO)
           .validate();
 
       DecimalInputValidator.configureOptionalValidator(
@@ -77,6 +81,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
               "Kv/kh min",
               permeabilityForm.getPermeabilityValuesForm().getKvKhMin())
           .setMaxDecimalPlaces(2)
+          .setMinValue(BigDecimal.ZERO)
           .validate();
 
       DecimalInputValidator.configureOptionalValidator(
@@ -85,6 +90,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
               "Kv/kh max",
               permeabilityForm.getPermeabilityValuesForm().getKvKhMax())
           .setMaxDecimalPlaces(2)
+          .setMinValue(BigDecimal.ZERO)
           .validate();
 
       DecimalInputValidator.configureOptionalValidator(
@@ -93,6 +99,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
               "Kv/kh average",
               permeabilityForm.getPermeabilityValuesForm().getKvKhAverage())
           .setMaxDecimalPlaces(2)
+          .setMinValue(BigDecimal.ZERO)
           .validate();
     }
   }
@@ -122,6 +129,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
             "Permeability (md) min",
             permeabilityForm.getPermeabilityValuesForm().getPermeabilityMin())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
 
     DecimalInputValidator.configureValidator(
@@ -130,6 +138,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
             "Permeability (md) max",
             permeabilityForm.getPermeabilityValuesForm().getPermeabilityMax())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
 
     DecimalInputValidator.configureValidator(
@@ -138,6 +147,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
             "Permeability (md) average",
             permeabilityForm.getPermeabilityValuesForm().getPermeabilityAverage())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
 
     ValidationUtils.rejectIfEmpty(errors,
@@ -165,6 +175,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
             "Kv/kh min",
             permeabilityForm.getPermeabilityValuesForm().getKvKhMin())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
 
     DecimalInputValidator.configureValidator(
@@ -173,6 +184,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
             "Kv/kh max",
             permeabilityForm.getPermeabilityValuesForm().getKvKhMax())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
 
     DecimalInputValidator.configureValidator(
@@ -181,6 +193,7 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
             "Kv/kh average",
             permeabilityForm.getPermeabilityValuesForm().getKvKhAverage())
         .setMaxDecimalPlaces(2)
+        .setMinValue(BigDecimal.ZERO)
         .validate();
 
     ValidationUtils.rejectIfEmpty(

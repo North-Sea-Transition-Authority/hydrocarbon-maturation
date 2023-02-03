@@ -112,6 +112,37 @@ class PermeabilityFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenGivenForm_withLessThanMinValue_thenValidationErrors(ValidationType validationType) {
+    var form = getValidFormWithPermeability();
+    form.getPermeabilityValuesForm().setPermeabilityMax(DecimalInput.createDecimalInput(BigDecimal.valueOf(-5)));
+    form.getPermeabilityValuesForm().setPermeabilityMin(DecimalInput.createDecimalInput(BigDecimal.valueOf(-3)));
+    form.getPermeabilityValuesForm().setPermeabilityAverage(DecimalInput.createDecimalInput(BigDecimal.valueOf(-1)));
+    form.getPermeabilityValuesForm().setKvKhAverage(DecimalInput.createDecimalInput(BigDecimal.valueOf(-6)));
+    form.getPermeabilityValuesForm().setKvKhMax(DecimalInput.createDecimalInput(BigDecimal.valueOf(-7)));
+    form.getPermeabilityValuesForm().setKvKhMin(DecimalInput.createDecimalInput(BigDecimal.valueOf(-9)));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    permeabilityFormValidator.validate(
+        form,
+        bindingResult,
+        new SubmissionFormValidatorHints(
+            validationType,
+            submissionDetail));
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(errors)
+        .containsExactly(
+            entry("permeabilityValuesForm.permeabilityMin.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityMin.decimalInputValue.lessThanMinValue")),
+            entry("permeabilityValuesForm.permeabilityMax.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityMax.decimalInputValue.lessThanMinValue")),
+            entry("permeabilityValuesForm.permeabilityAverage.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityAverage.decimalInputValue.lessThanMinValue")),
+            entry("permeabilityValuesForm.kvKhMin.decimalInputValue", Set.of("permeabilityValuesForm.kvKhMin.decimalInputValue.lessThanMinValue")),
+            entry("permeabilityValuesForm.kvKhMax.decimalInputValue", Set.of("permeabilityValuesForm.kvKhMax.decimalInputValue.lessThanMinValue")),
+            entry("permeabilityValuesForm.kvKhAverage.decimalInputValue", Set.of("permeabilityValuesForm.kvKhAverage.decimalInputValue.lessThanMinValue"))
+        );
+  }
+
   @Test
   void validate_whenInValidForm_emptyPermeability_thenValidationErrors() {
     var form = new PermeabilityForm();
