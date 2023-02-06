@@ -50,7 +50,7 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
     if (errors.getFieldErrors("successRelatedCosts.decimalInputValue").isEmpty()) {
       successRelatedCostValidator
           .setMaxValue(discoveryWellDetailsForm.getDryHoleCost().createBigDecimalOrNull())
-          .overrideDefaultErrorMessage("The success related-costs must be less than total well cost of %s"
+          .overrideDefaultErrorMessage("The success related-costs must be less than or equal to total well cost of %s"
               .formatted(discoveryWellDetailsForm.getDryHoleCost().createBigDecimalOrNull()))
           .validate();
     }
@@ -104,7 +104,7 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
     if (errors.getFieldErrors("successRelatedCosts.decimalInputValue").isEmpty()) {
       successRelatedCostValidator
           .setMaxValue(discoveryWellDetailsForm.getDryHoleCost().createBigDecimalOrNull())
-          .overrideDefaultErrorMessage("The success related-costs must be less than total well cost of %s"
+          .overrideDefaultErrorMessage("The success related-costs must be less than or equal to total well cost of %s"
               .formatted(discoveryWellDetailsForm.getDryHoleCost().createBigDecimalOrNull()))
           .validate();
     }

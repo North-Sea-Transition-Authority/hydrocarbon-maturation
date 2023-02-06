@@ -171,10 +171,16 @@ class DiscoveryWellDetailsFormValidatorTest {
         form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
     assertThat(extractedErrors)
         .contains(
             entry("successRelatedCosts.decimalInputValue", Set.of("successRelatedCosts.decimalInputValue.moreThanMaxValue"))
+        );
+    assertThat(extractedErrorMessages)
+        .containsExactly(
+            entry("successRelatedCosts.decimalInputValue",
+                Set.of("The success related-costs must be less than or equal to total well cost of 22"))
         );
   }
 
