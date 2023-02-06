@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.well;
 
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,18 +9,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class DryWellQueryServiceTest {
+class WellQueryServiceTest {
 
-  private DryWellQueryService dryWellQueryService;
+  private WellQueryService wellQueryService;
 
   @BeforeEach
   void setUp() {
-    dryWellQueryService = new DryWellQueryService();
+    wellQueryService = new WellQueryService();
   }
 
   @Test
   void getWellsByRef_singleWellFound() {
-    var listOfWells = dryWellQueryService.getWellsByRef("ND2");
+    var listOfWells = wellQueryService.getWellsByRef("ND2");
 
     assertThat(listOfWells)
         .extracting(
@@ -34,7 +33,7 @@ class DryWellQueryServiceTest {
 
   @Test
   void getWellsByRef_twoWellsFound() {
-    var listOfWells = dryWellQueryService.getWellsByRef("25/");
+    var listOfWells = wellQueryService.getWellsByRef("25/");
 
     assertThat(listOfWells)
         .extracting(
@@ -48,7 +47,7 @@ class DryWellQueryServiceTest {
 
   @Test
   void getDryWellByName() {
-    var listOfWells = dryWellQueryService.getDryWellByName("29/10");
+    var listOfWells = wellQueryService.getWellByName("29/10");
 
     assertThat(listOfWells)
         .extracting(

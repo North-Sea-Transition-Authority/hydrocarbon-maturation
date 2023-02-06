@@ -20,8 +20,8 @@
     <@drillDetails.drillDetails
       datumTypes=datumTypes
       longitudeHemisphere=longitudeHemisphere
-      dryWellEndpoint=dryWellEndpoint
-      dryWell=dryWell!{}
+      wellEndpoint=wellEndpoint
+      well=well!{}
       formPath="form.drillDetailsForm"/>
 
     <h2 class="govuk-heading-l">Dry hole details</h2>

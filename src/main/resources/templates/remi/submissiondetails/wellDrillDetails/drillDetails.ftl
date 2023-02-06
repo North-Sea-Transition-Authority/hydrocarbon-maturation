@@ -1,14 +1,14 @@
 <#include '../../layout/layout.ftl'>
 <#import '../../coordinates/coordinateInput.ftl' as coordinateInput/>
 
-<#macro drillDetails datumTypes longitudeHemisphere dryWellEndpoint dryWell formPath="form">
+<#macro drillDetails datumTypes longitudeHemisphere wellEndpoint well formPath="form">
   <h2 class="govuk-heading-l">Drill details</h2>
   <@fdsSearchSelector.searchSelectorRest
-    path="${formPath}.dryWell"
-    restUrl=springUrl(dryWellEndpoint)
+    path="${formPath}.well"
+    restUrl=springUrl(wellEndpoint)
     labelText="Principal well"
     selectorMinInputLength=3
-    preselectedItems=dryWell!{}/>
+    preselectedItems=well!{}/>
 
   <@coordinateInput.coordinateInput
     degreesLocationPath="${formPath}.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue"

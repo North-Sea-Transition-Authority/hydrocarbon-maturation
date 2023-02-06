@@ -15,7 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.DryWellRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -84,8 +84,8 @@ public class DiscoveryWellDetailsController {
         .addObject("discoveryStatus", DisplayableEnumOptionUtil.getDisplayableOptions(DiscoveryStatus.class))
         .addObject("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
-        .addObject("dryWellEndpoint", SearchSelectorService.route(on(DryWellRestController.class).searchDryWells(null)))
-        .addObject("dryWell", discoveryWellDetailsFormService.getPreSelectedDryWell(form.getWellDetailsForm().getDryWell()));
+        .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWells(null)))
+        .addObject("well", discoveryWellDetailsFormService.getPreSelectedWell(form.getWellDetailsForm().getWell()));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView, PAGE_NAME, submissionDetail);

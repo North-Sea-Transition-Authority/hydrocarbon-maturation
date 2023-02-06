@@ -25,7 +25,7 @@ public class DryWellDetailsSummaryService {
 
   private DryWellDetailsSummaryView createSummaryViewFromDryWellDetail(DryWellDetail dryWellDetail) {
     return new DryWellDetailsSummaryView(
-        ObjectUtils.defaultIfNull(dryWellDetail.getDryWellName(), ""),
+        ObjectUtils.defaultIfNull(dryWellDetail.getWellName(), ""),
         NumberUtil.getNumberStringWithUnitsWithoutSpaceOrEmpty(dryWellDetail.getLatitudeDegrees(), "°"),
         NumberUtil.getNumberStringWithUnitsWithoutSpaceOrEmpty(dryWellDetail.getLatitudeMinutes(), "''"),
         NumberUtil.getNumberStringWithUnitsWithoutSpaceOrEmpty(dryWellDetail.getLatitudeSeconds(), "'"),

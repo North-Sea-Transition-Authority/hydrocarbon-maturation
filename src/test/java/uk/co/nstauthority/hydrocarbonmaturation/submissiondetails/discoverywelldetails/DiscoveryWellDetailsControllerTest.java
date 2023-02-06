@@ -31,7 +31,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.DryWellRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -143,7 +143,7 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
     var preselectedWell = Map.of("well1", "well1");
 
     when(discoveryWellDetailsFormService.getDiscoveryWellDetailsForm(submissionDetail)).thenReturn(form);
-    when(discoveryWellDetailsFormService.getPreSelectedDryWell(form.getWellDetailsForm().getDryWell())).thenReturn(preselectedWell);
+    when(discoveryWellDetailsFormService.getPreSelectedWell(form.getWellDetailsForm().getWell())).thenReturn(preselectedWell);
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
@@ -161,9 +161,9 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
             entry("discoveryStatus", DisplayableEnumOptionUtil.getDisplayableOptions(DiscoveryStatus.class)),
             entry("longitudeHemisphere", Hemisphere.getLongitudeHemisphere()),
             entry("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class)),
-            entry("dryWellEndpoint",
-                SearchSelectorService.route(on(DryWellRestController.class).searchDryWells(null))),
-            entry("dryWell", preselectedWell)
+            entry("wellEndpoint",
+                SearchSelectorService.route(on(WellRestController.class).searchWells(null))),
+            entry("well", preselectedWell)
         );
 
     assertEquals(DiscoveryWellDetailsForm.class, modelMap.get("form").getClass());

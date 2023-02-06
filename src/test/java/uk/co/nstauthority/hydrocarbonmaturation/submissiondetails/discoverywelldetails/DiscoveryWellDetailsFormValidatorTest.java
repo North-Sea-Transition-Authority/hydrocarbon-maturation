@@ -74,7 +74,7 @@ class DiscoveryWellDetailsFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
-            entry("wellDetailsForm.dryWell", Set.of("wellDetailsForm.dryWell.required")),
+            entry("wellDetailsForm.well", Set.of("wellDetailsForm.well.required")),
             entry("wellDetailsForm.coordinateInputForm.longitudeCoordinates.degrees.decimalInputValue",
                 Set.of("wellDetailsForm.coordinateInputForm.longitudeCoordinates.degrees.decimalInputValue.required")),
             entry("wellDetailsForm.coordinateInputForm.longitudeCoordinates.minutes.decimalInputValue",
@@ -180,7 +180,7 @@ class DiscoveryWellDetailsFormValidatorTest {
 
   private DiscoveryWellDetailsForm getValidForm() {
     var form = new DiscoveryWellDetailsForm();
-    form.getWellDetailsForm().setDryWell("dryWellName");
+    form.getWellDetailsForm().setWell("dryWellName");
     form.setChanceOfCommercialityComments("dryHoleComments");
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
     form.getWellDetailsForm().setReservoirDatum(ReservoirDatum.ED50);

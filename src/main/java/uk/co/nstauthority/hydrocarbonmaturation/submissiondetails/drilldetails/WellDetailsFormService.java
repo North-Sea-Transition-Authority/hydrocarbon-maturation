@@ -6,24 +6,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.DryWellQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @Service
 public class WellDetailsFormService {
 
   private final SearchSelectorService searchSelectorService;
-  private final DryWellQueryService dryWellQueryService;
+  private final WellQueryService wellQueryService;
 
   @Autowired
-  WellDetailsFormService(SearchSelectorService searchSelectorService, DryWellQueryService dryWellQueryService) {
+  WellDetailsFormService(SearchSelectorService searchSelectorService, WellQueryService wellQueryService) {
     this.searchSelectorService = searchSelectorService;
-    this.dryWellQueryService = dryWellQueryService;
+    this.wellQueryService = wellQueryService;
   }
 
   public WellDetailsForm drillDetailToForm(DrillDetail drillDetail) {
     var form = new WellDetailsForm();
-    form.setDryWell(drillDetail.getDryWellId());
+    form.setWell(drillDetail.getWellId());
     form.setReservoirDatum(drillDetail.getDatum());
     form.setDataAcquisitionProgramme(drillDetail.getDataAcquisitionProgramme());
     form.setGeophysicalUpdate(drillDetail.getGeophysicalUpdateCommentary());
@@ -49,14 +49,14 @@ public class WellDetailsFormService {
     return form;
   }
 
-  public Map<String, String> getPreSelectedDryWell(String dryWell) {
+  public Map<String, String> getPreSelectedWell(String well) {
     Map<String, String> preSelectedMap = Map.of();
-    if (dryWell != null) {
+    if (well != null) {
       preSelectedMap = searchSelectorService.buildPrePopulatedSelections(
-          Collections.singletonList(dryWell),
+          Collections.singletonList(well),
           Map.of(
-              dryWell,
-              dryWellQueryService.getDryWellByName(dryWell).get(0).getSelectionText()
+              well,
+              wellQueryService.getWellByName(well).get(0).getSelectionText()
           )
       );
     }

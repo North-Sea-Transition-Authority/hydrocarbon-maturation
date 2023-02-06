@@ -49,9 +49,9 @@ class DiscoveryWellDetailsFormServiceTest {
 
   @Test
   void getPreselectedDryWell_verifyMethodCall() {
-    discoveryWellDetailsFormService.getPreSelectedDryWell("well");
+    discoveryWellDetailsFormService.getPreSelectedWell("well");
     verify(wellDetailsFormService, times(1))
-        .getPreSelectedDryWell("well");
+        .getPreSelectedWell("well");
   }
 
   @Test
@@ -118,7 +118,7 @@ class DiscoveryWellDetailsFormServiceTest {
             theForm -> theForm.getWellDetailsForm().getCoordinateInputForm().getLatitudeCoordinates().getMinutes().asBigDecimal(),
             theForm -> theForm.getWellDetailsForm().getCoordinateInputForm().getLatitudeCoordinates().getSeconds().asBigDecimal(),
             theForm -> theForm.getWellDetailsForm().getCoordinateInputForm().getLongitudeHemisphere(),
-            theForm -> theForm.getWellDetailsForm().getDryWell(),
+            theForm -> theForm.getWellDetailsForm().getWell(),
             theForm -> theForm.getWellDetailsForm().getDataAcquisitionProgramme(),
             theForm -> theForm.getWellDetailsForm().getGeophysicalUpdate(),
             theForm -> theForm.getWellDetailsForm().getReservoirDatum(),
@@ -137,7 +137,7 @@ class DiscoveryWellDetailsFormServiceTest {
             Optional.of(discoveryWellDetail.getLatitudeMinutes()),
             Optional.of(discoveryWellDetail.getLatitudeSeconds()),
             discoveryWellDetail.getLongitudeHemisphere(),
-            discoveryWellDetail.getDryWellId(),
+            discoveryWellDetail.getWellId(),
             discoveryWellDetail.getDataAcquisitionProgramme(),
             discoveryWellDetail.getGeophysicalUpdateCommentary(),
             discoveryWellDetail.getDatum(),
@@ -154,8 +154,8 @@ class DiscoveryWellDetailsFormServiceTest {
   DiscoveryWellDetail getDiscoveryWellDetail() {
     var discoveryWellDetail = new DiscoveryWellDetail();
     discoveryWellDetail.setSubmissionDetail(submissionDetail);
-    discoveryWellDetail.setDryWellId("dryWellId");
-    discoveryWellDetail.setDryWellName("dryWellName");
+    discoveryWellDetail.setWellId("dryWellId");
+    discoveryWellDetail.setWellName("dryWellName");
     discoveryWellDetail.setDatum(ReservoirDatum.ED50);
     discoveryWellDetail.setLatitudeDegrees(BigDecimal.TEN);
     discoveryWellDetail.setLatitudeMinutes(BigDecimal.TEN);

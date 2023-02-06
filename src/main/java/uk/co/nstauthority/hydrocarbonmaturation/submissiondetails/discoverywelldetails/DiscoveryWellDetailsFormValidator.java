@@ -60,8 +60,8 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
   public void validateFull(SubmissionForm form, Errors errors) {
     var discoveryWellDetailsForm = (DiscoveryWellDetailsForm) form;
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "wellDetailsForm.dryWell", "wellDetailsForm.dryWell.required",
-        "Enter the dry well reference");
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "wellDetailsForm.well", "wellDetailsForm.well.required",
+        "Enter the well reference");
 
     CoordinateInputValidationUtil.validateMandatoryCoordinateInputForm(errors,
         discoveryWellDetailsForm.getWellDetailsForm().getCoordinateInputForm(),

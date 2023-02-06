@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DryWellQueryService {
+public class WellQueryService {
 
   // TODO HM-15 use wons api to dynamically get wells
   public static final List<String> DUMMY_LIST_OF_WELLS = List.of("ND27a", "30/11", "29/10", "28/12", "25/10", "25/15");
@@ -21,7 +21,7 @@ public class DryWellQueryService {
         .toList();
   }
 
-  public List<ReferenceWellView> getDryWellByName(String dryWell) {
+  public List<ReferenceWellView> getWellByName(String dryWell) {
     return DUMMY_LIST_OF_WELLS
         .stream()
         .filter(dryWell::contains)

@@ -1,14 +1,21 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.DryWellQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.ReferenceWellView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -18,7 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 class WellDetailsFormServiceTest {
 
   @Mock
-  private DryWellQueryService dryWellQueryService;
+  private WellQueryService wellQueryService;
 
   @Mock
   private SearchSelectorService searchSelectorService;
@@ -29,7 +36,7 @@ class WellDetailsFormServiceTest {
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    wellDetailsFormService = new WellDetailsFormService(searchSelectorService, dryWellQueryService);
+    wellDetailsFormService = new WellDetailsFormService(searchSelectorService, wellQueryService);
   }
 
   @Test
@@ -47,7 +54,7 @@ class WellDetailsFormServiceTest {
     assertThat(form)
         .extracting(
             WellDetailsForm::getDataAcquisitionProgramme,
-            WellDetailsForm::getDryWell,
+            WellDetailsForm::getWell,
             WellDetailsForm::getReservoirDatum,
             theForm -> coordinateForm.getLatitudeCoordinates().getDegrees().asBigDecimal().get(),
             theForm -> coordinateForm.getLongitudeCoordinates().getDegrees().asBigDecimal().get(),
@@ -61,7 +68,7 @@ class WellDetailsFormServiceTest {
             WellDetailsForm::getTotalDepthFormationComments)
         .containsExactly(
             drillDetail.getDataAcquisitionProgramme(),
-            drillDetail.getDryWellId(),
+            drillDetail.getWellId(),
             drillDetail.getDatum(),
             drillDetail.getLatitudeDegrees(),
             drillDetail.getLongitudeDegrees(),
@@ -76,11 +83,31 @@ class WellDetailsFormServiceTest {
         );
   }
 
+  @Test
+  void getPreSelectedWell_whenNull_assertEmptyMap() {
+    var result = wellDetailsFormService.getPreSelectedWell(null);
+    assertThat(result).isEqualTo(Map.of());
+    verifyNoInteractions(wellQueryService);
+  }
+
+  @Test
+  void getPreSelectedWell_whenNotNull_assertSelectedWell() {
+    var expectedMap = Map.of("k1", "v2");
+
+    when(searchSelectorService.buildPrePopulatedSelections(any(), any()))
+        .thenReturn(expectedMap);
+    when(wellQueryService.getWellByName("k1"))
+        .thenReturn(Collections.singletonList(ReferenceWellView.fromWellReference("k1")));
+    var result = wellDetailsFormService.getPreSelectedWell("k1");
+    assertThat(result).isEqualTo(expectedMap);
+    verify(wellQueryService).getWellByName("k1");
+  }
+
   public static DrillDetail getDrillDetail(SubmissionDetail submissionDetail) {
     var drillDetail = new DrillDetail();
     drillDetail.setSubmissionDetail(submissionDetail);
-    drillDetail.setDryWellId("dryWellId");
-    drillDetail.setDryWellName("dryWellName");
+    drillDetail.setWellId("dryWellId");
+    drillDetail.setWellName("dryWellName");
     drillDetail.setDatum(ReservoirDatum.ED50);
     drillDetail.setLatitudeDegrees(BigDecimal.TEN);
     drillDetail.setLatitudeMinutes(BigDecimal.TEN);

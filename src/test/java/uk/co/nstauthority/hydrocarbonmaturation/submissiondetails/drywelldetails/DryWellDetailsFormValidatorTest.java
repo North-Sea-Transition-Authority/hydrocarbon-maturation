@@ -73,7 +73,7 @@ class DryWellDetailsFormValidatorTest {
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     assertThat(extractedErrors)
         .contains(
-            entry("drillDetailsForm.dryWell", Set.of("drillDetailsForm.dryWell.required")),
+            entry("drillDetailsForm.well", Set.of("drillDetailsForm.well.required")),
             entry("drillDetailsForm.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue",
                 Set.of("drillDetailsForm.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue.required")),
             entry("drillDetailsForm.coordinateInputForm.longitudeCoordinates.minutes.decimalInputValue",
@@ -92,7 +92,7 @@ class DryWellDetailsFormValidatorTest {
 
     assertThat(extractedErrorMessages)
         .contains(
-            entry("drillDetailsForm.dryWell", Set.of("Enter the dry well reference")),
+            entry("drillDetailsForm.well", Set.of("Enter the well reference")),
             entry("drillDetailsForm.coordinateInputForm.latitudeCoordinates.degrees.decimalInputValue",
                 Set.of("Enter a latitude")),
             entry("drillDetailsForm.reservoirDatum", Set.of("Select the datum")),
@@ -151,7 +151,7 @@ class DryWellDetailsFormValidatorTest {
 
   private DryWellDetailsForm getValidForm() {
     var form = new DryWellDetailsForm();
-    form.getDrillDetailsForm().setDryWell("dryWellName");
+    form.getDrillDetailsForm().setWell("wellName");
     form.setDryHoleComments("dryHoleComments");
     form.setDryHoleScope("dryHoleScope");
     form.getDrillDetailsForm().setReservoirDatum(ReservoirDatum.ED50);

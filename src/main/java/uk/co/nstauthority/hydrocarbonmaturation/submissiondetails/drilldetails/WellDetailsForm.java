@@ -4,7 +4,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputF
 
 public class WellDetailsForm {
 
-  private String dryWell;
+  private String well;
   private CoordinateInputForm coordinateInputForm = new CoordinateInputForm();
   private ReservoirDatum reservoirDatum;
   private String totalDepthFormation;
@@ -12,12 +12,12 @@ public class WellDetailsForm {
   private String dataAcquisitionProgramme;
   private String geophysicalUpdate;
 
-  public String getDryWell() {
-    return dryWell;
+  public String getWell() {
+    return well;
   }
 
-  public void setDryWell(String dryWell) {
-    this.dryWell = dryWell;
+  public void setWell(String well) {
+    this.well = well;
   }
 
   public CoordinateInputForm getCoordinateInputForm() {

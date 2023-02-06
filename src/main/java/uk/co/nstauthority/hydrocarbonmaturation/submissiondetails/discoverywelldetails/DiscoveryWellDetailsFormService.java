@@ -34,8 +34,8 @@ class DiscoveryWellDetailsFormService implements SubmissionFormService {
         .orElse(new DiscoveryWellDetailsForm());
   }
 
-  public Map<String, String> getPreSelectedDryWell(String dryWell) {
-    return wellDetailsFormService.getPreSelectedDryWell(dryWell);
+  public Map<String, String> getPreSelectedWell(String dryWell) {
+    return wellDetailsFormService.getPreSelectedWell(dryWell);
   }
 
   @Override

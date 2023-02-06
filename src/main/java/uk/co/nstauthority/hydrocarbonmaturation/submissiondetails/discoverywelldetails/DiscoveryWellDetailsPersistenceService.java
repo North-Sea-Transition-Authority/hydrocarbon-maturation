@@ -27,8 +27,8 @@ public class DiscoveryWellDetailsPersistenceService {
   public void saveDiscoveryWellDetails(DiscoveryWellDetailsForm form, SubmissionDetail submissionDetail) {
     var discoveryWellDetails = getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
         .orElse(new DiscoveryWellDetail());
-    discoveryWellDetails.setDryWellId(form.getWellDetailsForm().getDryWell());
-    discoveryWellDetails.setDryWellName(form.getWellDetailsForm().getDryWell());
+    discoveryWellDetails.setWellId(form.getWellDetailsForm().getWell());
+    discoveryWellDetails.setWellName(form.getWellDetailsForm().getWell());
     discoveryWellDetails.setSubmissionDetail(submissionDetail);
     discoveryWellDetails.setDatum(form.getWellDetailsForm().getReservoirDatum());
     discoveryWellDetails.setChanceOfCommercialityComments(form.getChanceOfCommercialityComments());

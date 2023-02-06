@@ -15,20 +15,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 @RestController
 @RequestMapping("/api")
 @AccessibleByServiceUsers
-public class DryWellRestController {
+public class WellRestController {
 
   private final SearchSelectorService searchSelectorService;
-  private final DryWellQueryService dryWellQueryService;
+  private final WellQueryService wellQueryService;
 
   @Autowired
-  public DryWellRestController(SearchSelectorService searchSelectorService, DryWellQueryService dryWellQueryService) {
+  public WellRestController(SearchSelectorService searchSelectorService, WellQueryService wellQueryService) {
     this.searchSelectorService = searchSelectorService;
-    this.dryWellQueryService = dryWellQueryService;
+    this.wellQueryService = wellQueryService;
   }
 
   @GetMapping("/wells")
-  public RestSearchResult searchDryWells(@RequestParam("term") String term) {
-    var searchableList = dryWellQueryService.getWellsByRef(term);
+  public RestSearchResult searchWells(@RequestParam("term") String term) {
+    var searchableList = wellQueryService.getWellsByRef(term);
     var results = searchSelectorService.search(term, searchableList)
         .getResults()
         .stream()

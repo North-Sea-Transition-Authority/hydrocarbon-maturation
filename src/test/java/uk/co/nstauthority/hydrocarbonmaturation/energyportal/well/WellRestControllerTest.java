@@ -21,8 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchRes
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @WithMockUser
-@ContextConfiguration(classes = DryWellRestController.class)
-class DryWellRestControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = WellRestController.class)
+class WellRestControllerTest extends AbstractControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -30,7 +30,7 @@ class DryWellRestControllerTest extends AbstractControllerTest {
   private SearchSelectorService searchSelectorService;
 
   @MockBean
-  private DryWellQueryService dryWellQueryService;
+  private WellQueryService wellQueryService;
 
   @SecurityTest
   void searchDryWells() throws Exception {
@@ -38,8 +38,8 @@ class DryWellRestControllerTest extends AbstractControllerTest {
         .thenReturn(new RestSearchResult(List.of()));
 
     mockMvc.perform(
-        get(SearchSelectorService.route(on(DryWellRestController.class)
-            .searchDryWells(null)))
+        get(SearchSelectorService.route(on(WellRestController.class)
+            .searchWells(null)))
             .param("term", "search term")
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))

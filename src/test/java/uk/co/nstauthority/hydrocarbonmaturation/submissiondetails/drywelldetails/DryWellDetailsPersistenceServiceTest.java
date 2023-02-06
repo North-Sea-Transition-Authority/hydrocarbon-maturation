@@ -57,7 +57,7 @@ class DryWellDetailsPersistenceServiceTest {
     var detailForm = form.getDrillDetailsForm();
     assertThat(savedDryWellDetail)
         .extracting(
-            DryWellDetail::getDryWellName,
+            DryWellDetail::getWellName,
             DryWellDetail::getLatitudeDegrees,
             DryWellDetail::getLatitudeMinutes,
             DryWellDetail::getLatitudeMinutes,
@@ -81,7 +81,7 @@ class DryWellDetailsPersistenceServiceTest {
             DryWellDetail::getSealFailureCategory,
             DryWellDetail::getTrapFailureCategory)
         .containsExactly(
-            detailForm.getDryWell(),
+            detailForm.getWell(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
@@ -120,7 +120,7 @@ class DryWellDetailsPersistenceServiceTest {
     var detailForm = form.getDrillDetailsForm();
     assertThat(savedDryWellDetail)
         .extracting(
-            DryWellDetail::getDryWellName,
+            DryWellDetail::getWellName,
             DryWellDetail::getLatitudeDegrees,
             DryWellDetail::getLatitudeMinutes,
             DryWellDetail::getLatitudeMinutes,
@@ -144,7 +144,7 @@ class DryWellDetailsPersistenceServiceTest {
             DryWellDetail::getSealFailureCategory,
             DryWellDetail::getTrapFailureCategory)
         .containsExactly(
-            detailForm.getDryWell(),
+            detailForm.getWell(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
@@ -178,7 +178,7 @@ class DryWellDetailsPersistenceServiceTest {
 
   private DryWellDetailsForm getFilledForm() {
     var form = new DryWellDetailsForm();
-    form.getDrillDetailsForm().setDryWell("dryWellName");
+    form.getDrillDetailsForm().setWell("dryWellName");
     form.setDryHoleComments("dryHoleComments");
     form.setDryHoleScope("dryHoleScope");
     form.getDrillDetailsForm().setReservoirDatum(ReservoirDatum.ED50);

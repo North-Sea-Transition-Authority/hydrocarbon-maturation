@@ -16,7 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.DryWellRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -82,8 +82,8 @@ public class DryWellDetailsController {
         .addObject("datumTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirDatum.class))
         .addObject("dryHoleTypes", DisplayableEnumOptionUtil.getDisplayableOptions(DryHoleType.class))
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
-        .addObject("dryWellEndpoint", SearchSelectorService.route(on(DryWellRestController.class).searchDryWells(null)))
-        .addObject("dryWell", dryWellDetailsFormService.getPreSelectedDryWell(form.getDrillDetailsForm().getDryWell()))
+        .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWells(null)))
+        .addObject("well", dryWellDetailsFormService.getPreSelectedWell(form.getDrillDetailsForm().getWell()))
         .addObject("sourceFailureCategories",
             DisplayableEnumOptionUtil.getDisplayableOptions(SourceFailureCategory.class))
         .addObject("reservoirFailureCategories",

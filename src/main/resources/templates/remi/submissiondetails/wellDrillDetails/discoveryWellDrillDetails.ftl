@@ -20,8 +20,8 @@
     <@drillDetails.drillDetails
       datumTypes=datumTypes
       longitudeHemisphere=longitudeHemisphere
-      dryWell=dryWell!{}
-      dryWellEndpoint=dryWellEndpoint
+      well=well!{}
+      wellEndpoint=wellEndpoint
       formPath="form.wellDetailsForm"/>
     <h2 class="govuk-heading-l">Discovery details</h2>
     <@fdsRadio.radioGroup path="form.hydrocarbonsDiscovered" labelText="Hydrocarbons discovered">

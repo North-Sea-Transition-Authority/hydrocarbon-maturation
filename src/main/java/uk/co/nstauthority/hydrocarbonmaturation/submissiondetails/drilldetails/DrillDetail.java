@@ -25,9 +25,9 @@ public class DrillDetail {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
-  private String dryWellId;
+  private String wellId;
 
-  private String dryWellName;
+  private String wellName;
 
   private BigDecimal latitudeDegrees;
 
@@ -71,20 +71,20 @@ public class DrillDetail {
     this.submissionDetail = submissionDetail;
   }
 
-  public String getDryWellId() {
-    return dryWellId;
+  public String getWellId() {
+    return wellId;
   }
 
-  public void setDryWellId(String dryWellId) {
-    this.dryWellId = dryWellId;
+  public void setWellId(String dryWellId) {
+    this.wellId = dryWellId;
   }
 
-  public String getDryWellName() {
-    return dryWellName;
+  public String getWellName() {
+    return wellName;
   }
 
-  public void setDryWellName(String dryWellName) {
-    this.dryWellName = dryWellName;
+  public void setWellName(String dryWellName) {
+    this.wellName = dryWellName;
   }
 
   public BigDecimal getLatitudeDegrees() {

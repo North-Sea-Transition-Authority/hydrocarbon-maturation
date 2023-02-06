@@ -44,9 +44,9 @@ class DryWellDetailsFormValidator extends PartialFullFormValidator {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "drillDetailsForm.dryWell",
-        "drillDetailsForm.dryWell.required",
-        "Enter the dry well reference"
+        "drillDetailsForm.well",
+        "drillDetailsForm.well.required",
+        "Enter the well reference"
     );
 
     CoordinateInputValidationUtil.validateMandatoryCoordinateInputForm(

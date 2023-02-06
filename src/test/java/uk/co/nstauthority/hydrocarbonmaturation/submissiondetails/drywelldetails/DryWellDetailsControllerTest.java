@@ -31,7 +31,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.DryWellRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -131,7 +131,7 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
     var preselectedWell = Map.of("well1", "well1");
 
     when(dryWellDetailsFormService.getDryWellDetailsForm(submissionDetail)).thenReturn(form);
-    when(dryWellDetailsFormService.getPreSelectedDryWell(form.getDrillDetailsForm().getDryWell())).thenReturn(preselectedWell);
+    when(dryWellDetailsFormService.getPreSelectedWell(form.getDrillDetailsForm().getWell())).thenReturn(preselectedWell);
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
@@ -157,9 +157,9 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
             DisplayableEnumOptionUtil.getDisplayableOptions(TrapFailureCategory.class)),
             entry("migrationFailureCategories",
             DisplayableEnumOptionUtil.getDisplayableOptions(MigrationFailureCategory.class)),
-            entry("dryWellEndpoint",
-                SearchSelectorService.route(on(DryWellRestController.class).searchDryWells(null))),
-            entry("dryWell", preselectedWell)
+            entry("wellEndpoint",
+                SearchSelectorService.route(on(WellRestController.class).searchWells(null))),
+            entry("well", preselectedWell)
         );
 
     assertEquals(DryWellDetailsForm.class, modelMap.get("form").getClass());

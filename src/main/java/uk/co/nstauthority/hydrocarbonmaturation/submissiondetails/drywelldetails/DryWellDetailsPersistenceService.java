@@ -22,8 +22,8 @@ class DryWellDetailsPersistenceService {
         .orElse(new DryWellDetail());
 
     var detailForm = form.getDrillDetailsForm();
-    dryWellDetail.setDryWellId(detailForm.getDryWell());
-    dryWellDetail.setDryWellName(detailForm.getDryWell());
+    dryWellDetail.setWellId(detailForm.getWell());
+    dryWellDetail.setWellName(detailForm.getWell());
     dryWellDetail.setSubmissionDetail(submissionDetail);
     dryWellDetail.setDryHoleComments(form.getDryHoleComments());
     dryWellDetail.setDryHoleScope(form.getDryHoleScope());

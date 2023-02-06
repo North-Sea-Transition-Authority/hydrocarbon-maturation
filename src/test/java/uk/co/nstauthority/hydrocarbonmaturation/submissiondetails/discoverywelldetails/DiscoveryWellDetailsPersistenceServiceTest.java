@@ -69,7 +69,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
     var detailForm = form.getWellDetailsForm();
     assertThat(discoveryWellDetail)
         .extracting(
-            DiscoveryWellDetail::getDryWellName,
+            DiscoveryWellDetail::getWellName,
             DiscoveryWellDetail::getLatitudeDegrees,
             DiscoveryWellDetail::getLatitudeMinutes,
             DiscoveryWellDetail::getLatitudeMinutes,
@@ -103,7 +103,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
     var detailForm = form.getWellDetailsForm();
     assertThat(savedDiscoveryWellDetail)
         .extracting(
-            DiscoveryWellDetail::getDryWellName,
+            DiscoveryWellDetail::getWellName,
             DiscoveryWellDetail::getLatitudeDegrees,
             DiscoveryWellDetail::getLatitudeMinutes,
             DiscoveryWellDetail::getLatitudeMinutes,
@@ -122,7 +122,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
             DiscoveryWellDetail::getHydrocarbonsDiscovered,
             DiscoveryWellDetail::getSuccessRelatedCosts)
         .containsExactly(
-            detailForm.getDryWell(),
+            detailForm.getWell(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
@@ -183,7 +183,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
     var detailForm = form.getWellDetailsForm();
     assertThat(savedDiscoveryWellDetail)
         .extracting(
-            DiscoveryWellDetail::getDryWellName,
+            DiscoveryWellDetail::getWellName,
             DiscoveryWellDetail::getLatitudeDegrees,
             DiscoveryWellDetail::getLatitudeMinutes,
             DiscoveryWellDetail::getLatitudeMinutes,
@@ -202,7 +202,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
             DiscoveryWellDetail::getHydrocarbonsDiscovered,
             DiscoveryWellDetail::getSuccessRelatedCosts)
         .containsExactly(
-            detailForm.getDryWell(),
+            detailForm.getWell(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
@@ -259,7 +259,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
 
   private DiscoveryWellDetailsForm getFilledForm() {
     var form = new DiscoveryWellDetailsForm();
-    form.getWellDetailsForm().setDryWell("dryWellName");
+    form.getWellDetailsForm().setWell("dryWellName");
     form.setChanceOfCommercialityComments("dryHoleComments");
     form.setDiscoveryStatus(DiscoveryStatus.TECHNICAL_DISCOVERY);
     form.getWellDetailsForm().setReservoirDatum(ReservoirDatum.ED50);

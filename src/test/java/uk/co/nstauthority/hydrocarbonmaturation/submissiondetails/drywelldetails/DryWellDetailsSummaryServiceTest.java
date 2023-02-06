@@ -105,8 +105,8 @@ class DryWellDetailsSummaryServiceTest {
   @Test
   void getDryWellDetailSummaryFromSubmissionDetail_whenPresent_fullSummary() {
     var dryWellDetail = new DryWellDetail();
-    dryWellDetail.setDryWellName("wellname");
-    dryWellDetail.setDryWellId("wellname");
+    dryWellDetail.setWellName("wellname");
+    dryWellDetail.setWellId("wellname");
     dryWellDetail.setLatitudeDegrees(BigDecimal.ONE);
     dryWellDetail.setLatitudeMinutes(BigDecimal.ONE);
     dryWellDetail.setLatitudeSeconds(BigDecimal.ONE);

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.DryWellQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -41,7 +42,7 @@ class DryWellDetailsFormServiceTest {
   private SearchSelectorService searchSelectorService;
 
   @Mock
-  private DryWellQueryService dryWellQueryService;
+  private WellQueryService wellQueryService;
 
   @Mock
   private WellDetailsFormService wellDetailsFormService;
@@ -172,11 +173,22 @@ class DryWellDetailsFormServiceTest {
         );
   }
 
+  @Test
+  void getPreSelectedDryWell_verifyMethodCall() {
+    var expectedMap = Map.of("k1", "v1");
+    when(wellDetailsFormService.getPreSelectedWell("well"))
+        .thenReturn(expectedMap);
+    var result = dryWellDetailsFormService.getPreSelectedWell("well");
+
+    verify(wellDetailsFormService).getPreSelectedWell("well");
+    assertThat(result).isEqualTo(expectedMap);
+  }
+
   private DryWellDetail getDryWellDetail(SubmissionDetail submissionDetail) {
     var dryWellDetail = new DryWellDetail();
     dryWellDetail.setSubmissionDetail(submissionDetail);
-    dryWellDetail.setDryWellId("dryWellId");
-    dryWellDetail.setDryWellName("dryWellName");
+    dryWellDetail.setWellId("dryWellId");
+    dryWellDetail.setWellName("dryWellName");
     dryWellDetail.setDryHoleComments("dryHoleComments");
     dryWellDetail.setDryHoleScope("dryHoleScope");
     dryWellDetail.setDatum(ReservoirDatum.ED50);

@@ -51,8 +51,8 @@ class DryWellDetailsFormService implements SubmissionFormService {
     return form;
   }
 
-  public Map<String, String> getPreSelectedDryWell(String dryWell) {
-    return wellDetailsFormService.getPreSelectedDryWell(dryWell);
+  public Map<String, String> getPreSelectedWell(String well) {
+    return wellDetailsFormService.getPreSelectedWell(well);
   }
 
   @Override
