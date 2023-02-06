@@ -89,8 +89,6 @@ class PermeabilityFormValidatorTest {
     form.getPermeabilityValuesForm().setPermeabilityMin(DecimalInput.createDecimalInput(BigDecimal.valueOf(5.5555)));
     form.getPermeabilityValuesForm().setPermeabilityAverage(DecimalInput.createDecimalInput(BigDecimal.valueOf(5.5555)));
     form.getPermeabilityValuesForm().setKvKhAverage(DecimalInput.createDecimalInput(BigDecimal.valueOf(5.5555)));
-    form.getPermeabilityValuesForm().setKvKhMax(DecimalInput.createDecimalInput(BigDecimal.valueOf(5.5555)));
-    form.getPermeabilityValuesForm().setKvKhMin(DecimalInput.createDecimalInput(BigDecimal.valueOf(5.5555)));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     permeabilityFormValidator.validate(
@@ -106,8 +104,6 @@ class PermeabilityFormValidatorTest {
             entry("permeabilityValuesForm.permeabilityMin.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityMin.decimalInputValue.incorrectDecimalPlaces")),
             entry("permeabilityValuesForm.permeabilityMax.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityMax.decimalInputValue.incorrectDecimalPlaces")),
             entry("permeabilityValuesForm.permeabilityAverage.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityAverage.decimalInputValue.incorrectDecimalPlaces")),
-            entry("permeabilityValuesForm.kvKhMin.decimalInputValue", Set.of("permeabilityValuesForm.kvKhMin.decimalInputValue.incorrectDecimalPlaces")),
-            entry("permeabilityValuesForm.kvKhMax.decimalInputValue", Set.of("permeabilityValuesForm.kvKhMax.decimalInputValue.incorrectDecimalPlaces")),
             entry("permeabilityValuesForm.kvKhAverage.decimalInputValue", Set.of("permeabilityValuesForm.kvKhAverage.decimalInputValue.incorrectDecimalPlaces"))
         );
   }
@@ -120,8 +116,6 @@ class PermeabilityFormValidatorTest {
     form.getPermeabilityValuesForm().setPermeabilityMin(DecimalInput.createDecimalInput(BigDecimal.valueOf(-3)));
     form.getPermeabilityValuesForm().setPermeabilityAverage(DecimalInput.createDecimalInput(BigDecimal.valueOf(-1)));
     form.getPermeabilityValuesForm().setKvKhAverage(DecimalInput.createDecimalInput(BigDecimal.valueOf(-6)));
-    form.getPermeabilityValuesForm().setKvKhMax(DecimalInput.createDecimalInput(BigDecimal.valueOf(-7)));
-    form.getPermeabilityValuesForm().setKvKhMin(DecimalInput.createDecimalInput(BigDecimal.valueOf(-9)));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     permeabilityFormValidator.validate(
@@ -137,8 +131,6 @@ class PermeabilityFormValidatorTest {
             entry("permeabilityValuesForm.permeabilityMin.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityMin.decimalInputValue.lessThanMinValue")),
             entry("permeabilityValuesForm.permeabilityMax.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityMax.decimalInputValue.lessThanMinValue")),
             entry("permeabilityValuesForm.permeabilityAverage.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityAverage.decimalInputValue.lessThanMinValue")),
-            entry("permeabilityValuesForm.kvKhMin.decimalInputValue", Set.of("permeabilityValuesForm.kvKhMin.decimalInputValue.lessThanMinValue")),
-            entry("permeabilityValuesForm.kvKhMax.decimalInputValue", Set.of("permeabilityValuesForm.kvKhMax.decimalInputValue.lessThanMinValue")),
             entry("permeabilityValuesForm.kvKhAverage.decimalInputValue", Set.of("permeabilityValuesForm.kvKhAverage.decimalInputValue.lessThanMinValue"))
         );
   }
@@ -163,11 +155,7 @@ class PermeabilityFormValidatorTest {
             entry("permeabilityValuesForm.permeabilityAverage.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityAverage.decimalInputValue.required")),
             entry("permeabilityValuesForm.averageMethodUsed", Set.of("permeabilityValuesForm.averageMethodUsed.required")),
             entry("permeabilityValuesForm.permeabilitySource", Set.of("permeabilityValuesForm.permeabilitySource.required")),
-            entry("permeabilityValuesForm.kvKhMin.decimalInputValue", Set.of("permeabilityValuesForm.kvKhMin.decimalInputValue.required")),
-            entry("permeabilityValuesForm.kvKhMax.decimalInputValue", Set.of("permeabilityValuesForm.kvKhMax.decimalInputValue.required")),
-            entry("permeabilityValuesForm.kvKhAverage.decimalInputValue", Set.of("permeabilityValuesForm.kvKhAverage.decimalInputValue.required")),
-            entry("permeabilityValuesForm.kvKhAverageMethodUsed", Set.of("permeabilityValuesForm.kvKhAverageMethodUsed.required")),
-            entry("permeabilityValuesForm.kvKhSource", Set.of("permeabilityValuesForm.kvKhSource.required"))
+            entry("permeabilityValuesForm.kvKhAverage.decimalInputValue", Set.of("permeabilityValuesForm.kvKhAverage.decimalInputValue.required"))
         );
   }
 
@@ -190,11 +178,7 @@ class PermeabilityFormValidatorTest {
             entry("permeabilityValuesForm.permeabilityAverage.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityAverage.decimalInputValue.required")),
             entry("permeabilityValuesForm.averageMethodUsed", Set.of("permeabilityValuesForm.averageMethodUsed.required")),
             entry("permeabilityValuesForm.permeabilitySource", Set.of("permeabilityValuesForm.permeabilitySource.required")),
-            entry("permeabilityValuesForm.kvKhMin.decimalInputValue", Set.of("permeabilityValuesForm.kvKhMin.decimalInputValue.required")),
-            entry("permeabilityValuesForm.kvKhMax.decimalInputValue", Set.of("permeabilityValuesForm.kvKhMax.decimalInputValue.required")),
-            entry("permeabilityValuesForm.kvKhAverage.decimalInputValue", Set.of("permeabilityValuesForm.kvKhAverage.decimalInputValue.required")),
-            entry("permeabilityValuesForm.kvKhAverageMethodUsed", Set.of("permeabilityValuesForm.kvKhAverageMethodUsed.required")),
-            entry("permeabilityValuesForm.kvKhSource", Set.of("permeabilityValuesForm.kvKhSource.required"))
+            entry("permeabilityValuesForm.kvKhAverage.decimalInputValue", Set.of("permeabilityValuesForm.kvKhAverage.decimalInputValue.required"))
         );
   }
 
@@ -202,11 +186,8 @@ class PermeabilityFormValidatorTest {
   void validate_whenOtherSourceNotFilledIn_thenValidationErrors() {
     var form = getValidFormWithPermeability();
 
-    form.getPermeabilityValuesForm().setKvKhSource(PermeabilitySource.OTHER);
-    form.getPermeabilityValuesForm().setOtherKvKhSource("");
     form.getPermeabilityValuesForm().setPermeabilitySource(PermeabilitySource.OTHER);
     form.getPermeabilityValuesForm().setOtherPermeabilitySource("");
-    form.getPermeabilityValuesForm().setKvKhAverageMethodUsed(AverageMethod.ARITHMETIC);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     permeabilityFormValidator.validate(
@@ -218,8 +199,7 @@ class PermeabilityFormValidatorTest {
 
     assertThat(errors)
         .containsExactly(
-            entry("permeabilityValuesForm.otherPermeabilitySource", Set.of("permeabilityValuesForm.otherPermeabilitySource.required")),
-            entry("permeabilityValuesForm.otherKvKhSource", Set.of("permeabilityValuesForm.otherKvKhSource.required"))
+            entry("permeabilityValuesForm.otherPermeabilitySource", Set.of("permeabilityValuesForm.otherPermeabilitySource.required"))
         );
   }
 
@@ -233,13 +213,7 @@ class PermeabilityFormValidatorTest {
     permeabilityForm.setPermeabilityMin(DecimalInput.createDecimalInput(BigDecimal.ONE));
     permeabilityForm.setPermeabilityMax(DecimalInput.createDecimalInput(BigDecimal.ONE));
     permeabilityForm.setKvKhAverage(DecimalInput.createDecimalInput(BigDecimal.ONE));
-    permeabilityForm.setKvKhMin(DecimalInput.createDecimalInput(BigDecimal.ONE));
-    permeabilityForm.setKvKhMax(DecimalInput.createDecimalInput(BigDecimal.ONE));
-    permeabilityForm.setKvKhSource(PermeabilitySource.OTHER);
-    permeabilityForm.setOtherKvKhSource("source");
     permeabilityForm.setAverageMethodUsed(AverageMethod.ARITHMETIC);
-    permeabilityForm.setKvKhAverageMethodUsed(AverageMethod.ARITHMETIC);
-    permeabilityForm.setKvKhComments("comments");
     form.setPermeabilityValuesForm(permeabilityForm);
     form.setHasPermeability(true);
     return form;

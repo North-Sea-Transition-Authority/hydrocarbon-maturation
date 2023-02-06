@@ -74,13 +74,7 @@ class PermeabilityFormServiceTest {
             form -> form.getPermeabilityValuesForm().getPermeabilitySource(),
             form -> form.getPermeabilityValuesForm().getOtherPermeabilitySource(),
             form -> form.getPermeabilityValuesForm().getPermeabilityComments(),
-            form -> form.getPermeabilityValuesForm().getKvKhMin().asBigDecimal(),
-            form -> form.getPermeabilityValuesForm().getKvKhMax().asBigDecimal(),
-            form -> form.getPermeabilityValuesForm().getKvKhAverage().asBigDecimal(),
-            form -> form.getPermeabilityValuesForm().getKvKhAverageMethodUsed(),
-            form -> form.getPermeabilityValuesForm().getKvKhSource(),
-            form -> form.getPermeabilityValuesForm().getOtherKvKhSource(),
-            form -> form.getPermeabilityValuesForm().getKvKhComments())
+            form -> form.getPermeabilityValuesForm().getKvKhAverage().asBigDecimal())
         .containsExactly(
             Optional.empty(),
             Optional.empty(),
@@ -89,13 +83,7 @@ class PermeabilityFormServiceTest {
             null,
             null,
             null,
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty(),
-            null,
-            null,
-            null,
-            null
+            Optional.empty()
         );
   }
 
@@ -110,14 +98,8 @@ class PermeabilityFormServiceTest {
     filledEntity.setPermeabilityMin(BigDecimal.ONE);
     filledEntity.setPermeabilityAverage(BigDecimal.ONE);
     filledEntity.setPermeabilitySource(PermeabilitySource.OTHER);
-    filledEntity.setKvKhAverageMethodUsed(AverageMethod.ARITHMETIC);
-    filledEntity.setKvKhComments("comments");
-    filledEntity.setKvKhMax(BigDecimal.ONE);
-    filledEntity.setKvKhMin(BigDecimal.ONE);
-    filledEntity.setKvKhSource(PermeabilitySource.OTHER);
     filledEntity.setKvKhAverage(BigDecimal.ONE);
     filledEntity.setSourceOther("comments");
-    filledEntity.setKvKhSourceOther("comments");
 
     when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail))
         .thenReturn(Optional.of(filledEntity));
@@ -131,13 +113,7 @@ class PermeabilityFormServiceTest {
             form -> form.getPermeabilityValuesForm().getPermeabilitySource(),
             form -> form.getPermeabilityValuesForm().getOtherPermeabilitySource(),
             form -> form.getPermeabilityValuesForm().getPermeabilityComments(),
-            form -> form.getPermeabilityValuesForm().getKvKhMin().asBigDecimal(),
-            form -> form.getPermeabilityValuesForm().getKvKhMax().asBigDecimal(),
-            form -> form.getPermeabilityValuesForm().getKvKhAverage().asBigDecimal(),
-            form -> form.getPermeabilityValuesForm().getKvKhAverageMethodUsed(),
-            form -> form.getPermeabilityValuesForm().getKvKhSource(),
-            form -> form.getPermeabilityValuesForm().getOtherKvKhSource(),
-            form -> form.getPermeabilityValuesForm().getKvKhComments())
+            form -> form.getPermeabilityValuesForm().getKvKhAverage().asBigDecimal())
         .containsExactly(
             Optional.of(BigDecimal.ONE),
             Optional.of(BigDecimal.ONE),
@@ -146,13 +122,7 @@ class PermeabilityFormServiceTest {
             PermeabilitySource.OTHER,
             "comments",
             "comments",
-            Optional.of(BigDecimal.ONE),
-            Optional.of(BigDecimal.ONE),
-            Optional.of(BigDecimal.ONE),
-            AverageMethod.ARITHMETIC,
-            PermeabilitySource.OTHER,
-            "comments",
-            "comments"
+            Optional.of(BigDecimal.ONE)
         );
   }
 }

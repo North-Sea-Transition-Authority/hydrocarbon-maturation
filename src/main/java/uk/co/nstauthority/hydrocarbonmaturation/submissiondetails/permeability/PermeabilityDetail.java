@@ -46,18 +46,7 @@ class PermeabilityDetail implements SubmissionDetailChildEntity {
 
   private String permeabilityComments;
 
-  private BigDecimal kvKhMin;
-
-  private BigDecimal kvKhMax;
-
   private BigDecimal kvKhAverage;
-
-  private AverageMethod kvKhAverageMethodUsed;
-
-  private PermeabilitySource kvKhSource;
-
-  private String kvKhSourceOther;
-  private String kvKhComments;
 
   public SubmissionDetail getSubmissionDetail() {
     return submissionDetail;
@@ -125,37 +114,12 @@ class PermeabilityDetail implements SubmissionDetailChildEntity {
     this.permeabilityComments = permeabilityComments;
   }
 
-  public BigDecimal getKvKhMin() {
-    return kvKhMin;
-  }
-
-  public void setKvKhMin(BigDecimal kvKhMin) {
-    this.kvKhMin = kvKhMin;
-  }
-
-  public BigDecimal getKvKhMax() {
-    return kvKhMax;
-  }
-
-  public void setKvKhMax(BigDecimal kvKhMax) {
-    this.kvKhMax = kvKhMax;
-  }
-
   public BigDecimal getKvKhAverage() {
     return kvKhAverage;
   }
 
   public void setKvKhAverage(BigDecimal kvKhAverage) {
     this.kvKhAverage = kvKhAverage;
-  }
-
-  public AverageMethod getKvKhAverageMethodUsed() {
-    return kvKhAverageMethodUsed;
-  }
-
-  public void setKvKhAverageMethodUsed(
-      AverageMethod kvKhAverageMethodUsed) {
-    this.kvKhAverageMethodUsed = kvKhAverageMethodUsed;
   }
 
   public UUID getId() {
@@ -166,36 +130,11 @@ class PermeabilityDetail implements SubmissionDetailChildEntity {
     this.id = id;
   }
 
-  public PermeabilitySource getKvKhSource() {
-    return kvKhSource;
-  }
-
-  public void setKvKhSource(
-      PermeabilitySource kvKhSource) {
-    this.kvKhSource = kvKhSource;
-  }
-
-  public String getKvKhComments() {
-    return kvKhComments;
-  }
-
-  public void setKvKhComments(String kvKhComments) {
-    this.kvKhComments = kvKhComments;
-  }
-
   public String getSourceOther() {
     return sourceOther;
   }
 
   public void setSourceOther(String sourceOther) {
     this.sourceOther = sourceOther;
-  }
-
-  public String getKvKhSourceOther() {
-    return kvKhSourceOther;
-  }
-
-  public void setKvKhSourceOther(String kvKhSourceOther) {
-    this.kvKhSourceOther = kvKhSourceOther;
   }
 }

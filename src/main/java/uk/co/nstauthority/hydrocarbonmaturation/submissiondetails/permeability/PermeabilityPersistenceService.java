@@ -49,15 +49,6 @@ class PermeabilityPersistenceService {
     permeabilityDetail.setPermeabilitySource(permeabilityValuesForm.getPermeabilitySource());
     permeabilityDetail.setAverageMethodUsed(permeabilityValuesForm.getAverageMethodUsed());
     permeabilityDetail.setKvKhAverage(permeabilityValuesForm.getKvKhAverage().createBigDecimalOrNull());
-    permeabilityDetail.setKvKhComments(permeabilityValuesForm.getKvKhComments());
-    permeabilityDetail.setKvKhMax(permeabilityValuesForm.getKvKhMax().createBigDecimalOrNull());
-    permeabilityDetail.setKvKhMin(permeabilityValuesForm.getKvKhMin().createBigDecimalOrNull());
-    permeabilityDetail.setKvKhAverageMethodUsed(permeabilityValuesForm.getKvKhAverageMethodUsed());
-    permeabilityDetail.setKvKhSource(permeabilityValuesForm.getKvKhSource());
-
-    if (permeabilityValuesForm.getKvKhSource() == PermeabilitySource.OTHER) {
-      permeabilityDetail.setKvKhSourceOther(permeabilityValuesForm.getOtherKvKhSource());
-    }
 
     if (permeabilityValuesForm.getPermeabilitySource() == PermeabilitySource.OTHER) {
       permeabilityDetail.setSourceOther(permeabilityValuesForm.getOtherPermeabilitySource());

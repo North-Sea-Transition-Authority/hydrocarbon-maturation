@@ -77,24 +77,6 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
 
       DecimalInputValidator.configureOptionalValidator(
               errors,
-              "permeabilityValuesForm.kvKhMin.decimalInputValue",
-              "Kv/kh min",
-              permeabilityForm.getPermeabilityValuesForm().getKvKhMin())
-          .setMaxDecimalPlaces(2)
-          .setMinValue(BigDecimal.ZERO)
-          .validate();
-
-      DecimalInputValidator.configureOptionalValidator(
-              errors,
-              "permeabilityValuesForm.kvKhMax.decimalInputValue",
-              "Kv/kh max",
-              permeabilityForm.getPermeabilityValuesForm().getKvKhMax())
-          .setMaxDecimalPlaces(2)
-          .setMinValue(BigDecimal.ZERO)
-          .validate();
-
-      DecimalInputValidator.configureOptionalValidator(
-              errors,
               "permeabilityValuesForm.kvKhAverage.decimalInputValue",
               "Kv/kh average",
               permeabilityForm.getPermeabilityValuesForm().getKvKhAverage())
@@ -171,50 +153,11 @@ class PermeabilityFormValidator extends PartialFullFormValidator {
 
     DecimalInputValidator.configureValidator(
             errors,
-            "permeabilityValuesForm.kvKhMin.decimalInputValue",
-            "Kv/kh min",
-            permeabilityForm.getPermeabilityValuesForm().getKvKhMin())
-        .setMaxDecimalPlaces(2)
-        .setMinValue(BigDecimal.ZERO)
-        .validate();
-
-    DecimalInputValidator.configureValidator(
-            errors,
-            "permeabilityValuesForm.kvKhMax.decimalInputValue",
-            "Kv/kh max",
-            permeabilityForm.getPermeabilityValuesForm().getKvKhMax())
-        .setMaxDecimalPlaces(2)
-        .setMinValue(BigDecimal.ZERO)
-        .validate();
-
-    DecimalInputValidator.configureValidator(
-            errors,
             "permeabilityValuesForm.kvKhAverage.decimalInputValue",
             "Kv/kh average",
             permeabilityForm.getPermeabilityValuesForm().getKvKhAverage())
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)
         .validate();
-
-    ValidationUtils.rejectIfEmpty(
-        errors,
-        "permeabilityValuesForm.kvKhAverageMethodUsed",
-        "permeabilityValuesForm.kvKhAverageMethodUsed.required",
-        "Enter kv/kh average method");
-
-    ValidationUtils.rejectIfEmpty(
-        errors,
-        "permeabilityValuesForm.kvKhSource",
-        "permeabilityValuesForm.kvKhSource.required",
-        "Enter kv/kh source");
-
-    if (permeabilityForm.getPermeabilityValuesForm().getKvKhSource() == PermeabilitySource.OTHER) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(
-          errors,
-          "permeabilityValuesForm.otherKvKhSource",
-          "permeabilityValuesForm.otherKvKhSource.required",
-          "Enter other kv/kh source"
-      );
-    }
   }
 }

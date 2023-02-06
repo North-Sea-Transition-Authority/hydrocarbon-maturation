@@ -52,7 +52,6 @@ class PermeabilityPersistenceServiceTest {
     assertThat(savedPermeabilityDetail)
         .extracting(
             PermeabilityDetail::getHasPermeability,
-            PermeabilityDetail::getKvKhSourceOther,
             PermeabilityDetail::getSourceOther,
             PermeabilityDetail::getSubmissionDetail,
             PermeabilityDetail::getAverageMethodUsed,
@@ -61,14 +60,9 @@ class PermeabilityPersistenceServiceTest {
             PermeabilityDetail::getPermeabilityAverage,
             PermeabilityDetail::getPermeabilityMax,
             PermeabilityDetail::getPermeabilityMin,
-            PermeabilityDetail::getKvKhSource,
-            PermeabilityDetail::getKvKhMax,
-            PermeabilityDetail::getKvKhMin,
-            PermeabilityDetail::getKvKhComments,
             PermeabilityDetail::getKvKhAverage)
         .containsExactly(
             permeabilityDryWellForm.getHasPermeability(),
-            form.getOtherKvKhSource(),
             form.getOtherPermeabilitySource(),
             submissionDetail,
             form.getAverageMethodUsed(),
@@ -77,10 +71,6 @@ class PermeabilityPersistenceServiceTest {
             form.getPermeabilityAverage().createBigDecimalOrNull(),
             form.getPermeabilityMax().createBigDecimalOrNull(),
             form.getPermeabilityMin().createBigDecimalOrNull(),
-            form.getKvKhSource(),
-            form.getKvKhMax().createBigDecimalOrNull(),
-            form.getKvKhMin().createBigDecimalOrNull(),
-            form.getKvKhComments(),
             form.getKvKhAverage().createBigDecimalOrNull()
         );
   }
@@ -94,9 +84,6 @@ class PermeabilityPersistenceServiceTest {
 
     form.setPermeabilitySource(PermeabilitySource.OTHER);
     form.setOtherPermeabilitySource("other source");
-    form.setKvKhSource(PermeabilitySource.OTHER);
-    form.setOtherKvKhSource("kvhk other");
-    form.setKvKhAverageMethodUsed(AverageMethod.ARITHMETIC);
 
     permeabilityDryWellForm.setPermeabilityValuesForm(form);
     permeabilityDryWellForm.setHasPermeability(true);
@@ -109,7 +96,6 @@ class PermeabilityPersistenceServiceTest {
     assertThat(savedPermeabilityDetail)
         .extracting(
             PermeabilityDetail::getHasPermeability,
-            PermeabilityDetail::getKvKhSourceOther,
             PermeabilityDetail::getSourceOther,
             PermeabilityDetail::getSubmissionDetail,
             PermeabilityDetail::getAverageMethodUsed,
@@ -118,14 +104,9 @@ class PermeabilityPersistenceServiceTest {
             PermeabilityDetail::getPermeabilityAverage,
             PermeabilityDetail::getPermeabilityMax,
             PermeabilityDetail::getPermeabilityMin,
-            PermeabilityDetail::getKvKhSource,
-            PermeabilityDetail::getKvKhMax,
-            PermeabilityDetail::getKvKhMin,
-            PermeabilityDetail::getKvKhComments,
             PermeabilityDetail::getKvKhAverage)
         .containsExactly(
             permeabilityDryWellForm.getHasPermeability(),
-            form.getOtherKvKhSource(),
             form.getOtherPermeabilitySource(),
             submissionDetail,
             form.getAverageMethodUsed(),
@@ -134,10 +115,6 @@ class PermeabilityPersistenceServiceTest {
             form.getPermeabilityAverage().createBigDecimalOrNull(),
             form.getPermeabilityMax().createBigDecimalOrNull(),
             form.getPermeabilityMin().createBigDecimalOrNull(),
-            form.getKvKhSource(),
-            form.getKvKhMax().createBigDecimalOrNull(),
-            form.getKvKhMin().createBigDecimalOrNull(),
-            form.getKvKhComments(),
             form.getKvKhAverage().createBigDecimalOrNull()
         );
   }

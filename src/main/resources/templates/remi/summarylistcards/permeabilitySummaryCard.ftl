@@ -34,33 +34,8 @@
       <@fdsSummaryList.summaryListRowNoAction keyText="Permeability (md) comments">
         ${permeabilityDetailsValues.permeabilityComments()}
       </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Kv/kh min">
-        ${permeabilityDetailsValues.kvKhMin()}
-      </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Kv/kh max">
-        ${permeabilityDetailsValues.kvKhMax()}
-      </@fdsSummaryList.summaryListRowNoAction>
       <@fdsSummaryList.summaryListRowNoAction keyText="Kv/kh average">
         ${permeabilityDetailsValues.kvKhAverage()}
-      </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Kv/kh average method used">
-        ${permeabilityDetailsValues.kvKhAverageMethodUsed()}
-      </@fdsSummaryList.summaryListRowNoAction>
-      <#if permeabilityDetailsValues.kvKhAverageMethodUsed() == "Other">
-        <@fdsSummaryList.summaryListRowNoAction keyText="Kv/kh other average method used">
-          ${permeabilityDetailsValues.kvKhAverageMethodUsedOther()}
-        </@fdsSummaryList.summaryListRowNoAction>
-      </#if>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Kv/kh source">
-        ${permeabilityDetailsValues.kvKhSource()}
-      </@fdsSummaryList.summaryListRowNoAction>
-      <#if permeabilityDetailsValues.kvKhSource() == "Other">
-        <@fdsSummaryList.summaryListRowNoAction keyText="Kv/kh other source">
-          ${permeabilityDetailsValues.otherKvKhSource()}
-        </@fdsSummaryList.summaryListRowNoAction>
-      </#if>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Kv/kh comments">
-        ${permeabilityDetailsValues.kvKhComments()}
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
   </@fdsSummaryList.summaryListCard>

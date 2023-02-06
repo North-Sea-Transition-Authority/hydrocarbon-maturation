@@ -69,19 +69,10 @@ class PermeabilityFormService implements SubmissionFormService {
     permeabilityValuesForm.setPermeabilityAverage(
         DecimalInput.createDecimalInput(permeabilityDetail.getPermeabilityAverage()));
     permeabilityValuesForm.setPermeabilitySource(permeabilityDetail.getPermeabilitySource());
-    permeabilityValuesForm.setKvKhAverageMethodUsed(permeabilityDetail.getKvKhAverageMethodUsed());
-    permeabilityValuesForm.setKvKhComments(permeabilityDetail.getKvKhComments());
-    permeabilityValuesForm.setKvKhMax(DecimalInput.createDecimalInput(permeabilityDetail.getKvKhMax()));
-    permeabilityValuesForm.setKvKhMin(DecimalInput.createDecimalInput(permeabilityDetail.getKvKhMin()));
-    permeabilityValuesForm.setKvKhSource(permeabilityDetail.getKvKhSource());
     permeabilityValuesForm.setKvKhAverage(DecimalInput.createDecimalInput(permeabilityDetail.getKvKhAverage()));
 
     if (permeabilityDetail.getPermeabilitySource() == PermeabilitySource.OTHER) {
       permeabilityValuesForm.setOtherPermeabilitySource(permeabilityDetail.getSourceOther());
-    }
-
-    if (permeabilityDetail.getKvKhSource() == PermeabilitySource.OTHER) {
-      permeabilityValuesForm.setOtherKvKhSource(permeabilityDetail.getKvKhSourceOther());
     }
   }
 }

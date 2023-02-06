@@ -12,13 +12,7 @@ public class PermeabilityValuesForm implements SubmissionForm {
   private PermeabilitySource permeabilitySource;
   private String otherPermeabilitySource;
   private String permeabilityComments;
-  private DecimalInput kvKhMin = new DecimalInput();
-  private DecimalInput kvKhMax = new DecimalInput();
   private DecimalInput kvKhAverage = new DecimalInput();
-  private AverageMethod kvKhAverageMethodUsed;
-  private PermeabilitySource kvKhSource;
-  private String otherKvKhSource;
-  private String kvKhComments;
 
   public DecimalInput getPermeabilityMin() {
     return permeabilityMin;
@@ -70,22 +64,6 @@ public class PermeabilityValuesForm implements SubmissionForm {
     this.permeabilityComments = permeabilityComments;
   }
 
-  public DecimalInput getKvKhMin() {
-    return kvKhMin;
-  }
-
-  public void setKvKhMin(DecimalInput kvKhMin) {
-    this.kvKhMin = kvKhMin;
-  }
-
-  public DecimalInput getKvKhMax() {
-    return kvKhMax;
-  }
-
-  public void setKvKhMax(DecimalInput kvKhMax) {
-    this.kvKhMax = kvKhMax;
-  }
-
   public DecimalInput getKvKhAverage() {
     return kvKhAverage;
   }
@@ -94,45 +72,11 @@ public class PermeabilityValuesForm implements SubmissionForm {
     this.kvKhAverage = kvKhAverage;
   }
 
-  public AverageMethod getKvKhAverageMethodUsed() {
-    return kvKhAverageMethodUsed;
-  }
-
-  public void setKvKhAverageMethodUsed(
-      AverageMethod kvKhAverageMethodUsed) {
-    this.kvKhAverageMethodUsed = kvKhAverageMethodUsed;
-  }
-
-  public PermeabilitySource getKvKhSource() {
-    return kvKhSource;
-  }
-
-  public void setKvKhSource(
-      PermeabilitySource kvKhSource) {
-    this.kvKhSource = kvKhSource;
-  }
-
-  public String getKvKhComments() {
-    return kvKhComments;
-  }
-
-  public void setKvKhComments(String kvKhComments) {
-    this.kvKhComments = kvKhComments;
-  }
-
   public String getOtherPermeabilitySource() {
     return otherPermeabilitySource;
   }
 
   public void setOtherPermeabilitySource(String otherPermeabilitySource) {
     this.otherPermeabilitySource = otherPermeabilitySource;
-  }
-
-  public String getOtherKvKhSource() {
-    return otherKvKhSource;
-  }
-
-  public void setOtherKvKhSource(String otherKvKhSource) {
-    this.otherKvKhSource = otherKvKhSource;
   }
 }

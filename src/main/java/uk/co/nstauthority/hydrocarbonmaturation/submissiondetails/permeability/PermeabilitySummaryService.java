@@ -34,16 +34,6 @@ public class PermeabilitySummaryService {
     if (permeabilityDetail.getPermeabilitySource() == PermeabilitySource.OTHER) {
       otherPermeabilitySource = ObjectUtils.defaultIfNull(permeabilityDetail.getSourceOther(), "");
     }
-    var kvKhAverageMethodUsed = permeabilityDetail.getKvKhAverageMethodUsed() != null
-        ? permeabilityDetail.getKvKhAverageMethodUsed().getDisplayName()
-        : "";
-    var kvKhSource = permeabilityDetail.getKvKhSource() != null
-        ? permeabilityDetail.getKvKhSource().getDisplayName()
-        : "";
-    var otherKvKhSource = "";
-    if (permeabilityDetail.getKvKhSource() == PermeabilitySource.OTHER) {
-      otherKvKhSource = ObjectUtils.defaultIfNull(permeabilityDetail.getKvKhSourceOther(), "");
-    }
 
     final String kvKhUnits = "kv/kh";
     final String mdUnits = "md";
@@ -57,13 +47,7 @@ public class PermeabilitySummaryService {
         permeabilitySource,
         otherPermeabilitySource,
         ObjectUtils.defaultIfNull(permeabilityDetail.getPermeabilityComments(), ""),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhMin(), kvKhUnits),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhMax(), kvKhUnits),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhAverage(), kvKhUnits),
-        kvKhAverageMethodUsed,
-        kvKhSource,
-        otherKvKhSource,
-        ObjectUtils.defaultIfNull(permeabilityDetail.getKvKhComments(), "")
+        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhAverage(), kvKhUnits)
     );
   }
 }

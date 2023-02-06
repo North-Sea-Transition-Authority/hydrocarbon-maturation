@@ -9,19 +9,12 @@ public record PermeabilityDetailSummaryView(String hasPermeability,
                                             String permeabilitySource,
                                             String otherPermeabilitySource,
                                             String permeabilityComments,
-                                            String kvKhMin,
-                                            String kvKhMax,
-                                            String kvKhAverage,
-                                            String kvKhAverageMethodUsed,
-                                            String kvKhSource,
-                                            String otherKvKhSource,
-                                            String kvKhComments) {
+                                            String kvKhAverage) {
 
   public static PermeabilityDetailSummaryView empty() {
     return new PermeabilityDetailSummaryView(
         "", true, "", "",
          "", "", "",
-        "", "", "", "",
-        "", "", "", "", "");
+        "", "", "");
   }
 }

@@ -42,13 +42,7 @@ class PermeabilitySummaryServiceTest {
             PermeabilityDetailSummaryView::permeabilitySource,
             PermeabilityDetailSummaryView::otherPermeabilitySource,
             PermeabilityDetailSummaryView::permeabilityComments,
-            PermeabilityDetailSummaryView::kvKhMin,
-            PermeabilityDetailSummaryView::kvKhMax,
-            PermeabilityDetailSummaryView::kvKhAverage,
-            PermeabilityDetailSummaryView::kvKhAverageMethodUsed,
-            PermeabilityDetailSummaryView::kvKhSource,
-            PermeabilityDetailSummaryView::otherKvKhSource,
-            PermeabilityDetailSummaryView::kvKhComments)
+            PermeabilityDetailSummaryView::kvKhAverage)
         .containsOnly("", true);
   }
 
@@ -72,13 +66,7 @@ class PermeabilitySummaryServiceTest {
             PermeabilityDetailSummaryView::permeabilitySource,
             PermeabilityDetailSummaryView::otherPermeabilitySource,
             PermeabilityDetailSummaryView::permeabilityComments,
-            PermeabilityDetailSummaryView::kvKhMin,
-            PermeabilityDetailSummaryView::kvKhMax,
-            PermeabilityDetailSummaryView::kvKhAverage,
-            PermeabilityDetailSummaryView::kvKhAverageMethodUsed,
-            PermeabilityDetailSummaryView::kvKhSource,
-            PermeabilityDetailSummaryView::otherKvKhSource,
-            PermeabilityDetailSummaryView::kvKhComments)
+            PermeabilityDetailSummaryView::kvKhAverage)
         .containsOnly("", true);
   }
 
@@ -102,13 +90,7 @@ class PermeabilitySummaryServiceTest {
             PermeabilityDetailSummaryView::permeabilitySource,
             PermeabilityDetailSummaryView::otherPermeabilitySource,
             PermeabilityDetailSummaryView::permeabilityComments,
-            PermeabilityDetailSummaryView::kvKhMin,
-            PermeabilityDetailSummaryView::kvKhMax,
-            PermeabilityDetailSummaryView::kvKhAverage,
-            PermeabilityDetailSummaryView::kvKhAverageMethodUsed,
-            PermeabilityDetailSummaryView::kvKhSource,
-            PermeabilityDetailSummaryView::otherKvKhSource,
-            PermeabilityDetailSummaryView::kvKhComments)
+            PermeabilityDetailSummaryView::kvKhAverage)
         .containsExactly(
             "Yes",
             permeabilityDetail.getHasPermeability(),
@@ -119,13 +101,7 @@ class PermeabilitySummaryServiceTest {
             permeabilityDetail.getPermeabilitySource().getDisplayName(),
             permeabilityDetail.getSourceOther(),
             permeabilityDetail.getPermeabilityComments(),
-            permeabilityDetail.getKvKhMin().toString() + " kv/kh",
-            permeabilityDetail.getKvKhMax().toString() + " kv/kh",
-            permeabilityDetail.getKvKhAverage().toString() + " kv/kh",
-            permeabilityDetail.getKvKhAverageMethodUsed().getDisplayName(),
-            permeabilityDetail.getKvKhSource().getDisplayName(),
-            permeabilityDetail.getKvKhSourceOther(),
-            permeabilityDetail.getKvKhComments()
+            permeabilityDetail.getKvKhAverage().toString() + " kv/kh"
         );
   }
 
@@ -135,8 +111,6 @@ class PermeabilitySummaryServiceTest {
 
     permeabilityDetail.setAverageMethodUsed(AverageMethod.GEOMETRIC);
     permeabilityDetail.setPermeabilitySource(PermeabilitySource.OTHER);
-    permeabilityDetail.setKvKhSource(PermeabilitySource.SIDEWALL);
-
     when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail))
         .thenReturn(Optional.of(permeabilityDetail));
 
@@ -153,13 +127,7 @@ class PermeabilitySummaryServiceTest {
             PermeabilityDetailSummaryView::permeabilitySource,
             PermeabilityDetailSummaryView::otherPermeabilitySource,
             PermeabilityDetailSummaryView::permeabilityComments,
-            PermeabilityDetailSummaryView::kvKhMin,
-            PermeabilityDetailSummaryView::kvKhMax,
-            PermeabilityDetailSummaryView::kvKhAverage,
-            PermeabilityDetailSummaryView::kvKhAverageMethodUsed,
-            PermeabilityDetailSummaryView::kvKhSource,
-            PermeabilityDetailSummaryView::otherKvKhSource,
-            PermeabilityDetailSummaryView::kvKhComments)
+            PermeabilityDetailSummaryView::kvKhAverage)
         .containsExactly(
             "Yes",
             permeabilityDetail.getHasPermeability(),
@@ -170,13 +138,7 @@ class PermeabilitySummaryServiceTest {
             permeabilityDetail.getPermeabilitySource().getDisplayName(),
             "comments",
             permeabilityDetail.getPermeabilityComments(),
-            permeabilityDetail.getKvKhMin().toString() + " kv/kh",
-            permeabilityDetail.getKvKhMax().toString() + " kv/kh",
-            permeabilityDetail.getKvKhAverage().toString() + " kv/kh",
-            permeabilityDetail.getKvKhAverageMethodUsed().getDisplayName(),
-            permeabilityDetail.getKvKhSource().getDisplayName(),
-            "",
-            permeabilityDetail.getKvKhComments()
+            permeabilityDetail.getKvKhAverage().toString() + " kv/kh"
         );
   }
 
@@ -184,19 +146,13 @@ class PermeabilitySummaryServiceTest {
     var permeabilityDetail = new PermeabilityDetail();
 
     permeabilityDetail.setPermeabilitySource(PermeabilitySource.OTHER);
-    permeabilityDetail.setKvKhSource(PermeabilitySource.OTHER);
-    permeabilityDetail.setKvKhAverageMethodUsed(AverageMethod.ARITHMETIC);
     permeabilityDetail.setPermeabilityAverage(BigDecimal.ONE);
     permeabilityDetail.setPermeabilityMin(BigDecimal.ONE);
     permeabilityDetail.setPermeabilityMax(BigDecimal.ONE);
     permeabilityDetail.setPermeabilityAverage(BigDecimal.ONE);
     permeabilityDetail.setPermeabilityComments("comments");
     permeabilityDetail.setKvKhAverage(BigDecimal.ONE);
-    permeabilityDetail.setKvKhMin(BigDecimal.ONE);
-    permeabilityDetail.setKvKhMax(BigDecimal.ONE);
     permeabilityDetail.setKvKhAverage(BigDecimal.ONE);
-    permeabilityDetail.setKvKhComments("comments");
-    permeabilityDetail.setKvKhSourceOther("comments");
     permeabilityDetail.setAverageMethodUsed(AverageMethod.ARITHMETIC);
     permeabilityDetail.setHasPermeability(true);
     permeabilityDetail.setSourceOther("comments");
