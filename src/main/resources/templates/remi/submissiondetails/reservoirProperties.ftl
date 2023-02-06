@@ -31,31 +31,34 @@
   pageSize=PageSize.FULL_WIDTH
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>
-
   <@fdsForm.htmlForm>
-    <@fdsFieldset.fieldset>
-      <@fdsTextInput.textInput path="form.formationName" labelText="Formation name"/>
-      <@fdsTextInput.textInput path="form.ageStageOrSeries" labelText="Age stage or series"/>
-      <@fdsTextInput.textInput path="form.lithology" labelText="Lithology"/>
-      <#if dryHoleSubmission>
-        <#assign optionalFaciesAndConnectivity = true />
-      </#if>
-      <#if discoverySubmission>
-        <#assign optionalFaciesAndConnectivity = false/>
-      </#if>
-      <#if dryHoleSubmission || discoverySubmission>
-        <@fdsTextarea.textarea
-          path="form.reservoirFacies"
-          labelText="Reservoir facies"
-          optionalLabel=optionalFaciesAndConnectivity
-          hintText="Describe the facies, depositional environments and impact on reservoir development and performance"/>
-        <@fdsTextarea.textarea
-          path="form.reservoirConnectivity"
-          optionalLabel=optionalFaciesAndConnectivity
-          labelText="Reservoir connectivity"
-          hintText="Comment on sandbody geometry and architecture, fault compartmentalisation, aquifer size and connectivity"/>
-      </#if>
-   </@fdsFieldset.fieldset>
+    <@grid.gridRow>
+      <@grid.twoThirdsColumn>
+        <@fdsFieldset.fieldset>
+            <@fdsTextInput.textInput path="form.formationName" labelText="Formation name"/>
+            <@fdsTextInput.textInput path="form.ageStageOrSeries" labelText="Age stage or series"/>
+            <@fdsTextInput.textInput path="form.lithology" labelText="Lithology"/>
+            <#if dryHoleSubmission>
+              <#assign optionalFaciesAndConnectivity = true />
+            </#if>
+            <#if discoverySubmission>
+              <#assign optionalFaciesAndConnectivity = false/>
+            </#if>
+            <#if dryHoleSubmission || discoverySubmission>
+              <@fdsTextarea.textarea
+                path="form.reservoirFacies"
+                labelText="Reservoir facies"
+                optionalLabel=optionalFaciesAndConnectivity
+                hintText="Describe the facies, depositional environments and impact on reservoir development and performance"/>
+              <@fdsTextarea.textarea
+                path="form.reservoirConnectivity"
+                optionalLabel=optionalFaciesAndConnectivity
+                labelText="Reservoir connectivity"
+                hintText="Comment on sandbody geometry and architecture, fault compartmentalisation, aquifer size and connectivity"/>
+            </#if>
+        </@fdsFieldset.fieldset>
+      </@grid.twoThirdsColumn>
+    </@grid.gridRow>
     <#if prospectSubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionTypePath="form.averageNetPayThickness.probabilityDistributionType"

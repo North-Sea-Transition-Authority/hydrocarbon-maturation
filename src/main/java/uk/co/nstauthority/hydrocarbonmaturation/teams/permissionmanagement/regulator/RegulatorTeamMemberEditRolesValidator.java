@@ -19,7 +19,7 @@ class RegulatorTeamMemberEditRolesValidator implements SmartValidator {
 
   public static final String ROLES_FIELD_NAME = "roles";
   public static final String ROLES_FIELD_REQUIRED_ERROR_CODE = "%s.required".formatted(ROLES_FIELD_NAME);
-  public static final String ROLES_FIELD_REQUIRED_ERROR_MESSAGE = "Select at least one role";
+  public static final String ROLES_FIELD_REQUIRED_ERROR_MESSAGE = "Select at least one action";
 
   public static final String ROLES_NO_ACCESS_MANAGER_ERROR_CODE =
       "%s.accessManagerRequired".formatted(ROLES_FIELD_NAME);

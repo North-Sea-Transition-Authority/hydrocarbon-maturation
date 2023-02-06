@@ -13,9 +13,9 @@
           <#if withDistributionType>
               ${probabilityDistribution.probabilityDistributionName()}
             <#if probabilityDistribution.probabilityDistributionType()?has_content>
-              <span class="govuk-caption-m">
+              <div class="govuk-caption-m">
                 ${probabilityDistribution.probabilityDistributionType()}
-              </span>
+              </div>
             </#if>
           <#else>
             ${probabilityDistribution.probabilityDistributionName()}

@@ -24,30 +24,32 @@
         <td class="govuk-table__cell">
           <ul class="govuk-list govuk-!-margin-bottom-0">
               <#if member.contactEmail()?has_content>
-                <li>
+                <li class="govuk-list__item">
                     <@mailTo.mailToLink mailToEmailAddress=member.contactEmail() />
                 </li>
               </#if>
               <#if member.contactNumber()?has_content>
-                <li>${member.contactNumber()}</li>
+                <li class="govuk-list__item">${member.contactNumber()}</li>
               </#if>
           </ul>
         </td>
         <td class="govuk-table__cell">
           <ul class="govuk-list govuk-!-margin-bottom-0">
               <#list member.teamRoles() as role>
-                <li>${role.displayName}</li>
+                <li class="govuk-list__item">${role.displayName}</li>
               </#list>
           </ul>
         </td>
           <#if showActionColumn>
             <td class="govuk-table__cell">
+              <ul class="govuk-list govuk-!-margin-bottom-0">
                 <#if canEditUsers>
-                  <ul class="govuk-list govuk-!-margin-bottom-0"><@fdsAction.link linkText="Edit" linkUrl=springUrl(member.editUrl()) linkScreenReaderText=member.getDisplayName() /></ul>
+                  <li class="govuk-list__item"><@fdsAction.link linkText="Edit" linkUrl=springUrl(member.editUrl()) linkScreenReaderText=member.getDisplayName() /></li>
                 </#if>
                 <#if canRemoveUsers>
-                  <ul class="govuk-list govuk-!-margin-bottom-0"><@fdsAction.link linkText="Remove" linkUrl=springUrl(member.removeUrl()) linkScreenReaderText=member.getDisplayName() /></ul>
+                  <li class="govuk-list__item"><@fdsAction.link linkText="Remove" linkUrl=springUrl(member.removeUrl()) linkScreenReaderText=member.getDisplayName() /></li>
                 </#if>
+              </ul>
             </td>
           </#if>
       </tr>

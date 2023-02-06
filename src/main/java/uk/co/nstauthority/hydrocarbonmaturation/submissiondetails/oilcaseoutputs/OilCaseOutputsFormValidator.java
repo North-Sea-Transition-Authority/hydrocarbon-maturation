@@ -86,7 +86,7 @@ public class OilCaseOutputsFormValidator extends PartialFullFormValidator {
         errors,
         "hasAssociatedGasRecoverableResources",
         "hasAssociatedGasRecoverableResources.required",
-        "Select one of the options");
+        "Select whether you expect to find associated gas recoverable resources");
 
     if (hasAssociatedGasRecoverableResources(oilCaseOutputsForm)) {
       var associatedGasRecoverableResources = oilCaseOutputsForm.getAssociatedGasRecoverableResources();

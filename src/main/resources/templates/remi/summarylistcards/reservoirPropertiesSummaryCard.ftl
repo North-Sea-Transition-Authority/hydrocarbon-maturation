@@ -35,7 +35,7 @@
     || reservoirPropertiesValues.submissionType() == "CREATE_DISCOVERY_FROM_PROSPECT"
     || reservoirPropertiesValues.submissionType() == "RELINQUISHMENT_DISCOVERY")
     && reservoirPropertiesValues.listOfDepthToContactDistributions()?has_content>
-      <@fdsSummaryList.summaryListCard headingText="Depth to hydrocarbon contact" summaryListId="reservoirpropertydistributions">
+      <@fdsSummaryList.summaryListCard headingText="Depth to hydrocarbon contact" summaryListId="reservoirpropertydepthtohydrocarbondistributions">
         <@probabilityDistribution.minMaxMostLikelyTable
           probabilityDistributions=reservoirPropertiesValues.listOfDepthToContactDistributions()/>
       </@fdsSummaryList.summaryListCard>

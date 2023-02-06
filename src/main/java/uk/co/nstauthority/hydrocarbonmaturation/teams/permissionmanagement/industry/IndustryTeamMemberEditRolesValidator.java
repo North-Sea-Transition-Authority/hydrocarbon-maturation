@@ -25,7 +25,7 @@ class IndustryTeamMemberEditRolesValidator implements SmartValidator {
   static final String ROLE_INVALID_CODE = "%s.notValid".formatted(ROLES_FIELD_NAME);
   static final String ROLES_INVALID_ERROR_MESSAGE = "Select a valid action";
   public static final String ROLES_FIELD_REQUIRED_ERROR_CODE = "%s.required".formatted(ROLES_FIELD_NAME);
-  public static final String ROLES_FIELD_REQUIRED_ERROR_MESSAGE = "Select at least one role";
+  public static final String ROLES_FIELD_REQUIRED_ERROR_MESSAGE = "Select at least one action";
 
   public static final String ROLES_NO_ACCESS_MANAGER_ERROR_CODE =
       "%s.accessManagerRequired".formatted(ROLES_FIELD_NAME);

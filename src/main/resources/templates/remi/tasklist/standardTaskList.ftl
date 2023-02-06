@@ -3,7 +3,6 @@
 <#macro standardTaskList taskListSections>
   <@fdsTaskList.taskList>
     <#list taskListSections as section>
-      <@fdsTaskList.taskList>
         <@fdsTaskList.taskListSection
           sectionNumber="${section?index + 1}"
           sectionHeadingText=section.displayName()>
@@ -16,7 +15,6 @@
               useNotCompletedLabels=true />
           </#list>
         </@fdsTaskList.taskListSection>
-      </@fdsTaskList.taskList>
     </#list>
   </@fdsTaskList.taskList>
 </#macro>

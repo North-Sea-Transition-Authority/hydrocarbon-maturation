@@ -1,11 +1,11 @@
 .remi-table {
-  .govuk-table__header {
-    text-align: left;
-  }
-
   .govuk-table__cell, .govuk-table__header {
+    text-align: center;
     padding: govuk-spacing(2);
     border: 1px solid $govuk-border-colour;
-    text-align: center;
+  }
+
+  th.govuk-table__header:first-child  {
+    text-align: left;
   }
 }

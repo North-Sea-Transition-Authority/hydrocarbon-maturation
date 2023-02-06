@@ -21,17 +21,17 @@
       </p>
     </@fdsDetails.summaryDetails>
 
-    <@fdsTextInput.textInput path="form.playChanceOfSuccess.sourcePercentage.decimalInputValue" labelText="Source" suffix="%" inputClass="govuk-input--width-3"
+    <@fdsTextInput.textInput suffixScreenReaderPrompt="Chance of success" path="form.playChanceOfSuccess.sourcePercentage.decimalInputValue" labelText="Source" suffix="%" inputClass="govuk-input--width-3"
       hintText="The presence of mature source rocks within the play boundary, with a viable migration pathway to the reservoir"/>
     <@fdsTextInput.textInput path="form.playChanceOfSuccess.sourceComments" labelText="Source knowledge level such as low, moderate, or high, and how work programme results could impact the chance of success"
       optionalLabel=true/>
 
-    <@fdsTextInput.textInput path="form.playChanceOfSuccess.reservoirPercentage.decimalInputValue" labelText="Reservoir" suffix="%" inputClass="govuk-input--width-3"
+    <@fdsTextInput.textInput suffixScreenReaderPrompt="Chance of success" path="form.playChanceOfSuccess.reservoirPercentage.decimalInputValue" labelText="Reservoir" suffix="%" inputClass="govuk-input--width-3"
       hintText="The presence of reservoir rocks within the play boundary capable of sustaining a minimum flow rate to surface"/>
     <@fdsTextInput.textInput path="form.playChanceOfSuccess.reservoirComments" labelText="Reservoir knowledge level such as low, moderate, or high, and how work programme results could impact the chance of success"
       optionalLabel=true/>
 
-    <@fdsTextInput.textInput path="form.playChanceOfSuccess.topSealPercentage.decimalInputValue" labelText="Top seal" suffix="%" inputClass="govuk-input--width-3"
+    <@fdsTextInput.textInput suffixScreenReaderPrompt="Chance of success" path="form.playChanceOfSuccess.topSealPercentage.decimalInputValue" labelText="Top seal" suffix="%" inputClass="govuk-input--width-3"
       hintText="The presence of a top seal lithology that is areally juxtaposed with the reservoir"/>
     <@fdsTextInput.textInput path="form.playChanceOfSuccess.topSealComments" labelText="Top seal knowledge level such as low, moderate, or high, and how work programme results could impact the chance of success"
       optionalLabel=true/>
@@ -53,23 +53,23 @@
         </p>
       </@fdsDetails.summaryDetails>
 
-      <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue" labelText="Source" suffix="%" inputClass="govuk-input--width-3"/>
+      <@fdsTextInput.textInput suffixScreenReaderPrompt="Chance of success" path="form.prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue" labelText="Source" suffix="%" inputClass="govuk-input--width-3"/>
       <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourceComments" labelText="Source knowledge level such as low, moderate, or high, and how work programme results could impact the chance of success"
         optionalLabel=true/>
 
-      <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue" labelText="Reservoir" suffix="%" inputClass="govuk-input--width-3"/>
+      <@fdsTextInput.textInput suffixScreenReaderPrompt="Chance of success" path="form.prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue" labelText="Reservoir" suffix="%" inputClass="govuk-input--width-3"/>
       <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirComments" labelText="Reservoir knowledge level such as low, moderate, or high, and how work programme results could impact the chance of success"
         optionalLabel=true/>
 
-      <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue" labelText="Top seal" suffix="%" inputClass="govuk-input--width-3"/>
+      <@fdsTextInput.textInput suffixScreenReaderPrompt="Chance of success" path="form.prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue" labelText="Top seal" suffix="%" inputClass="govuk-input--width-3"/>
       <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealComments" labelText="Top seal knowledge level such as low, moderate, or high, and how work programme results could impact the chance of success"
         optionalLabel=true/>
 
-      <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue" labelText="Trap" suffix="%" inputClass="govuk-input--width-3"/>
+      <@fdsTextInput.textInput suffixScreenReaderPrompt="Chance of success" path="form.prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue" labelText="Trap" suffix="%" inputClass="govuk-input--width-3"/>
       <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.trapComments" labelText="Trap knowledge level such as low, moderate, or high, and how work programme results could impact the chance of success"
         optionalLabel=true/>
 
-      <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue" labelText="Migration" suffix="%" inputClass="govuk-input--width-3"/>
+      <@fdsTextInput.textInput suffixScreenReaderPrompt="Chance of success" path="form.prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue" labelText="Migration" suffix="%" inputClass="govuk-input--width-3"/>
       <@fdsTextInput.textInput path="form.prospectSpecificChanceOfSuccess.migrationComments" labelText="Migration knowledge level such as low, moderate, or high, and how work programme results could impact the chance of success"
         optionalLabel=true/>
 

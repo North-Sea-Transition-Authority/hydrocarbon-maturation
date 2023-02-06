@@ -85,7 +85,7 @@ class GasCaseOutputsFormValidator extends PartialFullFormValidator {
         errors,
         "hasAssociatedCondensateRecoverableResources",
         "hasAssociatedCondensateRecoverableResources.required",
-        "Select one of the options");
+        "Select whether you expect to find associated condensate recoverable resources");
 
     if (hasAssociatedCondensateRecoverableResources(gasCaseOutputsForm)) {
       var associatedCondensateRecoverableResources = gasCaseOutputsForm.getAssociatedCondensateRecoverableResources();

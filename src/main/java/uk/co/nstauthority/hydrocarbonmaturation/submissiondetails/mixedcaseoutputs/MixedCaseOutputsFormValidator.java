@@ -113,7 +113,7 @@ class MixedCaseOutputsFormValidator extends PartialFullFormValidator {
         errors,
         "hasAssociatedGasRecoverableResources",
         "hasAssociatedGasRecoverableResources.required",
-        "Select one of the options"
+        "Select whether you expect to find associated gas recoverable resources"
     );
 
     if (hasAssociatedGasRecoverableResources(mixedCaseOutputsForm)) {
