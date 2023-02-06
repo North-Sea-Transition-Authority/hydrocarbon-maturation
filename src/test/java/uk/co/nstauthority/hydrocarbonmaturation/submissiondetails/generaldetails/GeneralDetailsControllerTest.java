@@ -150,7 +150,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
     when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(preselectedLicenceApplication);
-    when(generalDetailsFormService.getPreSelectedOrganisation(
+    when(generalDetailsFormService.getPreSelectedOrganisationUnit(
         form.getResponsibleOrganisationId()))
         .thenReturn(preselectedOrganisation);
 
@@ -209,7 +209,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
     when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(
         preselectedLicenceApplication);
-    when(generalDetailsFormService.getPreSelectedOrganisation(
+    when(generalDetailsFormService.getPreSelectedOrganisationUnit(
         form.getResponsibleOrganisationId()))
         .thenReturn(preselectedOrganisation);
 

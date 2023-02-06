@@ -3,6 +3,8 @@
 <#-- @ftlvariable name="pageTitle" type="String" -->
 <#-- @ftlvariable name="filtersAdded" type="Boolean" -->
 <#-- @ftlvariable name="resourceRecordSearchResultItems" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSearchResultItem>" -->
+<#-- @ftlvariable name="resourceApiEndpoint" type="String" -->
+<#-- @ftlvariable name="organisationUnitEndpoint" type="String" -->
 
 <#assign pageTitle = "${pageTitle}" />
 
@@ -13,15 +15,29 @@
   noIndex=false>
 
   <@fdsSearch.searchPage>
-    <@fdsSearch.searchFilter>
+    <@fdsSearch.searchFilter oneThirdWidth=true>
       <@fdsSearch.searchFilterList>
-<#--        TODO HM-132 - Enable once functioning filters are added-->
-<#--        <@fdsSearch.searchFilterItem itemName="Resource name">-->
-<#--          <@fdsSearch.searchTextInput path="form.resourceName" labelText="Resource name" labelClass="govuk-visually-hidden"/>-->
-<#--        </@fdsSearch.searchFilterItem>-->
+        <@fdsSearch.searchFilterItem itemName="Resource name" expanded=resourceName?has_content>
+          <@fdsSearchSelector.searchSelectorRest
+            path="form.generalDetailIdForResourceSubmission"
+            restUrl=springUrl(resourceApiEndpoint)
+            labelText="Resource name"
+            labelClass="govuk-visually-hidden"
+            selectorMinInputLength=1
+            preselectedItems=resourceName!{}/>
+        </@fdsSearch.searchFilterItem>
+        <@fdsSearch.searchFilterItem itemName="Responsible organisation" expanded=responsibleOrganisation?has_content>
+          <@fdsSearchSelector.searchSelectorRest
+            path="form.responsibleOrganisationId"
+            restUrl=springUrl(organisationUnitEndpoint)
+            labelText="Responsible organisation"
+            labelClass="govuk-visually-hidden"
+            selectorMinInputLength=1
+            preselectedItems=responsibleOrganisation!{}/>
+        </@fdsSearch.searchFilterItem>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>
-    <@fdsSearch.searchPageContent>
+    <@fdsSearch.searchPageContent twoThirdsWidth=true>
       <#if filtersAdded>
         <#if resourceRecordSearchResultItems?has_content>
             <@fdsResultList.resultList resultCount=resourceRecordSearchResultItems?size>

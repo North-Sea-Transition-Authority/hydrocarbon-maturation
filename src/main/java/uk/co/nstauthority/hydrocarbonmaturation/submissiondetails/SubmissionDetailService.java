@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 
 @Service
@@ -45,14 +43,6 @@ public class SubmissionDetailService {
     );
   }
 
-  public List<Resource> getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType resourceType, String name) {
-    return generalDetailsPersistenceService.getGeneralDetailsByName(name).stream()
-        .map(detail -> detail.getSubmissionDetail().getResourceId())
-        .distinct()
-        .filter(resource -> resource.getType() == resourceType)
-        .toList();
-  }
-
   public Optional<SubmissionDetail> getLatestApprovedDiscoverySubmissionDetailForResource(Resource resource) {
     // Finds the latest approved discovery (update or create) submission that is approved for the resource.
     return submissionDetailRepository
@@ -65,6 +55,11 @@ public class SubmissionDetailService {
             SubmissionDetailStatus.APPROVED);
   }
 
+  public Optional<SubmissionDetail> getLatestApprovedSubmissionDetailForResource(Resource resource) {
+    return submissionDetailRepository
+        .findFirstByResourceIdAndStatusOrderByApprovedTimestampDesc(resource, SubmissionDetailStatus.APPROVED);
+  }
+
   public SubmissionDetail getSubmissionDetailForIdOrError(UUID id) {
     return getSubmissionDetail(id)
         .orElseThrow(() -> new RemiEntityNotFoundException("Submission detail with id %s not found".formatted(id)));
@@ -72,16 +67,6 @@ public class SubmissionDetailService {
 
   public List<SubmissionDetail> getSubmissionDetailsForResource(Resource resource) {
     return submissionDetailRepository.findSubmissionDetailsByResourceId(resource);
-  }
-
-  public Optional<String> getResourceName(SubmissionDetail submissionDetail) {
-    return generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
-        .map(GeneralDetail::getResourceName);
-  }
-
-  public String getResourceNameOrDefault(SubmissionDetail submissionDetail) {
-    return getResourceName(submissionDetail)
-        .orElseGet(() -> SubmissionDetailUtil.getDefaultForNamelessResource(submissionDetail.getCreatedTimestamp()));
   }
 
   public String getSubmissionTypeName(SubmissionDetail submissionDetail) {

@@ -14,6 +14,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,6 +23,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @ContextConfiguration(classes = SearchResourceRecordsController.class)
@@ -65,7 +69,13 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
         .contains(
             entry("pageTitle", SearchResourceRecordsController.PAGE_TITLE),
             entry("filtersAdded", false),
-            entry("resourceRecordSearchResultItems", Collections.emptyList())
+            entry("resourceRecordSearchResultItems", Collections.emptyList()),
+            entry("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
+                .searchResources(null))),
+            entry("resourceName", Map.of()),
+            entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
+                .searchOrganisationUnits(null))),
+            entry("responsibleOrganisation", Map.of())
         );
   }
 

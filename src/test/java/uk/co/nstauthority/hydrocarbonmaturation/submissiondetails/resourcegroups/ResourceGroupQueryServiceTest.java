@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceGroupQueryServiceTest {
@@ -26,6 +27,8 @@ class ResourceGroupQueryServiceTest {
   private ResourceGroupLinksRepository resourceGroupLinksRepository;
   @Mock
   private SubmissionDetailService submissionDetailService;
+  @Mock
+  private SubmissionResourceService submissionResourceService;
   @InjectMocks
   private ResourceGroupQueryService resourceGroupQueryService;
 
@@ -38,13 +41,13 @@ class ResourceGroupQueryServiceTest {
     @BeforeEach
     void setup() {
       var resource = mock(Resource.class);
-      when(submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(PROSPECT, SEARCH_TERM))
+      when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(PROSPECT, SEARCH_TERM))
           .thenReturn(List.of(resource));
 
       when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(resource))
           .thenReturn(Optional.of(submissionDetail));
 
-      when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
+      when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
     }
 
     @Test

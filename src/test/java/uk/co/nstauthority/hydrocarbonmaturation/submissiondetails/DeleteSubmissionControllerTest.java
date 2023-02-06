@@ -43,6 +43,9 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
   private SubmissionSummaryModelService submissionSummaryModelService;
 
   @MockBean
+  private SubmissionResourceService submissionResourceService;
+
+  @MockBean
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
   @BeforeEach
@@ -95,7 +98,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
   @Test
   void showDeleteConfirmationPage_assertModelProperties() throws Exception {
     var resourceName = "ResourceName";
-    when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(resourceName);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(resourceName);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
     var modelMap = mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(SUBMISSION_DETAIL_ID)))

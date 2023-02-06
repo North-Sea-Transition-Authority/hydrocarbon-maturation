@@ -3,22 +3,28 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 
 @ExtendWith(MockitoExtension.class)
 class SearchResourceRecordsServiceTest {
@@ -26,8 +32,14 @@ class SearchResourceRecordsServiceTest {
   private ResourceRecordQueryService resourceRecordQueryService;
   @Mock
   private SubmissionDetailDisplayService submissionDetailDisplayService;
+  @Mock
+  private SearchSelectorService searchSelectorService;
+  @Mock
+  private SubmissionResourceService submissionResourceService;
   @InjectMocks
   private SearchResourceRecordsService underTest;
+  @Mock
+  private OrganisationUnitQueryService organisationUnitQueryService;
 
   @Nested
   class WhenGettingResourceRecordSearchResults {
@@ -108,5 +120,104 @@ class SearchResourceRecordsServiceTest {
       );
     }
 
+  }
+
+  @Nested
+  class WhenGettingFiltersAdded {
+
+    private SearchResourceRecordsForm form;
+
+    @BeforeEach
+    void setup() {
+      form = new SearchResourceRecordsForm();
+    }
+
+    @Test
+    void noFiltersAdded_ReturnsFalse() {
+      var result = underTest.getFiltersAdded(form);
+
+      assertThat(result).isFalse();
+    }
+
+    @Test
+    void resourceNameAdded_ReturnsTrue() {
+      form.setGeneralDetailIdForResourceSubmission(UUID.randomUUID().toString());
+
+      var result = underTest.getFiltersAdded(form);
+
+      assertThat(result).isTrue();
+    }
+
+    @Test
+    void responsibleOrganisationAdded_ReturnsTrue() {
+      form.setResponsibleOrganisationId(1);
+
+      var result = underTest.getFiltersAdded(form);
+
+      assertThat(result).isTrue();
+    }
+  }
+
+  @Nested
+  class WhenGettingPreSelectedResourceName {
+    private SearchResourceRecordsForm form;
+
+    @BeforeEach
+    void setup() {
+      form = new SearchResourceRecordsForm();
+    }
+
+    @Test
+    void noSelectedResourceName_ReturnsEmptyMap() {
+      var result = underTest.getPreSelectedResourceName(form);
+
+      assertThat(result).isEqualTo(Map.of());
+    }
+
+    @Test
+    void noSelectedResourceName_VerifyCalls() {
+      var generalDetailId = UUID.randomUUID();
+      form.setGeneralDetailIdForResourceSubmission(String.valueOf(generalDetailId));
+
+      var resourceName = "Resource Name";
+      when(submissionResourceService.getResourceDisplayName(generalDetailId)).thenReturn(resourceName);
+
+      var result = underTest.getPreSelectedResourceName(form);
+
+      assertThat(result).isEqualTo(Map.of());
+
+      verify(searchSelectorService).buildPrePopulatedSelection(
+          String.valueOf(generalDetailId),
+          resourceName
+      );
+    }
+  }
+
+  @Nested
+  class WhenGettingPreSelectedOrganisation {
+
+    private SearchResourceRecordsForm form;
+
+    @BeforeEach
+    void setup() {
+      form = new SearchResourceRecordsForm();
+    }
+
+    @Test
+    void noSelectedOrganisation_ReturnsEmptyMap() {
+      var result = underTest.getPreSelectedOrganisationUnit(form);
+
+      assertThat(result).isEqualTo(Map.of());
+    }
+
+    @Test
+    void preSelectedResourceName_VerifyCalls() {
+      var responsibleOrganisationId = 1;
+      form.setResponsibleOrganisationId(responsibleOrganisationId);
+
+      var result = underTest.getPreSelectedOrganisationUnit(form);
+
+      verify(organisationUnitQueryService).getPreSelectedOrganisationUnit(responsibleOrganisationId);
+    }
   }
 }

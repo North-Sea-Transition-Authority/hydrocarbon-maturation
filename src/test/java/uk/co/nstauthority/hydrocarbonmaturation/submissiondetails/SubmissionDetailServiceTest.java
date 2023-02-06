@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,20 +49,6 @@ class SubmissionDetailServiceTest {
     submissionDetailService.getSubmissionDetailsForResource(resource);
 
     verify(submissionDetailRepository, times(1)).findSubmissionDetailsByResourceId(resource);
-  }
-
-  @Test
-  void getResourceName() {
-    var submissionDetail = new SubmissionDetail();
-    var generalDetail = new GeneralDetail();
-    var resourceName = "name";
-    generalDetail.setResourceName(resourceName);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(generalDetail));
-
-    var resourceNameOptional = submissionDetailService.getResourceName(submissionDetail);
-
-    assertThat(resourceNameOptional).isEqualTo(Optional.of(resourceName));
   }
 
   @Test

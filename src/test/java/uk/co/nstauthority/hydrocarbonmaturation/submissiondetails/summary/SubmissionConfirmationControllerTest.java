@@ -13,16 +13,21 @@ import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.ui.ModelMap;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = SubmissionConfirmationController.class)
 class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerTest {
+
+  @MockBean
+  private SubmissionResourceService submissionResourceService;
 
   private UUID submissionDetailId;
   private String prospectName;
@@ -37,7 +42,7 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
   void showSubmissionConfirmation_andSubmissionAutoApproved_assertStatusOk() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
@@ -51,7 +56,7 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
   void showSubmissionConfirmation_andSubmissionSubmitted_assertStatusOk() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
@@ -83,7 +88,7 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
   void getSubmissionConfirmationModelAndView_assertModelProperties() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
 
     ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))

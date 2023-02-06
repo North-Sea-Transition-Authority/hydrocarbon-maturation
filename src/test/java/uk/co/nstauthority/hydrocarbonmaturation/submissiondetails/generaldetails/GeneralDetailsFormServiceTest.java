@@ -20,7 +20,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
-import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
@@ -268,26 +267,10 @@ class GeneralDetailsFormServiceTest {
   }
 
   @Test
-  void getPreselectedOrganisation_withNameAndIdOnly() {
-    var organisationUnit = new OrganisationUnit();
-    organisationUnit.setName("name");
-    when(organisationUnitQueryService.findOrganisationUnit(1))
-        .thenReturn(Optional.of(organisationUnit));
+  void getPreselectedOrganisation_verifyMethodCall() {
+    generalDetailsFormService.getPreSelectedOrganisationUnit("1");
 
-    assertThat(generalDetailsFormService.getPreSelectedOrganisation("1"))
-        .containsEntry("1", "name");
-  }
-
-  @Test
-  void getPreselectedOrganisation_withOrganisationNumber() {
-    var organisationUnit = new OrganisationUnit();
-    organisationUnit.setName("name");
-    organisationUnit.setRegisteredNumber("25");
-    when(organisationUnitQueryService.findOrganisationUnit(1))
-        .thenReturn(Optional.of(organisationUnit));
-
-    assertThat(generalDetailsFormService.getPreSelectedOrganisation("1"))
-        .containsEntry("1", "name (25)");
+    verify(organisationUnitQueryService, times(1)).getPreSelectedOrganisationUnit(1);
   }
 
   @Test

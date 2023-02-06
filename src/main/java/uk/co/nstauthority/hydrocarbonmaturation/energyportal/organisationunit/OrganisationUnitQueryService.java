@@ -3,10 +3,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import uk.co.fivium.energyportalapi.client.LogCorrelationId;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
@@ -17,6 +19,7 @@ import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -38,6 +41,7 @@ public class OrganisationUnitQueryService {
   private final IndustryTeamService industryTeamService;
   private final RegulatorTeamService regulatorTeamService;
   private final OrganisationGroupQueryService organisationGroupQueryService;
+  private final SearchSelectorService searchSelectorService;
 
   @Autowired
   public OrganisationUnitQueryService(OrganisationApi organisationApi,
@@ -45,13 +49,15 @@ public class OrganisationUnitQueryService {
                                       UserDetailService userDetailService,
                                       IndustryTeamService industryTeamService,
                                       RegulatorTeamService regulatorTeamService,
-                                      OrganisationGroupQueryService organisationGroupQueryService) {
+                                      OrganisationGroupQueryService organisationGroupQueryService,
+                                      SearchSelectorService searchSelectorService) {
     this.organisationApi = organisationApi;
     this.energyPortalApiWrapper = energyPortalApiWrapper;
     this.userDetailService = userDetailService;
     this.industryTeamService = industryTeamService;
     this.regulatorTeamService = regulatorTeamService;
     this.organisationGroupQueryService = organisationGroupQueryService;
+    this.searchSelectorService = searchSelectorService;
   }
 
   public List<OrganisationUnitDto> getOrganisationSearchableResults(String organisationName) {
@@ -71,6 +77,24 @@ public class OrganisationUnitQueryService {
       var userOrganisationGroupIds = industryTeamService.getOrganisationGroupIdsForUser(user);
       return getOrganisationUnitsByOrganisationGroupsAndName(userOrganisationGroupIds, organisationName);
     }
+  }
+
+  public Map<String, String> getPreSelectedOrganisationUnit(Integer organisationUnitId) {
+    if (organisationUnitId == null) {
+      return Map.of();
+    }
+
+    var key = findOrganisationUnit(organisationUnitId)
+        .map(organisationUnit -> {
+          if (organisationUnit.getRegisteredNumber() != null) {
+            return "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber());
+          }
+
+          return organisationUnit.getName();
+        })
+        .orElse("");
+
+    return searchSelectorService.buildPrePopulatedSelection(String.valueOf(organisationUnitId), key);
   }
 
   public Optional<OrganisationUnit> findOrganisationUnit(Integer organisationUnitId) {
@@ -138,11 +162,11 @@ public class OrganisationUnitQueryService {
     return organisationGroups
         .stream()
         .map(group -> {
-          if (group.getOrganisationUnits() != null && !group.getOrganisationUnits().isEmpty()) {
-            return group.getOrganisationUnits();
-          } else {
+          if (CollectionUtils.isEmpty(group.getOrganisationUnits())) {
             return new ArrayList<OrganisationUnit>();
           }
+
+          return group.getOrganisationUnits();
         })
         .flatMap(List::stream)
         .toList();

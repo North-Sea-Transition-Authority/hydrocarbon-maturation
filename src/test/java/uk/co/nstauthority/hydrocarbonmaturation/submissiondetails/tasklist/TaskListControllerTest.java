@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = TaskListController.class)
@@ -30,6 +31,9 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private TaskListService taskListService;
+
+  @MockBean
+  private SubmissionResourceService submissionResourceService;
 
   private UUID submissionDetailId;
 
@@ -43,7 +47,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     var prospectName = "pros123";
-    when(submissionDetailService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
     when(submissionDetailService.getSubmissionTypeName(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 

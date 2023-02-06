@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 
 public class SubmissionDetailTestUtils {
@@ -35,12 +36,10 @@ public class SubmissionDetailTestUtils {
     return createSubmissionDetail(SubmissionType.RELINQUISHMENT_DISCOVERY);
   }
 
-  public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType, UUID submissionDetailId) {
-    var resource = new Resource();
-    var resourceId = UUID.randomUUID();
-    var resourceType = ResourceType.PROSPECT;
-    resource.setId(resourceId);
-    resource.setType(resourceType);
+  public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType,
+                                                        UUID submissionDetailId,
+                                                        Resource resource) {
+
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
     submissionDetail.setSubmissionType(submissionType);
@@ -49,6 +48,17 @@ public class SubmissionDetailTestUtils {
 
     return submissionDetail;
 
+  }
+
+  public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType, UUID submissionDetailId) {
+    var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+
+    return createSubmissionDetail(submissionType, submissionDetailId, resource);
+  }
+
+  public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType, Resource resource) {
+    var submissionDetailId = UUID.randomUUID();
+    return createSubmissionDetail(submissionType, submissionDetailId, resource);
   }
 
   public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType) {

@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -53,6 +56,9 @@ class OrganisationUnitQueryServiceTest {
   @Mock
   private OrganisationGroupQueryService organisationGroupQueryService;
 
+  @Mock
+  private SearchSelectorService searchSelectorService;
+
   private OrganisationUnitQueryService organisationUnitQueryService;
 
   @BeforeEach
@@ -63,7 +69,7 @@ class OrganisationUnitQueryServiceTest {
         userDetailService,
         industryTeamService,
         regulatorTeamService,
-        organisationGroupQueryService);
+        organisationGroupQueryService, searchSelectorService);
   }
 
   @Test
@@ -188,7 +194,7 @@ class OrganisationUnitQueryServiceTest {
   @Test
   void findOrganisationUnit_whenNoOrganisationsFound() {
     var organisationId = 1;
-    var filter = OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT;
+    var filter = ORGANISATION_UNIT_PROJECTION_ROOT;
     when(organisationApi.findOrganisationUnit(
         eq(organisationId),
         eq(filter),
@@ -278,7 +284,7 @@ class OrganisationUnitQueryServiceTest {
         .withOrganisationName(ORGANISATION_UNIT_NAME)
         .withOrganisationNumber(ORGANISATION_COMPANY_NUMBER)
         .build();
-    var filter = OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT;
+    var filter = ORGANISATION_UNIT_PROJECTION_ROOT;
 
     when(organisationApi.findOrganisationUnit(
         eq(ORGANISATION_UNIT_ID),
@@ -299,5 +305,38 @@ class OrganisationUnitQueryServiceTest {
     assertThat(expectedOrganisationUnit)
         .map(OrganisationUnit::getName)
         .hasValue(ORGANISATION_UNIT_NAME);
+  }
+
+  @Test
+  void getPreselectedOrganisation_withNameAndIdOnly() {
+    var organisationUnit = new OrganisationUnit();
+    organisationUnit.setName("name");
+    when(organisationApi.findOrganisationUnit(
+        eq(1),
+        eq(OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT),
+        any(),
+        any()
+    )).thenReturn(Optional.of(organisationUnit));
+
+    organisationUnitQueryService.getPreSelectedOrganisationUnit(1);
+
+    verify(searchSelectorService).buildPrePopulatedSelection("1", "name");
+  }
+
+  @Test
+  void getPreselectedOrganisation_withOrganisationNumber() {
+    var organisationUnit = new OrganisationUnit();
+    organisationUnit.setName("name");
+    organisationUnit.setRegisteredNumber("25");
+    when(organisationApi.findOrganisationUnit(
+        eq(1),
+        eq(OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT),
+        any(),
+        any()
+    )).thenReturn(Optional.of(organisationUnit));
+
+    organisationUnitQueryService.getPreSelectedOrganisationUnit(1);
+
+    verify(searchSelectorService).buildPrePopulatedSelection("1", "name (25)");
   }
 }

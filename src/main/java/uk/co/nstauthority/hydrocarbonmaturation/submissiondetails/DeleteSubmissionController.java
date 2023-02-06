@@ -29,14 +29,17 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 public class DeleteSubmissionController {
 
   private final SubmissionDetailService submissionDetailService;
+  private final SubmissionResourceService submissionResourceService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
   @Autowired
   public DeleteSubmissionController(SubmissionDetailService submissionDetailService,
+                                    SubmissionResourceService submissionResourceService,
                                     SubmissionSummaryModelService submissionSummaryModelService,
                                     SubmissionDetailPersistenceService submissionDetailPersistenceService) {
     this.submissionDetailService = submissionDetailService;
+    this.submissionResourceService = submissionResourceService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
   }
@@ -53,7 +56,7 @@ public class DeleteSubmissionController {
 
     modelAndView
         .addObject("pageName", pageName)
-        .addObject("resourceName", submissionDetailService.getResourceNameOrDefault(submissionDetail))
+        .addObject("resourceName", submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .addObject("submissionType", submissionDetail.getSubmissionType())
         .addObject("deleteUrl",
             ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(submissionDetailId, null)))
@@ -77,7 +80,7 @@ public class DeleteSubmissionController {
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent("%s for %s has been deleted"
             .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail),
-                submissionDetailService.getResourceNameOrDefault(submissionDetail)))
+                submissionResourceService.getResourceNameOrDefault(submissionDetail)))
         .build();
 
     NotificationBannerUtil.applyNotificationBanner(redirectAttributes, banner);

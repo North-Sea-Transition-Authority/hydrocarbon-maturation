@@ -3,7 +3,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.select;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Table;
@@ -44,7 +49,7 @@ class ResourceRecordQueryService {
             .on(field("sd.id").eq(
                 select(field("sd2.id"))
                 .from(remiTable("submission_details").as("sd2"))
-                .where(field("sd2.resource_id").eq(field("sd.resource_id")))
+                .where(field("sd2.resource_id").eq(field("r.id")))
                 .and(field("sd2.status").eq(SubmissionDetailStatus.APPROVED.name()))
                 .orderBy(field("sd2.approved_timestamp").desc())
                 .limit(1)
@@ -54,8 +59,10 @@ class ResourceRecordQueryService {
         .leftJoin(remiTable("trap_properties").as("tp"))
             .on(field("tp.submission_detail_id").eq(field("sd.id")))
         .leftJoin(remiTable("general_details_licences").as("gdl"))
-            .on(field("gdl.general_details_id").eq(field("gd.id"))))
+            .on(field("gdl.general_details_id").eq(field("gd.id")))
+        .where(getConditions(form)))
         .groupBy(
+            field("r.id"),
             field("sd.id"),
             field("gd.id"),
             field("tp.id")
@@ -63,6 +70,24 @@ class ResourceRecordQueryService {
         .orderBy(field("sd.approved_timestamp").desc().nullsLast(),
             field("sd.created_timestamp").desc())
         .fetchInto(ResourceRecordQueryResult.class);
+  }
+
+  private List<Condition> getConditions(SearchResourceRecordsForm form) {
+    List<Condition> conditionList = new ArrayList<>();
+
+    if (StringUtils.isNotBlank(form.getGeneralDetailIdForResourceSubmission())) {
+      conditionList.add(
+          field("gd.id").eq(UUID.fromString(form.getGeneralDetailIdForResourceSubmission()))
+      );
+    }
+
+    if (Objects.nonNull(form.getResponsibleOrganisationId())) {
+      conditionList.add(
+          field("gd.organisation_id").eq(form.getResponsibleOrganisationId())
+      );
+    }
+
+    return conditionList;
   }
 
   private Table<Record> remiTable(String tableName) {

@@ -7,22 +7,26 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 
 @Service
 class ResourceGroupQueryService {
   public static final String GROUP_PREFIX = "(GROUP) ";
   private final ResourceGroupLinksRepository resourceGroupLinksRepository;
   private final SubmissionDetailService submissionDetailService;
+  private final SubmissionResourceService submissionResourceService;
 
   @Autowired
   ResourceGroupQueryService(ResourceGroupLinksRepository resourceGroupLinksRepository,
-                            SubmissionDetailService submissionDetailService) {
+                            SubmissionDetailService submissionDetailService,
+                            SubmissionResourceService submissionResourceService) {
     this.resourceGroupLinksRepository = resourceGroupLinksRepository;
     this.submissionDetailService = submissionDetailService;
+    this.submissionResourceService = submissionResourceService;
   }
 
   public List<ResourceGroupView> getProspectsAndGroupsByName(String searchTerm) {
-    return submissionDetailService.getResourcesByTypeAndSubmissionDetailsResourceName(ResourceType.PROSPECT, searchTerm).stream()
+    return submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.PROSPECT, searchTerm).stream()
         .map(submissionDetailService::getLatestApprovedProspectSubmissionForResource)
         .flatMap(Optional::stream)
         .map(this::getResourceGroupViewForSumbissionDetail)
@@ -31,7 +35,7 @@ class ResourceGroupQueryService {
   }
 
   public Optional<ResourceGroupView> getResourceGroupViewForSumbissionDetail(SubmissionDetail submissionDetail) {
-    var resourceName = submissionDetailService.getResourceNameOrDefault(submissionDetail);
+    var resourceName = submissionResourceService.getResourceNameOrDefault(submissionDetail);
 
     var resourceGroupLink = resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId());
 

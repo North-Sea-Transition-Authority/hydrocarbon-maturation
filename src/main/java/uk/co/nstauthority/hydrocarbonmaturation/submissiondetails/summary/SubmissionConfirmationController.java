@@ -14,6 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleT
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
@@ -24,16 +25,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 public class SubmissionConfirmationController {
 
   private final SubmissionDetailService submissionDetailService;
+  private final SubmissionResourceService submissionResourceService;
 
   @Autowired
-  public SubmissionConfirmationController(SubmissionDetailService submissionDetailService) {
+  public SubmissionConfirmationController(SubmissionDetailService submissionDetailService,
+                                          SubmissionResourceService submissionResourceService) {
     this.submissionDetailService = submissionDetailService;
+    this.submissionResourceService = submissionResourceService;
   }
 
   @GetMapping
   public ModelAndView showSubmissionConfirmation(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var resourceName = submissionDetailService.getResourceNameOrDefault(submissionDetail);
+    var resourceName = submissionResourceService.getResourceNameOrDefault(submissionDetail);
 
     return getSubmissionConfirmationModelAndView(resourceName, submissionDetail.getSubmissionType());
   }

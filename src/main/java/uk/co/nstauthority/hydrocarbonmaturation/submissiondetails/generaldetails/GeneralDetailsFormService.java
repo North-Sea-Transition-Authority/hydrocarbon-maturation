@@ -121,27 +121,8 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     return form;
   }
 
-  public Map<String, String> getPreSelectedOrganisation(String responsibleOrganisation) {
-    Map<String, String> preSelectedOrganisation = Map.of();
-    if (responsibleOrganisation == null) {
-      return preSelectedOrganisation;
-    }
-
-    var organisation = organisationUnitQueryService.findOrganisationUnit(Integer.valueOf(responsibleOrganisation));
-    var key = organisation
-        .map(organisationUnit -> {
-          if (organisationUnit.getRegisteredNumber() != null) {
-            return "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber());
-          } else {
-            return organisationUnit.getName();
-          }
-        }).orElse("");
-
-    preSelectedOrganisation = searchSelectorService.buildPrePopulatedSelections(
-        Collections.singletonList(responsibleOrganisation),
-        Map.of(responsibleOrganisation, key));
-
-    return preSelectedOrganisation;
+  public Map<String, String> getPreSelectedOrganisationUnit(String responsibleOrganisationId) {
+    return organisationUnitQueryService.getPreSelectedOrganisationUnit(Integer.valueOf(responsibleOrganisationId));
   }
 
   List<LicenceView> getLicenceViews(GeneralDetailsForm form) {

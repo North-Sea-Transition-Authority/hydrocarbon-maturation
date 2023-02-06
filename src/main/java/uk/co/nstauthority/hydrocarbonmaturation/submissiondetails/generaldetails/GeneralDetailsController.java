@@ -92,7 +92,7 @@ public class GeneralDetailsController {
         .addObject("resourceType",
             submissionDetail.getResourceId().getType().getDisplayName().toLowerCase())
         .addObject("responsibleOrganisation", generalDetailsFormService
-            .getPreSelectedOrganisation(form.getResponsibleOrganisationId()))
+            .getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
         .addObject("quadrantBlocksApiEndpoint",
             SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null)))
         .addObject("alreadyAddedQuadrantBlocks", generalDetailsFormService.getQuadrantAndBlockViews(form))

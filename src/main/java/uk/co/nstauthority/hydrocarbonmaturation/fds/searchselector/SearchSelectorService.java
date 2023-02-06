@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +86,7 @@ public class SearchSelectorService {
   public Map<String, String> buildPrePopulatedSelections(List<String> selections,
                                                          Map<String, String> resolvedLinkedEntryMap) {
     Map<String, String> results = new LinkedHashMap<>();
-    for (String s : selections) {
+    for (var s : selections) {
       if (s.startsWith(SearchSelectablePrefix.FREE_TEXT_PREFIX)) {
         results.put(s, removePrefix(s));
       } else {
@@ -93,6 +94,13 @@ public class SearchSelectorService {
       }
     }
     return results;
+  }
+
+  public Map<String, String> buildPrePopulatedSelection(String id, String displayText) {
+    return buildPrePopulatedSelections(
+        Collections.singletonList(id),
+        Map.of(id, displayText)
+    );
   }
 
   public static String removePrefix(String s) {

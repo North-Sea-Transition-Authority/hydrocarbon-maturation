@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.DeleteSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/task-list")
@@ -25,13 +26,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 public class TaskListController {
 
   private final SubmissionDetailService submissionDetailService;
+  private final SubmissionResourceService submissionResourceService;
   private final TaskListService taskListService;
   public static final String PAGE_NAME = "Task list";
 
   @Autowired
   public TaskListController(SubmissionDetailService submissionDetailService,
-                            TaskListService taskListService) {
+                            SubmissionResourceService submissionResourceService, TaskListService taskListService) {
     this.submissionDetailService = submissionDetailService;
+    this.submissionResourceService = submissionResourceService;
     this.taskListService = taskListService;
   }
 
@@ -43,7 +46,7 @@ public class TaskListController {
     var modelAndView = new ModelAndView("remi/submissiondetails/tasklist/taskList")
         .addObject("taskListSections", sections)
         .addObject("submissionTypeName", submissionDetailService.getSubmissionTypeName(submissionDetail))
-        .addObject("resourceName", submissionDetailService.getResourceNameOrDefault(submissionDetail))
+        .addObject("resourceName", submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .addObject("deleteSubmissionUrl",
             ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(submissionId)));
 

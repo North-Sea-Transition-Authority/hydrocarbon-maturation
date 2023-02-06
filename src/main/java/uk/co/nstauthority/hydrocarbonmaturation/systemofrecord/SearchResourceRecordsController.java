@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.Collections;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @Controller
 @RequestMapping("/search-resource-records")
@@ -47,6 +52,12 @@ public class SearchResourceRecordsController {
         .addObject("form", form)
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("filtersAdded", filtersAdded)
-        .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults);
+        .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
+        .addObject("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
+            .searchResources(null)))
+        .addObject("resourceName", searchResourceRecordsService.getPreSelectedResourceName(form))
+        .addObject("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
+            .searchOrganisationUnits(null)))
+        .addObject("responsibleOrganisation", searchResourceRecordsService.getPreSelectedOrganisationUnit(form));
   }
 }

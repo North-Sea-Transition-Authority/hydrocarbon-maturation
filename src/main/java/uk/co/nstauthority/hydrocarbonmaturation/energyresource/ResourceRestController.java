@@ -47,4 +47,12 @@ public class ResourceRestController {
             submissionType)
     );
   }
+
+  @GetMapping("/resources")
+  public RestSearchResult searchResources(@RequestParam("term") String searchTerm) {
+    return searchSelectorService.search(
+        searchTerm,
+        submissionQueryService::getLatestResourceSubmissionsByName
+    );
+  }
 }
