@@ -27,9 +27,7 @@ public class DrillStemTestResultsSummaryService {
   public DrillStemTestSummaryView getDrillStemTestSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return drillStemTestInitialPersistenceService
         .getDrillStemTestBySubmissionDetail(submissionDetail)
-        .map(drillStemTest -> new DrillStemTestSummaryView(
-            getDrillStemTestSummaryOptionDisplay(drillStemTest),
-            getDrillStemTestResultSummaryViewsFromDrillStemTest(drillStemTest)))
+        .map(drillStemTest -> new DrillStemTestSummaryView(getDrillStemTestResultSummaryViewsFromDrillStemTest(drillStemTest)))
         .orElse(DrillStemTestSummaryView.empty());
   }
 

@@ -48,14 +48,7 @@ class DrillStemTestResultsSummaryServiceTest {
 
     var result = drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
 
-    assertThat(result)
-        .extracting(
-            "hasMoreDrillStemTestResults",
-            "drillStemTestResultSummaryViews")
-        .containsExactly(
-            "",
-            List.of()
-        );
+    assertThat(result).isEqualTo(DrillStemTestSummaryView.empty());
   }
 
 
@@ -72,24 +65,6 @@ class DrillStemTestResultsSummaryServiceTest {
   }
 
   @Test
-  void getDrillStemTestSummaryViewFromSubmissionDetail_whenPresent_noStemResults_emptyList() {
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(drillStemTest));
-    when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
-        .thenReturn(List.of());
-    var result = drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
-
-    assertThat(result)
-        .extracting(
-            "hasMoreDrillStemTestResults",
-            "drillStemTestResultSummaryViews")
-        .containsExactly(
-            "No, I have added all the drill stem test results I need to",
-            List.of()
-        );
-  }
-
-  @Test
   void getDrillStemTestSummaryViewFromSubmissionDetail_whenPresent_oneStemResult_filledSummary() {
     when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(drillStemTest));
@@ -99,13 +74,6 @@ class DrillStemTestResultsSummaryServiceTest {
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
         .thenReturn(List.of(drillStemTestResult));
     var result = drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
-
-    assertThat(result)
-        .extracting(
-            "hasMoreDrillStemTestResults")
-        .isEqualTo(
-            "No, I have added all the drill stem test results I need to"
-        );
 
     assertThat(result.drillStemTestResultSummaryViews()).hasSize(1);
 
@@ -157,13 +125,6 @@ class DrillStemTestResultsSummaryServiceTest {
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
         .thenReturn(List.of(drillStemTestResult, drillStemTestResult2));
     var result = drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
-
-    assertThat(result)
-        .extracting(
-            "hasMoreDrillStemTestResults")
-        .isEqualTo(
-            "No, I have added all the drill stem test results I need to"
-        );
 
     assertThat(result.drillStemTestResultSummaryViews()).hasSize(2);
 

@@ -3,9 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtest
 import java.util.List;
 
 public record DrillStemTestSummaryView(
-    String hasMoreDrillStemTestResults,
     List<DrillStemTestResultSummaryView> drillStemTestResultSummaryViews) {
   public static DrillStemTestSummaryView empty() {
-    return new DrillStemTestSummaryView("", List.of());
+    return new DrillStemTestSummaryView(List.of());
   }
 }
