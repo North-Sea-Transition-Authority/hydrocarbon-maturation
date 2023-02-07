@@ -575,3 +575,33 @@ CREATE TABLE remi.padi_res_pars (
     tech_team            TEXT,
     comments             TEXT
 );
+
+CREATE TABLE remi.padi_migration_issues (
+    legacy_resource_id      TEXT,
+    legacy_res_data_id      INTEGER,
+    source_file             TEXT,
+    source_column           TEXT,
+    remi_submission_id      UUID,
+    target_entity           TEXT,
+    target_column           TEXT,
+    errors                  TEXT
+);
+
+CREATE TABLE remi.padi_operator_mapping (
+    padi_name                        TEXT,
+    choice_data                      NUMERIC,
+    source_table                     TEXT,
+    extact_match                     TEXT,
+    matches_ignoring_common_suffixes TEXT,
+    matches_first_word               TEXT,
+    agreed_match                     TEXT,
+    comments                         TEXT
+);
+
+CREATE TABLE remi.padi_resource_groupings (
+    id uuid PRIMARY KEY,
+    remi_resource_id UUID,
+    legacy_resource_id TEXT,
+    agreed_operator TEXT,
+    legacy_res_data_id INTEGER
+);
