@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -264,6 +265,20 @@ class GeneralDetailsFormServiceTest {
     generalDetailsFormService.getPreSelectedLicenceApplication("app");
 
     verify(licenceApplicationQueryService, times(1)).getPreSelectedLicenceApplication("app");
+  }
+
+  @Test
+  void getPreselectedOrganisation_nullCheck() {
+    var result = generalDetailsFormService.getPreSelectedOrganisationUnit(null);
+
+    assertThat(result).isEqualTo(Map.of());
+  }
+
+  @Test
+  void getPreselectedOrganisation_emptyStringCheck() {
+    var result = generalDetailsFormService.getPreSelectedOrganisationUnit("");
+
+    assertThat(result).isEqualTo(Map.of());
   }
 
   @Test

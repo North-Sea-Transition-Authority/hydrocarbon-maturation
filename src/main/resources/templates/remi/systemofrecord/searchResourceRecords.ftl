@@ -5,6 +5,7 @@
 <#-- @ftlvariable name="resourceRecordSearchResultItems" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSearchResultItem>" -->
 <#-- @ftlvariable name="resourceApiEndpoint" type="String" -->
 <#-- @ftlvariable name="organisationUnitEndpoint" type="String" -->
+<#-- @ftlvariable name="clearFilterUrl" type="String" -->
 
 <#assign pageTitle = "${pageTitle}" />
 
@@ -12,17 +13,19 @@
   htmlTitle=pageTitle
   pageHeading=pageTitle
   pageSize=PageSize.FULL_WIDTH
+  wrapperWidth=true
   noIndex=false>
 
   <@fdsSearch.searchPage>
     <@fdsSearch.searchFilter oneThirdWidth=true>
-      <@fdsSearch.searchFilterList>
+      <@fdsSearch.searchFilterList clearFilterUrl=springUrl(clearFilterUrl)>
         <@fdsSearch.searchFilterItem itemName="Resource name" expanded=resourceName?has_content>
           <@fdsSearchSelector.searchSelectorRest
             path="form.generalDetailIdForResourceSubmission"
             restUrl=springUrl(resourceApiEndpoint)
             labelText="Resource name"
             labelClass="govuk-visually-hidden"
+            inputClass="govuk-!-width-three-quarters"
             selectorMinInputLength=1
             preselectedItems=resourceName!{}/>
         </@fdsSearch.searchFilterItem>
@@ -32,6 +35,7 @@
             restUrl=springUrl(organisationUnitEndpoint)
             labelText="Responsible organisation"
             labelClass="govuk-visually-hidden"
+            inputClass="govuk-!-width-three-quarters"
             selectorMinInputLength=1
             preselectedItems=responsibleOrganisation!{}/>
         </@fdsSearch.searchFilterItem>

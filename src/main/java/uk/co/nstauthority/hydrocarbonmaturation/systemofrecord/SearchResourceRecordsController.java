@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServic
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @Controller
 @RequestMapping("/search-resource-records")
@@ -52,6 +53,8 @@ public class SearchResourceRecordsController {
         .addObject("form", form)
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("filtersAdded", filtersAdded)
+        .addObject("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
+            .showSearchResourceRecordsScreen()))
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
         .addObject("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
             .searchResources(null)))

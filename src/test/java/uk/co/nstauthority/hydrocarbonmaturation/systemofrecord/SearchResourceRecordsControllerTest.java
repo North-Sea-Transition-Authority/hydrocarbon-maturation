@@ -69,6 +69,8 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
         .contains(
             entry("pageTitle", SearchResourceRecordsController.PAGE_TITLE),
             entry("filtersAdded", false),
+            entry("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
+                .showSearchResourceRecordsScreen())),
             entry("resourceRecordSearchResultItems", Collections.emptyList()),
             entry("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
                 .searchResources(null))),

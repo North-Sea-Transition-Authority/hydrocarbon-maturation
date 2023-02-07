@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -122,6 +123,10 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   }
 
   public Map<String, String> getPreSelectedOrganisationUnit(String responsibleOrganisationId) {
+    if (StringUtils.isEmpty(responsibleOrganisationId)) {
+      return Map.of();
+    }
+
     return organisationUnitQueryService.getPreSelectedOrganisationUnit(Integer.valueOf(responsibleOrganisationId));
   }
 
