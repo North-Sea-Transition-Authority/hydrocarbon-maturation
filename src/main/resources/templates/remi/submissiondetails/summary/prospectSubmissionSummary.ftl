@@ -22,6 +22,7 @@
 <#-- @ftlvariable name="gasCaseOutputsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView" -->
 <#-- @ftlvariable name="mixedCaseVolumetricsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView" -->
 <#-- @ftlvariable name="mixedCaseOutputsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView" -->
+<#-- @ftlvariable name="resourceDetailSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView" -->
 <#-- @ftlvariable name="gasCase" type="Boolean" -->
 <#-- @ftlvariable name="oilCase" type="Boolean" -->
 <#-- @ftlvariable name="mixedCase" type="Boolean" -->
@@ -66,6 +67,7 @@
           mixedCase=mixedCase
           mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
           mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
+          resourceDetailSummaryView=resourceDetailSummaryView
           />
         <#if !submittable>
           <@fdsCheckbox.checkbox

@@ -21,7 +21,7 @@
       <@fdsSearch.searchFilterList clearFilterUrl=springUrl(clearFilterUrl)>
         <@fdsSearch.searchFilterItem itemName="Resource name" expanded=resourceName?has_content>
           <@fdsSearchSelector.searchSelectorRest
-            path="form.generalDetailIdForResourceSubmission"
+            path="form.resourceDetailIdForResourceSubmission"
             restUrl=springUrl(resourceApiEndpoint)
             labelText="Resource name"
             labelClass="govuk-visually-hidden"

@@ -84,7 +84,9 @@ public class SubmissionSummaryModelService {
         .addObject("mixedCaseOutputsSummaryView",
             prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",
-            prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail));
+            prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("resourceDetailSummaryView",
+            prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail));
 
     hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail)
         .ifPresentOrElse(hydrocarbonCaseDetail ->
@@ -120,7 +122,9 @@ public class SubmissionSummaryModelService {
         .addObject("sourceAndSealSummaryView",
             prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("trapPropertiesSummaryView",
-            prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail));
+            prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("resourceDetailSummaryView",
+            prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail));
   }
 
   public ModelAndView createDiscoverySubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
@@ -158,7 +162,9 @@ public class SubmissionSummaryModelService {
         .addObject("sourceAndSealSummaryView",
             prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("trapPropertiesSummaryView",
-            prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail));
+            prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("resourceDetailSummaryView",
+            prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail));
 
     return addHydrocarbonsDiscoveredToModelAndView(submissionDetail, modelAndView);
   }

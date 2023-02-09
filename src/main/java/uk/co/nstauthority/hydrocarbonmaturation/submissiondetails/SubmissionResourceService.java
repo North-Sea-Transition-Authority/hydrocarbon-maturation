@@ -8,19 +8,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesPersistenceService;
 
 @Service
 public class SubmissionResourceService {
-  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
   @Autowired
-  public SubmissionResourceService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
+  public SubmissionResourceService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                    TrapPropertiesPersistenceService trapPropertiesPersistenceService) {
-    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
   }
 
@@ -35,8 +35,8 @@ public class SubmissionResourceService {
   }
 
   public Optional<String> getResourceName(SubmissionDetail submissionDetail) {
-    return generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
-        .map(GeneralDetail::getResourceName);
+    return resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail)
+        .map(ResourceDetail::getResourceName);
   }
 
   public String getResourceNameOrDefault(SubmissionDetail submissionDetail) {
@@ -44,21 +44,21 @@ public class SubmissionResourceService {
         .orElseGet(() -> SubmissionDetailUtil.getDefaultForNamelessResource(submissionDetail.getCreatedTimestamp()));
   }
 
-  public String getResourceDisplayName(GeneralDetail generalDetail) {
+  public String getResourceDisplayName(ResourceDetail resourceDetail) {
     var centreOfInterestBlockSuffix = trapPropertiesPersistenceService
-        .getCentreOfInterestBlockFromSubmissionDetail(generalDetail.getSubmissionDetail())
+        .getCentreOfInterestBlockFromSubmissionDetail(resourceDetail.getSubmissionDetail())
         .map(item -> " (" + item + ")")
         .orElse("");
-    return generalDetail.getResourceName() + centreOfInterestBlockSuffix;
+    return resourceDetail.getResourceName() + centreOfInterestBlockSuffix;
   }
 
-  public String getResourceDisplayName(UUID generalDetailId) {
-    var generalDetail = generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(generalDetailId);
-    return getResourceDisplayName(generalDetail);
+  public String getResourceDisplayName(UUID resourceDetailId) {
+    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(resourceDetailId);
+    return getResourceDisplayName(resourceDetail);
   }
 
   private Stream<Resource> getResourcesByNameStream(String name) {
-    return generalDetailsPersistenceService.getGeneralDetailsByName(name).stream()
+    return resourceDetailsPersistenceService.getResourceDetailsByName(name).stream()
         .map(detail -> detail.getSubmissionDetail().getResourceId())
         .distinct();
   }

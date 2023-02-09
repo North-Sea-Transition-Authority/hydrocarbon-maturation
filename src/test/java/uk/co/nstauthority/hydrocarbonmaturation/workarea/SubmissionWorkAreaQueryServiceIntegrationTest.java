@@ -33,6 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
@@ -101,7 +102,9 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     submittedSubmissionDetail = entityManager.persistAndFlush(submittedSubmissionDetail);
 
     var submittedGeneralDetails = new GeneralDetail();
-    submittedGeneralDetails.setResourceName("Resource name");
+    var submittedResourceDetail = new ResourceDetail();
+    submittedResourceDetail.setSubmissionDetail(submittedSubmissionDetail);
+    submittedResourceDetail.setResourceName("Resource name");
     submittedGeneralDetails.setSubmissionDetail(submittedSubmissionDetail);
 
     entityManager.persistAndFlush(submittedGeneralDetails);
@@ -139,9 +142,11 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     nonViewableSubmissionDetail = entityManager.persistAndFlush(nonViewableSubmissionDetail);
 
     var submittedGeneralDetails = new GeneralDetail();
-    submittedGeneralDetails.setResourceName("Resource name");
+    var submittedResourceDetail = new ResourceDetail();
+    submittedResourceDetail.setSubmissionDetail(nonViewableSubmissionDetail);
+    submittedResourceDetail.setResourceName("Resource name");
     submittedGeneralDetails.setSubmissionDetail(nonViewableSubmissionDetail);
-
+    entityManager.persistAndFlush(submittedResourceDetail);
     entityManager.persistAndFlush(submittedGeneralDetails);
 
     var results = submissionWorkAreaQueryService.getWorkAreaSubmissionItems();
@@ -194,10 +199,14 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     submittedSubmissionDetail = entityManager.persistAndFlush(submittedSubmissionDetail);
 
     var submittedGeneralDetails = new GeneralDetail();
-    submittedGeneralDetails.setResourceName("Resource name");
+    var submittedResourceDetail = new ResourceDetail();
+
+    submittedResourceDetail.setResourceName("Resource name");
+    submittedResourceDetail.setSubmissionDetail(submittedSubmissionDetail);
     submittedGeneralDetails.setSubmissionDetail(submittedSubmissionDetail);
 
     entityManager.persistAndFlush(submittedGeneralDetails);
+    entityManager.persistAndFlush(submittedResourceDetail);
 
     var results = submissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
@@ -232,9 +241,12 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     firstSubmissionDetail.setCreatedTimestamp(firstSubmissionDetailTimeStamp);
     firstSubmissionDetail = entityManager.persistAndFlush(firstSubmissionDetail);
     var firstGeneralDetails = new GeneralDetail();
-    firstGeneralDetails.setResourceName("Resource name");
+    var firstResourceDetails = new ResourceDetail();
+    firstResourceDetails.setSubmissionDetail(firstSubmissionDetail);
+    firstResourceDetails.setResourceName("Resource name");
     firstGeneralDetails.setSubmissionDetail(firstSubmissionDetail);
     entityManager.persistAndFlush(firstGeneralDetails);
+    entityManager.persistAndFlush(firstResourceDetails);
 
     var thirdSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var secondResource = new Resource();
@@ -372,10 +384,13 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persistAndFlush(submissionDetail);
 
     var generalDetails = new GeneralDetail();
-    generalDetails.setResourceName("The resource name");
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setSubmissionDetail(submissionDetail);
+    resourceDetail.setResourceName("The resource name");
     generalDetails.setSubmissionDetail(submissionDetail);
-    generalDetails.setOrganisationId(46);
+    resourceDetail.setOrganisationId(46);
     entityManager.persistAndFlush(generalDetails);
+    entityManager.persistAndFlush(resourceDetail);
 
     var quadBlocks = new QuadrantAndBlock();
     quadBlocks.setGeneralDetail(generalDetails);

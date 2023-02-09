@@ -5,31 +5,32 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceFormValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
 class StartDiscoveryService {
 
   private final SubmissionCreateService submissionCreateService;
   private final StartDiscoveryFormValidator startDiscoveryFormValidator;
-  private final NewResourceFormValidator newResourceFormValidator;
+  private final ResourceDetailsFormValidator resourceDetailsFormValidator;
   private final UserDetailService userDetailService;
   private final RegulatorTeamService regulatorTeamService;
 
   @Autowired
   StartDiscoveryService(SubmissionCreateService submissionCreateService,
                         StartDiscoveryFormValidator startDiscoveryFormValidator,
-                        NewResourceFormValidator newResourceFormValidator,
+                        ResourceDetailsFormValidator resourceDetailsFormValidator,
                         UserDetailService userDetailService,
                         RegulatorTeamService regulatorTeamService) {
     this.submissionCreateService = submissionCreateService;
     this.startDiscoveryFormValidator = startDiscoveryFormValidator;
-    this.newResourceFormValidator = newResourceFormValidator;
+    this.resourceDetailsFormValidator = resourceDetailsFormValidator;
     this.userDetailService = userDetailService;
     this.regulatorTeamService = regulatorTeamService;
   }
@@ -38,15 +39,17 @@ class StartDiscoveryService {
     return submissionCreateService.createNewDiscoveryFromProspect(form);
   }
 
-  SubmissionDetail createNewDiscovery(NewResourceForm form) {
+  SubmissionDetail createNewDiscovery(ResourceDetailsForm form) {
     return submissionCreateService.createDiscovery(form);
   }
 
-  BindingResult validateNewDiscovery(NewResourceForm form, BindingResult bindingResult) {
-    newResourceFormValidator.validate(form, bindingResult,
-        new NewResourceFormValidatorHints(
+  BindingResult validateNewDiscovery(ResourceDetailsForm form, BindingResult bindingResult) {
+    resourceDetailsFormValidator.validate(form, bindingResult,
+        new ResourceDetailsFormValidatorHints(
+            ValidationType.FULL,
             regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail()),
-            ResourceType.DISCOVERY)
+            ResourceType.DISCOVERY,
+            null)
     );
     return bindingResult;
   }

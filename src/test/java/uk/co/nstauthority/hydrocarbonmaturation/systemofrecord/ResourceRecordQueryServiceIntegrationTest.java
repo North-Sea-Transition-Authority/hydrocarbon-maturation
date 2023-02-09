@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
 
 @Transactional
@@ -55,7 +56,9 @@ class ResourceRecordQueryServiceIntegrationTest {
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
-    var generalDetails1 = createGeneralDetail(submissionDetail1, resourceName1, organisationId1);
+    var generalDetails1 = createGeneralDetail(submissionDetail1);
+    var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
+
     var quadrantBlock1 = "25/12";
     var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
@@ -67,7 +70,9 @@ class ResourceRecordQueryServiceIntegrationTest {
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
     var resourceName2 = "The resource name B";
     var organisationId2 = 48;
-    var generalDetails2 = createGeneralDetail(submissionDetail2, resourceName2, organisationId2);
+    var generalDetails2 = createGeneralDetail(submissionDetail2);
+    var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
+
     var quadrantBlock2 = "50/11";
     var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
@@ -119,7 +124,9 @@ class ResourceRecordQueryServiceIntegrationTest {
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
-    var generalDetails1 = createGeneralDetail(submissionDetail1, resourceName1, organisationId1);
+    var generalDetails1 = createGeneralDetail(submissionDetail1);
+    var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
+
     var quadrantBlock1 = "25/12";
     var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
@@ -130,7 +137,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var submissionDetail2 = buildSubmissionDetail(resource1, SubmissionType.PROSPECT_UPDATE);
     var resourceName2 = "The resource name B";
     var organisationId2 = 48;
-    var generalDetails2 = createGeneralDetail(submissionDetail2, resourceName2, organisationId2);
+    var generalDetails2 = createGeneralDetail(submissionDetail2);
+    var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
     var quadrantBlock2 = "50/11";
     var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
@@ -172,7 +180,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
-    var generalDetails1 = createGeneralDetail(submissionDetail1, resourceName1, organisationId1);
+    var generalDetails1 = createGeneralDetail(submissionDetail1);
+    var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
     var quadrantBlock1 = "25/12";
     var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
@@ -184,7 +193,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
     var resourceName2 = "The resource name B";
     var organisationId2 = 48;
-    var generalDetails2 = createGeneralDetail(submissionDetail2, resourceName2, organisationId2);
+    var generalDetails2 = createGeneralDetail(submissionDetail2);
+    var resourceDetail2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
     var quadrantBlock2 = "50/11";
     var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
@@ -193,7 +203,7 @@ class ResourceRecordQueryServiceIntegrationTest {
     var license4 = createLicense(351, "BL6", generalDetails2);
 
     var form = new SearchResourceRecordsForm();
-    form.setGeneralDetailIdForResourceSubmission(generalDetails1.getId().toString());
+    form.setResourceDetailIdForResourceSubmission(resourceDetails1.getId().toString());
 
     var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
 
@@ -228,7 +238,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
-    var generalDetails1 = createGeneralDetail(submissionDetail1, resourceName1, organisationId1);
+    var generalDetails1 = createGeneralDetail(submissionDetail1);
+    var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
     var quadrantBlock1 = "25/12";
     var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
@@ -240,7 +251,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
     var resourceName2 = "The resource name B";
     var organisationId2 = 48;
-    var generalDetails2 = createGeneralDetail(submissionDetail2, resourceName2, organisationId2);
+    var generalDetails2 = createGeneralDetail(submissionDetail2);
+    var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
     var quadrantBlock2 = "50/11";
     var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
@@ -310,15 +322,25 @@ class ResourceRecordQueryServiceIntegrationTest {
   }
 
   @NotNull
-  private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId) {
+  private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail) {
     var generalDetails = new GeneralDetail();
-    generalDetails.setResourceName(resourceName);
     generalDetails.setSubmissionDetail(submissionDetail);
-    generalDetails.setOrganisationId(organisationId);
-    
+
     entityManager.persistAndFlush(generalDetails);
     
     return generalDetails;
+  }
+
+  @NotNull
+  private ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId) {
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setResourceName(resourceName);
+    resourceDetail.setSubmissionDetail(submissionDetail);
+    resourceDetail.setOrganisationId(organisationId);
+
+    entityManager.persistAndFlush(resourceDetail);
+
+    return resourceDetail;
   }
 
   @NotNull

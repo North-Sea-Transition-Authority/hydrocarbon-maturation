@@ -41,7 +41,8 @@ class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationSe
               GeneralDetail.class
           );
           if (newSubmissionDetail.getSubmissionType() == SubmissionType.PROSPECT_UPDATE
-              || newSubmissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY) {
+              || newSubmissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY
+              || newSubmissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
             preventCopyingForward(newGeneralDetail);
           }
 

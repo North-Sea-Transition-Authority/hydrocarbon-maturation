@@ -32,7 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -55,7 +55,7 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getNewDiscoveryPage_assertModelProperties() throws Exception {
-    var form = new NewResourceForm();
+    var form = new ResourceDetailsForm();
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
     when(regulatorTeamService.isRegulatorUser(any())).thenReturn(true);
@@ -88,7 +88,7 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void createDiscovery_asValidForm_assertRedirect() throws Exception {
-    var form = new NewResourceForm();
+    var form = new ResourceDetailsForm();
 
     var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
     when(startDiscoveryService.validateNewDiscovery(any(), any())).thenReturn(bindingResult);
@@ -107,7 +107,7 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void createDiscovery_asInvalidForm_assertIsOk() throws Exception {
-    var form = new NewResourceForm();
+    var form = new ResourceDetailsForm();
 
     var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));

@@ -17,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleT
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -87,12 +86,8 @@ public class GeneralDetailsController {
             submissionDetail.isDiscoveryRelinquishment() || submissionDetail.isProspectRelinquishment())
         .addObject("licenceApplication",
             generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
-        .addObject("organisationUnitEndpoint",
-            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)))
         .addObject("resourceType",
             submissionDetail.getResourceId().getType().getDisplayName().toLowerCase())
-        .addObject("responsibleOrganisation", generalDetailsFormService
-            .getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
         .addObject("quadrantBlocksApiEndpoint",
             SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null)))
         .addObject("alreadyAddedQuadrantBlocks", generalDetailsFormService.getQuadrantAndBlockViews(form))

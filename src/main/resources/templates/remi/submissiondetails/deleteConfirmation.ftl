@@ -36,6 +36,7 @@
       mixedCase=mixedCase
       mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
       mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
+      resourceDetailSummaryView=resourceDetailSummaryView
       />
   <#elseif submissionType == "POST_DRILL_DRY_HOLE">
     <@dryWellSubmissionSummary.dryWellSubmissionSummary
@@ -45,7 +46,8 @@
       permeabilitySummaryView=permeabilitySummaryView
       opportunityDetailsSummaryView=opportunityDetailsSummaryView
       sourceAndSealSummaryView=sourceAndSealSummaryView
-      trapPropertiesSummaryView=trapPropertiesSummaryView/>
+      trapPropertiesSummaryView=trapPropertiesSummaryView
+      resourceDetailSummaryView=resourceDetailSummaryView/>
   <#elseif submissionType == "CREATE_DISCOVERY"
   || submissionType == "UPDATE_DISCOVERY"
   || submissionType == "CREATE_DISCOVERY_FROM_PROSPECT"
@@ -70,7 +72,8 @@
       opportunityDetailsSummaryView=opportunityDetailsSummaryView
       discoveryWellDetailsSummaryView=discoveryWellDetailsSummaryView
       sourceAndSealSummaryView=sourceAndSealSummaryView
-      trapPropertiesSummaryView=trapPropertiesSummaryView/>
+      trapPropertiesSummaryView=trapPropertiesSummaryView
+      resourceDetailSummaryView=resourceDetailSummaryView/>
   </#if>
   <@fdsForm.htmlForm actionUrl=springUrl(deleteUrl)>
     <@fdsAction.submitButtons

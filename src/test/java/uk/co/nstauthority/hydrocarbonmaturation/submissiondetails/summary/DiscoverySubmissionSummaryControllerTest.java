@@ -45,6 +45,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproper
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
@@ -83,6 +84,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   private OpportunityDetailsSummaryView opportunityDetailsSummaryView;
   private DiscoveryWellDetailsSummaryView discoveryWellDetailsSummaryView;
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
+  private ResourceDetailSummaryView resourceDetailSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -103,6 +105,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     discoveryWellDetailsSummaryView = DiscoveryWellDetailsSummaryView.empty();
     sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     trapPropertiesSummaryView = TrapPropertiesSummaryView.empty();
+    resourceDetailSummaryView = ResourceDetailSummaryView.empty("Prospect");
     submissionDetail.setSubmissionType(SubmissionType.UPDATE_DISCOVERY);
   }
 
@@ -224,6 +227,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
             entry("discoveryWellDetailsSummaryView", discoveryWellDetailsSummaryView),
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
+            entry("resourceDetailSummaryView", resourceDetailSummaryView),
             entry("gasOnlyDiscovery", false),
             entry("oilOnlyDiscovery", false),
             entry("mixedDiscovery", false)
@@ -249,6 +253,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .addObject("discoveryWellDetailsSummaryView", discoveryWellDetailsSummaryView)
         .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
+        .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
         .addObject("gasOnlyDiscovery", false)
         .addObject("oilOnlyDiscovery", false)
         .addObject("mixedDiscovery", false)

@@ -20,7 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -33,12 +33,12 @@ class StartDiscoveryControllerTest extends AbstractSubmissionControllerTest {
   private StartDiscoveryService startDiscoveryService;
 
   private SubmissionDetail submissionDetail;
-  private NewResourceForm form;
+  private ResourceDetailsForm form;
 
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    form = new NewResourceForm();
+    form = new ResourceDetailsForm();
   }
 
   @SecurityTest

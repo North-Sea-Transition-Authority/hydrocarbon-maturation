@@ -25,30 +25,14 @@ breadcrumbsMap=breadcrumbsMap>
     <#assign licenceHintText = ""/>
   </#if>
   <#if relinquishmentSubmission>
-    <#assign guidanceTextOrganisation>
-      The responsible party will be removed from this ${resourceType} when the relinquishment submission is approved.
-    </#assign>
     <#assign guidanceTextLicence>
       The licence will be removed from this ${resourceType} when the relinquishment submission is approved.
     </#assign>
   <#else>
-    <#assign guidanceTextOrganisation>
-    </#assign>
     <#assign guidanceTextLicence>
     </#assign>
   </#if>
     <@fdsForm.htmlForm>
-
-      <@fdsTextInput.textInput path="form.resourceName" labelText="${resourceType?capitalize} name"/>
-
-      <@fdsSearchSelector.searchSelectorRest
-        path="form.responsibleOrganisationId"
-        restUrl=springUrl(organisationUnitEndpoint)
-        labelText="What organisation is responsible for this ${resourceType}?"
-        selectorMinInputLength=3
-        nestingPath="form.responsibleOrganisationId"
-        hintText=guidanceTextOrganisation
-        preselectedItems=responsibleOrganisation!{}/>
       <#if !relinquishmentSubmission>
         <@fdsRadio.radioGroup
           path="form.resourceOnALicence"
@@ -74,8 +58,6 @@ breadcrumbsMap=breadcrumbsMap>
           <@fdsRadio.radioNo path="form.resourceOnALicence"/>
         </@fdsRadio.radioGroup>
       </#if>
-
-      <@fdsRadio.radio path="form.onshoreOffshore" radioItems=onshoreOffshore labelText="Is this ${resourceType} onshore or offshore?"/>
 
       <@fdsRadio.radioGroup path="form.resourceLocatedInUkcs" labelText="Is the ${resourceType} wholly located within UKCS?" hiddenContent=true>
           <@fdsRadio.radioYes path="form.resourceLocatedInUkcs"/>

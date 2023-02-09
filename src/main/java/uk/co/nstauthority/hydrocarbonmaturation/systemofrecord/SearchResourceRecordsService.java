@@ -47,7 +47,7 @@ class SearchResourceRecordsService {
   boolean getFiltersAdded(SearchResourceRecordsForm form) {
     var filtersAdded = new ArrayList<>();
 
-    var generalDetailIdForResourceSubmission = form.getGeneralDetailIdForResourceSubmission();
+    var generalDetailIdForResourceSubmission = form.getResourceDetailIdForResourceSubmission();
     var responsibleOrganisationId = form.getResponsibleOrganisationId();
 
     if (StringUtils.isNotBlank(generalDetailIdForResourceSubmission)) {
@@ -62,7 +62,7 @@ class SearchResourceRecordsService {
   }
 
   public Map<String, String> getPreSelectedResourceName(SearchResourceRecordsForm form) {
-    var generalDetailIdForResourceSubmission = form.getGeneralDetailIdForResourceSubmission();
+    var generalDetailIdForResourceSubmission = form.getResourceDetailIdForResourceSubmission();
 
     if (generalDetailIdForResourceSubmission == null) {
       return Map.of();

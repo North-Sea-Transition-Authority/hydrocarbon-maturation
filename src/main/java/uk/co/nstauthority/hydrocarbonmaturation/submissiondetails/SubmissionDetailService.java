@@ -10,7 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @Service
 public class SubmissionDetailService {
@@ -18,16 +18,17 @@ public class SubmissionDetailService {
   public static final Integer FIRST_VERSION = 1;
 
   private final SubmissionDetailRepository submissionDetailRepository;
-  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final ResourceLinkService resourceLinkService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+
 
   @Autowired
   public SubmissionDetailService(SubmissionDetailRepository submissionDetailRepository,
-                                 GeneralDetailsPersistenceService generalDetailsPersistenceService,
-                                 ResourceLinkService resourceLinkService) {
+                                 ResourceLinkService resourceLinkService,
+                                 ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
     this.submissionDetailRepository = submissionDetailRepository;
-    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.resourceLinkService = resourceLinkService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
   }
 
   public Optional<SubmissionDetail> getSubmissionDetail(UUID id) {
@@ -73,8 +74,8 @@ public class SubmissionDetailService {
     return submissionDetail.getSubmissionType().getTypeName();
   }
 
-  public SubmissionDetail getSubmissionDetailByGeneralDetailOrThrow(UUID generalDetailId) {
-    var generalDetail = generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(generalDetailId);
+  public SubmissionDetail getSubmissionDetailByResourceDetailOrThrow(UUID resourceDetailId) {
+    var generalDetail = resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(resourceDetailId);
     return generalDetail.getSubmissionDetail();
   }
 

@@ -31,7 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -55,7 +55,7 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getNewProspectPage_assertModelProperties() throws Exception {
-    var form = new NewResourceForm();
+    var form = new ResourceDetailsForm();
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
     when(regulatorTeamService.isRegulatorUser(any())).thenReturn(true);
@@ -88,7 +88,7 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void createProspect_asValidForm_assertRedirect() throws Exception {
-    var form = new NewResourceForm();
+    var form = new ResourceDetailsForm();
 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     when(startProspectService.validate(any(), any())).thenReturn(bindingResult);
@@ -107,7 +107,7 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void createProspect_asInvalidForm_assertIsOk() throws Exception {
-    var form = new NewResourceForm();
+    var form = new ResourceDetailsForm();
 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));

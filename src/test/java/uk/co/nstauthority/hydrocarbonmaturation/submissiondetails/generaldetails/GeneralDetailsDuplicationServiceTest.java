@@ -75,7 +75,6 @@ class GeneralDetailsDuplicationServiceTest {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     var generalDetail = new GeneralDetail();
-    generalDetail.setResourceName("Not null field");
     generalDetail.setInformationSource(InformationSource.OTHER);
     generalDetail.setOtherInformationSource("other info");
     generalDetail.setLicenceApplicationId(1);
@@ -98,9 +97,8 @@ class GeneralDetailsDuplicationServiceTest {
             GeneralDetail::getOtherInformationSource,
             GeneralDetail::getLicenceApplicationInfoSource,
             GeneralDetail::getLicenceApplicationId,
-            GeneralDetail::getLicenceApplicationReference,
-            GeneralDetail::getResourceName)
-        .containsOnly(null, "Not null field");
+            GeneralDetail::getLicenceApplicationReference)
+        .containsOnlyNulls();
   }
 
   @Test

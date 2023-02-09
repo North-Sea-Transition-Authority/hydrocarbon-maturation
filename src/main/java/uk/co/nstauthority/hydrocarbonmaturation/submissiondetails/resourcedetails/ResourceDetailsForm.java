@@ -1,8 +1,9 @@
-package uk.co.nstauthority.hydrocarbonmaturation.newresource;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails;
 
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
-public class NewResourceForm {
+public class ResourceDetailsForm implements SubmissionForm {
 
   private String resourceName;
 

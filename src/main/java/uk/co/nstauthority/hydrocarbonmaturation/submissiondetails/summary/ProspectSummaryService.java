@@ -23,6 +23,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService;
@@ -44,6 +46,7 @@ class ProspectSummaryService {
   private final GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
   private final GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
   private final OpportunityDetailsSummaryService opportunityDetailsSummaryService;
+  private final ResourceDetailSummaryService resourceDetailSummaryService;
 
   @Autowired
   public ProspectSummaryService(GeneralDetailSummaryService generalDetailSummaryService,
@@ -58,7 +61,8 @@ class ProspectSummaryService {
                                 GasCaseOutputsSummaryService gasCaseOutputsSummaryService,
                                 MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService,
                                 MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService,
-                                OpportunityDetailsSummaryService opportunityDetailsSummaryService) {
+                                OpportunityDetailsSummaryService opportunityDetailsSummaryService,
+                                ResourceDetailSummaryService resourceDetailSummaryService) {
     this.generalDetailSummaryService = generalDetailSummaryService;
     this.sourceAndSealSummaryService = sourceAndSealSummaryService;
     this.chanceOfSuccessSummaryService = chanceOfSuccessSummaryService;
@@ -72,6 +76,11 @@ class ProspectSummaryService {
     this.mixedCaseOutputsSummaryService = mixedCaseOutputsSummaryService;
     this.trapPropertiesSummaryService = trapPropertiesSummaryService;
     this.opportunityDetailsSummaryService = opportunityDetailsSummaryService;
+    this.resourceDetailSummaryService = resourceDetailSummaryService;
+  }
+
+  public ResourceDetailSummaryView getResourceDetailSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+    return resourceDetailSummaryService.getResourceDetailSummaryFromSubmissionDetail(submissionDetail);
   }
 
   public GeneralDetailSummaryView getGeneralDetailSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {

@@ -17,9 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceFormValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceFormValidatorHints;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -33,7 +33,7 @@ class StartDiscoveryServiceTest {
   private StartDiscoveryFormValidator startDiscoveryFormValidator;
 
   @Mock
-  private NewResourceFormValidator newResourceFormValidator;
+  private ResourceDetailsFormValidator resourceDetailsFormValidator;
 
   @Mock
   private RegulatorTeamService regulatorTeamService;
@@ -45,12 +45,12 @@ class StartDiscoveryServiceTest {
   private StartDiscoveryService startDiscoveryService;
 
   private StartDiscoveryForm startDiscoveryForm;
-  private NewResourceForm newResourceForm;
+  private ResourceDetailsForm resourceDetailsForm;
 
   @BeforeEach
   void setUp() {
     startDiscoveryForm = new StartDiscoveryForm();
-    newResourceForm = new NewResourceForm();
+    resourceDetailsForm = new ResourceDetailsForm();
   }
 
   @Test
@@ -62,9 +62,9 @@ class StartDiscoveryServiceTest {
 
   @Test
   void createNewDiscovery_verifyCreatedDiscovery() {
-    startDiscoveryService.createNewDiscovery(newResourceForm);
+    startDiscoveryService.createNewDiscovery(resourceDetailsForm);
 
-    verify(submissionCreateService, times(1)).createDiscovery(newResourceForm);
+    verify(submissionCreateService, times(1)).createDiscovery(resourceDetailsForm);
   }
 
   @Test
@@ -77,18 +77,18 @@ class StartDiscoveryServiceTest {
 
   @Test
   void validateNewDiscovery() {
-    var captor = ArgumentCaptor.forClass(NewResourceFormValidatorHints.class);
+    var captor = ArgumentCaptor.forClass(ResourceDetailsFormValidatorHints.class);
     when(regulatorTeamService.isRegulatorUser(any())).thenReturn(false);
     var bindingResult = startDiscoveryService
-        .validateNewDiscovery(newResourceForm, emptyBindingResult());
+        .validateNewDiscovery(resourceDetailsForm, emptyBindingResult());
     assertThat(bindingResult).isEqualTo(emptyBindingResult());
-    verify(newResourceFormValidator, times(1))
-        .validate(eq(newResourceForm), eq(bindingResult), captor.capture());
+    verify(resourceDetailsFormValidator, times(1))
+        .validate(eq(resourceDetailsForm), eq(bindingResult), captor.capture());
 
     assertThat(captor.getValue())
         .extracting(
-            NewResourceFormValidatorHints::getResourceType,
-            NewResourceFormValidatorHints::isRegulator)
+            ResourceDetailsFormValidatorHints::resourceType,
+            ResourceDetailsFormValidatorHints::isRegulator)
         .containsExactly(ResourceType.DISCOVERY, false);
   }
 }

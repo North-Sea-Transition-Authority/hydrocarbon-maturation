@@ -17,6 +17,7 @@
 <#import '../../summarylistcards/discoveryWellSummaryCard.ftl' as discoveryWellDetailSummary>
 <#import '../../summarylistcards/sourceAndSealSummaryCard.ftl' as sourceAndSealSummary>
 <#import '../../summarylistcards/trapPropertiesSummaryCard.ftl' as trapPropertiesSummary>
+<#import '../../summarylistcards/resourceDetailsSummaryCard.ftl' as resourceDetailSummary>
 
 <#macro discoverySubmissionSummary
   generalDetailsSummaryView
@@ -38,10 +39,12 @@
   opportunityDetailsSummaryView
   discoveryWellDetailsSummaryView
   sourceAndSealSummaryView
-  trapPropertiesSummaryView>
+  trapPropertiesSummaryView
+  resourceDetailSummaryView>
   <@fdsAccordion.accordion accordionId="summaryaccordian">
-    <@fdsAccordion.accordionSection sectionHeading="General details">
-        <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
+    <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details">
+      <@resourceDetailSummary.resourceDetailCard resourceDetailValues=resourceDetailSummaryView/>
+      <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
     </@fdsAccordion.accordionSection>
     <@fdsAccordion.accordionSection sectionHeading="Opportunity" summaryText="Opportunity details, trap properties, source and seal">
       <@opportunityDetailsSummary.opportunityDetailsSummaryCard opportunityDetailsValues=opportunityDetailsSummaryView/>

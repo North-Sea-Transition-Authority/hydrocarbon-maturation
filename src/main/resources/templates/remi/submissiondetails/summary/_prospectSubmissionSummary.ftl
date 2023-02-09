@@ -13,6 +13,7 @@
 <#import '../../summarylistcards/mixedCaseVolumetricsSummaryCard.ftl' as mixedCaseVolumetricsSummary>
 <#import '../../summarylistcards/mixedCaseOutputsSummaryCard.ftl' as mixedCaseOutputsSummary>
 <#import '../../summarylistcards/opportunityDetailsSummaryCard.ftl' as opportunityDetailsSummary>
+<#import '../../summarylistcards/resourceDetailsSummaryCard.ftl' as resourceDetailSummary>
 
 <#macro prospectSubmissionSummary
   generalDetailsSummaryView
@@ -30,10 +31,12 @@
   gasCaseOutputsSummaryView
   mixedCase
   mixedCaseVolumetricsSummaryView
-  mixedCaseOutputsSummaryView>
+  mixedCaseOutputsSummaryView,
+  resourceDetailSummaryView>
     <@fdsAccordion.accordion accordionId="summaryaccordian">
-        <@fdsAccordion.accordionSection sectionHeading="General details">
-            <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
+        <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details">
+          <@resourceDetailSummary.resourceDetailCard resourceDetailValues=resourceDetailSummaryView/>
+          <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
         </@fdsAccordion.accordionSection>
         <@fdsAccordion.accordionSection sectionHeading="Opportunity" summaryText="Opportunity details, trap properties, source and seal, hydrocarbon case, chance of success">
             <@opportunityDetailsSummary.opportunityDetailsSummaryCard opportunityDetailsValues=opportunityDetailsSummaryView/>

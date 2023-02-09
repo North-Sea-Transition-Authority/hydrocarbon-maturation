@@ -43,6 +43,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutpu
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
@@ -79,6 +80,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
   private OpportunityDetailsSummaryView opportunityDetailsSummaryView;
   private GasCaseOutputsSummaryView gasCaseOutputsSummaryView;
+  private ResourceDetailSummaryView resourceDetailSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -111,6 +113,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
         new ArrayList<>(),
         new HashMap<>()
     );
+    resourceDetailSummaryView = ResourceDetailSummaryView.empty("prospect");
     chanceOfSuccessSummaryView = ChanceOfSuccessSummaryView.empty();
     oilCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
@@ -239,6 +242,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
             entry("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView),
             entry("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
+            entry("resourceDetailSummaryView", resourceDetailSummaryView),
             entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
     );
   }
@@ -258,6 +262,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
         .addObject("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView)
         .addObject("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView)
         .addObject("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
+        .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
         .addObject("submittable", true)
         .addObject("gasCase", true)
         .addObject("oilCase", true)

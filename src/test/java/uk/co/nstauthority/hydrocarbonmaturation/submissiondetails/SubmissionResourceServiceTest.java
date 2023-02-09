@@ -19,15 +19,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionResourceServiceTest {
   @Mock
-  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   @Mock
   private TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   @InjectMocks
@@ -51,7 +50,8 @@ class SubmissionResourceServiceTest {
       var resource2 = buildResource(ResourceType.FIELD);
       var generalDetail3 = buildGeneralDetail(resource2);
 
-      when(generalDetailsPersistenceService.getGeneralDetailsByName(NAME)).thenReturn(List.of(generalDetail1, generalDetail2, generalDetail3));
+      when(resourceDetailsPersistenceService.getResourceDetailsByName(NAME))
+          .thenReturn(List.of(generalDetail1, generalDetail2, generalDetail3));
 
       var result = underTest.getResourcesBySubmissionTypeAndResourceName(RESOURCE_TYPE, NAME);
 
@@ -77,10 +77,11 @@ class SubmissionResourceServiceTest {
     @Test
     void name() {
       var resource1 = buildResource(ResourceType.PROSPECT);
-      var generalDetail1 = buildGeneralDetail(resource1);
-      var generalDetail2 = buildGeneralDetail(resource1);
+      var resourceDetail = buildGeneralDetail(resource1);
+      var resourceDetail1 = buildGeneralDetail(resource1);
 
-      when(generalDetailsPersistenceService.getGeneralDetailsByName(NAME)).thenReturn(List.of(generalDetail1, generalDetail2));
+      when(resourceDetailsPersistenceService.getResourceDetailsByName(NAME))
+          .thenReturn(List.of(resourceDetail, resourceDetail1));
 
       var result = underTest.getResourcesByName(NAME);
 
@@ -106,11 +107,11 @@ class SubmissionResourceServiceTest {
 
     @Test
     void getFromGeneralDetail() {
-      var generalDetail = new GeneralDetail();
+      var resourceDetail = new ResourceDetail();
       var resourceName = "name";
-      generalDetail.setResourceName(resourceName);
-      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-          .thenReturn(Optional.of(generalDetail));
+      resourceDetail.setResourceName(resourceName);
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(resourceDetail));
 
       var resourceNameOptional = underTest.getResourceName(submissionDetail);
 
@@ -131,9 +132,9 @@ class SubmissionResourceServiceTest {
     void getFromGeneralDetail() {
       submissionDetail.setCreatedTimestamp(Instant.now());
 
-      var generalDetail = new GeneralDetail();
-      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-          .thenReturn(Optional.of(generalDetail));
+      var resourceDetail = new ResourceDetail();
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(resourceDetail));
 
       var resourceNameOptional = underTest.getResourceNameOrDefault(submissionDetail);
 
@@ -144,57 +145,57 @@ class SubmissionResourceServiceTest {
   @Nested
   class WhenGettingResourceDisplayName {
 
-    private final UUID GENERAL_DETAIL_ID = UUID.randomUUID();
+    private final UUID RESOURCE_DETAIL_ID = UUID.randomUUID();
     private final String CENTRE_OF_INTEREST = "CENTRE_OF_INTEREST";
     private static final String RESOURCE_NAME = "RESOURCE_NAME";
-    private GeneralDetail generalDetail;
+    private ResourceDetail resourceDetail;
 
     @BeforeEach
     void setup() {
 
-      generalDetail = new GeneralDetail();
-      generalDetail.setId(GENERAL_DETAIL_ID);
-      generalDetail.setResourceName(RESOURCE_NAME);
+      resourceDetail = new ResourceDetail();
+      resourceDetail.setId(RESOURCE_DETAIL_ID);
+      resourceDetail.setResourceName(RESOURCE_NAME);
     }
 
     @Test
     void byGeneralDetail_CentreOfInterestExists() {
-      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(generalDetail.getSubmissionDetail()))
+      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(resourceDetail.getSubmissionDetail()))
           .thenReturn(Optional.of(CENTRE_OF_INTEREST));
 
-      var result = underTest.getResourceDisplayName(generalDetail);
+      var result = underTest.getResourceDisplayName(resourceDetail);
 
       assertThat(result).isEqualTo("%s (%s)".formatted(RESOURCE_NAME, CENTRE_OF_INTEREST));
     }
 
     @Test
     void byGeneralDetail_CentreOfInterestDoesNotExist() {
-      when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(GENERAL_DETAIL_ID)).thenReturn(generalDetail);
-      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(generalDetail.getSubmissionDetail()))
+      when(resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(RESOURCE_DETAIL_ID)).thenReturn(resourceDetail);
+      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(resourceDetail.getSubmissionDetail()))
           .thenReturn(Optional.empty());
 
-      var result = underTest.getResourceDisplayName(GENERAL_DETAIL_ID);
+      var result = underTest.getResourceDisplayName(RESOURCE_DETAIL_ID);
 
       assertThat(result).isEqualTo(RESOURCE_NAME);
     }
 
     @Test
     void byGeneralDetailId_CentreOfInterestExists() {
-      when(generalDetailsPersistenceService.getGeneralDetailByIdOrThrow(GENERAL_DETAIL_ID)).thenReturn(generalDetail);
-      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(generalDetail.getSubmissionDetail()))
+      when(resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(RESOURCE_DETAIL_ID)).thenReturn(resourceDetail);
+      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(resourceDetail.getSubmissionDetail()))
           .thenReturn(Optional.of(CENTRE_OF_INTEREST));
 
-      var result = underTest.getResourceDisplayName(GENERAL_DETAIL_ID);
+      var result = underTest.getResourceDisplayName(RESOURCE_DETAIL_ID);
 
       assertThat(result).isEqualTo("%s (%s)".formatted(RESOURCE_NAME, CENTRE_OF_INTEREST));
     }
 
     @Test
     void byGeneralDetailID_CentreOfInterestDoesNotExist() {
-      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(generalDetail.getSubmissionDetail()))
+      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(resourceDetail.getSubmissionDetail()))
           .thenReturn(Optional.empty());
 
-      var result = underTest.getResourceDisplayName(generalDetail);
+      var result = underTest.getResourceDisplayName(resourceDetail);
 
       assertThat(result).isEqualTo(RESOURCE_NAME);
     }
@@ -206,7 +207,11 @@ class SubmissionResourceServiceTest {
   }
 
   @NotNull
-  private GeneralDetail buildGeneralDetail(Resource resource) {
-    return GeneralDetailUtils.buildGeneralDetail(resource);
+  private ResourceDetail buildGeneralDetail(Resource resource) {
+    var resourceDetail = new ResourceDetail();
+    var submissionDetail = new SubmissionDetail();
+    submissionDetail.setResourceId(resource);
+    resourceDetail.setSubmissionDetail(submissionDetail);
+    return resourceDetail;
   }
 }

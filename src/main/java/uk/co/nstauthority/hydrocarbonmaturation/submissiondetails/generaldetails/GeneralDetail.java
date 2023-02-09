@@ -28,11 +28,6 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
-  private String resourceName;
-
-  @Enumerated(EnumType.STRING)
-  private OnshoreOffshore onshoreOffshore;
-
   private Boolean resourceLocatedInUkcs;
 
   private BigDecimal percentageLocatedInUkcs;
@@ -47,12 +42,6 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
   private String licenceApplicationReference;
 
   private Integer licenceApplicationId;
-
-  private Integer organisationId;
-
-  private String organisationName;
-
-  private String organisationRegisteredNumber;
 
   @Column(name = "resource_on_a_licence")
   private Boolean resourceOnALicence;
@@ -71,23 +60,6 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
 
   public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
-  }
-
-  public String getResourceName() {
-    return resourceName;
-  }
-
-  public void setResourceName(String resourceName) {
-    this.resourceName = resourceName;
-  }
-
-  public OnshoreOffshore getOnshoreOffshore() {
-    return onshoreOffshore;
-  }
-
-  public void setOnshoreOffshore(
-      OnshoreOffshore onshoreOffshore) {
-    this.onshoreOffshore = onshoreOffshore;
   }
 
   public Boolean getResourceLocatedInUkcs() {
@@ -145,30 +117,6 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
 
   public void setLicenceApplicationId(Integer licenceApplicationId) {
     this.licenceApplicationId = licenceApplicationId;
-  }
-
-  public Integer getOrganisationId() {
-    return organisationId;
-  }
-
-  public void setOrganisationId(Integer organisationId) {
-    this.organisationId = organisationId;
-  }
-
-  public String getOrganisationName() {
-    return organisationName;
-  }
-
-  public void setOrganisationName(String organisationUName) {
-    this.organisationName = organisationUName;
-  }
-
-  public String getOrganisationRegisteredNumber() {
-    return organisationRegisteredNumber;
-  }
-
-  public void setOrganisationRegisteredNumber(String organisationRegisteredNumber) {
-    this.organisationRegisteredNumber = organisationRegisteredNumber;
   }
 
   public Boolean getResourceOnALicence() {

@@ -36,9 +36,9 @@ class ResourceRecordQueryService {
         .select(
             field("sd.id"),
             field("r.type"),
-            field("gd.resource_name"),
+            field("rd.resource_name"),
             field("tp.centre_of_interest_quadrant_block"),
-            field("gd.organisation_id"),
+            field("rd.organisation_id"),
             DSL.arrayAggDistinct(field("gdl.licence_id"))
                 .orderBy(field("gdl.licence_id"))
                 .filterWhere(field("gdl.licence_id").isNotNull()),
@@ -54,7 +54,9 @@ class ResourceRecordQueryService {
                 .orderBy(field("sd2.approved_timestamp").desc())
                 .limit(1)
             ))
-        .join(remiTable("general_details").as("gd"))
+        .join(remiTable("resource_details").as("rd"))
+            .on(field("rd.submission_detail_id").eq(field("sd.id")))
+        .leftJoin(remiTable("general_details").as("gd"))
             .on(field("gd.submission_detail_id").eq(field("sd.id")))
         .leftJoin(remiTable("trap_properties").as("tp"))
             .on(field("tp.submission_detail_id").eq(field("sd.id")))
@@ -65,7 +67,9 @@ class ResourceRecordQueryService {
             field("r.id"),
             field("sd.id"),
             field("gd.id"),
-            field("tp.id")
+            field("tp.id"),
+            field("rd.organisation_id"),
+            field("rd.resource_name")
         )
         .orderBy(field("sd.approved_timestamp").desc().nullsLast(),
             field("sd.created_timestamp").desc())
@@ -75,15 +79,15 @@ class ResourceRecordQueryService {
   private List<Condition> getConditions(SearchResourceRecordsForm form) {
     List<Condition> conditionList = new ArrayList<>();
 
-    if (StringUtils.isNotBlank(form.getGeneralDetailIdForResourceSubmission())) {
+    if (StringUtils.isNotBlank(form.getResourceDetailIdForResourceSubmission())) {
       conditionList.add(
-          field("gd.id").eq(UUID.fromString(form.getGeneralDetailIdForResourceSubmission()))
+          field("rd.id").eq(UUID.fromString(form.getResourceDetailIdForResourceSubmission()))
       );
     }
 
     if (Objects.nonNull(form.getResponsibleOrganisationId())) {
       conditionList.add(
-          field("gd.organisation_id").eq(form.getResponsibleOrganisationId())
+          field("rd.organisation_id").eq(form.getResponsibleOrganisationId())
       );
     }
 

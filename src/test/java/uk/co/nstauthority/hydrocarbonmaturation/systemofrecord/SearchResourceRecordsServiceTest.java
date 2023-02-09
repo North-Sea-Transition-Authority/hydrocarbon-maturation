@@ -141,7 +141,7 @@ class SearchResourceRecordsServiceTest {
 
     @Test
     void resourceNameAdded_ReturnsTrue() {
-      form.setGeneralDetailIdForResourceSubmission(UUID.randomUUID().toString());
+      form.setResourceDetailIdForResourceSubmission(UUID.randomUUID().toString());
 
       var result = underTest.getFiltersAdded(form);
 
@@ -177,7 +177,7 @@ class SearchResourceRecordsServiceTest {
     @Test
     void noSelectedResourceName_VerifyCalls() {
       var generalDetailId = UUID.randomUUID();
-      form.setGeneralDetailIdForResourceSubmission(String.valueOf(generalDetailId));
+      form.setResourceDetailIdForResourceSubmission(String.valueOf(generalDetailId));
 
       var resourceName = "Resource Name";
       when(submissionResourceService.getResourceDisplayName(generalDetailId)).thenReturn(resourceName);

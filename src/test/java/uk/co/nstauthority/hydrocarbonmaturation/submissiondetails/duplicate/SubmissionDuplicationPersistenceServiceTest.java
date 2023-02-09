@@ -13,7 +13,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestr
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryOptions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 
 @Transactional
@@ -42,15 +41,11 @@ class SubmissionDuplicationPersistenceServiceTest {
     assertThat(newGeneralDetail.getSubmissionDetail().getId()).isEqualTo(newSubmissionDetail.getId());
     assertThat(newGeneralDetail)
         .extracting(
-            GeneralDetail::getResourceName,
-            GeneralDetail::getOnshoreOffshore,
             GeneralDetail::getResourceLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
             GeneralDetail::getLicenceApplicationId
         )
         .containsExactly(
-            newGeneralDetail.getResourceName(),
-            newGeneralDetail.getOnshoreOffshore(),
             newGeneralDetail.getResourceLocatedInUkcs(),
             newGeneralDetail.getPercentageLocatedInUkcs(),
             newGeneralDetail.getLicenceApplicationId()
@@ -99,8 +94,6 @@ class SubmissionDuplicationPersistenceServiceTest {
   private GeneralDetail createGeneralDetail(SubmissionDetail oldSubmissionDetail) {
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(oldSubmissionDetail);
-    generalDetail.setResourceName("prospect-name");
-    generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     generalDetail.setResourceLocatedInUkcs(true);
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.TEN);
     generalDetail.setLicenceApplicationId(1);

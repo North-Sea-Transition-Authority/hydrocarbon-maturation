@@ -23,8 +23,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 
@@ -32,7 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indus
 class TeamMembershipInterceptorRuleTest {
 
   @Mock
-  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @Mock
   private PermissionService permissionService;
@@ -90,11 +90,11 @@ class TeamMembershipInterceptorRuleTest {
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(false);
-    var generalDetail = new GeneralDetail();
-    generalDetail.setOrganisationId(1);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(generalDetail));
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(generalDetail.getOrganisationId()))
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
         .thenReturn(List.of(1));
     when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(true);
@@ -120,11 +120,11 @@ class TeamMembershipInterceptorRuleTest {
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(false);
-    var generalDetail = new GeneralDetail();
-    generalDetail.setOrganisationId(1);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(generalDetail));
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(generalDetail.getOrganisationId()))
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
         .thenReturn(List.of(1));
     when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(false);
@@ -149,11 +149,11 @@ class TeamMembershipInterceptorRuleTest {
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
     when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()))
         .thenReturn(responsibleTeam);
-    var generalDetail = new GeneralDetail();
-    generalDetail.setOrganisationId(1);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(generalDetail));
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(generalDetail.getOrganisationId()))
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
         .thenReturn(List.of(1));
     when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(false);

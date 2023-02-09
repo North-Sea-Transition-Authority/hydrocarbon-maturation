@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,7 +23,6 @@ import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -45,7 +43,6 @@ class GeneralDetailsFormServiceTest {
   private static GeneralDetailsFormService generalDetailsFormService;
   private static LicenceApplicationQueryService licenceApplicationQueryService;
   private static QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
-  private static OrganisationUnitQueryService organisationUnitQueryService;
   private static ReferenceBlockQueryService referenceBlockQueryService;
   private static LicencePersistenceService licencePersistenceService;
   private static LicenceQueryService licenceQueryService;
@@ -60,18 +57,14 @@ class GeneralDetailsFormServiceTest {
     quadrantAndBlockPersistenceService = mock(QuadrantAndBlockPersistenceService.class);
     referenceBlockQueryService = mock(ReferenceBlockQueryService.class);
     licenceApplicationQueryService = mock(LicenceApplicationQueryService.class);
-    organisationUnitQueryService = mock(OrganisationUnitQueryService.class);
     licencePersistenceService = mock(LicencePersistenceService.class);
     licenceQueryService = mock(LicenceQueryService.class);
     submissionDetailService = mock(SubmissionDetailService.class);
 
-    SearchSelectorService searchSelectorService = new SearchSelectorService();
     generalDetailsFormService = new GeneralDetailsFormService(
         generalDetailsFormValidator,
         generalDetailsPersistenceService,
-        searchSelectorService,
         licenceApplicationQueryService,
-        organisationUnitQueryService,
         quadrantAndBlockPersistenceService,
         referenceBlockQueryService,
         licenceQueryService,
@@ -107,7 +100,7 @@ class GeneralDetailsFormServiceTest {
             GeneralDetailsFormValidatorHints::getSubmissionDetail,
             GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
             GeneralDetailsFormValidatorHints::getLicencePresent)
-        .containsExactly(validationType, submissionDetail, Optional.of(latestGeneralDetail), false);
+        .containsExactly(validationType, submissionDetail, latestGeneralDetail, false);
   }
 
   @Test
@@ -128,7 +121,7 @@ class GeneralDetailsFormServiceTest {
             GeneralDetailsFormValidatorHints::getSubmissionDetail,
             GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
             GeneralDetailsFormValidatorHints::getLicencePresent)
-        .containsExactly(validationType, submissionDetail, Optional.empty(), false);
+        .containsExactly(validationType, submissionDetail, null, false);
   }
 
   @Test
@@ -157,7 +150,7 @@ class GeneralDetailsFormServiceTest {
             GeneralDetailsFormValidatorHints::getSubmissionDetail,
             GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
             GeneralDetailsFormValidatorHints::getLicencePresent)
-        .containsExactly(validationType, submissionDetail, Optional.of(latestGeneralDetail), true);
+        .containsExactly(validationType, submissionDetail, latestGeneralDetail, true);
   }
 
   @Test
@@ -180,24 +173,18 @@ class GeneralDetailsFormServiceTest {
 
     assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
         .extracting(
-            GeneralDetailsForm::getResourceName,
-            GeneralDetailsForm::getOnshoreOffshore,
             GeneralDetailsForm::getResourceLocatedInUkcs,
             GeneralDetailsForm::getPercentageLocatedInUkcs,
             GeneralDetailsForm::getInformationSource,
             GeneralDetailsForm::getOtherSourceOfInformation,
-            GeneralDetailsForm::getQuadrantBlocks,
-            GeneralDetailsForm::getResponsibleOrganisationId
+            GeneralDetailsForm::getQuadrantBlocks
         )
         .containsExactly(
-            generalDetail.getResourceName(),
-            generalDetail.getOnshoreOffshore(),
             generalDetail.getResourceLocatedInUkcs(),
             generalDetail.getPercentageLocatedInUkcs(),
             generalDetail.getInformationSource(),
             generalDetail.getOtherInformationSource(),
-            List.of(quadrantBlockRef),
-            generalDetail.getOrganisationId().toString()
+            List.of(quadrantBlockRef)
         );
   }
 
@@ -265,27 +252,6 @@ class GeneralDetailsFormServiceTest {
     generalDetailsFormService.getPreSelectedLicenceApplication("app");
 
     verify(licenceApplicationQueryService, times(1)).getPreSelectedLicenceApplication("app");
-  }
-
-  @Test
-  void getPreselectedOrganisation_nullCheck() {
-    var result = generalDetailsFormService.getPreSelectedOrganisationUnit(null);
-
-    assertThat(result).isEqualTo(Map.of());
-  }
-
-  @Test
-  void getPreselectedOrganisation_emptyStringCheck() {
-    var result = generalDetailsFormService.getPreSelectedOrganisationUnit("");
-
-    assertThat(result).isEqualTo(Map.of());
-  }
-
-  @Test
-  void getPreselectedOrganisation_verifyMethodCall() {
-    generalDetailsFormService.getPreSelectedOrganisationUnit("1");
-
-    verify(organisationUnitQueryService, times(1)).getPreSelectedOrganisationUnit(1);
   }
 
   @Test
@@ -397,13 +363,8 @@ class GeneralDetailsFormServiceTest {
   private GeneralDetail getGeneralDetail(SubmissionDetail submissionDetail) {
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(submissionDetail);
-    generalDetail.setResourceName("prospect name");
-    generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     generalDetail.setResourceLocatedInUkcs(true);
     generalDetail.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
-    generalDetail.setOrganisationId(1);
-    generalDetail.setOrganisationRegisteredNumber("25");
-    generalDetail.setOrganisationName("name");
     return generalDetail;
   }
 }

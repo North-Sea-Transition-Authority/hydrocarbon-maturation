@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -145,6 +146,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     var sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     var opportunityDetailsView = OpportunityDetailsSummaryView.empty();
     var trapPropertiesSummaryView = TrapPropertiesSummaryView.empty();
+    var resourceDetailSummaryView = ResourceDetailSummaryView.empty("resourceType");
     var modelAndView = new ModelAndView(VIEW_NAME)
         .addObject("generalDetailsSummaryView", generalDetailSummaryView)
         .addObject("dryWellDetailsSummaryView", dryWellDetailsSummaryView)
@@ -152,7 +154,8 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .addObject("permeabilitySummaryView", permeabilityDetailSummaryView)
         .addObject("opportunityDetailsSummaryView", opportunityDetailsView)
         .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
-        .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView);
+        .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
+        .addObject("resourceDetailSummaryView", resourceDetailSummaryView);
 
     doReturn(modelAndView).when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(submissionDetail, VIEW_NAME);
   }

@@ -15,8 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 
 @Component
@@ -24,19 +24,19 @@ public class TeamMembershipInterceptorRule implements SubmissionInterceptorSecur
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TeamMembershipInterceptorRule.class);
 
-  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final PermissionService permissionService;
   private final ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
   private final IndustryTeamService industryTeamService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
-  public TeamMembershipInterceptorRule(GeneralDetailsPersistenceService generalDetailsPersistenceService,
+  public TeamMembershipInterceptorRule(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                        PermissionService permissionService,
                                        ResponsibleTeamPersistenceService responsibleTeamPersistenceService,
                                        IndustryTeamService industryTeamService,
                                        OrganisationUnitQueryService organisationUnitQueryService) {
-    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.permissionService = permissionService;
     this.responsibleTeamPersistenceService = responsibleTeamPersistenceService;
     this.industryTeamService = industryTeamService;
@@ -61,9 +61,9 @@ public class TeamMembershipInterceptorRule implements SubmissionInterceptorSecur
       return SecurityRuleResult.continueAsNormal();
     }
 
-    var responsibleOrganisationId = generalDetailsPersistenceService
-        .getGeneralDetailBySubmissionDetail(submissionDetail)
-        .map(GeneralDetail::getOrganisationId)
+    var responsibleOrganisationId = resourceDetailsPersistenceService
+        .getResourceDetailBySubmissionDetail(submissionDetail)
+        .map(ResourceDetail::getOrganisationId)
         .orElse(null);
     var organisationGroups = organisationUnitQueryService
         .findOrganisationGroupIdsByUnitId(responsibleOrganisationId);

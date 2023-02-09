@@ -15,11 +15,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
@@ -38,8 +35,6 @@ class GeneralDetailsPersistenceServiceTest {
   @Mock
   private static LicenceApplicationQueryService licenceApplicationQueryService;
   @Mock
-  private static OrganisationUnitQueryService organisationUnitQueryService;
-  @Mock
   private static LicencePersistenceService licencePersistenceService;
 
   private static SubmissionDetail submissionDetail;
@@ -50,7 +45,6 @@ class GeneralDetailsPersistenceServiceTest {
         generalDetailsRepository,
         quadrantAndBlockPersistenceService,
         licenceApplicationQueryService,
-        organisationUnitQueryService,
         licencePersistenceService);
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
@@ -60,19 +54,10 @@ class GeneralDetailsPersistenceServiceTest {
   @Test
   void saveGeneralDetails_whenGivenAForm_verifyCreatedEntity() {
     var form = new GeneralDetailsForm();
-    form.setResourceName("prospect name");
-    form.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     form.setResourceLocatedInUkcs(true);
     form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
-    form.setResponsibleOrganisationId("1");
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
-
-    when(organisationUnitQueryService.findOrganisationUnit(1))
-        .thenReturn(Optional.of(OrganisationUnitTestUtil.Builder()
-                .withOrganisationId(1)
-                .withOrganisationName("name")
-                .withOrganisationNumber("25").build()));
 
     generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
 
@@ -81,22 +66,16 @@ class GeneralDetailsPersistenceServiceTest {
 
     assertThat(savedGeneralDetail)
         .extracting(
-            GeneralDetail::getResourceName,
-            GeneralDetail::getOnshoreOffshore,
             GeneralDetail::getResourceLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
             GeneralDetail::getInformationSource,
-            GeneralDetail::getOtherInformationSource,
-            GeneralDetail::getOrganisationId
+            GeneralDetail::getOtherInformationSource
         )
         .containsExactly(
-            form.getResourceName(),
-            form.getOnshoreOffshore(),
             form.getResourceLocatedInUkcs(),
             form.getPercentageLocatedInUkcs(),
             form.getInformationSource(),
-            form.getOtherSourceOfInformation(),
-            Integer.valueOf(form.getResponsibleOrganisationId())
+            form.getOtherSourceOfInformation()
         );
   }
 
@@ -238,16 +217,12 @@ class GeneralDetailsPersistenceServiceTest {
 
     assertThat(savedGeneralDetail)
         .extracting(
-            GeneralDetail::getResourceName,
-            GeneralDetail::getOnshoreOffshore,
             GeneralDetail::getResourceLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
             GeneralDetail::getInformationSource,
             GeneralDetail::getOtherInformationSource
         )
         .containsExactly(
-            null,
-            null,
             null,
             null,
             form.getInformationSource(),
@@ -259,13 +234,6 @@ class GeneralDetailsPersistenceServiceTest {
   void getGeneralDetailBySubmissionId_verifyMethodCall() {
     generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail);
     verify(generalDetailsRepository, times(1)).findBySubmissionDetail(submissionDetail);
-  }
-
-  @Test
-  void getGeneralDetailById_verifyMethodCall() {
-    var id = UUID.randomUUID();
-    generalDetailsPersistenceService.getGeneralDetailById(id);
-    verify(generalDetailsRepository, times(1)).findById(id);
   }
 
   @Test
@@ -285,43 +253,5 @@ class GeneralDetailsPersistenceServiceTest {
     assertThatThrownBy(() ->  generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail))
         .isExactlyInstanceOf(RemiEntityNotFoundException.class)
         .hasMessage("Could not find general detail for submission detail %s".formatted(submissionDetail.getId()));
-  }
-
-  @Test
-  void getGeneralDetailsByName_verifyMethodCall() {
-    generalDetailsPersistenceService.getGeneralDetailsByName("prospect");
-    verify(generalDetailsRepository, times(1)).findByResourceNameContainingIgnoreCase("prospect");
-  }
-
-  @Test
-  void createInitialGeneralDetail_verifyMethodCall() {
-    var submissionDetail = new SubmissionDetail();
-    var resourceForm = new NewResourceForm();
-    var captor = ArgumentCaptor.forClass(GeneralDetail.class);
-    var organisationUnit = OrganisationUnitTestUtil.Builder().build();
-    when(organisationUnitQueryService.findOrganisationUnit(1))
-        .thenReturn(Optional.of(organisationUnit));
-    resourceForm.setResourceName("name");
-    resourceForm.setResponsibleOrganisationId("1");
-    resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    generalDetailsPersistenceService.createInitialGeneralDetail(resourceForm, submissionDetail);
-
-    verify(generalDetailsRepository).save(captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(
-            GeneralDetail::getSubmissionDetail,
-            GeneralDetail::getResourceName,
-            GeneralDetail::getOrganisationId,
-            GeneralDetail::getOrganisationName,
-            GeneralDetail::getOrganisationRegisteredNumber,
-            GeneralDetail::getOnshoreOffshore)
-        .containsExactly(
-            submissionDetail,
-            resourceForm.getResourceName(),
-            organisationUnit.getOrganisationUnitId(),
-            organisationUnit.getName(),
-            organisationUnit.getRegisteredNumber(),
-            resourceForm.getOnshoreOffshore());
   }
 }

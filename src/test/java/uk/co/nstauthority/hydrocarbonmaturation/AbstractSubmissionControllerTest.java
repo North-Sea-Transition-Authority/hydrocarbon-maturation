@@ -32,8 +32,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamT
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
@@ -55,7 +55,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 public abstract class AbstractSubmissionControllerTest extends AbstractControllerTest{
 
   @MockBean
-  protected GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  protected ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @MockBean
   protected ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
@@ -104,11 +104,11 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(false);
-    var generalDetail = new GeneralDetail();
-    generalDetail.setOrganisationId(1);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(generalDetail));
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(generalDetail.getOrganisationId()))
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
         .thenReturn(List.of(1));
     when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(true);
@@ -135,11 +135,11 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(false);
-    var generalDetail = new GeneralDetail();
-    generalDetail.setOrganisationId(1);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(generalDetail));
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(generalDetail.getOrganisationId()))
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
         .thenReturn(List.of(1));
     when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(false);

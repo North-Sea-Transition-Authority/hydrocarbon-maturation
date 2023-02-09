@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,10 +91,7 @@ class GeneralDetailsFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
-            entry("resourceName", Set.of("resourceName.required")),
-            entry("responsibleOrganisationId", Set.of("responsibleOrganisationId.required")),
             entry("resourceOnALicence", Set.of("resourceOnALicence.required")),
-            entry("onshoreOffshore", Set.of("onshoreOffshore.required")),
             entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
             entry("informationSource", Set.of("informationSource.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
@@ -176,7 +172,6 @@ class GeneralDetailsFormValidatorTest {
   @Test
   void partialValidation_withValidForm() {
     var form = new GeneralDetailsForm();
-    form.setResourceName("Prospect name");
     form.setResourceLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
 
@@ -186,22 +181,8 @@ class GeneralDetailsFormValidatorTest {
   }
 
   @Test
-  void partialValidation_noProspectName() {
-    var form = new GeneralDetailsForm();
-
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.PARTIAL);
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("resourceName", Set.of("resourceName.required"))
-        );
-  }
-
-  @Test
   void partialValidation_resourceLocatedInUkcs_invalidPercentage() {
     var form = new GeneralDetailsForm();
-    form.setResourceName("Prospect name");
     form.setResourceLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("abc"));
     var bindingResult = validateGeneralDetailsForm(form, ValidationType.PARTIAL);
@@ -236,27 +217,6 @@ class GeneralDetailsFormValidatorTest {
 
   @ParameterizedTest
   @EnumSource(ValidationType.class)
-  void validate_OrganisationIdNull_whenRemovedAndInPreviousSubmission(ValidationType validationType) {
-    var form = getValidForm();
-    form.setResponsibleOrganisationId(null);
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var generalDetail = new GeneralDetail();
-    generalDetail.setOrganisationId(2);
-    generalDetailsFormValidator.validate(
-        form,
-        bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.of(generalDetail),
-            false));
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("responsibleOrganisationId", Set.of("responsibleOrganisationId.required"))
-        );
-  }
-
-  @ParameterizedTest
-  @EnumSource(ValidationType.class)
   void validate_whenResourceNotOnLicence_WhenInPreviousSubmission(ValidationType validationType) {
     var form = getValidForm();
     form.setLicences(List.of("1"));
@@ -269,7 +229,7 @@ class GeneralDetailsFormValidatorTest {
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.of(generalDetail),
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, generalDetail,
             true));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -293,7 +253,7 @@ class GeneralDetailsFormValidatorTest {
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, Optional.of(generalDetail),
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, generalDetail,
             true));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
@@ -321,7 +281,7 @@ class GeneralDetailsFormValidatorTest {
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(ValidationType.FULL, submissionDetail, Optional.of(generalDetail),
+        new GeneralDetailsFormValidatorHints(ValidationType.FULL, submissionDetail, generalDetail,
             false));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
@@ -348,7 +308,7 @@ class GeneralDetailsFormValidatorTest {
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(ValidationType.FULL, submissionDetail, Optional.of(generalDetail),
+        new GeneralDetailsFormValidatorHints(ValidationType.FULL, submissionDetail, generalDetail,
             true));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
@@ -378,19 +338,16 @@ class GeneralDetailsFormValidatorTest {
         form,
         bindingResult,
         new GeneralDetailsFormValidatorHints(validationType, submissionDetail,
-            Optional.empty(), false));
+            null, false));
     return bindingResult;
   }
 
   private GeneralDetailsForm getValidForm() {
     var form = new GeneralDetailsForm();
-    form.setResourceName("Prospect name");
-    form.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     form.setResourceLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
     form.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
     form.setQuadrantBlocks(List.of("27/10"));
-    form.setResponsibleOrganisationId("25");
     form.setLicences(List.of("122"));
     form.setResourceOnALicence(true);
     return form;

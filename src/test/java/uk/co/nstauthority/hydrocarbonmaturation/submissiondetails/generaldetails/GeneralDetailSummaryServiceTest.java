@@ -54,15 +54,12 @@ class GeneralDetailSummaryServiceTest {
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
     assertThat(view)
         .extracting(
-            GeneralDetailSummaryView::resourceName,
-            GeneralDetailSummaryView::onshoreOffshore,
             GeneralDetailSummaryView::informationSource,
             GeneralDetailSummaryView::percentageLocatedInUkcs,
             GeneralDetailSummaryView::resourceLocatedInUkcs,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
-            GeneralDetailSummaryView::organisationNameAndNumber,
             GeneralDetailSummaryView::isResourceOnALicence,
             GeneralDetailSummaryView::showLicences,
             GeneralDetailSummaryView::licenceDisplayList
@@ -71,12 +68,9 @@ class GeneralDetailSummaryServiceTest {
             "",
             "",
             "",
-            "",
-            "",
             false,
             "",
             Collections.emptyList(),
-            "",
             "",
             true,
             Collections.emptyList()
@@ -105,45 +99,34 @@ class GeneralDetailSummaryServiceTest {
     resource.setType(ResourceType.PROSPECT);
     submissionDetail.setResourceId(resource);
     generalDetail.setSubmissionDetail(submissionDetail);
-    generalDetail.setResourceName("prospect");
-    generalDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     generalDetail.setInformationSource(InformationSource.LICENCE_APPLICATION);
     generalDetail.setLicenceApplicationReference("licence application ref");
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(2.5));
     generalDetail.setResourceLocatedInUkcs(false);
-    generalDetail.setOrganisationName("name");
-    generalDetail.setOrganisationRegisteredNumber("25");
-    generalDetail.setOrganisationId(25);
     generalDetail.setResourceOnALicence(true);
 
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
 
     assertThat(view)
         .extracting(
-            GeneralDetailSummaryView::resourceName,
-            GeneralDetailSummaryView::onshoreOffshore,
             GeneralDetailSummaryView::informationSource,
             GeneralDetailSummaryView::percentageLocatedInUkcs,
             GeneralDetailSummaryView::resourceLocatedInUkcs,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
-            GeneralDetailSummaryView::organisationNameAndNumber,
             GeneralDetailSummaryView::isResourceOnALicence,
             GeneralDetailSummaryView::licenceDisplayList,
             GeneralDetailSummaryView::showLicences,
             GeneralDetailSummaryView::resourceType
         )
         .containsExactly(
-            generalDetail.getResourceName(),
-            generalDetail.getOnshoreOffshore().getDisplayName(),
             generalDetail.getInformationSource().getDisplayName(),
             generalDetail.getPercentageLocatedInUkcs().toString() + "%",
             "No",
             true,
             generalDetail.getLicenceApplicationReference(),
             List.of(quadrantBlockRef1, quadrantBlockRef2),
-            "name (25)",
             "Yes",
             List.of(licence1.getLicenceReference(), licence2.getLicenceReference()),
             true,

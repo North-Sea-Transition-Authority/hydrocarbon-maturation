@@ -15,6 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -23,15 +25,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 class GeneralDetailsTaskListSectionService implements TaskListSectionService {
 
   private final GeneralDetailSubmissionService generalDetailSubmissionService;
+  private final ResourceDetailsSubmissionService resourceDetailsSubmissionService;
   private final RelatedProspectsSubmissionService relatedProspectsSubmissionService;
   private final PermissionService permissionService;
   private final UserDetailService userDetailService;
 
   @Autowired
   GeneralDetailsTaskListSectionService(GeneralDetailSubmissionService generalDetailSubmissionService,
+                                       ResourceDetailsSubmissionService resourceDetailsSubmissionService,
                                        RelatedProspectsSubmissionService relatedProspectsSubmissionService,
-                                       PermissionService permissionService, UserDetailService userDetailService) {
+                                       PermissionService permissionService,
+                                       UserDetailService userDetailService) {
     this.generalDetailSubmissionService = generalDetailSubmissionService;
+    this.resourceDetailsSubmissionService = resourceDetailsSubmissionService;
     this.relatedProspectsSubmissionService = relatedProspectsSubmissionService;
     this.permissionService = permissionService;
     this.userDetailService = userDetailService;
@@ -46,17 +52,24 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    var generalDetailSectionSubmittable = generalDetailSubmissionService.isSectionSubmittable(submissionDetail);
+    var sectionsSubmittable = generalDetailSubmissionService.isSectionSubmittable(submissionDetail)
+        && resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail);
 
     if (isRelatedProspectsRequired(submissionDetail)) {
-      return generalDetailSectionSubmittable && relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail);
+      return sectionsSubmittable && relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail);
     }
 
-    return generalDetailSectionSubmittable;
+    return sectionsSubmittable;
   }
 
   private List<TaskListItem> getTaskListItemsBySubmissionType(SubmissionDetail submissionDetail) {
     var listOfItems = new ArrayList<TaskListItem>();
+
+    listOfItems.add(
+        new TaskListItem("Resource details",
+            TaskListLabel.notStartedOrComplete(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)),
+            ReverseRouter.route(on(ResourceDetailsController.class).getResourceDetails(submissionDetail.getId())))
+    );
 
     listOfItems.add(
         new TaskListItem("General details",

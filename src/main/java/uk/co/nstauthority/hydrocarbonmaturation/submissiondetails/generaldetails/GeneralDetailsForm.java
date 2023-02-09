@@ -7,9 +7,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 
 class GeneralDetailsForm implements SubmissionForm {
 
-  private String resourceName;
-  //TODO HM-129
-  private OnshoreOffshore onshoreOffshore;
   private Boolean resourceLocatedInUkcs;
   private DecimalInput percentageLocatedInUkcs;
   //TODO HM-129
@@ -21,33 +18,8 @@ class GeneralDetailsForm implements SubmissionForm {
   private String licenceSelect;
   private InformationSource informationSource;
   private String licenceApplication;
-  private String responsibleOrganisationId;
   private String otherSourceOfInformation;
   private Boolean resourceOnALicence;
-
-  public String getResponsibleOrganisationId() {
-    return responsibleOrganisationId;
-  }
-
-  public void setResponsibleOrganisationId(String responsibleOrganisationId) {
-    this.responsibleOrganisationId = responsibleOrganisationId;
-  }
-
-  public String getResourceName() {
-    return resourceName;
-  }
-
-  public void setResourceName(String resourceName) {
-    this.resourceName = resourceName;
-  }
-
-  public OnshoreOffshore getOnshoreOffshore() {
-    return onshoreOffshore;
-  }
-
-  public void setOnshoreOffshore(OnshoreOffshore onshoreOffshore) {
-    this.onshoreOffshore = onshoreOffshore;
-  }
 
   public Boolean getResourceLocatedInUkcs() {
     return resourceLocatedInUkcs;

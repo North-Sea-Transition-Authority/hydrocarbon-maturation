@@ -1,0 +1,221 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+
+@ExtendWith(MockitoExtension.class)
+class ResourceDetailsPersistenceServiceTest {
+
+  @Mock
+  private ResourceDetailsRepository resourceDetailsRepository;
+
+  @Mock
+  private OrganisationUnitQueryService organisationUnitQueryService;
+
+  @InjectMocks
+  private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+
+  private SubmissionDetail submissionDetail;
+
+  @BeforeEach
+  void setUp() {
+    submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.PROSPECT_UPDATE);
+  }
+
+
+  @Test
+  void createInitialResourceDetail_verifyMethodCall() {
+    var submissionDetail = new SubmissionDetail();
+    var resourceForm = new ResourceDetailsForm();
+    var captor = ArgumentCaptor.forClass(ResourceDetail.class);
+    var organisationUnit = OrganisationUnitTestUtil.Builder().build();
+    when(organisationUnitQueryService.findOrganisationUnit(1))
+        .thenReturn(Optional.of(organisationUnit));
+    resourceForm.setResourceName("name");
+    resourceForm.setResponsibleOrganisationId("1");
+    resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    resourceDetailsPersistenceService.createInitialResourceDetail(resourceForm, submissionDetail);
+
+    verify(resourceDetailsRepository).save(captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+           ResourceDetail::getSubmissionDetail,
+           ResourceDetail::getResourceName,
+           ResourceDetail::getOrganisationId,
+           ResourceDetail::getOrganisationName,
+           ResourceDetail::getOrganisationRegisteredNumber,
+           ResourceDetail::getOnshoreOffshore)
+        .containsExactly(
+            submissionDetail,
+            resourceForm.getResourceName(),
+            organisationUnit.getOrganisationUnitId(),
+            organisationUnit.getName(),
+            organisationUnit.getRegisteredNumber(),
+            resourceForm.getOnshoreOffshore());
+  }
+
+  @Test
+  void saveResourceDetails_whenOrganisationUnitPresent_verifyMethodCall() {
+    var submissionDetail = new SubmissionDetail();
+    var resourceForm = new ResourceDetailsForm();
+    var captor = ArgumentCaptor.forClass(ResourceDetail.class);
+    var organisationUnit = OrganisationUnitTestUtil.Builder().build();
+    when(organisationUnitQueryService.findOrganisationUnit(1))
+        .thenReturn(Optional.of(organisationUnit));
+    resourceForm.setResourceName("name");
+    resourceForm.setResponsibleOrganisationId("1");
+    resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail);
+
+    verify(resourceDetailsRepository).save(captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            ResourceDetail::getSubmissionDetail,
+            ResourceDetail::getResourceName,
+            ResourceDetail::getOrganisationId,
+            ResourceDetail::getOrganisationName,
+            ResourceDetail::getOrganisationRegisteredNumber,
+            ResourceDetail::getOnshoreOffshore)
+        .containsExactly(
+            submissionDetail,
+            resourceForm.getResourceName(),
+            organisationUnit.getOrganisationUnitId(),
+            organisationUnit.getName(),
+            organisationUnit.getRegisteredNumber(),
+            resourceForm.getOnshoreOffshore());
+  }
+
+  @Test
+  void saveResourceDetails_whenOrganisationUnitIdNull_verifyMethodCall() {
+    var submissionDetail = new SubmissionDetail();
+    var resourceForm = new ResourceDetailsForm();
+    var captor = ArgumentCaptor.forClass(ResourceDetail.class);
+    resourceForm.setResourceName("name3");
+    resourceForm.setResponsibleOrganisationId("2");
+    when(organisationUnitQueryService.findOrganisationUnit(2))
+        .thenReturn(Optional.empty());
+    resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail);
+
+    verify(resourceDetailsRepository).save(captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            ResourceDetail::getSubmissionDetail,
+            ResourceDetail::getResourceName,
+            ResourceDetail::getOrganisationId,
+            ResourceDetail::getOrganisationName,
+            ResourceDetail::getOrganisationRegisteredNumber,
+            ResourceDetail::getOnshoreOffshore)
+        .containsExactly(
+            submissionDetail,
+            resourceForm.getResourceName(),
+            null,
+            null,
+            null,
+            resourceForm.getOnshoreOffshore());
+  }
+
+  @Test
+  void saveResourceDetails_whenOrganisationUnitIdNotInEPA_verifyMethodCall() {
+    var submissionDetail = new SubmissionDetail();
+    var resourceForm = new ResourceDetailsForm();
+    var captor = ArgumentCaptor.forClass(ResourceDetail.class);
+    resourceForm.setResourceName("name");
+    resourceForm.setResponsibleOrganisationId(null);
+    resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail);
+
+    verify(resourceDetailsRepository).save(captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            ResourceDetail::getSubmissionDetail,
+            ResourceDetail::getResourceName,
+            ResourceDetail::getOrganisationId,
+            ResourceDetail::getOrganisationName,
+            ResourceDetail::getOrganisationRegisteredNumber,
+            ResourceDetail::getOnshoreOffshore)
+        .containsExactly(
+            submissionDetail,
+            resourceForm.getResourceName(),
+            null,
+            null,
+            null,
+            resourceForm.getOnshoreOffshore());
+  }
+
+  @Test
+  void getResourceDetailOrThrow_verifyMethodCall() {
+    var resourceDetail = new ResourceDetail();
+
+    when(resourceDetailsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    assertThat(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail))
+        .isEqualTo(resourceDetail);
+  }
+
+  @Test
+  void getResourceDetailOrThrow_assertThrow() {
+    when(resourceDetailsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+    assertThatThrownBy(() -> resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail))
+        .isExactlyInstanceOf(RemiEntityNotFoundException.class)
+        .hasMessage("Could not find resource detail for submission detail %s".formatted(submissionDetail.getId()));
+  }
+
+  @Test
+  void getResourceDetailById_assertReturn() {
+    var id = UUID.randomUUID();
+    var resourceDetails = new ResourceDetail();
+    when(resourceDetailsRepository.findById(id))
+        .thenReturn(Optional.of(resourceDetails));
+    var result = resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(id);
+    assertThat(result).isEqualTo(resourceDetails);
+  }
+
+  @Test
+  void getResourceDetailById_assertThrown() {
+    var id = UUID.randomUUID();
+    when(resourceDetailsRepository.findById(id))
+        .thenReturn(Optional.empty());
+    assertThatThrownBy(() -> resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(id))
+        .isExactlyInstanceOf(RemiEntityNotFoundException.class)
+        .hasMessage("Could not find resource detail by ID %s".formatted(id));
+  }
+
+  @Test
+  void getGeneralDetailBySubmissionId_verifyMethodCall() {
+    resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail);
+    verify(resourceDetailsRepository, times(1)).findBySubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getResourceDetailsByName_verifyMethodCall() {
+    resourceDetailsPersistenceService.getResourceDetailsByName("prospect");
+    verify(resourceDetailsRepository, times(1))
+        .findByResourceNameContainingIgnoreCase("prospect");
+  }
+}

@@ -41,13 +41,15 @@ class SubmissionWorkAreaQueryService {
             field("s.id"),
             field("s.submission_type"),
             field("s.status"),
-            field("gd.resource_name"),
+            field("rd.resource_name"),
             field("tp.centre_of_interest_quadrant_block"),
-            field("gd.organisation_id"),
+            field("rd.organisation_id"),
             DSL.arrayAgg(field("gdl.licence_id")).filterWhere(field("gdl.licence_id").isNotNull()),
             field("s.created_timestamp"),
             field("s.submitted_timestamp"))
         .from(jooqSchemaProviderService.remiTable("submission_details").as("s")
+        .leftJoin(jooqSchemaProviderService.remiTable("resource_details").as("rd"))
+            .on(field("rd.submission_detail_id").eq(field("s.id")))
         .leftJoin(jooqSchemaProviderService.remiTable("general_details").as("gd"))
             .on(field("gd.submission_detail_id").eq(field("s.id")))
         .leftJoin(jooqSchemaProviderService.remiTable("trap_properties").as("tp"))
@@ -59,9 +61,9 @@ class SubmissionWorkAreaQueryService {
         .where(getConditions()))
         .groupBy(
             field("s.id"),
-            field("gd.resource_name"),
+            field("rd.resource_name"),
             field("tp.centre_of_interest_quadrant_block"),
-            field("gd.organisation_id"))
+            field("rd.organisation_id"))
         .orderBy(field("s.submitted_timestamp").desc().nullsLast(),
             field("s.created_timestamp").desc())
         .fetchInto(SubmissionWorkAreaQueryResult.class);

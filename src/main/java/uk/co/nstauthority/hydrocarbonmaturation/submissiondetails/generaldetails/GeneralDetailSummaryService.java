@@ -51,14 +51,11 @@ public class GeneralDetailSummaryService {
     }
     return new GeneralDetailSummaryView(
         detail.getSubmissionDetail().getSubmissionType(),
-        getResourceNameDisplay(detail),
-        getOnShoreOffShoreDisplay(detail),
         BooleanUtil.yesNoFromBoolean(detail.getResourceOnALicence(), ""),
         getIsResourceOnALicenceBoolean(detail),
         BooleanUtil.yesNoFromBoolean(detail.getResourceLocatedInUkcs(), ""),
         getPercentageLocatedInUkcs(detail),
         getInformationSourceDisplay(detail),
-        getOrganisationDisplay(detail),
         isLicenceApplicationInfoSource,
         licenceApplication,
         getQuadBlocksDisplay(quadrantAndBlocks),
@@ -90,21 +87,6 @@ public class GeneralDetailSummaryService {
         .toList();
   }
 
-  private String getOrganisationDisplay(GeneralDetail detail) {
-    var organisationName = detail.getOrganisationName();
-    var organisationRegisteredNumber = detail.getOrganisationRegisteredNumber();
-    var organisationDisplay = "";
-    if (organisationName != null) {
-      if (organisationRegisteredNumber != null) {
-        organisationDisplay = "%s (%s)".formatted(organisationName,
-            organisationRegisteredNumber);
-      } else {
-        organisationDisplay = organisationName;
-      }
-    }
-    return organisationDisplay;
-  }
-
   private String getInformationSourceDisplay(GeneralDetail detail) {
     var informationSourceDisplay = "";
     var informationSource = detail.getInformationSource();
@@ -116,18 +98,6 @@ public class GeneralDetailSummaryService {
       }
     }
     return informationSourceDisplay;
-  }
-
-  private String getOnShoreOffShoreDisplay(GeneralDetail detail) {
-    return detail.getOnshoreOffshore() != null
-        ? detail.getOnshoreOffshore().getDisplayName()
-        : "";
-  }
-
-  private String getResourceNameDisplay(GeneralDetail detail) {
-    return detail.getResourceName() != null
-        ? detail.getResourceName()
-        : "";
   }
 
   private String getPercentageLocatedInUkcs(GeneralDetail detail) {

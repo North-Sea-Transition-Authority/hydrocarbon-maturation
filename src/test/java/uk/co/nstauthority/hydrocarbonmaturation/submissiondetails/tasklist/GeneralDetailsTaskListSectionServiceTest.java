@@ -25,6 +25,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -36,6 +38,8 @@ class GeneralDetailsTaskListSectionServiceTest {
   private GeneralDetailSubmissionService generalDetailSubmissionService;
   @Mock
   private RelatedProspectsSubmissionService relatedProspectsSubmissionService;
+  @Mock
+  private ResourceDetailsSubmissionService resourceDetailsSubmissionService;
   @Mock
   private UserDetailService userDetailService;
   @Mock
@@ -66,6 +70,10 @@ class GeneralDetailsTaskListSectionServiceTest {
             TaskListSection::displayName,
             TaskListSection::displayOrder)
         .containsExactly(List.of(
+            new TaskListItem("Resource details",
+                TaskListLabel.NOT_COMPLETE,
+                ReverseRouter.route(on(ResourceDetailsController.class)
+                    .getResourceDetails(submissionDetail.getId()))),
             new TaskListItem("General details",
                 TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(GeneralDetailsController.class)
@@ -93,14 +101,18 @@ class GeneralDetailsTaskListSectionServiceTest {
             TaskListSection::displayName,
             TaskListSection::displayOrder)
         .containsExactly(List.of(
+              new TaskListItem("Resource details",
+                  TaskListLabel.NOT_COMPLETE,
+                  ReverseRouter.route(on(ResourceDetailsController.class)
+                      .getResourceDetails(submissionDetail.getId()))),
               new TaskListItem("General details",
                   TaskListLabel.NOT_COMPLETE,
                   ReverseRouter.route(on(GeneralDetailsController.class)
                       .getGeneralDetails(submissionDetail.getId(), null))),
-                new TaskListItem("Related prospects",
-                    TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(RelatedProspectsController.class)
-                        .getRelatedProspects(submissionDetail.getId(), null)))
+              new TaskListItem("Related prospects",
+                  TaskListLabel.NOT_COMPLETE,
+                  ReverseRouter.route(on(RelatedProspectsController.class)
+                      .getRelatedProspects(submissionDetail.getId(), null)))
             ),
             "General details",
             10
@@ -125,11 +137,13 @@ class GeneralDetailsTaskListSectionServiceTest {
             TaskListSection::displayName,
             TaskListSection::displayOrder)
         .containsExactly(List.of(
-                new TaskListItem("General details",
-                    TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(GeneralDetailsController.class)
-                        .getGeneralDetails(submissionDetail.getId(), null)))
-            ),
+            new TaskListItem("Resource details", TaskListLabel.NOT_COMPLETE,
+                ReverseRouter.route(on(ResourceDetailsController.class)
+                    .getResourceDetails(submissionDetail.getId()))),
+            new TaskListItem("General details",
+                TaskListLabel.NOT_COMPLETE,
+                ReverseRouter.route(on(GeneralDetailsController.class)
+                    .getGeneralDetails(submissionDetail.getId(), null)))),
             "General details",
             10
         );
@@ -141,6 +155,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     submissionDetail.setSubmissionType(submissionType);
 
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -161,6 +176,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     submissionDetail.setSubmissionType(submissionType);
 
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
@@ -176,6 +192,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     submissionDetail.setSubmissionType(submissionType);
 
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
@@ -189,6 +206,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     submissionDetail.setSubmissionType(submissionType);
 
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);

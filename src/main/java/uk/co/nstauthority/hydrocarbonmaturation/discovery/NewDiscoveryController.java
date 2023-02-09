@@ -18,8 +18,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.newresource.NewResourceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -46,12 +46,12 @@ public class NewDiscoveryController {
   }
 
   @GetMapping
-  public ModelAndView getNewDiscoveryPage(@ModelAttribute("form") NewResourceForm form) {
+  public ModelAndView getNewDiscoveryPage(@ModelAttribute("form") ResourceDetailsForm form) {
     return getNewDiscoveryPageModelAndView(form);
   }
 
   @PostMapping
-  public ModelAndView createDiscovery(@Valid @ModelAttribute("form") NewResourceForm form,
+  public ModelAndView createDiscovery(@Valid @ModelAttribute("form") ResourceDetailsForm form,
                                       BindingResult bindingResult) {
     bindingResult = startDiscoveryService.validateNewDiscovery(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
@@ -63,7 +63,7 @@ public class NewDiscoveryController {
     );
   }
 
-  private ModelAndView getNewDiscoveryPageModelAndView(NewResourceForm form) {
+  private ModelAndView getNewDiscoveryPageModelAndView(ResourceDetailsForm form) {
     return new ModelAndView("remi/prospect/newResource")
         .addObject("backLinkUrl", ReverseRouter.route(on(StartDiscoveryController.class).getStartPage()))
         .addObject("actionUrl", ReverseRouter.route(on(NewDiscoveryController.class)

@@ -1,15 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 class SearchResourceRecordsForm {
-  private String generalDetailIdForResourceSubmission;
+  private String resourceDetailIdForResourceSubmission;
   private Integer responsibleOrganisationId;
 
-  public String getGeneralDetailIdForResourceSubmission() {
-    return generalDetailIdForResourceSubmission;
+  public String getResourceDetailIdForResourceSubmission() {
+    return resourceDetailIdForResourceSubmission;
   }
 
-  public void setGeneralDetailIdForResourceSubmission(String generalDetailIdForResourceSubmission) {
-    this.generalDetailIdForResourceSubmission = generalDetailIdForResourceSubmission;
+  public void setResourceDetailIdForResourceSubmission(String resourceDetailIdForResourceSubmission) {
+    this.resourceDetailIdForResourceSubmission = resourceDetailIdForResourceSubmission;
   }
 
   public Integer getResponsibleOrganisationId() {

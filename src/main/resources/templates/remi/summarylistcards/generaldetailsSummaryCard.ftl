@@ -3,26 +3,19 @@
 
 <#macro generalDetailCard generalDetailValues>
   <@fdsSummaryList.summaryListCard headingText="General details" summaryListId="generaldetails">
-    <@fdsSummaryList.summaryListRowNoAction keyText="${generalDetailValues.resourceType()?capitalize} name">
-      ${generalDetailValues.resourceName()}
-    </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Responsible organisation">
-      ${generalDetailValues.organisationNameAndNumber()}
-    </@fdsSummaryList.summaryListRowNoAction>
-
-    <@fdsSummaryList.summaryListRowNoAction keyText="Is this ${generalDetailValues.resourceType()} on a licence?">
-      ${generalDetailValues.isResourceOnALicence()}
-    </@fdsSummaryList.summaryListRowNoAction>
-    <#if generalDetailValues.showLicences()>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Licences">
-        <#list generalDetailValues.licenceDisplayList() as licence>
-          <div>${licence}</div>
-        </#list>
+    <#if generalDetailValues.submissionType() != "RELINQUISHMENT_PROSPECT"
+      && generalDetailValues.submissionType() != "RELINQUISHMENT_DISCOVERY" >
+      <@fdsSummaryList.summaryListRowNoAction keyText="Is this ${generalDetailValues.resourceType()} on a licence?">
+        ${generalDetailValues.isResourceOnALicence()}
       </@fdsSummaryList.summaryListRowNoAction>
+      <#if generalDetailValues.showLicences()>
+        <@fdsSummaryList.summaryListRowNoAction keyText="Licences">
+          <#list generalDetailValues.licenceDisplayList() as licence>
+            <div>${licence}</div>
+          </#list>
+        </@fdsSummaryList.summaryListRowNoAction>
+      </#if>
     </#if>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Onshore or offshore">
-      ${generalDetailValues.onshoreOffshore()}
-    </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Wholly located within UKCS">
       ${generalDetailValues.resourceLocatedInUkcs()}
     </@fdsSummaryList.summaryListRowNoAction>
@@ -42,9 +35,9 @@
       </#if>
     </#if>
     <@fdsSummaryList.summaryListRowNoAction keyText="Quadrant and blocks">
-        <#list generalDetailValues.quadAndBlockDisplayList() as quadAndBlock>
-          <div>${quadAndBlock}</div>
-        </#list>
+      <#list generalDetailValues.quadAndBlockDisplayList() as quadAndBlock>
+        <div>${quadAndBlock}</div>
+      </#list>
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 </#macro>

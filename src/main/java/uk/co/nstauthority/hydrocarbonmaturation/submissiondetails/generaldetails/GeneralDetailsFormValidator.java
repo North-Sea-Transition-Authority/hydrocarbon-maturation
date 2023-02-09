@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   private final LicenceQueryService licenceQueryService;
   private SubmissionType submissionType;
   private boolean isLicencePresent;
-  private Optional<GeneralDetail> latestApprovedGeneralDetail;
+  private GeneralDetail latestApprovedGeneralDetail;
   private boolean missingLicenceErrorPresent;
 
   @Autowired
@@ -68,33 +67,23 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   }
 
   private void validateAlways(GeneralDetailsForm form, Errors errors) {
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "resourceName", "resourceName.required", "Enter the resource name");
-
-    latestApprovedGeneralDetail.ifPresent(generalDetail -> {
-      if (generalDetail.getOrganisationId() != null) {
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId",
-            "responsibleOrganisationId.required",
-            "You cannot remove the responsible organisation from a resource that has " +
-                "a responsible organisation on an earlier approved submission");
+    if (latestApprovedGeneralDetail != null
+        && BooleanUtils.isTrue(latestApprovedGeneralDetail.getResourceOnALicence())
+        && submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
+        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT) {
+      if (form.getResourceOnALicence() == null || !form.getResourceOnALicence()) {
+        errors.rejectValue("resourceOnALicence",
+            "resourceOnALicence.required",
+            "You cannot remove all licences from a resource that has " +
+                "a licence on an earlier approved submission");
+        missingLicenceErrorPresent = true;
+      } else if (isLicencePresent && CollectionUtils.isEmpty(form.getLicences())) {
+        errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
+            "You cannot remove all licences from a resource that has " +
+                "a licence on an earlier approved submission");
+        missingLicenceErrorPresent = true;
       }
-
-      if (BooleanUtils.isTrue(generalDetail.getResourceOnALicence())
-          && submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
-          && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT) {
-        if (form.getResourceOnALicence() == null || !form.getResourceOnALicence()) {
-          errors.rejectValue("resourceOnALicence",
-              "resourceOnALicence.required",
-              "You cannot remove all licences from a resource that has " +
-                  "a licence on an earlier approved submission");
-          missingLicenceErrorPresent = true;
-        } else if (isLicencePresent && CollectionUtils.isEmpty(form.getLicences())) {
-          errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
-              "You cannot remove all licences from a resource that has " +
-                  "a licence on an earlier approved submission");
-          missingLicenceErrorPresent = true;
-        }
-      }
-    });
+    }
   }
 
   @Override
@@ -115,9 +104,6 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   public void validateFull(SubmissionForm form, Errors errors) {
     var generalDetailsForm = (GeneralDetailsForm) form;
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId", "responsibleOrganisationId.required",
-        "Enter the responsible organisation");
-
     if (submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
         && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT
         && !missingLicenceErrorPresent) {
@@ -133,7 +119,6 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
       }
     }
 
-    ValidationUtils.rejectIfEmpty(errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
     ValidationUtils.rejectIfEmpty(errors, "resourceLocatedInUkcs", "resourceLocatedInUkcs.required",
         "Select whether the resource is wholly located within UKCS");
 

@@ -37,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
@@ -66,6 +67,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
   private SourceAndSealSummaryView sourceAndSealSummaryView;
   private OpportunityDetailsSummaryView opportunityDetailsSummaryView;
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
+  private ResourceDetailSummaryView resourceDetailSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -86,6 +88,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
     sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
     trapPropertiesSummaryView = TrapPropertiesSummaryView.empty();
+    resourceDetailSummaryView = ResourceDetailSummaryView.empty("Prospect");
   }
 
   @SecurityTest
@@ -191,6 +194,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
             entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
+            entry("resourceDetailSummaryView", resourceDetailSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView)
         );
   }
@@ -204,6 +208,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         .addObject("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
         .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
+        .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
         .addObject("submittable", true);
     when(submissionSummaryModelService.createPostDrillDryWellSubmissionSummaryModelAndView(
         submissionDetail,

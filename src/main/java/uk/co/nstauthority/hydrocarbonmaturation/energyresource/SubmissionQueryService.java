@@ -17,15 +17,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 
 @Service
 public class SubmissionQueryService {
 
-  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionResourceService submissionResourceService;
   private final ResourceLinkService resourceLinkService;
@@ -35,7 +35,7 @@ public class SubmissionQueryService {
   private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
-  SubmissionQueryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
+  SubmissionQueryService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                          SubmissionDetailService submissionDetailService,
                          SubmissionResourceService submissionResourceService,
                          ResourceLinkService resourceLinkService,
@@ -43,7 +43,7 @@ public class SubmissionQueryService {
                          IndustryTeamService industryTeamService,
                          PermissionService permissionService,
                          OrganisationUnitQueryService organisationUnitQueryService) {
-    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.resourceLinkService = resourceLinkService;
@@ -93,10 +93,10 @@ public class SubmissionQueryService {
 
     //Gets the list of resource views for prospects to be displayed in a search selector
     return submissionDetailStream
-        .map(generalDetailsPersistenceService::getGeneralDetailOrThrow)
+        .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)
         .filter(generalDetail -> isExplorationTeam
             || filterByResponsibleOrganisationForCreatingSubmission(user, generalDetail, submissionType))
-        .map(this::getResourceViewFromGeneralDetail)
+        .map(this::getResourceViewFromResourceDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();
   }
@@ -107,9 +107,9 @@ public class SubmissionQueryService {
         // Get the latest approved submission for each resource
         .map(submissionDetailService::getLatestApprovedSubmissionDetailForResource)
         .flatMap(Optional::stream)
-        .map(generalDetailsPersistenceService::getGeneralDetailOrThrow)
+        .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)
         // Create a list of resource views for prospects to be displayed in a search selector
-        .map(this::getResourceViewFromGeneralDetail)
+        .map(this::getResourceViewFromResourceDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();
   }
@@ -120,12 +120,12 @@ public class SubmissionQueryService {
    * Or by the NSTA in the Exploration team.
    */
   private boolean filterByResponsibleOrganisationForCreatingSubmission(ServiceUserDetail user,
-                                                  GeneralDetail generalDetail,
-                                                  SubmissionType submissionType) {
-    if (generalDetail.getOrganisationId() != null
+                                                                       ResourceDetail resourceDetail,
+                                                                       SubmissionType submissionType) {
+    if (resourceDetail.getOrganisationId() != null
         && (submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
         || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT)) {
-      var responsibleOrganisationId = generalDetail.getOrganisationId();
+      var responsibleOrganisationId = resourceDetail.getOrganisationId();
       var organisationGroupsIds = organisationUnitQueryService
           .findOrganisationGroupIdsByUnitId(responsibleOrganisationId);
       if (!organisationGroupsIds.isEmpty()) {
@@ -240,8 +240,8 @@ public class SubmissionQueryService {
         || submissionTypeToBeCreated == SubmissionType.PROSPECT_UPDATE);
   }
 
-  private ResourceView getResourceViewFromGeneralDetail(GeneralDetail generalDetail) {
-    var resourceDisplayName = submissionResourceService.getResourceDisplayName(generalDetail);
-    return new ResourceView(generalDetail.getId(), resourceDisplayName);
+  private ResourceView getResourceViewFromResourceDetail(ResourceDetail resourceDetail) {
+    var resourceDisplayName = submissionResourceService.getResourceDisplayName(resourceDetail);
+    return new ResourceView(resourceDetail.getId(), resourceDisplayName);
   }
 }

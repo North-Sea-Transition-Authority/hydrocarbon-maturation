@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService;
 
@@ -65,6 +66,9 @@ class ProspectSummaryServiceTest {
   @Mock
   private OpportunityDetailsSummaryService opportunityDetailsSummaryService;
 
+  @Mock
+  private ResourceDetailSummaryService resourceDetailSummaryService;
+
   private ProspectSummaryService prospectSummaryService;
 
   @BeforeEach
@@ -82,7 +86,8 @@ class ProspectSummaryServiceTest {
         gasCaseOutputsSummaryService,
         mixedCaseVolumetricsSummaryService,
         mixedCaseOutputsSummaryService,
-        opportunityDetailsSummaryService);
+        opportunityDetailsSummaryService,
+        resourceDetailSummaryService);
   }
 
   @Test
@@ -94,6 +99,17 @@ class ProspectSummaryServiceTest {
     verify(generalDetailSummaryService, times(1))
         .getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
   }
+
+  @Test
+  void getResourceDetailSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(resourceDetailSummaryService, times(1))
+        .getResourceDetailSummaryFromSubmissionDetail(submissionDetail);
+  }
+
 
   @Test
   void getOpportunityDetailsSummaryViewFromSubmissionDetail_verifyMethodCall() {
@@ -230,7 +246,7 @@ class ProspectSummaryServiceTest {
         gasCaseOutputsSummaryService,
         mixedCaseVolumetricsSummaryService,
         mixedCaseOutputsSummaryService,
-        opportunityDetailsSummaryService
-    );
+        opportunityDetailsSummaryService,
+        resourceDetailSummaryService);
   }
 }

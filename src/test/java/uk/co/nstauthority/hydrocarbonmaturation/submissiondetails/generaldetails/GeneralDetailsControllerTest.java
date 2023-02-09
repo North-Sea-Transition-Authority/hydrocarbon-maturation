@@ -33,7 +33,6 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -50,7 +49,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
-  GeneralDetailsFormService generalDetailsFormService;
+  private GeneralDetailsFormService generalDetailsFormService;
+
+  @MockBean
+  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   private UUID submissionDetailId;
 
@@ -150,9 +152,6 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
     when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(preselectedLicenceApplication);
-    when(generalDetailsFormService.getPreSelectedOrganisationUnit(
-        form.getResponsibleOrganisationId()))
-        .thenReturn(preselectedOrganisation);
 
     var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);
     var quadrantBlockViewList = List.of(quadrantBlockView1);
@@ -179,9 +178,6 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("prospectSubmission", true),
             entry("discoverySubmission", false),
             entry("relinquishmentSubmission", false),
-            entry("organisationUnitEndpoint",
-                SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null))),
-            entry("responsibleOrganisation", preselectedOrganisation),
             entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList)
         );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
@@ -204,14 +200,10 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
-    var preselectedOrganisation = Map.of("25", "Shell Gas");
 
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
     when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(
         preselectedLicenceApplication);
-    when(generalDetailsFormService.getPreSelectedOrganisationUnit(
-        form.getResponsibleOrganisationId()))
-        .thenReturn(preselectedOrganisation);
 
     var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);
     var quadrantBlockViewList = List.of(quadrantBlockView1);
@@ -227,7 +219,6 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(modelMap)
         .contains(
-            entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
             entry("informationSources", InformationSource.getDiscoveryInformationSource()),
             entry("licenceApplication", preselectedLicenceApplication),
             entry("licenceApplicationEndpoint",
@@ -239,9 +230,6 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("prospectSubmission", false),
             entry("discoverySubmission", true),
             entry("relinquishmentSubmission", false),
-            entry("organisationUnitEndpoint",
-                SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null))),
-            entry("responsibleOrganisation", preselectedOrganisation),
             entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList)
         );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
