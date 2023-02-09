@@ -31,14 +31,13 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -88,6 +87,16 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
+
+  @SecurityTest
+  void getGasCaseVolumetrics_andTypeIsNotProspectOrDiscovery_assertForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GasCaseVolumetricsController.class).getGasCaseVolumetrics(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
 
   @SecurityTest
   void getGasCaseVolumetrics_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {

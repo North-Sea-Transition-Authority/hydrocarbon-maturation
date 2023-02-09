@@ -80,6 +80,15 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @SecurityTest
+  void getPermeabilityPage_andTypeIsNotDryWellOrDiscovery_assertForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
+    mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
+            .getPermeabilityPage(submissionDetailId, null)))
+            .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
   void getPermeabilityPage_andUserNotInResponsibleOrganisation_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)

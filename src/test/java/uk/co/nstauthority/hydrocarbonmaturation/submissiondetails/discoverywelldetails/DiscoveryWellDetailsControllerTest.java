@@ -82,6 +82,15 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
   }
 
   @SecurityTest
+  void getDiscoveryWellDetails_andTypeIsNotDiscovery_assertForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DiscoveryWellDetailsController.class).getDiscoveryWellDetails(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
   void getDiscoveryWellDetails_andNotResponsibleOrganisation_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(

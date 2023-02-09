@@ -89,6 +89,16 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @SecurityTest
+  void getDrillStemTestPage_andTypeIsNotDiscovery_assertForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DrillStemTestController.class).getDrillStemTestPage(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
   void getDrillStemTestPage_andNotResponsibleOrganisation_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(

@@ -103,6 +103,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     discoveryWellDetailsSummaryView = DiscoveryWellDetailsSummaryView.empty();
     sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     trapPropertiesSummaryView = TrapPropertiesSummaryView.empty();
+    submissionDetail.setSubmissionType(SubmissionType.UPDATE_DISCOVERY);
   }
 
   @SecurityTest
@@ -115,6 +116,16 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name(VIEW_NAME));
+  }
+
+  @SecurityTest
+  void showSubmissionSummary_whenNotDiscovery_assertStatusForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 
   @SecurityTest

@@ -77,9 +77,8 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
   }
 
   private boolean isRelatedProspectsRequired(SubmissionDetail submissionDetail) {
-    var hasExplorationRole =
-        permissionService.hasPermission(userDetailService.getUserDetail(), Set.of(RolePermission.EXPLORATION));
     var isCreateProspect = submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT;
-    return hasExplorationRole && isCreateProspect;
+    return isCreateProspect
+        && permissionService.hasPermission(userDetailService.getUserDetail(), Set.of(RolePermission.EXPLORATION));
   }
 }

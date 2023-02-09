@@ -37,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -86,6 +87,16 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
+
+  @SecurityTest
+  void getGasCaseOutputs_andTypeIsNotProspectOrDiscovery_assertForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
 
   @SecurityTest
   void getGasCaseOutputs_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {

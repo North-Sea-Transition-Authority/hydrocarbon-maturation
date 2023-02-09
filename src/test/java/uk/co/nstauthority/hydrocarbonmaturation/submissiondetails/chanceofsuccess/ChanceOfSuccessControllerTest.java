@@ -35,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -46,12 +47,10 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
-  ChanceOfSuccessFormService chanceOfSuccessFormService;
+  private ChanceOfSuccessFormService chanceOfSuccessFormService;
 
   @MockBean
-  ChanceOfSuccessPersistenceService chanceOfSuccessPersistenceService;
-
-
+  private ChanceOfSuccessPersistenceService chanceOfSuccessPersistenceService;
 
   private static UUID submissionDetailId;
 
@@ -95,6 +94,15 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void getChanceOfSuccess_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getChanceOfSuccess_andTypeIsNotProspect_assertForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     mockMvc.perform(
             get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
                 .with(user(USER)))
