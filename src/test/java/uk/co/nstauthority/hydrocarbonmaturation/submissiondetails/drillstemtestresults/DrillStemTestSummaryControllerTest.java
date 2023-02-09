@@ -36,6 +36,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -65,7 +66,7 @@ class DrillStemTestSummaryControllerTest extends AbstractSubmissionControllerTes
   void setUp() {
     form = new DrillStemTestSummaryForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
-
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     submissionDetailId = submissionDetail.getId();
     drillStemTestId = UUID.randomUUID();
     drillStemTest = new DrillStemTest();

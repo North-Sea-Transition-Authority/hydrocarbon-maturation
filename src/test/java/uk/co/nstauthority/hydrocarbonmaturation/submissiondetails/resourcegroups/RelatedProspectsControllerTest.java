@@ -33,6 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -73,6 +74,15 @@ class RelatedProspectsControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void getRelatedProspectsPage_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(RelatedProspectsController.class).getRelatedProspects(submissionDetailId, form)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getRelatedProspectsPage_andTypeIsNotCreateProspect_assertForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     mockMvc.perform(
             get(ReverseRouter.route(on(RelatedProspectsController.class).getRelatedProspects(submissionDetailId, form)))
                 .with(user(USER)))

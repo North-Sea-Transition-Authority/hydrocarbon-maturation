@@ -87,6 +87,16 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
   }
 
   @SecurityTest
+  void getGeneralFluidProperties_andTypeIsNotDiscovery_assertForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+
+  @SecurityTest
   void getGeneralFluidProperties_andNotResponsibleOrganisation_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(

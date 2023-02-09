@@ -85,6 +85,16 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
         .andExpect(status().isForbidden());
   }
 
+
+  @SecurityTest
+  void getGasFluidProperties_andTypeIsNotDiscovery_assertForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
   @SecurityTest
   void getGasFluidProperties_andNotResponsibleOrganisation_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);

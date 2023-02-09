@@ -89,6 +89,17 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
   }
 
   @SecurityTest
+  void showSubmissionSummary_whenNotPostDrill_assertStatusForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
+                .showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
   void showSubmissionSummary_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();

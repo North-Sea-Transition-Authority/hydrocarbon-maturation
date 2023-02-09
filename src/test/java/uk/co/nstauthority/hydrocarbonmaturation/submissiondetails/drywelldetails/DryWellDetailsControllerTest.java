@@ -36,6 +36,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -56,6 +57,7 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
   @BeforeEach
   void setup() {
     submissionDetailId = submissionDetail.getId();
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
   }
 
   @SecurityTest
@@ -73,6 +75,15 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void getDryWellDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(DryWellDetailsController.class).getDryWellDetails(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getDryWellDetails_andTypeIsNotPostDrill_assertForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     mockMvc.perform(
             get(ReverseRouter.route(on(DryWellDetailsController.class).getDryWellDetails(submissionDetailId, null)))
                 .with(user(USER)))
@@ -104,7 +115,7 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
-  void saveGeneralDetailsPage_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+  void saveDryWellDetailsPage_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     var bindingResult = new BeanPropertyBindingResult(DryWellDetailsForm.class, "form");

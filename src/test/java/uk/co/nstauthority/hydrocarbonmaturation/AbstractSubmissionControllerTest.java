@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.RegulatorResponsibleTeamInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionTypeInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.TeamMembershipInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
@@ -49,6 +50,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
     SubmissionStatusInterceptorRule.class,
     RegulatorResponsibleTeamInterceptorRule.class,
     TeamMembershipInterceptorRule.class,
+    SubmissionTypeInterceptorRule.class,
     PermissionService.class})
 public abstract class AbstractSubmissionControllerTest extends AbstractControllerTest{
 
