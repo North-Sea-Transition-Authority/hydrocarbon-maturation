@@ -595,7 +595,8 @@ CREATE TABLE remi.padi_operator_mapping (
     matches_ignoring_common_suffixes TEXT,
     matches_first_word               TEXT,
     agreed_match                     TEXT,
-    comments                         TEXT
+    comments                         TEXT,
+    org_unit_id                      NUMERIC
 );
 
 CREATE TABLE remi.padi_resource_groupings (
