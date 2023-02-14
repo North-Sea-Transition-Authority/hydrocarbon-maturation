@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
@@ -61,6 +62,9 @@ public class SearchResourceRecordsController {
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
         .addObject("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
             .searchResources(null)))
+        .addObject("licenceEndpoint",
+            SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
+        .addObject("preselectedLicence", searchResourceRecordsService.getPreselectedLicence(form))
         .addObject("resourceName", searchResourceRecordsService.getPreSelectedResourceName(form))
         .addObject("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
             .searchOrganisationUnits(null)))

@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +38,8 @@ public class LicenceQueryService {
             logCorrelationId
             ).stream()
             .filter(licence -> licence.getLicenceStatus() == LicenceStatus.EXTANT)
-            .sorted(Comparator.comparing(Licence::getLicenceRef))
             .map(this::getLicenceView)
+            .sorted(new LicenceViewByReferenceComparator())
             .toList()
     );
   }
@@ -51,8 +50,12 @@ public class LicenceQueryService {
         .filter(Optional::isPresent)
         .map(Optional::get)
         .distinct()
-        .sorted(Comparator.comparing(LicenceView::licenceRef))
+        .sorted(new LicenceViewByReferenceComparator())
         .toList();
+  }
+
+  public Optional<LicenceView> getLicenceById(String licenceId) {
+    return findLicence(Integer.parseInt(licenceId)).filter(LicenceView::isValid);
   }
 
   public static boolean isLicenceStatusValid(LicenceStatus licenceStatus) {

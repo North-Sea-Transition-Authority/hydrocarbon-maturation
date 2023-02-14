@@ -51,6 +51,16 @@
             selectorMinInputLength=1
             preselectedItems=centreOfInterestBlock!{}/>
         </@fdsSearch.searchFilterItem>
+        <@fdsSearch.searchFilterItem itemName="Licence" expanded=preselectedLicence?has_content>
+          <@fdsSearchSelector.searchSelectorRest
+            path="form.licenceId"
+            restUrl=springUrl(licenceEndpoint)
+            labelText="Licence"
+            labelClass="govuk-visually-hidden"
+            inputClass="govuk-!-width-three-quarters"
+            selectorMinInputLength=1
+            preselectedItems=preselectedLicence!{}/>
+        </@fdsSearch.searchFilterItem>
         <@fdsSearch.searchFilterItem itemName="Resource type" expanded=false>
           <@fdsCheckbox.checkboxGroup
             path="form.prospectResourceType"

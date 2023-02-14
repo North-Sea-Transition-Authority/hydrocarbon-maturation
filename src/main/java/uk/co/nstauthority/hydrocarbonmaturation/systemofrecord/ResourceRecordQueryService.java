@@ -74,13 +74,14 @@ class ResourceRecordQueryService {
             field("tp.id"),
             field("rd.id")
         )
+        .having(getAggregateConditions(form))
         .orderBy(field("sd.approved_timestamp").desc().nullsLast(),
             field("sd.created_timestamp").desc())
         .fetchInto(ResourceRecordQueryResult.class);
   }
 
   private List<Condition> getConditions(SearchResourceRecordsForm form) {
-    List<Condition> conditionList = new ArrayList<>();
+    var conditionList = new ArrayList<Condition>();
 
     if (StringUtils.isNotBlank(form.getResourceDetailIdForResourceSubmission())) {
       conditionList.add(
@@ -102,6 +103,20 @@ class ResourceRecordQueryService {
 
     conditionList.add(field("r.type").in(getResourceTypeCondition(form)));
 
+    return conditionList;
+  }
+
+  private List<Condition> getAggregateConditions(SearchResourceRecordsForm form) {
+    var conditionList = new ArrayList<Condition>();
+
+    if (Objects.nonNull(form.getLicenceId())) {
+      conditionList.add(
+          DSL.arrayAggDistinct(field("gdl.licence_id"))
+              .orderBy(field("gdl.licence_id"))
+              .filterWhere(field("gdl.licence_id")
+                  .eq(Integer.parseInt(form.getLicenceId()))).isNotNull()
+      );
+    }
     return conditionList;
   }
 

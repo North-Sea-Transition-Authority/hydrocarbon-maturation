@@ -32,6 +32,11 @@ public class LicenceTestUtil {
       return this;
     }
 
+    public Builder withStatus(LicenceStatus licenceStatus) {
+      this.licenceStatus = licenceStatus;
+      return this;
+    }
+
     public Licence build() {
       var licence = new Licence();
       licence.setLicenceRef(licenceRef);

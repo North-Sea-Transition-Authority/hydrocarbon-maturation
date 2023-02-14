@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -36,6 +40,8 @@ class SearchResourceRecordsServiceTest {
   private SearchSelectorService searchSelectorService;
   @Mock
   private SubmissionResourceService submissionResourceService;
+  @Mock
+  private LicenceQueryService licenceQueryService;
   @InjectMocks
   private SearchResourceRecordsService underTest;
   @Mock
@@ -193,6 +199,27 @@ class SearchResourceRecordsServiceTest {
       var result = underTest.getPreSelectedOrganisationUnit(form);
 
       verify(organisationUnitQueryService).getPreSelectedOrganisationUnit(responsibleOrganisationId);
+    }
+
+    @Test
+    void getPreselectedLicence_whenEmptyForm_ReturnsEmptyMap() {
+      var result = underTest.getPreselectedLicence(form);
+      assertThat(result).isEqualTo(Map.of());
+    }
+
+    @Test
+    void getPreselectedLicence_whenSelectedLicence_ReturnsMap() {
+      var id = "1";
+      form.setLicenceId(id);
+      var expectedMap = Map.of("key", "value");
+      var licenceView = new LicenceView("ref", Integer.parseInt(id), LicenceStatus.EXTANT);
+      when(licenceQueryService.getLicenceById(id))
+          .thenReturn(Optional.of(licenceView));
+      when(searchSelectorService.buildPrePopulatedSelection(id, "ref"))
+          .thenReturn(expectedMap);
+
+      var result = underTest.getPreselectedLicence(form);
+      assertThat(result).isEqualTo(expectedMap);
     }
   }
 
