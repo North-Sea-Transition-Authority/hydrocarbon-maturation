@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -245,6 +248,44 @@ class GeneralDetailsFormServiceTest {
 
     assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail).getLicenceApplication())
         .isEqualTo(LICENCE_APPLICATION_ID);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"RELINQUISHMENT_PROSPECT", "RELINQUISHMENT_DISCOVERY"})
+  void generalDetailEntityToForm_existingEntity_withRelinquishmentDate_thenPopulatedForm(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    var generalDetail = getGeneralDetail(submissionDetail);
+    generalDetail.setRelinquishmentDate(LocalDate.of(2012, 5, 22));
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
+
+    assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
+        .extracting(
+            GeneralDetailsForm::getRelinquishmentDay,
+            GeneralDetailsForm::getRelinquishmentMonth,
+            GeneralDetailsForm::getRelinquishmentYear)
+        .containsExactly(
+            "22",
+            "5",
+            "2012"
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"RELINQUISHMENT_PROSPECT", "RELINQUISHMENT_DISCOVERY"})
+  void generalDetailEntityToForm_existingEntity_withNullRelinquishmentDate_thenEmptyRelinquishmentField(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    var generalDetail = getGeneralDetail(submissionDetail);
+    generalDetail.setRelinquishmentDate(null);
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
+
+    assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
+        .extracting(
+            GeneralDetailsForm::getRelinquishmentDay,
+            GeneralDetailsForm::getRelinquishmentMonth,
+            GeneralDetailsForm::getRelinquishmentYear)
+        .containsOnlyNulls();
   }
 
   @Test

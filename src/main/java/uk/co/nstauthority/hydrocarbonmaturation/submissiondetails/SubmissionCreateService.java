@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.RelinquishmentFor
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
@@ -84,7 +85,9 @@ public class SubmissionCreateService {
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
 
-    var newGeneralDetail = generalDetailsPersistenceService.getGeneralDetailOrThrow(newSubmissionDetail);
+    var newGeneralDetail = generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(newSubmissionDetail)
+        .orElse(new GeneralDetail());
+    newGeneralDetail.setSubmissionDetail(newSubmissionDetail);
     generalDetailsPersistenceService.updateGeneralDetailProspect(form, newGeneralDetail);
 
     return newSubmissionDetail;

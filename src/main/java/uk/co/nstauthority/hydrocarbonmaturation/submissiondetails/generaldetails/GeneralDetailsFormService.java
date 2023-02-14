@@ -102,6 +102,12 @@ public class GeneralDetailsFormService implements SubmissionFormService {
         .map(LicenceView::getId)
         .toList();
 
+    if (submissionDetail.isRelinquishment() && generalDetail.getRelinquishmentDate() != null) {
+      form.setRelinquishmentDay(String.valueOf(generalDetail.getRelinquishmentDate().getDayOfMonth()));
+      form.setRelinquishmentMonth(String.valueOf(generalDetail.getRelinquishmentDate().getMonthValue()));
+      form.setRelinquishmentYear(String.valueOf(generalDetail.getRelinquishmentDate().getYear()));
+    }
+
     form.setLicences(licences);
 
     return form;

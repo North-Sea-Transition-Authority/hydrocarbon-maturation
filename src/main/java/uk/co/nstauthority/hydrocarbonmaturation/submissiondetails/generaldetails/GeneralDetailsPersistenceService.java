@@ -1,8 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +57,18 @@ public class GeneralDetailsPersistenceService {
     } else {
       generalDetail.setOtherInformationSource(null);
     }
+
+    if (submissionDetail.isRelinquishment()
+        && !StringUtils.isAnyBlank(
+            form.getRelinquishmentMonth(), form.getRelinquishmentDay(), form.getRelinquishmentYear())) {
+      generalDetail.setRelinquishmentDate(
+          LocalDate.of(
+              Integer.parseInt(form.getRelinquishmentYear()),
+              Integer.parseInt(form.getRelinquishmentMonth()),
+              Integer.parseInt(form.getRelinquishmentDay()))
+      );
+    }
+
     generalDetailsRepository.save(generalDetail);
     licencePersistenceService.saveLicences(form, generalDetail);
     quadrantAndBlockPersistenceService.saveQuadrantAndBlocks(form, generalDetail);

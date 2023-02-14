@@ -14,7 +14,8 @@ public record GeneralDetailSummaryView(SubmissionType submissionType,
                                        String licenceApplication,
                                        List<String> quadAndBlockDisplayList,
                                        List<String> licenceDisplayList,
-                                       String resourceType) {
+                                       String resourceType,
+                                       String relinquishmentDate) {
   public static GeneralDetailSummaryView empty(SubmissionType submissionType,
                                                String resourceType) {
     return new GeneralDetailSummaryView(
@@ -28,6 +29,7 @@ public record GeneralDetailSummaryView(SubmissionType submissionType,
         "",
         Collections.emptyList(),
         Collections.emptyList(),
-        resourceType);
+        resourceType,
+        "");
   }
 }

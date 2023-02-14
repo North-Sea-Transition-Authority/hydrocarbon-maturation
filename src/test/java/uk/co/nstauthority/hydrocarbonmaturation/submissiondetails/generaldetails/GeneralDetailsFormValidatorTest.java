@@ -30,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedExcept
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -268,6 +269,81 @@ class GeneralDetailsFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenRelinquishmentDatePartiallyFilled_whenRelinquishment_assertErrors(ValidationType validationType) {
+    var form = getValidForm();
+    form.setRelinquishmentYear(null);
+    form.setRelinquishmentDay(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, null,
+            true));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("relinquishmentDay", Set.of("relinquishmentDay.required")),
+            entry("relinquishmentYear", Set.of("relinquishmentYear.required"))
+        );
+    assertThat(extractedErrorMessages)
+        .containsExactly(
+            entry("relinquishmentDay", Set.of("Enter a complete Date of relinquishment")),
+            entry("relinquishmentYear", Set.of(""))
+        );
+  }
+
+  @Test
+  void validate_whenRelinquishmentDateEmpty_whenPartial_whenRelinquishment_assertEmpty() {
+    var form = getValidForm();
+    form.setRelinquishmentYear(null);
+    form.setRelinquishmentDay(null);
+    form.setRelinquishmentMonth(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new GeneralDetailsFormValidatorHints(ValidationType.PARTIAL, submissionDetail, null,
+            true));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .isEmpty();
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenRelinquishmentDateInvalidValues_whenRelinquishment_assertErrors(ValidationType validationType) {
+    var form = getValidForm();
+    form.setRelinquishmentYear("-2555");
+    form.setRelinquishmentDay("36");
+    form.setRelinquishmentMonth("13");
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_DISCOVERY);
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, null,
+            true));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("relinquishmentDay", Set.of("relinquishmentDay.invalid")),
+            entry("relinquishmentMonth", Set.of("relinquishmentMonth.invalid")),
+            entry("relinquishmentYear", Set.of("relinquishmentYear.invalid"))
+        );
+    assertThat(extractedErrorMessages)
+        .containsExactly(
+            entry("relinquishmentDay", Set.of("Date of relinquishment must be a real date")),
+            entry("relinquishmentMonth", Set.of("")),
+            entry("relinquishmentYear", Set.of(""))
+        );
+  }
+
   @Test
   void validate_whenNoLicenceSelected_WhenNotInPreviousSubmission() {
     var form = getValidForm();
@@ -350,6 +426,9 @@ class GeneralDetailsFormValidatorTest {
     form.setQuadrantBlocks(List.of("27/10"));
     form.setLicences(List.of("122"));
     form.setResourceOnALicence(true);
+    form.setRelinquishmentDay("12");
+    form.setRelinquishmentMonth("6");
+    form.setRelinquishmentYear("2011");
     return form;
   }
 }

@@ -112,6 +112,14 @@ breadcrumbsMap=breadcrumbsMap>
           selectorLabelText="Select a quadrant and block to add to this ${resourceType}"
           restUrl=springUrl(quadrantBlocksApiEndpoint)/>
       </@fdsFieldset.fieldset>
+      <#if relinquishmentSubmission>
+        <@fdsDateInput.dateInput
+          formId="relinquishment-date-input"
+          dayPath="form.relinquishmentDay"
+          monthPath="form.relinquishmentMonth"
+          yearPath="form.relinquishmentYear"
+          labelText="Date of relinquishment"/>
+      </#if>
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>

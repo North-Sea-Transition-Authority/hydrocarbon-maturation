@@ -6,11 +6,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsPersistenceServiceTest {
@@ -198,6 +202,51 @@ class GeneralDetailsPersistenceServiceTest {
             null,
             null
         );
+  }
+
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"RELINQUISHMENT_PROSPECT", "RELINQUISHMENT_DISCOVERY"})
+  void saveGeneralDetails_whenRelinquishment_whenDateProvided(SubmissionType submissionType) {
+    var form = new GeneralDetailsForm();
+    var year = "2012";
+    var month = "12";
+    var day = "1";
+
+    form.setRelinquishmentYear(year);
+    form.setRelinquishmentMonth(month);
+    form.setRelinquishmentDay(day);
+    submissionDetail.setSubmissionType(submissionType);
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .hasAllNullFieldsOrPropertiesExcept("relinquishmentDate", "submissionDetail");
+
+    assertThat(savedGeneralDetail.getRelinquishmentDate())
+        .isEqualTo(LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day)));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"RELINQUISHMENT_PROSPECT", "RELINQUISHMENT_DISCOVERY"})
+  void saveGeneralDetails_whenRelinquishment_whenNoDateProvided(SubmissionType submissionType) {
+    var form = new GeneralDetailsForm();
+
+    submissionDetail.setSubmissionType(submissionType);
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+
+    verify(generalDetailsRepository, times(1))
+        .save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .hasAllNullFieldsOrPropertiesExcept("submissionDetail");
   }
 
   @Test

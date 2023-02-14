@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Service
 public class GeneralDetailSummaryService {
@@ -60,8 +61,17 @@ public class GeneralDetailSummaryService {
         licenceApplication,
         getQuadBlocksDisplay(quadrantAndBlocks),
         getLicenceDisplay(licences),
-        getResourceTypeDisplay(detail.getSubmissionDetail())
+        getResourceTypeDisplay(detail.getSubmissionDetail()),
+        getDateOfRelinquishmentDisplay(detail)
     );
+  }
+
+  private String getDateOfRelinquishmentDisplay(GeneralDetail detail) {
+    if (detail.getSubmissionDetail().isRelinquishment()) {
+      return DateUtil.formatDateOrBlank(detail.getRelinquishmentDate());
+    } else {
+      return "";
+    }
   }
 
   private String getResourceTypeDisplay(SubmissionDetail submissionDetail) {

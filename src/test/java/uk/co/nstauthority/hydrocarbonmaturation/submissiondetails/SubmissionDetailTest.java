@@ -32,6 +32,18 @@ class SubmissionDetailTest {
 
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
+  void isRelinquishment(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    if (submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT) {
+      assertTrue(submissionDetail.isRelinquishment());
+    } else {
+      assertFalse(submissionDetail.isRelinquishment());
+    }
+  }
+
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
   void isDryWellOrDiscoverySubmission(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE

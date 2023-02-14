@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import java.math.BigDecimal;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -12,6 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
@@ -98,6 +100,11 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     }
 
     partialValidationPercentageLocatedInUkcs(generalDetailsForm, errors);
+
+    if (submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT) {
+      validateDateOfRelinquishment(ValidationType.PARTIAL, generalDetailsForm, errors);
+    }
   }
 
   @Override
@@ -146,6 +153,35 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     if (CollectionUtils.isEmpty(generalDetailsForm.getQuadrantBlocks())) {
       errors.rejectValue("quadrantBlockSelect", "quadrantBlockSelect.notEmpty",
           "You must select at least one quadrant and block");
+    }
+
+    if (submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
+        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT) {
+      validateDateOfRelinquishment(ValidationType.FULL, generalDetailsForm, errors);
+    }
+  }
+
+  private void validateDateOfRelinquishment(ValidationType validationType,
+                                            GeneralDetailsForm form,
+                                            Errors errors) {
+    if (validationType == ValidationType.FULL) {
+      DateValidationUtil.validateDate(
+          "relinquishment",
+          "Date of relinquishment",
+          form.getRelinquishmentDay(),
+          form.getRelinquishmentMonth(),
+          form.getRelinquishmentYear(),
+          errors);
+    } else if (validationType == ValidationType.PARTIAL
+        && !StringUtils.isAllBlank(
+            form.getRelinquishmentYear(), form.getRelinquishmentMonth(), form.getRelinquishmentDay())) {
+      DateValidationUtil.validateDate(
+          "relinquishment",
+          "Date of relinquishment",
+          form.getRelinquishmentDay(),
+          form.getRelinquishmentMonth(),
+          form.getRelinquishmentYear(),
+          errors);
     }
   }
 

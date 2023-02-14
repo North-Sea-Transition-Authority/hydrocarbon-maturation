@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,6 +43,8 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
   private String licenceApplicationReference;
 
   private Integer licenceApplicationId;
+
+  private LocalDate relinquishmentDate;
 
   @Column(name = "resource_on_a_licence")
   private Boolean resourceOnALicence;
@@ -125,5 +128,13 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
 
   public void setResourceOnALicence(Boolean resourceOnALicence) {
     this.resourceOnALicence = resourceOnALicence;
+  }
+
+  public LocalDate getRelinquishmentDate() {
+    return relinquishmentDate;
+  }
+
+  public void setRelinquishmentDate(LocalDate relinquishmentDate) {
+    this.relinquishmentDate = relinquishmentDate;
   }
 }

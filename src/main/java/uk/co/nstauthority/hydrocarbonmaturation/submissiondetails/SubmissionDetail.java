@@ -166,6 +166,10 @@ public class SubmissionDetail {
     return submissionType == SubmissionType.RELINQUISHMENT_PROSPECT;
   }
 
+  public boolean isRelinquishment() {
+    return isProspectRelinquishment() || isDiscoveryRelinquishment();
+  }
+
   public boolean isDiscoveryRelinquishment() {
     return submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY;
   }

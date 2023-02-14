@@ -20,6 +20,9 @@ class GeneralDetailsForm implements SubmissionForm {
   private String licenceApplication;
   private String otherSourceOfInformation;
   private Boolean resourceOnALicence;
+  private String relinquishmentDay;
+  private String relinquishmentMonth;
+  private String relinquishmentYear;
 
   public Boolean getResourceLocatedInUkcs() {
     return resourceLocatedInUkcs;
@@ -101,5 +104,29 @@ class GeneralDetailsForm implements SubmissionForm {
 
   public void setLicenceSelect(String licenceSelect) {
     this.licenceSelect = licenceSelect;
+  }
+
+  public String getRelinquishmentDay() {
+    return relinquishmentDay;
+  }
+
+  public void setRelinquishmentDay(String relinquishmentDay) {
+    this.relinquishmentDay = relinquishmentDay;
+  }
+
+  public String getRelinquishmentMonth() {
+    return relinquishmentMonth;
+  }
+
+  public void setRelinquishmentMonth(String relinquishmentMonth) {
+    this.relinquishmentMonth = relinquishmentMonth;
+  }
+
+  public String getRelinquishmentYear() {
+    return relinquishmentYear;
+  }
+
+  public void setRelinquishmentYear(String relinquishmentYear) {
+    this.relinquishmentYear = relinquishmentYear;
   }
 }

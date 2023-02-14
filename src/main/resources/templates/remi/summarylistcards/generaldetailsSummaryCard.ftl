@@ -39,5 +39,11 @@
         <div>${quadAndBlock}</div>
       </#list>
     </@fdsSummaryList.summaryListRowNoAction>
+    <#if generalDetailValues.submissionType() == "RELINQUISHMENT_PROSPECT"
+      || generalDetailValues.submissionType() == "RELINQUISHMENT_DISCOVERY">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Date of relinquishment">
+        ${generalDetailValues.relinquishmentDate()}
+      </@fdsSummaryList.summaryListRowNoAction>
+    </#if>
   </@fdsSummaryList.summaryListCard>
 </#macro>
