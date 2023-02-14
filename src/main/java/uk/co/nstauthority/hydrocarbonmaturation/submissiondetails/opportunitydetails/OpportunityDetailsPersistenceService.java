@@ -8,7 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 
 @Service
-class OpportunityDetailsPersistenceService {
+public class OpportunityDetailsPersistenceService {
 
   private final OpportunityDetailsRepository opportunityDetailsRepository;
   private final SupportingDocumentService supportingDocumentService;
@@ -25,12 +25,18 @@ class OpportunityDetailsPersistenceService {
     var opportunityDetail = getOpportunityDetail(submissionDetail).orElse(new OpportunityDetail());
 
     opportunityDetail.setSubmissionDetail(submissionDetail);
-    opportunityDetail.setOpportunityType(form.getOpportunityType());
+    if (submissionDetail.isProspectSubmission()) {
+      opportunityDetail.setOpportunityType(form.getOpportunityType());
+    } else if (submissionDetail.isDiscoverySubmission()) {
+      opportunityDetail.setOpportunityType(OpportunityType.DISCOVERY);
+    } else if (submissionDetail.isDryWellSubmission()) {
+      opportunityDetail.setOpportunityType(OpportunityType.DRY_WELL);
+    }
     opportunityDetail.setOpportunityComments(form.getOpportunityComments());
     opportunityDetail.setKeyEvaluationWorkCarriedOut(form.getKeyEvaluationWorkCarriedOut());
     opportunityDetail.setKeyWorkRequiredForFurtherMaturation(form.getKeyWorkRequiredForFurtherMaturation());
 
-    if (form.getOpportunityType() == OpportunityType.OTHER) {
+    if (submissionDetail.isProspectSubmission() && form.getOpportunityType() == OpportunityType.OTHER) {
       opportunityDetail.setOtherTypeOfOpportunity(form.getOtherTypeOfOpportunity());
     } else {
       opportunityDetail.setOtherTypeOfOpportunity(null);
@@ -38,6 +44,18 @@ class OpportunityDetailsPersistenceService {
 
     supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getMapOfOpportunity());
 
+    opportunityDetailsRepository.save(opportunityDetail);
+  }
+
+  @Transactional
+  public void createInitialOpportunityDetail(SubmissionDetail submissionDetail) {
+    var opportunityDetail = new OpportunityDetail();
+    opportunityDetail.setSubmissionDetail(submissionDetail);
+    if (submissionDetail.isDryWellSubmission()) {
+      opportunityDetail.setOpportunityType(OpportunityType.DRY_WELL);
+    } else if (submissionDetail.isDiscoverySubmission()) {
+      opportunityDetail.setOpportunityType(OpportunityType.DISCOVERY);
+    }
     opportunityDetailsRepository.save(opportunityDetail);
   }
 

@@ -8,23 +8,27 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class OpportunityDetailsPersistenceServiceTest {
 
   @Mock
-  private static OpportunityDetailsRepository opportunityDetailsRepository;
+  private OpportunityDetailsRepository opportunityDetailsRepository;
 
   @Mock
   private SupportingDocumentService supportingDocumentService;
-  private static OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
+  private OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
 
-  private static SubmissionDetail submissionDetail;
+  private SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setup() {
@@ -32,7 +36,7 @@ class OpportunityDetailsPersistenceServiceTest {
         supportingDocumentService);
 
     var submissionDetailId = UUID.randomUUID();
-    submissionDetail = new SubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(submissionDetailId);
   }
 
@@ -67,6 +71,76 @@ class OpportunityDetailsPersistenceServiceTest {
             form.getKeyEvaluationWorkCarriedOut(),
             form.getKeyWorkRequiredForFurtherMaturation()
         );
+  }
+
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
+  void saveOpportunityDetails_whenSubmission_whenGivenAForm_verifyCreatedEntity(SubmissionType submissionType) {
+    var form = new OpportunityDetailsForm();
+    submissionDetail.setSubmissionType(submissionType);
+    OpportunityType expectedOpportunityType;
+    if (submissionDetail.isDryWellSubmission()) {
+      expectedOpportunityType = OpportunityType.DRY_WELL;
+    } else if (submissionDetail.isDiscoverySubmission()) {
+      expectedOpportunityType = OpportunityType.DISCOVERY;
+    } else {
+      expectedOpportunityType = null;
+    }
+    form.setOpportunityComments("Comments");
+    form.setKeyEvaluationWorkCarriedOut("Key evluation");
+    form.setKeyWorkRequiredForFurtherMaturation("Key work");
+
+    var opportunityDetailsArgumentCaptor = ArgumentCaptor.forClass(OpportunityDetail.class);
+
+    opportunityDetailsPersistenceService.saveOpportunityDetails(form, submissionDetail);
+
+    verify(opportunityDetailsRepository, times(1)).save(opportunityDetailsArgumentCaptor.capture());
+    var savedOpportunityDetail = (OpportunityDetail) opportunityDetailsArgumentCaptor.getValue();
+
+    assertThat(savedOpportunityDetail)
+        .extracting(
+            OpportunityDetail::getOtherTypeOfOpportunity,
+            OpportunityDetail::getOpportunityType,
+            OpportunityDetail::getOpportunityComments,
+            OpportunityDetail::getKeyEvaluationWorkCarriedOut,
+            OpportunityDetail::getKeyWorkRequiredForFurtherMaturation
+        )
+        .containsExactly(
+            null,
+            expectedOpportunityType,
+            form.getOpportunityComments(),
+            form.getKeyEvaluationWorkCarriedOut(),
+            form.getKeyWorkRequiredForFurtherMaturation()
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
+  void createInitialOpportunityDetail(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    OpportunityType expectedOpportunityType;
+    if (submissionDetail.isDryWellSubmission()) {
+      expectedOpportunityType = OpportunityType.DRY_WELL;
+    } else if (submissionDetail.isDiscoverySubmission()) {
+      expectedOpportunityType = OpportunityType.DISCOVERY;
+    } else {
+      expectedOpportunityType = null;
+    }
+    var opportunityDetailsArgumentCaptor = ArgumentCaptor.forClass(OpportunityDetail.class);
+
+    opportunityDetailsPersistenceService.createInitialOpportunityDetail(submissionDetail);
+
+    verify(opportunityDetailsRepository, times(1)).save(opportunityDetailsArgumentCaptor.capture());
+    var savedOpportunityDetail = (OpportunityDetail) opportunityDetailsArgumentCaptor.getValue();
+
+    assertThat(savedOpportunityDetail)
+        .hasAllNullFieldsOrPropertiesExcept("opportunityType", "submissionDetail")
+        .extracting(
+            OpportunityDetail::getOpportunityType,
+            OpportunityDetail::getSubmissionDetail)
+        .containsExactly(
+            expectedOpportunityType,
+            submissionDetail);
   }
 
   @Test

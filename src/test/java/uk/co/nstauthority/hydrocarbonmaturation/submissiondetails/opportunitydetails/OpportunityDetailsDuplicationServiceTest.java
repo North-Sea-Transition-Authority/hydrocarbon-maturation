@@ -1,21 +1,25 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
@@ -29,6 +33,9 @@ class OpportunityDetailsDuplicationServiceTest {
 
   @Mock
   private SupportingDocumentService supportingDocumentService;
+
+  @Mock
+  private EntityManager entityManager;
 
   @Mock
   private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
@@ -49,6 +56,42 @@ class OpportunityDetailsDuplicationServiceTest {
 
     verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, opportunityDetail,
         OpportunityDetail.class);
+  }
+
+  @Test
+  void duplicateSubmissionSection_whenDiscovery_OpportunityDetailExists_DoesDuplicate() {
+    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var newSubmissionDetail = new SubmissionDetail();
+    newSubmissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+
+    var opportunityDetail = new OpportunityDetail();
+    when(opportunityDetailPersistenceService.getOpportunityDetail(oldSubmissionDetail))
+        .thenReturn(Optional.of(opportunityDetail));
+    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, opportunityDetail,
+        OpportunityDetail.class)).thenReturn(opportunityDetail);
+    opportunityDetailDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    assertThat(opportunityDetail.getOpportunityType())
+        .isEqualTo(OpportunityType.DISCOVERY);
+    verify(entityManager, times(1)).persist(opportunityDetail);
+  }
+
+  @Test
+  void duplicateSubmissionSection_whenDryWell_OpportunityDetailExists_DoesDuplicate() {
+    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var newSubmissionDetail = new SubmissionDetail();
+    newSubmissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+
+    var opportunityDetail = new OpportunityDetail();
+    when(opportunityDetailPersistenceService.getOpportunityDetail(oldSubmissionDetail))
+        .thenReturn(Optional.of(opportunityDetail));
+    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, opportunityDetail,
+        OpportunityDetail.class)).thenReturn(opportunityDetail);
+    opportunityDetailDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    assertThat(opportunityDetail.getOpportunityType())
+        .isEqualTo(OpportunityType.DRY_WELL);
+    verify(entityManager, times(1)).persist(opportunityDetail);
   }
 
   @Test

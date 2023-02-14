@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamT
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -36,6 +37,7 @@ public class SubmissionCreateService {
   private final SubmissionDetailDuplicationService submissionDetailDuplicationService;
   private final ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
   private final PermissionService permissionService;
   private final UserDetailService userDetailService;
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
@@ -48,6 +50,7 @@ public class SubmissionCreateService {
                                  SubmissionDetailDuplicationService submissionDetailDuplicationService,
                                  ResponsibleTeamPersistenceService responsibleTeamPersistenceService,
                                  ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+                                 OpportunityDetailsPersistenceService opportunityDetailsPersistenceService,
                                  PermissionService permissionService,
                                  UserDetailService userDetailService,
                                  SubmissionDetailPersistenceService submissionDetailPersistenceService) {
@@ -58,6 +61,7 @@ public class SubmissionCreateService {
     this.submissionDetailDuplicationService = submissionDetailDuplicationService;
     this.responsibleTeamPersistenceService = responsibleTeamPersistenceService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+    this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
     this.permissionService = permissionService;
     this.userDetailService = userDetailService;
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
@@ -115,6 +119,7 @@ public class SubmissionCreateService {
     var submissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(resource, SubmissionType.CREATE_DISCOVERY);
     resourceDetailsPersistenceService.createInitialResourceDetail(form, submissionDetail);
+    opportunityDetailsPersistenceService.createInitialOpportunityDetail(submissionDetail);
     return submissionDetail;
   }
 

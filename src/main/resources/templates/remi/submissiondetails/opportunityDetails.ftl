@@ -17,20 +17,20 @@
   breadcrumbsMap=breadcrumbsMap>
 
     <@fdsForm.htmlForm>
-
-      <@fdsRadio.radioGroup path="form.opportunityType" labelText="Opportunity type" hiddenContent=true>
+      <#if prospectSubmission>
+        <@fdsRadio.radioGroup path="form.opportunityType" labelText="Opportunity type" hiddenContent=true>
           <#assign firstItem=true/>
           <#list opportunityTypes as key, value>
-              <@fdsRadio.radioItem path="form.opportunityType" itemMap={key : value} isFirstItem=firstItem>
-                <#if key == "OTHER">
-                  <@fdsTextInput.textInput path="form.otherTypeOfOpportunity"
+            <@fdsRadio.radioItem path="form.opportunityType" itemMap={key : value} isFirstItem=firstItem>
+              <#if key == "OTHER">
+                <@fdsTextInput.textInput path="form.otherTypeOfOpportunity"
                   labelText="Enter the type of opportunity" nestingPath="form.opportunityType"/>
-                </#if>
-                <#assign firstItem=false/>
-              </@fdsRadio.radioItem>
+              </#if>
+              <#assign firstItem=false/>
+            </@fdsRadio.radioItem>
           </#list>
-      </@fdsRadio.radioGroup>
-
+        </@fdsRadio.radioGroup>
+      </#if>
       <@fdsTextarea.textarea path="form.opportunityComments" labelText="Opportunity comments" optionalLabel=true/>
 
       <@fdsTextarea.textarea path="form.keyEvaluationWorkCarriedOut" labelText="Key evaluation work carried out"/>

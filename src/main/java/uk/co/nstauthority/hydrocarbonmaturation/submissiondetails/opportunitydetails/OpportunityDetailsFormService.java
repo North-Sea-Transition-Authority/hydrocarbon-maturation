@@ -48,7 +48,9 @@ class OpportunityDetailsFormService implements SubmissionFormService {
                                                                List<FileUploadForm> mapOfOpportunityUploads) {
     var form = new OpportunityDetailsForm();
     form.setOpportunityComments(opportunityDetail.getOpportunityComments());
-    form.setOpportunityType(opportunityDetail.getOpportunityType());
+    if (opportunityDetail.getSubmissionDetail().isProspectSubmission()) {
+      form.setOpportunityType(opportunityDetail.getOpportunityType());
+    }
     form.setOtherTypeOfOpportunity(opportunityDetail.getOtherTypeOfOpportunity());
     form.setKeyEvaluationWorkCarriedOut(opportunityDetail.getKeyEvaluationWorkCarriedOut());
     form.setKeyWorkRequiredForFurtherMaturation(opportunityDetail.getKeyWorkRequiredForFurtherMaturation());

@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,27 +16,44 @@ class OpportunityDetailsDuplicationService implements SubmissionSectionDuplicati
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
   private final SupportingDocumentService supportingDocumentService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final EntityManager entityManager;
 
   @Autowired
   OpportunityDetailsDuplicationService(OpportunityDetailsPersistenceService opportunityDetailsPersistenceService,
                                        SupportingDocumentService supportingDocumentService,
-                                       SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+                                       SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
+                                       EntityManager entityManager) {
     this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
     this.supportingDocumentService = supportingDocumentService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.entityManager = entityManager;
   }
 
   @Override
   @Transactional
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
     opportunityDetailsPersistenceService.getOpportunityDetail(oldSubmissionDetail)
-        .ifPresent(opportunityDetail ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, opportunityDetail,
-                OpportunityDetail.class));
+        .ifPresent(opportunityDetail -> {
+          var newOpportunityDetail = submissionDuplicationPersistenceService
+              .duplicateChildAndReplaceParent(newSubmissionDetail, opportunityDetail, OpportunityDetail.class);
+          if (newSubmissionDetail.isDryWellOrDiscoverySubmission()) {
+            setOpportunityType(newOpportunityDetail, newSubmissionDetail);
+          }
+        });
 
     supportingDocumentService.getSupportingDocumentsForType(oldSubmissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY)
         .forEach(supportingDocument ->
             submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument,
                 SupportingDocument.class));
+  }
+
+  @Transactional
+  void setOpportunityType(OpportunityDetail opportunityDetail, SubmissionDetail newSubmissionDetail) {
+    if (newSubmissionDetail.isDiscoverySubmission()) {
+      opportunityDetail.setOpportunityType(OpportunityType.DISCOVERY);
+    } else if (newSubmissionDetail.isDryWellSubmission()) {
+      opportunityDetail.setOpportunityType(OpportunityType.DRY_WELL);
+    }
+    entityManager.persist(opportunityDetail);
   }
 }

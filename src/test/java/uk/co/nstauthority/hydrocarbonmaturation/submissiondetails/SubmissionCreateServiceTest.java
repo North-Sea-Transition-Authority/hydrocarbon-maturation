@@ -32,6 +32,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.RelinquishmentForm;
@@ -77,6 +79,9 @@ class SubmissionCreateServiceTest {
 
   @Mock
   private PermissionService permissionService;
+
+  @Mock
+  private OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
 
   @Mock
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;

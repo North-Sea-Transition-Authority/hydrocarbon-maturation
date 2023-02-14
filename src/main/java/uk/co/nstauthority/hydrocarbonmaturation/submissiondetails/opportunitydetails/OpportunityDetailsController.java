@@ -81,12 +81,13 @@ public class OpportunityDetailsController {
   private ModelAndView getOpportunityDetailsModelAndView(OpportunityDetailsForm form, SubmissionDetail submissionDetail,
                                                          List<UploadedFileView> mapOfOpportunityUploads) {
     ModelAndView modelAndView = new ModelAndView("remi/submissiondetails/opportunityDetails")
-        .addObject("opportunityTypes", OpportunityType.getOpportunityType())
+        .addObject("opportunityTypes", OpportunityType.getSelectableOpportunityTypes())
         .addObject("form", form)
         .addObject("pageTitle", PAGE_NAME)
         .addObject("mapOfOpportunityTemplate", supportingDocumentService.buildFileUploadTemplate(
             submissionDetail.getId(),
             SupportingDocumentType.MAP_OF_OPPORTUNITY))
+        .addObject("prospectSubmission", submissionDetail.isProspectSubmission())
         .addObject("mapOfOpportunityUploads", mapOfOpportunityUploads);
 
     return TaskListBreadcrumbUtil

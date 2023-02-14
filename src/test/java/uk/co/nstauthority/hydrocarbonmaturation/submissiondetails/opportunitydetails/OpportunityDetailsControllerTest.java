@@ -157,7 +157,7 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
 
     assertEquals(OpportunityDetailsForm.class, modelMap.get("form").getClass());
     assertThat(modelMap).contains(
-        entry("opportunityTypes", OpportunityType.getOpportunityType()),
+        entry("opportunityTypes", OpportunityType.getSelectableOpportunityTypes()),
         entry("pageTitle", OpportunityDetailsController.PAGE_NAME)
     )
     .containsKeys("breadcrumbsMap", "mapOfOpportunityTemplate");
