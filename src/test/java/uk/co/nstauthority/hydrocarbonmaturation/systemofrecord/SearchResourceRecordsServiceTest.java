@@ -195,4 +195,32 @@ class SearchResourceRecordsServiceTest {
       verify(organisationUnitQueryService).getPreSelectedOrganisationUnit(responsibleOrganisationId);
     }
   }
+
+  @Nested
+  class WhenGettingPreSelectedQuadBlock {
+
+    private SearchResourceRecordsForm form;
+
+    @BeforeEach
+    void setup() {
+      form = new SearchResourceRecordsForm();
+    }
+
+    @Test
+    void noSelectedQuadBlock_ReturnsEmptyMap() {
+      var result = underTest.getPreSelectedQuadAndBlock(form);
+
+      assertThat(result).isEqualTo(Map.of());
+    }
+
+    @Test
+    void preSelectedQuadBlock_VerifyCalls() {
+      var quadBlockSelected = "15/10";
+      form.setCentreOfInterestBlock(quadBlockSelected);
+
+      var result = underTest.getPreSelectedQuadAndBlock(form);
+
+      verify(searchSelectorService).buildPrePopulatedSelection(quadBlockSelected, quadBlockSelected);
+    }
+  }
 }

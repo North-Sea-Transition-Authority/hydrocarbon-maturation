@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -63,6 +64,10 @@ public class SearchResourceRecordsController {
         .addObject("resourceName", searchResourceRecordsService.getPreSelectedResourceName(form))
         .addObject("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
             .searchOrganisationUnits(null)))
-        .addObject("responsibleOrganisation", searchResourceRecordsService.getPreSelectedOrganisationUnit(form));
+        .addObject("responsibleOrganisation", searchResourceRecordsService.getPreSelectedOrganisationUnit(form))
+        .addObject("centreOfInterestBlock", searchResourceRecordsService.getPreSelectedQuadAndBlock(form))
+        .addObject("quadrantBlocksApiEndpoint",
+            SearchSelectorService.route(on(ReferenceBlockRestController.class)
+                .searchQuadrantBlocks(null)));
   }
 }

@@ -69,6 +69,19 @@ class SearchResourceRecordsService {
     return form;
   }
 
+  public Map<String, String> getPreSelectedQuadAndBlock(SearchResourceRecordsForm form) {
+    var centreOfInterestQuadBlock = form.getCentreOfInterestBlock();
+
+    if (centreOfInterestQuadBlock == null) {
+      return Map.of();
+    }
+
+    return searchSelectorService.buildPrePopulatedSelection(
+        centreOfInterestQuadBlock,
+        centreOfInterestQuadBlock
+    );
+  }
+
   private ResourceRecordSearchResultItem buildResourceRecordSearchResultItem(
       ResourceRecordQueryResult resourceRecordQueryResult) {
     return new ResourceRecordSearchResultItem(

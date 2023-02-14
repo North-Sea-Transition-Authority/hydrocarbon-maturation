@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -81,7 +82,10 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
             entry("resourceName", Map.of()),
             entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
                 .searchOrganisationUnits(null))),
-            entry("responsibleOrganisation", Map.of())
+            entry("responsibleOrganisation", Map.of()),
+            entry("quadrantBlocksApiEndpoint", SearchSelectorService.route(on(ReferenceBlockRestController.class)
+                .searchQuadrantBlocks(null))),
+            entry("centreOfInterestBlock", Map.of())
         );
   }
 

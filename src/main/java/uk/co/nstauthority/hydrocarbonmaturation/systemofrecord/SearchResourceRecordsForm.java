@@ -4,6 +4,7 @@ class SearchResourceRecordsForm {
 
   private String resourceDetailIdForResourceSubmission;
   private Integer responsibleOrganisationId;
+  private String centreOfInterestBlock;
   private boolean prospectResourceType;
   private boolean discoveryResourceType;
 
@@ -37,5 +38,13 @@ class SearchResourceRecordsForm {
 
   public void setDiscoveryResourceType(boolean discoveryResourceType) {
     this.discoveryResourceType = discoveryResourceType;
+  }
+
+  public String getCentreOfInterestBlock() {
+    return centreOfInterestBlock;
+  }
+
+  public void setCentreOfInterestBlock(String centreOfInterestBlock) {
+    this.centreOfInterestBlock = centreOfInterestBlock;
   }
 }

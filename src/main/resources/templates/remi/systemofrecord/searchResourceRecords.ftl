@@ -39,6 +39,18 @@
             selectorMinInputLength=1
             preselectedItems=responsibleOrganisation!{}/>
         </@fdsSearch.searchFilterItem>
+        <@fdsSearch.searchFilterItem
+          itemName="Centre of interest quadrant and block"
+          expanded=centreOfInterestBlock?has_content>
+          <@fdsSearchSelector.searchSelectorRest
+            path="form.centreOfInterestBlock"
+            restUrl=springUrl(quadrantBlocksApiEndpoint)
+            labelText="Responsible organisation"
+            labelClass="govuk-visually-hidden"
+            inputClass="govuk-!-width-three-quarters"
+            selectorMinInputLength=1
+            preselectedItems=centreOfInterestBlock!{}/>
+        </@fdsSearch.searchFilterItem>
         <@fdsSearch.searchFilterItem itemName="Resource type" expanded=false>
           <@fdsCheckbox.checkboxGroup
             path="form.prospectResourceType"

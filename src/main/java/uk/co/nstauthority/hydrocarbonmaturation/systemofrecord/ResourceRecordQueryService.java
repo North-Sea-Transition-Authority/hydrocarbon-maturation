@@ -94,6 +94,12 @@ class ResourceRecordQueryService {
       );
     }
 
+    if (Objects.nonNull(form.getCentreOfInterestBlock())) {
+      conditionList.add(
+          field("tp.centre_of_interest_quadrant_block").eq(form.getCentreOfInterestBlock())
+      );
+    }
+
     conditionList.add(field("r.type").in(getResourceTypeCondition(form)));
 
     return conditionList;
