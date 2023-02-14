@@ -4,9 +4,12 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.select;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -16,6 +19,7 @@ import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.JooqSchemaProviderService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Service
@@ -68,8 +72,7 @@ class ResourceRecordQueryService {
             field("sd.id"),
             field("gd.id"),
             field("tp.id"),
-            field("rd.organisation_id"),
-            field("rd.resource_name")
+            field("rd.id")
         )
         .orderBy(field("sd.approved_timestamp").desc().nullsLast(),
             field("sd.created_timestamp").desc())
@@ -91,7 +94,20 @@ class ResourceRecordQueryService {
       );
     }
 
+    conditionList.add(field("r.type").in(getResourceTypeCondition(form)));
+
     return conditionList;
+  }
+
+  private Set<String> getResourceTypeCondition(SearchResourceRecordsForm form) {
+    var resourceTypeSet = new HashSet<String>();
+    if (BooleanUtils.isTrue(form.isProspectResourceType())) {
+      resourceTypeSet.add(ResourceType.PROSPECT.name());
+    }
+    if (BooleanUtils.isTrue(form.isDiscoveryResourceType())) {
+      resourceTypeSet.add(ResourceType.DISCOVERY.name());
+    }
+    return resourceTypeSet;
   }
 
   private Table<Record> remiTable(String tableName) {

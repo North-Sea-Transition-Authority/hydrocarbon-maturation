@@ -41,6 +41,17 @@ class SearchResourceRecordsServiceTest {
   @Mock
   private OrganisationUnitQueryService organisationUnitQueryService;
 
+  @Test
+  void getSearchResourceRecordsForm_assertResourceTypesSetToTrue() {
+    var returnedForm = underTest.getSearchResourceRecordsForm();
+    assertThat(returnedForm)
+        .hasAllNullFieldsOrPropertiesExcept("prospectResourceType", "discoveryResourceType")
+        .extracting(
+            SearchResourceRecordsForm::isDiscoveryResourceType,
+            SearchResourceRecordsForm::isProspectResourceType)
+        .containsOnly(true);
+  }
+
   @Nested
   class WhenGettingResourceRecordSearchResults {
 
@@ -120,42 +131,6 @@ class SearchResourceRecordsServiceTest {
       );
     }
 
-  }
-
-  @Nested
-  class WhenGettingFiltersAdded {
-
-    private SearchResourceRecordsForm form;
-
-    @BeforeEach
-    void setup() {
-      form = new SearchResourceRecordsForm();
-    }
-
-    @Test
-    void noFiltersAdded_ReturnsFalse() {
-      var result = underTest.getFiltersAdded(form);
-
-      assertThat(result).isFalse();
-    }
-
-    @Test
-    void resourceNameAdded_ReturnsTrue() {
-      form.setResourceDetailIdForResourceSubmission(UUID.randomUUID().toString());
-
-      var result = underTest.getFiltersAdded(form);
-
-      assertThat(result).isTrue();
-    }
-
-    @Test
-    void responsibleOrganisationAdded_ReturnsTrue() {
-      form.setResponsibleOrganisationId(1);
-
-      var result = underTest.getFiltersAdded(form);
-
-      assertThat(result).isTrue();
-    }
   }
 
   @Nested

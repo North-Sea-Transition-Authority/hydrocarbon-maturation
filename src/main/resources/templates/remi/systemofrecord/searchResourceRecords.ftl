@@ -39,6 +39,15 @@
             selectorMinInputLength=1
             preselectedItems=responsibleOrganisation!{}/>
         </@fdsSearch.searchFilterItem>
+        <@fdsSearch.searchFilterItem itemName="Resource type" expanded=false>
+          <@fdsCheckbox.checkboxGroup
+            path="form.prospectResourceType"
+            fieldsetHeadingText=""
+            fieldsetHeadingClass="govuk-!-width-three-quarters">
+            <@fdsCheckbox.checkboxItem path="form.prospectResourceType" labelText="Prospect"/>
+            <@fdsCheckbox.checkboxItem path="form.discoveryResourceType" labelText="Discovery"/>
+          </@fdsCheckbox.checkboxGroup>
+        </@fdsSearch.searchFilterItem>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>
     <@fdsSearch.searchPageContent twoThirdsWidth=true>

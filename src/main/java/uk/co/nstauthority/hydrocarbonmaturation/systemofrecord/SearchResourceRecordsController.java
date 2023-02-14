@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 @RequestMapping("/search-resource-records")
 @AccessibleByServiceUsers
 public class SearchResourceRecordsController {
+
   public static final String PAGE_TITLE = "Search resource records";
   private final SearchResourceRecordsService searchResourceRecordsService;
 
@@ -31,7 +32,7 @@ public class SearchResourceRecordsController {
 
   @GetMapping
   public ModelAndView showSearchResourceRecordsScreen() {
-    return getModelAndViewWithNoFiltersAdded(new SearchResourceRecordsForm());
+    return getModelAndViewWithNoFiltersAdded(searchResourceRecordsService.getSearchResourceRecordsForm());
   }
 
   @PostMapping
@@ -39,20 +40,21 @@ public class SearchResourceRecordsController {
     return getModelAndView(
         form,
         searchResourceRecordsService.getResourceRecordSearchResults(form),
-        searchResourceRecordsService.getFiltersAdded(form)
+        FiltersAdded.YES
     );
   }
 
   private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form) {
-    return getModelAndView(form, Collections.emptyList(), false);
+    return getModelAndView(form, Collections.emptyList(), FiltersAdded.NO);
   }
 
   private ModelAndView getModelAndView(SearchResourceRecordsForm form,
-                                       List<ResourceRecordSearchResultItem> resourceRecordSearchResults, boolean filtersAdded) {
+                                       List<ResourceRecordSearchResultItem> resourceRecordSearchResults,
+                                       FiltersAdded filtersAdded) {
     return new ModelAndView("remi/systemofrecord/searchResourceRecords")
         .addObject("form", form)
         .addObject("pageTitle", PAGE_TITLE)
-        .addObject("filtersAdded", filtersAdded)
+        .addObject("filtersAdded", filtersAdded.isHasFilters())
         .addObject("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
             .showSearchResourceRecordsScreen()))
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)

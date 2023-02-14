@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -57,7 +58,9 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
 
   @Test
   void showSearchResourceRecordsScreenModelAndView_assertModelProperties() throws Exception {
-
+    var form = new SearchResourceRecordsForm();
+    when(searchResourceRecordsService.getSearchResourceRecordsForm())
+        .thenReturn(form);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()))
                 .with(user(USER)))
@@ -69,6 +72,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
         .contains(
             entry("pageTitle", SearchResourceRecordsController.PAGE_TITLE),
             entry("filtersAdded", false),
+            entry("form", form),
             entry("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
                 .showSearchResourceRecordsScreen())),
             entry("resourceRecordSearchResultItems", Collections.emptyList()),

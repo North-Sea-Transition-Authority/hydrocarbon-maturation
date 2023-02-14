@@ -2,12 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
@@ -44,33 +41,16 @@ class SearchResourceRecordsService {
         .toList();
   }
 
-  boolean getFiltersAdded(SearchResourceRecordsForm form) {
-    var filtersAdded = new ArrayList<>();
-
-    var generalDetailIdForResourceSubmission = form.getResourceDetailIdForResourceSubmission();
-    var responsibleOrganisationId = form.getResponsibleOrganisationId();
-
-    if (StringUtils.isNotBlank(generalDetailIdForResourceSubmission)) {
-      filtersAdded.add(generalDetailIdForResourceSubmission);
-    }
-
-    if (Objects.nonNull(form.getResponsibleOrganisationId())) {
-      filtersAdded.add(responsibleOrganisationId);
-    }
-
-    return !filtersAdded.isEmpty();
-  }
-
   public Map<String, String> getPreSelectedResourceName(SearchResourceRecordsForm form) {
-    var generalDetailIdForResourceSubmission = form.getResourceDetailIdForResourceSubmission();
+    var resourceDetailIdForResourceSubmission = form.getResourceDetailIdForResourceSubmission();
 
-    if (generalDetailIdForResourceSubmission == null) {
+    if (resourceDetailIdForResourceSubmission == null) {
       return Map.of();
     }
 
     return searchSelectorService.buildPrePopulatedSelection(
-        generalDetailIdForResourceSubmission,
-        submissionResourceService.getResourceDisplayName(UUID.fromString(generalDetailIdForResourceSubmission))
+        resourceDetailIdForResourceSubmission,
+        submissionResourceService.getResourceDisplayName(UUID.fromString(resourceDetailIdForResourceSubmission))
     );
   }
 
@@ -80,6 +60,13 @@ class SearchResourceRecordsService {
     }
 
     return organisationUnitQueryService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId());
+  }
+
+  public SearchResourceRecordsForm getSearchResourceRecordsForm() {
+    var form = new SearchResourceRecordsForm();
+    form.setProspectResourceType(true);
+    form.setDiscoveryResourceType(true);
+    return form;
   }
 
   private ResourceRecordSearchResultItem buildResourceRecordSearchResultItem(
