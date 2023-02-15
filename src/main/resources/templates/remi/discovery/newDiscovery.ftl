@@ -1,6 +1,6 @@
 <#include '../layout/layout.ftl'>
 
-<#assign pageTitle = "Create a new post-drill discovery" />
+<#assign pageTitle = "Create a discovery not related to a drill on a prospect" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 
