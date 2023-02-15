@@ -5,7 +5,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 
 public enum SubmissionType implements Displayable {
-  CREATE_PROSPECT("Prospect", "Create a new prospect", 10),
+  CREATE_PROSPECT("Prospect create", "Create a new prospect", 10),
   PROSPECT_UPDATE("Prospect update", "Update an existing prospect", 20),
   POST_DRILL_DRY_HOLE("Post-drill dry hole submission", "Advise of a post-drill dry hole", 30),
   CREATE_DISCOVERY_FROM_PROSPECT("Post-drill discovery", "Advise of a post-drill discovery", 40),

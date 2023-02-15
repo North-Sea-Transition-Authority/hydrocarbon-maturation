@@ -78,7 +78,7 @@ class WorkAreaItemServiceTest {
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
-                "Prospect",
+                "Prospect create",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId()))),
             tuple(
@@ -131,7 +131,7 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             WorkAreaItemType.SUBMISSION,
             "resource name (25/5)",
-            "Prospect",
+            "Prospect create",
             ReverseRouter.route(on(TaskListController.class)
                 .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId())));
 
@@ -173,7 +173,7 @@ class WorkAreaItemServiceTest {
                 "Created on " + LocalDateTime.ofInstant(
                     createdOn,
                     ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")),
-                "Prospect",
+                "Prospect create",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(submissionWorkAreaQueryResult.getSubmissionDetailId())))
         );
@@ -203,7 +203,7 @@ class WorkAreaItemServiceTest {
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
-                "Prospect",
+                "Prospect create",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId())))
         );
@@ -233,7 +233,7 @@ class WorkAreaItemServiceTest {
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
-                "Prospect",
+                "Prospect create",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId())))
         );
