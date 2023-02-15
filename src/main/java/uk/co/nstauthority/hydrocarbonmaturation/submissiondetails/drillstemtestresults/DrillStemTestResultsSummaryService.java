@@ -51,6 +51,7 @@ public class DrillStemTestResultsSummaryService {
     final String psia = "psia";
     final String ftTvdss = "ft tvdss";
     final String bpd = "bpd";
+    final String mmscfpd = "mmscfpd";
     return new DrillStemTestResultSummaryView(
         StringUtils.defaultIfBlank(drillStemTestResult.getTestNumber(), resultCounter.toString()),
         StringUtils.defaultIfBlank(drillStemTestResult.getFormationName(), ""),
@@ -59,7 +60,7 @@ public class DrillStemTestResultsSummaryService {
         NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBhfp(), psia),
         NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getWhfp(), psia),
         NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getFlowDuration(), hours),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getGasFlowrate(), bpd),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getGasFlowrate(), mmscfpd),
         NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getOilFlowrate(), bpd),
         NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getWaterFlowrate(), bpd),
         StringUtils.defaultIfBlank(drillStemTestResult.getCommentsInterpretation(), ""),

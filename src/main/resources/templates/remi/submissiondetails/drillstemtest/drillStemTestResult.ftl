@@ -53,9 +53,10 @@
     <@fdsTextInput.textInput
       path="form.gasFlowrate.decimalInputValue"
       labelText="Gas flowrate"
-      suffix="bpd"
+      suffix="mmscfpd"
       inputClass="govuk-input--width-5"
-      nestingPath="form.gasFlowrate"/>
+      nestingPath="form.gasFlowrate"
+      suffixScreenReaderPrompt="in million standard cubic feet per day"/>
     <@fdsTextInput.textInput
       path="form.oilFlowrate.decimalInputValue"
       labelText="Oil flowrate"
@@ -67,7 +68,8 @@
       labelText="Water flowrate"
       suffix="bpd"
       inputClass="govuk-input--width-5"
-      nestingPath="form.waterFlowrate"/>
+      nestingPath="form.waterFlowrate"
+      />
     <@fdsTextarea.textarea
       path="form.commentsInterpretation"
       optionalLabel=true
