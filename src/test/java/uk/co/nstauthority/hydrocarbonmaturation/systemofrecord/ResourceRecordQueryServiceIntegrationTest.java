@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -732,6 +733,128 @@ class ResourceRecordQueryServiceIntegrationTest {
         );
   }
 
+  @Test
+  void getResourceRecordSearchResults_whenFilterOnLicenceRound_whenPartialMatch_assertResultReturned() {
+    var resourceWithMatchingLicenceApplication  = buildDiscoveryResource();
+    var resourceNotMatchingLicenceApplication = buildDiscoveryResource();
+    var submissionMatchingFilter = buildSubmissionDetail(resourceWithMatchingLicenceApplication ,
+        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var submissionNotMatchingFilter = buildSubmissionDetail(resourceNotMatchingLicenceApplication,
+        SubmissionType.CREATE_PROSPECT);
+    var matchingFilterLicenceRound = "LICENCE_ROUND_9000";
+    var matchingFilterGeneralDetail = createGeneralDetail(submissionMatchingFilter);
+    var notMatchingFilterRound = "COOL_LICENCE";
+    var notMatchingFilterGeneralDetail = createGeneralDetail(submissionNotMatchingFilter);
+    notMatchingFilterGeneralDetail.setLicenceApplicationReference(notMatchingFilterRound);
+    matchingFilterGeneralDetail.setLicenceApplicationReference(matchingFilterLicenceRound);
+
+    createResourceDetail(submissionNotMatchingFilter, "default", 1);
+    createResourceDetail(submissionMatchingFilter, "default", 1);
+    createOpportunityDetail(OpportunityType.DISCOVERY, submissionMatchingFilter);
+    createOpportunityDetail(OpportunityType.DISCOVERY, submissionNotMatchingFilter);
+
+    var form = new SearchResourceRecordsForm();
+    form.setLicenceRound("9000");
+
+    var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::getSubmissionDetailId
+        )
+        .containsExactly(
+            submissionMatchingFilter.getId()
+        );
+  }
+
+  @Test
+  void getResourceRecordSearchResults_whenFilterOnLicenceRound_whenNoMatch_assertNoResult() {
+    var resourceNotMatchingLicenceApplication = buildDiscoveryResource();
+    var submissionNotMatchingLicenceApplication = buildSubmissionDetail(resourceNotMatchingLicenceApplication,
+        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var notMatchingFilterLicenceApplication = "LICENCE_ROUND_9000";
+    createResourceDetail(submissionNotMatchingLicenceApplication, "NOT_RELEVANT", 1);
+    var generalDetailNotMatchingLicenceApp = createGeneralDetail(submissionNotMatchingLicenceApplication);
+    generalDetailNotMatchingLicenceApp.setLicenceApplicationReference(notMatchingFilterLicenceApplication);
+    createOpportunityDetail(OpportunityType.DISCOVERY, submissionNotMatchingLicenceApplication);
+
+    var form = new SearchResourceRecordsForm();
+    form.setLicenceRound("cool");
+
+    var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .isEmpty();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"FIRST", "SECOND"})
+  void getResourceSearchResults_filterOnLicenceRound_whenLicenceRoundOnOlderSubmissionOrCurrent_assertReturnsLatest(
+      String licenceRoundFilter) {
+    var resourceWithTwoLicenceRounds = buildProspectResource();
+    var firstSubmission = buildSubmissionDetail(resourceWithTwoLicenceRounds,
+        SubmissionType.CREATE_PROSPECT);
+    var latestSubmission = buildSubmissionDetail(resourceWithTwoLicenceRounds,
+        SubmissionType.PROSPECT_UPDATE);
+
+    var firstLicenceRoundAndReference = "FIRST_LICENCE";
+    var latestLicenceRoundAndReference = "SECOND_LICENCE";
+    createResourceDetail(firstSubmission, "not_relevant_name", 1);
+    createResourceDetail(latestSubmission, "not_relevant_name", 1);
+    var firstSubmissionGeneralDetail = createGeneralDetail(firstSubmission);
+    firstSubmissionGeneralDetail.setLicenceApplicationReference(firstLicenceRoundAndReference);
+    entityManager.persistAndFlush(firstSubmissionGeneralDetail);
+    var latestGeneralDetail = createGeneralDetail(latestSubmission);
+    latestGeneralDetail.setLicenceApplicationReference(latestLicenceRoundAndReference);
+    entityManager.persistAndFlush(latestGeneralDetail);
+    var form = new SearchResourceRecordsForm();
+    form.setLicenceRound(licenceRoundFilter);
+
+    var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::getSubmissionDetailId,
+            ResourceRecordQueryResult::getResourceType,
+            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
+            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+        )
+        .containsExactly(
+            tuple(
+                latestSubmission.getId(),
+                ResourceType.PROSPECT,
+                latestSubmission.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
+                latestSubmission.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+            )
+        );
+  }
+
+  @Test
+  void getResourceRecordSearchResults_whenFilterOnLicenceRound_whenLicenceRoundOnNewerDraftSubmission_assertNoResult() {
+    var resourceWithLicenceApplications = buildProspectResource();
+    var approvedSubmission = buildSubmissionDetail(resourceWithLicenceApplications,
+        SubmissionType.CREATE_PROSPECT);
+    var draftSubmission = buildSubmissionDetail(resourceWithLicenceApplications,
+        SubmissionType.PROSPECT_UPDATE);
+    draftSubmission.setStatus(SubmissionDetailStatus.DRAFT);
+    var approvedLicenceRoundAndReference = "FIRST_LICENCE";
+    var draftLicenceRoundAndReferenceMatchingFilter = "SECOND_LICENCE";
+    createResourceDetail(approvedSubmission, "not_relevant", 1);
+    createResourceDetail(draftSubmission, "not_relevant", 1);
+    var approvedGeneralDetail = createGeneralDetail(approvedSubmission);
+    approvedGeneralDetail.setLicenceApplicationReference(approvedLicenceRoundAndReference);
+    var draftGeneralDetail = createGeneralDetail(draftSubmission);
+    draftGeneralDetail.setLicenceApplicationReference(draftLicenceRoundAndReferenceMatchingFilter);
+
+    var form = new SearchResourceRecordsForm();
+    form.setLicenceRound("SECOND");
+
+    var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .isEmpty();
+  }
+
   private ResourceLink createResourceLink(Resource prospect, Resource discovery) {
     var resourceLink = new ResourceLink();
     resourceLink.setDiscoveryResource(discovery);
@@ -811,7 +934,7 @@ class ResourceRecordQueryServiceIntegrationTest {
     resource.setType(ResourceType.PROSPECT);
     
     entityManager.persistAndFlush(resource);
-    
+
     return resource;
   }
 

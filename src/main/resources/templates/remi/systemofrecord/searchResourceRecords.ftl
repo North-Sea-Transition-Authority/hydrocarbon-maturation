@@ -61,6 +61,11 @@
             selectorMinInputLength=1
             preselectedItems=preselectedLicence!{}/>
         </@fdsSearch.searchFilterItem>
+        <@fdsSearch.searchFilterItem itemName="Licence round and reference" expanded=preselectedLicenceRound?has_content>
+          <@fdsTextInput.textInput
+            path="form.licenceRound"
+            labelText=""/>
+        </@fdsSearch.searchFilterItem>
         <@fdsSearch.searchFilterItem itemName="Resource type">
           <@fdsSearch.searchCheckboxes path="form.resourceTypes" checkboxes=resourceTypes/>
         </@fdsSearch.searchFilterItem>

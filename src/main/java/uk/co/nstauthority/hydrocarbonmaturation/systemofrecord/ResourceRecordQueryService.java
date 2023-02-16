@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.not;
 import static org.jooq.impl.DSL.select;
 
 import java.util.ArrayList;
@@ -138,7 +139,30 @@ class ResourceRecordQueryService {
                   .eq(Integer.parseInt(form.getLicenceId()))).isNotNull()
       );
     }
+
+    if (Objects.nonNull(form.getLicenceRound())) {
+      conditionList.add(getLicenceRoundCondition(form));
+    }
+
     return conditionList;
+  }
+
+  private Condition getLicenceRoundCondition(SearchResourceRecordsForm form) {
+    // Excludes resources from the search results
+    // which don't have the licence round and reference supplied to the form
+    // on the latest submission or any earlier approved submissions
+    return field("gd.licence_application_reference")
+        .likeIgnoreCase("%" + form.getLicenceRound() + "%")
+        .orExists(
+            context
+                .select()
+                .from(remiTable("submission_details").as("sd3"))
+                .join(remiTable("general_details").as("gd3"))
+                .on(field("gd3.submission_detail_id").eq(field("sd3.id"))
+                    .and(field("sd3.status").eq(SubmissionDetailStatus.APPROVED.name()))
+                    .and(field("sd3.resource_id").eq(field("sd.resource_id"))))
+                .where(field("gd3.licence_application_reference")
+                    .likeIgnoreCase("%" + form.getLicenceRound() + "%")));
   }
 
   private Condition getOpportunityTypeCondition(SearchResourceRecordsForm form) {

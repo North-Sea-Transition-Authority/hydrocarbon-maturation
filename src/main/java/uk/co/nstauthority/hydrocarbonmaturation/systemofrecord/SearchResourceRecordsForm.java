@@ -9,6 +9,7 @@ class SearchResourceRecordsForm {
   private Integer responsibleOrganisationId;
   private List<String> resourceTypes = new ArrayList<>();
   private List<String> opportunityTypes = new ArrayList<>();
+  private String licenceRound;
   private String centreOfInterestBlock;
   private String licenceId;
 
@@ -34,6 +35,14 @@ class SearchResourceRecordsForm {
 
   public void setCentreOfInterestBlock(String centreOfInterestBlock) {
     this.centreOfInterestBlock = centreOfInterestBlock;
+  }
+
+  public String getLicenceRound() {
+    return licenceRound;
+  }
+
+  public void setLicenceRound(String licenceRound) {
+    this.licenceRound = licenceRound;
   }
 
   public String getLicenceId() {
