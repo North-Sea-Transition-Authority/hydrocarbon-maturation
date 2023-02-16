@@ -128,7 +128,7 @@ class OpportunityDetailsPersistenceServiceTest {
     }
     var opportunityDetailsArgumentCaptor = ArgumentCaptor.forClass(OpportunityDetail.class);
 
-    opportunityDetailsPersistenceService.createInitialOpportunityDetail(submissionDetail);
+    opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(submissionDetail);
 
     verify(opportunityDetailsRepository, times(1)).save(opportunityDetailsArgumentCaptor.capture());
     var savedOpportunityDetail = (OpportunityDetail) opportunityDetailsArgumentCaptor.getValue();

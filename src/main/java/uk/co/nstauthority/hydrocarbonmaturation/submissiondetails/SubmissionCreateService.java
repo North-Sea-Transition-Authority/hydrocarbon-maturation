@@ -108,6 +108,7 @@ public class SubmissionCreateService {
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
+    opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(newSubmissionDetail);
 
     return newSubmissionDetail;
   }
@@ -119,7 +120,7 @@ public class SubmissionCreateService {
     var submissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(resource, SubmissionType.CREATE_DISCOVERY);
     resourceDetailsPersistenceService.createInitialResourceDetail(form, submissionDetail);
-    opportunityDetailsPersistenceService.createInitialOpportunityDetail(submissionDetail);
+    opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(submissionDetail);
     return submissionDetail;
   }
 
@@ -140,7 +141,7 @@ public class SubmissionCreateService {
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
-
+    opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(newSubmissionDetail);
     return newSubmissionDetail;
   }
 
@@ -155,6 +156,7 @@ public class SubmissionCreateService {
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
+    opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(newSubmissionDetail);
 
     return newSubmissionDetail;
   }

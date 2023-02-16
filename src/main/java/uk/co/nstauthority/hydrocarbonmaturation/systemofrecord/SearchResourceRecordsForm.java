@@ -1,12 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class SearchResourceRecordsForm {
 
   private String resourceDetailIdForResourceSubmission;
   private Integer responsibleOrganisationId;
+  private List<String> resourceTypes = new ArrayList<>();
+  private List<String> opportunityTypes = new ArrayList<>();
   private String centreOfInterestBlock;
-  private boolean prospectResourceType;
-  private boolean discoveryResourceType;
   private String licenceId;
 
   public String getResourceDetailIdForResourceSubmission() {
@@ -25,22 +28,6 @@ class SearchResourceRecordsForm {
     this.responsibleOrganisationId = responsibleOrganisationId;
   }
 
-  public boolean isProspectResourceType() {
-    return prospectResourceType;
-  }
-
-  public void setProspectResourceType(boolean prospectResourceType) {
-    this.prospectResourceType = prospectResourceType;
-  }
-
-  public boolean isDiscoveryResourceType() {
-    return discoveryResourceType;
-  }
-
-  public void setDiscoveryResourceType(boolean discoveryResourceType) {
-    this.discoveryResourceType = discoveryResourceType;
-  }
-
   public String getCentreOfInterestBlock() {
     return centreOfInterestBlock;
   }
@@ -55,5 +42,22 @@ class SearchResourceRecordsForm {
 
   public void setLicenceId(String licenceId) {
     this.licenceId = licenceId;
+  }
+
+  public List<String> getResourceTypes() {
+    return resourceTypes;
+  }
+
+  public void setResourceTypes(List<String> resourceTypes) {
+    this.resourceTypes = resourceTypes;
+  }
+
+  public List<String> getOpportunityTypes() {
+    return opportunityTypes;
+  }
+
+  public void setOpportunityTypes(
+      List<String> opportunityTypes) {
+    this.opportunityTypes = opportunityTypes;
   }
 }

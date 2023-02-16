@@ -72,6 +72,8 @@ public class SearchResourceRecordsController {
         .addObject("centreOfInterestBlock", searchResourceRecordsService.getPreSelectedQuadAndBlock(form))
         .addObject("quadrantBlocksApiEndpoint",
             SearchSelectorService.route(on(ReferenceBlockRestController.class)
-                .searchQuadrantBlocks(null)));
+                .searchQuadrantBlocks(null)))
+        .addObject("opportunityTypes", searchResourceRecordsService.getOpportunityTypes())
+        .addObject("resourceTypes", searchResourceRecordsService.getResourceTypes());
   }
 }

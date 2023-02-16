@@ -12,12 +12,15 @@ import org.jooq.DSLContext;
 import org.jooq.conf.RenderMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.JooqSchemaProviderService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -26,6 +29,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
 
@@ -52,7 +57,7 @@ class ResourceRecordQueryServiceIntegrationTest {
 
   @Test
   void getResourceRecordSearchResults_whenOneFullSubmission_assertAllValuesAndOrderIsCorrect() {
-    var resource1 = buildResource();
+    var resource1 = buildProspectResource();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
@@ -66,7 +71,7 @@ class ResourceRecordQueryServiceIntegrationTest {
     var license1 = createLicense(951, "AL10", generalDetails1);
     var license2 = createLicense(953, "AL6", generalDetails1);
 
-    var resource2 = buildResource();
+    var resource2 = buildProspectResource();
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
     var resourceName2 = "The resource name B";
     var organisationId2 = 48;
@@ -81,7 +86,9 @@ class ResourceRecordQueryServiceIntegrationTest {
     var license4 = createLicense(351, "BL6", generalDetails2);
 
     var form = new SearchResourceRecordsForm();
-    form.setProspectResourceType(true);
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    form.setOpportunityTypes(List.of("NOT_SET"));
+
     var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(List.of(results.get(0), results.get(1)))
@@ -121,7 +128,7 @@ class ResourceRecordQueryServiceIntegrationTest {
 
   @Test
   void getResourceRecordSearchResults_whenTwoSubmissionsForOneResource_assertLatestApprovedIsDisplayed() {
-    var resource1 = buildResource();
+    var resource1 = buildProspectResource();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
@@ -148,7 +155,9 @@ class ResourceRecordQueryServiceIntegrationTest {
     var license4 = createLicense(351, "BL6", generalDetails2);
 
     var form = new SearchResourceRecordsForm();
-    form.setProspectResourceType(true);
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    form.setOpportunityTypes(List.of("NOT_SET"));
+
     var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(List.of(results.get(0)))
@@ -178,7 +187,7 @@ class ResourceRecordQueryServiceIntegrationTest {
 
   @Test
   void getResourceRecordSearchResults_whenFilteringOnResourceName_assertOnlyFilteredDisplayed() {
-    var resource1 = buildResource();
+    var resource1 = buildProspectResource();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
@@ -191,7 +200,7 @@ class ResourceRecordQueryServiceIntegrationTest {
     var license1 = createLicense(951, "AL10", generalDetails1);
     var license2 = createLicense(953, "AL6", generalDetails1);
 
-    var resource2 = buildResource();
+    var resource2 = buildProspectResource();
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
     var resourceName2 = "The resource name B";
     var organisationId2 = 48;
@@ -203,11 +212,12 @@ class ResourceRecordQueryServiceIntegrationTest {
 
     var license3 = createLicense(253, "BL10", generalDetails2);
     var license4 = createLicense(351, "BL6", generalDetails2);
+    var opportunityDetail = createOpportunityDetail(OpportunityType.PROSPECT, submissionDetail1);
 
     var form = new SearchResourceRecordsForm();
     form.setResourceDetailIdForResourceSubmission(resourceDetails1.getId().toString());
-    form.setProspectResourceType(true);
-
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    form.setOpportunityTypes(List.of(OpportunityType.PROSPECT.name()));
     var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
@@ -237,7 +247,7 @@ class ResourceRecordQueryServiceIntegrationTest {
 
   @Test
   void getResourceRecordSearchResults_whenFilteringOnResponsibleOrganisation_assertOnlyFilteredDisplayed() {
-    var resource1 = buildResource();
+    var resource1 = buildProspectResource();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
@@ -250,7 +260,7 @@ class ResourceRecordQueryServiceIntegrationTest {
     var license1 = createLicense(951, "AL10", generalDetails1);
     var license2 = createLicense(953, "AL6", generalDetails1);
 
-    var resource2 = buildResource();
+    var resource2 = buildProspectResource();
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
     var resourceName2 = "The resource name B";
     var organisationId2 = 48;
@@ -265,7 +275,8 @@ class ResourceRecordQueryServiceIntegrationTest {
 
     var form = new SearchResourceRecordsForm();
     form.setResponsibleOrganisationId(organisationId1);
-    form.setProspectResourceType(true);
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    form.setOpportunityTypes(List.of("NOT_SET"));
 
     var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
 
@@ -296,8 +307,7 @@ class ResourceRecordQueryServiceIntegrationTest {
 
   @Test
   void getResourceRecordSearchResults_whenFilteringOnResourceType_assertOnlyDiscoveryDisplayed() {
-    var resource1 = buildResource();
-    resource1.setType(ResourceType.DISCOVERY);
+    var resource1 = buildDiscoveryResource();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_DISCOVERY);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
@@ -310,13 +320,12 @@ class ResourceRecordQueryServiceIntegrationTest {
     var license1 = createLicense(951, "AL10", generalDetails1);
     var license2 = createLicense(953, "AL6", generalDetails1);
 
-    var resource2 = buildResource();
-    resource2.setType(ResourceType.PROSPECT);
+    var resource2 = buildProspectResource();
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
-    var form = new SearchResourceRecordsForm();
-    form.setDiscoveryResourceType(true);
-    form.setProspectResourceType(false);
 
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.DISCOVERY.name()));
+    form.setOpportunityTypes(List.of("NOT_SET"));
     var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
@@ -346,8 +355,7 @@ class ResourceRecordQueryServiceIntegrationTest {
 
   @Test
   void getResourceRecordSearchResults_whenFilteringOnResourceType_assertOnlyProspectDisplayed() {
-    var resource1 = buildResource();
-    resource1.setType(ResourceType.PROSPECT);
+    var resource1 = buildProspectResource();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
@@ -360,12 +368,11 @@ class ResourceRecordQueryServiceIntegrationTest {
     var license1 = createLicense(951, "AL10", generalDetails1);
     var license2 = createLicense(953, "AL6", generalDetails1);
 
-    var resource2 = buildResource();
-    resource2.setType(ResourceType.DISCOVERY);
+    var resource2 = buildDiscoveryResource();
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
     var form = new SearchResourceRecordsForm();
-    form.setDiscoveryResourceType(false);
-    form.setProspectResourceType(true);
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    form.setOpportunityTypes(List.of("NOT_SET"));
 
     var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
 
@@ -396,173 +403,129 @@ class ResourceRecordQueryServiceIntegrationTest {
 
   @Test
   void getResourceRecordSearchResults_whenFilteringOnResourceType_assertAllResourceTypesDisplayed() {
-    var resource1 = buildResource();
-    resource1.setType(ResourceType.DISCOVERY);
-    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_DISCOVERY);
-    var resourceName1 = "The resource name A";
-    var organisationId1 = 46;
-    var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
-    var generalDetails1 = createGeneralDetail(submissionDetail1);
-    var quadrantBlock1 = "25/12";
-    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
-    var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
+    var discoveryResource = buildDiscoveryResource();
 
-    var license1 = createLicense(951, "AL10", generalDetails1);
-    var license2 = createLicense(953, "AL6", generalDetails1);
+    var discoverySubmission = buildSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY);
+    var resourceDetails1 = createResourceDetail(
+        discoverySubmission, "NOT_RELEVANT_NAME", 1);
+    var discoveryGeneralDetail = createGeneralDetail(discoverySubmission);
 
-    var resource2 = buildResource();
-    resource2.setType(ResourceType.PROSPECT);
-    var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
-    var resourceName2 = "The resource name B";
-    var organisationId2 = 48;
-    var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
+    var prospectResource = buildProspectResource();
 
-    var generalDetails2 = createGeneralDetail(submissionDetail2);
-    var quadrantBlock2 = "50/11";
-    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
-    var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
+    var prospectSubmission = buildSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+    createResourceDetail(
+        prospectSubmission, "NOT_RELEVANT_NAME", 2);
 
-    var license3 = createLicense(253, "BL10", generalDetails2);
-    var license4 = createLicense(351, "BL6", generalDetails2);
+    var prospectGeneralDetail = createGeneralDetail(prospectSubmission);
+
     var form = new SearchResourceRecordsForm();
-    form.setDiscoveryResourceType(true);
-    form.setProspectResourceType(true);
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name(), ResourceType.DISCOVERY.name()));
+
+    form.setOpportunityTypes(List.of("NOT_SET"));
 
     var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            ResourceRecordQueryResult::getResourceName,
             ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn,
             result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
             result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
         )
         .containsExactly(
             tuple(
-                submissionDetail2.getId(),
-                centreOfInterestQuadrantBlock2.getQuadrantBlock(),
-                organisationId2,
-                resourceName2,
+                prospectSubmission.getId(),
                 ResourceType.PROSPECT,
-                List.of(license3.getLicenceId(), license4.getLicenceId()),
-                submissionDetail2.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail2.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                prospectSubmission.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
+                prospectSubmission.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             ),
             tuple(
-                submissionDetail1.getId(),
-                centreOfInterestQuadrantBlock1.getQuadrantBlock(),
-                organisationId1,
-                resourceName1,
+                discoverySubmission.getId(),
                 ResourceType.DISCOVERY,
-                List.of(license1.getLicenceId(), license2.getLicenceId()),
-                submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                discoverySubmission.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
+                discoverySubmission.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             )
         );
   }
 
   @Test
   void getResourceRecordSearchResults_whenFilteringOnQuadAndBlock_assertOnlyFilteredDisplayed() {
-    var resource1 = buildResource();
-    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
-    var resourceName1 = "The resource name A";
-    var organisationId1 = 46;
-    var generalDetails1 = createGeneralDetail(submissionDetail1);
-    var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
-    var quadrantBlock1 = "25/12";
-    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
-    var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
+    var resourceMatchingFilter = buildProspectResource();
+    var submissionMatchingFilter = buildSubmissionDetail(resourceMatchingFilter, SubmissionType.CREATE_PROSPECT);
+    var resourceNameForMatchingFilter = "The resource name A";
+    var generalDetailsMatchingFilter = createGeneralDetail(submissionMatchingFilter);
+    var resourceDetailsMatchingFilter = createResourceDetail(
+        submissionMatchingFilter, resourceNameForMatchingFilter, 1);
+    var quadrantBlockMatchingFilter = "25/12";
+    var centreOfInterestQuadrantBlockMatchingFilter =
+        createQuadAndBlock(generalDetailsMatchingFilter, quadrantBlockMatchingFilter);
+    var trapPropertyWithCentreOfInterestMatchingFilter =
+        createTrapProperty(submissionMatchingFilter, quadrantBlockMatchingFilter);
 
-    var license1 = createLicense(951, "AL10", generalDetails1);
-    var license2 = createLicense(953, "AL6", generalDetails1);
-
-    var resource2 = buildResource();
-    var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
-    var resourceName2 = "The resource name B";
-    var organisationId2 = 48;
-    var generalDetails2 = createGeneralDetail(submissionDetail2);
-    var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
-    var quadrantBlock2 = "50/11";
-    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
-    var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
-
-    var license3 = createLicense(253, "BL10", generalDetails2);
-    var license4 = createLicense(351, "BL6", generalDetails2);
+    var resourceNotMatchingFilter = buildProspectResource();
+    var submissionNotMatchingFilter = buildSubmissionDetail(resourceNotMatchingFilter, SubmissionType.CREATE_PROSPECT);
+    var generalDetailsNotMatchingFilter = createGeneralDetail(submissionNotMatchingFilter);
+    createResourceDetail(submissionNotMatchingFilter, "NOT_RELEVANT", 1);
+    var quadrantBlockNotMatchingFilter = "50/11";
+    var centreOfInterestQuadrantBlockNotMatchingFilter =
+        createQuadAndBlock(generalDetailsNotMatchingFilter, quadrantBlockNotMatchingFilter);
+    var trapPropertyWithNotMatchingFilterQuadBlock
+        = createTrapProperty(submissionNotMatchingFilter, quadrantBlockNotMatchingFilter);
 
     var form = new SearchResourceRecordsForm();
-    form.setCentreOfInterestBlock(quadrantBlock1);
-    form.setProspectResourceType(true);
+    form.setCentreOfInterestBlock(quadrantBlockMatchingFilter);
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    form.setOpportunityTypes(List.of("NOT_SET"));
+
     var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
             ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
             ResourceRecordQueryResult::getResourceName,
             ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn,
             result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
             result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
         )
         .containsExactly(
             tuple(
-                submissionDetail1.getId(),
-                centreOfInterestQuadrantBlock1.getQuadrantBlock(),
-                organisationId1,
-                resourceName1,
+                submissionMatchingFilter.getId(),
+                centreOfInterestQuadrantBlockMatchingFilter.getQuadrantBlock(),
+                resourceNameForMatchingFilter,
                 ResourceType.PROSPECT,
-                List.of(license1.getLicenceId(), license2.getLicenceId()),
-                submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                submissionMatchingFilter.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
+                submissionMatchingFilter.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             )
         );
   }
 
   @Test
   void getResourceRecordSearchResults_whenFilteringOnLicence_assertOnlyFilteredDisplayed() {
-    var resource1 = buildResource();
-    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
-    var resourceName1 = "The resource name A";
-    var organisationId1 = 46;
-    var generalDetails1 = createGeneralDetail(submissionDetail1);
-    var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
-    var quadrantBlock1 = "25/12";
-    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
-    var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
+    var resourceWithWrongLicences = buildProspectResource();
+    var submissionWithWrongLicences = buildSubmissionDetail(resourceWithWrongLicences, SubmissionType.CREATE_PROSPECT);
+    var generalDetailsWithWrongLicences = createGeneralDetail(submissionWithWrongLicences);
+    createResourceDetail(submissionWithWrongLicences, "NOT_RELEVANT_NAME", 46);
+    var notMatchingLicence = createLicense(951, "AL10", generalDetailsWithWrongLicences);
 
-    var license1 = createLicense(951, "AL10", generalDetails1);
-    var license2 = createLicense(953, "AL6", generalDetails1);
+    var resourceRightLicence = buildProspectResource();
+    var submissionWithRightLicence = buildSubmissionDetail(resourceRightLicence, SubmissionType.CREATE_PROSPECT);
+    var generalDetailWithRightLicence = createGeneralDetail(submissionWithRightLicence);
+    createResourceDetail(submissionWithRightLicence, "NOT_RELEVANT_NAME", 1);
 
-    var resource2 = buildResource();
-    var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
-    var resourceName2 = "The resource name B";
-    var organisationId2 = 48;
-    var generalDetails2 = createGeneralDetail(submissionDetail2);
-    var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
-    var quadrantBlock2 = "50/11";
-    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
-    var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
-
-    var license3 = createLicense(253, "BL10", generalDetails2);
-    var license4 = createLicense(351, "BL6", generalDetails2);
+    var licenceWithNotMatchingId = createLicense(253, "BL10", generalDetailWithRightLicence);
+    var licenceMatchingFilter = createLicense(351, "BL6", generalDetailWithRightLicence);
 
     var form = new SearchResourceRecordsForm();
     form.setLicenceId("351");
-    form.setProspectResourceType(true);
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    form.setOpportunityTypes(List.of("NOT_SET"));
 
     var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            ResourceRecordQueryResult::getResourceName,
             ResourceRecordQueryResult::getResourceType,
             ResourceRecordQueryResult::getLicencesTheResourceIsOn,
             result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
@@ -570,16 +533,213 @@ class ResourceRecordQueryServiceIntegrationTest {
         )
         .containsExactly(
             tuple(
-                submissionDetail2.getId(),
-                centreOfInterestQuadrantBlock2.getQuadrantBlock(),
-                organisationId2,
-                resourceName2,
+                submissionWithRightLicence.getId(),
                 ResourceType.PROSPECT,
-                List.of(license3.getLicenceId(), license4.getLicenceId()),
-                submissionDetail2.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail2.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                List.of(licenceWithNotMatchingId.getLicenceId(), licenceMatchingFilter.getLicenceId()),
+                submissionWithRightLicence.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
+                submissionWithRightLicence.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             )
         );
+  }
+
+  @ParameterizedTest
+  @EnumSource(OpportunityType.class)
+  void getResourceRecordSearchResults_whenFilteringOnOpportunityType_assertOnlyFilteredDisplayed(
+      OpportunityType opportunityType) {
+    var resourceWithNotMatchingOpportunityType = buildProspectResource();
+    var submissionWithNotMatchingOpportunityType =
+        buildSubmissionDetail(resourceWithNotMatchingOpportunityType, SubmissionType.CREATE_PROSPECT);
+
+    createGeneralDetail(submissionWithNotMatchingOpportunityType);
+    createResourceDetail(submissionWithNotMatchingOpportunityType, "NOT_RELEVANT_NAME", 1);
+
+    var resourceWithMatchingOpportunityType = buildProspectResource();
+    var submissionWithMatchingOpportunityType =
+        buildSubmissionDetail(resourceWithMatchingOpportunityType, SubmissionType.CREATE_PROSPECT);
+    createGeneralDetail(submissionWithMatchingOpportunityType);
+    createResourceDetail(submissionWithMatchingOpportunityType, "NOT_RELEVANT_NAME", 2);
+
+    createOpportunityDetail(opportunityType, submissionWithMatchingOpportunityType);
+    createOpportunityDetail(null, submissionWithNotMatchingOpportunityType);
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    form.setOpportunityTypes(List.of(opportunityType.name()));
+
+    var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::getSubmissionDetailId,
+            ResourceRecordQueryResult::getResourceType,
+            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
+            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+        .containsExactly(
+            tuple(
+                submissionWithMatchingOpportunityType.getId(),
+                ResourceType.PROSPECT,
+                submissionWithMatchingOpportunityType.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
+                submissionWithMatchingOpportunityType.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+            )
+        );
+  }
+
+  @Test
+  void getResourceRecordSearchResults_whenNoFilter_assertAllDisplayed() {
+    var discoveryWithDiscoveryOpportunityType = buildDiscoveryResource();
+    var submissionWithDiscoveryOpportunityType =
+        buildSubmissionDetail(discoveryWithDiscoveryOpportunityType, SubmissionType.CREATE_DISCOVERY);
+
+    createGeneralDetail(submissionWithDiscoveryOpportunityType);
+    createResourceDetail(submissionWithDiscoveryOpportunityType, "NOT_RELEVANT_NAME", 1);
+
+    var prospectWithLeadOpportunityType = buildProspectResource();
+    var submissionWithLeadOpportunityType =
+        buildSubmissionDetail(prospectWithLeadOpportunityType, SubmissionType.CREATE_PROSPECT);
+    createGeneralDetail(submissionWithLeadOpportunityType);
+    createResourceDetail(submissionWithLeadOpportunityType, "NOT_RELEVANT_NAME", 2);
+
+    createOpportunityDetail(OpportunityType.LEAD, submissionWithLeadOpportunityType);
+    createOpportunityDetail(OpportunityType.DISCOVERY, submissionWithDiscoveryOpportunityType);
+
+    var form = new SearchResourceRecordsForm();
+
+    var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::getSubmissionDetailId,
+            ResourceRecordQueryResult::getResourceType,
+            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
+            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+        .containsExactly(
+            tuple(
+                submissionWithLeadOpportunityType.getId(),
+                ResourceType.PROSPECT,
+                submissionWithLeadOpportunityType.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
+                submissionWithLeadOpportunityType.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+            ),
+            tuple(
+                submissionWithDiscoveryOpportunityType.getId(),
+                ResourceType.DISCOVERY,
+                submissionWithDiscoveryOpportunityType.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
+                submissionWithDiscoveryOpportunityType.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+            )
+        );
+  }
+
+  @Test
+  void getResourceRecordSearchResults_whenMatchesFilters_andHasLinkedDiscovery_assertNoResults() {
+    var resourceMatchingFiltersWithLinkedResource = buildProspectResource();
+    var submissionMatchingFiltersWithLinkedResource = buildSubmissionDetail(resourceMatchingFiltersWithLinkedResource, SubmissionType.CREATE_PROSPECT);
+    createResourceDetail(submissionMatchingFiltersWithLinkedResource, "NOT_RELEVANT_NAME", 2);
+
+    var otherResourceSubmissionMatchingFiltersWithLinkedResource = buildProspectResource();
+    var otherSubmissionMatchingFiltersWithLinkedResource = buildSubmissionDetail(
+        otherResourceSubmissionMatchingFiltersWithLinkedResource, SubmissionType.CREATE_PROSPECT);
+    createResourceDetail(otherSubmissionMatchingFiltersWithLinkedResource, "NOT_RELEVANT_NAME", 3);
+
+    var linkedDiscovery = buildDiscoveryResource();
+
+    createResourceLink(otherResourceSubmissionMatchingFiltersWithLinkedResource, linkedDiscovery);
+    createResourceLink(resourceMatchingFiltersWithLinkedResource, linkedDiscovery);
+
+    createOpportunityDetail(OpportunityType.PROSPECT, otherSubmissionMatchingFiltersWithLinkedResource);
+    createOpportunityDetail(OpportunityType.PROSPECT, submissionMatchingFiltersWithLinkedResource);
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    form.setOpportunityTypes(List.of("PROSPECT"));
+
+    var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .isEmpty();
+  }
+
+  @Test
+  void getResourceRecordSearchResults_whenTwoMatchesFilters_andOneHasLinkedDiscovery_assertOneResult() {
+    var prospectResourceWithNoLink = buildProspectResource();
+    var submissionWithNoLinkedDiscovery = buildSubmissionDetail(
+        prospectResourceWithNoLink, SubmissionType.CREATE_PROSPECT);
+    createResourceDetail(submissionWithNoLinkedDiscovery, "NOT_RELEVANT_NAME", 1);
+    var prospectWithLinkedDiscovery = buildProspectResource();
+    var submissionWithLinkedDiscovery =
+        buildSubmissionDetail(prospectWithLinkedDiscovery, SubmissionType.CREATE_PROSPECT);
+    createResourceDetail(submissionWithLinkedDiscovery, "NOT_RELEVANT_NAME", 2);
+
+    var linkedDiscoveryResource = buildDiscoveryResource();
+
+    createResourceLink(prospectWithLinkedDiscovery, linkedDiscoveryResource);
+
+    createOpportunityDetail(OpportunityType.PROSPECT, submissionWithLinkedDiscovery);
+    createOpportunityDetail(OpportunityType.PROSPECT, submissionWithNoLinkedDiscovery);
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    form.setOpportunityTypes(List.of("PROSPECT"));
+
+    var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::getSubmissionDetailId,
+            ResourceRecordQueryResult::getResourceType,
+            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
+            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+        )
+        .containsExactly(
+            tuple(
+                submissionWithNoLinkedDiscovery.getId(),
+                ResourceType.PROSPECT,
+                submissionWithNoLinkedDiscovery.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
+                submissionWithNoLinkedDiscovery.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+            )
+        );
+  }
+
+  @Test
+  void getResourceRecordSearchResults_whenOneDiscoveryMatchesFilters_andHasLinkedProspect_assertResult() {
+    var discoveryWithLinkedProspect = buildDiscoveryResource();
+    var submissionWithLinkedProspect = buildSubmissionDetail(discoveryWithLinkedProspect,
+        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    createResourceDetail(submissionWithLinkedProspect, "NOT_RELEVANT_NAME", 1);
+
+    var linkedProspectResource = buildProspectResource();
+    createResourceLink(linkedProspectResource, discoveryWithLinkedProspect);
+    createOpportunityDetail(OpportunityType.DISCOVERY, submissionWithLinkedProspect);
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.DISCOVERY.name()));
+    form.setOpportunityTypes(List.of("DISCOVERY"));
+
+    var results = resourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::getSubmissionDetailId,
+            ResourceRecordQueryResult::getResourceType,
+            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
+            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+        )
+        .containsExactly(
+            tuple(
+                submissionWithLinkedProspect.getId(),
+                ResourceType.DISCOVERY,
+                submissionWithLinkedProspect.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
+                submissionWithLinkedProspect.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+            )
+        );
+  }
+
+  private ResourceLink createResourceLink(Resource prospect, Resource discovery) {
+    var resourceLink = new ResourceLink();
+    resourceLink.setDiscoveryResource(discovery);
+    resourceLink.setProspectResource(prospect);
+
+    entityManager.persistAndFlush(resourceLink);
+
+    return resourceLink;
   }
 
   private Licence createLicense(int id, String ref, GeneralDetail generalDetails) {
@@ -591,6 +751,16 @@ class ResourceRecordQueryServiceIntegrationTest {
     entityManager.persistAndFlush(licence);
     
     return licence;
+  }
+
+  private OpportunityDetail createOpportunityDetail(OpportunityType opportunityType, SubmissionDetail submissionDetail) {
+    var opportunityDetail = new OpportunityDetail();
+    opportunityDetail.setOpportunityType(opportunityType);
+    opportunityDetail.setSubmissionDetail(submissionDetail);
+
+    entityManager.persistAndFlush(opportunityDetail);
+
+    return opportunityDetail;
   }
 
   private TrapProperty createTrapProperty(SubmissionDetail submissionDetail, String centreOfInterestQuadrantBlock) {
@@ -636,12 +806,22 @@ class ResourceRecordQueryServiceIntegrationTest {
   }
 
   @NotNull
-  private Resource buildResource() {
+  private Resource buildProspectResource() {
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
     
     entityManager.persistAndFlush(resource);
     
+    return resource;
+  }
+
+  @NotNull
+  private Resource buildDiscoveryResource() {
+    var resource = new Resource();
+    resource.setType(ResourceType.DISCOVERY);
+
+    entityManager.persistAndFlush(resource);
+
     return resource;
   }
 

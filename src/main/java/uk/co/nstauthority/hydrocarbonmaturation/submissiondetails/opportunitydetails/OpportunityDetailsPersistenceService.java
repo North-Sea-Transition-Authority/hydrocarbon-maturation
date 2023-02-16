@@ -48,8 +48,9 @@ public class OpportunityDetailsPersistenceService {
   }
 
   @Transactional
-  public void createInitialOpportunityDetail(SubmissionDetail submissionDetail) {
-    var opportunityDetail = new OpportunityDetail();
+  public void createOrUpdateOpportunityDetail(SubmissionDetail submissionDetail) {
+    var opportunityDetail = getOpportunityDetail(submissionDetail)
+        .orElse(new OpportunityDetail());
     opportunityDetail.setSubmissionDetail(submissionDetail);
     if (submissionDetail.isDryWellSubmission()) {
       opportunityDetail.setOpportunityType(OpportunityType.DRY_WELL);

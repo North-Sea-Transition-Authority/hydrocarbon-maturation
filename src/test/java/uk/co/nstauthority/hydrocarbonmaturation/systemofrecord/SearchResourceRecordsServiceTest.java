@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -25,10 +26,12 @@ import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @ExtendWith(MockitoExtension.class)
 class SearchResourceRecordsServiceTest {
@@ -48,14 +51,47 @@ class SearchResourceRecordsServiceTest {
   private OrganisationUnitQueryService organisationUnitQueryService;
 
   @Test
-  void getSearchResourceRecordsForm_assertResourceTypesSetToTrue() {
+  void getSearchResourceRecordsForm_assertResourceTypesAndOpportunityTypes() {
     var returnedForm = underTest.getSearchResourceRecordsForm();
     assertThat(returnedForm)
-        .hasAllNullFieldsOrPropertiesExcept("prospectResourceType", "discoveryResourceType")
         .extracting(
-            SearchResourceRecordsForm::isDiscoveryResourceType,
-            SearchResourceRecordsForm::isProspectResourceType)
-        .containsOnly(true);
+            SearchResourceRecordsForm::getResourceTypes,
+            SearchResourceRecordsForm::getOpportunityTypes)
+        .containsExactly(
+            List.of(
+                "PROSPECT",
+                "DISCOVERY"),
+            List.of(
+                "LEAD",
+                "PROSPECT",
+                "DRILL_READY_PROSPECT",
+                "DRY_WELL",
+                "DISCOVERY",
+                "OTHER",
+                "NOT_SET"));
+  }
+
+  @Test
+  void getOpportunityTypes() {
+    AssertionsForInterfaceTypes.assertThat(underTest.getOpportunityTypes())
+        .containsExactly(
+            entry(OpportunityType.LEAD.name(), "Lead"),
+            entry(OpportunityType.PROSPECT.name(), "Prospect"),
+            entry(OpportunityType.DRILL_READY_PROSPECT.name(), "Drill-ready prospect"),
+            entry(OpportunityType.DRY_WELL.name(), "Dry-well"),
+            entry(OpportunityType.DISCOVERY.name(), "Discovery"),
+            entry(OpportunityType.OTHER.name(), "Other"),
+            entry("NOT_SET", "Not set")
+        );
+  }
+
+  @Test
+  void getResourceTypes() {
+    AssertionsForInterfaceTypes.assertThat(underTest.getResourceTypes())
+        .containsExactly(
+            entry(ResourceType.PROSPECT.name(), "Prospect"),
+            entry(ResourceType.DISCOVERY.name(), "Discovery")
+        );
   }
 
   @Nested

@@ -6,7 +6,7 @@ import java.util.Map;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
-enum OpportunityType implements Displayable {
+public enum OpportunityType implements Displayable {
   LEAD("Lead", 10, true),
   PROSPECT("Prospect", 20, true),
   DRILL_READY_PROSPECT("Drill-ready prospect", 30, true),

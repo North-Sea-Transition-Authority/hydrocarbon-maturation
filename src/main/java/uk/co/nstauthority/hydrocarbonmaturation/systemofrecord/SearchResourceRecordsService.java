@@ -2,19 +2,25 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @Service
 class SearchResourceRecordsService {
@@ -83,8 +89,12 @@ class SearchResourceRecordsService {
 
   public SearchResourceRecordsForm getSearchResourceRecordsForm() {
     var form = new SearchResourceRecordsForm();
-    form.setProspectResourceType(true);
-    form.setDiscoveryResourceType(true);
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.name(), ResourceType.DISCOVERY.name()));
+    var opportunityTypes = Arrays.stream(OpportunityType.values())
+        .map(OpportunityType::getEnumName)
+        .collect(Collectors.toList());
+    opportunityTypes.add("NOT_SET");
+    form.setOpportunityTypes(opportunityTypes);
     return form;
   }
 
@@ -137,5 +147,19 @@ class SearchResourceRecordsService {
                 resourceRecordQueryResult.getOrganisationResponsibleId()))
         .addProperty("licences",
             submissionDetailDisplayService.getLicencesForDisplay(resourceRecordQueryResult.getLicencesTheResourceIsOn()));
+  }
+
+  public Map<String, String> getOpportunityTypes() {
+    var opportunityTypesMap =
+        (LinkedHashMap<String, String>) DisplayableEnumOptionUtil.getDisplayableOptions(OpportunityType.class);
+    opportunityTypesMap.put("NOT_SET", "Not set");
+    return opportunityTypesMap;
+  }
+
+  public Map<String, String> getResourceTypes() {
+    var resourceTypesMap =
+        (LinkedHashMap<String, String>) DisplayableEnumOptionUtil.getDisplayableOptions(ResourceType.class);
+    resourceTypesMap.remove(ResourceType.FIELD.name());
+    return resourceTypesMap;
   }
 }

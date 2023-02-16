@@ -61,14 +61,11 @@
             selectorMinInputLength=1
             preselectedItems=preselectedLicence!{}/>
         </@fdsSearch.searchFilterItem>
-        <@fdsSearch.searchFilterItem itemName="Resource type" expanded=false>
-          <@fdsCheckbox.checkboxGroup
-            path="form.prospectResourceType"
-            fieldsetHeadingText=""
-            fieldsetHeadingClass="govuk-!-width-three-quarters">
-            <@fdsCheckbox.checkboxItem path="form.prospectResourceType" labelText="Prospect"/>
-            <@fdsCheckbox.checkboxItem path="form.discoveryResourceType" labelText="Discovery"/>
-          </@fdsCheckbox.checkboxGroup>
+        <@fdsSearch.searchFilterItem itemName="Resource type">
+          <@fdsSearch.searchCheckboxes path="form.resourceTypes" checkboxes=resourceTypes/>
+        </@fdsSearch.searchFilterItem>
+        <@fdsSearch.searchFilterItem itemName="Resource status">
+          <@fdsSearch.searchCheckboxes path="form.opportunityTypes" checkboxes=opportunityTypes/>
         </@fdsSearch.searchFilterItem>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>
