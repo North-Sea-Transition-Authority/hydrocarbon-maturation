@@ -134,12 +134,95 @@ class OrganisationUnitQueryServiceTest {
   }
 
   @Test
+  void getOrganisationUnits_whenRegulator_whenDuplicateOrganisations_assertOrganisationFound() {
+    var organisationName = "name";
+    var organisationUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationName("name")
+        .build();
+    var organisationUnit2 = OrganisationUnitTestUtil.Builder()
+        .withOrganisationName("name")
+        .withIsDuplicate(true)
+        .build();
+    var organisationUnit3 = OrganisationUnitTestUtil.Builder()
+        .withOrganisationName("name")
+        .withIsDuplicate(true)
+        .build();
+
+    var filter = OrganisationUnitQueryService.ORGANISATION_UNITS_PROJECTION_ROOT;
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(true);
+    when(organisationApi.searchOrganisationUnits(
+        eq(organisationName),
+        eq(filter),
+        any(),
+        any()
+    )).thenReturn(List.of(organisationUnit, organisationUnit2, organisationUnit3));
+
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+        .extracting(
+            OrganisationUnitDto::getOrganisationUnitId,
+            OrganisationUnitDto::getOrganisationUnitName,
+            OrganisationUnitDto::getCompanyHouseNumber,
+            OrganisationUnitDto::getSelectionText,
+            OrganisationUnitDto::getSelectionId
+        ).containsExactly(
+            tuple(
+                organisationUnit.getOrganisationUnitId(),
+                organisationUnit.getName(),
+                organisationUnit.getRegisteredNumber(),
+                "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber()),
+                organisationUnit.getOrganisationUnitId().toString()
+            )
+        );
+  }
+
+  @Test
+  void getOrganisationSearchableResults_whenIndustryOrganisationMember_whenDuplicates_assertOrganisationFound() {
+    var organisationName = "name";
+    var organisationGroup = new OrganisationGroup();
+    organisationGroup.setOrganisationGroupId(1);
+    var organisationUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationName("name")
+        .withIsDuplicate(false)
+        .build();
+    var organisationUnit2 = OrganisationUnitTestUtil.Builder()
+        .withOrganisationName("name")
+        .withIsDuplicate(true)
+        .build();
+    organisationGroup.setOrganisationUnits(List.of(organisationUnit, organisationUnit2));
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(industryTeamService.getOrganisationGroupIdsForUser(USER))
+        .thenReturn(List.of(1));
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(false);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(1)))
+        .thenReturn(List.of(organisationGroup));
+
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+        .extracting(
+            OrganisationUnitDto::getOrganisationUnitId,
+            OrganisationUnitDto::getOrganisationUnitName,
+            OrganisationUnitDto::getCompanyHouseNumber,
+            OrganisationUnitDto::getSelectionText,
+            OrganisationUnitDto::getSelectionId
+        ).containsExactly(
+            tuple(
+                organisationUnit.getOrganisationUnitId(),
+                organisationUnit.getName(),
+                organisationUnit.getRegisteredNumber(),
+                "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber()),
+                organisationUnit.getOrganisationUnitId().toString()
+            )
+        );
+  }
+
+  @Test
   void getOrganisationSearchableResults_whenIndustryOrganisationMember_assertOrganisationFound() {
     var organisationName = "name";
     var organisationGroup = new OrganisationGroup();
     organisationGroup.setOrganisationGroupId(1);
     var organisationUnit = OrganisationUnitTestUtil.Builder()
-        .withOrganisationGroups(List.of(organisationGroup))
         .withOrganisationName("name")
         .build();
     organisationGroup.setOrganisationUnits(List.of(organisationUnit));
@@ -175,7 +258,6 @@ class OrganisationUnitQueryServiceTest {
     var organisationGroup = new OrganisationGroup();
     organisationGroup.setOrganisationGroupId(1);
     var organisationUnit = OrganisationUnitTestUtil.Builder()
-        .withOrganisationGroups(List.of(organisationGroup))
         .withOrganisationName("wrong")
         .build();
     organisationGroup.setOrganisationUnits(List.of(organisationUnit));

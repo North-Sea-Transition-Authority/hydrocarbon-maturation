@@ -27,6 +27,7 @@ public class OrganisationGroupQueryService {
           .organisationUnitId()
           .name()
           .registeredNumber()
+          .isDuplicate()
           .root();
   private final OrganisationApi organisationApi;
   private final EnergyPortalApiWrapper energyPortalApiWrapper;
@@ -39,7 +40,8 @@ public class OrganisationGroupQueryService {
 
   public List<OrganisationGroupDto> getOrganisationGroupsByName(String name) {
     return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        organisationApi.searchOrganisationGroups(name, ORGANISATION_GROUPS_PROJECTION_ROOT, requestPurpose)).stream()
+        organisationApi.searchOrganisationGroups(name, ORGANISATION_GROUPS_PROJECTION_ROOT, requestPurpose))
+        .stream()
         .map(this::fromOrganisationGroup)
         .toList();
   }

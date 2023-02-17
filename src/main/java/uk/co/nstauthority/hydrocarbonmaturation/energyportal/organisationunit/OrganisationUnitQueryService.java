@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -28,12 +29,13 @@ public class OrganisationUnitQueryService {
 
   public static final OrganisationUnitsProjectionRoot ORGANISATION_UNITS_PROJECTION_ROOT
       = new OrganisationUnitsProjectionRoot()
-      .organisationUnitId().name().registeredNumber()
+      .organisationUnitId().name().registeredNumber().isDuplicate()
       .organisationGroups().organisationGroupId().root();
   public static final OrganisationUnitProjectionRoot ORGANISATION_UNIT_PROJECTION_ROOT
       = new OrganisationUnitProjectionRoot().organisationUnitId().name().registeredNumber();
   public static final OrganisationUnitProjectionRoot ORGANISATION_UNIT_GROUPS_PROJECTION_ROOT
-      = new OrganisationUnitProjectionRoot().organisationUnitId().organisationGroups().organisationGroupId().root();
+      = new OrganisationUnitProjectionRoot().isDuplicate().organisationUnitId()
+      .organisationGroups().organisationGroupId().root();
 
   private final OrganisationApi organisationApi;
   private final EnergyPortalApiWrapper energyPortalApiWrapper;
@@ -70,6 +72,7 @@ public class OrganisationUnitQueryService {
               requestPurpose,
               logCorrelationId)
               .stream()
+              .filter(unit -> !BooleanUtils.isTrue(unit.getIsDuplicate()))
               .map(this::fromOrganisationUnit)
               .sorted(Comparator.comparing(OrganisationUnitDto::getOrganisationUnitName))
               .toList());
@@ -148,8 +151,8 @@ public class OrganisationUnitQueryService {
       return getOrganisationUnitsByGroups(
           organisationGroupQueryService.getOrganisationGroupsByIds(organisationGroupIds))
           .stream()
-          .filter(organisationUnit -> organisationUnit.getName().toLowerCase()
-              .contains(organisationName.toLowerCase()))
+          .filter(organisationUnit -> !BooleanUtils.isTrue(organisationUnit.getIsDuplicate())
+              && organisationUnit.getName().toLowerCase().contains(organisationName.toLowerCase()))
           .map(this::fromOrganisationUnit)
           .sorted(Comparator.comparing(OrganisationUnitDto::getOrganisationUnitName))
           .toList();

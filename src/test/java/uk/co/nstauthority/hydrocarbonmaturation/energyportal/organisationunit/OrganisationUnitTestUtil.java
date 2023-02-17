@@ -20,6 +20,7 @@ public class OrganisationUnitTestUtil {
     private String organisationName = "Fivium";
     private String organisationNumber = "25";
     private List<OrganisationGroup> organisationGroups = null;
+    private boolean isDuplicate = false;
 
     private Builder(){}
 
@@ -43,12 +44,18 @@ public class OrganisationUnitTestUtil {
       return this;
     }
 
+    public Builder withIsDuplicate(boolean isDuplicate) {
+      this.isDuplicate = isDuplicate;
+      return this;
+    }
+
     public OrganisationUnit build() {
       var organisationUnit = new OrganisationUnit();
       organisationUnit.setOrganisationUnitId(organisationUnitId);
       organisationUnit.setRegisteredNumber(organisationNumber);
       organisationUnit.setName(organisationName);
       organisationUnit.setOrganisationGroups(organisationGroups);
+      organisationUnit.setIsDuplicate(isDuplicate);
       return organisationUnit;
     }
   }
