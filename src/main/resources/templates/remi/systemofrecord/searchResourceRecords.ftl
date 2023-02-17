@@ -77,6 +77,11 @@
     <@fdsSearch.searchPageContent twoThirdsWidth=true>
       <#if filtersAdded>
         <#if resourceRecordSearchResultItems?has_content>
+            <#if maxResultsReturned>
+                <@fdsInsetText.insetText>
+                  The search list has been limited to 200 results. Filter the search further to see more results.
+                </@fdsInsetText.insetText>
+            </#if>
             <@fdsResultList.resultList resultCount=resourceRecordSearchResultItems?size>
                 <#list resourceRecordSearchResultItems as item>
                     <@resourceRecordSearchResultItem.resourceRecordSearchResultItem resultItem=item/>

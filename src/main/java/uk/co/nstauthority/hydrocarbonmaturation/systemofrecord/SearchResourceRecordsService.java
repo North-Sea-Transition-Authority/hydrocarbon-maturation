@@ -53,6 +53,10 @@ class SearchResourceRecordsService {
         .toList();
   }
 
+  boolean maxResultsReturned(List<ResourceRecordSearchResultItem> searchResultItems) {
+    return searchResultItems.size() == ResourceRecordQueryService.MAX_RESULTS;
+  }
+
   Map<String, String> getPreselectedLicence(SearchResourceRecordsForm form) {
     var licenceId = form.getLicenceId();
     if (ObjectUtils.isEmpty(licenceId)) {

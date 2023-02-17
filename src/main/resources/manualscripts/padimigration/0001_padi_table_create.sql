@@ -589,14 +589,18 @@ CREATE TABLE remi.padi_migration_issues (
 
 CREATE TABLE remi.padi_operator_mapping (
     padi_name                        TEXT,
-    choice_data                      NUMERIC,
+    choice_data                      INTEGER,
     source_table                     TEXT,
     extact_match                     TEXT,
     matches_ignoring_common_suffixes TEXT,
     matches_first_word               TEXT,
     agreed_match                     TEXT,
     comments                         TEXT,
-    org_unit_id                      NUMERIC
+    org_unit_id                      INTEGER,
+    registered_number                TEXT,
+    org_grp_id                       INTEGER,
+    org_grp_name                     TEXT
+
 );
 
 CREATE TABLE remi.padi_resource_groupings (

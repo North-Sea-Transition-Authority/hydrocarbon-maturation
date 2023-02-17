@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.not;
 import static org.jooq.impl.DSL.select;
 
 import java.util.ArrayList;
@@ -23,6 +22,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 
 @Service
 class ResourceRecordQueryService {
+
+  public static final int MAX_RESULTS = 200;
 
   private final DSLContext context;
   private final JooqSchemaProviderService jooqSchemaProviderService;
@@ -80,7 +81,10 @@ class ResourceRecordQueryService {
         )
         .having(getAggregateConditions(form))
         .orderBy(field("sd.approved_timestamp").desc().nullsLast(),
-            field("sd.created_timestamp").desc())
+            field("sd.created_timestamp").desc(),
+            field("rd.resource_name")
+        )
+        .limit(MAX_RESULTS)
         .fetchInto(ResourceRecordQueryResult.class);
   }
 

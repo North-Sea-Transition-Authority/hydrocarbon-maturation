@@ -12,7 +12,7 @@ BEGIN
     FOR prospect_rec IN (
         SELECT prdh.resdat_id, prdh.resource_id, pom.agreed_match
         FROM remi.padi_res_data_header prdh
-        LEFT JOIN remi.padi_operator_mapping pom ON pom.padi_name = prdh.company
+        LEFT JOIN remi.padi_operator_mapping pom ON LOWER(pom.padi_name) = LOWER(prdh.company)
         WHERE prdh.opportunity_type != 'Discovery'
     )
     LOOP

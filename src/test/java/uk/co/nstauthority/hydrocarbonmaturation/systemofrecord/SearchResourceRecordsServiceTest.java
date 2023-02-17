@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -173,6 +175,20 @@ class SearchResourceRecordsServiceTest {
       );
     }
 
+  }
+
+  @Test
+  void maxResultsReturned_isAtLimit() {
+    Supplier<ResourceRecordSearchResultItem> result = ResourceRecordSearchResultItem::empty;
+    var results = Stream.generate(result).limit(ResourceRecordQueryService.MAX_RESULTS).toList();
+    assertThat(underTest.maxResultsReturned(results)).isTrue();
+  }
+
+  @Test
+  void maxResultsReturned_isNotAtLimit() {
+    Supplier<ResourceRecordSearchResultItem> result = ResourceRecordSearchResultItem::empty;
+    var results = Stream.generate(result).limit(ResourceRecordQueryService.MAX_RESULTS - 1).toList();
+    assertThat(underTest.maxResultsReturned(results)).isFalse();
   }
 
   @Nested

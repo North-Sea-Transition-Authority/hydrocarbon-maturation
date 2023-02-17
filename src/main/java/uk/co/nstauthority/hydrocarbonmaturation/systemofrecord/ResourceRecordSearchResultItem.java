@@ -5,4 +5,9 @@ public record ResourceRecordSearchResultItem(
     String captionText,
     String actionUrl,
     ResourceRecordSearchResultItemModelProperties modelProperties
-) {}
+) {
+
+  public static ResourceRecordSearchResultItem empty() {
+    return new ResourceRecordSearchResultItem("", "", "", new ResourceRecordSearchResultItemModelProperties());
+  }
+}

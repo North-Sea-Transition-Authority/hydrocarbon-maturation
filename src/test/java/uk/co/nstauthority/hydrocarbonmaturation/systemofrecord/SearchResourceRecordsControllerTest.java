@@ -85,7 +85,8 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
             entry("responsibleOrganisation", Map.of()),
             entry("quadrantBlocksApiEndpoint", SearchSelectorService.route(on(ReferenceBlockRestController.class)
                 .searchQuadrantBlocks(null))),
-            entry("centreOfInterestBlock", Map.of())
+            entry("centreOfInterestBlock", Map.of()),
+            entry("maxResultsReturned", false)
         );
   }
 

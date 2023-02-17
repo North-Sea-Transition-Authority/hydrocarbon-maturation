@@ -28,6 +28,7 @@ and the operators who have access to specific prospect and discovery data not cr
 - Format number cells to remove commas
 - Check where INT/NUMERIC data should be TEXT and vice-versa
 - Convert end of line characters to UNIX using Notepad++
+- Clean up licence list in tblResDataHeader to be a CSV of licences
 
 ## Considerations
 

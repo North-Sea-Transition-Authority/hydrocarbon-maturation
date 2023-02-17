@@ -74,6 +74,7 @@ public class SearchResourceRecordsController {
             SearchSelectorService.route(on(ReferenceBlockRestController.class)
                 .searchQuadrantBlocks(null)))
         .addObject("opportunityTypes", searchResourceRecordsService.getOpportunityTypes())
-        .addObject("resourceTypes", searchResourceRecordsService.getResourceTypes());
+        .addObject("resourceTypes", searchResourceRecordsService.getResourceTypes())
+        .addObject("maxResultsReturned", searchResourceRecordsService.maxResultsReturned(resourceRecordSearchResults));
   }
 }
