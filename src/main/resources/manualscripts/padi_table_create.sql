@@ -604,5 +604,6 @@ CREATE TABLE remi.padi_resource_groupings (
     remi_resource_id UUID,
     legacy_resource_id TEXT,
     agreed_operator TEXT,
-    legacy_res_data_id INTEGER
+    legacy_res_data_id INTEGER,
+    resource_type TEXT
 );
