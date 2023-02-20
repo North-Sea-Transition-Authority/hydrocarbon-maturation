@@ -18,8 +18,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
@@ -37,7 +37,7 @@ public class DiscoverySubmissionSummaryController {
   private final SubmissionSummaryFormService submissionSummaryFormService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionReadyService submissionReadyService;
-  private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
+  private final SubmissionApprovalService submissionApprovalService;
 
   public static final String PAGE_NAME = "Check your answers before submitting";
 
@@ -47,13 +47,13 @@ public class DiscoverySubmissionSummaryController {
                                               SubmissionSummaryFormService submissionSummaryFormService,
                                               SubmissionSummaryModelService submissionSummaryModelService,
                                               SubmissionReadyService submissionReadyService,
-                                              SubmissionDetailPersistenceService submissionDetailPersistenceService) {
+                                              SubmissionApprovalService submissionApprovalService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
     this.submissionSummaryFormService = submissionSummaryFormService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionReadyService = submissionReadyService;
-    this.submissionDetailPersistenceService = submissionDetailPersistenceService;
+    this.submissionApprovalService = submissionApprovalService;
   }
 
   @GetMapping
@@ -72,7 +72,7 @@ public class DiscoverySubmissionSummaryController {
         bindingResult,
         getSubmissionSummaryModelAndView(form, submissionDetail),
         () -> {
-          submissionDetailPersistenceService.completeSubmission(submissionDetail);
+          submissionApprovalService.submitSubmission(submissionDetail);
           return ReverseRouter.redirect(on(SubmissionConfirmationController.class)
               .showSubmissionConfirmation(submissionDetailId));
         }

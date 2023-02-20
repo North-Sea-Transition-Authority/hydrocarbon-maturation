@@ -30,7 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView;
@@ -65,7 +65,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   private SubmissionReadyService submissionReadyService;
 
   @MockBean
-  private SubmissionDetailPersistenceService submissionDetailPersistenceService;
+  private SubmissionApprovalService submissionApprovalService;
 
   private static UUID submissionDetailId;
 
@@ -162,7 +162,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
 
-    verify(submissionDetailPersistenceService, times(1)).completeSubmission(submissionDetail);
+    verify(submissionApprovalService, times(1)).submitSubmission(submissionDetail);
   }
 
   @Test
@@ -180,7 +180,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(submissionDetailPersistenceService, never()).completeSubmission(any());
+    verify(submissionApprovalService, never()).submitSubmission(any());
   }
 
   @SecurityTest

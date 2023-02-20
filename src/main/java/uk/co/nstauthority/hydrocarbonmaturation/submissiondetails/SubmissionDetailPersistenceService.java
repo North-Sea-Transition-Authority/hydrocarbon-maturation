@@ -40,7 +40,7 @@ public class SubmissionDetailPersistenceService {
   }
 
   @Transactional
-  public void approveSubmission(SubmissionDetail submissionDetail) {
+  void approveSubmission(SubmissionDetail submissionDetail) {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     submissionDetail.setApprovedTimestamp(clock.instant());
     submissionDetail.setApprovedByWuaId(userDetailService.getUserWuaId());
@@ -52,12 +52,11 @@ public class SubmissionDetailPersistenceService {
   }
 
   @Transactional
-  public void completeSubmission(SubmissionDetail submissionDetail) {
+  void submitSubmission(SubmissionDetail submissionDetail) {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmittedTimestamp(clock.instant());
     submissionDetail.setSubmittedByWuaId(userDetailService.getUserWuaId());
     submissionDetailRepository.save(submissionDetail);
-    approveSubmission(submissionDetail);
   }
 
   @Transactional

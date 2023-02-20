@@ -66,15 +66,14 @@ class SubmissionDetailPersistenceServiceTest {
   void completeSubmission_assertSubmittedBy() {
     var submissionDetail = new SubmissionDetail();
     when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
-    submissionDetailPersistenceService.completeSubmission(submissionDetail);
+
+    submissionDetailPersistenceService.submitSubmission(submissionDetail);
 
     assertThat(submissionDetail.getSubmittedByWuaId())
         .isEqualTo(USER_WUA_ID.intValue());
     assertThat(submissionDetail.getSubmittedTimestamp()).isEqualTo(INSTANT);
-    assertThat(submissionDetail.getApprovedByWuaId())
-        .isEqualTo(USER_WUA_ID.intValue());
-    assertThat(submissionDetail.getApprovedTimestamp()).isEqualTo(INSTANT);
-    verify(submissionDetailRepository, times(2)).save(submissionDetail);
+
+    verify(submissionDetailRepository, times(1)).save(submissionDetail);
   }
 
   @Test
