@@ -38,6 +38,7 @@ class ResourceRecordQueryService {
   List<ResourceRecordQueryResult> getResourceRecordSearchResults(SearchResourceRecordsForm form) {
     return context
         .select(
+            field("r.id"),
             field("sd.id"),
             field("r.type"),
             field("rd.resource_name"),

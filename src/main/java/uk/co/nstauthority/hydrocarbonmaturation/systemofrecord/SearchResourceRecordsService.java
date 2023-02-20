@@ -18,7 +18,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
@@ -125,22 +124,17 @@ class SearchResourceRecordsService {
     );
   }
 
-  private String getCentreOfInterestBlockDisplay(ResourceRecordQueryResult resourceRecordQueryResult) {
-    return resourceRecordQueryResult.getCentreOfInterestQuadBlock() != null
-        ? " (" + resourceRecordQueryResult.getCentreOfInterestQuadBlock() + ")"
-        : "";
-  }
-
   private String getHeadingText(ResourceRecordQueryResult resourceRecordQueryResult) {
-    return resourceRecordQueryResult.getResourceName() != null
-        ? resourceRecordQueryResult.getResourceName() + getCentreOfInterestBlockDisplay(resourceRecordQueryResult)
-        : SubmissionDetailUtil.getDefaultForNamelessResource(resourceRecordQueryResult.getCreatedOn().toInstant());
+    return submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(
+        resourceRecordQueryResult.getResourceName(),
+        resourceRecordQueryResult.getCentreOfInterestQuadBlock(),
+        resourceRecordQueryResult.getCreatedOn()
+    );
   }
 
   private String getActionUrl(ResourceRecordQueryResult resourceRecordQueryResult) {
-    // TODO HM-304 - Point to view resource record controller
-    return ReverseRouter.route(on(SearchResourceRecordsController.class)
-        .showSearchResourceRecordsScreen());
+    return ReverseRouter.route(on(ViewResourceRecordController.class)
+        .showResourceRecord(resourceRecordQueryResult.getResourceId()));
   }
 
   private ResourceRecordSearchResultItemModelProperties getResultItemModelProperties(

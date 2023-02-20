@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indu
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,15 +54,24 @@ public class IndustryTeamService {
     teamMemberRoleService.addUserTeamRoles(team, userToAdd, rolesAsStrings);
   }
 
-  public boolean isSubmitterForOrganisationGroups(
-      ServiceUserDetail user,
-      List<Integer> organisationGroupIds) {
+  public boolean isSubmitterForOrganisationGroups(ServiceUserDetail user, List<Integer> organisationGroupIds) {
 
-    return organisationGroupIds
-        .stream()
+    return isTeamMemberForOrganisationGroups(organisationGroupIds, team -> isSubmitter(team.toTeamId(), user));
+  }
+
+  boolean isTeamMemberForOrganisationGroups(ServiceUserDetail user, List<Integer> organisationGroupIds) {
+
+    return isTeamMemberForOrganisationGroups(
+        organisationGroupIds,
+        team -> teamMemberService.isMemberOfTeam(team.toTeamId(), user)
+    );
+  }
+
+  private boolean isTeamMemberForOrganisationGroups(List<Integer> organisationGroupIds, Predicate<Team> membershipPredicate) {
+    return organisationGroupIds.stream()
         .map(this::getTeamByOrganisationGroupId)
         .flatMap(Optional::stream)
-        .anyMatch(team -> isSubmitter(team.toTeamId(), user));
+        .anyMatch(membershipPredicate);
   }
 
   @Transactional

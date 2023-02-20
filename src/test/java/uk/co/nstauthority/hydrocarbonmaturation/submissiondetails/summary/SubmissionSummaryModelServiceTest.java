@@ -44,8 +44,6 @@ class SubmissionSummaryModelServiceTest {
   @Mock
   private HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
   @Mock
-  private SubmissionReadyService submissionReadyService;
-  @Mock
   private DiscoverySummaryService discoverySummaryService;
   @Mock
   private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;

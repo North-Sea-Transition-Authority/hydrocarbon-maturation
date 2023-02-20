@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.util;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.List;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 
 public class NumberUtil {
@@ -34,5 +36,11 @@ public class NumberUtil {
     return number != null
         ? number + " " + units
         : "";
+  }
+
+  public static List<String> toListOfStrings(Collection<Integer> integerCollection) {
+    return integerCollection.stream()
+        .map(String::valueOf)
+        .toList();
   }
 }

@@ -1,4 +1,4 @@
-# Searching the system of record
+# Viewing a resource record
 
 ## Problem statement
 

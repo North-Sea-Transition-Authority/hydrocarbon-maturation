@@ -4,10 +4,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.conf.RenderMapping;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +23,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
@@ -69,8 +66,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
-    var license1 = createLicense(951, "AL10", generalDetails1);
-    var license2 = createLicense(953, "AL6", generalDetails1);
+    var licence1 = createLicence(951, "AL10", generalDetails1);
+    var licence2 = createLicence(953, "AL6", generalDetails1);
 
     var resource2 = buildProspectResource();
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
@@ -83,8 +80,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
 
-    var license3 = createLicense(253, "BL10", generalDetails2);
-    var license4 = createLicense(351, "BL6", generalDetails2);
+    var licence3 = createLicence(253, "BL10", generalDetails2);
+    var licence4 = createLicence(351, "BL6", generalDetails2);
 
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
@@ -110,7 +107,7 @@ class ResourceRecordQueryServiceIntegrationTest {
                 organisationId2,
                 resourceName2,
                 ResourceType.PROSPECT,
-                List.of(license3.getLicenceId(), license4.getLicenceId()),
+                List.of(licence3.getLicenceId(), licence4.getLicenceId()),
                 submissionDetail2.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
                 submissionDetail2.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             ),
@@ -120,7 +117,7 @@ class ResourceRecordQueryServiceIntegrationTest {
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
-                List.of(license1.getLicenceId(), license2.getLicenceId()),
+                List.of(licence1.getLicenceId(), licence2.getLicenceId()),
                 submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
                 submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             )
@@ -140,8 +137,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
-    var license1 = createLicense(951, "AL10", generalDetails1);
-    var license2 = createLicense(953, "AL6", generalDetails1);
+    var licence1 = createLicence(951, "AL10", generalDetails1);
+    var licence2 = createLicence(953, "AL6", generalDetails1);
 
     var submissionDetail2 = buildSubmissionDetail(resource1, SubmissionType.PROSPECT_UPDATE);
     var resourceName2 = "The resource name B";
@@ -152,8 +149,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
 
-    var license3 = createLicense(253, "BL10", generalDetails2);
-    var license4 = createLicense(351, "BL6", generalDetails2);
+    var licence3 = createLicence(253, "BL10", generalDetails2);
+    var licence4 = createLicence(351, "BL6", generalDetails2);
 
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
@@ -179,7 +176,7 @@ class ResourceRecordQueryServiceIntegrationTest {
                 organisationId2,
                 resourceName2,
                 ResourceType.PROSPECT,
-                List.of(license3.getLicenceId(), license4.getLicenceId()),
+                List.of(licence3.getLicenceId(), licence4.getLicenceId()),
                 submissionDetail2.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
                 submissionDetail2.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             )
@@ -198,8 +195,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
-    var license1 = createLicense(951, "AL10", generalDetails1);
-    var license2 = createLicense(953, "AL6", generalDetails1);
+    var licence1 = createLicence(951, "AL10", generalDetails1);
+    var licence2 = createLicence(953, "AL6", generalDetails1);
 
     var resource2 = buildProspectResource();
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
@@ -211,8 +208,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
 
-    var license3 = createLicense(253, "BL10", generalDetails2);
-    var license4 = createLicense(351, "BL6", generalDetails2);
+    var licence3 = createLicence(253, "BL10", generalDetails2);
+    var licence4 = createLicence(351, "BL6", generalDetails2);
     var opportunityDetail = createOpportunityDetail(OpportunityType.PROSPECT, submissionDetail1);
 
     var form = new SearchResourceRecordsForm();
@@ -239,7 +236,7 @@ class ResourceRecordQueryServiceIntegrationTest {
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
-                List.of(license1.getLicenceId(), license2.getLicenceId()),
+                List.of(licence1.getLicenceId(), licence2.getLicenceId()),
                 submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
                 submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             )
@@ -258,8 +255,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
-    var license1 = createLicense(951, "AL10", generalDetails1);
-    var license2 = createLicense(953, "AL6", generalDetails1);
+    var licence1 = createLicence(951, "AL10", generalDetails1);
+    var licence2 = createLicence(953, "AL6", generalDetails1);
 
     var resource2 = buildProspectResource();
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
@@ -271,8 +268,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
 
-    var license3 = createLicense(253, "BL10", generalDetails2);
-    var license4 = createLicense(351, "BL6", generalDetails2);
+    var licence3 = createLicence(253, "BL10", generalDetails2);
+    var licence4 = createLicence(351, "BL6", generalDetails2);
 
     var form = new SearchResourceRecordsForm();
     form.setResponsibleOrganisationId(organisationId1);
@@ -299,7 +296,7 @@ class ResourceRecordQueryServiceIntegrationTest {
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
-                List.of(license1.getLicenceId(), license2.getLicenceId()),
+                List.of(licence1.getLicenceId(), licence2.getLicenceId()),
                 submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
                 submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             )
@@ -318,8 +315,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
-    var license1 = createLicense(951, "AL10", generalDetails1);
-    var license2 = createLicense(953, "AL6", generalDetails1);
+    var licence1 = createLicence(951, "AL10", generalDetails1);
+    var licence2 = createLicence(953, "AL6", generalDetails1);
 
     var resource2 = buildProspectResource();
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
@@ -347,7 +344,7 @@ class ResourceRecordQueryServiceIntegrationTest {
                 organisationId1,
                 resourceName1,
                 ResourceType.DISCOVERY,
-                List.of(license1.getLicenceId(), license2.getLicenceId()),
+                List.of(licence1.getLicenceId(), licence2.getLicenceId()),
                 submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
                 submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             )
@@ -366,8 +363,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
-    var license1 = createLicense(951, "AL10", generalDetails1);
-    var license2 = createLicense(953, "AL6", generalDetails1);
+    var licence1 = createLicence(951, "AL10", generalDetails1);
+    var licence2 = createLicence(953, "AL6", generalDetails1);
 
     var resource2 = buildDiscoveryResource();
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
@@ -395,7 +392,7 @@ class ResourceRecordQueryServiceIntegrationTest {
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
-                List.of(license1.getLicenceId(), license2.getLicenceId()),
+                List.of(licence1.getLicenceId(), licence2.getLicenceId()),
                 submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
                 submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
             )
@@ -507,15 +504,15 @@ class ResourceRecordQueryServiceIntegrationTest {
     var submissionWithWrongLicences = buildSubmissionDetail(resourceWithWrongLicences, SubmissionType.CREATE_PROSPECT);
     var generalDetailsWithWrongLicences = createGeneralDetail(submissionWithWrongLicences);
     createResourceDetail(submissionWithWrongLicences, "NOT_RELEVANT_NAME", 46);
-    var notMatchingLicence = createLicense(951, "AL10", generalDetailsWithWrongLicences);
+    var notMatchingLicence = createLicence(951, "AL10", generalDetailsWithWrongLicences);
 
     var resourceRightLicence = buildProspectResource();
     var submissionWithRightLicence = buildSubmissionDetail(resourceRightLicence, SubmissionType.CREATE_PROSPECT);
     var generalDetailWithRightLicence = createGeneralDetail(submissionWithRightLicence);
     createResourceDetail(submissionWithRightLicence, "NOT_RELEVANT_NAME", 1);
 
-    var licenceWithNotMatchingId = createLicense(253, "BL10", generalDetailWithRightLicence);
-    var licenceMatchingFilter = createLicense(351, "BL6", generalDetailWithRightLicence);
+    var licenceWithNotMatchingId = createLicence(253, "BL10", generalDetailWithRightLicence);
+    var licenceMatchingFilter = createLicence(351, "BL6", generalDetailWithRightLicence);
 
     var form = new SearchResourceRecordsForm();
     form.setLicenceId("351");
@@ -865,15 +862,9 @@ class ResourceRecordQueryServiceIntegrationTest {
     return resourceLink;
   }
 
-  private Licence createLicense(int id, String ref, GeneralDetail generalDetails) {
-    var licence = new Licence();
-    licence.setLicenceId(id);
-    licence.setLicenceReference(ref);
-    licence.setGeneralDetail(generalDetails);
-    
-    entityManager.persistAndFlush(licence);
-    
-    return licence;
+  private Licence createLicence(int id, String ref, GeneralDetail generalDetails) {
+
+    return ResourceRecordIntegrationTestUtils.createLicence(id, ref, generalDetails, entityManager);
   }
 
   private OpportunityDetail createOpportunityDetail(OpportunityType opportunityType, SubmissionDetail submissionDetail) {
@@ -887,58 +878,30 @@ class ResourceRecordQueryServiceIntegrationTest {
   }
 
   private TrapProperty createTrapProperty(SubmissionDetail submissionDetail, String centreOfInterestQuadrantBlock) {
-    var trapProperty = new TrapProperty();
-    trapProperty.setSubmissionDetail(submissionDetail);
-    trapProperty.setCentreOfInterestQuadrantBlock(centreOfInterestQuadrantBlock);
-    
-    entityManager.persistAndFlush(trapProperty);
-    
-    return trapProperty;
+
+    return ResourceRecordIntegrationTestUtils.createTrapProperty(submissionDetail, centreOfInterestQuadrantBlock, entityManager);
   }
 
   private QuadrantAndBlock createQuadAndBlock(GeneralDetail generalDetails, String quadrantBlock) {
-    var quadBlocks = new QuadrantAndBlock();
-    quadBlocks.setGeneralDetail(generalDetails);
-    quadBlocks.setQuadrantBlock(quadrantBlock);
-    
-    entityManager.persistAndFlush(quadBlocks);
-    
-    return quadBlocks;
+
+    return ResourceRecordIntegrationTestUtils.createQuadAndBlock(generalDetails, quadrantBlock, entityManager);
   }
 
-  @NotNull
   private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail) {
-    var generalDetails = new GeneralDetail();
-    generalDetails.setSubmissionDetail(submissionDetail);
 
-    entityManager.persistAndFlush(generalDetails);
-    
-    return generalDetails;
+    return ResourceRecordIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager);
   }
 
-  @NotNull
   private ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId) {
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setResourceName(resourceName);
-    resourceDetail.setSubmissionDetail(submissionDetail);
-    resourceDetail.setOrganisationId(organisationId);
 
-    entityManager.persistAndFlush(resourceDetail);
-
-    return resourceDetail;
+    return ResourceRecordIntegrationTestUtils.createResourceDetail(submissionDetail, resourceName, organisationId, entityManager);
   }
 
-  @NotNull
   private Resource buildProspectResource() {
-    var resource = new Resource();
-    resource.setType(ResourceType.PROSPECT);
-    
-    entityManager.persistAndFlush(resource);
 
-    return resource;
+    return ResourceRecordIntegrationTestUtils.createResource(entityManager);
   }
 
-  @NotNull
   private Resource buildDiscoveryResource() {
     var resource = new Resource();
     resource.setType(ResourceType.DISCOVERY);
@@ -948,18 +911,8 @@ class ResourceRecordQueryServiceIntegrationTest {
     return resource;
   }
 
-  @NotNull
   private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType) {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    submissionDetail.setId(null);
-    submissionDetail.setSubmissionType(submissionType);
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
-    submissionDetail.setCreatedTimestamp(Instant.now().minusSeconds(1));
-    submissionDetail.setApprovedTimestamp(Instant.now());
-    submissionDetail.setResourceId(resource);
-    
-    entityManager.persistAndFlush(submissionDetail);
-    
-    return submissionDetail;
+
+    return ResourceRecordIntegrationTestUtils.createSubmissionDetail(resource, submissionType, entityManager);
   }
 }

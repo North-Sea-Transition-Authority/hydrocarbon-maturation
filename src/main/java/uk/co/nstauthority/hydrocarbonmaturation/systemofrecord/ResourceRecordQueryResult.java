@@ -7,6 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 
 class ResourceRecordQueryResult {
 
+  private final UUID resourceId;
   private final UUID submissionDetailId;
   private final ResourceType resourceType;
   private final String resourceName;
@@ -16,7 +17,8 @@ class ResourceRecordQueryResult {
   private final Timestamp createdOn;
   private final Timestamp approvedOn;
 
-  ResourceRecordQueryResult(UUID submissionDetailId,
+  ResourceRecordQueryResult(UUID resourceId,
+                            UUID submissionDetailId,
                             String resourceType,
                             String resourceName,
                             String centreOfInterestQuadBlock,
@@ -24,6 +26,7 @@ class ResourceRecordQueryResult {
                             List<Integer> licencesTheResourceIsOn,
                             Timestamp createdOn,
                             Timestamp approvedOn) {
+    this.resourceId = resourceId;
     this.submissionDetailId = submissionDetailId;
     this.resourceType = ResourceType.valueOf(resourceType);
     this.resourceName = resourceName;
@@ -32,6 +35,10 @@ class ResourceRecordQueryResult {
     this.licencesTheResourceIsOn = licencesTheResourceIsOn;
     this.createdOn = createdOn;
     this.approvedOn = approvedOn;
+  }
+
+  public UUID getResourceId() {
+    return resourceId;
   }
 
   UUID getSubmissionDetailId() {

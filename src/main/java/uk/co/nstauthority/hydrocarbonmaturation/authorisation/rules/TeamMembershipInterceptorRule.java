@@ -65,8 +65,7 @@ public class TeamMembershipInterceptorRule implements SubmissionInterceptorSecur
         .getResourceDetailBySubmissionDetail(submissionDetail)
         .map(ResourceDetail::getOrganisationId)
         .orElse(null);
-    var organisationGroups = organisationUnitQueryService
-        .findOrganisationGroupIdsByUnitId(responsibleOrganisationId);
+    var organisationGroups = organisationUnitQueryService.findOrganisationGroupIdsByUnitId(responsibleOrganisationId);
     if (responsibleOrganisationId != null
         && industryTeamService.isSubmitterForOrganisationGroups(userDetails, organisationGroups)) {
       return SecurityRuleResult.continueAsNormal();

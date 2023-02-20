@@ -46,10 +46,19 @@ public class LicenceQueryService {
 
   public List<LicenceView> getLicencesByIds(List<String> searchIdStrings) {
     return searchIdStrings.stream()
-        .map(ref -> findLicence(Integer.parseInt(ref)))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
+        .map(id -> findLicence(Integer.parseInt(id)))
+        .flatMap(Optional::stream)
         .distinct()
+        .sorted(new LicenceViewByReferenceComparator())
+        .toList();
+  }
+
+  public List<LicenceView> getExtantLicencesByIds(List<String> searchIdStrings) {
+    return searchIdStrings.stream()
+        .map(id -> findLicence(Integer.parseInt(id)))
+        .flatMap(Optional::stream)
+        .distinct()
+        .filter(licence -> licence.licenceStatus() == LicenceStatus.EXTANT)
         .sorted(new LicenceViewByReferenceComparator())
         .toList();
   }

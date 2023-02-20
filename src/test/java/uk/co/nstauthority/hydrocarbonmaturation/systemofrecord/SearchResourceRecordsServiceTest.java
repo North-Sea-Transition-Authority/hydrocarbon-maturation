@@ -3,6 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -16,7 +18,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.assertj.core.api.AssertionsForInterfaceTypes;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -105,11 +106,22 @@ class SearchResourceRecordsServiceTest {
     @Test
     void buildsResourceRecordSearchResultItem_AssertItemsAreBuiltCorrectly() {
       var licencesDisplayed1 = List.of("L1", "L2");
+      var resourceName1 = "resource-name1";
+      var centreOfInterest1 = "1/12";
+      var resourceNameAndCentreOfInterestBlockDisplay1 = "resource-name1 (1/12)";
+      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(eq(resourceName1), eq(centreOfInterest1), any()))
+          .thenReturn(resourceNameAndCentreOfInterestBlockDisplay1);
       var result1 =
-          buildAndMockResourceRecordQueryResult("resource-name1", "1/12", 1, "Org A", List.of(1, 2), licencesDisplayed1);
+          buildAndMockResourceRecordQueryResult(resourceName1, centreOfInterest1, 1, "Org A", List.of(1, 2), licencesDisplayed1);
+
       var licencesDisplayed2 = List.of("L3", "L4");
+      var resourceName2 = "resource-name2";
+      var resourceNameAndCentreOfInterestBlockDisplay2 = "resource-name2";
+      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(eq(resourceName2), eq(null), any()))
+          .thenReturn(resourceNameAndCentreOfInterestBlockDisplay2);
       var result2 =
-          buildAndMockResourceRecordQueryResult("resource-name2", null, 2, "Org B", List.of(3, 4), licencesDisplayed2);
+          buildAndMockResourceRecordQueryResult(resourceName2, null, 2, "Org B", List.of(3, 4), licencesDisplayed2);
+
       when(resourceRecordQueryService.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result1, result2));
 
@@ -123,14 +135,14 @@ class SearchResourceRecordsServiceTest {
           )
           .containsExactly(
               tuple(
-                  "resource-name1 (1/12)",
+                  resourceNameAndCentreOfInterestBlockDisplay1,
                   result1.getResourceType().getDisplayName(),
-                  getActionUrl()
+                  getActionUrl(result1.getResourceId())
               ),
               tuple(
                   "resource-name2",
                   result2.getResourceType().getDisplayName(),
-                  getActionUrl()
+                  getActionUrl(result2.getResourceId())
               )
           );
 
@@ -147,13 +159,11 @@ class SearchResourceRecordsServiceTest {
           );
     }
 
-    @NotNull
-    private String getActionUrl() {
-      return ReverseRouter.route(on(SearchResourceRecordsController.class)
-          .showSearchResourceRecordsScreen());
+    private String getActionUrl(UUID resourceId) {
+      return ReverseRouter.route(on(ViewResourceRecordController.class)
+          .showResourceRecord(resourceId));
     }
 
-    @NotNull
     private ResourceRecordQueryResult buildAndMockResourceRecordQueryResult(String resourceName,
                                                                             String centreOfInterest,
                                                                             int organisationResponsibleId,
@@ -164,6 +174,7 @@ class SearchResourceRecordsServiceTest {
       when(submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn)).thenReturn(licencesDisplayed);
 
       return new ResourceRecordQueryResult(
+          UUID.randomUUID(),
           UUID.randomUUID(),
           "PROSPECT",
           resourceName,
