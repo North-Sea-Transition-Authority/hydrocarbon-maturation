@@ -4,13 +4,15 @@
 
 <#-- @ftlvariable name="submissionType" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType" -->
 <#-- @ftlvariable name="resourceRecord" type="uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSummaryView" -->
+<#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 
 <#assign pageTitle = "${resourceRecord.resourceNameAndCentreOfInterest()}" />
 
 <@defaultPage
   htmlTitle=pageTitle
   pageHeading=pageTitle
-  pageSize=PageSize.FULL_WIDTH>
+  pageSize=PageSize.FULL_WIDTH
+  breadcrumbsMap=breadcrumbsMap>
 
   <@fdsDataItems.dataItem>
     <@fdsDataItems.dataValues key="Resonsible team" value="${resourceRecord.responsibleTeam()}"/>

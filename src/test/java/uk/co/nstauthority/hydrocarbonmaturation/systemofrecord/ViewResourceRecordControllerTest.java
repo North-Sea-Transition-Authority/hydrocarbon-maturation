@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,5 +94,12 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType())
         );
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()),
+            SearchResourceRecordsController.PAGE_TITLE)
+    );
   }
 }

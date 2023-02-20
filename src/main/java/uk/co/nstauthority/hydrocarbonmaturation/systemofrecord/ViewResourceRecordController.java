@@ -55,6 +55,10 @@ public class ViewResourceRecordController {
         submissionDetail,
         "remi/systemofrecord/viewResourceRecord"
     );
+
+    SystemOfRecordBreadcrumbUtil.addSearchSystemOfRecordToModelAndView(
+        modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
+
     return modelAndView
         .addObject("resourceRecord", resourceRecord)
         .addObject("submissionType", submissionDetail.getSubmissionType());

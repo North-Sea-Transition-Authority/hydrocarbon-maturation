@@ -89,6 +89,4 @@ class ViewResourceRecordService {
     var extantLicences = licenceQueryService.getExtantLicencesByIds(NumberUtil.toListOfStrings(resourceRecord.licenceIds()));
     return !extantLicences.isEmpty();
   }
-
-
 }
