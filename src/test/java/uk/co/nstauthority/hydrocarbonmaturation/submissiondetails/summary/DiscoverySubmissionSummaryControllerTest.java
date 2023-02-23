@@ -230,7 +230,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
             entry("resourceDetailSummaryView", resourceDetailSummaryView),
             entry("gasOnlyDiscovery", false),
             entry("oilOnlyDiscovery", false),
-            entry("mixedDiscovery", false)
+            entry("mixedDiscovery", false),
+            entry("accordionId", submissionDetailId)
         );
   }
 
@@ -257,7 +258,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .addObject("gasOnlyDiscovery", false)
         .addObject("oilOnlyDiscovery", false)
         .addObject("mixedDiscovery", false)
-        .addObject("submittable", true);
+        .addObject("submittable", true)
+        .addObject("accordionId", submissionDetail.getId());
     when(submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(
         submissionDetail, VIEW_NAME)
     ).thenReturn(modelAndView);

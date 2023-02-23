@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
@@ -250,5 +251,14 @@ class SubmissionSummaryModelServiceTest {
             entry("oilOnlyDiscovery", false),
             entry("mixedDiscovery", false)
         );
+  }
+
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
+  void checkCommonAttributes(SubmissionType submissionType) {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    var modelAndView =
+        submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name");
+    assertThat(modelAndView.getModelMap()).containsEntry("accordionId", submissionDetail.getId());
   }
 }

@@ -195,7 +195,8 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("resourceDetailSummaryView", resourceDetailSummaryView),
-            entry("trapPropertiesSummaryView", trapPropertiesSummaryView)
+            entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
+            entry("accordionId", submissionDetailId)
         );
   }
 
@@ -209,7 +210,8 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
         .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
-        .addObject("submittable", true);
+        .addObject("submittable", true)
+        .addObject("accordionId", submissionDetail.getId());
     when(submissionSummaryModelService.createPostDrillDryWellSubmissionSummaryModelAndView(
         submissionDetail,
         VIEW_NAME)

@@ -15,6 +15,8 @@
 <#import '../../summarylistcards/opportunityDetailsSummaryCard.ftl' as opportunityDetailsSummary>
 <#import '../../summarylistcards/resourceDetailsSummaryCard.ftl' as resourceDetailSummary>
 
+<#-- @ftlvariable name="accordionId" type="String" -->
+
 <#macro prospectSubmissionSummary
   generalDetailsSummaryView
   opportunityDetailsSummaryView
@@ -33,7 +35,7 @@
   mixedCaseVolumetricsSummaryView
   mixedCaseOutputsSummaryView,
   resourceDetailSummaryView>
-    <@fdsAccordion.accordion accordionId="summaryaccordian">
+    <@fdsAccordion.accordion accordionId="summaryaccordian-${accordionId}">
         <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details">
           <@resourceDetailSummary.resourceDetailCard resourceDetailValues=resourceDetailSummaryView/>
           <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>

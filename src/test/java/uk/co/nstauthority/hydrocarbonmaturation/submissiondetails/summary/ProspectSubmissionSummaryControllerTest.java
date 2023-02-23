@@ -243,7 +243,8 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
             entry("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
             entry("resourceDetailSummaryView", resourceDetailSummaryView),
-            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
+            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
+            entry("accordionId", submissionDetailId)
     );
   }
 
@@ -266,7 +267,8 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
         .addObject("submittable", true)
         .addObject("gasCase", true)
         .addObject("oilCase", true)
-        .addObject("mixedCase", true);
+        .addObject("mixedCase", true)
+        .addObject("accordionId", submissionDetail.getId());
     when(submissionSummaryModelService.createProspectSubmissionSummaryModelAndView(
         submissionDetail,
         VIEW_NAME

@@ -83,12 +83,12 @@ public class SubmissionSummaryModelService {
                     .addObject("oilCase", false)
                     .addObject("mixedCase", false)
         );
+    addCommonAttributes(submissionDetail, modelAndView);
     return modelAndView;
   }
 
   public ModelAndView createPostDrillDryWellSubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
-
-    return new ModelAndView(viewName)
+    var modelAndView = new ModelAndView(viewName)
         .addObject("dryWellDetailsSummaryView",
             postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("generalDetailsSummaryView",
@@ -105,6 +105,9 @@ public class SubmissionSummaryModelService {
             prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("resourceDetailSummaryView",
             prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail));
+
+    addCommonAttributes(submissionDetail, modelAndView);
+    return modelAndView;
   }
 
   public ModelAndView createDiscoverySubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
@@ -146,6 +149,7 @@ public class SubmissionSummaryModelService {
         .addObject("resourceDetailSummaryView",
             prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail));
 
+    addCommonAttributes(submissionDetail, modelAndView);
     return addHydrocarbonsDiscoveredToModelAndView(submissionDetail, modelAndView);
   }
 
@@ -165,5 +169,9 @@ public class SubmissionSummaryModelService {
           modelAndView.addObject("mixedDiscovery", false);
           return modelAndView;
         });
+  }
+
+  private void addCommonAttributes(SubmissionDetail submissionDetail, ModelAndView modelAndView) {
+    modelAndView.addObject("accordionId", submissionDetail.getId());
   }
 }

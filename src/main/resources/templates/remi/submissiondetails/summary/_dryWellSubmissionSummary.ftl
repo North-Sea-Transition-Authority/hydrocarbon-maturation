@@ -9,6 +9,8 @@
 <#import '../../summarylistcards/trapPropertiesSummaryCard.ftl' as trapPropertiesSummary>
 <#import '../../summarylistcards/resourceDetailsSummaryCard.ftl' as resourceDetailSummary>
 
+<#-- @ftlvariable name="accordionId" type="String" -->
+
 <#macro dryWellSubmissionSummary
   generalDetailsSummaryView
   dryWellDetailsSummaryView
@@ -18,7 +20,7 @@
   sourceAndSealSummaryView
   trapPropertiesSummaryView
   resourceDetailSummaryView>
-    <@fdsAccordion.accordion accordionId="summaryaccordian">
+    <@fdsAccordion.accordion accordionId="summaryaccordian-${accordionId}">
         <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details">
           <@resourceDetailSummary.resourceDetailCard resourceDetailValues=resourceDetailSummaryView/>
           <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>

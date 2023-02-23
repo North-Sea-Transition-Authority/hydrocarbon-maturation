@@ -155,7 +155,8 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .addObject("opportunityDetailsSummaryView", opportunityDetailsView)
         .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
-        .addObject("resourceDetailSummaryView", resourceDetailSummaryView);
+        .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
+        .addObject("accordionId", submissionDetail.getId());
 
     doReturn(modelAndView).when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(submissionDetail, VIEW_NAME);
   }
