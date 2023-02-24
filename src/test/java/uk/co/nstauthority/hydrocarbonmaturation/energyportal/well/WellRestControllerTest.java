@@ -45,4 +45,18 @@ class WellRestControllerTest extends AbstractControllerTest {
             .with(user(USER)))
         .andExpect(status().isOk());
   }
+
+  @SecurityTest
+  void searchWonsWells() throws Exception {
+    when(searchSelectorService.search(eq("search term"), anyList()))
+        .thenReturn(new RestSearchResult(List.of()));
+
+    mockMvc.perform(
+            get(SearchSelectorService.route(on(WellRestController.class)
+                .searchWonsWells(null)))
+                .param("term", "search term")
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .with(user(USER)))
+        .andExpect(status().isOk());
+  }
 }

@@ -28,6 +28,7 @@ public class WellRestController {
 
   @GetMapping("/wells")
   public RestSearchResult searchWells(@RequestParam("term") String term) {
+    //todo HM-77 remove this
     var searchableList = wellQueryService.getWellsByRef(term);
     var results = searchSelectorService.search(term, searchableList)
         .getResults()
@@ -36,5 +37,12 @@ public class WellRestController {
         .toList();
 
     return new RestSearchResult(results);
+  }
+
+  @GetMapping("/wons-wells")
+  public RestSearchResult searchWonsWells(@RequestParam("term") String term) {
+    return searchSelectorService.search(
+        term,
+        wellQueryService::getWellsByRegistrationNumber);
   }
 }
