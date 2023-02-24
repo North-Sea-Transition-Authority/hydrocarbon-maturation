@@ -18,7 +18,7 @@
       <#assign licencesDisplay>
         <#if modelProperties["licences"]?has_content>
           <#list modelProperties["licences"] as licence>
-            ${licence}
+            ${licence}<#if licence?has_next>,</#if>
           </#list>
         </#if>
       </#assign>
