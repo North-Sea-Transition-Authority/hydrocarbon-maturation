@@ -32,8 +32,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.Remov
 @ExtendWith(MockitoExtension.class)
 class TeamMemberRoleServiceTest {
 
-  private static final String RESOURCE_TYPE = "RESOURCE_TYPE";
-
   @Mock
   private TeamMemberRoleRepository teamMemberRoleRepository;
 
@@ -192,6 +190,7 @@ class TeamMemberRoleServiceTest {
         .build();
 
     when(userDetailService.getUserDetail()).thenReturn(instigatingUser);
+    when(teamMemberRoleRepository.existsByWuaId(removedUser.webUserAccountId())).thenReturn(false);
 
     teamMemberRoleService.removeMemberFromTeam(team, teamMember);
 
@@ -214,6 +213,36 @@ class TeamMemberRoleServiceTest {
         teamMember,
         new WebUserAccountId(instigatingUser.wuaId())
     );
+  }
+
+  @Test
+  void removeMemberFromTeam_verifyNotRemovedFromAccessTeam_whenStillInAnotherTeam() {
+
+    var team = TeamTestUtil.Builder().build();
+
+    var removedUser = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(100)
+        .build();
+
+    var teamMember = TeamMemberTestUtil.Builder().withWebUserAccountId(removedUser.webUserAccountId()).build();
+
+    var instigatingUser = ServiceUserDetailTestUtil.Builder()
+        .withWuaId(200L)
+        .build();
+
+    when(userDetailService.getUserDetail()).thenReturn(instigatingUser);
+    when(teamMemberRoleRepository.existsByWuaId(teamMember.wuaId().id())).thenReturn(true);
+
+    teamMemberRoleService.removeMemberFromTeam(team, teamMember);
+
+    verify(teamMemberRoleRepository).deleteAllByTeamAndWuaId(team, teamMember.wuaId().id());
+
+    verify(removedFromTeamEventPublisher, times(1)).publish(
+        teamMember,
+        new WebUserAccountId(instigatingUser.wuaId())
+    );
+
+    verifyNoInteractions(energyPortalAccessService);
   }
 
 }

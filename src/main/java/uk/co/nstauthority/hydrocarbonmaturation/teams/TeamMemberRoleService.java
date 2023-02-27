@@ -108,11 +108,13 @@ public class TeamMemberRoleService {
       LOGGER.info("Removing user with WUA_ID %s from %s".formatted(removedUserId, resourceType));
     }
 
-    energyPortalAccessService.removeUserFromAccessTeam(
-        new ResourceType(resourceType),
-        new TargetWebUserAccountId(removedUserId.id()),
-        new InstigatingWebUserAccountId(instigationUser.id())
-    );
+    if (!teamMemberRoleRepository.existsByWuaId(removedUserId.id())) {
+      energyPortalAccessService.removeUserFromAccessTeam(
+          new ResourceType(resourceType),
+          new TargetWebUserAccountId(removedUserId.id()),
+          new InstigatingWebUserAccountId(instigationUser.id())
+      );
+    }
 
     removedFromTeamEventPublisher.publish(teamMember, instigationUser);
   }
