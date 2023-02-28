@@ -120,6 +120,5 @@ class SubmissionDetailDisplayServiceTest {
 
       assertThat(result).isEqualTo(List.of(licenceRef1, licenceRef2));
     }
-
   }
 }

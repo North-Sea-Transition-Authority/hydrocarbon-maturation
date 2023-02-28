@@ -116,12 +116,12 @@ class SearchResourceRecordsService {
 
   private ResourceRecordSearchResultItem buildResourceRecordSearchResultItem(
       ResourceRecordQueryResult resourceRecordQueryResult) {
+
     return new ResourceRecordSearchResultItem(
         getHeadingText(resourceRecordQueryResult),
         resourceRecordQueryResult.getResourceType().getDisplayName(),
         getActionUrl(resourceRecordQueryResult),
-        getResultItemModelProperties(resourceRecordQueryResult)
-    );
+        getResultItemModelProperties(resourceRecordQueryResult));
   }
 
   private String getHeadingText(ResourceRecordQueryResult resourceRecordQueryResult) {

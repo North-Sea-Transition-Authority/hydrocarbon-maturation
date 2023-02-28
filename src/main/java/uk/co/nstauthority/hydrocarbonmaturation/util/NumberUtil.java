@@ -43,4 +43,10 @@ public class NumberUtil {
         .map(String::valueOf)
         .toList();
   }
+
+  public static List<Integer> toListOfIntegers(Collection<String> stringCollection) {
+    return stringCollection.stream()
+        .map(Integer::parseInt)
+        .toList();
+  }
 }

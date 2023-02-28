@@ -1,15 +1,19 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
@@ -24,14 +28,17 @@ public class IndustryTeamService {
   private final TeamService teamService;
   private final TeamMemberService teamMemberService;
   private final TeamMemberRoleService teamMemberRoleService;
+  private final OrganisationGroupQueryService organisationGroupQueryService;
 
   @Autowired
   IndustryTeamService(TeamService teamService,
                       TeamMemberService teamMemberService,
-                      TeamMemberRoleService teamMemberRoleService) {
+                      TeamMemberRoleService teamMemberRoleService,
+                      OrganisationGroupQueryService organisationGroupQueryService) {
     this.teamService = teamService;
     this.teamMemberService = teamMemberService;
     this.teamMemberRoleService = teamMemberRoleService;
+    this.organisationGroupQueryService = organisationGroupQueryService;
   }
 
   public boolean isAccessManager(TeamId teamId, ServiceUserDetail user) {
@@ -47,9 +54,7 @@ public class IndustryTeamService {
   }
 
   void addUserTeamRoles(Team team, EnergyPortalUserDto userToAdd, Set<IndustryTeamRole> roles) {
-    var rolesAsStrings = roles.stream()
-        .map(IndustryTeamRole::name)
-        .collect(Collectors.toSet());
+    var rolesAsStrings = getRolesAsStrings(roles);
 
     teamMemberRoleService.addUserTeamRoles(team, userToAdd, rolesAsStrings);
   }
@@ -92,5 +97,48 @@ public class IndustryTeamService {
 
   public List<Integer> getOrganisationGroupIdsForUser(ServiceUserDetail user) {
     return teamService.getOrganisationGroupsUserIsTeamMemberOf(user);
+  }
+
+  public List<Integer> getOrganisationUnitIdsForUserWithAnyIndustryTeamRoles(ServiceUserDetail user,
+                                                                             Set<IndustryTeamRole> industryTeamRoles) {
+    var organisationGroupIdsForUser = getOrganisationGroupIdsWhereUserHasAnyTeamRole(
+        user, industryTeamRoles);
+    if (organisationGroupIdsForUser.isEmpty()) {
+      return List.of();
+    }
+    return organisationGroupQueryService
+        .getOrganisationGroupsByIds(organisationGroupIdsForUser)
+        .stream()
+        .flatMap(organisationGroup -> {
+          if (organisationGroup.getOrganisationUnits() == null) {
+            return Stream.of();
+          } else {
+            return organisationGroup.getOrganisationUnits().stream();
+          }
+        })
+        .filter(Objects::nonNull)
+        .map(OrganisationUnit::getOrganisationUnitId)
+        .toList();
+  }
+
+  private List<Integer> getOrganisationGroupIdsWhereUserHasAnyTeamRole(ServiceUserDetail user,
+                                                                       Set<IndustryTeamRole> roles) {
+    var rolesAsStrings = getRolesAsStrings(roles);
+    return getOrganisationGroupIdsForUser(user)
+        .stream()
+        .map(this::getTeamByOrganisationGroupId)
+        .flatMap(Optional::stream)
+        .filter(team -> teamMemberService.isMemberOfTeamWithAnyRoleOf(
+            team.toTeamId(),
+            user,
+            rolesAsStrings))
+        .map(Team::getOrganisationGroupId)
+        .toList();
+  }
+
+  private Set<String> getRolesAsStrings(Set<IndustryTeamRole> industryTeamRoles) {
+    return industryTeamRoles.stream()
+        .map(IndustryTeamRole::name)
+        .collect(Collectors.toSet());
   }
 }

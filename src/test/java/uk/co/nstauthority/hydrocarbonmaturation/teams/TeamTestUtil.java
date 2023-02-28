@@ -22,6 +22,7 @@ public class TeamTestUtil {
     private UUID uuid = UUID.randomUUID();
     private TeamType teamType = TeamType.REGULATOR;
     private String displayName = "Team A";
+    private Integer organisationGroupId = 1;
 
     public TeamBuilder withId(UUID uuid) {
       this.uuid = uuid;
@@ -38,10 +39,16 @@ public class TeamTestUtil {
       return this;
     }
 
+    public TeamBuilder withOrganisationGroupId(Integer id) {
+      this.organisationGroupId = id;
+      return this;
+    }
+
     public Team build() {
       var team = new Team(uuid);
       team.setTeamType(teamType);
       team.setDisplayName(displayName);
+      team.setOrganisationGroupId(organisationGroupId);
       return team;
     }
   }

@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import static org.jooq.impl.DSL.falseCondition;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.select;
 
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.jooq.Condition;
@@ -16,9 +18,16 @@ import org.jooq.Table;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.JooqSchemaProviderService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
 class ResourceRecordQueryService {
@@ -27,15 +36,35 @@ class ResourceRecordQueryService {
 
   private final DSLContext context;
   private final JooqSchemaProviderService jooqSchemaProviderService;
+  private final UserDetailService userDetailService;
+  private final IndustryTeamService industryTeamService;
+  private final RegulatorTeamService regulatorTeamService;
+  private final LicenceQueryService licenceQueryService;
 
   @Autowired
   ResourceRecordQueryService(DSLContext context,
-                             JooqSchemaProviderService jooqSchemaProviderService) {
+                             JooqSchemaProviderService jooqSchemaProviderService,
+                             UserDetailService userDetailService,
+                             IndustryTeamService industryTeamService,
+                             RegulatorTeamService regulatorTeamService,
+                             LicenceQueryService licenceQueryService) {
     this.context = context;
     this.jooqSchemaProviderService = jooqSchemaProviderService;
+    this.userDetailService = userDetailService;
+    this.industryTeamService = industryTeamService;
+    this.regulatorTeamService = regulatorTeamService;
+    this.licenceQueryService = licenceQueryService;
   }
 
   List<ResourceRecordQueryResult> getResourceRecordSearchResults(SearchResourceRecordsForm form) {
+    var user = userDetailService.getUserDetail();
+    var isRegulator = regulatorTeamService.isRegulatorUser(user);
+    List<Integer> userOrgUnits = List.of();
+    if (!isRegulator) {
+      userOrgUnits = industryTeamService.getOrganisationUnitIdsForUserWithAnyIndustryTeamRoles(
+          user, Set.of(IndustryTeamRole.SUBMITTER, IndustryTeamRole.VIEWER));
+    }
+
     return context
         .select(
             field("r.id"),
@@ -72,7 +101,7 @@ class ResourceRecordQueryService {
             .on(field("gdl.general_details_id").eq(field("gd.id")))
         .leftJoin(remiTable("opportunity_details").as("od"))
             .on(field("od.submission_detail_id").eq(field("sd.id")))
-        .where(getConditions(form)))
+        .where(getConditions(form, isRegulator, userOrgUnits)))
         .groupBy(
             field("r.id"),
             field("sd.id"),
@@ -80,17 +109,22 @@ class ResourceRecordQueryService {
             field("tp.id"),
             field("rd.id")
         )
-        .having(getAggregateConditions(form))
+        .having(getAggregateConditions(form, isRegulator, userOrgUnits))
         .orderBy(field("sd.approved_timestamp").desc().nullsLast(),
             field("sd.created_timestamp").desc(),
-            field("rd.resource_name")
-        )
-        .limit(MAX_RESULTS)
+            field("rd.resource_name"))
+        .limit(ResourceRecordQueryService.MAX_RESULTS)
         .fetchInto(ResourceRecordQueryResult.class);
   }
 
-  private List<Condition> getConditions(SearchResourceRecordsForm form) {
+  private List<Condition> getConditions(SearchResourceRecordsForm form,
+                                        boolean isRegulator,
+                                        List<Integer> userOrganisationUnitIds) {
     var conditionList = new ArrayList<Condition>();
+
+    if (!isRegulator) {
+      conditionList.add(field("rd.organisation_id").in(userOrganisationUnitIds));
+    }
 
     if (StringUtils.isNotBlank(form.getResourceDetailIdForResourceSubmission())) {
       conditionList.add(
@@ -127,14 +161,17 @@ class ResourceRecordQueryService {
                 .eq(ResourceType.DISCOVERY.name()))
     );
 
-
-
-
     return conditionList;
   }
 
-  private List<Condition> getAggregateConditions(SearchResourceRecordsForm form) {
+  private List<Condition> getAggregateConditions(SearchResourceRecordsForm form,
+                                                 boolean isRegulator,
+                                                 List<Integer> userOrgUnits) {
     var conditionList = new ArrayList<Condition>();
+
+    if (!isRegulator) {
+      conditionList.add(getIsResourceOnAnExtantLicenceCondition(userOrgUnits));
+    }
 
     if (Objects.nonNull(form.getLicenceId())) {
       conditionList.add(
@@ -150,6 +187,33 @@ class ResourceRecordQueryService {
     }
 
     return conditionList;
+  }
+
+  private Condition getIsResourceOnAnExtantLicenceCondition(List<Integer> userOrganisationUnits) {
+    var userLicences = context
+        .selectDistinct(field("gdl.licence_id"))
+        .from(remiTable("general_details_licences").as("gdl"))
+        .join(remiTable("general_details").as("gd"))
+        .on(field("gd.id").eq(field("gdl.general_details_id")))
+        .join(remiTable("resource_details").as("rd"))
+        .on(field("rd.submission_detail_id").eq(field("gd.submission_detail_id")))
+        .where(field("rd.organisation_id").in(userOrganisationUnits))
+        .fetchInto(String.class);
+
+    if (userLicences.isEmpty()) {
+      return falseCondition();
+    }
+
+    var userExtantLicences = NumberUtil.toListOfIntegers(
+        licenceQueryService.getExtantLicencesByIds(userLicences)
+            .stream()
+            .map(LicenceView::getId)
+            .toList());
+
+    return DSL.arrayAggDistinct(field("gdl.licence_id"))
+        .orderBy(field("gdl.licence_id"))
+        .filterWhere(field("gdl.licence_id").in(userExtantLicences))
+        .isNotNull();
   }
 
   private Condition getLicenceRoundCondition(SearchResourceRecordsForm form) {

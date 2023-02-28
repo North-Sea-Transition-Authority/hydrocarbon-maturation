@@ -26,18 +26,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @ExtendWith(MockitoExtension.class)
 class SearchResourceRecordsServiceTest {
+  private final static ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
   @Mock
   private ResourceRecordQueryService resourceRecordQueryService;
   @Mock
@@ -104,24 +108,39 @@ class SearchResourceRecordsServiceTest {
     private SearchResourceRecordsForm form;
 
     @Test
-    void buildsResourceRecordSearchResultItem_AssertItemsAreBuiltCorrectly() {
-      var licencesDisplayed1 = List.of("L1", "L2");
-      var resourceName1 = "resource-name1";
-      var centreOfInterest1 = "1/12";
-      var resourceNameAndCentreOfInterestBlockDisplay1 = "resource-name1 (1/12)";
-      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(eq(resourceName1), eq(centreOfInterest1), any()))
-          .thenReturn(resourceNameAndCentreOfInterestBlockDisplay1);
+    void buildsResourceRecordSearchResultItem_AssertAllReturnedAndItemsAreBuiltCorrectly() {
+      var extantLicenceView1 = LicenceViewTestUtil.Builder()
+          .withLicenceId(1)
+          .withLicenceRef("L1")
+          .withLicenceStatus(LicenceStatus.EXTANT)
+          .build();
+      var extantLicenceView2 = LicenceViewTestUtil.Builder()
+          .withLicenceId(2)
+          .withLicenceRef("L2")
+          .withLicenceStatus(LicenceStatus.EXTANT)
+          .build();
+      var allExtantLicenceViews = List.of(extantLicenceView1, extantLicenceView2);
       var result1 =
-          buildAndMockResourceRecordQueryResult(resourceName1, centreOfInterest1, 1, "Org A", List.of(1, 2), licencesDisplayed1);
+          buildAndMockResourceRecordQueryResult(
+              "resource-name1", "1/12", 1, "Org A",
+              List.of(extantLicenceView1.licenceId(), extantLicenceView2.licenceId()),
+              List.of(extantLicenceView1.licenceRef(), extantLicenceView2.licenceRef()));
+      var notExtantLicenceView2 = LicenceViewTestUtil.Builder()
+          .withLicenceId(3)
+          .withLicenceRef("F1")
+          .withLicenceStatus(LicenceStatus.EXPIRED)
+          .build();
+      var notExtantLicenceView3 = LicenceViewTestUtil.Builder()
+          .withLicenceId(4)
+          .withLicenceRef("F2")
+          .withLicenceStatus(LicenceStatus.EXPIRED)
+          .build();
+      var allNotExtantLicenceViews = List.of(notExtantLicenceView2, notExtantLicenceView3);
 
-      var licencesDisplayed2 = List.of("L3", "L4");
-      var resourceName2 = "resource-name2";
-      var resourceNameAndCentreOfInterestBlockDisplay2 = "resource-name2";
-      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(eq(resourceName2), eq(null), any()))
-          .thenReturn(resourceNameAndCentreOfInterestBlockDisplay2);
       var result2 =
-          buildAndMockResourceRecordQueryResult(resourceName2, null, 2, "Org B", List.of(3, 4), licencesDisplayed2);
-
+          buildAndMockResourceRecordQueryResult("resource-name2", null, 2,
+              "Org B", List.of(notExtantLicenceView2.licenceId(), notExtantLicenceView3.licenceId()),
+              List.of(notExtantLicenceView2.licenceRef(), notExtantLicenceView3.licenceRef()));
       when(resourceRecordQueryService.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result1, result2));
 
@@ -135,7 +154,7 @@ class SearchResourceRecordsServiceTest {
           )
           .containsExactly(
               tuple(
-                  resourceNameAndCentreOfInterestBlockDisplay1,
+                  "resource-name1 (1/12)",
                   result1.getResourceType().getDisplayName(),
                   getActionUrl(result1.getResourceId())
               ),
@@ -149,13 +168,13 @@ class SearchResourceRecordsServiceTest {
       assertThat(results.get(0).modelProperties().getProperties())
           .containsExactly(
               entry("organisationResponsible", "Org A"),
-              entry("licences", licencesDisplayed1)
+              entry("licences", List.of("L1", "L2"))
           );
 
       assertThat(results.get(1).modelProperties().getProperties())
           .containsExactly(
               entry("organisationResponsible", "Org B"),
-              entry("licences", licencesDisplayed2)
+              entry("licences", List.of("F1", "F2"))
           );
     }
 
@@ -172,7 +191,15 @@ class SearchResourceRecordsServiceTest {
                                                                             List<String> licencesDisplayed) {
       when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(organisationResponsibleId)).thenReturn(orgName);
       when(submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn)).thenReturn(licencesDisplayed);
-
+      if (centreOfInterest != null) {
+        when(submissionDetailDisplayService
+            .getResourceNameAndCentreOfInterestBlockDisplay(eq(resourceName), eq(centreOfInterest), any()))
+            .thenReturn(resourceName + " (" + centreOfInterest + ")");
+      } else {
+        when(submissionDetailDisplayService
+            .getResourceNameAndCentreOfInterestBlockDisplay(eq(resourceName), eq(centreOfInterest), any()))
+            .thenReturn(resourceName);
+      }
       return new ResourceRecordQueryResult(
           UUID.randomUUID(),
           UUID.randomUUID(),
