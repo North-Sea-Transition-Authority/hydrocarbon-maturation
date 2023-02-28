@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement;
 
-import java.util.Comparator;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,7 +47,7 @@ public class TeamManagementService {
   private List<TeamView> teamsToTeamViews(List<Team> teams) {
     return teams.stream()
         .map(TeamView::fromTeam)
-        .sorted(Comparator.comparing(teamView -> teamView.teamType().getDisplayOrder()))
+        .sorted(TeamView.sort())
         .toList();
   }
 }

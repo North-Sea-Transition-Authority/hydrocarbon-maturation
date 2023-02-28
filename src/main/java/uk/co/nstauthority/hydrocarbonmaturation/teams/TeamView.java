@@ -12,4 +12,8 @@ public record TeamView(TeamId teamId, TeamType teamType, String displayName) {
   public String manageUrl() {
     return ReverseRouter.route(TeamManagementUtil.getRenderMemberListRoute(teamId, teamType));
   }
+
+  public static TeamViewComparator sort() {
+    return new TeamViewComparator();
+  }
 }
