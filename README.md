@@ -36,6 +36,11 @@ track changes over time.
 
 ### Development
 - In your IntelliJ run configuration for the Spring app, include `development` in your active profiles
+- The following environment variables are required when using this profile:
+
+| Environment Variable                        | Description                                                                                       |
+|---------------------------------------------|---------------------------------------------------------------------------------------------------|
+| NOTIFY_API_KEY                           | The local dev GOV.UK Notify key                                                    |
 
 ### Production
 - In your IntelliJ run configuration for the Spring app, include `production` in your active profiles
