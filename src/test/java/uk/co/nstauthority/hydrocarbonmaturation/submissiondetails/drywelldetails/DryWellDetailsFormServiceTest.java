@@ -187,8 +187,8 @@ class DryWellDetailsFormServiceTest {
   private DryWellDetail getDryWellDetail(SubmissionDetail submissionDetail) {
     var dryWellDetail = new DryWellDetail();
     dryWellDetail.setSubmissionDetail(submissionDetail);
-    dryWellDetail.setWellId("dryWellId");
-    dryWellDetail.setWellName("dryWellName");
+    dryWellDetail.setWellId(1);
+    dryWellDetail.setWellReference("dryWellName");
     dryWellDetail.setDryHoleComments("dryHoleComments");
     dryWellDetail.setDryHoleScope("dryHoleScope");
     dryWellDetail.setDatum(ReservoirDatum.ED50);

@@ -87,7 +87,7 @@ public class DiscoveryWellDetailsController {
         .addObject("discoveryStatus", DisplayableEnumOptionUtil.getDisplayableOptions(DiscoveryStatus.class))
         .addObject("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
-        .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWells(null)))
+        .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null)))
         .addObject("well", discoveryWellDetailsFormService.getPreSelectedWell(form.getWellDetailsForm().getWell()));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(

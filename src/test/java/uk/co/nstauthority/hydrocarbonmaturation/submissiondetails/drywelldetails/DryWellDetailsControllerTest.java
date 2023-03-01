@@ -169,7 +169,7 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("migrationFailureCategories",
             DisplayableEnumOptionUtil.getDisplayableOptions(MigrationFailureCategory.class)),
             entry("wellEndpoint",
-                SearchSelectorService.route(on(WellRestController.class).searchWells(null))),
+                SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
             entry("well", preselectedWell)
         );
 

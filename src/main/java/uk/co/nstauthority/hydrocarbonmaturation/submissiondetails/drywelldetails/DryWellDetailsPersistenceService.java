@@ -1,19 +1,25 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails;
 
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
 class DryWellDetailsPersistenceService {
 
   private final DryWellDetailsRepository dryWellDetailsRepository;
+  private final WellQueryService wellQueryService;
 
   @Autowired
-  public DryWellDetailsPersistenceService(DryWellDetailsRepository dryWellDetailsRepository) {
+  public DryWellDetailsPersistenceService(DryWellDetailsRepository dryWellDetailsRepository,
+                                          WellQueryService wellQueryService) {
     this.dryWellDetailsRepository = dryWellDetailsRepository;
+    this.wellQueryService = wellQueryService;
   }
 
   @Transactional
@@ -22,8 +28,16 @@ class DryWellDetailsPersistenceService {
         .orElse(new DryWellDetail());
 
     var detailForm = form.getDrillDetailsForm();
-    dryWellDetail.setWellId(detailForm.getWell());
-    dryWellDetail.setWellName(detailForm.getWell());
+    if (detailForm.getWell() != null) {
+      dryWellDetail.setWellId(Integer.valueOf(detailForm.getWell()));
+    }
+    if (!StringUtils.isBlank(detailForm.getWell())) {
+      dryWellDetail.setWellReference(wellQueryService
+          .findWellById(Integer.valueOf(detailForm.getWell()))
+          .map(WellView::registeredNumber)
+          .orElse(null)
+      );
+    }
     dryWellDetail.setSubmissionDetail(submissionDetail);
     dryWellDetail.setDryHoleComments(form.getDryHoleComments());
     dryWellDetail.setDryHoleScope(form.getDryHoleScope());

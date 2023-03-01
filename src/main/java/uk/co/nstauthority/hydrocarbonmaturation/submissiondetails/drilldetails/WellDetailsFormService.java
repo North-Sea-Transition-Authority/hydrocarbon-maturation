@@ -1,12 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails;
 
-import java.util.Collections;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @Service
@@ -23,7 +23,9 @@ public class WellDetailsFormService {
 
   public WellDetailsForm drillDetailToForm(DrillDetail drillDetail) {
     var form = new WellDetailsForm();
-    form.setWell(drillDetail.getWellId());
+    if (drillDetail.getWellId() != null) {
+      form.setWell(drillDetail.getWellId().toString());
+    }
     form.setReservoirDatum(drillDetail.getDatum());
     form.setDataAcquisitionProgramme(drillDetail.getDataAcquisitionProgramme());
     form.setGeophysicalUpdate(drillDetail.getGeophysicalUpdateCommentary());
@@ -49,17 +51,19 @@ public class WellDetailsFormService {
     return form;
   }
 
-  public Map<String, String> getPreSelectedWell(String well) {
+  public Map<String, String> getPreSelectedWell(String wellId) {
     Map<String, String> preSelectedMap = Map.of();
-    if (well != null) {
-      preSelectedMap = searchSelectorService.buildPrePopulatedSelections(
-          Collections.singletonList(well),
-          Map.of(
-              well,
-              wellQueryService.getWellByName(well).get(0).getSelectionText()
-          )
+
+    if (wellId != null) {
+      var key = wellQueryService.findWellById(Integer.valueOf(wellId))
+          .map(WellView::getSelectionText)
+          .orElse("");
+      return searchSelectorService.buildPrePopulatedSelection(
+          wellId,
+          key
       );
     }
+
     return preSelectedMap;
   }
 }

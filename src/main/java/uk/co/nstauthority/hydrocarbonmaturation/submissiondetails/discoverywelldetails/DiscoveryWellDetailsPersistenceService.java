@@ -2,9 +2,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywell
 
 
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -14,21 +17,33 @@ public class DiscoveryWellDetailsPersistenceService {
 
   private final DiscoveryWellDetailsRepository discoveryWellDetailsRepository;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+  private final WellQueryService wellQueryService;
 
   @Autowired
   public DiscoveryWellDetailsPersistenceService(
       DiscoveryWellDetailsRepository discoveryWellDetailsRepository,
-      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
+      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
+      WellQueryService wellQueryService) {
     this.discoveryWellDetailsRepository = discoveryWellDetailsRepository;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
+    this.wellQueryService = wellQueryService;
   }
 
   @Transactional
   public void saveDiscoveryWellDetails(DiscoveryWellDetailsForm form, SubmissionDetail submissionDetail) {
     var discoveryWellDetails = getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
         .orElse(new DiscoveryWellDetail());
-    discoveryWellDetails.setWellId(form.getWellDetailsForm().getWell());
-    discoveryWellDetails.setWellName(form.getWellDetailsForm().getWell());
+
+    if (form.getWellDetailsForm().getWell() != null) {
+      discoveryWellDetails.setWellId(Integer.valueOf(form.getWellDetailsForm().getWell()));
+    }
+    if (!StringUtils.isBlank(form.getWellDetailsForm().getWell())) {
+      discoveryWellDetails.setWellReference(wellQueryService
+          .findWellById(Integer.valueOf(form.getWellDetailsForm().getWell()))
+          .map(WellView::registeredNumber)
+          .orElse(null)
+      );
+    }
     discoveryWellDetails.setSubmissionDetail(submissionDetail);
     discoveryWellDetails.setDatum(form.getWellDetailsForm().getReservoirDatum());
     discoveryWellDetails.setChanceOfCommercialityComments(form.getChanceOfCommercialityComments());

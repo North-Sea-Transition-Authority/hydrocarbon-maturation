@@ -171,7 +171,7 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
             entry("longitudeHemisphere", Hemisphere.getLongitudeHemisphere()),
             entry("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class)),
             entry("wellEndpoint",
-                SearchSelectorService.route(on(WellRestController.class).searchWells(null))),
+                SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
             entry("well", preselectedWell)
         );
 

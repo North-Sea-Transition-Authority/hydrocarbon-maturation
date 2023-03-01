@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -35,6 +36,9 @@ class DiscoveryWellDetailsPersistenceServiceTest {
 
   @Mock
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+
+  @Mock
+  private WellQueryService wellQueryService;
 
   @InjectMocks
   private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
@@ -69,7 +73,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
     var detailForm = form.getWellDetailsForm();
     assertThat(discoveryWellDetail)
         .extracting(
-            DiscoveryWellDetail::getWellName,
+            DiscoveryWellDetail::getWellReference,
             DiscoveryWellDetail::getLatitudeDegrees,
             DiscoveryWellDetail::getLatitudeMinutes,
             DiscoveryWellDetail::getLatitudeMinutes,
@@ -103,7 +107,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
     var detailForm = form.getWellDetailsForm();
     assertThat(savedDiscoveryWellDetail)
         .extracting(
-            DiscoveryWellDetail::getWellName,
+            DiscoveryWellDetail::getWellId,
             DiscoveryWellDetail::getLatitudeDegrees,
             DiscoveryWellDetail::getLatitudeMinutes,
             DiscoveryWellDetail::getLatitudeMinutes,
@@ -122,7 +126,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
             DiscoveryWellDetail::getHydrocarbonsDiscovered,
             DiscoveryWellDetail::getSuccessRelatedCosts)
         .containsExactly(
-            detailForm.getWell(),
+            Integer.valueOf(detailForm.getWell()),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
@@ -183,7 +187,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
     var detailForm = form.getWellDetailsForm();
     assertThat(savedDiscoveryWellDetail)
         .extracting(
-            DiscoveryWellDetail::getWellName,
+            DiscoveryWellDetail::getWellId,
             DiscoveryWellDetail::getLatitudeDegrees,
             DiscoveryWellDetail::getLatitudeMinutes,
             DiscoveryWellDetail::getLatitudeMinutes,
@@ -202,7 +206,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
             DiscoveryWellDetail::getHydrocarbonsDiscovered,
             DiscoveryWellDetail::getSuccessRelatedCosts)
         .containsExactly(
-            detailForm.getWell(),
+            Integer.valueOf(detailForm.getWell()),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
@@ -259,7 +263,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
 
   private DiscoveryWellDetailsForm getFilledForm() {
     var form = new DiscoveryWellDetailsForm();
-    form.getWellDetailsForm().setWell("dryWellName");
+    form.getWellDetailsForm().setWell("1");
     form.setChanceOfCommercialityComments("dryHoleComments");
     form.setDiscoveryStatus(DiscoveryStatus.TECHNICAL_DISCOVERY);
     form.getWellDetailsForm().setReservoirDatum(ReservoirDatum.ED50);

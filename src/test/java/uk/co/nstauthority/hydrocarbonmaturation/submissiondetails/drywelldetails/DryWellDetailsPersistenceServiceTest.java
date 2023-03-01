@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
@@ -24,6 +25,9 @@ class DryWellDetailsPersistenceServiceTest {
 
   @Mock
   private DryWellDetailsRepository dryWellDetailsRepository;
+
+  @Mock
+  private WellQueryService wellQueryService;
 
   @InjectMocks
   private DryWellDetailsPersistenceService dryWellDetailsPersistenceService;
@@ -57,7 +61,7 @@ class DryWellDetailsPersistenceServiceTest {
     var detailForm = form.getDrillDetailsForm();
     assertThat(savedDryWellDetail)
         .extracting(
-            DryWellDetail::getWellName,
+            DryWellDetail::getWellId,
             DryWellDetail::getLatitudeDegrees,
             DryWellDetail::getLatitudeMinutes,
             DryWellDetail::getLatitudeMinutes,
@@ -81,7 +85,7 @@ class DryWellDetailsPersistenceServiceTest {
             DryWellDetail::getSealFailureCategory,
             DryWellDetail::getTrapFailureCategory)
         .containsExactly(
-            detailForm.getWell(),
+            Integer.valueOf(detailForm.getWell()),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
@@ -120,7 +124,7 @@ class DryWellDetailsPersistenceServiceTest {
     var detailForm = form.getDrillDetailsForm();
     assertThat(savedDryWellDetail)
         .extracting(
-            DryWellDetail::getWellName,
+            DryWellDetail::getWellId,
             DryWellDetail::getLatitudeDegrees,
             DryWellDetail::getLatitudeMinutes,
             DryWellDetail::getLatitudeMinutes,
@@ -178,7 +182,7 @@ class DryWellDetailsPersistenceServiceTest {
 
   private DryWellDetailsForm getFilledForm() {
     var form = new DryWellDetailsForm();
-    form.getDrillDetailsForm().setWell("dryWellName");
+    form.getDrillDetailsForm().setWell("1");
     form.setDryHoleComments("dryHoleComments");
     form.setDryHoleScope("dryHoleScope");
     form.getDrillDetailsForm().setReservoirDatum(ReservoirDatum.ED50);

@@ -30,7 +30,7 @@ public class DiscoveryWellDetailsSummaryService {
       DiscoveryWellDetail discoveryWellDetail) {
 
     return new DiscoveryWellDetailsSummaryView(
-        ObjectUtils.defaultIfNull(discoveryWellDetail.getWellName(), ""),
+        ObjectUtils.defaultIfNull(discoveryWellDetail.getWellReference(), ""),
         NumberUtil.getNumberStringWithUnitsWithoutSpaceOrEmpty(discoveryWellDetail.getLatitudeDegrees(), "°"),
         NumberUtil.getNumberStringWithUnitsWithoutSpaceOrEmpty(discoveryWellDetail.getLatitudeMinutes(), "''"),
         NumberUtil.getNumberStringWithUnitsWithoutSpaceOrEmpty(discoveryWellDetail.getLatitudeSeconds(), "'"),

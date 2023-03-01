@@ -85,7 +85,7 @@ public class DryWellDetailsController {
         .addObject("datumTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirDatum.class))
         .addObject("dryHoleTypes", DisplayableEnumOptionUtil.getDisplayableOptions(DryHoleType.class))
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
-        .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWells(null)))
+        .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null)))
         .addObject("well", dryWellDetailsFormService.getPreSelectedWell(form.getDrillDetailsForm().getWell()))
         .addObject("sourceFailureCategories",
             DisplayableEnumOptionUtil.getDisplayableOptions(SourceFailureCategory.class))

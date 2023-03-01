@@ -65,8 +65,8 @@ class DiscoveryWellDetailsSummaryServiceTest {
   @Test
   void getDiscoveryWellDetailSummaryFromSubmissionDetail_whenPresent_fullSummary() {
     var discoveryWellDetail = new DiscoveryWellDetail();
-    discoveryWellDetail.setWellName("wellname");
-    discoveryWellDetail.setWellId("1");
+    discoveryWellDetail.setWellReference("wellname");
+    discoveryWellDetail.setWellId(1);
     discoveryWellDetail.setLatitudeDegrees(BigDecimal.ONE);
     discoveryWellDetail.setLatitudeMinutes(BigDecimal.ONE);
     discoveryWellDetail.setLatitudeSeconds(BigDecimal.ONE);

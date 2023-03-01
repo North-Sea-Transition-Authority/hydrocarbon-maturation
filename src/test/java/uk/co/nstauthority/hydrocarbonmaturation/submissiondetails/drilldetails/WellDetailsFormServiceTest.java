@@ -1,21 +1,19 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.ReferenceWellView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -68,7 +66,7 @@ class WellDetailsFormServiceTest {
             WellDetailsForm::getTotalDepthFormationComments)
         .containsExactly(
             drillDetail.getDataAcquisitionProgramme(),
-            drillDetail.getWellId(),
+            drillDetail.getWellId().toString(),
             drillDetail.getDatum(),
             drillDetail.getLatitudeDegrees(),
             drillDetail.getLongitudeDegrees(),
@@ -92,22 +90,21 @@ class WellDetailsFormServiceTest {
 
   @Test
   void getPreSelectedWell_whenNotNull_assertSelectedWell() {
-    var expectedMap = Map.of("k1", "v2");
+    var expectedMap = Map.of("1", "v2");
 
-    when(searchSelectorService.buildPrePopulatedSelections(any(), any()))
+    when(searchSelectorService.buildPrePopulatedSelection("1", "K1"))
         .thenReturn(expectedMap);
-    when(wellQueryService.getWellByName("k1"))
-        .thenReturn(Collections.singletonList(ReferenceWellView.fromWellReference("k1")));
-    var result = wellDetailsFormService.getPreSelectedWell("k1");
+    when(wellQueryService.findWellById(1))
+        .thenReturn(Optional.of(new WellView("1", "K1")));
+    var result = wellDetailsFormService.getPreSelectedWell("1");
     assertThat(result).isEqualTo(expectedMap);
-    verify(wellQueryService).getWellByName("k1");
   }
 
   public static DrillDetail getDrillDetail(SubmissionDetail submissionDetail) {
     var drillDetail = new DrillDetail();
     drillDetail.setSubmissionDetail(submissionDetail);
-    drillDetail.setWellId("dryWellId");
-    drillDetail.setWellName("dryWellName");
+    drillDetail.setWellId(1);
+    drillDetail.setWellReference("dryWellName");
     drillDetail.setDatum(ReservoirDatum.ED50);
     drillDetail.setLatitudeDegrees(BigDecimal.TEN);
     drillDetail.setLatitudeMinutes(BigDecimal.TEN);

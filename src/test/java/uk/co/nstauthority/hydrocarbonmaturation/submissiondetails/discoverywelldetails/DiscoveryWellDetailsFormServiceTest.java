@@ -137,7 +137,7 @@ class DiscoveryWellDetailsFormServiceTest {
             Optional.of(discoveryWellDetail.getLatitudeMinutes()),
             Optional.of(discoveryWellDetail.getLatitudeSeconds()),
             discoveryWellDetail.getLongitudeHemisphere(),
-            discoveryWellDetail.getWellId(),
+            discoveryWellDetail.getWellId().toString(),
             discoveryWellDetail.getDataAcquisitionProgramme(),
             discoveryWellDetail.getGeophysicalUpdateCommentary(),
             discoveryWellDetail.getDatum(),
@@ -154,8 +154,8 @@ class DiscoveryWellDetailsFormServiceTest {
   DiscoveryWellDetail getDiscoveryWellDetail() {
     var discoveryWellDetail = new DiscoveryWellDetail();
     discoveryWellDetail.setSubmissionDetail(submissionDetail);
-    discoveryWellDetail.setWellId("dryWellId");
-    discoveryWellDetail.setWellName("dryWellName");
+    discoveryWellDetail.setWellId(1);
+    discoveryWellDetail.setWellReference("well ref");
     discoveryWellDetail.setDatum(ReservoirDatum.ED50);
     discoveryWellDetail.setLatitudeDegrees(BigDecimal.TEN);
     discoveryWellDetail.setLatitudeMinutes(BigDecimal.TEN);

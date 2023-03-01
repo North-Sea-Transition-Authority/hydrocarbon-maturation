@@ -14,8 +14,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApi
 @Service
 public class WellQueryService {
 
-  // TODO HM-77 use wons api instead of dummy list where its used and remove this
-  public static final List<String> DUMMY_LIST_OF_WELLS = List.of("ND27a", "30/11", "29/10", "28/12", "25/10", "25/15");
   public static final WellboresProjectionRoot WELLBORES_PROJECTION_ROOT =
       new WellboresProjectionRoot()
           .id()
@@ -35,7 +33,7 @@ public class WellQueryService {
     this.energyPortalApiWrapper = energyPortalApiWrapper;
   }
 
-  List<WellView> getWellsByRegistrationNumber(String registrationNumber) {
+  public List<WellView> getWellsByRegistrationNumber(String registrationNumber) {
     return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
         wellboreApi.searchWellboresByRegistrationNumber(
             registrationNumber,
@@ -47,7 +45,7 @@ public class WellQueryService {
             .toList());
   }
 
-  List<WellView> getWellsByIds(List<Integer> wellIds) {
+  public List<WellView> getWellsByIds(List<Integer> wellIds) {
     return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
         wellboreApi.searchWellboresByIds(
                 wellIds,
@@ -59,7 +57,7 @@ public class WellQueryService {
             .toList());
   }
 
-  Optional<WellView> findWellById(Integer wellId) {
+  public Optional<WellView> findWellById(Integer wellId) {
     return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
         wellboreApi.findWellboreById(
                 wellId,
@@ -67,25 +65,6 @@ public class WellQueryService {
                 requestPurpose,
                 logCorrelationId)
             .map(this::getWellViewFromWellbore));
-  }
-
-  List<ReferenceWellView> getWellsByRef(String searchReference) {
-    return DUMMY_LIST_OF_WELLS.stream()
-        .filter(well -> {
-          var quadBlockRef = well.toLowerCase();
-          var reference = searchReference.trim().toLowerCase();
-          return quadBlockRef.contains(reference);
-        })
-        .map(ReferenceWellView::fromWellReference)
-        .toList();
-  }
-
-  public List<ReferenceWellView> getWellByName(String dryWell) {
-    return DUMMY_LIST_OF_WELLS
-        .stream()
-        .filter(dryWell::contains)
-        .map(ReferenceWellView::fromWellReference)
-        .toList();
   }
 
   private WellView getWellViewFromWellbore(Wellbore wellbore) {
