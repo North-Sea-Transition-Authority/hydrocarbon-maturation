@@ -187,6 +187,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         .contains(
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
             entry("submittable", true),
+            entry("isRegulator", false),
             entry("dryWellDetailsSummaryView", dryWellDetailsSummaryView),
             entry("permeabilitySummaryView", permeabilityDetailSummaryView),
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
@@ -216,5 +217,6 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         submissionDetail,
         VIEW_NAME)
     ).thenReturn(modelAndView);
+    when(submissionSummaryFormService.isRegulator()).thenReturn(false);
   }
 }

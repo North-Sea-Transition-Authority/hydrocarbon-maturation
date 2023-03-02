@@ -1,6 +1,7 @@
 <#include '../../layout/layout.ftl'>
 
 <#import '_discoverySubmissionSummary.ftl' as discoverySubmissionSummary>
+<#import '_summarySubmissionNotificationBanner.ftl' as banner>
 
 <#assign pageTitle = "Check your answers before submitting" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -31,16 +32,11 @@
 <#-- @ftlvariable name="resourceDetailSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView" -->
 
 <#if !submittable>
-    <#assign notificationBanner>
-        <@fdsNotificationBanner.notificationBannerInfo fullWidth=true bannerTitleText="Missing information">
-            <@fdsNotificationBanner.notificationBannerContent headingText="Not all sections shown on the task list have been completed.">
-              You will be allowed to submit without this information but this will mean the information will not be available in
-              the approved view of the resource.
-            </@fdsNotificationBanner.notificationBannerContent>
-        </@fdsNotificationBanner.notificationBannerInfo>
-    </#assign>
+  <#assign notificationBanner>
+      <@banner.submissionSummaryNotificationBanner isRegulator=isRegulator/>
+  </#assign>
 <#else>
-    <#assign notificationBanner = ""/>
+  <#assign notificationBanner = ""/>
 </#if>
 
 <@defaultPage
@@ -74,15 +70,19 @@
       sourceAndSealSummaryView=sourceAndSealSummaryView
       trapPropertiesSummaryView=trapPropertiesSummaryView
       resourceDetailSummaryView=resourceDetailSummaryView/>
-      <#if !submittable>
-          <@fdsCheckbox.checkbox
+      <#if !submittable && isRegulator>
+        <@fdsCheckbox.checkbox
           labelText="I want to complete this submission without providing all the required information"
           path="form.completeWithoutMandatoryInformation"/>
       </#if>
-    <@fdsAction.submitButtons
-      primaryButtonText="Submit"
-      secondaryLinkText="Cancel"
-      linkSecondaryAction=true
-      linkSecondaryActionUrl="${springUrl(cancelUrl)}"/>
+    <#if isRegulator || submittable>
+      <@fdsAction.submitButtons
+        primaryButtonText="Submit"
+        secondaryLinkText="Back to task list"
+        linkSecondaryAction=true
+        linkSecondaryActionUrl="${springUrl(cancelUrl)}"/>
+    <#else>
+      <@fdsAction.link linkText="Back to task list" linkUrl="${springUrl(cancelUrl)}"/>
+    </#if>
   </@fdsForm.htmlForm>
 </@defaultPage>

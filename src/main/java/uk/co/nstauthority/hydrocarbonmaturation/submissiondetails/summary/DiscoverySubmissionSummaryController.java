@@ -88,7 +88,8 @@ public class DiscoverySubmissionSummaryController {
     modelAndView
         .addObject("form", form)
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())))
-        .addObject("submittable", submissionReadyService.isSubmissionSubmittable(submissionDetail));
+        .addObject("submittable", submissionReadyService.isSubmissionSubmittable(submissionDetail))
+        .addObject("isRegulator", submissionSummaryFormService.isRegulator());
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
 

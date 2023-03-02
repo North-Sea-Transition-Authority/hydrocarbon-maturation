@@ -1,16 +1,20 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
+import java.util.Arrays;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
 
 @Service
-class SubmissionSummaryFormValidator implements Validator {
+class SubmissionSummaryFormValidator implements SmartValidator {
 
-  public void validate(SubmissionSummaryForm submissionSummaryForm, Errors errors, boolean submittable) {
-    if (!submittable) {
-      validate(submissionSummaryForm, errors);
+  @Override
+  public void validate(Object target, Errors errors, Object... validationHints) {
+    var hints = extractValidatorHints(validationHints);
+
+    if (!hints.isCompleted() && hints.isRegulator()) {
+      validate(target, errors);
     }
   }
 
@@ -26,5 +30,13 @@ class SubmissionSummaryFormValidator implements Validator {
         "completeWithoutMandatoryInformation",
         "completeWithoutMandatoryInformation.required",
         "You must indicate you want to complete this submission without providing all required information");
+  }
+
+  private SubmitValidatorHints extractValidatorHints(Object[] validationHints) {
+    return Arrays.stream(validationHints)
+        .filter(SubmitValidatorHints.class::isInstance)
+        .map(SubmitValidatorHints.class::cast)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Cannot get SubmissionValidatorHints"));
   }
 }

@@ -37,20 +37,32 @@ class SubmissionSummaryFormValidatorTest {
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
-  void validate_whenChecked_noErrors(Boolean submittable) {
+  void validate_whenChecked_whenRegulator_noErrors(Boolean submittable) {
     var form = new SubmissionSummaryForm();
     form.setCompleteWithoutMandatoryInformation(true);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    submissionSummaryFormValidator.validate(form, bindingResult, submittable);
+    submissionSummaryFormValidator.validate(
+        form, bindingResult, new SubmitValidatorHints(true, submittable));
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
 
   @Test
-  void validate_whenNotChecked_notSubmittable() {
+  void validate_whenNotRegulator_whenSubmittable_noErrors() {
     var form = new SubmissionSummaryForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    submissionSummaryFormValidator.validate(form, bindingResult, false);
+    submissionSummaryFormValidator.validate(
+        form, bindingResult, new SubmitValidatorHints(false, true));
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  void validate_whenNotChecked_whenRegulator_notSubmittable() {
+    var form = new SubmissionSummaryForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionSummaryFormValidator.validate(
+        form, bindingResult, new SubmitValidatorHints(true, false));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
