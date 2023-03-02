@@ -41,7 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
-import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordIntegrationTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
@@ -493,6 +493,10 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     licence2.setGeneralDetail(generalDetails);
     entityManager.persistAndFlush(licence);
     entityManager.persistAndFlush(licence2);
+    when(licenceQueryService.getExtantLicencesByIds(List.of("951", "953")))
+        .thenReturn(List.of(
+            LicenceViewTestUtil.Builder().withLicenceId(953).build(),
+            LicenceViewTestUtil.Builder().withLicenceId(951).build()));
 
     var results = submissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
@@ -565,7 +569,7 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     submissionWithEarlierApprovedNonExtantOrNonUserOrg.setId(null);
     submissionWithEarlierApprovedNonExtantOrNonUserOrg.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionWithEarlierApprovedNonExtantOrNonUserOrg.setSubmitterType(SubmitterType.INDUSTRY);
-    var resourceWithoutExtantAndUserOrg = ResourceRecordIntegrationTestUtils.createResource(entityManager);
+    var resourceWithoutExtantAndUserOrg = SubmissionIntegrationTestUtils.createResource(entityManager);
     submissionWithEarlierApprovedNonExtantOrNonUserOrg.setResourceId(resourceWithoutExtantAndUserOrg);
     entityManager.persistAndFlush(submissionWithEarlierApprovedNonExtantOrNonUserOrg);
     var responsibleTeamForNonExtantLicenceRes = new ResponsibleTeam();
@@ -577,8 +581,8 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
         resourceWithoutExtantAndUserOrg,
         responsibleOrgUnitInApprovedSubmission,
         hasExtantLicence);
-    ResourceRecordIntegrationTestUtils.createGeneralDetail(submissionWithEarlierApprovedNonExtantOrNonUserOrg, entityManager);
-    ResourceRecordIntegrationTestUtils.createResourceDetail(
+    SubmissionIntegrationTestUtils.createGeneralDetail(submissionWithEarlierApprovedNonExtantOrNonUserOrg, entityManager);
+    SubmissionIntegrationTestUtils.createResourceDetail(
         submissionWithEarlierApprovedNonExtantOrNonUserOrg, "Not relevant name",
         responsibleOrgUnitInApprovedSubmission, entityManager);
 
@@ -587,8 +591,8 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     submissionWithEarlierApprovedExtantAndUserOrg.setId(null);
     submissionWithEarlierApprovedExtantAndUserOrg.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionWithEarlierApprovedExtantAndUserOrg.setSubmitterType(SubmitterType.INDUSTRY);
-    var resource = ResourceRecordIntegrationTestUtils.createResource(entityManager);
-    ResourceRecordIntegrationTestUtils.createResponsibleTeam(resource, ResponsibleTeamType.EXPLORATION, entityManager);
+    var resource = SubmissionIntegrationTestUtils.createResource(entityManager);
+    SubmissionIntegrationTestUtils.createResponsibleTeam(resource, ResponsibleTeamType.EXPLORATION, entityManager);
     var createdTimestamp = Instant.now();
     submissionWithEarlierApprovedExtantAndUserOrg.setCreatedTimestamp(createdTimestamp);
     submissionWithEarlierApprovedExtantAndUserOrg.setResourceId(resource);
@@ -598,8 +602,8 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
         USER_ORGANISATION_UNIT_ID,
         true);
 
-    ResourceRecordIntegrationTestUtils.createGeneralDetail(submissionWithEarlierApprovedExtantAndUserOrg, entityManager);
-    ResourceRecordIntegrationTestUtils.createResourceDetail(
+    SubmissionIntegrationTestUtils.createGeneralDetail(submissionWithEarlierApprovedExtantAndUserOrg, entityManager);
+    SubmissionIntegrationTestUtils.createResourceDetail(
         submissionWithEarlierApprovedExtantAndUserOrg, "Resource name to be displayed", responsibleOrgUnitInApprovedSubmission, entityManager);
 
     var results = submissionWorkAreaQueryService.getWorkAreaSubmissionItems();

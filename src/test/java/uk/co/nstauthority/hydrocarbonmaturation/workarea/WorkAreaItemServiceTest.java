@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -15,6 +16,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,6 +26,8 @@ import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @ExtendWith(MockitoExtension.class)
@@ -285,5 +290,62 @@ class WorkAreaItemServiceTest {
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"));
+  }
+
+  @Test
+  void getWorkAreaItems_oneItemReturned_whenSubmitted_assertReviewActionUrlAndOtherValues() {
+    var queryResultInSubmitted = SubmissionWorkAreaQueryResultTestUtil
+        .builder()
+        .withStatus(SubmissionDetailStatus.SUBMITTED.name())
+        .build();
+    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+        .thenReturn(List.of(queryResultInSubmitted));
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(any()))
+        .thenReturn("Not provided");
+
+    var result = workAreaItemService.getWorkAreaItems();
+
+    assertThat(result)
+        .extracting(WorkAreaItem::type,
+            WorkAreaItem::headingText,
+            WorkAreaItem::captionText,
+            WorkAreaItem::actionUrl)
+        .containsExactly(
+            tuple(
+                WorkAreaItemType.SUBMISSION,
+                "resource name (25/5)",
+                "Prospect create",
+                ReverseRouter.route(on(ReviewSubmissionController.class)
+                    .showReviewPage(queryResultInSubmitted.getSubmissionDetailId())))
+        );
+
+    assertThat(result.get(0).modelProperties().getProperties())
+        .containsExactly(
+            entry("organisationResponsible", "Not provided"),
+            entry("licences", List.of()),
+            entry("submissionStatus", "Submitted"));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionDetailStatus.class, names = {"DRAFT", "SUBMITTED"})
+  void getWorkAreaItemsOneItemReturned_whenValidStatus_assertCorrectUrl(SubmissionDetailStatus status) {
+    var queryResult = SubmissionWorkAreaQueryResultTestUtil
+        .builder()
+        .withStatus(status.name())
+        .build();
+    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+        .thenReturn(List.of(queryResult));
+
+    var result = workAreaItemService.getWorkAreaItems();
+
+    if (status == SubmissionDetailStatus.DRAFT) {
+      assertThat(result.get(0).actionUrl())
+          .isEqualTo(ReverseRouter.route(on(TaskListController.class)
+              .getTaskList(queryResult.getSubmissionDetailId())));
+    } else {
+      assertThat(result.get(0).actionUrl())
+          .isEqualTo(ReverseRouter.route(on(ReviewSubmissionController.class)
+              .showReviewPage(queryResult.getSubmissionDetailId())));
+    }
   }
 }

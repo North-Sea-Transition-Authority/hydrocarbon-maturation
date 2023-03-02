@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class LicencePersistenceServiceTest {
@@ -71,6 +72,47 @@ class LicencePersistenceServiceTest {
                 "ref"
             )
         );
+  }
+
+  @Test
+  void hasAnExtantLicence_whenHasExtant() {
+    var generalDetail = mock(GeneralDetail.class);
+    var extantLicence = new Licence();
+    extantLicence.setLicenceId(1);
+    var nonExtantLicence = new Licence();
+    nonExtantLicence.setLicenceId(2);
+    var extantLicenceView = LicenceViewTestUtil.Builder().withLicenceId(1).build();
+    when(licenceRepository.findAllByGeneralDetail(generalDetail))
+        .thenReturn(List.of(extantLicence, nonExtantLicence));
+    when(licenceQueryService.getExtantLicencesByIds(List.of("1", "2")))
+        .thenReturn(List.of(extantLicenceView));
+
+    assertThat(licencePersistenceService.hasAnExtantLicence(generalDetail)).isTrue();
+  }
+
+  @Test
+  void hasAnExtantLicence_whenAllNotExtant() {
+    var generalDetail = mock(GeneralDetail.class);
+    var nonExtantLicence = new Licence();
+    nonExtantLicence.setLicenceId(3);
+    var nonExtantLicence2 = new Licence();
+    nonExtantLicence2.setLicenceId(4);
+    when(licenceRepository.findAllByGeneralDetail(generalDetail))
+        .thenReturn(List.of(nonExtantLicence, nonExtantLicence2));
+    when(licenceQueryService.getExtantLicencesByIds(List.of("3", "4")))
+        .thenReturn(List.of());
+
+    assertThat(licencePersistenceService.hasAnExtantLicence(generalDetail)).isFalse();
+  }
+
+  @Test
+  void hasAnExtantLicence_whenNoLicences() {
+    var generalDetail = mock(GeneralDetail.class);
+
+    when(licenceRepository.findAllByGeneralDetail(generalDetail))
+        .thenReturn(List.of());
+
+    assertThat(licencePersistenceService.hasAnExtantLicence(generalDetail)).isFalse();
   }
 
   @Test

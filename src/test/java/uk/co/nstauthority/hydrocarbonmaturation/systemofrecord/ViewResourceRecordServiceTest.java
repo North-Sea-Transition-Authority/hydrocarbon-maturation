@@ -112,7 +112,7 @@ class ViewResourceRecordServiceTest {
   class WhenCheckingIfCanViewResource {
 
     private static final Integer ORGANISATION_UNIT_ID = 1;
-    private final ResourceRecordSummaryView RESOURCE_RECORD = ResourceRecordIntegrationTestUtils.emptyResourceRecordSummaryView(
+    private final ResourceRecordSummaryView RESOURCE_RECORD = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
         UUID.randomUUID(), ORGANISATION_UNIT_ID);
     private final ServiceUserDetail USER_DETAIL = ServiceUserDetailTestUtil.Builder().build();
 

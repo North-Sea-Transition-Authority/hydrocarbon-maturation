@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 
 @Service
-class LicencePersistenceService {
+public class LicencePersistenceService {
   private final LicenceRepository licenceRepository;
   private final LicenceQueryService licenceQueryService;
 
@@ -32,6 +32,15 @@ class LicencePersistenceService {
 
   public List<Licence> getLicencesByGeneralDetail(GeneralDetail generalDetail) {
     return licenceRepository.findAllByGeneralDetail(generalDetail);
+  }
+
+  public boolean hasAnExtantLicence(GeneralDetail generalDetail) {
+    return !licenceQueryService.getExtantLicencesByIds(
+        licenceRepository.findAllByGeneralDetail(generalDetail)
+            .stream()
+            .map(licence -> licence.getLicenceId().toString())
+            .toList())
+        .isEmpty();
   }
 
   private Licence createLicence(GeneralDetail generalDetail, String licenceRef, Integer licenceId) {

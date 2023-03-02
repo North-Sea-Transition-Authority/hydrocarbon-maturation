@@ -16,12 +16,21 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.SubmissionRecordSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
 
-public class ResourceRecordIntegrationTestUtils {
+public class SubmissionIntegrationTestUtils {
 
   public static ResourceRecordSummaryView emptyResourceRecordSummaryView(UUID submissionDetailId, int responsibleOrganisationId) {
     return new ResourceRecordSummaryView(submissionDetailId, "", responsibleOrganisationId, "", List.of(), List.of(), "");
+  }
+
+  public static SubmissionRecordSummaryView emptySubmissionRecordSummaryView(UUID submissionDetailId,
+                                                                             int responsibleOrganisationId,
+                                                                             SubmissionType submissionType) {
+    return new SubmissionRecordSummaryView(submissionDetailId, submissionType, "",
+        responsibleOrganisationId, "", List.of(1),
+        List.of("1"), ResponsibleTeamType.EXPLORATION.getDisplayName(), ResponsibleTeamType.EXPLORATION);
   }
 
   public static Licence createLicence(int id, String ref, GeneralDetail generalDetails, TestEntityManager entityManager) {
@@ -36,7 +45,7 @@ public class ResourceRecordIntegrationTestUtils {
   }
 
   public static TrapProperty createTrapProperty(SubmissionDetail submissionDetail, String centreOfInterestQuadrantBlock,
-                                  TestEntityManager entityManager) {
+                                                TestEntityManager entityManager) {
     var trapProperty = new TrapProperty();
     trapProperty.setSubmissionDetail(submissionDetail);
     trapProperty.setCentreOfInterestQuadrantBlock(centreOfInterestQuadrantBlock);
@@ -66,7 +75,7 @@ public class ResourceRecordIntegrationTestUtils {
   }
 
   public static ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId,
-                                      TestEntityManager entityManager) {
+                                                    TestEntityManager entityManager) {
     var resourceDetail = new ResourceDetail();
     resourceDetail.setResourceName(resourceName);
     resourceDetail.setSubmissionDetail(submissionDetail);
@@ -87,7 +96,7 @@ public class ResourceRecordIntegrationTestUtils {
   }
 
   public static ResponsibleTeam createResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType,
-                                               TestEntityManager entityManager) {
+                                                      TestEntityManager entityManager) {
     var responsibleTeam = new ResponsibleTeam();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(responsibleTeamType);
@@ -102,7 +111,8 @@ public class ResourceRecordIntegrationTestUtils {
     submissionDetail.setId(null);
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
-    submissionDetail.setCreatedTimestamp(Instant.now().minusSeconds(1));
+    submissionDetail.setCreatedTimestamp(Instant.now().minusSeconds(10));
+    submissionDetail.setSubmittedTimestamp(Instant.now().minusSeconds(5));
     submissionDetail.setApprovedTimestamp(Instant.now());
     submissionDetail.setResourceId(resource);
 

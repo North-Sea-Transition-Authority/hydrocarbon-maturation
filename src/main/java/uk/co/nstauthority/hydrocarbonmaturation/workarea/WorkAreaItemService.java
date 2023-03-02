@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Service
@@ -52,8 +54,13 @@ class WorkAreaItemService {
   }
 
   private String getActionUrl(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult) {
-    return ReverseRouter.route(on(TaskListController.class)
-        .getTaskList(submissionWorkAreaQueryResult.getSubmissionDetailId()));
+    if (submissionWorkAreaQueryResult.getStatus() == SubmissionDetailStatus.DRAFT) {
+      return ReverseRouter.route(on(TaskListController.class)
+          .getTaskList(submissionWorkAreaQueryResult.getSubmissionDetailId()));
+    } else {
+      return ReverseRouter.route(on(ReviewSubmissionController.class)
+          .showReviewPage(submissionWorkAreaQueryResult.getSubmissionDetailId()));
+    }
   }
 
   private WorkAreaItemModelProperties getWorkAreaItemModelProperties(

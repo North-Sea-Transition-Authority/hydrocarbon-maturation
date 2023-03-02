@@ -39,7 +39,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private SubmissionSummaryModelService submissionSummaryModelService;
 
   private final UUID RESOURCE_ID = UUID.randomUUID();
-  private final ResourceRecordSummaryView RESOURCE_RECORD_VIEW = ResourceRecordIntegrationTestUtils.emptyResourceRecordSummaryView(
+  private final ResourceRecordSummaryView RESOURCE_RECORD_VIEW = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
       UUID.randomUUID(), 1);
   private final SubmissionDetail SUBMISSION_DETAIL = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 

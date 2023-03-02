@@ -15,12 +15,12 @@
   breadcrumbsMap=breadcrumbsMap>
 
   <@fdsDataItems.dataItem>
-    <@fdsDataItems.dataValues key="Resonsible team" value="${resourceRecord.responsibleTeam()}"/>
+    <@fdsDataItems.dataValues key="Responsible team" value="${resourceRecord.responsibleTeam()}"/>
     <@fdsDataItems.dataValues key="Responsible organisation" value="${resourceRecord.organisationResponsible()}"/>
     <#assign licencesDisplay>
         <#if resourceRecord.licences()?has_content>
             <#list resourceRecord.licences() as licence>
-                ${licence}
+                ${licence}<#if licence?has_next>,</#if>
             </#list>
         </#if>
     </#assign>

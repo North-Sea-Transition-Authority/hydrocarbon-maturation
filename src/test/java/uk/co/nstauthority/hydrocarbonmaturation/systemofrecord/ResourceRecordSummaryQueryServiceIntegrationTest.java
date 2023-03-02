@@ -107,41 +107,41 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
 
   private Licence createLicence(int id, String ref, GeneralDetail generalDetails) {
 
-    return ResourceRecordIntegrationTestUtils.createLicence(id, ref, generalDetails, entityManager);
+    return SubmissionIntegrationTestUtils.createLicence(id, ref, generalDetails, entityManager);
   }
 
   private TrapProperty createTrapProperty(SubmissionDetail submissionDetail, String centreOfInterestQuadrantBlock) {
 
-    return ResourceRecordIntegrationTestUtils.createTrapProperty(submissionDetail, centreOfInterestQuadrantBlock, entityManager);
+    return SubmissionIntegrationTestUtils.createTrapProperty(submissionDetail, centreOfInterestQuadrantBlock, entityManager);
   }
 
   private QuadrantAndBlock createQuadAndBlock(GeneralDetail generalDetails, String quadrantBlock) {
 
-    return ResourceRecordIntegrationTestUtils.createQuadAndBlock(generalDetails, quadrantBlock, entityManager);
+    return SubmissionIntegrationTestUtils.createQuadAndBlock(generalDetails, quadrantBlock, entityManager);
   }
 
   private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail) {
 
-    return ResourceRecordIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager);
+    return SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager);
   }
 
   private ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId) {
 
-    return ResourceRecordIntegrationTestUtils.createResourceDetail(submissionDetail, resourceName, organisationId, entityManager);
+    return SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, resourceName, organisationId, entityManager);
   }
 
   private Resource buildResource() {
 
-    return ResourceRecordIntegrationTestUtils.createResource(entityManager);
+    return SubmissionIntegrationTestUtils.createResource(entityManager);
   }
 
   private ResponsibleTeam buildResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType) {
 
-    return ResourceRecordIntegrationTestUtils.createResponsibleTeam(resource, responsibleTeamType, entityManager);
+    return SubmissionIntegrationTestUtils.createResponsibleTeam(resource, responsibleTeamType, entityManager);
   }
 
   private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType) {
 
-    return ResourceRecordIntegrationTestUtils.createSubmissionDetail(resource, submissionType, entityManager);
+    return SubmissionIntegrationTestUtils.createSubmissionDetail(resource, submissionType, entityManager);
   }
 }
