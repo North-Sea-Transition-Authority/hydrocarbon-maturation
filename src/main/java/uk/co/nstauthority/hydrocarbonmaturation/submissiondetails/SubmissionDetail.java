@@ -46,6 +46,9 @@ public class SubmissionDetail {
 
   private Integer versionNumber;
 
+  @Enumerated(EnumType.STRING)
+  private SubmitterType submitterType;
+
   public UUID getId() {
     return id;
   }
@@ -132,6 +135,14 @@ public class SubmissionDetail {
 
   public void setApprovedTimestamp(Instant approvedTimestamp) {
     this.approvedTimestamp = approvedTimestamp;
+  }
+
+  public SubmitterType getSubmitterType() {
+    return submitterType;
+  }
+
+  public void setSubmitterType(SubmitterType submitterType) {
+    this.submitterType = submitterType;
   }
 
   public boolean isProspectSubmission() {

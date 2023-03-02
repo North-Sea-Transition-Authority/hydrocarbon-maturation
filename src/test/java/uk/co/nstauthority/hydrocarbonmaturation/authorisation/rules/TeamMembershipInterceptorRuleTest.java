@@ -22,7 +22,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -85,11 +87,10 @@ class TeamMembershipInterceptorRuleTest {
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var responsibleTeam = new ResponsibleTeam();
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()))
         .thenReturn(responsibleTeam);
-    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
-        .thenReturn(false);
     var resourceDetail = new ResourceDetail();
     resourceDetail.setOrganisationId(1);
     when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
@@ -114,12 +115,42 @@ class TeamMembershipInterceptorRuleTest {
     var mockResponse = mock(HttpServletResponse.class);
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.setSubmitterType(SubmitterType.NSTA);
     var responsibleTeam = new ResponsibleTeam();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()))
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(false);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
+        .thenReturn(List.of(1));
+    var securityRuleResult = teamMembershipInterceptorRule
+        .check(
+            IsFromResponsibleTeam.class,
+            mockRequest,
+            mockResponse,
+            user,
+            submissionDetail);
+    assertThat(securityRuleResult.hasRulePassed()).isFalse();
+    assertThat(securityRuleResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
+  }
+
+  @Test
+  void check_whenResponsibleTeamTypeDoesNotMatchPermissionAndNotSubmitter_whenSubmittedSubmission_assertRuleFailForbidden() {
+    var mockRequest = mock(HttpServletRequest.class);
+    var mockResponse = mock(HttpServletResponse.class);
+    var user = ServiceUserDetailTestUtil.Builder().build();
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var responsibleTeam = new ResponsibleTeam();
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
+    when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()))
+        .thenReturn(responsibleTeam);
     var resourceDetail = new ResourceDetail();
     resourceDetail.setOrganisationId(1);
     when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
@@ -140,12 +171,13 @@ class TeamMembershipInterceptorRuleTest {
   }
 
   @Test
-  void check_whenResponsibleTeamTypeDoesNotMatchPermissionAndNotSubmitter_assertRuleFailForbidden() {
+  void check_whenRegulatorInResponsibleTeamAndIndustrySubmissionInDraft_assertRuleFailForbidden() {
     var mockRequest = mock(HttpServletRequest.class);
     var mockResponse = mock(HttpServletResponse.class);
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var responsibleTeam = new ResponsibleTeam();
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
     when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()))
         .thenReturn(responsibleTeam);

@@ -61,7 +61,7 @@ class ResourceRecordQueryService {
     var isRegulator = regulatorTeamService.isRegulatorUser(user);
     List<Integer> userOrgUnits = List.of();
     if (!isRegulator) {
-      userOrgUnits = industryTeamService.getOrganisationUnitIdsForUserWithAnyIndustryTeamRoles(
+      userOrgUnits = industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(
           user, Set.of(IndustryTeamRole.SUBMITTER, IndustryTeamRole.VIEWER));
     }
 

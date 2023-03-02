@@ -24,7 +24,7 @@ public class ResourceRecordIntegrationTestUtils {
     return new ResourceRecordSummaryView(submissionDetailId, "", responsibleOrganisationId, "", List.of(), List.of(), "");
   }
 
-  static Licence createLicence(int id, String ref, GeneralDetail generalDetails, TestEntityManager entityManager) {
+  public static Licence createLicence(int id, String ref, GeneralDetail generalDetails, TestEntityManager entityManager) {
     var licence = new Licence();
     licence.setLicenceId(id);
     licence.setLicenceReference(ref);
@@ -35,7 +35,7 @@ public class ResourceRecordIntegrationTestUtils {
     return licence;
   }
 
-  static TrapProperty createTrapProperty(SubmissionDetail submissionDetail, String centreOfInterestQuadrantBlock,
+  public static TrapProperty createTrapProperty(SubmissionDetail submissionDetail, String centreOfInterestQuadrantBlock,
                                   TestEntityManager entityManager) {
     var trapProperty = new TrapProperty();
     trapProperty.setSubmissionDetail(submissionDetail);
@@ -46,7 +46,7 @@ public class ResourceRecordIntegrationTestUtils {
     return trapProperty;
   }
 
-  static QuadrantAndBlock createQuadAndBlock(GeneralDetail generalDetails, String quadrantBlock, TestEntityManager entityManager) {
+  public static QuadrantAndBlock createQuadAndBlock(GeneralDetail generalDetails, String quadrantBlock, TestEntityManager entityManager) {
     var quadBlocks = new QuadrantAndBlock();
     quadBlocks.setGeneralDetail(generalDetails);
     quadBlocks.setQuadrantBlock(quadrantBlock);
@@ -56,7 +56,7 @@ public class ResourceRecordIntegrationTestUtils {
     return quadBlocks;
   }
 
-  static GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail, TestEntityManager entityManager) {
+  public static GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail, TestEntityManager entityManager) {
     var generalDetails = new GeneralDetail();
     generalDetails.setSubmissionDetail(submissionDetail);
 
@@ -65,7 +65,7 @@ public class ResourceRecordIntegrationTestUtils {
     return generalDetails;
   }
 
-  static ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId,
+  public static ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId,
                                       TestEntityManager entityManager) {
     var resourceDetail = new ResourceDetail();
     resourceDetail.setResourceName(resourceName);
@@ -77,7 +77,7 @@ public class ResourceRecordIntegrationTestUtils {
     return resourceDetail;
   }
 
-  static Resource createResource(TestEntityManager entityManager) {
+  public static Resource createResource(TestEntityManager entityManager) {
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
 
@@ -86,7 +86,7 @@ public class ResourceRecordIntegrationTestUtils {
     return resource;
   }
 
-  static ResponsibleTeam createResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType,
+  public static ResponsibleTeam createResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType,
                                                TestEntityManager entityManager) {
     var responsibleTeam = new ResponsibleTeam();
     responsibleTeam.setResource(resource);
@@ -97,7 +97,7 @@ public class ResourceRecordIntegrationTestUtils {
     return responsibleTeam;
   }
 
-  static SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType, TestEntityManager entityManager) {
+  public static SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType, TestEntityManager entityManager) {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
     submissionDetail.setSubmissionType(submissionType);

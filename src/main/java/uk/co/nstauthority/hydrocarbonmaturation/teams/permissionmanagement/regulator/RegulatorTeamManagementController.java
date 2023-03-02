@@ -83,7 +83,7 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
               ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()));
     }
 
-    if (regulatorTeamService.isAccessManager(teamId, userDetailService.getUserDetail())) {
+    if (regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.ACCESS_MANAGER)) {
       modelAndView
           .addObject("addTeamMemberUrl",
               ReverseRouter.route(on(RegulatorAddMemberController.class).renderAddTeamMember(teamId)))

@@ -9,6 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Service
@@ -25,9 +26,7 @@ public class TeamManagementService {
   }
 
   public boolean isIndustryAccessManagerInRegulatorTeam(ServiceUserDetail user) {
-    return regulatorTeamService.getRegulatorTeamForUser(user)
-        .filter(regulatorTeam -> regulatorTeamService.isIndustryAccessManager(regulatorTeam.toTeamId(), user))
-        .isPresent();
+    return regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER);
   }
 
   public boolean isMemberOfTeamOrIndustryAccessManager(TeamId teamId, ServiceUserDetail user) {

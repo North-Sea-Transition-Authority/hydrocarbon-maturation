@@ -45,6 +45,7 @@ public class SubmissionDetailTestUtils {
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setResourceId(resource);
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+    submissionDetail.setSubmitterType(SubmitterType.NSTA);
 
     return submissionDetail;
 

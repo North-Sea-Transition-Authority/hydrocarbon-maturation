@@ -99,9 +99,24 @@ public class IndustryTeamService {
     return teamService.getOrganisationGroupsUserIsTeamMemberOf(user);
   }
 
-  public List<Integer> getOrganisationUnitIdsForUserWithAnyIndustryTeamRoles(ServiceUserDetail user,
-                                                                             Set<IndustryTeamRole> industryTeamRoles) {
-    var organisationGroupIdsForUser = getOrganisationGroupIdsWhereUserHasAnyTeamRole(
+  public List<Integer> getOrganisationUnitIdsForUser(ServiceUserDetail userDetail) {
+    return organisationGroupQueryService.getOrganisationGroupsByIds(getOrganisationGroupIdsForUser(userDetail))
+        .stream()
+        .flatMap(organisationGroup -> {
+          if (organisationGroup.getOrganisationUnits() == null) {
+            return Stream.of();
+          }
+          return organisationGroup.getOrganisationUnits().stream();
+        })
+        .filter(Objects::nonNull)
+        .map(OrganisationUnit::getOrganisationUnitId)
+        .distinct()
+        .toList();
+  }
+
+  public List<Integer> getOrganisationUnitIdsForUserWithIndustryTeamRoles(ServiceUserDetail user,
+                                                                          Set<IndustryTeamRole> industryTeamRoles) {
+    var organisationGroupIdsForUser = getOrganisationGroupIdsWhereUserHasTeamRole(
         user, industryTeamRoles);
     if (organisationGroupIdsForUser.isEmpty()) {
       return List.of();
@@ -118,11 +133,12 @@ public class IndustryTeamService {
         })
         .filter(Objects::nonNull)
         .map(OrganisationUnit::getOrganisationUnitId)
+        .distinct()
         .toList();
   }
 
-  private List<Integer> getOrganisationGroupIdsWhereUserHasAnyTeamRole(ServiceUserDetail user,
-                                                                       Set<IndustryTeamRole> roles) {
+  private List<Integer> getOrganisationGroupIdsWhereUserHasTeamRole(ServiceUserDetail user,
+                                                                    Set<IndustryTeamRole> roles) {
     var rolesAsStrings = getRolesAsStrings(roles);
     return getOrganisationGroupIdsForUser(user)
         .stream()

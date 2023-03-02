@@ -180,7 +180,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
 
     var teamId = team.toTeamId();
 
-    when(regulatorTeamService.isAccessManager(teamId, user)).thenReturn(true);
+    when(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.ACCESS_MANAGER)).thenReturn(true);
 
     when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(regulatorTeamService.getTeam(teamId)).thenReturn(Optional.of(team));

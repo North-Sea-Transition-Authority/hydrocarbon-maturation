@@ -32,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamT
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
@@ -98,6 +99,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
 
   protected void setUpWhenUserIsResponsibleOrganisation_passSecurity(ServiceUserDetail user) {
     var responsibleTeam = new ResponsibleTeam();
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     responsibleTeam.setResource(submissionDetail.getResourceId());
     when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()))

@@ -249,7 +249,7 @@ class IndustryTeamServiceTest {
     when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(orgGroupId)))
         .thenReturn(List.of(organisationGroup));
     var result = industryTeamService
-        .getOrganisationUnitIdsForUserWithAnyIndustryTeamRoles(user, Set.of(IndustryTeamRole.SUBMITTER));
+        .getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Set.of(IndustryTeamRole.SUBMITTER));
 
     assertThat(result).isEqualTo(List.of(orgUnitId));
   }
@@ -260,7 +260,7 @@ class IndustryTeamServiceTest {
     when(industryTeamService.getOrganisationGroupIdsForUser(user))
         .thenReturn(List.of());
     var result = industryTeamService
-        .getOrganisationUnitIdsForUserWithAnyIndustryTeamRoles(user, Set.of(IndustryTeamRole.SUBMITTER));
+        .getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Set.of(IndustryTeamRole.SUBMITTER));
 
     assertThat(result).isEmpty();
   }
@@ -282,9 +282,46 @@ class IndustryTeamServiceTest {
     when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(orgGroupId)))
         .thenReturn(List.of(organisationGroup));
     var result = industryTeamService
-        .getOrganisationUnitIdsForUserWithAnyIndustryTeamRoles(user, Set.of(IndustryTeamRole.VIEWER));
+        .getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Set.of(IndustryTeamRole.VIEWER));
 
     assertThat(result).isEmpty();
   }
 
+  @Test
+  void getOrganisationUnitIdsForUser_whenUserNotInAnyOrgUnitGroup_assertEmpty() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+    var orgGroupId = 1;
+    when(industryTeamService.getOrganisationGroupIdsForUser(user))
+        .thenReturn(List.of(orgGroupId));
+    var organisationGroup = new OrganisationGroup();
+    organisationGroup.setOrganisationUnits(List.of());
+    organisationGroup.setOrganisationGroupId(orgGroupId);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(orgGroupId)))
+        .thenReturn(List.of(organisationGroup));
+    var result = industryTeamService
+        .getOrganisationUnitIdsForUser(user);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void getOrganisationUnitIdsForUser_assertReturn() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+    var orgGroupId = 1;
+    var orgUnitId = 5;
+    var orgUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationId(orgUnitId)
+        .build();
+    when(industryTeamService.getOrganisationGroupIdsForUser(user))
+        .thenReturn(List.of(orgGroupId));
+    var organisationGroup = new OrganisationGroup();
+    organisationGroup.setOrganisationUnits(List.of(orgUnit));
+    organisationGroup.setOrganisationGroupId(orgGroupId);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(orgGroupId)))
+        .thenReturn(List.of(organisationGroup));
+    var result = industryTeamService
+        .getOrganisationUnitIdsForUser(user);
+
+    assertThat(result).isEqualTo(List.of(orgUnitId));
+  }
 }
