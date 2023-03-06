@@ -31,7 +31,7 @@ public class GeneralDetailSummaryService {
       var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail);
       var licences = licencePersistenceService.getLicencesByGeneralDetail(detail)
           .stream()
-          .sorted(Comparator.comparing(Licence::getLicenceReference))
+          .sorted(new LicenceReferenceComparator())
           .toList();
       return createSummaryViewFromGeneralDetail(detail, quadrantAndBlocks, licences);
     })

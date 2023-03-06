@@ -83,7 +83,7 @@ class ReviewSubmissionControllerTest extends AbstractSubmissionControllerTest {
       value = SubmissionDetailStatus.class,
       mode = EnumSource.Mode.EXCLUDE,
       names = {"SUBMITTED"})
-  void showReviewPage_UserCanReview_submissionStatus_assertStatusForbidden(SubmissionDetailStatus status) throws Exception {
+  void showReviewPage_UserCanReview_SubmissionStatus_assertStatusForbidden(SubmissionDetailStatus status) throws Exception {
     submissionDetail.setStatus(status);
     when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail)).thenReturn(true);
 
@@ -96,6 +96,8 @@ class ReviewSubmissionControllerTest extends AbstractSubmissionControllerTest {
   @Test
   void showSubmissionModelAndView_assertModelProperties() throws Exception {
     when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail)).thenReturn(true);
+    when(reviewSubmissionService.canReviewSubmission(SUBMISSION_RECORD_VIEW, USER))
+        .thenReturn(true);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(SUBMISSION_DETAIL_ID)))
@@ -106,7 +108,10 @@ class ReviewSubmissionControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap)
         .contains(
             entry("submissionRecord", SUBMISSION_RECORD_VIEW),
-            entry("submissionType", submissionDetail.getSubmissionType().getDisplayName())
+            entry("canReview", true),
+            entry("approveUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
+                .showApproveConfirmationPage(submissionDetail.getId()))),
+            entry("submissionType", submissionDetail.getSubmissionType().getTypeName())
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -279,6 +281,49 @@ class ReviewSubmissionServiceTest {
               .isFalse();
         }
       }
+    }
+  }
+
+  @Nested
+  class WhenCheckingCanReviewSubmission {
+
+    private SubmissionRecordSummaryView explorationResponsibleTeamSubmissionRecord =
+        createSubmissionRecordWithResponsibleTeam(ResponsibleTeamType.EXPLORATION);
+    private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+
+    @Test
+    void whenIsInResponsibleTeam() {
+      when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION))
+          .thenReturn(true);
+
+      assertThat(reviewSubmissionService.canReviewSubmission(explorationResponsibleTeamSubmissionRecord, USER))
+          .isTrue();
+    }
+
+    @Test
+    void whenIsNotInResponsibleTeam() {
+      when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION))
+          .thenReturn(false);
+
+      assertThat(reviewSubmissionService.canReviewSubmission(explorationResponsibleTeamSubmissionRecord, USER))
+          .isFalse();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = ResponsibleTeamType.class, names = {"EXPLORATION"}, mode = EnumSource.Mode.EXCLUDE)
+    void whenIsNotExplorationResponsibleTeamType(ResponsibleTeamType responsibleTeamType) {
+      var notExplorationTeamResponsibleRecord =
+          createSubmissionRecordWithResponsibleTeam(responsibleTeamType);
+
+      assertThat(reviewSubmissionService.canReviewSubmission(notExplorationTeamResponsibleRecord, USER))
+          .isFalse();
+    }
+
+    private SubmissionRecordSummaryView createSubmissionRecordWithResponsibleTeam(ResponsibleTeamType responsibleTeamType) {
+      return new SubmissionRecordSummaryView(submissionDetail.getId(), SubmissionType.CREATE_PROSPECT,
+          "", 1, "",
+          List.of(1), List.of("1"), responsibleTeamType.getDisplayName(),
+          responsibleTeamType);
     }
   }
 }

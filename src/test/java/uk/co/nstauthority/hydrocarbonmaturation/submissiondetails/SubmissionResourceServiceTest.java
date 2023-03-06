@@ -201,6 +201,59 @@ class SubmissionResourceServiceTest {
     }
   }
 
+  @Nested
+  class getResourceNameWithCentreOfInterestOrDefault {
+
+    private SubmissionDetail submissionDetail;
+    private ResourceDetail resourceDetail;
+
+    @BeforeEach
+    void setUp() {
+      submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+      resourceDetail = new ResourceDetail();
+    }
+
+    @Test
+    void whenCentreOfInterestPresent() {
+      var expectedName = "name";
+      var expectedBlock = "15/2";
+      resourceDetail.setResourceName(expectedName);
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(resourceDetail));
+      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(expectedBlock));
+
+      assertThat(underTest.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+          .isEqualTo("%s (%s)".formatted(expectedName, expectedBlock));
+    }
+
+    @Test
+    void whenCentreOfInterestNotPresent() {
+      var expectedName = "name";
+      resourceDetail.setResourceName(expectedName);
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(resourceDetail));
+      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail))
+          .thenReturn(Optional.empty());
+
+      assertThat(underTest.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+          .isEqualTo("%s".formatted(expectedName));
+    }
+
+    @Test
+    void whenNameNotPresent() {
+      var submissionInstant = Instant.now();
+      submissionDetail.setCreatedTimestamp(submissionInstant);
+      var expectedName = SubmissionDetailUtil.getDefaultForNamelessResource(submissionInstant);
+
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(resourceDetail));
+
+      assertThat(underTest.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+          .isEqualTo("%s".formatted(expectedName));
+    }
+  }
+
   @NotNull
   private Resource buildResource(ResourceType resourceType) {
     return ResourceTestUtils.buildResource(resourceType);

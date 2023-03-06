@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -70,6 +72,11 @@ public class ReviewSubmissionController {
 
     return modelAndView
         .addObject("submissionRecord", submissionRecord)
-        .addObject("submissionType", submissionDetail.getSubmissionType().getDisplayName());
+        .addObject("submissionType", submissionDetail.getSubmissionType().getTypeName())
+        .addObject("canReview", reviewSubmissionService.canReviewSubmission(
+            submissionRecord, userDetailService.getUserDetail()))
+        .addObject("approveUrl",
+            ReverseRouter.route(on(ApproveSubmissionController.class)
+                .showApproveConfirmationPage(submissionDetail.getId())));
   }
 }

@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application;
 
 import java.util.Comparator;
+import java.util.function.Function;
 
 class LicenceViewByReferenceComparator implements Comparator<LicenceView> {
 
@@ -13,31 +14,19 @@ class LicenceViewByReferenceComparator implements Comparator<LicenceView> {
    */
   @Override
   public int compare(LicenceView licenceView1, LicenceView licenceView2) {
-    int i1 = getNumbersFromReference(licenceView1.getName());
-    int i2 = getNumbersFromReference(licenceView2.getName());
-    String s1 = getStringWithoutNumbers(licenceView1.getName());
-    String s2 = getStringWithoutNumbers(licenceView2.getName());
-
-    if (s1.equals(s2)) {
-      return Integer.compare(i1, i2);
-    } else {
-      return licenceView1.getName().compareTo(licenceView2.getName());
-    }
+    return Comparator
+        .comparing(byReferenceText())
+        .thenComparing(byReferenceNumber())
+        .compare(licenceView1, licenceView2);
   }
 
-  private String getStringWithoutNumbers(String reference) {
-    return reference.replaceAll("\\d", "");
+  private Function<LicenceView, String> byReferenceText() {
+    //compares the text part of the licence reference
+    return licenceView -> licenceView.getName().replaceAll("\\d", "");
   }
 
-  private Integer getNumbersFromReference(String s) {
-    // for sorting purposes, keep only numbers
-    // this means A10 will order after A2 (for example)
-    var numbersOnly = s.replaceAll("\\D", "");
-    if (!numbersOnly.isEmpty()) {
-      return Integer.parseInt(numbersOnly);
-    } else {
-      // if a reference has no numbers, put it last in the sort
-      return Integer.MAX_VALUE;
-    }
+  private Function<LicenceView, Integer> byReferenceNumber() {
+    //compares the numbers of the licence reference
+    return licenceView -> Integer.valueOf(licenceView.getName().replaceAll("\\D", ""));
   }
 }

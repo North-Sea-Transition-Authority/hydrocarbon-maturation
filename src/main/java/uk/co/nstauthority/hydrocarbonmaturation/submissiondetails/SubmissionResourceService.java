@@ -44,6 +44,16 @@ public class SubmissionResourceService {
         .orElseGet(() -> SubmissionDetailUtil.getDefaultForNamelessResource(submissionDetail.getCreatedTimestamp()));
   }
 
+  public String getResourceNameWithCentreOfInterestOrDefault(SubmissionDetail submissionDetail) {
+    return getResourceName(submissionDetail)
+        .map(resourceName ->
+          trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail)
+              .map(centreOfInterestBlock ->
+                  resourceName + " (" + centreOfInterestBlock + ")")
+              .orElse(resourceName))
+        .orElseGet(() -> SubmissionDetailUtil.getDefaultForNamelessResource(submissionDetail.getCreatedTimestamp()));
+  }
+
   public String getResourceDisplayName(ResourceDetail resourceDetail) {
     var centreOfInterestBlockSuffix = trapPropertiesPersistenceService
         .getCentreOfInterestBlockFromSubmissionDetail(resourceDetail.getSubmissionDetail())

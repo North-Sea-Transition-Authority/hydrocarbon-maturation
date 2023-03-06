@@ -95,6 +95,11 @@ class ReviewSubmissionService {
     }
   }
 
+  boolean canReviewSubmission(SubmissionRecordSummaryView submissionRecord, ServiceUserDetail userDetail) {
+    return ResponsibleTeamType.EXPLORATION.equals(submissionRecord.responsibleTeamType())
+        && regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION);
+  }
+
   private boolean hasExtantLicenceAndOrganisationMembershipOnLatestApprovedSubmissionOnResource(
       ServiceUserDetail user, SubmissionDetail submissionDetail) {
     return submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)

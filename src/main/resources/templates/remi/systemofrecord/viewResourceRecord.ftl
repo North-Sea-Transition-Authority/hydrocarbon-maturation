@@ -27,12 +27,6 @@
     <@fdsDataItems.dataValues key="Licenses" value="${licencesDisplay}"/>
   </@fdsDataItems.dataItem>
 
-  <@fdsAction.buttonGroup>
-    <@fdsActionDropdown.actionDropdown dropdownButtonText="Actions">
-
-    </@fdsActionDropdown.actionDropdown>
-  </@fdsAction.buttonGroup>
-
   <h2 class="govuk-heading-l">${submissionType.getTypeName()}</h2>
 
   <@submissionSummary.submissionSummary
