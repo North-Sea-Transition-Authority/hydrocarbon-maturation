@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -302,5 +303,23 @@ class GeneralDetailsPersistenceServiceTest {
     assertThatThrownBy(() ->  generalDetailsPersistenceService.getGeneralDetailOrThrow(submissionDetail))
         .isExactlyInstanceOf(RemiEntityNotFoundException.class)
         .hasMessage("Could not find general detail for submission detail %s".formatted(submissionDetail.getId()));
+  }
+
+  @Test
+  void isOnAnExtantLicence_verifyMethodCall() {
+    var generalDetail = new GeneralDetail();
+    generalDetailsPersistenceService.isOnAnExtantLicence(generalDetail);
+
+    verify(licencePersistenceService).hasAnExtantLicence(generalDetail);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void isOnAnExtantLicence_assertReturn(boolean hasExtantLicence) {
+    var generalDetail = new GeneralDetail();
+    when(licencePersistenceService.hasAnExtantLicence(generalDetail))
+        .thenReturn(hasExtantLicence);
+
+    assertThat(generalDetailsPersistenceService.isOnAnExtantLicence(generalDetail)).isEqualTo(hasExtantLicence);
   }
 }

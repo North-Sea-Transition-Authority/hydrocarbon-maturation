@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -102,10 +101,8 @@ public class GeneralDetailsPersistenceService {
             String.format("Could not find general detail for submission detail %s", submissionDetail.getId())));
   }
 
-  public GeneralDetail getGeneralDetailByIdOrThrow(UUID generalDetailId) {
-    return generalDetailsRepository.findById(generalDetailId)
-        .orElseThrow(() -> new RemiEntityNotFoundException(
-            String.format("Could not find general detail by ID %s", generalDetailId)));
+  public boolean isOnAnExtantLicence(GeneralDetail generalDetail) {
+    return licencePersistenceService.hasAnExtantLicence(generalDetail);
   }
 
   private void setLicenceApplication(GeneralDetail generalDetail,
