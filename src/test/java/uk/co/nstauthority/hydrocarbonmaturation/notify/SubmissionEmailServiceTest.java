@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -14,11 +15,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -32,6 +35,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUs
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
+import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -40,7 +46,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.LicencePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionEmailServiceTest {
@@ -70,7 +78,12 @@ class SubmissionEmailServiceTest {
   @Mock
   private LicencePersistenceService licencePersistenceService;
 
-  @InjectMocks
+  @Mock
+  private ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+
+  @Mock
+  private RegulatorTeamService regulatorTeamService;
+
   private SubmissionEmailService submissionEmailService;
 
   @Captor
@@ -82,41 +95,48 @@ class SubmissionEmailServiceTest {
     request.setContextPath(CONTEXT_PATH);
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     SUBMISSION_DETAIL.setSubmittedByWuaId(SUBMITTER_WUA_ID);
+    submissionEmailService = new SubmissionEmailService(notifyEmailService, energyPortalUserService,
+        submissionResourceService, generalDetailsPersistenceService,
+        licencePersistenceService, responsibleTeamPersistenceService,
+        regulatorTeamService);
   }
 
-  @Test
-  void sendRemiApprovalEmail_whenValidRecipient_assertEmailProperties() {
-    var recipient = EnergyPortalUserDtoTestUtil.Builder()
-        .withWebUserAccountId(SUBMITTER_WUA_ID)
-        .withEmailAddress("expected@email.co.uk")
-        .withForename("Bob")
-        .withSurname("The builder")
-        .build();
-    var expectedName = "resource name (25/5)";
-    var expectedLicencesString = "A2, A6:";
+  @Nested
+  class WhenSendingApprovalEmail {
 
-    when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(SUBMITTER_WUA_ID.toString())))
-        .thenReturn(Optional.of(recipient));
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
-        .thenReturn(expectedName);
-    var generalDetail = mock(GeneralDetail.class);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
-        .thenReturn(Optional.of(generalDetail));
+    @Test
+    void sendRemiApprovalEmail_whenValidRecipient_assertEmailProperties() {
+      var recipient = EnergyPortalUserDtoTestUtil.Builder()
+          .withWebUserAccountId(SUBMITTER_WUA_ID)
+          .withEmailAddress("expected@email.co.uk")
+          .withForename("Bob")
+          .withSurname("The builder")
+          .build();
+      var expectedName = "resource name (25/5)";
+      var expectedLicencesString = "A2, A6:";
 
-    var licence = new Licence();
-    licence.setLicenceReference("A2");
-    var licence2 = new Licence();
-    licence2.setLicenceReference("A6");
-    when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
-        .thenReturn(List.of(licence, licence2));
+      when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(SUBMITTER_WUA_ID.toString())))
+          .thenReturn(Optional.of(recipient));
+      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+          .thenReturn(expectedName);
+      var generalDetail = mock(GeneralDetail.class);
+      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
+          .thenReturn(Optional.of(generalDetail));
 
-    var expectedRemiSystemOfRecordUrl = SERVICE_URL +
-        ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(SUBMISSION_DETAIL.getResourceId().getId()));
+      var licence = new Licence();
+      licence.setLicenceReference("A2");
+      var licence2 = new Licence();
+      licence2.setLicenceReference("A6");
+      when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
+          .thenReturn(List.of(licence, licence2));
 
-    submissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL);
+      var expectedRemiSystemOfRecordUrl = SERVICE_URL +
+          ReverseRouter.route(on(ViewResourceRecordController.class)
+              .showResourceRecord(SUBMISSION_DETAIL.getResourceId().getId()));
 
-    verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient.emailAddress()));
+      submissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL);
+
+      verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient.emailAddress()));
 
     assertThat(argumentCaptor.getValue())
         .extracting(
@@ -186,17 +206,132 @@ class SubmissionEmailServiceTest {
         );
   }
 
-  @Test
-  void sendRemiApprovalEmail_whenInvalidRecipient_assertThrows() {
-    var invalidWuaId = "22";
-    SUBMISSION_DETAIL.setSubmittedByWuaId(Integer.valueOf(invalidWuaId));
-    when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(invalidWuaId)))
-        .thenReturn(Optional.empty());
+    @Test
+    void sendRemiApprovalEmail_whenInvalidRecipient_assertThrows() {
+      var invalidWuaId = "22";
+      SUBMISSION_DETAIL.setSubmittedByWuaId(Integer.valueOf(invalidWuaId));
+      when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(invalidWuaId)))
+          .thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> submissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL))
-        .isExactlyInstanceOf(ActionNotAllowedException.class)
-        .hasMessage("Could not find a user with id %s".formatted(invalidWuaId));
+      assertThatThrownBy(() -> submissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL))
+          .isExactlyInstanceOf(ActionNotAllowedException.class)
+          .hasMessage("Could not find a user with id %s".formatted(invalidWuaId));
 
-    verifyNoInteractions(notifyEmailService);
+      verifyNoInteractions(notifyEmailService);
+    }
+  }
+
+  @Nested
+  class WhenSendingSubmittedEmail {
+
+    private static final Integer EXPLORATION_USER_WUA_ID_1 = 22;
+    private static final Integer EXPLORATION_USER_WUA_ID_2 = 15;
+    private static final Integer EXPLORATION_USER_WUA_ID_3 = 222;
+
+    @Test
+    void sendSubmittedSubmissionEmails_whenExplorationTeam_verifySentEmails() {
+      var recipient1 = EnergyPortalUserDtoTestUtil.Builder()
+          .withWebUserAccountId(EXPLORATION_USER_WUA_ID_1)
+          .withEmailAddress("expected@email.co.uk")
+          .build();
+      var recipient2 = EnergyPortalUserDtoTestUtil.Builder()
+          .withWebUserAccountId(EXPLORATION_USER_WUA_ID_2)
+          .withEmailAddress("expected2@email.co.uk")
+          .build();
+      var recipient3 = EnergyPortalUserDtoTestUtil.Builder()
+          .withWebUserAccountId(EXPLORATION_USER_WUA_ID_3)
+          .withEmailAddress("expected3@email.co.uk")
+          .build();
+
+      var expectedName = "resource name (25/5)";
+
+      when(regulatorTeamService.getExplorationTeamEnergyPortalUsers())
+          .thenReturn(List.of(recipient1, recipient2, recipient3));
+      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+          .thenReturn(expectedName);
+      var generalDetail = mock(GeneralDetail.class);
+      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
+          .thenReturn(Optional.of(generalDetail));
+      var responsibleTeam = new ResponsibleTeam();
+      responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+      when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
+          .thenReturn(responsibleTeam);
+
+      submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
+
+      verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient1.emailAddress()));
+      verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient2.emailAddress()));
+      verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient3.emailAddress()));
+      verifyNoMoreInteractions(notifyEmailService);
+    }
+
+    @Test
+    void sendSubmittedSubmissionEmails_whenExplorationTeam_assertEmailPersonalisation() {
+      var recipient1 = EnergyPortalUserDtoTestUtil.Builder()
+          .withWebUserAccountId(EXPLORATION_USER_WUA_ID_1)
+          .withEmailAddress("expected@email.co.uk")
+          .withForename("Bob")
+          .withSurname("Johnson")
+          .build();
+
+      var expectedName = "resource name (25/5)";
+      var expectedLicencesString = "A2, A6:";
+      var expectedLicencesStringWithoutColon = "A2, A6";
+      when(regulatorTeamService.getExplorationTeamEnergyPortalUsers())
+          .thenReturn(List.of(recipient1));
+      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+          .thenReturn(expectedName);
+      var generalDetail = mock(GeneralDetail.class);
+      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
+          .thenReturn(Optional.of(generalDetail));
+      var responsibleTeam = new ResponsibleTeam();
+      responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+      when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
+          .thenReturn(responsibleTeam);
+      var licence = new Licence();
+      licence.setLicenceReference("A2");
+      var licence2 = new Licence();
+      licence2.setLicenceReference("A6");
+      when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
+          .thenReturn(List.of(licence, licence2));
+      var expectedReviewSubmissionUrl = SERVICE_URL +
+          ReverseRouter.route(on(ReviewSubmissionController.class)
+              .showReviewPage(SUBMISSION_DETAIL.getId()));
+      submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
+
+      verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient1.emailAddress()));
+      verifyNoMoreInteractions(notifyEmailService);
+
+      assertThat(argumentCaptor.getValue())
+          .extracting(
+              EmailProperties::getTemplate,
+              EmailProperties::getEmailPersonalisations)
+          .containsExactly(
+              NotifyTemplate.SUBMISSION_CONFIRMATION_NOTIFICATION,
+              Map.of(
+                  "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
+                  "LICENCES", expectedLicencesString,
+                  "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
+                  "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
+                  "REVIEW_PAGE_URL", expectedReviewSubmissionUrl,
+                  "LICENCES_WITHOUT_LEADING_COLON", expectedLicencesStringWithoutColon,
+                  "RECIPIENT_NAME", "Bob Johnson",
+                  "TEST_EMAIL", "no")
+          );
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = ResponsibleTeamType.class, names = {"EXPLORATION"}, mode = EnumSource.Mode.EXCLUDE)
+    void sendSubmittedSubmissionEmails_whenNotExploration_verifyNoSentEmails(ResponsibleTeamType responsibleTeamType) {
+      var responsibleTeam = new ResponsibleTeam();
+      responsibleTeam.setResponsibleTeamType(responsibleTeamType);
+
+      when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
+          .thenReturn(responsibleTeam);
+
+      submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
+
+      verifyNoInteractions(notifyEmailService);
+    }
   }
 }

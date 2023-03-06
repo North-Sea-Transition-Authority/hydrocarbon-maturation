@@ -18,11 +18,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
@@ -38,6 +41,9 @@ class RegulatorTeamServiceTest {
 
   @Mock
   private TeamMemberRoleService teamMemberRoleService;
+
+  @Mock
+  private EnergyPortalUserService energyPortalUserService;
 
   @InjectMocks
   private RegulatorTeamService regulatorTeamService;
@@ -184,5 +190,86 @@ class RegulatorTeamServiceTest {
         .collect(Collectors.toSet());
 
     verify(teamMemberRoleService, times(1)).addUserTeamRoles(team, userToAdd, rolesAsStrings);
+  }
+
+  @Test
+  void getRegulatorTeamMembersWithRole_whenExploration_assertReturn() {
+    var team = TeamTestUtil.Builder().build();
+    var teamMemberExploration = TeamMemberTestUtil.Builder().withRole(RegulatorTeamRole.EXPLORATION).build();
+    var teamMemberAccessManager = TeamMemberTestUtil.Builder().withRole(RegulatorTeamRole.ACCESS_MANAGER).build();
+
+    when(teamService.getRegulatorTeams()).thenReturn(List.of(team));
+    when(teamMemberService.getTeamMembers(team))
+        .thenReturn(List.of(teamMemberExploration, teamMemberAccessManager));
+
+    var result = regulatorTeamService.getRegulatorTeamMembersWithRole(RegulatorTeamRole.EXPLORATION);
+    assertThat(result)
+        .containsExactly(teamMemberExploration);
+  }
+
+  @Test
+  void getRegulatorTeamMembersWithRole_whenIndustryAccessManager_whenNoTeamMembers_assertEmpty() {
+    var team = TeamTestUtil.Builder().build();
+    var teamMemberExploration = TeamMemberTestUtil.Builder().withRole(RegulatorTeamRole.EXPLORATION).build();
+    var teamMemberAccessManager = TeamMemberTestUtil.Builder().withRole(RegulatorTeamRole.ACCESS_MANAGER).build();
+
+    when(teamService.getRegulatorTeams()).thenReturn(List.of(team));
+    when(teamMemberService.getTeamMembers(team))
+        .thenReturn(List.of(teamMemberExploration, teamMemberAccessManager));
+
+    var result = regulatorTeamService.getRegulatorTeamMembersWithRole(RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void getExplorationTeamEnergyPortalUsers_assertReturnExplorationUsers() {
+    var explorationUserWuaId1 = 1L;
+    var explorationUserWuaId2 = 2L;
+    var explorationUserWuaId3 = 3L;
+    var nonExplorationUserWuaId = 4L;
+
+    var explorationUser1 = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(explorationUserWuaId1)
+        .build();
+    var explorationUser2 = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(explorationUserWuaId2)
+        .build();
+    var explorationUser3 = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(explorationUserWuaId3)
+        .build();
+    var regulatorTeamMemberList = List.of(
+        TeamMemberTestUtil.Builder().withWebUserAccountId(explorationUserWuaId1)
+            .withRole(RegulatorTeamRole.EXPLORATION)
+            .build(),
+        TeamMemberTestUtil.Builder().withWebUserAccountId(explorationUserWuaId2)
+            .withRole(RegulatorTeamRole.EXPLORATION)
+            .build(),
+        TeamMemberTestUtil.Builder().withWebUserAccountId(explorationUserWuaId3)
+            .withRole(RegulatorTeamRole.EXPLORATION)
+            .build(),
+        TeamMemberTestUtil.Builder().withWebUserAccountId(nonExplorationUserWuaId)
+            .withRole(RegulatorTeamRole.ACCESS_MANAGER)
+            .build()
+    );
+
+    var regulatorTeam = TeamTestUtil.Builder().build();
+
+    when(teamService.getRegulatorTeams())
+        .thenReturn(List.of(regulatorTeam));
+    when(teamMemberService.getTeamMembers(regulatorTeam))
+        .thenReturn(regulatorTeamMemberList);
+    when(energyPortalUserService.findByWuaIds(
+        List.of(
+            WebUserAccountId.valueOf(String.valueOf(explorationUserWuaId1)),
+            WebUserAccountId.valueOf(String.valueOf(explorationUserWuaId2)),
+            WebUserAccountId.valueOf(String.valueOf(explorationUserWuaId3)))))
+        .thenReturn(List.of(explorationUser1, explorationUser2, explorationUser3));
+
+    assertThat(regulatorTeamService.getExplorationTeamEnergyPortalUsers())
+        .containsExactly(
+            explorationUser1,
+            explorationUser2,
+            explorationUser3
+        );
   }
 }

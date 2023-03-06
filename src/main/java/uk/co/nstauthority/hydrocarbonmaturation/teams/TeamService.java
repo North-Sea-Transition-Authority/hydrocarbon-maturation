@@ -30,6 +30,10 @@ public class TeamService {
     return teamRepository.findAllTeamsOfTypeThatUserIsMemberOf(user.wuaId(), teamType);
   }
 
+  public List<Team> getRegulatorTeams() {
+    return teamRepository.findAllByTeamType(TeamType.REGULATOR);
+  }
+
   public List<Team> getTeamsThatUserBelongsTo(ServiceUserDetail user) {
     return teamMemberRoleRepository.findAllByWuaId(user.wuaId()).stream()
         .map(TeamMemberRole::getTeam)

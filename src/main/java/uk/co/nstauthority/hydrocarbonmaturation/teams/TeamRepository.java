@@ -25,4 +25,6 @@ interface TeamRepository extends CrudRepository<Team, UUID> {
   Optional<Team> findByOrganisationGroupId(int organisationGroupId);
 
   List<Team> findAll();
+
+  List<Team> findAllByTeamType(TeamType teamType);
 }

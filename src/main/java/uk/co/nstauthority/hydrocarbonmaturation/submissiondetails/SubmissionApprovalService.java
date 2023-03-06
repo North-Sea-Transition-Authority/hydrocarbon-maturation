@@ -37,6 +37,8 @@ public class SubmissionApprovalService {
 
     if (canAutoApproveSubmission()) {
       submissionDetailPersistenceService.approveSubmission(submissionDetail);
+    } else {
+      submissionEmailService.sendSubmittedSubmissionEmails(submissionDetail);
     }
   }
 

@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -146,5 +147,21 @@ class TeamServiceTest {
         .thenReturn(listOfOrgGroupIds);
     assertThat(teamService.getOrganisationGroupsUserIsTeamMemberOf(user))
         .isEqualTo(List.of(1,2));
+  }
+
+  @Test
+  void getRegulatorTeams_verifyMethodCall() {
+    teamService.getRegulatorTeams();
+
+    verify(teamRepository).findAllByTeamType(TeamType.REGULATOR);
+  }
+
+  @Test
+  void getRegulatorTeams_assertReturn() {
+    List<Team> listOfTeams = mock(List.class);
+    when(teamRepository.findAllByTeamType(TeamType.REGULATOR)).thenReturn(listOfTeams);
+    var result = teamService.getRegulatorTeams();
+
+    assertThat(result).isEqualTo(listOfTeams);
   }
 }
