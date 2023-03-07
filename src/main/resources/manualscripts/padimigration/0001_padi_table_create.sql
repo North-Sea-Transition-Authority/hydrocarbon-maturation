@@ -195,7 +195,7 @@ CREATE TABLE remi.padi_res_data_cos (
 );
 
 CREATE TABLE remi.padi_res_data_param (
-    resdat_id              TEXT,
+    resdat_id              INTEGER,
     resource_id            TEXT,
     stage_id               INTEGER,
     stage                  TEXT,

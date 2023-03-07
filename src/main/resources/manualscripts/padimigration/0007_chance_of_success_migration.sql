@@ -9,6 +9,7 @@ BEGIN
         SELECT prdc.*, sd.id sd_id
         FROM remi.padi_res_data_cos prdc
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdc.resdat_id
+        WHERE sd.submission_type IN ('CREATE_PROSPECT','PROSPECT_UPDATE','RELINQUISHMENT_PROSPECT')
     )
     LOOP
 
