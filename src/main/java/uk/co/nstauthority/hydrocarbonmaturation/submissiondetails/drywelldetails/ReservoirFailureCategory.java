@@ -4,7 +4,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
 enum ReservoirFailureCategory implements Displayable {
   RESERVOIR_INTERVAL_NOT_PRESENT("Reservoir interval not present"),
-  RESERVOIR_INTERVAL_POOR_QUALITY("Reservoir interval but poor quality"),
+  RESERVOIR_INTERVAL_POOR_QUALITY("Reservoir interval but of poor quality"),
   NOT_KNOWN("Not known")
   ;
 
