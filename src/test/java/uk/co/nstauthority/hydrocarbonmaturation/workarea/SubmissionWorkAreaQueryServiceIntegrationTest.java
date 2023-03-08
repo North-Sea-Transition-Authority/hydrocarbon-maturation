@@ -9,15 +9,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.jooq.DSLContext;
 import org.jooq.conf.RenderMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,12 +23,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -41,7 +36,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
-import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
@@ -53,8 +47,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 @Transactional
 @IntegrationTest
 class SubmissionWorkAreaQueryServiceIntegrationTest {
-
-  private static final int USER_ORGANISATION_UNIT_ID = 46;
 
   @Autowired
   private DSLContext dslContext;
@@ -70,9 +62,6 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
 
   @MockBean
   private IndustryTeamService industryTeamService;
-
-  @MockBean
-  private LicenceQueryService licenceQueryService;
 
   private final long LAST_SUBMISSION_DETAIL_EPOCH_TIME = 10000000;
 
@@ -493,10 +482,6 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     licence2.setGeneralDetail(generalDetails);
     entityManager.persistAndFlush(licence);
     entityManager.persistAndFlush(licence2);
-    when(licenceQueryService.getExtantLicencesByIds(List.of("951", "953")))
-        .thenReturn(List.of(
-            LicenceViewTestUtil.Builder().withLicenceId(953).build(),
-            LicenceViewTestUtil.Builder().withLicenceId(951).build()));
 
     var results = submissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
@@ -556,89 +541,48 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     assertThat(results).isEmpty();
   }
 
-  @ParameterizedTest
-  @MethodSource(value = "getArgumentValuesForNonExtantOrNotUserOrgGroup")
-  void getSubmissions_whenSubmissionWithExtantLicenceAndResponsibleOrgOnLatestApprovedSubmission_assertReturn(
-      int responsibleOrgUnitInApprovedSubmission, boolean hasExtantLicence
-  ) {
-    var userOrgUnits = List.of(USER_ORGANISATION_UNIT_ID);
+  @Test
+  void getSubmissions_whenTwoSubmissions_whenInResponsibleOrganisationOnLatestApprovedOnResource_assertReturn() {
+    var responsibleOrganisationIdForApprovedSubmission = 46;
+    var userOrgUnits = List.of(responsibleOrganisationIdForApprovedSubmission);
     setUpIndustryTest(userOrgUnits);
+    var submissionWithWrongResponsibleOrg = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionWithWrongResponsibleOrg.setId(null);
+    submissionWithWrongResponsibleOrg.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionWithWrongResponsibleOrg.setSubmitterType(SubmitterType.INDUSTRY);
 
-    var submissionWithEarlierApprovedNonExtantOrNonUserOrg = SubmissionDetailTestUtils
-        .createNewProspectUpdateSubmissionDetail();
-    submissionWithEarlierApprovedNonExtantOrNonUserOrg.setId(null);
-    submissionWithEarlierApprovedNonExtantOrNonUserOrg.setStatus(SubmissionDetailStatus.SUBMITTED);
-    submissionWithEarlierApprovedNonExtantOrNonUserOrg.setSubmitterType(SubmitterType.INDUSTRY);
-    var resourceWithoutExtantAndUserOrg = SubmissionIntegrationTestUtils.createResource(entityManager);
-    submissionWithEarlierApprovedNonExtantOrNonUserOrg.setResourceId(resourceWithoutExtantAndUserOrg);
-    entityManager.persistAndFlush(submissionWithEarlierApprovedNonExtantOrNonUserOrg);
-    var responsibleTeamForNonExtantLicenceRes = new ResponsibleTeam();
-    responsibleTeamForNonExtantLicenceRes.setResource(resourceWithoutExtantAndUserOrg);
-    responsibleTeamForNonExtantLicenceRes.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-
-    entityManager.persistAndFlush(responsibleTeamForNonExtantLicenceRes);
-    setUpLatestApprovedSubmissionOnResource(
-        resourceWithoutExtantAndUserOrg,
-        responsibleOrgUnitInApprovedSubmission,
-        hasExtantLicence);
-    SubmissionIntegrationTestUtils.createGeneralDetail(submissionWithEarlierApprovedNonExtantOrNonUserOrg, entityManager);
-    SubmissionIntegrationTestUtils.createResourceDetail(
-        submissionWithEarlierApprovedNonExtantOrNonUserOrg, "Not relevant name",
-        responsibleOrgUnitInApprovedSubmission, entityManager);
-
-    var submissionWithEarlierApprovedExtantAndUserOrg = SubmissionDetailTestUtils
-        .createNewProspectUpdateSubmissionDetail();
-    submissionWithEarlierApprovedExtantAndUserOrg.setId(null);
-    submissionWithEarlierApprovedExtantAndUserOrg.setStatus(SubmissionDetailStatus.SUBMITTED);
-    submissionWithEarlierApprovedExtantAndUserOrg.setSubmitterType(SubmitterType.INDUSTRY);
-    var resource = SubmissionIntegrationTestUtils.createResource(entityManager);
-    SubmissionIntegrationTestUtils.createResponsibleTeam(resource, ResponsibleTeamType.EXPLORATION, entityManager);
+    var resource = new Resource();
+    resource.setType(ResourceType.PROSPECT);
+    var responsibleTeam = new ResponsibleTeam();
+    responsibleTeam.setResource(resource);
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     var createdTimestamp = Instant.now();
-    submissionWithEarlierApprovedExtantAndUserOrg.setCreatedTimestamp(createdTimestamp);
-    submissionWithEarlierApprovedExtantAndUserOrg.setResourceId(resource);
-    entityManager.persistAndFlush(submissionWithEarlierApprovedExtantAndUserOrg);
-    setUpLatestApprovedSubmissionOnResource(
-        resource,
-        USER_ORGANISATION_UNIT_ID,
-        true);
+    submissionWithWrongResponsibleOrg.setCreatedTimestamp(createdTimestamp);
+    entityManager.persistAndFlush(resource);
+    entityManager.persistAndFlush(responsibleTeam);
+    submissionWithWrongResponsibleOrg.setResourceId(resource);
+    entityManager.persistAndFlush(submissionWithWrongResponsibleOrg);
 
-    SubmissionIntegrationTestUtils.createGeneralDetail(submissionWithEarlierApprovedExtantAndUserOrg, entityManager);
-    SubmissionIntegrationTestUtils.createResourceDetail(
-        submissionWithEarlierApprovedExtantAndUserOrg, "Resource name to be displayed", responsibleOrgUnitInApprovedSubmission, entityManager);
+    var generalDetails = new GeneralDetail();
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setSubmissionDetail(submissionWithWrongResponsibleOrg);
+    resourceDetail.setResourceName("The resource name");
+    generalDetails.setSubmissionDetail(submissionWithWrongResponsibleOrg);
+    var organisationIdUserIsNotResponsibleFor = 1;
+    resourceDetail.setOrganisationId(organisationIdUserIsNotResponsibleFor);
+    setUpLatestApprovedSubmissionOnResource(resource, responsibleOrganisationIdForApprovedSubmission);
+    entityManager.persistAndFlush(generalDetails);
+    entityManager.persistAndFlush(resourceDetail);
 
     var results = submissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
-    assertThat(results.get(0))
-        .extracting(
-            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
-            SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
-            SubmissionWorkAreaQueryResult::getResourceName,
-            SubmissionWorkAreaQueryResult::getSubmissionType,
-            SubmissionWorkAreaQueryResult::getLicencesTheResourceIsOn,
-            SubmissionWorkAreaQueryResult::getStatus,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
-        .containsExactly(
-            submissionWithEarlierApprovedExtantAndUserOrg.getId(),
-            responsibleOrgUnitInApprovedSubmission,
-            "Resource name to be displayed",
-            SubmissionType.PROSPECT_UPDATE,
-            null,
-            SubmissionDetailStatus.SUBMITTED,
-            createdTimestamp.truncatedTo(ChronoUnit.MILLIS)
-        );
-  }
-
-  private static Stream<Arguments> getArgumentValuesForNonExtantOrNotUserOrgGroup() {
-    return Stream.of(
-        Arguments.of(1, true), // non user org unit, extant licence
-        Arguments.of(2, false), // non user org unit non extant licence
-        Arguments.of(USER_ORGANISATION_UNIT_ID, false) // user org unit, non extant licence
-    );
+    assertThat(results)
+        .extracting(SubmissionWorkAreaQueryResult::getSubmissionDetailId)
+        .containsExactly(submissionWithWrongResponsibleOrg.getId());
   }
 
   private void setUpLatestApprovedSubmissionOnResource(Resource resource,
-                                                       Integer responsibleOrganisationIdForSubmission,
-                                                       boolean extantLicencePresent) {
+                                                       Integer responsibleOrganisationIdForSubmission) {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
@@ -656,23 +600,6 @@ class SubmissionWorkAreaQueryServiceIntegrationTest {
     resourceDetail.setOrganisationId(responsibleOrganisationIdForSubmission);
     entityManager.persistAndFlush(generalDetails);
     entityManager.persistAndFlush(resourceDetail);
-
-    if (extantLicencePresent) {
-      var licence = new Licence();
-      licence.setLicenceId(953);
-      licence.setLicenceReference("AL10");
-      licence.setGeneralDetail(generalDetails);
-      var licence2 = new Licence();
-      licence2.setLicenceId(951);
-      licence2.setLicenceReference("AL6");
-      licence2.setGeneralDetail(generalDetails);
-      entityManager.persistAndFlush(licence);
-      entityManager.persistAndFlush(licence2);
-      when(licenceQueryService.getExtantLicencesByIds(List.of("951", "953")))
-          .thenReturn(List.of(
-              LicenceViewTestUtil.Builder().withLicenceId(951).build(),
-              LicenceViewTestUtil.Builder().withLicenceId(953).build()));
-    }
   }
 
   private void setUpRegulatorTest(Set<TeamRole> userRoles) {

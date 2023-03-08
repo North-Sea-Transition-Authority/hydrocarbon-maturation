@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 import static org.jooq.impl.DSL.exists;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.select;
-import static org.jooq.impl.DSL.trueCondition;
 
 import java.util.List;
 import org.jooq.Condition;
@@ -16,8 +15,6 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.JooqSchemaProviderService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -25,7 +22,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
 class SubmissionWorkAreaQueryService {
@@ -33,7 +29,6 @@ class SubmissionWorkAreaQueryService {
   private final UserDetailService userDetailService;
   private final RegulatorTeamService regulatorTeamService;
   private final IndustryTeamService industryTeamService;
-  private final LicenceQueryService licenceQueryService;
   private final JooqSchemaProviderService jooqSchemaProviderService;
 
   @Autowired
@@ -41,13 +36,11 @@ class SubmissionWorkAreaQueryService {
                                  UserDetailService userDetailService,
                                  RegulatorTeamService regulatorTeamService,
                                  IndustryTeamService industryTeamService,
-                                 LicenceQueryService licenceQueryService,
                                  JooqSchemaProviderService jooqSchemaProviderService) {
     this.context = context;
     this.userDetailService = userDetailService;
     this.regulatorTeamService = regulatorTeamService;
     this.industryTeamService = industryTeamService;
-    this.licenceQueryService = licenceQueryService;
     this.jooqSchemaProviderService = jooqSchemaProviderService;
   }
 
@@ -82,7 +75,6 @@ class SubmissionWorkAreaQueryService {
             field("rd.resource_name"),
             field("tp.centre_of_interest_quadrant_block"),
             field("rd.organisation_id"))
-        .having(getExtantLicenceConditionIfIndustry(user))
         .orderBy(field("s.submitted_timestamp").desc().nullsLast(),
             field("s.created_timestamp").desc())
         .fetchInto(SubmissionWorkAreaQueryResult.class);
@@ -93,36 +85,6 @@ class SubmissionWorkAreaQueryService {
     var workAreaVisibleSubmissionStatuses = getVisibleSubmissions();
 
     return List.of(submissionTeamMembershipCondition, workAreaVisibleSubmissionStatuses);
-  }
-
-  private Condition getExtantLicenceConditionIfIndustry(ServiceUserDetail user) {
-    if (regulatorTeamService.isRegulatorUser(user)) {
-      return trueCondition();
-    }
-    // ensures submitted submissions are only visible for operators when they are on an extant licence,
-    // or if the latest submission on the resource is on an extant licence.
-    var userOrgUnits = industryTeamService.getOrganisationUnitIdsForUser(user);
-    var userLicences = getLicenceIdsAssociatedWithUser(userOrgUnits);
-    var draftStatusCondition = field("s.status").eq(SubmissionDetailStatus.DRAFT.name());
-
-    if (userLicences.isEmpty()) {
-      // if user has no licences, checks if the submission is an initial draft submission
-      return draftStatusCondition.and(getIsInitialSubmissionCondition());
-    }
-
-    //gets the up-to-date list of extant licences associated with the users
-    var userExtantLicences = NumberUtil.toListOfIntegers(
-        licenceQueryService.getExtantLicencesByIds(userLicences)
-            .stream()
-            .map(LicenceView::getId)
-            .toList());
-
-    var initialDraftSubmissionCondition = draftStatusCondition.and(getIsInitialSubmissionCondition());
-
-    return initialDraftSubmissionCondition
-        .or(getIsInitialSubmissionWithExtantLicenceCondition(userExtantLicences))
-        .or(getExistsExtantLicenceOnLatestApprovedSubmissionCondition(userExtantLicences));
-
   }
 
   private Condition getSubmissionsForResponsibleTeamOrOrganisation(ServiceUserDetail user) {
@@ -162,38 +124,6 @@ class SubmissionWorkAreaQueryService {
             SubmissionDetailStatus.DRAFT.name(),
             SubmissionDetailStatus.SUBMITTED.name()
         );
-  }
-
-  private Condition getIsInitialSubmissionWithExtantLicenceCondition(List<Integer> userExtantLicences) {
-    return getIsInitialSubmissionCondition()
-        .and(DSL.arrayAggDistinct(field("gdl.licence_id"))
-            .filterWhere(field("gdl.licence_id").in(userExtantLicences))
-            .isNotNull());
-  }
-
-  private Condition getExistsExtantLicenceOnLatestApprovedSubmissionCondition(List<Integer> userExtantLicences) {
-    // checks if there is an extant licence on the latest approved submission on the resource.
-    return exists(
-        select(DSL.arrayAgg(field("gdl.licence_id"))
-            .filterWhere(field("gdl.licence_id").in(userExtantLicences)))
-            .from(remiTable("submission_details").as("sd2"))
-            .where(field("sd2.resource_id").eq(field("s.resource_id")))
-            .and(field("sd2.status").eq(SubmissionDetailStatus.APPROVED.name()))
-            .orderBy(field("sd2.approved_timestamp").desc())
-            .limit(1));
-  }
-
-  private List<String> getLicenceIdsAssociatedWithUser(List<Integer> userOrgUnits) {
-    //gets all the licences associated with the user's industry teams.
-    return context
-        .selectDistinct(field("gdl.licence_id"))
-        .from(remiTable("general_details_licences").as("gdl"))
-        .join(remiTable("general_details").as("gd"))
-        .on(field("gd.id").eq(field("gdl.general_details_id")))
-        .join(remiTable("resource_details").as("rd"))
-        .on(field("rd.submission_detail_id").eq(field("gd.submission_detail_id")))
-        .where(field("rd.organisation_id").in(userOrgUnits))
-        .fetchInto(String.class);
   }
 
   private Condition isInitialIndustrySubmissionInUserResponsibleTeamCondition(List<Integer> userOrgUnits) {

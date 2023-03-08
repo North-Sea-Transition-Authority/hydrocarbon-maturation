@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil.toListOfStrings;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -18,11 +17,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -30,9 +26,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.LicencePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
@@ -57,19 +50,10 @@ class ReviewSubmissionServiceTest {
   private IndustryTeamMemberService industryTeamMemberService;
 
   @Mock
-  private LicenceQueryService licenceQueryService;
-
-  @Mock
   private SubmissionDetailService submissionDetailService;
 
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-
-  @Mock
-  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
-
-  @Mock
-  private LicencePersistenceService licencePersistenceService;
 
   @InjectMocks
   private ReviewSubmissionService reviewSubmissionService;
@@ -165,7 +149,6 @@ class ReviewSubmissionServiceTest {
 
     @Nested
     class AndUserIsNotRegulator {
-      private static final LicenceView LICENCE_VIEW = new LicenceView("licenceRef", 2, LicenceStatus.EXTANT);
 
       @BeforeEach
       void setup() {
@@ -174,10 +157,7 @@ class ReviewSubmissionServiceTest {
       }
 
       @Test
-      void AndUserIsMemberOfOrgAndSubmissionHasExtantLicence_ThenTrue() {
-        when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(SUBMISSION_RECORD.licenceIds())))
-            .thenReturn(List.of(LICENCE_VIEW));
-
+      void AndUserIsMemberOfOrg_ThenTrue() {
         when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(true);
 
         var result = reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD, USER_DETAIL, submissionDetail);
@@ -186,7 +166,7 @@ class ReviewSubmissionServiceTest {
       }
 
       @Test
-      void AndUserIsMemberOfOrgButSubmissionDoesNotHaveExtantLicence_ThenFalse() {
+      void AndUserIsNotMemberOfOrg_ThenFalse() {
         when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(false);
 
         var result = reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD, USER_DETAIL, submissionDetail);
@@ -194,17 +174,6 @@ class ReviewSubmissionServiceTest {
         assertThat(result).isFalse();
       }
 
-      @Test
-      void AndSubmissionHasExtantLicenceButUserIsNotMemberOfOrg_ThenFalse() {
-        when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(SUBMISSION_RECORD.licenceIds())))
-            .thenReturn(List.of());
-
-        when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(true);
-
-        var result = reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD, USER_DETAIL, submissionDetail);
-
-        assertThat(result).isFalse();
-      }
 
       @Nested
       class AndIsNotFirstSubmissionOnResource {
@@ -212,19 +181,14 @@ class ReviewSubmissionServiceTest {
             .emptySubmissionRecordSummaryView(UUID.randomUUID(), 1, SubmissionType.PROSPECT_UPDATE);
 
         private final SubmissionDetail latestApprovedSubmission = new SubmissionDetail();
-        private final GeneralDetail latestApprovedGeneralDetail = new GeneralDetail();
         private final ResourceDetail latestApprovedResourceDetail = new ResourceDetail();
 
         @Test
-        void AndLatestApprovedSubmissionHasExtantLicenceAndUserIsInResponsibleTeam_assertTrue() {
+        void AndLatestApprovedSubmissionHasUserIsInResponsibleTeam_assertTrue() {
           var userOrgUnit = 1;
           latestApprovedResourceDetail.setOrganisationId(userOrgUnit);
           when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
               .thenReturn(Optional.of(latestApprovedSubmission));
-          when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(latestApprovedSubmission))
-              .thenReturn(Optional.of(latestApprovedGeneralDetail));
-          when(licencePersistenceService.hasAnExtantLicence(latestApprovedGeneralDetail))
-              .thenReturn(true);
           when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmission))
               .thenReturn(Optional.of(latestApprovedResourceDetail));
           when(industryTeamMemberService.isMemberOfOrganisationUnit(
@@ -236,34 +200,15 @@ class ReviewSubmissionServiceTest {
         }
 
         @Test
-        void AndLatestApprovedSubmissionHasExtantLicenceAndUserIsNotInResponsibleTeam_assertFalse() {
+        void AndLatestApprovedSubmissionAndUserIsNotInResponsibleTeam_assertFalse() {
           var userOrgUnit = 1;
           latestApprovedResourceDetail.setOrganisationId(userOrgUnit);
           when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
               .thenReturn(Optional.of(latestApprovedSubmission));
-          when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(latestApprovedSubmission))
-              .thenReturn(Optional.of(latestApprovedGeneralDetail));
-          when(licencePersistenceService.hasAnExtantLicence(latestApprovedGeneralDetail))
-              .thenReturn(true);
           when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmission))
               .thenReturn(Optional.of(latestApprovedResourceDetail));
           when(industryTeamMemberService.isMemberOfOrganisationUnit(
               USER_DETAIL, latestApprovedResourceDetail.getOrganisationId()))
-              .thenReturn(false);
-
-          assertThat(reviewSubmissionService.canViewSubmission(UPDATE_SUBMISSION_RECORD, USER_DETAIL, submissionDetail))
-              .isFalse();
-        }
-
-        @Test
-        void AndLatestApprovedSubmissionHasNoExtantLicenceAndUserIsInResponsibleTeam_assertFalse() {
-          var userOrgUnit = 1;
-          latestApprovedResourceDetail.setOrganisationId(userOrgUnit);
-          when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
-              .thenReturn(Optional.of(latestApprovedSubmission));
-          when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(latestApprovedSubmission))
-              .thenReturn(Optional.of(latestApprovedGeneralDetail));
-          when(licencePersistenceService.hasAnExtantLicence(latestApprovedGeneralDetail))
               .thenReturn(false);
 
           assertThat(reviewSubmissionService.canViewSubmission(UPDATE_SUBMISSION_RECORD, USER_DETAIL, submissionDetail))
