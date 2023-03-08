@@ -43,7 +43,7 @@ public class OpportunityDetailsPersistenceService {
     }
 
     supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getMapOfOpportunity());
-
+    supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getGeologicalCrossSection());
     opportunityDetailsRepository.save(opportunityDetail);
   }
 

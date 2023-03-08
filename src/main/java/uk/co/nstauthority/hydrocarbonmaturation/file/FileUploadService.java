@@ -55,8 +55,11 @@ public class FileUploadService {
   public void updateFileUploadDescriptions(List<FileUploadForm> fileUploadFormList) {
     fileUploadFormList
         .forEach(fileUploadForm -> {
-          var uploadedFile = findUploadedFileOrThrow(fileUploadForm.getUploadedFileId());
-          uploadedFilePersistenceService.updateFileDescription(uploadedFile, fileUploadForm.getUploadedFileDescription());
+          if (fileUploadForm.getUploadedFileId() != null) {
+            var uploadedFile = findUploadedFileOrThrow(fileUploadForm.getUploadedFileId());
+            uploadedFilePersistenceService.updateFileDescription(uploadedFile,
+                fileUploadForm.getUploadedFileDescription());
+          }
         });
   }
 

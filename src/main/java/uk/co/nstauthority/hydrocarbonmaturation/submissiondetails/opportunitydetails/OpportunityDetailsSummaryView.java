@@ -9,7 +9,8 @@ public record OpportunityDetailsSummaryView(String opportunityType,
                                             String opportunityComments,
                                             String keyEvaluationWork,
                                             String keyWorkRequired,
-                                            Map<UploadedFile, String> mapOfOpportunity) {
+                                            Map<UploadedFile, String> mapOfOpportunity,
+                                            Map<UploadedFile, String> geologicalCrossSection) {
 
   public static OpportunityDetailsSummaryView empty() {
     return new OpportunityDetailsSummaryView(
@@ -19,6 +20,7 @@ public record OpportunityDetailsSummaryView(String opportunityType,
         "",
         "",
         "",
+        Map.of(),
         Map.of());
   }
 }

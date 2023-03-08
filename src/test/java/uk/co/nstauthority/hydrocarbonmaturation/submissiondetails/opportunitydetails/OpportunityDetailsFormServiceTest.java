@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -18,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
@@ -72,7 +72,9 @@ class OpportunityDetailsFormServiceTest {
     var fileUploadFormList = List.of(mock(FileUploadForm.class));
     when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY))
         .thenReturn(fileUploadFormList);
-
+    var otherFileUploadList = List.of(mock(FileUploadForm.class));
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
+        .thenReturn(otherFileUploadList);
     assertThat(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail))
         .extracting(
             OpportunityDetailsForm::getOpportunityType,
@@ -80,7 +82,8 @@ class OpportunityDetailsFormServiceTest {
             OpportunityDetailsForm::getOpportunityComments,
             OpportunityDetailsForm::getKeyEvaluationWorkCarriedOut,
             OpportunityDetailsForm::getKeyWorkRequiredForFurtherMaturation,
-            OpportunityDetailsForm::getMapOfOpportunity
+            OpportunityDetailsForm::getMapOfOpportunity,
+            OpportunityDetailsForm::getGeologicalCrossSection
         )
         .containsExactly(
             null,
@@ -88,7 +91,8 @@ class OpportunityDetailsFormServiceTest {
             null,
             null,
             null,
-            fileUploadFormList
+            fileUploadFormList,
+            otherFileUploadList
         );
   }
 
@@ -99,7 +103,9 @@ class OpportunityDetailsFormServiceTest {
     var fileUploadFormList = List.of(mock(FileUploadForm.class));
     when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY))
         .thenReturn(fileUploadFormList);
-
+    var otherFileUploadList = List.of(mock(FileUploadForm.class));
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
+        .thenReturn(otherFileUploadList);
     assertThat(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail))
         .extracting(
             OpportunityDetailsForm::getOpportunityType,
@@ -107,7 +113,8 @@ class OpportunityDetailsFormServiceTest {
             OpportunityDetailsForm::getOpportunityComments,
             OpportunityDetailsForm::getKeyEvaluationWorkCarriedOut,
             OpportunityDetailsForm::getKeyWorkRequiredForFurtherMaturation,
-            OpportunityDetailsForm::getMapOfOpportunity
+            OpportunityDetailsForm::getMapOfOpportunity,
+            OpportunityDetailsForm::getGeologicalCrossSection
         )
         .containsExactly(
             opportunityDetail.getOpportunityType(),
@@ -115,7 +122,8 @@ class OpportunityDetailsFormServiceTest {
             opportunityDetail.getOpportunityComments(),
             opportunityDetail.getKeyEvaluationWorkCarriedOut(),
             opportunityDetail.getKeyWorkRequiredForFurtherMaturation(),
-            fileUploadFormList
+            fileUploadFormList,
+            otherFileUploadList
         );
   }
 
@@ -125,11 +133,28 @@ class OpportunityDetailsFormServiceTest {
     var fileUploadForm2 = getFileUploadForm();
 
     var form = new OpportunityDetailsForm();
-    form.setMapOfOpportunity(List.of(fileUploadForm1, fileUploadForm2));
-
+    var fileForms = List.of(fileUploadForm1, fileUploadForm2);
+    form.setMapOfOpportunity(fileForms);
+    var listOfIds = FileUploadUtils.getUploadIdList(fileForms);
     opportunityDetailsFormService.getMapOfOpportunityUploads(form);
 
-    verify(supportingDocumentService, times(1)).getUploadedFileViewList(anyList());
+    verify(supportingDocumentService, times(1)).getUploadedFileViewList(listOfIds);
+  }
+
+  @Test
+  void getGeologicalCrossSectionUploads_VerifyCalls() {
+    var fileUploadForm1 = getFileUploadForm();
+    var fileUploadForm2 = getFileUploadForm();
+
+    var form = new OpportunityDetailsForm();
+    var fileForms = List.of(fileUploadForm1, fileUploadForm2);
+    form.setGeologicalCrossSection(fileForms);
+    var listOfIds = FileUploadUtils.getUploadIdList(fileForms);
+
+    opportunityDetailsFormService.getGeologicalCrossSectionUploads(form);
+
+    verify(supportingDocumentService, times(1))
+        .getUploadedFileViewList(listOfIds);
   }
 
   private OpportunityDetail getOpportunityDetail(SubmissionDetail submissionDetail) {

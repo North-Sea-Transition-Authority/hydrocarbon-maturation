@@ -56,7 +56,8 @@ class OpportunityDetailsSummaryServiceTest {
             OpportunityDetailsSummaryView::opportunityComments,
             OpportunityDetailsSummaryView::keyEvaluationWork,
             OpportunityDetailsSummaryView::keyWorkRequired,
-            OpportunityDetailsSummaryView::mapOfOpportunity)
+            OpportunityDetailsSummaryView::mapOfOpportunity,
+            OpportunityDetailsSummaryView::geologicalCrossSection)
         .containsExactly(
             "",
             false,
@@ -64,6 +65,7 @@ class OpportunityDetailsSummaryServiceTest {
             "",
             "",
             "",
+            Collections.emptyMap(),
             Collections.emptyMap()
         );
   }
@@ -93,6 +95,9 @@ class OpportunityDetailsSummaryServiceTest {
     when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,
         SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(List.of(fileUploadDetail));
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+        submissionDetail,
+        SupportingDocumentType.GEOLOGICAL_CROSS_SECTION)).thenReturn(List.of(fileUploadDetail));
     when(fileUploadService.findUploadedFileOrThrow(fileUploadDetail.getUploadedFileId()))
         .thenReturn(uploadedFile);
 
@@ -107,7 +112,8 @@ class OpportunityDetailsSummaryServiceTest {
             OpportunityDetailsSummaryView::opportunityComments,
             OpportunityDetailsSummaryView::keyEvaluationWork,
             OpportunityDetailsSummaryView::keyWorkRequired,
-            OpportunityDetailsSummaryView::mapOfOpportunity)
+            OpportunityDetailsSummaryView::mapOfOpportunity,
+            OpportunityDetailsSummaryView::geologicalCrossSection)
         .containsExactly(
             OpportunityType.OTHER.getDisplayName(),
             true,
@@ -115,6 +121,7 @@ class OpportunityDetailsSummaryServiceTest {
             "comments",
             "evaluation",
             "work required",
+            fileMap,
             fileMap
         );
   }
@@ -129,7 +136,9 @@ class OpportunityDetailsSummaryServiceTest {
     when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,
         SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(List.of());
-
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+        submissionDetail,
+        SupportingDocumentType.GEOLOGICAL_CROSS_SECTION)).thenReturn(List.of());
     var opportunityDetailsSummaryView =
         opportunityDetailsSummaryService.getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
 
@@ -141,7 +150,8 @@ class OpportunityDetailsSummaryServiceTest {
             OpportunityDetailsSummaryView::opportunityComments,
             OpportunityDetailsSummaryView::keyEvaluationWork,
             OpportunityDetailsSummaryView::keyWorkRequired,
-            OpportunityDetailsSummaryView::mapOfOpportunity)
+            OpportunityDetailsSummaryView::mapOfOpportunity,
+            OpportunityDetailsSummaryView::geologicalCrossSection)
         .containsExactly(
             "",
             false,
@@ -149,6 +159,7 @@ class OpportunityDetailsSummaryServiceTest {
             "",
             "",
             "",
+            fileMap,
             fileMap
         );
   }

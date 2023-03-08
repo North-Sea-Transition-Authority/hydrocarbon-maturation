@@ -34,18 +34,26 @@ class OpportunityDetailsFormService implements SubmissionFormService {
   OpportunityDetailsForm getOpportunityDetailsForm(SubmissionDetail submissionDetail) {
     var mapOfOpportunityFileUploads = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY);
+    var geologicalCrossSectionFileUploads = supportingDocumentService
+        .getFileUploadFormListForSubmissionAndType(
+        submissionDetail, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION);
 
     return opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail)
-        .map(opportunityDetail -> opportunityDetailEntityToForm(opportunityDetail, mapOfOpportunityFileUploads))
+        .map(opportunityDetail -> opportunityDetailEntityToForm(
+            opportunityDetail,
+            mapOfOpportunityFileUploads,
+            geologicalCrossSectionFileUploads))
         .orElseGet(() -> {
           var form = new OpportunityDetailsForm();
           form.setMapOfOpportunity(mapOfOpportunityFileUploads);
+          form.setGeologicalCrossSection(geologicalCrossSectionFileUploads);
           return form;
         });
   }
 
   private OpportunityDetailsForm opportunityDetailEntityToForm(OpportunityDetail opportunityDetail,
-                                                               List<FileUploadForm> mapOfOpportunityUploads) {
+                                                               List<FileUploadForm> mapOfOpportunityUploads,
+                                                               List<FileUploadForm> geologicalCrossSectionUploads) {
     var form = new OpportunityDetailsForm();
     form.setOpportunityComments(opportunityDetail.getOpportunityComments());
     if (opportunityDetail.getSubmissionDetail().isProspectSubmission()) {
@@ -55,6 +63,7 @@ class OpportunityDetailsFormService implements SubmissionFormService {
     form.setKeyEvaluationWorkCarriedOut(opportunityDetail.getKeyEvaluationWorkCarriedOut());
     form.setKeyWorkRequiredForFurtherMaturation(opportunityDetail.getKeyWorkRequiredForFurtherMaturation());
     form.setMapOfOpportunity(mapOfOpportunityUploads);
+    form.setGeologicalCrossSection(geologicalCrossSectionUploads);
     return form;
   }
 
@@ -69,5 +78,11 @@ class OpportunityDetailsFormService implements SubmissionFormService {
   public List<UploadedFileView> getMapOfOpportunityUploads(OpportunityDetailsForm opportunityDetailsForm) {
     var mapOfOpportunityUploadIdList = FileUploadUtils.getUploadIdList(opportunityDetailsForm.getMapOfOpportunity());
     return supportingDocumentService.getUploadedFileViewList(mapOfOpportunityUploadIdList);
+  }
+
+  public List<UploadedFileView> getGeologicalCrossSectionUploads(OpportunityDetailsForm opportunityDetailsForm) {
+    var geologicalCrossSectionUploadIdList = FileUploadUtils.getUploadIdList(
+        opportunityDetailsForm.getGeologicalCrossSection());
+    return supportingDocumentService.getUploadedFileViewList(geologicalCrossSectionUploadIdList);
   }
 }

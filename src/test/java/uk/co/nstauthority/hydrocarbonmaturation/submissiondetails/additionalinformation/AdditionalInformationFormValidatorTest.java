@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -88,7 +89,7 @@ class AdditionalInformationFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("additionalDocuments", Set.of("additionalDocuments.required"))
+            entry("additionalDocuments", Set.of("additionalDocuments.belowThreshold"))
         );
   }
 
@@ -135,6 +136,7 @@ class AdditionalInformationFormValidatorTest {
     form.setAdditionalComments("comments");
     form.setProvidingAdditionalDocuments(true);
     FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileId(UUID.randomUUID());
     fileUploadForm.setUploadedFileDescription("File description");
     form.setAdditionalDocuments(List.of(fileUploadForm));
     form.setProvidingAdditionalComments(true);

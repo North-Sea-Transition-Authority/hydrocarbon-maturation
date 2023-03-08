@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
 
@@ -46,11 +46,10 @@ class AdditionalInformationFormValidator extends PartialFullFormValidator {
         "Select whether you have additional documents");
 
     List<FileUploadForm> additionalDocuments = additionalInformationForm.getAdditionalDocuments();
-    if (BooleanUtils.isTrue(additionalInformationForm.getProvidingAdditionalDocuments())
-        && additionalDocuments.isEmpty()) {
-      errors.rejectValue("additionalDocuments", "additionalDocuments.required", "Upload an additional document");
-    } else if (BooleanUtils.isTrue(additionalInformationForm.getProvidingAdditionalDocuments())) {
-      FileUploadValidationUtils.rejectIfFileDescriptionsAreEmptyOrWhitespace(errors, additionalDocuments, "additionalDocuments");
+    if (BooleanUtils.isTrue(additionalInformationForm.getProvidingAdditionalDocuments())) {
+      FileValidationUtil.validator()
+          .withMinimumNumberOfFiles(1, "Upload additional documents")
+          .validate(errors, additionalDocuments, "additionalDocuments");
     }
   }
 }

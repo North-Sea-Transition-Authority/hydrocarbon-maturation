@@ -4,7 +4,7 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.CoordinateInputValidationUtil;
@@ -50,6 +50,13 @@ class TrapPropertiesFormValidator extends PartialFullFormValidator {
         "productiveArea",
         "Productive area"
     );
+
+    var prospectDepthMap = trapPropertiesForm.getProspectDepthMap();
+
+    FileValidationUtil.validator()
+        .withMaximumNumberOfFiles(1, "Upload at most one prospect depth map")
+        .isPartiallyValidated()
+        .validate(errors, prospectDepthMap, "prospectDepthMap");
   }
 
   @Override
@@ -127,10 +134,9 @@ class TrapPropertiesFormValidator extends PartialFullFormValidator {
 
     var prospectDepthMap = trapPropertiesForm.getProspectDepthMap();
 
-    if (prospectDepthMap.isEmpty()) {
-      errors.rejectValue("prospectDepthMap", "prospectDepthMap.required", "Upload a prospect depth map");
-    }
-
-    FileUploadValidationUtils.rejectIfFileDescriptionsAreEmptyOrWhitespace(errors, prospectDepthMap, "prospectDepthMap");
+    FileValidationUtil.validator()
+        .withMaximumNumberOfFiles(1, "Upload at most one prospect depth map")
+        .withMinimumNumberOfFiles(1, "Upload a prospect depth map")
+        .validate(errors, prospectDepthMap, "prospectDepthMap");
   }
 }

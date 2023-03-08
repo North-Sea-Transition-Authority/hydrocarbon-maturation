@@ -51,6 +51,23 @@
         />
       </@fdsFieldset.fieldset>
 
+      <@fdsFieldset.fieldset
+        legendHeading="Geological cross section"
+        legendHeadingSize="h2"
+        legendHeadingClass="govuk-fieldset__legend--m"
+        optionalLabel=true>
+        <@fdsFileUpload.fileUpload
+          id="geologicalCrossSection"
+          path="form.geologicalCrossSection"
+          downloadUrl=geologicalCrossSectionTemplate.downloadUrl()
+          uploadUrl=geologicalCrossSectionTemplate.uploadUrl()
+          deleteUrl=geologicalCrossSectionTemplate.deleteUrl()
+          maxAllowedSize=geologicalCrossSectionTemplate.maxAllowedSize()
+          allowedExtensions=geologicalCrossSectionTemplate.allowedExtensions()
+          existingFiles=geologicalCrossSectionUploads
+          multiFile=false/>
+      </@fdsFieldset.fieldset>
+
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>

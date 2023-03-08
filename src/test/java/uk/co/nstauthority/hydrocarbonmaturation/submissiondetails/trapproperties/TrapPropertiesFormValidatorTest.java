@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,7 +96,7 @@ class TrapPropertiesFormValidatorTest {
             entry("productiveArea.probabilityDistributionType",
                 Set.of("productiveArea.probabilityDistributionType.required")),
             entry("prospectDepthMap",
-                Set.of("prospectDepthMap.required"))
+                Set.of("prospectDepthMap.belowThreshold"))
         );
   }
 
@@ -176,10 +177,29 @@ class TrapPropertiesFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("prospectDepthMap", Set.of("prospectDepthMap.required"))
+            entry("prospectDepthMap", Set.of("prospectDepthMap.belowThreshold"))
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenInValidForm_twoProspectDepthMapFilesUploaded_thenValidationErrors(
+      ValidationType validationType) {
+    var form = getValidForm();
+    var fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileDescription("description");
+    fileUploadForm.setUploadedFileId(UUID.randomUUID());
+    form.setProspectDepthMap(List.of(fileUploadForm, fileUploadForm));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    trapPropertiesFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("prospectDepthMap", Set.of("prospectDepthMap.limitExceeded"))
+        );
+  }
 
   private CoordinateInput getValidLongitudeCoordinates() {
     var coordinateInput = new CoordinateInput();
@@ -212,6 +232,7 @@ class TrapPropertiesFormValidatorTest {
     form.setCentreOfInterestQuadrantBlock("15/10");
     form.setDatum(ReservoirDatum.ED50);
     FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileId(UUID.randomUUID());
     fileUploadForm.setUploadedFileDescription("File description");
     form.setProspectDepthMap(List.of(fileUploadForm));
     return form;

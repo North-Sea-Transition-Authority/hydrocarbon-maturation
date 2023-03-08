@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
@@ -38,7 +38,19 @@ class OpportunityDetailsFormValidator extends PartialFullFormValidator {
 
   @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
-    //no fields require partial validation
+    var opportunityDetailsForm = (OpportunityDetailsForm) form;
+
+    var mapOfOpportunity = opportunityDetailsForm.getMapOfOpportunity();
+    FileValidationUtil.validator()
+        .withMaximumNumberOfFiles(1, "Upload at most one map of opportunity")
+        .isPartiallyValidated()
+        .validate(errors, mapOfOpportunity, "mapOfOpportunity");
+
+    var geologicalCrossSection = opportunityDetailsForm.getGeologicalCrossSection();
+    FileValidationUtil.validator()
+        .withMaximumNumberOfFiles(1, "Upload at most one geological cross section")
+        .isPartiallyValidated()
+        .validate(errors, geologicalCrossSection, "geologicalCrossSection");
   }
 
   @Override
@@ -58,11 +70,14 @@ class OpportunityDetailsFormValidator extends PartialFullFormValidator {
         "Enter the key evaluation work being carried out for this opportunity");
 
     var mapOfOpportunity = opportunityDetailsForm.getMapOfOpportunity();
+    FileValidationUtil.validator()
+        .withMaximumNumberOfFiles(1, "Upload at most one map of opportunity")
+        .withMinimumNumberOfFiles(1, "Upload a map of opportunity")
+        .validate(errors, mapOfOpportunity, "mapOfOpportunity");
 
-    if (mapOfOpportunity.isEmpty()) {
-      errors.rejectValue("mapOfOpportunity", "mapOfOpportunity.required", "Upload a map of opportunity");
-    }
-
-    FileUploadValidationUtils.rejectIfFileDescriptionsAreEmptyOrWhitespace(errors, mapOfOpportunity, "mapOfOpportunity");
+    var geologicalCrossSection = opportunityDetailsForm.getGeologicalCrossSection();
+    FileValidationUtil.validator()
+        .withMaximumNumberOfFiles(1, "Upload at most one geological cross section")
+        .validate(errors, geologicalCrossSection, "geologicalCrossSection");
   }
 }

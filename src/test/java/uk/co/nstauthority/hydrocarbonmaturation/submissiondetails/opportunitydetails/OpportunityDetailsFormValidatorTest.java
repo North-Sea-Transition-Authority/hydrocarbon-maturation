@@ -7,9 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -63,7 +66,7 @@ class OpportunityDetailsFormValidatorTest {
         .containsExactly(
             entry("opportunityType", Set.of("opportunityType.required")),
             entry("keyEvaluationWorkCarriedOut", Set.of("keyEvaluationWorkCarriedOut.required")),
-            entry("mapOfOpportunity", Set.of("mapOfOpportunity.required"))
+            entry("mapOfOpportunity", Set.of("mapOfOpportunity.belowThreshold"))
         );
   }
 
@@ -108,15 +111,66 @@ class OpportunityDetailsFormValidatorTest {
   }
 
   @Test
-  void validate_whenInValidForm_noMapOfOpportunityFileDescriptionUploaded_thenValidationErrors() {
+  void validate_whenInValidForm_noFileDescriptionsUploaded_thenValidationErrors() {
     var form = getValidOpportunityDetailsForm();
     form.setMapOfOpportunity(List.of(new FileUploadForm()));
+    form.setGeologicalCrossSection(List.of(new FileUploadForm()));
 
-    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOpportunityDetailsForm_fullValidation(form));
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    opportunityDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("mapOfOpportunity[0].uploadedFileDescription", Set.of("mapOfOpportunity[0].uploadedFileDescription.required"))
+            entry("mapOfOpportunity[0].uploadedFileDescription",
+                Set.of("mapOfOpportunity[0].uploadedFileDescription.required")),
+            entry("geologicalCrossSection[0].uploadedFileDescription",
+                Set.of("geologicalCrossSection[0].uploadedFileDescription.required"))
+        );
+    assertThat(extractedErrorMessages)
+        .containsExactly(
+            entry("mapOfOpportunity[0].uploadedFileDescription",
+                Set.of("Enter a description of this file")),
+            entry("geologicalCrossSection[0].uploadedFileDescription",
+                Set.of("Enter a description of this file"))
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenTooManyFilesUploaded_thenValidationErrors(ValidationType validationType) {
+    var form = getValidOpportunityDetailsForm();
+    var formFileUploadForm = new FileUploadForm();
+    formFileUploadForm.setUploadedFileId(UUID.randomUUID());
+    formFileUploadForm.setUploadedFileDescription("description");
+    form.setMapOfOpportunity(List.of(formFileUploadForm, formFileUploadForm));
+    form.setGeologicalCrossSection(List.of(formFileUploadForm, formFileUploadForm));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    opportunityDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("mapOfOpportunity",
+                Set.of("mapOfOpportunity.limitExceeded")),
+            entry("geologicalCrossSection",
+                Set.of("geologicalCrossSection.limitExceeded"))
+        );
+    assertThat(extractedErrorMessages)
+        .containsExactly(
+            entry("mapOfOpportunity",
+                Set.of("Upload at most one map of opportunity")),
+            entry("geologicalCrossSection",
+                Set.of("Upload at most one geological cross section"))
         );
   }
 
@@ -153,6 +207,7 @@ class OpportunityDetailsFormValidatorTest {
     form.setKeyEvaluationWorkCarriedOut("Work being carried out");
     form.setKeyWorkRequiredForFurtherMaturation("Key work");
     FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileId(UUID.randomUUID());
     fileUploadForm.setUploadedFileDescription("File description");
     form.setMapOfOpportunity(List.of(fileUploadForm));
     return form;

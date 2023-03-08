@@ -1,9 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -48,6 +51,8 @@ class OpportunityDetailsPersistenceServiceTest {
     form.setOpportunityComments("Comments");
     form.setKeyEvaluationWorkCarriedOut("Key evluation");
     form.setKeyWorkRequiredForFurtherMaturation("Key work");
+    form.setMapOfOpportunity(List.of(mock(FileUploadForm.class)));
+    form.setGeologicalCrossSection(List.of(mock(FileUploadForm.class)));
 
     var opportunityDetailsArgumentCaptor = ArgumentCaptor.forClass(OpportunityDetail.class);
 
@@ -71,6 +76,10 @@ class OpportunityDetailsPersistenceServiceTest {
             form.getKeyEvaluationWorkCarriedOut(),
             form.getKeyWorkRequiredForFurtherMaturation()
         );
+    verify(supportingDocumentService, times(1))
+        .updateSupportingDocumentFileDescriptions(form.getMapOfOpportunity());
+    verify(supportingDocumentService, times(1))
+        .updateSupportingDocumentFileDescriptions(form.getGeologicalCrossSection());
   }
 
   @ParameterizedTest

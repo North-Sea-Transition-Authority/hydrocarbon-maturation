@@ -25,5 +25,8 @@
       <@fileUploadSummary.fileUploadSummary
         filesUploaded=opportunityDetailsValues.mapOfOpportunity()
         fieldName="Map of opportunity"/>
+      <@fileUploadSummary.fileUploadSummary
+        filesUploaded=opportunityDetailsValues.geologicalCrossSection()
+        fieldName="Geological cross section"/>
   </@fdsSummaryList.summaryListCard>
 </#macro>
