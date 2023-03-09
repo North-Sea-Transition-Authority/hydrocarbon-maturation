@@ -21,7 +21,7 @@
   trapPropertiesSummaryView
   resourceDetailSummaryView>
     <@fdsAccordion.accordion accordionId="summaryaccordian-${accordionId}">
-        <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details">
+        <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details" openSection=true>
           <@resourceDetailSummary.resourceDetailCard resourceDetailValues=resourceDetailSummaryView/>
           <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
         </@fdsAccordion.accordionSection>

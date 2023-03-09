@@ -44,7 +44,7 @@
   trapPropertiesSummaryView
   resourceDetailSummaryView>
   <@fdsAccordion.accordion accordionId="summaryaccordian-${accordionId}">
-    <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details">
+    <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details" openSection=true>
       <@resourceDetailSummary.resourceDetailCard resourceDetailValues=resourceDetailSummaryView/>
       <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
     </@fdsAccordion.accordionSection>
@@ -55,7 +55,9 @@
     </@fdsAccordion.accordionSection>
     <@fdsAccordion.accordionSection sectionHeading="Post well drill" summaryText="Discovery well details, drill stem test results">
       <@discoveryWellDetailSummary.discoveryWellDetailCard discoveryWellValues=discoveryWellDetailsSummaryView/>
-      <@drillStemTestSummary.drillStemTest drillStemTestValues=drillStemTestSummaryView/>
+        <#if drillStemTestSummaryView.drillStemTestResultSummaryViews()?has_content>
+            <@drillStemTestSummary.drillStemTest drillStemTestValues=drillStemTestSummaryView/>
+        </#if>
     </@fdsAccordion.accordionSection>
     <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">
         <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard
