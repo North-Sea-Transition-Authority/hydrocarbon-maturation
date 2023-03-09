@@ -26,8 +26,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
@@ -41,9 +39,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydet
 
 @ExtendWith(MockitoExtension.class)
 class SearchResourceRecordsServiceTest {
-  private final static ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+
   @Mock
-  private ResourceRecordQueryService resourceRecordQueryService;
+  private ResourceRecordQueryServiceStrategy resourceRecordQueryServiceStrategy;
   @Mock
   private SubmissionDetailDisplayService submissionDetailDisplayService;
   @Mock
@@ -141,10 +139,11 @@ class SearchResourceRecordsServiceTest {
           buildAndMockResourceRecordQueryResult("resource-name2", null, 2,
               "Org B", List.of(notExtantLicenceView2.licenceId(), notExtantLicenceView3.licenceId()),
               List.of(notExtantLicenceView2.licenceRef(), notExtantLicenceView3.licenceRef()));
-      when(resourceRecordQueryService.getResourceRecordSearchResults(form))
+      when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result1, result2));
 
-      var results = underTest.getResourceRecordSearchResults(form);
+      var results = underTest.getResourceRecordSearchResults(
+          form, resourceRecordQueryServiceStrategy);
 
       assertThat(results)
           .extracting(
@@ -218,14 +217,14 @@ class SearchResourceRecordsServiceTest {
   @Test
   void maxResultsReturned_isAtLimit() {
     Supplier<ResourceRecordSearchResultItem> result = ResourceRecordSearchResultItem::empty;
-    var results = Stream.generate(result).limit(ResourceRecordQueryService.MAX_RESULTS).toList();
+    var results = Stream.generate(result).limit(ResourceQueryCommonService.MAX_RESULTS).toList();
     assertThat(underTest.maxResultsReturned(results)).isTrue();
   }
 
   @Test
   void maxResultsReturned_isNotAtLimit() {
     Supplier<ResourceRecordSearchResultItem> result = ResourceRecordSearchResultItem::empty;
-    var results = Stream.generate(result).limit(ResourceRecordQueryService.MAX_RESULTS - 1).toList();
+    var results = Stream.generate(result).limit(ResourceQueryCommonService.MAX_RESULTS - 1).toList();
     assertThat(underTest.maxResultsReturned(results)).isFalse();
   }
 

@@ -23,8 +23,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydet
 
 @Service
 class SearchResourceRecordsService {
-
-  private final ResourceRecordQueryService resourceRecordQueryService;
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
   private final SearchSelectorService searchSelectorService;
   private final SubmissionResourceService submissionResourceService;
@@ -32,13 +30,11 @@ class SearchResourceRecordsService {
   private final LicenceQueryService licenceQueryService;
 
   @Autowired
-  SearchResourceRecordsService(ResourceRecordQueryService resourceRecordQueryService,
-                               SubmissionDetailDisplayService submissionDetailDisplayService,
+  SearchResourceRecordsService(SubmissionDetailDisplayService submissionDetailDisplayService,
                                SearchSelectorService searchSelectorService,
                                SubmissionResourceService submissionResourceService,
                                OrganisationUnitQueryService organisationUnitQueryService,
                                LicenceQueryService licenceQueryService) {
-    this.resourceRecordQueryService = resourceRecordQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.searchSelectorService = searchSelectorService;
     this.submissionResourceService = submissionResourceService;
@@ -46,14 +42,15 @@ class SearchResourceRecordsService {
     this.licenceQueryService = licenceQueryService;
   }
 
-  List<ResourceRecordSearchResultItem> getResourceRecordSearchResults(SearchResourceRecordsForm form) {
-    return resourceRecordQueryService.getResourceRecordSearchResults(form).stream()
+  List<ResourceRecordSearchResultItem> getResourceRecordSearchResults(SearchResourceRecordsForm form,
+                                                                      ResourceRecordQueryServiceStrategy queryServiceStrategy) {
+    return queryServiceStrategy.getResourceRecordSearchResults(form).stream()
         .map(this::buildResourceRecordSearchResultItem)
         .toList();
   }
 
   boolean maxResultsReturned(List<ResourceRecordSearchResultItem> searchResultItems) {
-    return searchResultItems.size() == ResourceRecordQueryService.MAX_RESULTS;
+    return searchResultItems.size() == ResourceQueryCommonService.MAX_RESULTS;
   }
 
   Map<String, String> getPreselectedLicence(SearchResourceRecordsForm form) {

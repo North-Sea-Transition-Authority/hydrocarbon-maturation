@@ -26,10 +26,13 @@ public class SearchResourceRecordsController {
 
   public static final String PAGE_TITLE = "Search resource records";
   private final SearchResourceRecordsService searchResourceRecordsService;
+  private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
 
   @Autowired
-  public SearchResourceRecordsController(SearchResourceRecordsService searchResourceRecordsService) {
+  public SearchResourceRecordsController(SearchResourceRecordsService searchResourceRecordsService,
+                                         ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory) {
     this.searchResourceRecordsService = searchResourceRecordsService;
+    this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
   }
 
   @GetMapping
@@ -41,7 +44,9 @@ public class SearchResourceRecordsController {
   public ModelAndView searchResourceRecords(@ModelAttribute("form") SearchResourceRecordsForm form) {
     return getModelAndView(
         form,
-        searchResourceRecordsService.getResourceRecordSearchResults(form),
+        searchResourceRecordsService.getResourceRecordSearchResults(
+            form,
+            resourceRecordQueryServiceFactory.getQueryServiceStrategy()),
         FiltersAdded.YES
     );
   }

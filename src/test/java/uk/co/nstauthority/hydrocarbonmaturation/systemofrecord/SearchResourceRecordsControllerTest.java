@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,8 +36,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 class SearchResourceRecordsControllerTest extends AbstractControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+
   @MockBean
   private SearchResourceRecordsService searchResourceRecordsService;
+  @MockBean
+  private ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
 
   @SecurityTest
   void showSearchResourceRecordsScreen_NoUser_assertStatusUnauthorized() throws Exception {
@@ -45,16 +50,39 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void searchResourceRecords_assertStatusOk() throws Exception {
+  void searchResourceRecords_whenRegulator_assertStatusOk() throws Exception {
     var form = new SearchResourceRecordsForm();
-
+    var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+        .thenReturn(regulatorQueryService);
     mockMvc.perform(
             post(ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(form)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(searchResourceRecordsService, times(1)).getResourceRecordSearchResults(any(SearchResourceRecordsForm.class));
+    verify(searchResourceRecordsService, times(1))
+        .getResourceRecordSearchResults(
+            any(SearchResourceRecordsForm.class),
+            eq(regulatorQueryService));
+  }
+
+  @Test
+  void searchResourceRecords_whenOperator_assertStatusOk() throws Exception {
+    var form = new SearchResourceRecordsForm();
+    var operatorQueryService = mock(OperatorResourceRecordQueryService.class);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+        .thenReturn(operatorQueryService);
+    mockMvc.perform(
+            post(ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(form)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(searchResourceRecordsService, times(1))
+        .getResourceRecordSearchResults(
+            any(SearchResourceRecordsForm.class),
+            eq(operatorQueryService));
   }
 
   @Test

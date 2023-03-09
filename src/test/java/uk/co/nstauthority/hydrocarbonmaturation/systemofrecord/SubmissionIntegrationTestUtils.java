@@ -95,6 +95,15 @@ public class SubmissionIntegrationTestUtils {
     return resource;
   }
 
+  public static Resource buildProspectResource(TestEntityManager entityManager) {
+    var resource = new Resource();
+    resource.setType(ResourceType.PROSPECT);
+
+    entityManager.persistAndFlush(resource);
+
+    return resource;
+  }
+
   public static ResponsibleTeam createResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType,
                                                       TestEntityManager entityManager) {
     var responsibleTeam = new ResponsibleTeam();
