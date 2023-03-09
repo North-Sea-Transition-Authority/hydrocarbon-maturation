@@ -68,7 +68,7 @@ DO $$
                 prg2.remi_resource_id,
                 TO_DATE(prdh2.stage_date, 'DD/MM/YYYY HH24:MI:SS') approved_date,
                 CASE
-                    WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY prdh2.stage_date, prdh2.resdat_id) = 1 THEN 'CREATE_DISCOVERY_FROM_PROSPECT'
+                    WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'DD/MM/YYYY HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_DISCOVERY_FROM_PROSPECT'
                     ELSE 'UPDATE_DISCOVERY'
                     END submission_type,
                 prg2.legacy_res_data_id legacy_data_id
@@ -91,7 +91,7 @@ DO $$
                 prg2.remi_resource_id,
                 TO_DATE(prdh2.stage_date, 'DD/MM/YYYY HH24:MI:SS') approved_date,
                 CASE
-                    WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY prdh2.stage_date, prdh2.resdat_id) = 1 THEN 'CREATE_DISCOVERY'
+                    WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'DD/MM/YYYY HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_DISCOVERY'
                     ELSE 'UPDATE_DISCOVERY'
                     END submission_type,
                 prg2.legacy_res_data_id legacy_data_id
