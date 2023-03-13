@@ -71,15 +71,15 @@ BEGIN
                 distribution_type,
                 'DEPTH_TO_CREST_PROSPECT_DISCOVERY',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_crest_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_crest_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_crest_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_crest_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_crest_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_crest_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_crest_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN common_parameters.depth_to_crest_mean END, -- most values exist in the mean column, but two items exist in the P50 column
+                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.depth_to_crest_mean) END, -- most values exist in the mean column, but two items exist in the P50 column
                 NULL -- does most likely exist in PaDI
              );
 
@@ -121,15 +121,15 @@ BEGIN
                 distribution_type,
                 'DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_spill_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_spill_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_spill_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_spill_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_spill_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_spill_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.depth_to_spill_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN common_parameters.depth_to_spill_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.depth_to_spill_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -171,15 +171,15 @@ BEGIN
                 distribution_type,
                 'PRODUCTIVE_AREA',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.area_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.area_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.area_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.area_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.area_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.area_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.area_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN common_parameters.area_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.area_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -222,15 +222,15 @@ BEGIN
                 distribution_type,
                 'GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.gross_thick_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.gross_thick_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.gross_thick_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.gross_thick_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.gross_thick_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.gross_thick_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.gross_thick_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN common_parameters.gross_thick_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.gross_thick_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -272,15 +272,15 @@ BEGIN
                 distribution_type,
                 'GROSS_ROCK_VOLUME',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.grv_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.grv_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.grv_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.grv_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.grv_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.grv_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.grv_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN common_parameters.grv_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.grv_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -322,15 +322,15 @@ BEGIN
                 distribution_type,
                 'NET_TO_GROSS_PROSPECT_DISCOVERY',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.ntg_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.ntg_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.ntg_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.ntg_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.ntg_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.ntg_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.ntg_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN common_parameters.ntg_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.ntg_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -372,15 +372,15 @@ BEGIN
                 distribution_type,
                 'NET_POROSITY_PROSPECT_DISCOVERY',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.porosity_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.porosity_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.porosity_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.porosity_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.porosity_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.porosity_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE common_parameters.porosity_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN common_parameters.porosity_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.porosity_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -435,15 +435,15 @@ BEGIN
                 distribution_type,
                 'AVERAGE_NET_PAY_THICKNESS_PROSPECT',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE prospect_parameters.net_pay_p99 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE prospect_parameters.net_pay_p90 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE prospect_parameters.net_pay_mode END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE prospect_parameters.net_pay_p50 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE prospect_parameters.net_pay_mean END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE prospect_parameters.net_pay_p10 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE prospect_parameters.net_pay_p01 END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_p99) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_p90) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_mode) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_p50) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_mean) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_p10) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN prospect_parameters.net_pay_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(prospect_parameters.net_pay_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -497,15 +497,15 @@ BEGIN
                 distribution_type,
                 'AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE discovery_dry_well_parameters.net_pay_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE discovery_dry_well_parameters.net_pay_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE discovery_dry_well_parameters.net_pay_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE discovery_dry_well_parameters.net_pay_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE discovery_dry_well_parameters.net_pay_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE discovery_dry_well_parameters.net_pay_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE discovery_dry_well_parameters.net_pay_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN discovery_dry_well_parameters.net_pay_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(discovery_dry_well_parameters.net_pay_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -560,15 +560,15 @@ BEGIN
                 distribution_type,
                 'PERCENT_OF_GRV_OIL_BEARING',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE dry_well_or_mixed_case_parameters.grv_perc_oil_p99 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE dry_well_or_mixed_case_parameters.grv_perc_oil_p90 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE dry_well_or_mixed_case_parameters.grv_perc_oil_mode END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE dry_well_or_mixed_case_parameters.grv_perc_oil_p50 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE dry_well_or_mixed_case_parameters.grv_perc_oil_mean END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE dry_well_or_mixed_case_parameters.grv_perc_oil_p10 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE dry_well_or_mixed_case_parameters.grv_perc_oil_p01 END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_p99) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_p90) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_mode) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_p50) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_mean) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_p10) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN dry_well_or_mixed_case_parameters.grv_perc_oil_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(dry_well_or_mixed_case_parameters.grv_perc_oil_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -623,15 +623,15 @@ BEGIN
                 distribution_type,
                 'GAS_EXPANSION_FACTOR',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gef_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gef_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gef_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gef_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gef_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gef_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gef_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gef_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gef_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gef_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gef_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gef_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gef_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gef_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN gas_case_parameters.gef_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(gas_case_parameters.gef_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -674,15 +674,15 @@ BEGIN
                 distribution_type,
                 'GAS_RECOVERY_FACTOR',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE gas_case_parameters.rf_gas_p99 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE gas_case_parameters.rf_gas_p90 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE gas_case_parameters.rf_gas_mode END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE gas_case_parameters.rf_gas_p50 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE gas_case_parameters.rf_gas_mean END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE gas_case_parameters.rf_gas_p10 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE gas_case_parameters.rf_gas_p01 END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_case_parameters.rf_gas_p99) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_case_parameters.rf_gas_p90) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_case_parameters.rf_gas_mode) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_case_parameters.rf_gas_p50) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_case_parameters.rf_gas_mean) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_case_parameters.rf_gas_p10) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_case_parameters.rf_gas_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN gas_case_parameters.rf_gas_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(gas_case_parameters.rf_gas_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -724,15 +724,15 @@ BEGIN
                 distribution_type,
                 'CONDENSATE_GAS_RATIO_LIFE_OF_FIELD',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.cgr_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.cgr_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.cgr_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.cgr_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.cgr_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.cgr_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.cgr_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.cgr_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.cgr_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.cgr_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.cgr_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.cgr_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.cgr_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.cgr_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN gas_case_parameters.cgr_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(gas_case_parameters.cgr_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -787,15 +787,15 @@ BEGIN
                 distribution_type,
                 'FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE oil_case_parameters.fvf_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE oil_case_parameters.fvf_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE oil_case_parameters.fvf_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE oil_case_parameters.fvf_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE oil_case_parameters.fvf_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE oil_case_parameters.fvf_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE oil_case_parameters.fvf_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(oil_case_parameters.fvf_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(oil_case_parameters.fvf_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(oil_case_parameters.fvf_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(oil_case_parameters.fvf_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(oil_case_parameters.fvf_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(oil_case_parameters.fvf_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(oil_case_parameters.fvf_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN oil_case_parameters.fvf_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(oil_case_parameters.fvf_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -838,15 +838,15 @@ BEGIN
                 distribution_type,
                 'OIL_RECOVERY_FACTOR',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE oil_case_parameters.rf_oil_p99 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE oil_case_parameters.rf_oil_p90 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE oil_case_parameters.rf_oil_mode END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE oil_case_parameters.rf_oil_p50 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE oil_case_parameters.rf_oil_mean END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE oil_case_parameters.rf_oil_p10 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE oil_case_parameters.rf_oil_p01 END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(oil_case_parameters.rf_oil_p99) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(oil_case_parameters.rf_oil_p90) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(oil_case_parameters.rf_oil_mode) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(oil_case_parameters.rf_oil_p50) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(oil_case_parameters.rf_oil_mean) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(oil_case_parameters.rf_oil_p10) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(oil_case_parameters.rf_oil_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN oil_case_parameters.rf_oil_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(oil_case_parameters.rf_oil_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -888,15 +888,15 @@ BEGIN
                 distribution_type,
                 'ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gor_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gor_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gor_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gor_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gor_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gor_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE gas_case_parameters.gor_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gor_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gor_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gor_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gor_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gor_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gor_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_case_parameters.gor_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN gas_case_parameters.gor_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(gas_case_parameters.gor_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -951,15 +951,15 @@ BEGIN
                 distribution_type,
                 'MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.fvf_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.fvf_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.fvf_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.fvf_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.fvf_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.fvf_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.fvf_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN mixed_case_parameters.fvf_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.fvf_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -1001,15 +1001,15 @@ BEGIN
                 distribution_type,
                 'MIXED_OIL_RECOVERY_FACTOR',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_oil_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_oil_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_oil_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_oil_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_oil_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_oil_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_oil_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN mixed_case_parameters.rf_oil_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.rf_oil_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -1052,15 +1052,15 @@ BEGIN
                 distribution_type,
                 'MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.gor_p99 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.gor_p90 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.gor_mode END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.gor_p50 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.gor_mean END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.gor_p10 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.gor_p01 END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_p99) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_p90) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_mode) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_p50) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_mean) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_p10) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN mixed_case_parameters.gor_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.gor_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -1102,15 +1102,15 @@ BEGIN
                 distribution_type,
                 'MIXED_GAS_EXPANSION_FACTOR',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.gef_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.gef_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.gef_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.gef_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.gef_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.gef_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.gef_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN mixed_case_parameters.gef_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.gef_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -1152,15 +1152,15 @@ BEGIN
                 distribution_type,
                 'MIXED_GAS_RECOVERY_FACTOR',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_gas_p99 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_gas_p90 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_gas_mode END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_gas_p50 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_gas_mean END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_gas_p10 END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE mixed_case_parameters.rf_gas_p01 END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_p99) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_p90) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_mode) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_p50) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_mean) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_p10) END,
+                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN mixed_case_parameters.rf_gas_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.rf_gas_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
@@ -1203,15 +1203,15 @@ BEGIN
                 distribution_type,
                 'MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.cgr_p99 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.cgr_p90 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.cgr_mode END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.cgr_p50 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.cgr_mean END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.cgr_p10 END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE mixed_case_parameters.cgr_p01 END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_p99) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_p90) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_mode) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_p50) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_mean) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_p10) END,
+                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN mixed_case_parameters.cgr_mean END,
+                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.cgr_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
