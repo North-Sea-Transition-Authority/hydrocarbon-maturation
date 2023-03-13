@@ -34,7 +34,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 class WorkAreaItemServiceTest {
 
   @Mock
-  private SubmissionWorkAreaQueryService submissionWorkAreaQueryService;
+  private SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory;
+
+  @Mock
+  private OperatorSubmissionWorkAreaQueryService operatorSubmissionWorkAreaQueryService;
+
+  @Mock
+  private RegulatorSubmissionWorkAreaQueryService regulatorSubmissionWorkAreaQueryService;
 
   @Mock
   private SubmissionDetailDisplayService submissionDetailDisplayService;
@@ -66,7 +72,10 @@ class WorkAreaItemServiceTest {
 
   @Test
   void getWorkAreaItems_twoItemsReturned_whenOrganisationAndLicencesNotFound_oneWithQuadBlocks() {
-    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(queryResults);
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+        .thenReturn(operatorSubmissionWorkAreaQueryService);
+    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+        .thenReturn(queryResults);
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(anyInt()))
         .thenReturn("Not provided");
     when(submissionDetailDisplayService.getLicencesForDisplay(List.of(LICENCE_ID_1, LICENCE_ID_2)))
@@ -110,8 +119,11 @@ class WorkAreaItemServiceTest {
 
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationAndLicencesFound() {
-    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(
-        queryResultWithEverythingFilledIn));
+
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+        .thenReturn(operatorSubmissionWorkAreaQueryService);
+    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+        .thenReturn(List.of(queryResultWithEverythingFilledIn));
     var organisationUnit = OrganisationUnit.newBuilder()
         .name("organisation")
         .registeredNumber("1")
@@ -158,7 +170,10 @@ class WorkAreaItemServiceTest {
         .withCreatedTime(createdOn)
         .build();
 
-    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(submissionWorkAreaQueryResult));
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+        .thenReturn(operatorSubmissionWorkAreaQueryService);
+    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+        .thenReturn(List.of(submissionWorkAreaQueryResult));
 
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(null))
         .thenReturn("Not provided");
@@ -192,7 +207,9 @@ class WorkAreaItemServiceTest {
 
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationWithoutNameFound() {
-    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+        .thenReturn(operatorSubmissionWorkAreaQueryService);
+    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
         .thenReturn(List.of(queryResultWithEverythingFilledIn));
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("Not provided");
@@ -222,7 +239,9 @@ class WorkAreaItemServiceTest {
 
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationWithoutNameAndNumberFound() {
-    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+        .thenReturn(regulatorSubmissionWorkAreaQueryService);
+    when(regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(
         queryResultWithEverythingFilledIn));
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("Not provided");
@@ -256,8 +275,10 @@ class WorkAreaItemServiceTest {
         .builder()
         .withOrganisationResponsibleId(ORGANISATION_ID)
         .build();
-    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(
-        queryResultOnlyOrganisationName));
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+        .thenReturn(regulatorSubmissionWorkAreaQueryService);
+    when(regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+        .thenReturn(List.of(queryResultOnlyOrganisationName));
     var organisationName = "organisation name";
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(ORGANISATION_ID))
         .thenReturn(organisationName);
@@ -278,8 +299,10 @@ class WorkAreaItemServiceTest {
         .builder()
         .withLicencesTheResourceIsOn(List.of())
         .build();
-    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(
-        queryResultEmptyLicences));
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+        .thenReturn(regulatorSubmissionWorkAreaQueryService);
+    when(regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+        .thenReturn(List.of(queryResultEmptyLicences));
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("Not provided");
 
@@ -298,7 +321,9 @@ class WorkAreaItemServiceTest {
         .builder()
         .withStatus(SubmissionDetailStatus.SUBMITTED.name())
         .build();
-    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+        .thenReturn(regulatorSubmissionWorkAreaQueryService);
+    when(regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
         .thenReturn(List.of(queryResultInSubmitted));
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(any()))
         .thenReturn("Not provided");
@@ -333,7 +358,9 @@ class WorkAreaItemServiceTest {
         .builder()
         .withStatus(status.name())
         .build();
-    when(submissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+        .thenReturn(regulatorSubmissionWorkAreaQueryService);
+    when(regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
         .thenReturn(List.of(queryResult));
 
     var result = workAreaItemService.getWorkAreaItems();

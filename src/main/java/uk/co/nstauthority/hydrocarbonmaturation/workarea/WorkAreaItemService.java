@@ -15,18 +15,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @Service
 class WorkAreaItemService {
 
-  private final SubmissionWorkAreaQueryService submissionWorkAreaQueryService;
+  private final SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory;
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
 
   @Autowired
-  WorkAreaItemService(SubmissionWorkAreaQueryService submissionWorkAreaQueryService,
+  WorkAreaItemService(SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory,
                       SubmissionDetailDisplayService submissionDetailDisplayService) {
-    this.submissionWorkAreaQueryService = submissionWorkAreaQueryService;
+    this.submissionWorkAreaServiceFactory = submissionWorkAreaServiceFactory;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
   }
 
   List<WorkAreaItem> getWorkAreaItems() {
-    return submissionWorkAreaQueryService.getWorkAreaSubmissionItems()
+    return submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy()
+        .getWorkAreaSubmissionItems()
         .stream()
         .map(this::getWorkAreaItem)
         .toList();
