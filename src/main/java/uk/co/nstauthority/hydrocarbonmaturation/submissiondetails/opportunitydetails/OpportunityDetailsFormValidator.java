@@ -46,6 +46,12 @@ class OpportunityDetailsFormValidator extends PartialFullFormValidator {
         .isPartiallyValidated()
         .validate(errors, mapOfOpportunity, "mapOfOpportunity");
 
+    var representativeSeismicSection = opportunityDetailsForm.getRepresentativeSeismicSection();
+    FileValidationUtil.validator()
+        .withMaximumNumberOfFiles(1, "Upload at most one representative seismic section")
+        .isPartiallyValidated()
+        .validate(errors, representativeSeismicSection, "representativeSeismicSection");
+
     var geologicalCrossSection = opportunityDetailsForm.getGeologicalCrossSection();
     FileValidationUtil.validator()
         .withMaximumNumberOfFiles(1, "Upload at most one geological cross section")
@@ -74,6 +80,12 @@ class OpportunityDetailsFormValidator extends PartialFullFormValidator {
         .withMaximumNumberOfFiles(1, "Upload at most one map of opportunity")
         .withMinimumNumberOfFiles(1, "Upload a map of opportunity")
         .validate(errors, mapOfOpportunity, "mapOfOpportunity");
+
+    var representativeSeismicSection = opportunityDetailsForm.getRepresentativeSeismicSection();
+    FileValidationUtil.validator()
+        .withMaximumNumberOfFiles(1, "Upload at most one representative seismic section")
+        .withMinimumNumberOfFiles(1, "Upload a representative seismic section")
+        .validate(errors, representativeSeismicSection, "representativeSeismicSection");
 
     var geologicalCrossSection = opportunityDetailsForm.getGeologicalCrossSection();
     FileValidationUtil.validator()

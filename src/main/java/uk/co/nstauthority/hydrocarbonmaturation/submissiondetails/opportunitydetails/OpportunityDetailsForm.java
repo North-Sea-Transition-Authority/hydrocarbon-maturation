@@ -12,10 +12,9 @@ class OpportunityDetailsForm implements SubmissionForm {
   private String opportunityComments;
   private String keyEvaluationWorkCarriedOut;
   private String keyWorkRequiredForFurtherMaturation;
-
   private List<FileUploadForm> mapOfOpportunity = new ArrayList<>();
   private List<FileUploadForm> geologicalCrossSection = new ArrayList<>();
-
+  private List<FileUploadForm> representativeSeismicSection = new ArrayList<>();
 
   public OpportunityType getOpportunityType() {
     return opportunityType;
@@ -73,5 +72,14 @@ class OpportunityDetailsForm implements SubmissionForm {
   public void setGeologicalCrossSection(
       List<FileUploadForm> geologicalCrossSection) {
     this.geologicalCrossSection = geologicalCrossSection;
+  }
+
+  public List<FileUploadForm> getRepresentativeSeismicSection() {
+    return representativeSeismicSection;
+  }
+
+  public void setRepresentativeSeismicSection(
+      List<FileUploadForm> representativeSeismicSection) {
+    this.representativeSeismicSection = representativeSeismicSection;
   }
 }

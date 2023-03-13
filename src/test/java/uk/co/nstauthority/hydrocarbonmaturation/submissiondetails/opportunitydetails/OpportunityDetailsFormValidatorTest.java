@@ -66,7 +66,8 @@ class OpportunityDetailsFormValidatorTest {
         .containsExactly(
             entry("opportunityType", Set.of("opportunityType.required")),
             entry("keyEvaluationWorkCarriedOut", Set.of("keyEvaluationWorkCarriedOut.required")),
-            entry("mapOfOpportunity", Set.of("mapOfOpportunity.belowThreshold"))
+            entry("mapOfOpportunity", Set.of("mapOfOpportunity.belowThreshold")),
+            entry("representativeSeismicSection", Set.of("representativeSeismicSection.belowThreshold"))
         );
   }
 
@@ -115,7 +116,7 @@ class OpportunityDetailsFormValidatorTest {
     var form = getValidOpportunityDetailsForm();
     form.setMapOfOpportunity(List.of(new FileUploadForm()));
     form.setGeologicalCrossSection(List.of(new FileUploadForm()));
-
+    form.setRepresentativeSeismicSection(List.of(new FileUploadForm()));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     opportunityDetailsFormValidator.validate(
@@ -128,12 +129,16 @@ class OpportunityDetailsFormValidatorTest {
         .containsExactly(
             entry("mapOfOpportunity[0].uploadedFileDescription",
                 Set.of("mapOfOpportunity[0].uploadedFileDescription.required")),
+            entry("representativeSeismicSection[0].uploadedFileDescription",
+                Set.of("representativeSeismicSection[0].uploadedFileDescription.required")),
             entry("geologicalCrossSection[0].uploadedFileDescription",
                 Set.of("geologicalCrossSection[0].uploadedFileDescription.required"))
         );
     assertThat(extractedErrorMessages)
         .containsExactly(
             entry("mapOfOpportunity[0].uploadedFileDescription",
+                Set.of("Enter a description of this file")),
+            entry("representativeSeismicSection[0].uploadedFileDescription",
                 Set.of("Enter a description of this file")),
             entry("geologicalCrossSection[0].uploadedFileDescription",
                 Set.of("Enter a description of this file"))
@@ -210,6 +215,8 @@ class OpportunityDetailsFormValidatorTest {
     fileUploadForm.setUploadedFileId(UUID.randomUUID());
     fileUploadForm.setUploadedFileDescription("File description");
     form.setMapOfOpportunity(List.of(fileUploadForm));
+    form.setGeologicalCrossSection(List.of(fileUploadForm));
+    form.setRepresentativeSeismicSection(List.of(fileUploadForm));
     return form;
   }
 }

@@ -52,6 +52,22 @@
       </@fdsFieldset.fieldset>
 
       <@fdsFieldset.fieldset
+        legendHeading="Representative seismic section"
+        legendHeadingSize="h2"
+        legendHeadingClass="govuk-fieldset__legend--m">
+          <@fdsFileUpload.fileUpload
+            id="representativeSeismicSection"
+            path="form.representativeSeismicSection"
+            downloadUrl=representativeSeismicSectionTemplate.downloadUrl()
+            uploadUrl=representativeSeismicSectionTemplate.uploadUrl()
+            deleteUrl=representativeSeismicSectionTemplate.deleteUrl()
+            maxAllowedSize=representativeSeismicSectionTemplate.maxAllowedSize()
+            allowedExtensions=representativeSeismicSectionTemplate.allowedExtensions()
+            existingFiles=representativeSeismicSectionUploads
+            multiFile=false/>
+        </@fdsFieldset.fieldset>
+
+      <@fdsFieldset.fieldset
         legendHeading="Geological cross section"
         legendHeadingSize="h2"
         legendHeadingClass="govuk-fieldset__legend--m"

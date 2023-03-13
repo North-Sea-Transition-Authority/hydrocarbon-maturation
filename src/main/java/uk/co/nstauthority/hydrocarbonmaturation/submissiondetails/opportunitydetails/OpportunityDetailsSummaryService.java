@@ -63,6 +63,10 @@ public class OpportunityDetailsSummaryService {
             submissionDetail,
             SupportingDocumentType.GEOLOGICAL_CROSS_SECTION);
 
+    var representativeSeismicSectionUploadFormList = supportingDocumentService
+        .getFileUploadFormListForSubmissionAndType(
+            submissionDetail,
+            SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION);
 
     return new OpportunityDetailsSummaryView(opportunityType,
         otherOpportunity,
@@ -71,6 +75,7 @@ public class OpportunityDetailsSummaryService {
         keyEvaluationWork,
         keyWorkRequired,
         getFileUploadList(mapOfOpportunityUploadFormList, submissionDetail),
+        getFileUploadList(representativeSeismicSectionUploadFormList, submissionDetail),
         getFileUploadList(geologicalCrossSectionUploadFormList, submissionDetail));
   }
 

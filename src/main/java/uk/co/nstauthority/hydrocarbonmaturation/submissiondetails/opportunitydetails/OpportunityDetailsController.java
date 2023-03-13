@@ -61,9 +61,11 @@ public class OpportunityDetailsController {
     var mapOfOpportunityUploads = opportunityDetailsFormService.getMapOfOpportunityUploads(opportunityDetailsForm);
     var geologicalCrossSectionUploads = opportunityDetailsFormService
         .getGeologicalCrossSectionUploads(opportunityDetailsForm);
+    var representativeSeismicSectionUploads = opportunityDetailsFormService
+        .getRepresentativeSeismicSectionUploads(opportunityDetailsForm);
 
     return getOpportunityDetailsModelAndView(opportunityDetailsForm, submissionDetail,
-        mapOfOpportunityUploads, geologicalCrossSectionUploads);
+        mapOfOpportunityUploads, geologicalCrossSectionUploads, representativeSeismicSectionUploads);
   }
 
   @PostMapping
@@ -74,11 +76,12 @@ public class OpportunityDetailsController {
     var mapOfOpportunityUploads = opportunityDetailsFormService.getMapOfOpportunityUploads(form);
     var geologicalCrossSectionUploads = opportunityDetailsFormService
         .getGeologicalCrossSectionUploads(form);
-
+    var representativeSeismicSectionUploads = opportunityDetailsFormService
+        .getRepresentativeSeismicSectionUploads(form);
     bindingResult = opportunityDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getOpportunityDetailsModelAndView(form, submissionDetail,
-            mapOfOpportunityUploads, geologicalCrossSectionUploads),
+            mapOfOpportunityUploads, geologicalCrossSectionUploads, representativeSeismicSectionUploads),
         () -> {
           opportunityDetailsPersistenceService.saveOpportunityDetails(form, submissionDetail);
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
@@ -87,7 +90,8 @@ public class OpportunityDetailsController {
 
   private ModelAndView getOpportunityDetailsModelAndView(OpportunityDetailsForm form, SubmissionDetail submissionDetail,
                                                          List<UploadedFileView> mapOfOpportunityUploads,
-                                                         List<UploadedFileView> geologicalCrossSectionUploads) {
+                                                         List<UploadedFileView> geologicalCrossSectionUploads,
+                                                         List<UploadedFileView> representativeSeismicSectionUploads) {
     ModelAndView modelAndView = new ModelAndView("remi/submissiondetails/opportunityDetails")
         .addObject("opportunityTypes", OpportunityType.getSelectableOpportunityTypes())
         .addObject("form", form)
@@ -100,7 +104,12 @@ public class OpportunityDetailsController {
         .addObject("geologicalCrossSectionTemplate", supportingDocumentService.buildFileUploadTemplate(
             submissionDetail.getId(),
             SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
-        .addObject("geologicalCrossSectionUploads", geologicalCrossSectionUploads);
+        .addObject("geologicalCrossSectionUploads", geologicalCrossSectionUploads)
+        .addObject("representativeSeismicSectionTemplate", supportingDocumentService.buildFileUploadTemplate(
+            submissionDetail.getId(),
+            SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION
+        ))
+        .addObject("representativeSeismicSectionUploads", representativeSeismicSectionUploads);
 
     return TaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

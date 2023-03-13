@@ -44,6 +44,7 @@ public class OpportunityDetailsPersistenceService {
 
     supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getMapOfOpportunity());
     supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getGeologicalCrossSection());
+    supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getRepresentativeSeismicSection());
     opportunityDetailsRepository.save(opportunityDetail);
   }
 

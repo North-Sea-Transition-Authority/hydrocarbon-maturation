@@ -157,6 +157,22 @@ class OpportunityDetailsFormServiceTest {
         .getUploadedFileViewList(listOfIds);
   }
 
+  @Test
+  void getRepresentativeSeismicSectionUploads_VerifyCalls() {
+    var fileUploadForm1 = getFileUploadForm();
+
+    var form = new OpportunityDetailsForm();
+    var fileForms = List.of(fileUploadForm1);
+    form.setRepresentativeSeismicSection(fileForms);
+    var listOfIds = FileUploadUtils.getUploadIdList(fileForms);
+
+    opportunityDetailsFormService.getRepresentativeSeismicSectionUploads(form);
+
+    verify(supportingDocumentService, times(1))
+        .getUploadedFileViewList(listOfIds);
+  }
+
+
   private OpportunityDetail getOpportunityDetail(SubmissionDetail submissionDetail) {
     var opportunityDetail =  new OpportunityDetail();
     opportunityDetail.setSubmissionDetail(submissionDetail);

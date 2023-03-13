@@ -71,7 +71,8 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
         .thenReturn(fileUploadTemplate);
-
+    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
+        .thenReturn(fileUploadTemplate);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
@@ -135,6 +136,8 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
+        .thenReturn(fileUploadTemplate);
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
         .thenReturn(fileUploadTemplate);
     mockMvc.perform(
@@ -153,6 +156,8 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
+        .thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
         .thenReturn(fileUploadTemplate);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form)))
