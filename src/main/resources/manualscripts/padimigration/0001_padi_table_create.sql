@@ -366,7 +366,7 @@ CREATE TABLE remi.padi_res_data_param (
 );
 
 CREATE TABLE remi.padi_res_data_vol_outputs (
-    resdat_id                         TEXT,
+    resdat_id                         INTEGER,
     resource_id                       TEXT,
     stage_id                          INTEGER,
     stage_date                        TEXT,
@@ -446,7 +446,7 @@ CREATE TABLE remi.padi_res_data_vol_outputs (
 );
 
 CREATE TABLE remi.padi_res_data_post_well (
-    resdat_id                  TEXT,
+    resdat_id                  INTEGER,
     resource_id                TEXT,
     stage_id                   INTEGER,
     well_result_type           TEXT,
@@ -473,7 +473,7 @@ CREATE TABLE remi.padi_res_data_post_well (
 );
 
 CREATE TABLE remi.padi_res_data_disc (
-    resdat_id                 TEXT,
+    resdat_id                 INTEGER,
     resource_id               TEXT,
     stage_id                  INTEGER,
     discovery_status          TEXT,
