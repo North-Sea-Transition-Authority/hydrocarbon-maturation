@@ -100,6 +100,22 @@ class GeneralDetailsFormValidatorTest {
   }
 
   @Test
+  void validate_whenInvalidForm_andRelinquishment() {
+    submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
+    var form = new GeneralDetailsForm();
+    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
+            entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty")),
+            entry("relinquishmentDay", Set.of("relinquishmentDay.required")),
+            entry("relinquishmentMonth", Set.of("relinquishmentMonth.required")),
+            entry("relinquishmentYear", Set.of("relinquishmentYear.required"))
+        );
+  }
+
+  @Test
   void validate_whenInValidForm_noOtherSourceEntered_thenValidationErrors() {
     var form = getValidForm();
     form.setInformationSource(InformationSource.OTHER);
@@ -291,7 +307,7 @@ class GeneralDetailsFormValidatorTest {
         );
     assertThat(extractedErrorMessages)
         .containsExactly(
-            entry("relinquishmentDay", Set.of("Enter a complete Date of relinquishment")),
+            entry("relinquishmentDay", Set.of("Enter a complete date of relinquishment")),
             entry("relinquishmentYear", Set.of(""))
         );
   }

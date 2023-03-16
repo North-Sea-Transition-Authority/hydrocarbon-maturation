@@ -27,6 +27,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   private final LicenceQueryService licenceQueryService;
   private SubmissionType submissionType;
   private boolean isLicencePresent;
+  private boolean isRelinquishment;
   private GeneralDetail latestApprovedGeneralDetail;
   private boolean missingLicenceErrorPresent;
 
@@ -50,7 +51,9 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     var validatorHints = (GeneralDetailsFormValidatorHints) SubmissionFormValidationUtils
         .extractValidatorHints(validationHints);
     var validationType = validatorHints.getValidationType();
-    submissionType = validatorHints.getSubmissionDetail().getSubmissionType();
+    var submissionDetail = validatorHints.getSubmissionDetail();
+    submissionType = submissionDetail.getSubmissionType();
+    isRelinquishment = submissionDetail.isRelinquishment();
     isLicencePresent = validatorHints.getLicencePresent();
     var form = (GeneralDetailsForm) target;
 
@@ -71,8 +74,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   private void validateAlways(GeneralDetailsForm form, Errors errors) {
     if (latestApprovedGeneralDetail != null
         && BooleanUtils.isTrue(latestApprovedGeneralDetail.getResourceOnALicence())
-        && submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
-        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT) {
+        && !isRelinquishment) {
       if (form.getResourceOnALicence() == null || !form.getResourceOnALicence()) {
         errors.rejectValue("resourceOnALicence",
             "resourceOnALicence.required",
@@ -92,8 +94,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   public void validatePartial(SubmissionForm form, Errors errors) {
     GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
 
-    if (submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
-        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT
+    if (!isRelinquishment
         && !generalDetailsForm.getLicences().isEmpty()
         && BooleanUtils.isTrue(generalDetailsForm.getResourceOnALicence())) {
       validateExtantLicences(generalDetailsForm, errors);
@@ -101,8 +102,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
     partialValidationPercentageLocatedInUkcs(generalDetailsForm, errors);
 
-    if (submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
-        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT) {
+    if (isRelinquishment) {
       validateDateOfRelinquishment(ValidationType.PARTIAL, generalDetailsForm, errors);
     }
   }
@@ -111,9 +111,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   public void validateFull(SubmissionForm form, Errors errors) {
     var generalDetailsForm = (GeneralDetailsForm) form;
 
-    if (submissionType != SubmissionType.RELINQUISHMENT_DISCOVERY
-        && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT
-        && !missingLicenceErrorPresent) {
+    if (!isRelinquishment && !missingLicenceErrorPresent) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "resourceOnALicence",
           "resourceOnALicence.required", "Select whether the resource is on a licence");
 
@@ -131,11 +129,9 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
     if (submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.PROSPECT_UPDATE
-        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT
         || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
         || submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY
-        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
+        || submissionType == SubmissionType.CREATE_DISCOVERY) {
       ValidationUtils.rejectIfEmpty(errors, "informationSource", "informationSource.required",
           "Select the source of information");
       if (generalDetailsForm.getInformationSource() == InformationSource.LICENCE_APPLICATION) {
@@ -155,8 +151,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
           "You must select at least one quadrant and block");
     }
 
-    if (submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
-        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT) {
+    if (isRelinquishment) {
       validateDateOfRelinquishment(ValidationType.FULL, generalDetailsForm, errors);
     }
   }
@@ -167,7 +162,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     if (validationType == ValidationType.FULL) {
       DateValidationUtil.validateDate(
           "relinquishment",
-          "Date of relinquishment",
+          "date of relinquishment",
           form.getRelinquishmentDay(),
           form.getRelinquishmentMonth(),
           form.getRelinquishmentYear(),
@@ -177,7 +172,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
             form.getRelinquishmentYear(), form.getRelinquishmentMonth(), form.getRelinquishmentDay())) {
       DateValidationUtil.validateDate(
           "relinquishment",
-          "Date of relinquishment",
+          "date of relinquishment",
           form.getRelinquishmentDay(),
           form.getRelinquishmentMonth(),
           form.getRelinquishmentYear(),
