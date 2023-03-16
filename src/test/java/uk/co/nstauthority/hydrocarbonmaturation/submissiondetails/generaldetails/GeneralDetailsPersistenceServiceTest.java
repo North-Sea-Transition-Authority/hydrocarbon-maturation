@@ -86,6 +86,17 @@ class GeneralDetailsPersistenceServiceTest {
   }
 
   @Test
+  void saveGeneralDetails_whenRelinquishmentSubmission_verifyRelinquishmentInformationSource() {
+    submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
+    var form = new GeneralDetailsForm();
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = generalDetailsArgumentCaptor.getValue();
+    assertThat(savedGeneralDetail.getInformationSource()).isEqualTo(InformationSource.RELINQUISHMENT);
+  }
+
+  @Test
   void saveGeneralDetails_whenLicenceApplicationInfoSource() {
     var form = new GeneralDetailsForm();
     form.setLicenceApplication(LICENCE_APPLICATION);
@@ -227,7 +238,7 @@ class GeneralDetailsPersistenceServiceTest {
     var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
 
     assertThat(savedGeneralDetail)
-        .hasAllNullFieldsOrPropertiesExcept("relinquishmentDate", "submissionDetail");
+        .hasAllNullFieldsOrPropertiesExcept("relinquishmentDate", "submissionDetail", "informationSource");
 
     assertThat(savedGeneralDetail.getRelinquishmentDate())
         .isEqualTo(LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day)));
@@ -248,7 +259,7 @@ class GeneralDetailsPersistenceServiceTest {
     var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
 
     assertThat(savedGeneralDetail)
-        .hasAllNullFieldsOrPropertiesExcept("submissionDetail");
+        .hasAllNullFieldsOrPropertiesExcept("submissionDetail", "informationSource");
   }
 
   @Test

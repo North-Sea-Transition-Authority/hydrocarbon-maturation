@@ -38,7 +38,11 @@ public class GeneralDetailsPersistenceService {
 
     generalDetail.setSubmissionDetail(submissionDetail);
     generalDetail.setResourceLocatedInUkcs(form.getResourceLocatedInUkcs());
-    generalDetail.setInformationSource(form.getInformationSource());
+    if (!submissionDetail.isRelinquishment()) {
+      generalDetail.setInformationSource(form.getInformationSource());
+    } else {
+      generalDetail.setInformationSource(InformationSource.RELINQUISHMENT);
+    }
     generalDetail.setResourceOnALicence(form.getResourceOnALicence());
 
     var licenceApplication = form.getLicenceApplication();
