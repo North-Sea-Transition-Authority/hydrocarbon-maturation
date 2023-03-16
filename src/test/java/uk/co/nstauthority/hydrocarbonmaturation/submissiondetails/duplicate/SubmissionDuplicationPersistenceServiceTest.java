@@ -6,21 +6,24 @@ import java.math.BigDecimal;
 import javax.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import javax.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTest;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryOptions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 
 @Transactional
 @IntegrationTest
 class SubmissionDuplicationPersistenceServiceTest {
 
   @Autowired
-  private TestEntityManager testEntityManager;
+  private EntityManager entityManager;
 
   @Autowired
   private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
@@ -76,7 +79,8 @@ class SubmissionDuplicationPersistenceServiceTest {
     var oldDrillStem = new DrillStemTest();
     oldDrillStem.setSubmissionDetail(submissionDetail);
     oldDrillStem.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.NO);
-    testEntityManager.persistAndFlush(oldDrillStem);
+    entityManager.persist(oldDrillStem);
+    entityManager.flush();
     var drillStemTestResult = createDrillStemTestResult(oldDrillStem);
     var newDrillStem = new DrillStemTest();
     newDrillStem.setSubmissionDetail(submissionDetail);
@@ -97,28 +101,27 @@ class SubmissionDuplicationPersistenceServiceTest {
     generalDetail.setResourceLocatedInUkcs(true);
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.TEN);
     generalDetail.setLicenceApplicationId(1);
-    testEntityManager.persistAndFlush(generalDetail);
+    entityManager.persist(generalDetail);
+    entityManager.flush();
     return generalDetail;
   }
 
   private SubmissionDetail createSubmissionDetail() {
-    var submissionDetail = new SubmissionDetail();
-    testEntityManager.persistAndFlush(submissionDetail);
-    return submissionDetail;
+    var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
+
+    return SubmissionIntegrationTestUtils.createSubmissionDetail(resource, SubmissionType.CREATE_PROSPECT, entityManager);
   }
 
   private QuadrantAndBlock createQuadBlock(GeneralDetail generalDetail) {
-    var quadrantAndBlock = new QuadrantAndBlock();
-    quadrantAndBlock.setGeneralDetail(generalDetail);
-    testEntityManager.persistAndFlush(quadrantAndBlock);
-    return quadrantAndBlock;
+    return SubmissionIntegrationTestUtils.createQuadAndBlock(generalDetail, "1/1", entityManager);
   }
 
   private DrillStemTestResult createDrillStemTestResult(DrillStemTest drillStemTest) {
     var drillStemTestResult = new DrillStemTestResult();
     drillStemTestResult.setDrillStemTest(drillStemTest);
     drillStemTestResult.setFormationName("goodName");
-    testEntityManager.persistAndFlush(drillStemTestResult);
+    entityManager.persist(drillStemTestResult);
+    entityManager.flush();
     return drillStemTestResult;
   }
 }

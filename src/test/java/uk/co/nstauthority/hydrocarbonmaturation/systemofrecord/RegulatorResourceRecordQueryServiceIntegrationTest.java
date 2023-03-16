@@ -9,15 +9,13 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import org.jooq.DSLContext;
-import org.jooq.conf.RenderMapping;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
@@ -55,7 +53,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   private RegulatorResourceRecordQueryService regulatorResourceRecordQueryService;
 
   @Autowired
-  private TestEntityManager entityManager;
+  private EntityManager entityManager;
 
   @MockBean
   private OrganisationGroupQueryService organisationGroupQueryService;
@@ -65,12 +63,6 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
   @MockBean
   private LicenceQueryService licenceQueryService;
-
-
-  @BeforeEach
-  void setUp() {
-    dslContext.settings().setRenderMapping(new RenderMapping().withDefaultSchema("remi"));
-  }
 
   @Test
   void getResourceRecordSearchResults_whenOneFullSubmission_assertAllValuesAndOrderIsCorrect() {
@@ -833,7 +825,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     //ensures the test is deterministic, latest submission is always later than first submission
     latestSubmission.setApprovedTimestamp(Instant.now().plus(500000, ChronoUnit.MILLIS));
-    entityManager.persistAndFlush(latestSubmission);
+    entityManager.persist(latestSubmission);
+    entityManager.flush();
 
     var firstLicenceRoundAndReference = "FIRST_LICENCE";
     var latestLicenceRoundAndReference = "SECOND_LICENCE";
@@ -841,10 +834,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(latestSubmission, "not_relevant_name", 1);
     var firstSubmissionGeneralDetail = createGeneralDetail(firstSubmission);
     firstSubmissionGeneralDetail.setLicenceApplicationReference(firstLicenceRoundAndReference);
-    entityManager.persistAndFlush(firstSubmissionGeneralDetail);
+    entityManager.persist(firstSubmissionGeneralDetail);
+    entityManager.flush();
     var latestGeneralDetail = createGeneralDetail(latestSubmission);
     latestGeneralDetail.setLicenceApplicationReference(latestLicenceRoundAndReference);
-    entityManager.persistAndFlush(latestGeneralDetail);
+    entityManager.persist(latestGeneralDetail);
+    entityManager.flush();
     var form = new SearchResourceRecordsForm();
     form.setLicenceRound(licenceRoundFilter);
 
@@ -944,7 +939,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     resourceLink.setDiscoveryResource(discovery);
     resourceLink.setProspectResource(prospect);
 
-    entityManager.persistAndFlush(resourceLink);
+    entityManager.persist(resourceLink);
+    entityManager.flush();
 
     return resourceLink;
   }
@@ -959,7 +955,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     opportunityDetail.setOpportunityType(opportunityType);
     opportunityDetail.setSubmissionDetail(submissionDetail);
 
-    entityManager.persistAndFlush(opportunityDetail);
+    entityManager.persist(opportunityDetail);
+    entityManager.flush();
 
     return opportunityDetail;
   }
@@ -986,16 +983,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
   private Resource buildProspectResource() {
 
-    return SubmissionIntegrationTestUtils.createResource(entityManager);
+    return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
   }
 
   private Resource buildDiscoveryResource() {
-    var resource = new Resource();
-    resource.setType(ResourceType.DISCOVERY);
 
-    entityManager.persistAndFlush(resource);
-
-    return resource;
+    return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
   }
 
   private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType) {
@@ -1018,7 +1011,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .withId(null)
         .build();
 
-    entityManager.persistAndFlush(team);
+    entityManager.persist(team);
+    entityManager.flush();
     teamMemberRoleService.updateUserTeamRoles(team, new WebUserAccountId(user.wuaId()),
         Set.of(RegulatorTeamRole.EXPLORATION.name()));
   }

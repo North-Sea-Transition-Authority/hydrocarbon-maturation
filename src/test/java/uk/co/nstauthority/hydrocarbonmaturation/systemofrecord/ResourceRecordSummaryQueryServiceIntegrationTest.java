@@ -4,15 +4,12 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import javax.persistence.EntityManager;
 import org.jooq.DSLContext;
-import org.jooq.conf.RenderMapping;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
-import uk.co.nstauthority.hydrocarbonmaturation.configuration.JooqSchemaProviderService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
@@ -35,15 +32,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
   private ResourceRecordSummaryQueryService resourceRecordSummaryQueryService;
 
   @Autowired
-  private TestEntityManager entityManager;
-
-  @Autowired
-  private JooqSchemaProviderService jooqSchemaProviderService;
-
-  @BeforeEach
-  void setUp() {
-    dslContext.settings().setRenderMapping(new RenderMapping().withDefaultSchema("remi"));
-  }
+  private EntityManager entityManager;
 
   @Test
   void getResourceRecord_WhenTwoResourceRecords_ReturnsResourceRecordQueried() {
@@ -132,7 +121,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
 
   private Resource buildResource() {
 
-    return SubmissionIntegrationTestUtils.createResource(entityManager);
+    return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
   }
 
   private ResponsibleTeam buildResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType) {

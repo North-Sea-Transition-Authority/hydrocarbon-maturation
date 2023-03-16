@@ -1,80 +1,72 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
-import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.select;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESPONSIBLE_TEAMS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.TRAP_PROPERTIES;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Table;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.configuration.JooqSchemaProviderService;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Service
 class ResourceRecordSummaryQueryService {
 
+  private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
   private final DSLContext context;
-  private final JooqSchemaProviderService jooqSchemaProviderService;
 
   @Autowired
-  ResourceRecordSummaryQueryService(DSLContext context,
-                                    JooqSchemaProviderService jooqSchemaProviderService) {
+  ResourceRecordSummaryQueryService(DSLContext context) {
     this.context = context;
-    this.jooqSchemaProviderService = jooqSchemaProviderService;
   }
 
   Optional<ResourceRecordSummaryQueryResult> getResourceRecord(UUID resourceId) {
     return context.select(
-            field("sd.id"),
-            field("r.type"),
-            field("rd.resource_name"),
-            field("tp.centre_of_interest_quadrant_block"),
-            field("rd.organisation_id"),
-            field("rt.responsible_team"),
-            DSL.arrayAggDistinct(field("gdl.licence_id"))
-                .orderBy(field("gdl.licence_id"))
-                .filterWhere(field("gdl.licence_id").isNotNull()),
-            field("sd.created_timestamp"),
-            field("sd.approved_timestamp")
+            SUBMISSION_DETAILS.ID,
+            RESOURCES.TYPE,
+            RESOURCE_DETAILS.RESOURCE_NAME,
+            TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
+            RESOURCE_DETAILS.ORGANISATION_ID,
+            RESPONSIBLE_TEAMS.RESPONSIBLE_TEAM,
+            DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+                .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
+            SUBMISSION_DETAILS.CREATED_TIMESTAMP,
+            SUBMISSION_DETAILS.APPROVED_TIMESTAMP
         )
-        .from(remiTable("resources").as("r")
-          .leftJoin(remiTable("responsible_teams").as("rt"))
-            .on(field("rt.resource_id").eq(field("r.id")))
-          .join(remiTable("submission_details").as("sd"))
-            .on(field("sd.id").eq(
-                select(field("sd2.id"))
-                    .from(remiTable("submission_details").as("sd2"))
-                    .where(field("sd2.resource_id").eq(field("r.id")))
-                    .and(field("sd2.status").eq(SubmissionDetailStatus.APPROVED.name()))
-                    .orderBy(field("sd2.approved_timestamp").desc())
+        .from(RESOURCES
+          .leftJoin(RESPONSIBLE_TEAMS).on(RESPONSIBLE_TEAMS.RESOURCE_ID.eq(RESOURCES.ID))
+          .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
+                select(SD_2.ID)
+                    .from(SD_2)
+                    .where(SD_2.RESOURCE_ID.eq(RESOURCES.ID))
+                    .and(SD_2.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))
+                    .orderBy(SD_2.APPROVED_TIMESTAMP.desc())
                     .limit(1)
             ))
-          .join(remiTable("resource_details").as("rd"))
-            .on(field("rd.submission_detail_id").eq(field("sd.id")))
-          .leftJoin(remiTable("general_details").as("gd"))
-            .on(field("gd.submission_detail_id").eq(field("sd.id")))
-          .leftJoin(remiTable("trap_properties").as("tp"))
-            .on(field("tp.submission_detail_id").eq(field("sd.id")))
-          .leftJoin(remiTable("general_details_licences").as("gdl"))
-            .on(field("gdl.general_details_id").eq(field("gd.id"))))
-        .where(field("r.id").eq(resourceId))
+          .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+          .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+          .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+          .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID)))
+        .where(RESOURCES.ID.eq(resourceId))
         .groupBy(List.of(
-            field("r.id"),
-            field("sd.id"),
-            field("gd.id"),
-            field("tp.id"),
-            field("rd.id"),
-            field("rt.id")
+            RESOURCES.ID,
+            SUBMISSION_DETAILS.ID,
+            GENERAL_DETAILS.ID,
+            TRAP_PROPERTIES.ID,
+            RESOURCE_DETAILS.ID,
+            RESPONSIBLE_TEAMS.ID
         ))
         .fetchOptionalInto(ResourceRecordSummaryQueryResult.class);
-  }
-
-  private Table<Record> remiTable(String tableName) {
-    return jooqSchemaProviderService.remiTable(tableName);
   }
 }

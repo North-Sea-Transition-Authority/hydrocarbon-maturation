@@ -3,7 +3,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.configuration;
 
 import javax.sql.DataSource;
 import org.jooq.SQLDialect;
+import org.jooq.Schema;
 import org.jooq.conf.RenderQuotedNames;
+import org.jooq.conf.Settings;
+import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultDSLContext;
@@ -28,22 +31,27 @@ class JooqConfiguration {
   }
 
   @Bean
-  public DefaultDSLContext dsl() {
-    return new DefaultDSLContext(configuration());
+  public DefaultDSLContext dsl(DefaultConfiguration configuration) {
+    return new DefaultDSLContext(configuration);
   }
 
-  public DefaultConfiguration configuration() {
-    DefaultConfiguration jooqConfiguration = new DefaultConfiguration();
+  @Bean
+  public DefaultConfiguration configuration(DataSourceConnectionProvider connectionProvider) {
+    var jooqConfiguration = new DefaultConfiguration();
     jooqConfiguration.setSQLDialect(SQLDialect.POSTGRES);
-    jooqConfiguration.set(connectionProvider());
-
-    var settings = jooqConfiguration.settings().withRenderQuotedNames(RenderQuotedNames.NEVER)
+    jooqConfiguration.set(connectionProvider);
+    var settings  = new Settings()
+        .withRenderQuotedNames(RenderQuotedNames.NEVER)
         .withInterpreterDialect(SQLDialect.POSTGRES)
         .withParseDialect(SQLDialect.POSTGRES)
         .withRenderSchema(true);
-    jooqConfiguration
-        .setSettings(settings);
+    jooqConfiguration.setSettings(settings);
 
     return jooqConfiguration;
+  }
+
+  @Bean
+  public Schema getDefaultSchema(JooqConfigurationProperties jooqConfigurationProperties) {
+    return DSL.schema(jooqConfigurationProperties.schema());
   }
 }

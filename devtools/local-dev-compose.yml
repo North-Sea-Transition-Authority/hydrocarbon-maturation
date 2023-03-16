@@ -8,9 +8,7 @@ services:
       - "5432:5432"
     volumes:
       - db-volume:/var/lib/postgresql/data
-      - source: ./create_db_user.sh
-        target: /docker-entrypoint-initdb.d/create_db_user.sh
-        type: bind
+      - ./create_db_user.sh:/docker-entrypoint-initdb.d/create_db_user.sh:ro
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: dev

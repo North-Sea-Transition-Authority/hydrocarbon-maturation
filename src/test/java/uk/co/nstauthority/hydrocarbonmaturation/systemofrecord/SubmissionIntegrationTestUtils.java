@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import javax.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
@@ -33,89 +33,88 @@ public class SubmissionIntegrationTestUtils {
         List.of("1"), ResponsibleTeamType.EXPLORATION.getDisplayName(), ResponsibleTeamType.EXPLORATION);
   }
 
-  public static Licence createLicence(int id, String ref, GeneralDetail generalDetails, TestEntityManager entityManager) {
+  public static Licence createLicence(int id, String ref, GeneralDetail generalDetails, EntityManager entityManager) {
     var licence = new Licence();
     licence.setLicenceId(id);
     licence.setLicenceReference(ref);
     licence.setGeneralDetail(generalDetails);
 
-    entityManager.persistAndFlush(licence);
+    entityManager.persist(licence);
+    entityManager.flush();
 
     return licence;
   }
 
   public static TrapProperty createTrapProperty(SubmissionDetail submissionDetail, String centreOfInterestQuadrantBlock,
-                                                TestEntityManager entityManager) {
+                                                EntityManager entityManager) {
     var trapProperty = new TrapProperty();
     trapProperty.setSubmissionDetail(submissionDetail);
     trapProperty.setCentreOfInterestQuadrantBlock(centreOfInterestQuadrantBlock);
 
-    entityManager.persistAndFlush(trapProperty);
+    entityManager.persist(trapProperty);
+    entityManager.flush();
 
     return trapProperty;
   }
 
-  public static QuadrantAndBlock createQuadAndBlock(GeneralDetail generalDetails, String quadrantBlock, TestEntityManager entityManager) {
+  public static QuadrantAndBlock createQuadAndBlock(GeneralDetail generalDetails, String quadrantBlock, EntityManager entityManager) {
     var quadBlocks = new QuadrantAndBlock();
     quadBlocks.setGeneralDetail(generalDetails);
     quadBlocks.setQuadrantBlock(quadrantBlock);
 
-    entityManager.persistAndFlush(quadBlocks);
+    entityManager.persist(quadBlocks);
+    entityManager.flush();
 
     return quadBlocks;
   }
 
-  public static GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail, TestEntityManager entityManager) {
+  public static GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail, EntityManager entityManager) {
     var generalDetails = new GeneralDetail();
     generalDetails.setSubmissionDetail(submissionDetail);
 
-    entityManager.persistAndFlush(generalDetails);
+    entityManager.persist(generalDetails);
+    entityManager.flush();
 
     return generalDetails;
   }
 
   public static ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId,
-                                                    TestEntityManager entityManager) {
+                                                    EntityManager entityManager) {
     var resourceDetail = new ResourceDetail();
     resourceDetail.setResourceName(resourceName);
     resourceDetail.setSubmissionDetail(submissionDetail);
     resourceDetail.setOrganisationId(organisationId);
 
-    entityManager.persistAndFlush(resourceDetail);
+    entityManager.persist(resourceDetail);
+    entityManager.flush();
 
     return resourceDetail;
   }
 
-  public static Resource createResource(TestEntityManager entityManager) {
+  public static Resource createResource(EntityManager entityManager, ResourceType prospect) {
     var resource = new Resource();
-    resource.setType(ResourceType.PROSPECT);
+    resource.setType(prospect);
+    resource.setCreatedTimestamp(Instant.now());
 
-    entityManager.persistAndFlush(resource);
-
-    return resource;
-  }
-
-  public static Resource buildProspectResource(TestEntityManager entityManager) {
-    var resource = new Resource();
-    resource.setType(ResourceType.PROSPECT);
-
-    entityManager.persistAndFlush(resource);
+    entityManager.persist(resource);
+    entityManager.flush();
 
     return resource;
   }
 
   public static ResponsibleTeam createResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType,
-                                                      TestEntityManager entityManager) {
+                                                      EntityManager entityManager) {
     var responsibleTeam = new ResponsibleTeam();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(responsibleTeamType);
 
-    entityManager.persistAndFlush(responsibleTeam);
+    entityManager.persist(responsibleTeam);
+    entityManager.flush();
 
     return responsibleTeam;
   }
 
-  public static SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType, TestEntityManager entityManager) {
+  public static SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType, EntityManager entityManager) {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
     submissionDetail.setSubmissionType(submissionType);
@@ -125,7 +124,8 @@ public class SubmissionIntegrationTestUtils {
     submissionDetail.setApprovedTimestamp(Instant.now());
     submissionDetail.setResourceId(resource);
 
-    entityManager.persistAndFlush(submissionDetail);
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
 
     return submissionDetail;
   }

@@ -1,7 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
-import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.select;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.OPPORTUNITY_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_LINKS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.TRAP_PROPERTIES;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,25 +18,23 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Table;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.configuration.JooqSchemaProviderService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.GeneralDetails;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Service
 class ResourceQueryCommonService {
 
   static final int MAX_RESULTS = 200;
-  protected final JooqSchemaProviderService jooqSchemaProviderService;
+  private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
+  private static final SubmissionDetails SD_3 = SUBMISSION_DETAILS.as("sd3");
+  private static final GeneralDetails GD_3 = GENERAL_DETAILS.as("gd3");
   protected final DSLContext context;
 
-  protected ResourceQueryCommonService(
-      JooqSchemaProviderService jooqSchemaProviderService,
-      DSLContext context) {
-    this.jooqSchemaProviderService = jooqSchemaProviderService;
+  protected ResourceQueryCommonService(DSLContext context) {
     this.context = context;
   }
 
@@ -37,52 +42,45 @@ class ResourceQueryCommonService {
       List<Condition> conditionList, List<Condition> aggregateConditionList) {
     return context
         .select(
-            field("r.id"),
-            field("sd.id"),
-            field("r.type"),
-            field("rd.resource_name"),
-            field("tp.centre_of_interest_quadrant_block"),
-            field("rd.organisation_id"),
-            DSL.arrayAggDistinct(field("gdl.licence_id"))
-                .orderBy(field("gdl.licence_id"))
-                .filterWhere(field("gdl.licence_id").isNotNull()),
-            field("sd.created_timestamp"),
-            field("sd.approved_timestamp"))
-        .from(remiTable("resources").as("r")
-            .join(remiTable("submission_details").as("sd"))
-            .on(field("sd.id").eq(
-                select(field("sd2.id"))
-                    .from(remiTable("submission_details").as("sd2"))
-                    .where(field("sd2.resource_id").eq(field("r.id")))
-                    .and(field("sd2.status").eq(SubmissionDetailStatus.APPROVED.name()))
-                    .orderBy(field("sd2.approved_timestamp").desc())
-                    .limit(1)
-            ))
-            .join(remiTable("resource_details").as("rd"))
-            .on(field("rd.submission_detail_id").eq(field("sd.id")))
-            .leftJoin(remiTable("resource_links").as("rl"))
-            .on(field("prospect_resource_id").eq(field("r.id"))
-                .or(field("discovery_resource_id").eq(field("r.id"))))
-            .leftJoin(remiTable("general_details").as("gd"))
-            .on(field("gd.submission_detail_id").eq(field("sd.id")))
-            .leftJoin(remiTable("trap_properties").as("tp"))
-            .on(field("tp.submission_detail_id").eq(field("sd.id")))
-            .leftJoin(remiTable("general_details_licences").as("gdl"))
-            .on(field("gdl.general_details_id").eq(field("gd.id")))
-            .leftJoin(remiTable("opportunity_details").as("od"))
-            .on(field("od.submission_detail_id").eq(field("sd.id")))
-            .where(conditionList))
+            RESOURCES.ID,
+            SUBMISSION_DETAILS.ID,
+            RESOURCES.TYPE,
+            RESOURCE_DETAILS.RESOURCE_NAME,
+            TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
+            RESOURCE_DETAILS.ORGANISATION_ID,
+            DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+                .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
+            SUBMISSION_DETAILS.CREATED_TIMESTAMP,
+            SUBMISSION_DETAILS.APPROVED_TIMESTAMP)
+        .from(RESOURCES
+          .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
+              select(SD_2.ID)
+                  .from(SD_2)
+                  .where(SD_2.RESOURCE_ID.eq(RESOURCES.ID))
+                  .and(SD_2.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))
+                  .orderBy(SD_2.APPROVED_TIMESTAMP.desc())
+                  .limit(1)
+          ))
+          .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+          .leftJoin(RESOURCE_LINKS).on(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(RESOURCES.ID)
+              .or(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(RESOURCES.ID)))
+          .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+          .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+          .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
+          .leftJoin(OPPORTUNITY_DETAILS).on(OPPORTUNITY_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
+        .where(conditionList)
         .groupBy(
-            field("r.id"),
-            field("sd.id"),
-            field("gd.id"),
-            field("tp.id"),
-            field("rd.id")
+            RESOURCES.ID,
+            SUBMISSION_DETAILS.ID,
+            GENERAL_DETAILS.ID,
+            TRAP_PROPERTIES.ID,
+            RESOURCE_DETAILS.ID
         )
         .having(aggregateConditionList)
-        .orderBy(field("sd.approved_timestamp").desc().nullsLast(),
-            field("sd.created_timestamp").desc(),
-            field("rd.resource_name"))
+        .orderBy(SUBMISSION_DETAILS.APPROVED_TIMESTAMP.desc().nullsLast(),
+            SUBMISSION_DETAILS.CREATED_TIMESTAMP.desc(),
+            RESOURCE_DETAILS.RESOURCE_NAME)
         .limit(ResourceQueryCommonService.MAX_RESULTS)
         .fetchInto(ResourceRecordQueryResult.class);
   }
@@ -92,24 +90,24 @@ class ResourceQueryCommonService {
 
     if (StringUtils.isNotBlank(form.getResourceDetailIdForResourceSubmission())) {
       conditionList.add(
-          field("rd.id").eq(UUID.fromString(form.getResourceDetailIdForResourceSubmission()))
+          RESOURCE_DETAILS.ID.eq(UUID.fromString(form.getResourceDetailIdForResourceSubmission()))
       );
     }
 
     if (Objects.nonNull(form.getResponsibleOrganisationId())) {
       conditionList.add(
-          field("rd.organisation_id").eq(form.getResponsibleOrganisationId())
+          RESOURCE_DETAILS.ORGANISATION_ID.eq(form.getResponsibleOrganisationId())
       );
     }
 
     if (Objects.nonNull(form.getCentreOfInterestBlock())) {
       conditionList.add(
-          field("tp.centre_of_interest_quadrant_block").eq(form.getCentreOfInterestBlock())
+          TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK.eq(form.getCentreOfInterestBlock())
       );
     }
 
     if (!form.getResourceTypes().isEmpty()) {
-      conditionList.add(field("r.type").in(getResourceTypeCondition(form)));
+      conditionList.add(RESOURCES.TYPE.in(getResourceTypeCondition(form)));
     }
 
     if (!form.getOpportunityTypes().isEmpty()) {
@@ -119,9 +117,9 @@ class ResourceQueryCommonService {
     // excludes prospects from search results when they are linked to a discovery
     // rl.discovery_resource_id will be null if there is no link
     conditionList.add(
-        field("rl.discovery_resource_id")
+        RESOURCE_LINKS.DISCOVERY_RESOURCE_ID
             .isNull()
-            .or(field("r.type")
+            .or(RESOURCES.TYPE
                 .eq(ResourceType.DISCOVERY.name()))
     );
 
@@ -133,9 +131,9 @@ class ResourceQueryCommonService {
 
     if (Objects.nonNull(form.getLicenceId())) {
       conditionList.add(
-          DSL.arrayAggDistinct(field("gdl.licence_id"))
-              .orderBy(field("gdl.licence_id"))
-              .filterWhere(field("gdl.licence_id")
+          DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+              .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+              .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID
                   .eq(Integer.parseInt(form.getLicenceId()))).isNotNull()
       );
     }
@@ -151,17 +149,16 @@ class ResourceQueryCommonService {
     // Excludes resources from the search results
     // which don't have the licence round and reference supplied to the form
     // on the latest submission or any earlier approved submissions
-    return field("gd.licence_application_reference")
+    return GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE
         .likeIgnoreCase("%" + form.getLicenceRound() + "%")
         .orExists(
             context
                 .select()
-                .from(remiTable("submission_details").as("sd3"))
-                .join(remiTable("general_details").as("gd3"))
-                .on(field("gd3.submission_detail_id").eq(field("sd3.id"))
-                    .and(field("sd3.status").eq(SubmissionDetailStatus.APPROVED.name()))
-                    .and(field("sd3.resource_id").eq(field("sd.resource_id"))))
-                .where(field("gd3.licence_application_reference")
+                .from(SD_3
+                  .join(GD_3).on(GD_3.SUBMISSION_DETAIL_ID.eq(SD_3.ID)
+                    .and(SD_3.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))
+                    .and(SD_3.RESOURCE_ID.eq(SUBMISSION_DETAILS.RESOURCE_ID))))
+                .where(GD_3.LICENCE_APPLICATION_REFERENCE
                     .likeIgnoreCase("%" + form.getLicenceRound() + "%")));
   }
 
@@ -175,17 +172,13 @@ class ResourceQueryCommonService {
     });
 
     if (opportunityTypeCheckboxes.contains("NOT_SET")) {
-      return field("od.opportunity_type").in(opportunityTypeSet).or(field("od.opportunity_type").isNull());
+      return OPPORTUNITY_DETAILS.OPPORTUNITY_TYPE.in(opportunityTypeSet).or(OPPORTUNITY_DETAILS.OPPORTUNITY_TYPE.isNull());
     }
 
-    return field("od.opportunity_type").in(opportunityTypeSet);
+    return OPPORTUNITY_DETAILS.OPPORTUNITY_TYPE.in(opportunityTypeSet);
   }
 
   List<String> getResourceTypeCondition(SearchResourceRecordsForm form) {
     return form.getResourceTypes();
-  }
-
-  Table<Record> remiTable(String tableName) {
-    return jooqSchemaProviderService.remiTable(tableName);
   }
 }

@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 
+import java.time.Instant;
 import java.util.UUID;
 
 public class ResourceTestUtils {
@@ -13,6 +14,7 @@ public class ResourceTestUtils {
     var resource = new Resource();
     resource.setId(UUID.randomUUID());
     resource.setType(resourceType);
+    resource.setCreatedTimestamp(Instant.now());
     return resource;
   }
 }

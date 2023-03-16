@@ -46,6 +46,7 @@ public class SubmissionDetailTestUtils {
     submissionDetail.setResourceId(resource);
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     submissionDetail.setSubmitterType(SubmitterType.NSTA);
+    submissionDetail.setCreatedByWuaId(1);
 
     return submissionDetail;
 

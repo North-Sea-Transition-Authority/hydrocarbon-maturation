@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
@@ -38,7 +38,7 @@ class TaskListEnforceUniqueValuesTest {
   private UserDetailService userDetailService;
 
   @Autowired
-  private TestEntityManager entityManager;
+  private EntityManager entityManager;
 
   @Autowired
   private TeamMemberRoleService teamMemberRoleService;
@@ -175,7 +175,8 @@ class TaskListEnforceUniqueValuesTest {
         .withId(null)
         .build();
 
-    entityManager.persistAndFlush(team);
+    entityManager.persist(team);
+    entityManager.flush();
 
     // Add user to team with the previously defined roles
     teamMemberRoleService.updateUserTeamRoles(team, new WebUserAccountId(user.wuaId()),

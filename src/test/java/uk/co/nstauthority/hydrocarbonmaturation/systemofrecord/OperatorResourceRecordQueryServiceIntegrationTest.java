@@ -8,12 +8,12 @@ import static org.mockito.Mockito.when;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
@@ -57,7 +57,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   private OperatorResourceRecordQueryService operatorResourceRecordQueryService;
 
   @Autowired
-  private TestEntityManager entityManager;
+  private EntityManager entityManager;
 
   @MockBean
   private OrganisationGroupQueryService organisationGroupQueryService;
@@ -298,7 +298,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         .withOrganisationGroupId(userOrgGroupId)
         .build();
 
-    entityManager.persistAndFlush(team);
+    entityManager.persist(team);
+    entityManager.flush();
 
     var userOrgGroup = new OrganisationGroup();
     userOrgGroup.setOrganisationGroupId(userOrgGroupId);
@@ -321,7 +322,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     resourceLink.setDiscoveryResource(discovery);
     resourceLink.setProspectResource(prospect);
 
-    entityManager.persistAndFlush(resourceLink);
+    entityManager.persist(resourceLink);
+    entityManager.flush();
 
     return resourceLink;
   }
@@ -336,7 +338,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     opportunityDetail.setOpportunityType(opportunityType);
     opportunityDetail.setSubmissionDetail(submissionDetail);
 
-    entityManager.persistAndFlush(opportunityDetail);
+    entityManager.persist(opportunityDetail);
+    entityManager.flush();
 
     return opportunityDetail;
   }
@@ -364,14 +367,15 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
   private Resource buildProspectResource() {
 
-    return SubmissionIntegrationTestUtils.createResource(entityManager);
+    return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
   }
 
   private Resource buildDiscoveryResource() {
     var resource = new Resource();
     resource.setType(ResourceType.DISCOVERY);
 
-    entityManager.persistAndFlush(resource);
+    entityManager.persist(resource);
+    entityManager.flush();
 
     return resource;
   }

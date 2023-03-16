@@ -1,15 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.jooq.impl.DSL.falseCondition;
-import static org.jooq.impl.DSL.field;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Table;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
@@ -53,7 +53,7 @@ class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceSt
 
   private List<Condition> getOperatorConditions(SearchResourceRecordsForm form, List<Integer> userOrgUnitIds) {
     var conditionList = new ArrayList<>(resourceQueryCommonService.getFormFilterConditions(form));
-    conditionList.add(field("rd.organisation_id").in(userOrgUnitIds));
+    conditionList.add(RESOURCE_DETAILS.ORGANISATION_ID.in(userOrgUnitIds));
 
     return conditionList;
   }
@@ -66,13 +66,11 @@ class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceSt
 
   private Condition getIsResourceOnAnExtantLicenceCondition(List<Integer> userOrganisationUnits) {
     var userLicences = context
-        .selectDistinct(field("gdl.licence_id"))
-        .from(remiTable("general_details_licences").as("gdl"))
-        .join(remiTable("general_details").as("gd"))
-        .on(field("gd.id").eq(field("gdl.general_details_id")))
-        .join(remiTable("resource_details").as("rd"))
-        .on(field("rd.submission_detail_id").eq(field("gd.submission_detail_id")))
-        .where(field("rd.organisation_id").in(userOrganisationUnits))
+        .selectDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+        .from(GENERAL_DETAILS_LICENCES)
+        .join(GENERAL_DETAILS).on(GENERAL_DETAILS.ID.eq(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID))
+        .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(GENERAL_DETAILS.SUBMISSION_DETAIL_ID))
+        .where(RESOURCE_DETAILS.ORGANISATION_ID.in(userOrganisationUnits))
         .fetchInto(String.class);
 
     if (userLicences.isEmpty()) {
@@ -85,13 +83,9 @@ class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceSt
             .map(LicenceView::getId)
             .toList());
 
-    return DSL.arrayAggDistinct(field("gdl.licence_id"))
-        .orderBy(field("gdl.licence_id"))
-        .filterWhere(field("gdl.licence_id").in(userExtantLicences))
+    return DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+        .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+        .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.in(userExtantLicences))
         .isNotNull();
-  }
-
-  private Table<Record> remiTable(String tableName) {
-    return resourceQueryCommonService.remiTable(tableName);
   }
 }

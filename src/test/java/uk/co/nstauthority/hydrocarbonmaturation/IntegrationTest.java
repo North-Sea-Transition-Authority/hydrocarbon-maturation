@@ -1,20 +1,20 @@
 package uk.co.nstauthority.hydrocarbonmaturation;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import java.lang.annotation.Target;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.jooq.AutoConfigureJooq;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("integration-test")
-@AutoConfigureTestDatabase
-@AutoConfigureDataJpa
+@SpringBootTest
+@ExtendWith(SpringExtension.class)
+@ActiveProfiles({"development", "integration-test"})
 @AutoConfigureJooq
-@AutoConfigureTestEntityManager
 public @interface IntegrationTest {
 }

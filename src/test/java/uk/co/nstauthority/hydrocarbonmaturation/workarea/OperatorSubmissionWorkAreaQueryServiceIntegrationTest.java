@@ -6,13 +6,12 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import javax.persistence.EntityManager;
 import org.assertj.core.api.AssertionsForClassTypes;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
-import org.jooq.conf.RenderMapping;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
@@ -46,15 +45,10 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   private IndustryTeamService industryTeamService;
 
   @Autowired
-  private TestEntityManager entityManager;
+  private EntityManager entityManager;
 
   @Autowired
   private OperatorSubmissionWorkAreaQueryService operatorSubmissionWorkAreaQueryService;
-
-  @BeforeEach
-  void setUp() {
-    dslContext.settings().setRenderMapping(new RenderMapping().withDefaultSchema("remi"));
-  }
 
   @Test
   void getSubmissions_whenOneFullSubmittedSubmission_asIndustryInResponsibleOrganisation_assertAllValues() {
@@ -65,17 +59,17 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetail.setId(null);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
-    var resource = new Resource();
-    resource.setType(ResourceType.PROSPECT);
+    var createdTimestamp = Instant.now();
+    var resource = createResource(createdTimestamp, entityManager);
     var responsibleTeam = new ResponsibleTeam();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    var createdTimestamp = Instant.now();
     submissionDetail.setCreatedTimestamp(createdTimestamp);
-    entityManager.persistAndFlush(resource);
-    entityManager.persistAndFlush(responsibleTeam);
+    entityManager.persist(responsibleTeam);
+    entityManager.flush();
     submissionDetail.setResourceId(resource);
-    entityManager.persistAndFlush(submissionDetail);
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
 
     var generalDetails = new GeneralDetail();
     var resourceDetail = new ResourceDetail();
@@ -83,18 +77,22 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     resourceDetail.setResourceName("The resource name");
     generalDetails.setSubmissionDetail(submissionDetail);
     resourceDetail.setOrganisationId(responsibleOrganisationIdForSubmission);
-    entityManager.persistAndFlush(generalDetails);
-    entityManager.persistAndFlush(resourceDetail);
+    entityManager.persist(generalDetails);
+    entityManager.flush();
+    entityManager.persist(resourceDetail);
+    entityManager.flush();
 
     var quadBlocks = new QuadrantAndBlock();
     quadBlocks.setGeneralDetail(generalDetails);
     quadBlocks.setQuadrantBlock("25/12");
-    entityManager.persistAndFlush(quadBlocks);
+    entityManager.persist(quadBlocks);
+    entityManager.flush();
 
     var trapProperty = new TrapProperty();
     trapProperty.setSubmissionDetail(submissionDetail);
     trapProperty.setCentreOfInterestQuadrantBlock("25/12");
-    entityManager.persistAndFlush(trapProperty);
+    entityManager.persist(trapProperty);
+    entityManager.flush();
 
     var licence = new Licence();
     licence.setLicenceId(953);
@@ -104,8 +102,10 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     licence2.setLicenceId(951);
     licence2.setLicenceReference("AL6");
     licence2.setGeneralDetail(generalDetails);
-    entityManager.persistAndFlush(licence);
-    entityManager.persistAndFlush(licence2);
+    entityManager.persist(licence);
+    entityManager.flush();
+    entityManager.persist(licence2);
+    entityManager.flush();
 
     var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
@@ -131,6 +131,16 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
         );
   }
 
+  @NotNull
+  private static Resource createResource(Instant createdTimestamp, EntityManager entityManager) {
+    var resource = new Resource();
+    resource.setType(ResourceType.PROSPECT);
+    resource.setCreatedTimestamp(createdTimestamp);
+    entityManager.persist(resource);
+    entityManager.flush();
+    return resource;
+  }
+
   @Test
   void getSubmissions_whenTwoSubmissions_whenInResponsibleOrganisationOnLatestApprovedOnResource_assertReturn() {
     var responsibleOrganisationIdForApprovedSubmission = 46;
@@ -141,17 +151,21 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionWithWrongResponsibleOrg.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionWithWrongResponsibleOrg.setSubmitterType(SubmitterType.INDUSTRY);
 
+    var createdTimestamp = Instant.now();
     var resource = new Resource();
+    submissionWithWrongResponsibleOrg.setCreatedTimestamp(createdTimestamp);
     resource.setType(ResourceType.PROSPECT);
+    resource.setCreatedTimestamp(createdTimestamp);
+    entityManager.persist(resource);
+    entityManager.flush();
     var responsibleTeam = new ResponsibleTeam();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    var createdTimestamp = Instant.now();
-    submissionWithWrongResponsibleOrg.setCreatedTimestamp(createdTimestamp);
-    entityManager.persistAndFlush(resource);
-    entityManager.persistAndFlush(responsibleTeam);
+    entityManager.persist(responsibleTeam);
+    entityManager.flush();
     submissionWithWrongResponsibleOrg.setResourceId(resource);
-    entityManager.persistAndFlush(submissionWithWrongResponsibleOrg);
+    entityManager.persist(submissionWithWrongResponsibleOrg);
+    entityManager.flush();
 
     var generalDetails = new GeneralDetail();
     var resourceDetail = new ResourceDetail();
@@ -161,8 +175,10 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var organisationIdUserIsNotResponsibleFor = 1;
     resourceDetail.setOrganisationId(organisationIdUserIsNotResponsibleFor);
     setUpLatestApprovedSubmissionOnResource(resource, responsibleOrganisationIdForApprovedSubmission);
-    entityManager.persistAndFlush(generalDetails);
-    entityManager.persistAndFlush(resourceDetail);
+    entityManager.persist(generalDetails);
+    entityManager.flush();
+    entityManager.persist(resourceDetail);
+    entityManager.flush();
 
     var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
@@ -179,17 +195,17 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
-    var resource = new Resource();
-    resource.setType(ResourceType.PROSPECT);
+    var createdTimestamp = Instant.now();
+    var resource = createResource(createdTimestamp, entityManager);
     var responsibleTeam = new ResponsibleTeam();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    var createdTimestamp = Instant.now();
     submissionDetail.setCreatedTimestamp(createdTimestamp);
-    entityManager.persistAndFlush(resource);
-    entityManager.persistAndFlush(responsibleTeam);
+    entityManager.persist(responsibleTeam);
+    entityManager.flush();
     submissionDetail.setResourceId(resource);
-    entityManager.persistAndFlush(submissionDetail);
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
 
     var generalDetails = new GeneralDetail();
     var resourceDetail = new ResourceDetail();
@@ -197,8 +213,10 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     resourceDetail.setResourceName("The resource name");
     generalDetails.setSubmissionDetail(submissionDetail);
     resourceDetail.setOrganisationId(responsibleOrganisationIdForSubmission);
-    entityManager.persistAndFlush(generalDetails);
-    entityManager.persistAndFlush(resourceDetail);
+    entityManager.persist(generalDetails);
+    entityManager.flush();
+    entityManager.persist(resourceDetail);
+    entityManager.flush();
 
     var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
@@ -215,15 +233,18 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetail.setCreatedTimestamp(createdTimestamp);
     submissionDetail.setApprovedTimestamp(createdTimestamp.plusMillis(1000));
     submissionDetail.setResourceId(resource);
-    entityManager.persistAndFlush(submissionDetail);
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
     var generalDetails = new GeneralDetail();
     var resourceDetail = new ResourceDetail();
     resourceDetail.setSubmissionDetail(submissionDetail);
     resourceDetail.setResourceName("The approved name");
     generalDetails.setSubmissionDetail(submissionDetail);
     resourceDetail.setOrganisationId(responsibleOrganisationIdForSubmission);
-    entityManager.persistAndFlush(generalDetails);
-    entityManager.persistAndFlush(resourceDetail);
+    entityManager.persist(generalDetails);
+    entityManager.flush();
+    entityManager.persist(resourceDetail);
+    entityManager.flush();
   }
 
   private void setUpIndustryTest(List<Integer> userResponsibleOrganisationUnitIds) {
@@ -243,7 +264,8 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
         .withId(null)
         .build();
 
-    entityManager.persistAndFlush(team);
+    entityManager.persist(team);
+    entityManager.flush();
 
     when(industryTeamService.getOrganisationUnitIdsForUser(user))
         .thenReturn(userResponsibleOrganisationUnitIds);

@@ -30,7 +30,7 @@ class TeamRepositoryTest {
         .build();
 
     var otherTeam = TeamTestUtil.Builder()
-        .withTeamType(null)
+        .withTeamType(TeamType.INDUSTRY)
         .withId(null)
         .build();
 
