@@ -19,8 +19,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticatio
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -61,7 +61,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     var createdTimestamp = Instant.now();
     var resource = createResource(createdTimestamp, entityManager);
-    var responsibleTeam = new ResponsibleTeam();
+    var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     submissionDetail.setCreatedTimestamp(createdTimestamp);
@@ -158,7 +158,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     resource.setCreatedTimestamp(createdTimestamp);
     entityManager.persist(resource);
     entityManager.flush();
-    var responsibleTeam = new ResponsibleTeam();
+    var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     entityManager.persist(responsibleTeam);
@@ -197,7 +197,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     var createdTimestamp = Instant.now();
     var resource = createResource(createdTimestamp, entityManager);
-    var responsibleTeam = new ResponsibleTeam();
+    var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     submissionDetail.setCreatedTimestamp(createdTimestamp);

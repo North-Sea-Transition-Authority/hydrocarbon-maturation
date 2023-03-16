@@ -35,8 +35,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.RelinquishmentForm;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -71,7 +71,7 @@ class SubmissionCreateServiceTest {
   private SubmissionDetailDuplicationService submissionDetailDuplicationService;
 
   @Mock
-  private ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Mock
   private UserDetailService userDetailService;
@@ -97,8 +97,8 @@ class SubmissionCreateServiceTest {
 
     submissionCreateService.createInitialProspect(RESOURCE_DETAILS_FORM);
 
-    verify(responsibleTeamPersistenceService, times(1))
-        .saveResponsibleTeamForResource(resource, ResponsibleTeamType.EXPLORATION);
+    verify(regulatorManagedInformationPersistenceService, times(1))
+        .saveResponsibleTeamByResource(resource, ResponsibleTeamType.EXPLORATION);
     verify(submissionDetailPersistenceService, times(1)).createInitialSubmissionDetail(resource, SubmissionType.CREATE_PROSPECT);
   }
 
@@ -183,8 +183,8 @@ class SubmissionCreateServiceTest {
     submissionCreateService.createNewDiscoveryFromProspect(form);
 
     verify(resourceLinkService).createNewResourceLink(prospectResource, discoveryResource);
-    verify(responsibleTeamPersistenceService, times(1))
-        .saveResponsibleTeamForResource(discoveryResource, ResponsibleTeamType.EXPLORATION);
+    verify(regulatorManagedInformationPersistenceService, times(1))
+        .saveResponsibleTeamByResource(discoveryResource, ResponsibleTeamType.EXPLORATION);
     verify(submissionDetailDuplicationService)
         .duplicateSubmissionDetailSections(submissionDetail, submissionDetailNew);
     verify(opportunityDetailsPersistenceService, times(1))
@@ -216,8 +216,8 @@ class SubmissionCreateServiceTest {
     submissionCreateService.createDiscovery(RESOURCE_DETAILS_FORM);
 
     verify(resourceService, times(1)).createResource(ResourceType.DISCOVERY);
-    verify(responsibleTeamPersistenceService, times(1))
-        .saveResponsibleTeamForResource(captor.capture(), eq(ResponsibleTeamType.EXPLORATION));
+    verify(regulatorManagedInformationPersistenceService, times(1))
+        .saveResponsibleTeamByResource(captor.capture(), eq(ResponsibleTeamType.EXPLORATION));
     verify(submissionDetailPersistenceService, times(1))
         .createInitialSubmissionDetail(captor.getValue(), SubmissionType.CREATE_DISCOVERY);
     verify(opportunityDetailsPersistenceService, times(1))

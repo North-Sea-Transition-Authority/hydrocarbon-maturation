@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
@@ -80,9 +81,11 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void showResourceRecordModelAndView_assertModelProperties() throws Exception {
     when(viewResourceRecordService.canViewResource(RESOURCE_RECORD_VIEW, USER)).thenReturn(true);
-    
+    when(viewResourceRecordService.isInResponsibleRegulatorTeam(USER))
+        .thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)))
                 .with(user(USER)))
@@ -92,7 +95,11 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     assertThat(modelMap)
         .contains(
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
-            entry("submissionType", SUBMISSION_DETAIL.getSubmissionType())
+            entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
+            entry("isRegulatorInResponsibleTeam", true),
+            entry("regulatorManagedInformationUrl",
+                ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(SUBMISSION_DETAIL.getResourceId().getId(), null)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

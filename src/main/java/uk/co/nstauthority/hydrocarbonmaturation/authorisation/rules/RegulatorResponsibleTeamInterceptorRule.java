@@ -12,7 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsRegulatorInResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Component
@@ -21,13 +21,14 @@ public class RegulatorResponsibleTeamInterceptorRule implements SubmissionInterc
   private static final Logger LOGGER = LoggerFactory.getLogger(RegulatorResponsibleTeamInterceptorRule.class);
 
   private final PermissionService permissionService;
-  private final ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Autowired
-  public RegulatorResponsibleTeamInterceptorRule(PermissionService permissionService,
-                                                 ResponsibleTeamPersistenceService responsibleTeamPersistenceService) {
+  public RegulatorResponsibleTeamInterceptorRule(
+      PermissionService permissionService,
+      RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
     this.permissionService = permissionService;
-    this.responsibleTeamPersistenceService = responsibleTeamPersistenceService;
+    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
   }
 
   @Override
@@ -41,8 +42,8 @@ public class RegulatorResponsibleTeamInterceptorRule implements SubmissionInterc
                                   HttpServletResponse response,
                                   ServiceUserDetail userDetails,
                                   SubmissionDetail submissionDetail) {
-    var responsibleTeam = responsibleTeamPersistenceService
-        .getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId());
+    var responsibleTeam = regulatorManagedInformationPersistenceService
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId());
     var permissionsRequired = responsibleTeam.getResponsibleTeamType().getRolePermissions();
     if (permissionService.hasPermission(userDetails, permissionsRequired)) {
       return SecurityRuleResult.continueAsNormal();

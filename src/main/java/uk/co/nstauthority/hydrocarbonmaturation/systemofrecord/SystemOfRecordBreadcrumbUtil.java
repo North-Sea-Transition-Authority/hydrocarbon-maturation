@@ -9,7 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
-class SystemOfRecordBreadcrumbUtil {
+public class SystemOfRecordBreadcrumbUtil {
 
   private SystemOfRecordBreadcrumbUtil() {
     throw new IllegalUtilClassInstantiationException(this.getClass());

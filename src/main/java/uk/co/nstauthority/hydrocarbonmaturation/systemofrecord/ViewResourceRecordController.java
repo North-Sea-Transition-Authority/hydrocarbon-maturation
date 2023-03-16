@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,8 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
@@ -47,10 +52,12 @@ public class ViewResourceRecordController {
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(resourceRecord.submissionDetailId());
 
-    return getModelAndView(resourceRecord, submissionDetail);
+    return getModelAndView(resourceRecord, submissionDetail, userDetail);
   }
 
-  private ModelAndView getModelAndView(ResourceRecordSummaryView resourceRecord, SubmissionDetail submissionDetail) {
+  private ModelAndView getModelAndView(ResourceRecordSummaryView resourceRecord,
+                                       SubmissionDetail submissionDetail,
+                                       ServiceUserDetail userDetail) {
     var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
         submissionDetail,
         "remi/systemofrecord/viewResourceRecord"
@@ -61,6 +68,12 @@ public class ViewResourceRecordController {
 
     return modelAndView
         .addObject("resourceRecord", resourceRecord)
-        .addObject("submissionType", submissionDetail.getSubmissionType());
+        .addObject("submissionType", submissionDetail.getSubmissionType())
+        .addObject("isRegulatorInResponsibleTeam",
+            viewResourceRecordService.isInResponsibleRegulatorTeam(userDetail))
+        .addObject("regulatorManagedInformationUrl",
+            ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                .getRegulatorManagedInformationPage(submissionDetail.getResourceId().getId(),
+                    null)));
   }
 }

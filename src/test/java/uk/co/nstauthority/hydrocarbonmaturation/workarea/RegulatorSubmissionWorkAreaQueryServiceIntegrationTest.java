@@ -21,8 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -200,7 +200,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
 
     var thirdSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var secondResource = createResource(ResourceType.DISCOVERY);
-    var secondResponsibleTeam = new ResponsibleTeam();
+    var secondResponsibleTeam = new RegulatorManagedInformation();
     secondResponsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     secondResponsibleTeam.setResource(secondResource);
 
@@ -317,7 +317,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetail.setId(null);
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     var resource = createResource(ResourceType.PROSPECT);
-    var responsibleTeam = new ResponsibleTeam();
+    var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     var createdTimestamp = Instant.now();
@@ -388,8 +388,8 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
         );
   }
 
-  private ResponsibleTeam createResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType) {
-    var responsibleTeam = new ResponsibleTeam();
+  private RegulatorManagedInformation createResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType) {
+    var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(responsibleTeamType);
     entityManager.persist(responsibleTeam);

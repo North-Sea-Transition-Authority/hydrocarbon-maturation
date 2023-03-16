@@ -18,12 +18,8 @@ public class ResourceService {
     this.clock = clock;
   }
 
-  Optional<Resource> getResource(UUID id) {
+  public Optional<Resource> getResourceById(UUID id) {
     return resourceRepository.findById(id);
-  }
-
-  public Optional<Resource> getResourceForId(UUID id) {
-    return getResource(id);
   }
 
   public Resource createResource(ResourceType resourceType) {

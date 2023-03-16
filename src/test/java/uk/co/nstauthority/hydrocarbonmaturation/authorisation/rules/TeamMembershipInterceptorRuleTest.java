@@ -15,8 +15,8 @@ import org.springframework.http.HttpStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
@@ -48,10 +48,10 @@ class TeamMembershipInterceptorRuleTest {
     var mockResponse = mock(HttpServletResponse.class);
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var responsibleTeam = new ResponsibleTeam();
+    var regulatorManagedInformation = new RegulatorManagedInformation();
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
+    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
     when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
         .thenReturn(regulatorTeamMembershipInterceptorRule);
     when(regulatorTeamMembershipInterceptorRule.hasRequiredTeamMembershipPermissions(user, submissionDetail))
@@ -73,10 +73,10 @@ class TeamMembershipInterceptorRuleTest {
     var mockResponse = mock(HttpServletResponse.class);
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var responsibleTeam = new ResponsibleTeam();
+    var regulatorManagedInformation = new RegulatorManagedInformation();
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
+    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
     when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
     when(operatorTeamMembershipInterceptorRule.hasRequiredTeamMembershipPermissions(user, submissionDetail))
@@ -98,7 +98,7 @@ class TeamMembershipInterceptorRuleTest {
     var mockResponse = mock(HttpServletResponse.class);
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var responsibleTeam = new ResponsibleTeam();
+    var responsibleTeam = new RegulatorManagedInformation();
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
@@ -122,10 +122,10 @@ class TeamMembershipInterceptorRuleTest {
     var mockResponse = mock(HttpServletResponse.class);
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var responsibleTeam = new ResponsibleTeam();
+    var regulatorManagedInformation = new RegulatorManagedInformation();
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
+    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
     when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
     when(operatorTeamMembershipInterceptorRule.hasRequiredTeamMembershipPermissions(user, submissionDetail))

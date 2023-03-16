@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -16,18 +16,18 @@ public class SubmissionApprovalService {
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
   private final RegulatorTeamService regulatorTeamService;
   private final UserDetailService userDetailService;
-  private final ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionEmailService submissionEmailService;
 
   public SubmissionApprovalService(SubmissionDetailPersistenceService submissionDetailPersistenceService,
                                    RegulatorTeamService regulatorTeamService,
                                    UserDetailService userDetailService,
-                                   ResponsibleTeamPersistenceService responsibleTeamPersistenceService,
+                                   RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                                    SubmissionEmailService submissionEmailService) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
-    this.responsibleTeamPersistenceService = responsibleTeamPersistenceService;
+    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionEmailService = submissionEmailService;
   }
 
@@ -55,8 +55,8 @@ public class SubmissionApprovalService {
   }
 
   public boolean canApproveSubmission(SubmissionDetail submissionDetail) {
-    var responsibleTeam = responsibleTeamPersistenceService
-        .getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId());
+    var responsibleTeam = regulatorManagedInformationPersistenceService
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId());
     return responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION
         && regulatorTeamService.isRegulatorTeamRole(
             userDetailService.getUserDetail(), RegulatorTeamRole.EXPLORATION);

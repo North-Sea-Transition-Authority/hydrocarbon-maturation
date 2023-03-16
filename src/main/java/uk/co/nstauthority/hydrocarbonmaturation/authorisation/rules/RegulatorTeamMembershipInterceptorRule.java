@@ -9,7 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.TeamMembershipInterceptorStrategy;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
@@ -17,13 +17,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 @Component
 public class RegulatorTeamMembershipInterceptorRule implements TeamMembershipInterceptorStrategy {
   private static final Logger LOGGER = LoggerFactory.getLogger(RegulatorTeamMembershipInterceptorRule.class);
-  private final ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final PermissionService permissionService;
 
   @Autowired
-  RegulatorTeamMembershipInterceptorRule(ResponsibleTeamPersistenceService responsibleTeamPersistenceService,
-                                         PermissionService permissionService) {
-    this.responsibleTeamPersistenceService = responsibleTeamPersistenceService;
+  RegulatorTeamMembershipInterceptorRule(
+      RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
+      PermissionService permissionService) {
+    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.permissionService = permissionService;
   }
 
@@ -31,8 +32,8 @@ public class RegulatorTeamMembershipInterceptorRule implements TeamMembershipInt
   public SecurityRuleResult hasRequiredTeamMembershipPermissions(ServiceUserDetail userDetails,
                                                                  SubmissionDetail submissionDetail) {
 
-    var responsibleTeamType = responsibleTeamPersistenceService
-        .getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()).getResponsibleTeamType();
+    var responsibleTeamType = regulatorManagedInformationPersistenceService
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()).getResponsibleTeamType();
     var permissionRequired = responsibleTeamType.getRolePermissions();
 
     if (isNotDraftIndustrySubmission(submissionDetail)

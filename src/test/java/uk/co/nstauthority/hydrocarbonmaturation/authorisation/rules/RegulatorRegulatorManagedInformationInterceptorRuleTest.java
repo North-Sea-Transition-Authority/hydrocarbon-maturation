@@ -16,20 +16,20 @@ import org.springframework.http.HttpStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsRegulatorInResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ExtendWith(MockitoExtension.class)
-class RegulatorResponsibleTeamInterceptorRuleTest {
+class RegulatorRegulatorManagedInformationInterceptorRuleTest {
 
   @Mock
   private PermissionService permissionService;
 
   @Mock
-  private ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @InjectMocks
   private RegulatorResponsibleTeamInterceptorRule regulatorResponsibleTeamInterceptorRule;
@@ -46,9 +46,9 @@ class RegulatorResponsibleTeamInterceptorRuleTest {
     var mockResponse = mock(HttpServletResponse.class);
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var responsibleTeam = new ResponsibleTeam();
+    var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(true);
@@ -69,9 +69,9 @@ class RegulatorResponsibleTeamInterceptorRuleTest {
     var mockResponse = mock(HttpServletResponse.class);
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var responsibleTeam = new ResponsibleTeam();
+    var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(false);
@@ -93,9 +93,9 @@ class RegulatorResponsibleTeamInterceptorRuleTest {
     var mockResponse = mock(HttpServletResponse.class);
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var responsibleTeam = new ResponsibleTeam();
+    var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.SOUTHERN_NORTH_SEA);
-    when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
         .thenReturn(responsibleTeam);
 
     var securityRuleResult = regulatorResponsibleTeamInterceptorRule

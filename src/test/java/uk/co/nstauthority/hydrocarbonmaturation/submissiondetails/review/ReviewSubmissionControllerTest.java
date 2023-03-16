@@ -24,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
@@ -94,6 +95,7 @@ class ReviewSubmissionControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void showSubmissionModelAndView_assertModelProperties() throws Exception {
     when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail)).thenReturn(true);
     when(reviewSubmissionService.canReviewSubmission(SUBMISSION_RECORD_VIEW, USER))
@@ -111,7 +113,11 @@ class ReviewSubmissionControllerTest extends AbstractSubmissionControllerTest {
             entry("canReview", true),
             entry("approveUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
                 .showApproveConfirmationPage(submissionDetail.getId()))),
-            entry("submissionType", submissionDetail.getSubmissionType().getTypeName())
+            entry("submissionType", submissionDetail.getSubmissionType().getTypeName()),
+            entry("regulatorManagedInformationUrl",
+                ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(
+                        submissionDetail.getResourceId().getId(), SUBMISSION_DETAIL_ID)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

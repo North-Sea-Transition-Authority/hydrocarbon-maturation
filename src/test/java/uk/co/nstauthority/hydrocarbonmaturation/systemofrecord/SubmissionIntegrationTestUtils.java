@@ -6,8 +6,8 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -102,16 +102,17 @@ public class SubmissionIntegrationTestUtils {
     return resource;
   }
 
-  public static ResponsibleTeam createResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType,
-                                                      EntityManager entityManager) {
-    var responsibleTeam = new ResponsibleTeam();
-    responsibleTeam.setResource(resource);
-    responsibleTeam.setResponsibleTeamType(responsibleTeamType);
+  public static RegulatorManagedInformation createRegulatorManagedInformation(Resource resource,
+                                                                              ResponsibleTeamType responsibleTeamType,
+                                                                              EntityManager entityManager) {
+    var regulatorManagedInformation = new RegulatorManagedInformation();
+    regulatorManagedInformation.setResource(resource);
+    regulatorManagedInformation.setResponsibleTeamType(responsibleTeamType);
 
-    entityManager.persist(responsibleTeam);
+    entityManager.persist(regulatorManagedInformation);
     entityManager.flush();
 
-    return responsibleTeam;
+    return regulatorManagedInformation;
   }
 
   public static SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType, EntityManager entityManager) {
