@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ExtendWith(MockitoExtension.class)
@@ -278,6 +279,22 @@ class GeneralDetailsPersistenceServiceTest {
             form.getInformationSource(),
             form.getOtherSourceOfInformation()
         );
+  }
+
+  @Test
+  void setRelinquishmentInformationSource() {
+    var generalDetailCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.RELINQUISHMENT_PROSPECT);
+    var generalDetail = new GeneralDetail();
+    generalDetail.setInformationSource(InformationSource.OTHER);
+    generalDetail.setOtherInformationSource("other information source");
+    when(generalDetailsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+    generalDetailsPersistenceService.setRelinquishmentInformationSource(submissionDetail);
+    verify(generalDetailsRepository, times(1)).save(generalDetailCaptor.capture());
+    var savedGeneralDetail = generalDetailCaptor.getValue();
+    assertThat(savedGeneralDetail.getInformationSource()).isEqualTo(InformationSource.RELINQUISHMENT);
+    assertThat(savedGeneralDetail.getOtherInformationSource()).isNull();
   }
 
   @Test

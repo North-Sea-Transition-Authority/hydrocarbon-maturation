@@ -285,6 +285,8 @@ class SubmissionCreateServiceTest {
         .createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.RELINQUISHMENT_PROSPECT);
     verify(submissionDetailDuplicationService)
         .duplicateSubmissionDetailSections(submissionDetail, newSubmissionDetail);
+    verify(generalDetailsPersistenceService)
+        .setRelinquishmentInformationSource(newSubmissionDetail);
   }
 
   @Test
@@ -304,6 +306,8 @@ class SubmissionCreateServiceTest {
         .createInitialSubmissionDetail(submissionDetail.getResourceId(), SubmissionType.RELINQUISHMENT_DISCOVERY);
     verify(submissionDetailDuplicationService)
         .duplicateSubmissionDetailSections(submissionDetail, newSubmissionDetail);
+    verify(generalDetailsPersistenceService)
+        .setRelinquishmentInformationSource(newSubmissionDetail);
   }
 
   @Test

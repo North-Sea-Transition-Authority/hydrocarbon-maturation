@@ -99,10 +99,13 @@ public class GeneralDetailsController {
         .addObject("hasLicencesOnEarlierSubmission", generalDetailsFormService
             .hasLicencesOnEarlierSubmission(submissionDetail));
 
-    if (submissionDetail.isProspectSubmission()) {
-      modelAndView.addObject("informationSources", InformationSource.getInformationSource());
-    } else if (submissionDetail.isDiscoverySubmission()) {
-      modelAndView.addObject("informationSources", InformationSource.getDiscoveryInformationSource());
+    // Relinquishment information source is automatically set to relinquishment 
+    if (!submissionDetail.isRelinquishment()) {
+      if (submissionDetail.isProspectSubmission()) {
+        modelAndView.addObject("informationSources", InformationSource.getInformationSource());
+      } else if (submissionDetail.isDiscoverySubmission()) {
+        modelAndView.addObject("informationSources", InformationSource.getDiscoveryInformationSource());
+      }
     }
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

@@ -29,7 +29,7 @@ class SubmissionSummaryFormValidator implements SmartValidator {
         errors,
         "completeWithoutMandatoryInformation",
         "completeWithoutMandatoryInformation.required",
-        "You must indicate you want to complete this submission without providing all required information");
+        "Confirm you want to complete this submission without providing all required information");
   }
 
   private SubmitValidatorHints extractValidatorHints(Object[] validationHints) {

@@ -186,6 +186,8 @@ public class SubmissionCreateService {
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
 
+    generalDetailsPersistenceService.setRelinquishmentInformationSource(newSubmissionDetail);
+
     return newSubmissionDetail;
   }
 

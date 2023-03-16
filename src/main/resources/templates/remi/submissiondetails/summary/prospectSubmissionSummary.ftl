@@ -66,9 +66,11 @@
           resourceDetailSummaryView=resourceDetailSummaryView
           />
         <#if !submittable && isRegulator>
-          <@fdsCheckbox.checkbox
-            labelText="I want to complete this submission without providing all the required information"
-            path="form.completeWithoutMandatoryInformation"/>
+          <div class="govuk-form-group <#if errorList?has_content>govuk-form-group--error</#if>">
+              <@fdsCheckbox.checkbox
+                labelText="I want to complete this submission without providing all the required information"
+                path="form.completeWithoutMandatoryInformation"/>
+          </div>
         </#if>
         <#if isRegulator || submittable>
           <@fdsAction.submitButtons

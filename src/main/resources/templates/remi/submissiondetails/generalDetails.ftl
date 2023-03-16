@@ -72,7 +72,7 @@ breadcrumbsMap=breadcrumbsMap>
           </@fdsRadio.radioNo>
       </@fdsRadio.radioGroup>
 
-      <#if discoverySubmission || prospectSubmission>
+      <#if (discoverySubmission || prospectSubmission) && !relinquishmentSubmission>
         <@fdsRadio.radioGroup path="form.informationSource" labelText="Source of information" hiddenContent=true>
           <#assign firstItem=true/>
           <#list informationSources as key, value>

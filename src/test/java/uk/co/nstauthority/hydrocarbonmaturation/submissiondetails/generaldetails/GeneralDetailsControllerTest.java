@@ -268,6 +268,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("prospectSubmission", submissionDetail.isProspectSubmission()),
             entry("discoverySubmission", submissionDetail.isDiscoverySubmission()),
             entry("relinquishmentSubmission", true)
-        );
+        )
+        .doesNotContainKey("informationSources");
   }
 }
