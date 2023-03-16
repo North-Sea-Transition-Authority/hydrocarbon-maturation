@@ -29,9 +29,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.TeamMembersh
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -66,7 +66,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   protected ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @MockBean
-  protected ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+  protected RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @MockBean
   protected OrganisationUnitQueryService organisationUnitQueryService;
@@ -107,11 +107,11 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .getTestMethod().map(method -> method.getAnnotation(SecurityTest.class));
     if (securityTestAnnotation.isEmpty()) {
       //if the test doesn't have a @SecurityTest annotation, ensure the security passes
+      var responsibleTeam = new RegulatorManagedInformation();
       when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
           .thenReturn(regulatorTeamMembershipInterceptorRule);
-      var responsibleTeam = new ResponsibleTeam();
       responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-      when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(any()))
+      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(any()))
           .thenReturn(responsibleTeam);
       when(permissionService.hasPermission(any(), any()))
           .thenReturn(true);
@@ -121,11 +121,11 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   protected void setUpWhenUserIsResponsibleOrganisation_passSecurity(ServiceUserDetail user) {
     when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
-    var responsibleTeam = new ResponsibleTeam();
+    var responsibleTeam = new RegulatorManagedInformation();
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     responsibleTeam.setResource(submissionDetail.getResourceId());
-    when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
         .thenReturn(responsibleTeam);
     var resourceDetail = new ResourceDetail();
     resourceDetail.setOrganisationId(1);
@@ -139,13 +139,13 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   protected void setUpWhenUserIsResponsibleTeam_passSecurity() {
     when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
         .thenReturn(regulatorTeamMembershipInterceptorRule);
-    var responsibleTeam = new ResponsibleTeam();
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    responsibleTeam.setResource(submissionDetail.getResourceId());
+    var regulatorManagedInformation = new RegulatorManagedInformation();
+    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    regulatorManagedInformation.setResource(submissionDetail.getResourceId());
 
-    when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
         submissionDetail.getResourceId()))
-        .thenReturn(responsibleTeam);
+        .thenReturn(regulatorManagedInformation);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(true);
   }
@@ -153,10 +153,10 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(ServiceUserDetail user) {
     when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
-    var responsibleTeam = new ResponsibleTeam();
+    var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     responsibleTeam.setResource(submissionDetail.getResourceId());
-    when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
         submissionDetail.getResourceId()))
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))

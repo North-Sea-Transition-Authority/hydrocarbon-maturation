@@ -9,6 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
@@ -83,6 +84,10 @@ class ViewResourceRecordService {
     var resourceIsAssociatedWithAnExtantLicence = isResourceIsAssociatedWithAnExtantLicence(resourceRecord);
 
     return memberOfOrganisationUnit && resourceIsAssociatedWithAnExtantLicence;
+  }
+
+  public boolean isInResponsibleRegulatorTeam(ServiceUserDetail userDetail) {
+    return regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION);
   }
 
   private boolean isResourceIsAssociatedWithAnExtantLicence(ResourceRecordSummaryView resourceRecord) {

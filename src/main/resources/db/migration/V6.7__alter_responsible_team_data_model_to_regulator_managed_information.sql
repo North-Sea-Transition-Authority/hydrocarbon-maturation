@@ -1,0 +1,3 @@
+ALTER TABLE responsible_teams RENAME TO regulator_managed_information;
+ALTER TABLE regulator_managed_information
+ADD COLUMN geographical_area TEXT;

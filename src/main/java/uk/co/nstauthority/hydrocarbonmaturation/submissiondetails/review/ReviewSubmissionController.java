@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -77,6 +78,11 @@ public class ReviewSubmissionController {
             submissionRecord, userDetailService.getUserDetail()))
         .addObject("approveUrl",
             ReverseRouter.route(on(ApproveSubmissionController.class)
-                .showApproveConfirmationPage(submissionDetail.getId())));
+                .showApproveConfirmationPage(submissionDetail.getId())))
+        .addObject("regulatorManagedInformationUrl",
+            ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                .getRegulatorManagedInformationPage(
+                    submissionDetail.getResourceId().getId(), submissionDetail.getId()))
+        );
   }
 }

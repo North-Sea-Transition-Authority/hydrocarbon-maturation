@@ -8,8 +8,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUs
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.utils.RemiEmailUrlUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -35,7 +35,7 @@ public class SubmissionEmailService {
   private final SubmissionResourceService submissionResourceService;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final LicencePersistenceService licencePersistenceService;
-  private final ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final RegulatorTeamService regulatorTeamService;
 
   SubmissionEmailService(NotifyEmailService notifyEmailService,
@@ -43,14 +43,14 @@ public class SubmissionEmailService {
                          SubmissionResourceService submissionResourceService,
                          GeneralDetailsPersistenceService generalDetailsPersistenceService,
                          LicencePersistenceService licencePersistenceService,
-                         ResponsibleTeamPersistenceService responsibleTeamPersistenceService,
+                         RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                          RegulatorTeamService regulatorTeamService) {
     this.notifyEmailService = notifyEmailService;
     this.energyPortalUserService = energyPortalUserService;
     this.submissionResourceService = submissionResourceService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.licencePersistenceService = licencePersistenceService;
-    this.responsibleTeamPersistenceService = responsibleTeamPersistenceService;
+    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
   }
 
@@ -72,8 +72,8 @@ public class SubmissionEmailService {
   public void sendSubmittedSubmissionEmails(SubmissionDetail submissionDetail) {
     var emailProperties = new EmailProperties(NotifyTemplate.SUBMISSION_CONFIRMATION_NOTIFICATION);
     var personalisations = emailProperties.getEmailPersonalisations();
-    var responsibleTeam = responsibleTeamPersistenceService
-        .getResponsibleTeamForResourceOrThrow(submissionDetail.getResourceId());
+    var responsibleTeam = regulatorManagedInformationPersistenceService
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId());
 
     if (responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION) {
       var licencesString = getDisplayableLicences(submissionDetail);

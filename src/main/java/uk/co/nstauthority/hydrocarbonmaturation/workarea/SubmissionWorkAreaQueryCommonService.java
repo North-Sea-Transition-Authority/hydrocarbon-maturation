@@ -2,8 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESPONSIBLE_TEAMS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.TRAP_PROPERTIES;
 
@@ -46,8 +46,8 @@ class SubmissionWorkAreaQueryCommonService {
             .on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(GENERAL_DETAILS_LICENCES)
             .on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
-            .leftJoin(RESPONSIBLE_TEAMS)
-            .on(RESPONSIBLE_TEAMS.RESOURCE_ID.eq(SUBMISSION_DETAILS.RESOURCE_ID))
+            .leftJoin(REGULATOR_MANAGED_INFORMATION)
+            .on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(SUBMISSION_DETAILS.RESOURCE_ID))
             .where(conditions))
         .groupBy(
             SUBMISSION_DETAILS.ID,

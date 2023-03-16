@@ -3,9 +3,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESPONSIBLE_TEAMS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.TRAP_PROPERTIES;
 
@@ -37,7 +37,7 @@ class ResourceRecordSummaryQueryService {
             RESOURCE_DETAILS.RESOURCE_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             RESOURCE_DETAILS.ORGANISATION_ID,
-            RESPONSIBLE_TEAMS.RESPONSIBLE_TEAM,
+            REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
@@ -45,7 +45,7 @@ class ResourceRecordSummaryQueryService {
             SUBMISSION_DETAILS.APPROVED_TIMESTAMP
         )
         .from(RESOURCES
-          .leftJoin(RESPONSIBLE_TEAMS).on(RESPONSIBLE_TEAMS.RESOURCE_ID.eq(RESOURCES.ID))
+          .leftJoin(REGULATOR_MANAGED_INFORMATION).on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
           .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
                 select(SD_2.ID)
                     .from(SD_2)
@@ -65,7 +65,7 @@ class ResourceRecordSummaryQueryService {
             GENERAL_DETAILS.ID,
             TRAP_PROPERTIES.ID,
             RESOURCE_DETAILS.ID,
-            RESPONSIBLE_TEAMS.ID
+            REGULATOR_MANAGED_INFORMATION.ID
         ))
         .fetchOptionalInto(ResourceRecordSummaryQueryResult.class);
   }

@@ -17,4 +17,7 @@ interface SubmissionDetailRepository extends CrudRepository<SubmissionDetail, UU
 
   Optional<SubmissionDetail> findFirstByResourceIdAndStatusOrderByApprovedTimestampDesc(
       Resource resource, SubmissionDetailStatus status);
+
+  Optional<SubmissionDetail> findFirstByResourceIdAndStatusIn(
+      Resource resource, List<SubmissionDetailStatus> statuses);
 }

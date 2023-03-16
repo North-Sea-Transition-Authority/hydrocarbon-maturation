@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.responsibleteam;
+package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import java.util.Arrays;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.responsibleteam;
+package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import java.util.UUID;
 import javax.persistence.Column;
@@ -14,8 +14,8 @@ import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 
 @Entity
-@Table(name = "responsible_teams")
-public class ResponsibleTeam {
+@Table(name = "regulator_managed_information")
+public class RegulatorManagedInformation {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -29,6 +29,9 @@ public class ResponsibleTeam {
   @Enumerated(EnumType.STRING)
   @Column(name = "responsible_team")
   private ResponsibleTeamType responsibleTeamType;
+
+  @Enumerated(EnumType.STRING)
+  private GeographicalArea geographicalArea;
 
   public UUID getId() {
     return id;
@@ -49,5 +52,14 @@ public class ResponsibleTeam {
   public void setResponsibleTeamType(
       ResponsibleTeamType responsibleTeamType) {
     this.responsibleTeamType = responsibleTeamType;
+  }
+
+  public GeographicalArea getGeographicalArea() {
+    return geographicalArea;
+  }
+
+  public void setGeographicalArea(
+      GeographicalArea geographicalArea) {
+    this.geographicalArea = geographicalArea;
   }
 }

@@ -1,0 +1,162 @@
+package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
+
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
+import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchResourceRecordsController;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+
+@Controller
+@RequestMapping("/{resourceId}/regulator-managed-information{submissionDetailId}")
+@HasPermission(permissions = RolePermission.EXPLORATION)
+public class RegulatorManagedInformationController {
+  private static final String PAGE_NAME = "Regulator managed information";
+  private final RegulatorManagedInformationFormService regulatorManagedInformationFormService;
+  private final ControllerHelperService controllerHelperService;
+  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
+  private final SubmissionDetailService submissionDetailService;
+  private final SubmissionResourceService submissionResourceService;
+  private final ResourceService resourceService;
+
+  @Autowired
+  public RegulatorManagedInformationController(
+      RegulatorManagedInformationFormService regulatorManagedInformationFormService,
+      ControllerHelperService controllerHelperService,
+      RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
+      SubmissionDetailService submissionDetailService,
+      SubmissionResourceService submissionResourceService,
+      ResourceService resourceService) {
+    this.regulatorManagedInformationFormService = regulatorManagedInformationFormService;
+    this.controllerHelperService = controllerHelperService;
+    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
+    this.submissionDetailService = submissionDetailService;
+    this.submissionResourceService = submissionResourceService;
+    this.resourceService = resourceService;
+  }
+
+  @GetMapping
+  public ModelAndView getRegulatorManagedInformationPage(@PathVariable("resourceId") UUID resourceId,
+                                                         @PathVariable(value = "submissionDetailId", required = false)
+                                                         UUID submissionDetailId) {
+    var resource = resourceService.getResourceById(resourceId)
+        .orElseThrow(() ->
+            new RemiEntityNotFoundException("Could not find resource with id %s"
+                .formatted(resourceId.toString())));
+
+    var submissionDetail = submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource);
+    if (submissionDetail.isEmpty()) {
+      //if there is no approved or submitted submission for the resource regulator cannot set regulator managed information
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN, "Did not find an approved or submitted submission for resource %s "
+          .formatted(resource.getId().toString()));
+    }
+
+    var regulatorManagedInformationForm = regulatorManagedInformationFormService
+        .getRegulatorManagedInformationForm(resource);
+    return getRegulatorManagedInformationModelAndView(regulatorManagedInformationForm, resource, submissionDetailId);
+  }
+
+  @PostMapping
+  public ModelAndView saveRegulatorManagedInformation(@PathVariable("resourceId") UUID resourceId,
+                                                      @PathVariable(value = "submissionDetailId", required = false)
+                                                      UUID submissionDetailId,
+                                                      @ModelAttribute("form") RegulatorManagedInformationForm form,
+                                                      BindingResult bindingResult) {
+    var resource = resourceService.getResourceById(resourceId)
+        .orElseThrow(() ->
+            new RemiEntityNotFoundException("Could not find resource with id %s"
+                .formatted(resourceId.toString())));
+    var submissionDetail = submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource);
+    if (submissionDetail.isEmpty()) {
+      //if there is no approved or submitted submission for the resource regulator cannot set regulator managed information
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN, "Did not find an approved or submitted submission for resource %s "
+          .formatted(resource.getId().toString()));
+    }
+    bindingResult = regulatorManagedInformationFormService.validate(form, bindingResult);
+    return controllerHelperService.checkErrorsAndRedirect(
+        bindingResult,
+        getRegulatorManagedInformationModelAndView(form, resource, submissionDetailId),
+        () -> {
+          regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(form, resource);
+          if (submissionDetailId != null) {
+            return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(submissionDetailId));
+          } else {
+            return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resourceId));
+          }
+        }
+    );
+  }
+
+  private ModelAndView getRegulatorManagedInformationModelAndView(RegulatorManagedInformationForm form,
+                                                                  Resource resource,
+                                                                  UUID submissionDetailId) {
+    var modelAndView = new ModelAndView("remi/review/regulatorManagedInformation")
+        .addObject("form", form)
+        .addObject("geographicalArea", DisplayableEnumOptionUtil
+            .getDisplayableOptions(GeographicalArea.class));
+
+    addBreadcrumbsAndCancelUrl(modelAndView, resource, submissionDetailId);
+
+    return modelAndView;
+  }
+
+  private void addBreadcrumbsAndCancelUrl(ModelAndView modelAndView, Resource resource, UUID submissionDetailId) {
+    Breadcrumbs breadcrumbs;
+    String cancelUrl;
+    if (submissionDetailId != null) {
+      cancelUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
+          .showReviewPage(submissionDetailId));
+      breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
+          .addWorkAreaBreadcrumb()
+          .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(
+                  submissionDetailService.getSubmissionDetail(submissionDetailId)
+                      .orElseThrow(() ->
+                          new RemiEntityNotFoundException("Could not find resource with id %s"
+                              .formatted(submissionDetailId.toString())))), cancelUrl)
+          .build();
+    } else {
+      var submissionOnResource = submissionDetailService
+          .getLatestApprovedSubmissionDetailForResource(resource)
+          .orElseThrow(() ->
+              new RemiEntityNotFoundException("Could not find find an approved submission for resource %s"
+                  .formatted(resource.getId())));
+      cancelUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
+          .showResourceRecord(resource.getId()));
+      breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
+          .addBreadcrumb(
+              SearchResourceRecordsController.PAGE_TITLE,
+              ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null)))
+          .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionOnResource),
+              cancelUrl)
+          .build();
+    }
+    modelAndView.addObject("cancelUrl", cancelUrl);
+
+    BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
+  }
+}

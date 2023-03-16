@@ -22,13 +22,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class ViewResourceRecordServiceTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
   @Mock
   private ResourceRecordSummaryQueryService resourceRecordSummaryQueryService;
   @Mock
@@ -41,6 +44,26 @@ class ViewResourceRecordServiceTest {
   private LicenceQueryService licenceQueryService;
   @InjectMocks
   private ViewResourceRecordService underTest;
+
+  @Test
+  void isInResponsibleRegulatorTeam_assertTrue() {
+    when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION))
+        .thenReturn(true);
+
+    var result = underTest.isInResponsibleRegulatorTeam(USER);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void isInResponsibleRegulatorTeam_assertFalse() {
+    when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION))
+        .thenReturn(false);
+
+    var result = underTest.isInResponsibleRegulatorTeam(USER);
+
+    assertThat(result).isFalse();
+  }
 
   @Nested
   class WhenGettingResourceRecordOrThrow {

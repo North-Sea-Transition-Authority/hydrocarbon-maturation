@@ -32,6 +32,10 @@
   <#if canReview>
     <@fdsAction.buttonGroup>
       <@fdsAction.link linkText="Approve submission" linkClass="govuk-button" linkUrl=springUrl(approveUrl)/>
+      <@fdsAction.link
+        linkText="Manage resource information"
+        linkClass="govuk-button govuk-button--secondary"
+        linkUrl=springUrl(regulatorManagedInformationUrl)/>
     </@fdsAction.buttonGroup>
   </#if>
   <h2 class="govuk-heading-l">${submissionRecord.submissionType().getTypeName()}</h2>

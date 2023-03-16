@@ -5,6 +5,7 @@
 <#-- @ftlvariable name="submissionType" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType" -->
 <#-- @ftlvariable name="resourceRecord" type="uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSummaryView" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="isRegulatorInResponsibleTeam" type="boolean"-->
 
 <#assign pageTitle = "${resourceRecord.resourceNameAndCentreOfInterest()}" />
 
@@ -26,7 +27,14 @@
     </#assign>
     <@fdsDataItems.dataValues key="Licenses" value="${licencesDisplay}"/>
   </@fdsDataItems.dataItem>
-
+  <#if isRegulatorInResponsibleTeam>
+    <@fdsAction.buttonGroup>
+      <@fdsAction.link
+        linkText="Manage resource information"
+        linkClass="govuk-button govuk-button--secondary"
+        linkUrl=springUrl(regulatorManagedInformationUrl)/>
+    </@fdsAction.buttonGroup>
+  </#if>
   <h2 class="govuk-heading-l">${submissionType.getTypeName()}</h2>
 
   <@submissionSummary.submissionSummary

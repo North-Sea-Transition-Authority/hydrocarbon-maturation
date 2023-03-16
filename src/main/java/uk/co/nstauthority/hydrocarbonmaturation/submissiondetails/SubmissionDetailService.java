@@ -44,6 +44,13 @@ public class SubmissionDetailService {
     );
   }
 
+  public Optional<SubmissionDetail> getApprovedOrSubmittedSubmissionDetailByResource(Resource resource) {
+    return submissionDetailRepository.findFirstByResourceIdAndStatusIn(
+        resource,
+        List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)
+    );
+  }
+
   public Optional<SubmissionDetail> getLatestApprovedDiscoverySubmissionDetailForResource(Resource resource) {
     // Finds the latest approved discovery (update or create) submission that is approved for the resource.
     return submissionDetailRepository

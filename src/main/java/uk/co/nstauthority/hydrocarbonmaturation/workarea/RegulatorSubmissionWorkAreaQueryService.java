@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import static org.jooq.impl.DSL.falseCondition;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESPONSIBLE_TEAMS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
@@ -47,7 +47,7 @@ class RegulatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQuery
 
   private Condition getSubmissionsForResponsibleTeam(ServiceUserDetail user) {
     if (regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION)) {
-      return RESPONSIBLE_TEAMS.RESPONSIBLE_TEAM
+      return REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM
           .eq(ResponsibleTeamType.EXPLORATION.name())
           .and(SUBMISSION_DETAILS.SUBMITTER_TYPE.eq(SubmitterType.NSTA.name())
               .or(SUBMISSION_DETAILS.STATUS.eq(SubmissionDetailStatus.SUBMITTED.name())));

@@ -35,9 +35,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUs
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.responsibleteam.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -79,7 +79,7 @@ class SubmissionEmailServiceTest {
   private LicencePersistenceService licencePersistenceService;
 
   @Mock
-  private ResponsibleTeamPersistenceService responsibleTeamPersistenceService;
+  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Mock
   private RegulatorTeamService regulatorTeamService;
@@ -97,7 +97,7 @@ class SubmissionEmailServiceTest {
     SUBMISSION_DETAIL.setSubmittedByWuaId(SUBMITTER_WUA_ID);
     submissionEmailService = new SubmissionEmailService(notifyEmailService, energyPortalUserService,
         submissionResourceService, generalDetailsPersistenceService,
-        licencePersistenceService, responsibleTeamPersistenceService,
+        licencePersistenceService, regulatorManagedInformationPersistenceService,
         regulatorTeamService);
   }
 
@@ -252,9 +252,9 @@ class SubmissionEmailServiceTest {
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
           .thenReturn(Optional.of(generalDetail));
-      var responsibleTeam = new ResponsibleTeam();
+      var responsibleTeam = new RegulatorManagedInformation();
       responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-      when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
+      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
           .thenReturn(responsibleTeam);
 
       submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
@@ -284,9 +284,9 @@ class SubmissionEmailServiceTest {
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
           .thenReturn(Optional.of(generalDetail));
-      var responsibleTeam = new ResponsibleTeam();
+      var responsibleTeam = new RegulatorManagedInformation();
       responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-      when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
+      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
           .thenReturn(responsibleTeam);
       var licence = new Licence();
       licence.setLicenceReference("A2");
@@ -323,10 +323,10 @@ class SubmissionEmailServiceTest {
     @ParameterizedTest
     @EnumSource(value = ResponsibleTeamType.class, names = {"EXPLORATION"}, mode = EnumSource.Mode.EXCLUDE)
     void sendSubmittedSubmissionEmails_whenNotExploration_verifyNoSentEmails(ResponsibleTeamType responsibleTeamType) {
-      var responsibleTeam = new ResponsibleTeam();
+      var responsibleTeam = new RegulatorManagedInformation();
       responsibleTeam.setResponsibleTeamType(responsibleTeamType);
 
-      when(responsibleTeamPersistenceService.getResponsibleTeamForResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
+      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
           .thenReturn(responsibleTeam);
 
       submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);

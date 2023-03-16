@@ -65,4 +65,17 @@ class SubmissionDetailServiceTest {
 
     assertThat(result).isEqualTo(Optional.of(submissionDetail));
   }
+
+  @Test
+  void getApprovedOrSubmittedSubmissionDetailByResource() {
+    var resource = new Resource();
+    var submissionDetail = new SubmissionDetail();
+    when(submissionDetailRepository.findFirstByResourceIdAndStatusIn(
+        resource,
+        List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)
+    )).thenReturn(Optional.of(submissionDetail));
+
+    assertThat(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+        .contains(submissionDetail);
+  }
 }
