@@ -29,6 +29,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -280,6 +283,68 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results).isEmpty();
   }
 
+  @ParameterizedTest
+  @EnumSource(GeographicalArea.class)
+  void getResourceRecordSearchResults_andFilterByGeographicalArea_assertOnlyTypeSpecifiedDisplayed(
+      GeographicalArea geographicalArea) {
+    var userOrgUnitId = 1;
+    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(userOrgUnitId));
+
+    var resourceWithGeographicalArea = buildProspectResource();
+    var submissionWithGeographicalArea =
+        buildSubmissionDetail(resourceWithGeographicalArea, SubmissionType.CREATE_PROSPECT);
+    buildRegulatorManagedInformation(resourceWithGeographicalArea, geographicalArea);
+    createResourceDetail(
+        submissionWithGeographicalArea, "Not relevant name", userOrgUnitId);
+    var generalDetailWithGeographicalArea = createGeneralDetail(submissionWithGeographicalArea);
+    var extantLicence = createLicence(1, "licenceRef", generalDetailWithGeographicalArea);
+    when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
+        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+
+    var resourceWithOnshoreGeographicalArea = buildProspectResource();
+    buildRegulatorManagedInformation(resourceWithOnshoreGeographicalArea, GeographicalArea.ONSHORE);
+    var submissionWithOnshoreGeographicalArea =
+        buildSubmissionDetail(resourceWithOnshoreGeographicalArea, SubmissionType.CREATE_PROSPECT);
+    createResourceDetail(
+        submissionWithOnshoreGeographicalArea, "Not relevant name", userOrgUnitId);
+    var generalDetailWithOnshoreGeographicalArea = createGeneralDetail(submissionWithOnshoreGeographicalArea);
+    var extantLicence2 = createLicence(1, "licenceRef", generalDetailWithOnshoreGeographicalArea);
+    when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence2.getLicenceId().toString())))
+        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+
+    var resourceWithNoGeographicalArea = buildProspectResource();
+    buildRegulatorManagedInformation(resourceWithNoGeographicalArea, null);
+    var submissionWithNoGeographicalArea =
+        buildSubmissionDetail(resourceWithNoGeographicalArea, SubmissionType.CREATE_PROSPECT);
+    var generalDetailWithNoGeographicalArea = createGeneralDetail(submissionWithNoGeographicalArea);
+    createResourceDetail(
+        submissionWithNoGeographicalArea, "Not relevant name", userOrgUnitId);
+    var extantLicence3 = createLicence(1, "licenceRef", generalDetailWithNoGeographicalArea);
+    when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence3.getLicenceId().toString())))
+        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+
+    var form = new SearchResourceRecordsForm();
+    form.setGeographicalArea(List.of(geographicalArea.name()));
+
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    if (geographicalArea == GeographicalArea.ONSHORE) {
+      assertThat(results)
+          .extracting(
+              ResourceRecordQueryResult::getSubmissionDetailId)
+          .containsExactly(
+              submissionWithOnshoreGeographicalArea.getId(),
+              submissionWithGeographicalArea.getId()
+          );
+    } else {
+      assertThat(results)
+          .extracting(
+              ResourceRecordQueryResult::getSubmissionDetailId)
+          .containsExactly(
+              submissionWithGeographicalArea.getId()
+          );
+    }
+  }
+
   private void setUpIndustryTest(Set<TeamRole> userRoles, List<Integer> userOrgUnitIds) {
     var user = ServiceUserDetailTestUtil.Builder()
         .withWuaId(1000L)
@@ -317,6 +382,12 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         TeamRoleUtil.getRoleNames(userRoles));
   }
 
+  private RegulatorManagedInformation buildRegulatorManagedInformation(
+      Resource resource, GeographicalArea geographicalArea) {
+    return SubmissionIntegrationTestUtils.createRegulatorManagedInformation(
+        resource, ResponsibleTeamType.EXPLORATION, geographicalArea, entityManager);
+  }
+
   private ResourceLink createResourceLink(Resource prospect, Resource discovery) {
     var resourceLink = new ResourceLink();
     resourceLink.setDiscoveryResource(discovery);
@@ -343,7 +414,6 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     return opportunityDetail;
   }
-
 
   private TrapProperty createTrapProperty(SubmissionDetail submissionDetail, String centreOfInterestQuadrantBlock) {
 

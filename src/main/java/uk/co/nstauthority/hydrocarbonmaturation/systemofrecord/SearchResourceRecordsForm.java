@@ -12,6 +12,7 @@ class SearchResourceRecordsForm {
   private String licenceRound;
   private String centreOfInterestBlock;
   private String licenceId;
+  private List<String> geographicalArea = new ArrayList<>();
 
   public String getResourceDetailIdForResourceSubmission() {
     return resourceDetailIdForResourceSubmission;
@@ -68,5 +69,13 @@ class SearchResourceRecordsForm {
   public void setOpportunityTypes(
       List<String> opportunityTypes) {
     this.opportunityTypes = opportunityTypes;
+  }
+
+  public List<String> getGeographicalArea() {
+    return geographicalArea;
+  }
+
+  public void setGeographicalArea(List<String> geographicalArea) {
+    this.geographicalArea = geographicalArea;
   }
 }

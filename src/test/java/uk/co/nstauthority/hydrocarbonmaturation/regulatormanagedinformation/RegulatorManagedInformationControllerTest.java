@@ -218,6 +218,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));
+
     mockMvc.perform(
             post(ReverseRouter.route(on(RegulatorManagedInformationController.class)
                 .saveRegulatorManagedInformation(resourceId, null, null, null)))

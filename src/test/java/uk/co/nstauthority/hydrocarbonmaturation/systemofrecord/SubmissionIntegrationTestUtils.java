@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -104,14 +105,15 @@ public class SubmissionIntegrationTestUtils {
 
   public static RegulatorManagedInformation createRegulatorManagedInformation(Resource resource,
                                                                               ResponsibleTeamType responsibleTeamType,
+                                                                              GeographicalArea geographicalArea,
                                                                               EntityManager entityManager) {
     var regulatorManagedInformation = new RegulatorManagedInformation();
     regulatorManagedInformation.setResource(resource);
     regulatorManagedInformation.setResponsibleTeamType(responsibleTeamType);
+    regulatorManagedInformation.setGeographicalArea(geographicalArea);
 
     entityManager.persist(regulatorManagedInformation);
     entityManager.flush();
-
     return regulatorManagedInformation;
   }
 

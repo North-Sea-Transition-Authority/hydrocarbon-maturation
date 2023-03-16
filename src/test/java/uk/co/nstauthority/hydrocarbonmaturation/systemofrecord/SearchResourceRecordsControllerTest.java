@@ -17,6 +17,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
@@ -29,8 +30,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 
 @ContextConfiguration(classes = SearchResourceRecordsController.class)
 class SearchResourceRecordsControllerTest extends AbstractControllerTest {
@@ -88,6 +91,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchResourceRecordsScreenModelAndView_assertModelProperties() throws Exception {
     var form = new SearchResourceRecordsForm();
+    form.setGeographicalArea(List.of(GeographicalArea.CENTRAL_NORTH_SEA.name()));
     when(searchResourceRecordsService.getSearchResourceRecordsForm())
         .thenReturn(form);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -114,8 +118,8 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
             entry("quadrantBlocksApiEndpoint", SearchSelectorService.route(on(ReferenceBlockRestController.class)
                 .searchQuadrantBlocks(null))),
             entry("centreOfInterestBlock", Map.of()),
-            entry("maxResultsReturned", false)
+            entry("maxResultsReturned", false),
+            entry("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class))
         );
   }
-
 }

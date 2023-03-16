@@ -72,6 +72,9 @@
         <@fdsSearch.searchFilterItem itemName="Resource status">
           <@fdsSearch.searchCheckboxes path="form.opportunityTypes" checkboxes=opportunityTypes/>
         </@fdsSearch.searchFilterItem>
+        <@fdsSearch.searchFilterItem itemName="Geographical area">
+          <@fdsSearch.searchCheckboxes path="form.geographicalArea" checkboxes=geographicalArea/>
+        </@fdsSearch.searchFilterItem>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>
     <@fdsSearch.searchPageContent twoThirdsWidth=true>

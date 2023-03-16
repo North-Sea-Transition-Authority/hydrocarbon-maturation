@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
-enum GeographicalArea implements Displayable {
+public enum GeographicalArea implements Displayable {
   NORTHERN_NORTH_SEA("Northern North Sea (NNS)", 10),
   CENTRAL_NORTH_SEA("Central North Sea (CNS)", 20),
   SOUTHERN_NORTH_SEA("Southern North Sea (SNS)", 30),

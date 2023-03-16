@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.OPPORTUNITY_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_LINKS;
@@ -68,6 +69,7 @@ class ResourceQueryCommonService {
           .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
           .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
           .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
+          .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
           .leftJoin(OPPORTUNITY_DETAILS).on(OPPORTUNITY_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
         .where(conditionList)
         .groupBy(
@@ -114,6 +116,10 @@ class ResourceQueryCommonService {
       conditionList.add(getOpportunityTypeCondition(form));
     }
 
+    if (!form.getGeographicalArea().isEmpty()) {
+      conditionList.add(getGeographicalAreaCondition(form));
+    }
+
     // excludes prospects from search results when they are linked to a discovery
     // rl.discovery_resource_id will be null if there is no link
     conditionList.add(
@@ -124,6 +130,10 @@ class ResourceQueryCommonService {
     );
 
     return conditionList;
+  }
+
+  private Condition getGeographicalAreaCondition(SearchResourceRecordsForm form) {
+    return REGULATOR_MANAGED_INFORMATION.GEOGRAPHICAL_AREA.in(form.getGeographicalArea());
   }
 
   protected List<Condition> getFormFilterAggregateConditions(SearchResourceRecordsForm form) {

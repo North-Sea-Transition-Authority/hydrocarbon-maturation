@@ -27,6 +27,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.O
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -934,6 +937,58 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(GeographicalArea.class)
+  void getResourceRecordSearchResults_andFilterByGeographicalArea_assertOnlyTypeSpecifiedDisplayed(
+      GeographicalArea geographicalArea) {
+    setUpRegulatorTest();
+
+    var resourceWithGeographicalArea = buildProspectResource();
+    var submissionWithGeographicalArea =
+        buildSubmissionDetail(resourceWithGeographicalArea, SubmissionType.CREATE_PROSPECT);
+    buildRegulatorManagedInformation(resourceWithGeographicalArea, geographicalArea);
+    createGeneralDetail(submissionWithGeographicalArea);
+    createResourceDetail(
+        submissionWithGeographicalArea, "Not relevant name", 1);
+
+    var resourceWithOnshoreGeographicalArea = buildProspectResource();
+    buildRegulatorManagedInformation(resourceWithOnshoreGeographicalArea, GeographicalArea.ONSHORE);
+    var submissionWithOnshoreGeographicalArea =
+        buildSubmissionDetail(resourceWithOnshoreGeographicalArea, SubmissionType.CREATE_PROSPECT);
+    createGeneralDetail(submissionWithOnshoreGeographicalArea);
+    createResourceDetail(
+        submissionWithOnshoreGeographicalArea, "Not relevant name", 2);
+
+    var resourceWithNoGeographicalArea = buildProspectResource();
+    buildRegulatorManagedInformation(resourceWithOnshoreGeographicalArea, null);
+    var submissionWithNosGeographicalArea =
+        buildSubmissionDetail(resourceWithNoGeographicalArea, SubmissionType.CREATE_PROSPECT);
+    createGeneralDetail(submissionWithNosGeographicalArea);
+    createResourceDetail(
+        submissionWithNosGeographicalArea, "Not relevant name", 2);
+
+    var form = new SearchResourceRecordsForm();
+    form.setGeographicalArea(List.of(geographicalArea.name()));
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    if (geographicalArea == GeographicalArea.ONSHORE) {
+      assertThat(results)
+          .extracting(
+              ResourceRecordQueryResult::getSubmissionDetailId)
+          .containsExactly(
+              submissionWithOnshoreGeographicalArea.getId(),
+              submissionWithGeographicalArea.getId()
+          );
+    } else {
+      assertThat(results)
+          .extracting(
+              ResourceRecordQueryResult::getSubmissionDetailId)
+          .containsExactly(
+              submissionWithGeographicalArea.getId()
+          );
+    }
+  }
+
   private ResourceLink createResourceLink(Resource prospect, Resource discovery) {
     var resourceLink = new ResourceLink();
     resourceLink.setDiscoveryResource(discovery);
@@ -984,6 +1039,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   private Resource buildProspectResource() {
 
     return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
+  }
+
+  private RegulatorManagedInformation buildRegulatorManagedInformation(
+      Resource resource, GeographicalArea geographicalArea) {
+    return SubmissionIntegrationTestUtils.createRegulatorManagedInformation(
+        resource, ResponsibleTeamType.EXPLORATION, geographicalArea, entityManager);
   }
 
   private Resource buildDiscoveryResource() {

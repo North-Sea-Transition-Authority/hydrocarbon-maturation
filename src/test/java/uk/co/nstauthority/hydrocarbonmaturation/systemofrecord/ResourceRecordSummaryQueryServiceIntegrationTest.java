@@ -126,7 +126,8 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
 
   private RegulatorManagedInformation buildResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType) {
 
-    return SubmissionIntegrationTestUtils.createRegulatorManagedInformation(resource, responsibleTeamType, entityManager);
+    return SubmissionIntegrationTestUtils.createRegulatorManagedInformation(
+        resource, responsibleTeamType, null, entityManager);
   }
 
   private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType) {
