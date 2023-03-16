@@ -32,11 +32,15 @@ public class SubmissionDetail {
 
   private Integer submittedByWuaId;
 
+  private Integer withdrawnByWuaId;
+
   private Integer approvedByWuaId;
 
   private Instant submittedTimestamp;
 
   private Instant approvedTimestamp;
+
+  private Instant withdrawnTimestamp;
 
   @Enumerated(EnumType.STRING)
   private SubmissionDetailStatus status;
@@ -189,8 +193,8 @@ public class SubmissionDetail {
     return submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT;
   }
 
-  public boolean isDeletedSubmission() {
-    return status == SubmissionDetailStatus.DELETED;
+  public boolean isDeletedOrWithdrawnSubmission() {
+    return status == SubmissionDetailStatus.DELETED || status == SubmissionDetailStatus.WITHDRAWN;
   }
 
   public boolean isDryWellSubmission() {
@@ -200,5 +204,21 @@ public class SubmissionDetail {
   public boolean isFirstSubmissionOnResource() {
     return submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.CREATE_DISCOVERY;
+  }
+
+  public Integer getWithdrawnByWuaId() {
+    return withdrawnByWuaId;
+  }
+
+  public void setWithdrawnByWuaId(Integer withdrawnByWuaId) {
+    this.withdrawnByWuaId = withdrawnByWuaId;
+  }
+
+  public Instant getWithdrawnTimestamp() {
+    return withdrawnTimestamp;
+  }
+
+  public void setWithdrawnTimestamp(Instant withdrawnTimestamp) {
+    this.withdrawnTimestamp = withdrawnTimestamp;
   }
 }

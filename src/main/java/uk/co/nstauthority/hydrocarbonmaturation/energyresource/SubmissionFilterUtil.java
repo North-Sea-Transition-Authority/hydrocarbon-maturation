@@ -70,7 +70,7 @@ class SubmissionFilterUtil {
   }
 
   static boolean isExtantDiscoverySubmission(SubmissionDetail submissionDetail) {
-    return submissionDetail.isDiscoveryFromProspect() && !submissionDetail.isDeletedSubmission();
+    return submissionDetail.isDiscoveryFromProspect() && !submissionDetail.isDeletedOrWithdrawnSubmission();
   }
 
   static boolean isDraftOrSubmittedUpdateDiscovery(SubmissionDetail submissionDetail) {
@@ -94,6 +94,6 @@ class SubmissionFilterUtil {
   }
 
   static boolean isExtantPostDrillDryHoleSubmission(SubmissionDetail submissionDetail) {
-    return submissionDetail.isDryWellSubmission() && !submissionDetail.isDeletedSubmission();
+    return submissionDetail.isDryWellSubmission() && !submissionDetail.isDeletedOrWithdrawnSubmission();
   }
 }

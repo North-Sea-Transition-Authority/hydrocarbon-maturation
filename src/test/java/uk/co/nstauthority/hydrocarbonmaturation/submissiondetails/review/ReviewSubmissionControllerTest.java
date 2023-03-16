@@ -117,7 +117,10 @@ class ReviewSubmissionControllerTest extends AbstractSubmissionControllerTest {
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(
-                        submissionDetail.getResourceId().getId(), SUBMISSION_DETAIL_ID)))
+                        submissionDetail.getResourceId().getId(), SUBMISSION_DETAIL_ID))),
+            entry("submissionType", submissionDetail.getSubmissionType().getTypeName()),
+            entry("withdrawUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
+                .showWithdrawConfirmationPage(submissionDetail.getId())))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

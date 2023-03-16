@@ -33,6 +33,10 @@
     <@fdsAction.buttonGroup>
       <@fdsAction.link linkText="Approve submission" linkClass="govuk-button" linkUrl=springUrl(approveUrl)/>
       <@fdsAction.link
+        linkText="Withdraw submission"
+        linkClass="govuk-button govuk-button--secondary"
+        linkUrl=springUrl(withdrawUrl)/>
+      <@fdsAction.link
         linkText="Manage resource information"
         linkClass="govuk-button govuk-button--secondary"
         linkUrl=springUrl(regulatorManagedInformationUrl)/>

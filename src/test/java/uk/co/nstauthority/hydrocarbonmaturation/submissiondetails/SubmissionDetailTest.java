@@ -130,12 +130,12 @@ class SubmissionDetailTest {
 
   @ParameterizedTest
   @EnumSource(SubmissionDetailStatus.class)
-  void isDeletedSubmission(SubmissionDetailStatus status) {
+  void isDeletedOrWithdrawnSubmission(SubmissionDetailStatus status) {
     submissionDetail.setStatus(status);
-    if (status == SubmissionDetailStatus.DELETED) {
-      assertTrue(submissionDetail.isDeletedSubmission());
+    if (status == SubmissionDetailStatus.DELETED || status == SubmissionDetailStatus.WITHDRAWN) {
+      assertTrue(submissionDetail.isDeletedOrWithdrawnSubmission());
     } else {
-      assertFalse(submissionDetail.isDeletedSubmission());
+      assertFalse(submissionDetail.isDeletedOrWithdrawnSubmission());
     }
   }
 

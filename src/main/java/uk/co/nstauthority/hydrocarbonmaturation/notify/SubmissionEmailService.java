@@ -2,11 +2,13 @@ package uk.co.nstauthority.hydrocarbonmaturation.notify;
 
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.utils.RemiEmailUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -20,7 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 
 @Service
 public class SubmissionEmailService {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(SubmissionEmailService.class);
   private static final String LICENCES = "LICENCES";
   private static final String LICENCES_WITHOUT_LEADING_COLON = "LICENCES_WITHOUT_LEADING_COLON";
   private static final String RESOURCE_NAME_WITH_QUAD_BLOCK = "RESOURCE_NAME_WITH_QUAD_BLOCK";
@@ -29,6 +31,8 @@ public class SubmissionEmailService {
   private static final String SYSTEM_OF_RECORD_RESOURCE_URL = "SYSTEM_OF_RECORD_RESOURCE_URL";
   private static final String REVIEW_PAGE_URL = "REVIEW_PAGE_URL";
   private static final String RECIPIENT_NAME = "RECIPIENT_NAME";
+  private static final String REGULATOR_ORGANISATION_NAME = "REGULATOR_ORGANISATION_NAME";
+  private static final String SERVICE_NAME_MNEMONIC = "SERVICE_NAME_MNEMONIC";
 
   private final NotifyEmailService notifyEmailService;
   private final EnergyPortalUserService energyPortalUserService;
@@ -37,6 +41,7 @@ public class SubmissionEmailService {
   private final LicencePersistenceService licencePersistenceService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final RegulatorTeamService regulatorTeamService;
+  private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
 
   SubmissionEmailService(NotifyEmailService notifyEmailService,
                          EnergyPortalUserService energyPortalUserService,
@@ -44,7 +49,8 @@ public class SubmissionEmailService {
                          GeneralDetailsPersistenceService generalDetailsPersistenceService,
                          LicencePersistenceService licencePersistenceService,
                          RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
-                         RegulatorTeamService regulatorTeamService) {
+                         RegulatorTeamService regulatorTeamService,
+                         ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties) {
     this.notifyEmailService = notifyEmailService;
     this.energyPortalUserService = energyPortalUserService;
     this.submissionResourceService = submissionResourceService;
@@ -52,36 +58,63 @@ public class SubmissionEmailService {
     this.licencePersistenceService = licencePersistenceService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
+    this.serviceBrandingConfigurationProperties = serviceBrandingConfigurationProperties;
+  }
+
+  public void sendSubmissionWithdrawalEmail(SubmissionDetail submissionDetail) {
+    var energyPortalUserDtoOptional = energyPortalUserService.findByWuaId(
+        WebUserAccountId.valueOf(submissionDetail.getSubmittedByWuaId().toString()));
+
+    energyPortalUserDtoOptional.ifPresentOrElse(recipient -> {
+          var emailProperties = new EmailProperties(NotifyTemplate.SUBMISSION_WITHDRAW_CONFIRMATION);
+          var personalisations = emailProperties.getEmailPersonalisations();
+          var licencesString = getDisplayableLicences(submissionDetail);
+          personalisations.put(REGULATOR_ORGANISATION_NAME,
+              serviceBrandingConfigurationProperties.getCustomerConfigurationProperties().mnemonic());
+          addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);
+          sendEmailToRecipient(emailProperties, recipient);
+        },
+        () ->
+          LOGGER.warn("Could not find recipient with WUA_ID %s for submission withdrawal email"
+              .formatted(submissionDetail.getSubmittedByWuaId().toString()))
+    );
   }
 
   public void sendSubmissionApprovalEmail(SubmissionDetail submissionDetail) {
-    var emailProperties = new EmailProperties(NotifyTemplate.SUBMISSION_APPROVAL_NOTIFICATION);
-    var personalisations = emailProperties.getEmailPersonalisations();
-    var licencesString = getDisplayableLicences(submissionDetail);
-    addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);
-    personalisations.put(SYSTEM_OF_RECORD_RESOURCE_URL,
-        RemiEmailUrlUtil.getSystemOfRecordResourceUrl(submissionDetail));
-    var recipient = energyPortalUserService.findByWuaId(
-            WebUserAccountId.valueOf(submissionDetail.getSubmittedByWuaId().toString()))
-        .orElseThrow(() -> new ActionNotAllowedException("Could not find a user with id %s"
-            .formatted(submissionDetail.getSubmittedByWuaId())));
+    var energyPortalUserDtoOptional = energyPortalUserService.findByWuaId(
+        WebUserAccountId.valueOf(submissionDetail.getSubmittedByWuaId().toString()));
 
-    sendEmailToRecipient(emailProperties, recipient);
+    energyPortalUserDtoOptional.ifPresentOrElse(recipient -> {
+          var emailProperties = new EmailProperties(NotifyTemplate.SUBMISSION_APPROVAL_NOTIFICATION);
+          var personalisations = emailProperties.getEmailPersonalisations();
+          var licencesString = getDisplayableLicences(submissionDetail);
+          addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);
+          personalisations.put(SYSTEM_OF_RECORD_RESOURCE_URL,
+              RemiEmailUrlUtil.getSystemOfRecordResourceUrl(submissionDetail));
+          sendEmailToRecipient(emailProperties, recipient);
+        },
+        () -> LOGGER.warn("Could not find recipient with WUA_ID %s for submission approval email"
+            .formatted(submissionDetail.getSubmittedByWuaId()))
+    );
   }
 
   public void sendSubmittedSubmissionEmails(SubmissionDetail submissionDetail) {
-    var emailProperties = new EmailProperties(NotifyTemplate.SUBMISSION_CONFIRMATION_NOTIFICATION);
-    var personalisations = emailProperties.getEmailPersonalisations();
     var responsibleTeam = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId());
 
     if (responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION) {
+      var explorationTeamUsers = regulatorTeamService.getExplorationTeamEnergyPortalUsers();
+      if (explorationTeamUsers.isEmpty()) {
+        LOGGER.warn("Could not find responsible team email recipients for submission %s submitted notification email"
+            .formatted(submissionDetail.getId()));
+        return;
+      }
+      var emailProperties = new EmailProperties(NotifyTemplate.SUBMISSION_CONFIRMATION_NOTIFICATION);
+      var personalisations = emailProperties.getEmailPersonalisations();
       var licencesString = getDisplayableLicences(submissionDetail);
-
       personalisations.put(LICENCES_WITHOUT_LEADING_COLON, licencesString);
       personalisations.put(REVIEW_PAGE_URL,
           RemiEmailUrlUtil.getReviewSubmissionPageUrl(submissionDetail));
-
       addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);
       sendEmailToRecipients(emailProperties, regulatorTeamService.getExplorationTeamEnergyPortalUsers());
     }
@@ -97,7 +130,8 @@ public class SubmissionEmailService {
     } else {
       personalisations.put(LICENCES, licencesString);
     }
-
+    personalisations.put(SERVICE_NAME_MNEMONIC,
+        serviceBrandingConfigurationProperties.getServiceConfigurationProperties().mnemonic());
     personalisations.put(RESOURCE_NAME_WITH_QUAD_BLOCK,
         submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail));
     personalisations.put(SUBMISSION_TYPE, submissionType.getTypeName().toLowerCase());

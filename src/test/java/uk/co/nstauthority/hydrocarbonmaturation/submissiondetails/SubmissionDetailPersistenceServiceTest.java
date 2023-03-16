@@ -95,9 +95,16 @@ class SubmissionDetailPersistenceServiceTest {
 
     submissionDetailPersistenceService.submitSubmission(submissionDetail);
 
-    assertThat(submissionDetail.getSubmittedByWuaId())
-        .isEqualTo(USER_WUA_ID.intValue());
-    assertThat(submissionDetail.getSubmittedTimestamp()).isEqualTo(INSTANT);
+    assertThat(submissionDetail)
+        .extracting(
+            SubmissionDetail::getSubmittedByWuaId,
+            SubmissionDetail::getSubmittedTimestamp,
+            SubmissionDetail::getStatus)
+        .containsExactly(
+            USER_WUA_ID.intValue(),
+            INSTANT,
+            SubmissionDetailStatus.SUBMITTED
+        );
 
     verify(submissionDetailRepository, times(1)).save(submissionDetail);
   }
@@ -108,9 +115,35 @@ class SubmissionDetailPersistenceServiceTest {
     when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
     submissionDetailPersistenceService.approveSubmission(submissionDetail);
 
-    assertThat(submissionDetail.getApprovedByWuaId())
-        .isEqualTo(USER_WUA_ID.intValue());
-    assertThat(submissionDetail.getApprovedTimestamp()).isEqualTo(INSTANT);
+    assertThat(submissionDetail)
+        .extracting(
+            SubmissionDetail::getApprovedByWuaId,
+            SubmissionDetail::getApprovedTimestamp,
+            SubmissionDetail::getStatus)
+        .containsExactly(
+            USER_WUA_ID.intValue(),
+            INSTANT,
+            SubmissionDetailStatus.APPROVED
+        );
+    verify(submissionDetailRepository, times(1)).save(submissionDetail);
+  }
+
+  @Test
+  void withdrawSubmission_assertWithdrawnBy() {
+    var submissionDetail = new SubmissionDetail();
+    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
+    submissionDetailPersistenceService.withdrawSubmission(submissionDetail);
+
+    assertThat(submissionDetail)
+        .extracting(
+            SubmissionDetail::getWithdrawnByWuaId,
+            SubmissionDetail::getWithdrawnTimestamp,
+            SubmissionDetail::getStatus)
+        .containsExactly(
+            USER_WUA_ID.intValue(),
+            INSTANT,
+            SubmissionDetailStatus.WITHDRAWN
+        );
     verify(submissionDetailRepository, times(1)).save(submissionDetail);
   }
 

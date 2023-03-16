@@ -53,7 +53,9 @@ public class ReviewSubmissionController {
 
     if (!reviewSubmissionService.canViewSubmission(submissionRecord, userDetail, submissionDetail)) {
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Submission cannot be reviewed by user with ID %s ".formatted(userDetail.wuaId()));
+          HttpStatus.FORBIDDEN,
+          "Submission %s cannot be reviewed by user with ID %s "
+              .formatted(submissionDetail.getId(), userDetail.wuaId()));
     }
 
     return getModelAndView(submissionRecord, submissionDetail);
@@ -82,7 +84,10 @@ public class ReviewSubmissionController {
         .addObject("regulatorManagedInformationUrl",
             ReverseRouter.route(on(RegulatorManagedInformationController.class)
                 .getRegulatorManagedInformationPage(
-                    submissionDetail.getResourceId().getId(), submissionDetail.getId()))
+                    submissionDetail.getResourceId().getId(), submissionDetail.getId())))
+        .addObject("withdrawUrl",
+            ReverseRouter.route(on(WithdrawSubmissionController.class)
+                .showWithdrawConfirmationPage(submissionDetail.getId()))
         );
   }
 }

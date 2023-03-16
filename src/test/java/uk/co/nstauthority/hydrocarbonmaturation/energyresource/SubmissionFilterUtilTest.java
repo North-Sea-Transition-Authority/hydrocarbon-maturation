@@ -191,6 +191,8 @@ class SubmissionFilterUtilTest {
 
     submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
     assertThat(SubmissionFilterUtil.isExtantDiscoverySubmission(submissionDetail)).isFalse();
+    submissionDetail.setStatus(SubmissionDetailStatus.WITHDRAWN);
+    assertThat(SubmissionFilterUtil.isExtantDiscoverySubmission(submissionDetail)).isFalse();
   }
 
   @ParameterizedTest
@@ -270,6 +272,9 @@ class SubmissionFilterUtilTest {
     }
 
     submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
+    assertThat(SubmissionFilterUtil.isExtantPostDrillDryHoleSubmission(submissionDetail)).isFalse();
+
+    submissionDetail.setStatus(SubmissionDetailStatus.WITHDRAWN);
     assertThat(SubmissionFilterUtil.isExtantPostDrillDryHoleSubmission(submissionDetail)).isFalse();
   }
 }

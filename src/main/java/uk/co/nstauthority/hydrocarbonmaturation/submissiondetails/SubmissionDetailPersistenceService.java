@@ -74,4 +74,12 @@ public class SubmissionDetailPersistenceService {
     submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
     submissionDetailRepository.save(submissionDetail);
   }
+
+  @Transactional
+  public void withdrawSubmission(SubmissionDetail submissionDetail) {
+    submissionDetail.setStatus(SubmissionDetailStatus.WITHDRAWN);
+    submissionDetail.setWithdrawnTimestamp(clock.instant());
+    submissionDetail.setWithdrawnByWuaId(userDetailService.getUserWuaId());
+    submissionDetailRepository.save(submissionDetail);
+  }
 }
