@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +21,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -41,6 +45,7 @@ public class RegulatorManagedInformationController {
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionResourceService submissionResourceService;
   private final ResourceService resourceService;
+  private final ResourceSupportingDocumentService resourceSupportingDocumentService;
 
   @Autowired
   public RegulatorManagedInformationController(
@@ -49,13 +54,15 @@ public class RegulatorManagedInformationController {
       RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
       SubmissionDetailService submissionDetailService,
       SubmissionResourceService submissionResourceService,
-      ResourceService resourceService) {
+      ResourceService resourceService,
+      ResourceSupportingDocumentService resourceSupportingDocumentService) {
     this.regulatorManagedInformationFormService = regulatorManagedInformationFormService;
     this.controllerHelperService = controllerHelperService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.resourceService = resourceService;
+    this.resourceSupportingDocumentService = resourceSupportingDocumentService;
   }
 
   @GetMapping
@@ -77,7 +84,13 @@ public class RegulatorManagedInformationController {
 
     var regulatorManagedInformationForm = regulatorManagedInformationFormService
         .getRegulatorManagedInformationForm(resource);
-    return getRegulatorManagedInformationModelAndView(regulatorManagedInformationForm, resource, submissionDetailId);
+    var isResourceBeingRelinquished = submissionDetailService
+        .isLatestSubmissionForResourceRelinquishment(resource);
+    var relinquishmentReportUploads = regulatorManagedInformationFormService
+        .getRelinquishmentReportUploads(regulatorManagedInformationForm);
+
+    return getRegulatorManagedInformationModelAndView(
+        regulatorManagedInformationForm, resource, submissionDetailId, isResourceBeingRelinquished, relinquishmentReportUploads);
   }
 
   @PostMapping
@@ -91,16 +104,19 @@ public class RegulatorManagedInformationController {
             new RemiEntityNotFoundException("Could not find resource with id %s"
                 .formatted(resourceId.toString())));
     var submissionDetail = submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource);
+    var isResourceBeingRelinquished = submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource);
+    var relinquishmentReportUploads = regulatorManagedInformationFormService.getRelinquishmentReportUploads(form);
     if (submissionDetail.isEmpty()) {
       //if there is no approved or submitted submission for the resource regulator cannot set regulator managed information
       throw new ResponseStatusException(
           HttpStatus.FORBIDDEN, "Did not find an approved or submitted submission for resource %s "
           .formatted(resource.getId().toString()));
     }
-    bindingResult = regulatorManagedInformationFormService.validate(form, bindingResult);
+    bindingResult = regulatorManagedInformationFormService.validate(form, bindingResult, isResourceBeingRelinquished);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getRegulatorManagedInformationModelAndView(form, resource, submissionDetailId),
+        getRegulatorManagedInformationModelAndView(
+            form, resource, submissionDetailId, isResourceBeingRelinquished, relinquishmentReportUploads),
         () -> {
           regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(form, resource);
           if (submissionDetailId != null) {
@@ -114,12 +130,22 @@ public class RegulatorManagedInformationController {
 
   private ModelAndView getRegulatorManagedInformationModelAndView(RegulatorManagedInformationForm form,
                                                                   Resource resource,
-                                                                  UUID submissionDetailId) {
+                                                                  UUID submissionDetailId,
+                                                                  boolean isResourceBeingRelinquished,
+                                                                  List<UploadedFileView> relinquishmentReportUploads) {
     var modelAndView = new ModelAndView("remi/review/regulatorManagedInformation")
         .addObject("form", form)
         .addObject("geographicalArea", DisplayableEnumOptionUtil
             .getDisplayableOptions(GeographicalArea.class));
-
+    modelAndView
+        .addObject("isResourceBeingRelinquished", isResourceBeingRelinquished);
+    if (isResourceBeingRelinquished) {
+      modelAndView
+          .addObject("relinquishmentReportTemplate", resourceSupportingDocumentService.buildFileUploadTemplate(
+              resource.getId(),
+              ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
+          .addObject("relinquishmentReportUploads", relinquishmentReportUploads);
+    }
     addBreadcrumbsAndCancelUrl(modelAndView, resource, submissionDetailId);
 
     return modelAndView;

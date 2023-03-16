@@ -24,9 +24,27 @@
         </@fdsRadio.radioItem>
       </#list>
     </@fdsRadio.radioGroup>
-    <@fdsAction.submitButtons primaryButtonText="Save and complete"
+    <#if isResourceBeingRelinquished>
+      <@fdsFieldset.fieldset
+        legendHeading="Relinquishment report"
+        legendHeadingSize="h2"
+        legendHeadingClass="govuk-fieldset__legend--m"
+        optionalLabel=true>
+          <@fdsFileUpload.fileUpload
+            id="relinquishmentReport"
+            path="form.relinquishmentReport"
+            downloadUrl=relinquishmentReportTemplate.downloadUrl()
+            uploadUrl=relinquishmentReportTemplate.uploadUrl()
+            deleteUrl=relinquishmentReportTemplate.deleteUrl()
+            maxAllowedSize=relinquishmentReportTemplate.maxAllowedSize()
+            allowedExtensions=relinquishmentReportTemplate.allowedExtensions()
+            existingFiles=relinquishmentReportUploads
+            multiFile=false/>
+        </@fdsFieldset.fieldset>
+    </#if>
+      <@fdsAction.submitButtons primaryButtonText="Save and complete"
       secondaryLinkText="Cancel"
       linkSecondaryAction=true
-      linkSecondaryActionUrl="${springUrl(cancelUrl)}"/>
+      linkSecondaryActionUrl=springUrl(cancelUrl)/>
   </@fdsForm.htmlForm>
 </@defaultPage>

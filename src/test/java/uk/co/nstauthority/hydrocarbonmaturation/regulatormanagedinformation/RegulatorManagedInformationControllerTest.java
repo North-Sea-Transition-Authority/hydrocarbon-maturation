@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -14,6 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,8 +36,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchResourceRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
@@ -53,10 +61,14 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
   @MockBean
   private ResourceService resourceService;
 
+  @MockBean
+  private ResourceSupportingDocumentService resourceSupportingDocumentService;
+
   private RegulatorManagedInformationForm form;
   private BindingResult bindingResult;
   private UUID resourceId;
   private Resource resource;
+  private FileUploadTemplate fileUploadTemplate;
 
   @BeforeEach
   void setUp() {
@@ -65,6 +77,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     bindingResult = new BeanPropertyBindingResult(form, "form");
     resourceId = UUID.randomUUID();
     resource.setId(resourceId);
+    submissionDetail.setResourceId(resource);
+    fileUploadTemplate = new FileUploadTemplate("", "", "", "", "");
   }
 
   @Test
@@ -155,20 +169,24 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
             .getModelAndView())
         .getModelMap();
     assertEquals(RegulatorManagedInformationForm.class, modelMap.get("form").getClass());
-    assertThat(modelMap).contains(
+    assertThat(modelMap)
+        .contains(
             entry("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
             entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showResourceRecord(resourceId)))
+                .showResourceRecord(resourceId))),
+            entry("isResourceBeingRelinquished", false)
         )
-        .containsKeys("breadcrumbsMap");
+        .containsKeys("breadcrumbsMap")
+        .doesNotContainKeys("relinquishmentReportTemplate", "relinquishmentReportUploads");
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
-    assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()),
-            SearchResourceRecordsController.PAGE_TITLE),
-        entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)),
-            resourceName)
+    assertThat(breadcrumbsMap.entrySet())
+        .containsExactly(
+            entry(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()),
+                SearchResourceRecordsController.PAGE_TITLE),
+            entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)),
+                resourceName)
     );
   }
 
@@ -192,7 +210,11 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
         .thenReturn(Optional.of(submissionDetail));
-    when(regulatorManagedInformationFormService.validate(any(), any()))
+    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(submissionDetail.getResourceId()))
+        .thenReturn(true);
+    when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
+        .thenReturn(fileUploadTemplate);
+    when(regulatorManagedInformationFormService.validate(any(), any(), eq(true)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));
@@ -224,11 +246,19 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
   void getRegulatorManagedInformationPage_whenSubmissionDetailIdProvided_assertModelProperties() throws Exception {
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
+    when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
+        .thenReturn(fileUploadTemplate);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
     var resourceName = "The Resource (25/5)";
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(resourceName);
+    var mockFileUploadView = new UploadedFileView("", "", "", "", Instant.EPOCH);
+    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource))
+        .thenReturn(true);
+    var fileUploadList = List.of(mockFileUploadView);
+    when(regulatorManagedInformationFormService.getRelinquishmentReportUploads(form))
+        .thenReturn(fileUploadList);
     when(regulatorManagedInformationFormService.getRegulatorManagedInformationForm(resource))
         .thenReturn(form);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
@@ -245,7 +275,9 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     assertThat(modelMap).contains(
             entry("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(SUBMISSION_DETAIL_ID)))
+                .showReviewPage(SUBMISSION_DETAIL_ID))),
+        entry("relinquishmentReportTemplate", fileUploadTemplate),
+        entry("relinquishmentReportUploads", fileUploadList)
         )
         .containsKeys("breadcrumbsMap");
 
@@ -264,7 +296,9 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
         .thenReturn(Optional.of(submissionDetail));
-    when(regulatorManagedInformationFormService.validate(any(), any()))
+    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(submissionDetail.getResourceId()))
+        .thenReturn(false);
+    when(regulatorManagedInformationFormService.validate(any(), any(), anyBoolean()))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));
@@ -284,7 +318,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getSubmissionDetail(SUBMISSION_DETAIL_ID))
         .thenReturn(Optional.empty());
-    when(regulatorManagedInformationFormService.validate(any(), any()))
+    when(regulatorManagedInformationFormService.validate(any(), any(), anyBoolean()))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));
@@ -302,7 +336,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
         .thenReturn(Optional.empty());
-    when(regulatorManagedInformationFormService.validate(any(), any()))
+    when(regulatorManagedInformationFormService.validate(any(), any(), anyBoolean()))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));

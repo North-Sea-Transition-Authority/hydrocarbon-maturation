@@ -86,6 +86,15 @@ public class SubmissionDetailService {
     return generalDetail.getSubmissionDetail();
   }
 
+  public boolean isLatestSubmissionForResourceRelinquishment(Resource resource) {
+    return submissionDetailRepository
+        .findFirstByResourceIdAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+            resource,
+            List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT),
+            List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED))
+        .isPresent();
+  }
+
   public Optional<SubmissionDetail> getLatestApprovedSubmissionForSubmission(SubmissionDetail submissionDetail) {
     return switch (submissionDetail.getSubmissionType()) {
       case UPDATE_DISCOVERY, CREATE_DISCOVERY, RELINQUISHMENT_DISCOVERY ->

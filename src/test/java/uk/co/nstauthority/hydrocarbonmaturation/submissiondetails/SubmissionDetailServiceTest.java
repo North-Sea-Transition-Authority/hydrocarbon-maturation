@@ -1,6 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -77,5 +80,29 @@ class SubmissionDetailServiceTest {
 
     assertThat(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .contains(submissionDetail);
+  }
+
+  @Test
+  void isLatestSubmissionForResourceRelinquishment_whenReturnedSubmissionDetail_assertTrue() {
+    when(submissionDetailRepository.findFirstByResourceIdAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+        submissionDetail.getResourceId(),
+        List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT),
+        List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+        .thenReturn(Optional.of(mock(SubmissionDetail.class)));
+    var result = submissionDetailService
+        .isLatestSubmissionForResourceRelinquishment(submissionDetail.getResourceId());
+    assertTrue(result);
+  }
+
+  @Test
+  void isLatestSubmissionForResourceRelinquishment_whenNotReturnedSubmissionDetail_assertFalse() {
+    when(submissionDetailRepository.findFirstByResourceIdAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+        submissionDetail.getResourceId(),
+        List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT),
+        List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+        .thenReturn(Optional.empty());
+    var result = submissionDetailService
+        .isLatestSubmissionForResourceRelinquishment(submissionDetail.getResourceId());
+    assertFalse(result);
   }
 }

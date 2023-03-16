@@ -1,8 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
-class RegulatorManagedInformationForm {
+import java.util.ArrayList;
+import java.util.List;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+
+public class RegulatorManagedInformationForm {
 
   private GeographicalArea geographicalArea;
+  private List<FileUploadForm> relinquishmentReport = new ArrayList<>();
 
   public GeographicalArea getGeographicalArea() {
     return geographicalArea;
@@ -11,5 +16,14 @@ class RegulatorManagedInformationForm {
   public void setGeographicalArea(
       GeographicalArea geographicalArea) {
     this.geographicalArea = geographicalArea;
+  }
+
+  public List<FileUploadForm> getRelinquishmentReport() {
+    return relinquishmentReport;
+  }
+
+  public void setRelinquishmentReport(
+      List<FileUploadForm> relinquishmentReport) {
+    this.relinquishmentReport = relinquishmentReport;
   }
 }

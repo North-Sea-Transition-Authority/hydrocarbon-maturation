@@ -5,22 +5,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 
 @Service
 public class RegulatorManagedInformationPersistenceService {
 
   private final RegulatorManagedInformationRepository regulatorManagedInformationRepository;
+  private final ResourceSupportingDocumentService resourceSupportingDocumentService;
 
   @Autowired
   public RegulatorManagedInformationPersistenceService(
-      RegulatorManagedInformationRepository regulatorManagedInformationRepository) {
+      RegulatorManagedInformationRepository regulatorManagedInformationRepository,
+      ResourceSupportingDocumentService resourceSupportingDocumentService) {
     this.regulatorManagedInformationRepository = regulatorManagedInformationRepository;
+    this.resourceSupportingDocumentService = resourceSupportingDocumentService;
   }
 
   @Transactional
   public void saveResponsibleTeamByResource(Resource resource,
-                                            ResponsibleTeamType responsibleTeamTypeEnum) {
+                                             ResponsibleTeamType responsibleTeamTypeEnum) {
     var regulatorManagedInformation = getRegulatorManagedInformationByResource(resource)
         .orElse(new RegulatorManagedInformation());
     regulatorManagedInformation.setResource(resource);
@@ -35,6 +39,9 @@ public class RegulatorManagedInformationPersistenceService {
         .orElse(new RegulatorManagedInformation());
     regulatorManagedInformation.setResource(resource);
     regulatorManagedInformation.setGeographicalArea(regulatorManagedInformationForm.getGeographicalArea());
+
+    resourceSupportingDocumentService.updateResourceSupportingDocumentFileDescriptions(
+        regulatorManagedInformationForm.getRelinquishmentReport());
     regulatorManagedInformationRepository.save(regulatorManagedInformation);
   }
 

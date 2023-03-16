@@ -16,6 +16,7 @@ import org.springframework.web.servlet.resource.VersionResourceResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SubmissionHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.StringToResourceSupportingDocumentTypeConverter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.StringToSupportingDocumentTypeConverter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
@@ -84,6 +85,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
   @Override
   public void addFormatters(FormatterRegistry registry) {
     registry.addConverter(new StringToSupportingDocumentTypeConverter());
+    registry.addConverter(new StringToResourceSupportingDocumentTypeConverter());
   }
 
   @Bean
