@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,6 +32,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
@@ -46,6 +50,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private ViewResourceRecordService viewResourceRecordService;
   @MockBean
   private SubmissionSummaryModelService submissionSummaryModelService;
+  @MockBean
+  private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
 
   private final UUID RESOURCE_ID = UUID.randomUUID();
   private final ResourceRecordSummaryView RESOURCE_RECORD_VIEW = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
@@ -136,13 +142,50 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  void showResourceRecordModelAndView_assertModelProperties() throws Exception {
+  void showResourceRecordModelAndView_whenIsNotRegulator_assertModelProperties() throws Exception {
     when(viewResourceRecordService.canViewResource(RESOURCE_RECORD_VIEW, USER)).thenReturn(true);
     SUBMISSION_DETAIL.setApprovedTimestamp(Instant.now());
     mockModelAndViewCreation(SUBMISSION_DETAIL);
 
     when(viewResourceRecordService.isInResponsibleRegulatorTeam(USER))
+        .thenReturn(false);
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("resourceRecord", RESOURCE_RECORD_VIEW),
+            entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
+            entry("isRegulatorInResponsibleTeam", false),
+            entry("regulatorManagedInformationUrl",
+                ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(SUBMISSION_DETAIL.getResourceId().getId(), null))),
+            entry("isRegulator", false)
+        ).doesNotContainKey("regulatorManagedInformationSummaryView");
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()),
+            SearchResourceRecordsController.PAGE_TITLE)
+    );
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void showResourceRecordModelAndView_whenIsRegulator_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
+    when(viewResourceRecordService.canViewResource(RESOURCE_RECORD_VIEW, USER)).thenReturn(true);
+    when(viewResourceRecordService.isInResponsibleRegulatorTeam(USER))
+        .thenReturn(false);
+    when(regulatorTeamService.isRegulatorUser(USER))
         .thenReturn(true);
+    var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
+    when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
+        .thenReturn(regulatorSummary);
+    mockModelAndViewCreation(SUBMISSION_DETAIL);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)))
                 .with(user(USER)))
@@ -158,11 +201,13 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceType", SUBMISSION_DETAIL.getResourceId().getType().getDisplayName()),
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
-            entry("isRegulatorInResponsibleTeam", true),
+            entry("isRegulatorInResponsibleTeam", false),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(SUBMISSION_DETAIL.getResourceId().getId(), null))),
-            entry("submissionType", SUBMISSION_DETAIL.getSubmissionType())
+            entry("regulatorManagedInformationSummaryView", regulatorSummary),
+            entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
+            entry("isRegulator", true)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

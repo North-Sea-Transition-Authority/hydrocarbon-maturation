@@ -13,17 +13,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySearchSelectorModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionSearchSelectorForm;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Controller
 @RequestMapping("/review/resource/{resourceId}")
@@ -35,18 +38,24 @@ public class ReviewSubmissionController {
   private final SubmissionDetailService submissionDetailService;
   private final UserDetailService userDetailService;
   private final SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
+  private final RegulatorTeamService regulatorTeamService;
+  private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
 
   @Autowired
   public ReviewSubmissionController(ReviewSubmissionService reviewSubmissionService,
                                     SubmissionSummaryModelService submissionSummaryModelService,
                                     SubmissionDetailService submissionDetailService,
+                                    SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService,
                                     UserDetailService userDetailService,
-                                    SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService) {
+                                    RegulatorTeamService regulatorTeamService,
+                                    RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService) {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
     this.userDetailService = userDetailService;
     this.submissionHistorySearchSelectorModelService = submissionHistorySearchSelectorModelService;
+    this.regulatorTeamService = regulatorTeamService;
+    this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
   }
 
   @GetMapping
@@ -59,14 +68,11 @@ public class ReviewSubmissionController {
 
     if (!reviewSubmissionService.canViewSubmission(submissionRecord, userDetail, submissionDetail)) {
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN,
-          "Submission %s cannot be reviewed by user with ID %s "
-              .formatted(submissionDetail.getId(), userDetail.wuaId()));
+          HttpStatus.FORBIDDEN, "Submission cannot be reviewed by user with ID %s ".formatted(userDetail.wuaId()));
     }
-
     var form = new SubmissionSearchSelectorForm();
     form.setSelectedSubmissionId(submissionRecord.submissionDetailId().toString());
-    return getModelAndView(submissionRecord, submissionDetail, form);
+    return getModelAndView(submissionRecord, submissionDetail, form, userDetail);
   }
 
   @GetMapping("/{submissionDetailId}")
@@ -83,7 +89,7 @@ public class ReviewSubmissionController {
     }
 
     form.setSelectedSubmissionId(submissionDetailId.toString());
-    return getModelAndView(submissionRecord, submissionDetail, form);
+    return getModelAndView(submissionRecord, submissionDetail, form, userDetail);
   }
 
   @PostMapping
@@ -95,7 +101,8 @@ public class ReviewSubmissionController {
 
   private ModelAndView getModelAndView(SubmissionRecordSummaryView submissionRecord,
                                        SubmissionDetail submissionDetail,
-                                       SubmissionSearchSelectorForm form) {
+                                       SubmissionSearchSelectorForm form,
+                                       ServiceUserDetail userDetail) {
     var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
         submissionDetail,
         "remi/review/reviewSubmission"
@@ -109,6 +116,15 @@ public class ReviewSubmissionController {
         .build();
 
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
+
+    var isRegulator = regulatorTeamService.isRegulatorUser(userDetail);
+
+    if (isRegulator) {
+      modelAndView
+          .addObject("regulatorManagedInformationSummaryView",
+              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(
+                  submissionDetail.getResourceId()));
+    }
 
     return modelAndView
         .addObject("form", form)
@@ -126,7 +142,8 @@ public class ReviewSubmissionController {
                     submissionDetail.getResourceId().getId(), submissionDetail.getId())))
         .addObject("withdrawUrl",
             ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .showWithdrawConfirmationPage(submissionDetail.getId()))
+                .showWithdrawConfirmationPage(submissionDetail.getId())))
+        .addObject("isRegulator", isRegulator
         );
   }
 }

@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,6 +32,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -51,6 +55,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   private SubmissionSummaryModelService submissionSummaryModelService;
   @MockBean
   private SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
+  @MockBean
+  private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
 
   private final SubmissionRecordSummaryView SUBMISSION_RECORD_VIEW = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
       UUID.randomUUID(), 1, SubmissionType.CREATE_PROSPECT);
@@ -142,11 +148,50 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   void showSubmissionModelAndView_assertModelProperties() throws Exception {
     when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail)).thenReturn(true);
     when(reviewSubmissionService.canReviewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail))
-        .thenReturn(true);
-    var queryResults = List.of(
-        SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail)
-    );
+        .thenReturn(false);
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
     mockModelAndViewCreation(submissionDetail);
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(RESOURCE_ID)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("submissionRecord", SUBMISSION_RECORD_VIEW),
+            entry("canReview", false),
+            entry("approveUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
+                .showApproveConfirmationPage(submissionDetail.getId()))),
+            entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("regulatorManagedInformationUrl",
+                ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(
+                        submissionDetail.getResourceId().getId(), submissionDetail.getId()))),
+            entry("withdrawUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
+                .showWithdrawConfirmationPage(submissionDetail.getId()))),
+            entry("isRegulator", false)
+        ).doesNotContainKey("regulatorManagedInformationSummaryView");
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
+            WorkAreaController.WORK_AREA_TITLE)
+    );
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void showSubmissionModelAndView_whenIsRegulator_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
+    when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail)).thenReturn(true);
+    when(reviewSubmissionService.canReviewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail))
+        .thenReturn(true);
+    var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
+    when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
+        .thenReturn(regulatorSummary);
+    mockModelAndViewCreation(submissionDetail);
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(RESOURCE_ID)))
                 .with(user(USER)))
@@ -169,8 +214,10 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
                     .getRegulatorManagedInformationPage(
                         submissionDetail.getResourceId().getId(), submissionDetail.getId()))),
             entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("regulatorManagedInformationSummaryView", regulatorSummary),
             entry("withdrawUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .showWithdrawConfirmationPage(submissionDetail.getId())))
+                .showWithdrawConfirmationPage(submissionDetail.getId()))),
+            entry("isRegulator", true)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

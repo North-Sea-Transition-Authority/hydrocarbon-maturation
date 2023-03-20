@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -14,6 +15,7 @@ public class SubmissionSummaryModelService {
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
   private final PostDrillDryWellSummaryService postDrillDryWellSummaryService;
 
+  @Autowired
   SubmissionSummaryModelService(ProspectSummaryService prospectSummaryService,
                                 HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
                                 DiscoverySummaryService discoverySummaryService,
@@ -172,6 +174,7 @@ public class SubmissionSummaryModelService {
   }
 
   private void addCommonAttributes(SubmissionDetail submissionDetail, ModelAndView modelAndView) {
-    modelAndView.addObject("accordionId", submissionDetail.getId());
+    modelAndView
+        .addObject("accordionId", submissionDetail.getId());
   }
 }

@@ -16,7 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -50,6 +53,8 @@ class SubmissionSummaryModelServiceTest {
   private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
   @Mock
   private PostDrillDryWellSummaryService postDrillDryWellSummaryService;
+  @Mock
+  private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
 
   @InjectMocks
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -71,11 +76,10 @@ class SubmissionSummaryModelServiceTest {
   private GasFluidPropertySummaryView gasFluidPropertySummaryView;
   private OilFluidPropertySummaryView oilFluidPropertySummaryView;
   private GeneralFluidPropertySummaryView generalFluidPropertySummaryView;
+  private RegulatorManagedInformationSummaryView regulatorManagedInformationSummaryView;
 
   @BeforeEach
   void setUp() {
-
-
     generalDetailSummaryView =  GeneralDetailSummaryView.empty(SubmissionType.CREATE_PROSPECT, "prospect");
     sourceAndSealSummaryView =  SourceAndSealSummaryView.empty();
     hydrocarbonCaseSummaryView = HydrocarbonCaseSummaryView.empty();
@@ -111,6 +115,7 @@ class SubmissionSummaryModelServiceTest {
     gasFluidPropertySummaryView =  GasFluidPropertySummaryView.empty();
     oilFluidPropertySummaryView =  OilFluidPropertySummaryView.empty();
     generalFluidPropertySummaryView = GeneralFluidPropertySummaryView.empty();
+    regulatorManagedInformationSummaryView = RegulatorManagedInformationSummaryView.empty(false);
   }
 
   @ParameterizedTest
@@ -259,6 +264,9 @@ class SubmissionSummaryModelServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     var modelAndView =
         submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name");
-    assertThat(modelAndView.getModelMap()).containsEntry("accordionId", submissionDetail.getId());
+    assertThat(modelAndView.getModelMap())
+        .contains(
+            entry("accordionId", submissionDetail.getId())
+        );
   }
 }

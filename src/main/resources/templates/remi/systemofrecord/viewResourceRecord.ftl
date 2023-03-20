@@ -2,6 +2,7 @@
 
 <#import '../submissiondetails/summary/_submissionSummary.ftl' as submissionSummary>
 <#import '../systemofrecord/submissionHistorySearchSelector.ftl' as submissionSelector>
+<#import '../summarylistcards/regulatorManagedInformationSummaryCard.ftl' as regulatorManagedInformationSummary>
 
 <#-- @ftlvariable name="submissionType" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType" -->
 <#-- @ftlvariable name="resourceRecord" type="uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSummaryView" -->
@@ -48,7 +49,8 @@
   </@fdsForm.htmlForm>
 
   <h2 class="govuk-heading-l">(${submissionNumber}) ${submissionType.getTypeName()}</h2>
-
+  <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
+    regulatorManagedInformationValues=regulatorManagedInformationSummaryView/>
   <@submissionSummary.submissionSummary
     submissionType=submissionType.name()
     />

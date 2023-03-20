@@ -4,9 +4,10 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
-public enum ResponsibleTeamType {
+public enum ResponsibleTeamType implements Displayable {
   EXPLORATION("Exploration", RolePermission.EXPLORATION),
   NORTHERN_NORTH_SEA("Northern North Sea"),
   CENTRAL_NORTH_SEA("Central North Sea"),

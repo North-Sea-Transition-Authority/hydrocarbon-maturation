@@ -18,9 +18,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}")
@@ -31,18 +33,24 @@ public class ViewResourceRecordController {
   private final SubmissionDetailService submissionDetailService;
   private final UserDetailService userDetailService;
   private final SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
+  private final RegulatorTeamService regulatorTeamService;
+  private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
 
   @Autowired
   public ViewResourceRecordController(ViewResourceRecordService viewResourceRecordService,
                                       SubmissionSummaryModelService submissionSummaryModelService,
                                       SubmissionDetailService submissionDetailService,
                                       UserDetailService userDetailService,
-                                      SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService) {
+                                      SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService,
+                                      RegulatorTeamService regulatorTeamService,
+                                      RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
     this.userDetailService = userDetailService;
     this.submissionHistorySearchSelectorModelService = submissionHistorySearchSelectorModelService;
+    this.regulatorTeamService = regulatorTeamService;
+    this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
   }
 
   @GetMapping
@@ -96,6 +104,15 @@ public class ViewResourceRecordController {
     SystemOfRecordBreadcrumbUtil.addSearchSystemOfRecordToModelAndView(
         modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
 
+    var isRegulator = regulatorTeamService.isRegulatorUser(userDetail);
+
+    if (isRegulator) {
+      modelAndView
+          .addObject("regulatorManagedInformationSummaryView",
+              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(
+                  submissionDetail.getResourceId()));
+    }
+
     modelAndView = submissionHistorySearchSelectorModelService
         .addViewSorSubmissionSearchSelectorItemsToModelAndView(modelAndView, submissionDetail);
     return modelAndView
@@ -104,10 +121,12 @@ public class ViewResourceRecordController {
         .addObject("submissionType", submissionDetail.getSubmissionType())
         .addObject("resourceType", submissionDetail.getResourceId().getType().getDisplayName())
         .addObject("isRegulatorInResponsibleTeam",
-            viewResourceRecordService.isInResponsibleRegulatorTeam(userDetail))
+            isRegulator && viewResourceRecordService.isInResponsibleRegulatorTeam(userDetail))
         .addObject("regulatorManagedInformationUrl",
             ReverseRouter.route(on(RegulatorManagedInformationController.class)
                 .getRegulatorManagedInformationPage(submissionDetail.getResourceId().getId(),
-                    null)));
+                    null)))
+        .addObject("isRegulator", isRegulator
+        );
   }
 }

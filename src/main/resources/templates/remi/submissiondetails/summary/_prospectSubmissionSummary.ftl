@@ -14,8 +14,10 @@
 <#import '../../summarylistcards/mixedCaseOutputsSummaryCard.ftl' as mixedCaseOutputsSummary>
 <#import '../../summarylistcards/opportunityDetailsSummaryCard.ftl' as opportunityDetailsSummary>
 <#import '../../summarylistcards/resourceDetailsSummaryCard.ftl' as resourceDetailSummary>
+<#import '../../summarylistcards/regulatorManagedInformationSummaryCard.ftl' as regulatorManagedInformationSummary>
 
 <#-- @ftlvariable name="accordionId" type="String" -->
+<#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 
 <#macro prospectSubmissionSummary
   generalDetailsSummaryView
@@ -33,7 +35,7 @@
   gasCaseOutputsSummaryView
   mixedCase
   mixedCaseVolumetricsSummaryView
-  mixedCaseOutputsSummaryView,
+  mixedCaseOutputsSummaryView
   resourceDetailSummaryView>
     <@fdsAccordion.accordion accordionId="summaryaccordian-${accordionId}">
         <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details" openSection=true>
