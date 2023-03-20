@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -20,6 +21,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -52,6 +56,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private SubmissionSummaryModelService submissionSummaryModelService;
   @MockBean
   private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
+  @MockBean
+  private ResourceService resourceService;
 
   private final UUID RESOURCE_ID = UUID.randomUUID();
   private final ResourceRecordSummaryView RESOURCE_RECORD_VIEW = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
@@ -149,6 +155,10 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     when(viewResourceRecordService.isInResponsibleRegulatorTeam(USER))
         .thenReturn(false);
+    var resource = new Resource();
+    resource.setId(RESOURCE_ID);
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.of(resource));
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)))
                 .with(user(USER)))
@@ -162,7 +172,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("isRegulatorInResponsibleTeam", false),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(SUBMISSION_DETAIL.getResourceId().getId(), null))),
+                    .getRegulatorManagedInformationPage(RESOURCE_ID, null))),
             entry("isRegulator", false)
         ).doesNotContainKey("regulatorManagedInformationSummaryView");
 
@@ -186,6 +196,10 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
         .thenReturn(regulatorSummary);
     mockModelAndViewCreation(SUBMISSION_DETAIL);
+    var resource = new Resource();
+    resource.setId(RESOURCE_ID);
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.of(resource));
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)))
                 .with(user(USER)))
@@ -204,7 +218,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("isRegulatorInResponsibleTeam", false),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(SUBMISSION_DETAIL.getResourceId().getId(), null))),
+                    .getRegulatorManagedInformationPage(RESOURCE_ID, null))),
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
             entry("isRegulator", true)
@@ -234,6 +248,27 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   }
 
   @Test
+  void showSubmissionSummary_AsRegulator_whenNoResource_assertStatus() throws Exception{
+    var otherSubmissionDetail = new SubmissionDetail();
+    var otherSubmissionId = UUID.randomUUID();
+    when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionId))
+        .thenReturn(otherSubmissionDetail);
+    when(viewResourceRecordService.canViewResource(any(), eq(USER)))
+        .thenReturn(true);
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.empty());
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(true);
+    when(submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(any(), any()))
+        .thenReturn(new ModelAndView());
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ViewResourceRecordController.class)
+                .showSubmissionSummary(RESOURCE_ID, otherSubmissionId, null)))
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
   void viewSubmission_assertRedirect() throws Exception {
     var form = new SubmissionSearchSelectorForm();
     form.setSelectedSubmissionId(UUID.randomUUID().toString());
@@ -259,6 +294,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     doReturn(modelAndView)
         .when(submissionHistorySearchSelectorModelService)
-        .addViewSorSubmissionSearchSelectorItemsToModelAndView(modelAndView, submissionDetail);
+        .addViewSorSubmissionSearchSelectorItemsToModelAndView(
+            modelAndView, submissionDetail, RESOURCE_ID);
   }
 }

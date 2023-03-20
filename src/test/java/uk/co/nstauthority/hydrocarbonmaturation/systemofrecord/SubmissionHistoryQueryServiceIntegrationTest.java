@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
+import java.time.Instant;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.assertj.core.api.AssertionsForInterfaceTypes;
@@ -9,9 +10,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -100,6 +103,83 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       AssertionsForInterfaceTypes.assertThat(results).isEmpty();
     }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void WhenDiscoveryFromProspect_whenLinkedOrNot_assertReturnedOrder(boolean linkedResources) {
+      var prospectResource = createProspectResource();
+
+      var initialProspectSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      initialProspectSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(4000));
+      initialProspectSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+
+      var prospectUpdateSubmission = createSubmissionDetail(prospectResource, SubmissionType.PROSPECT_UPDATE);
+      prospectUpdateSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(3000));
+      prospectUpdateSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+
+      var discoveryLinkedToAProspect = createDiscoveryResource();
+
+      var initialDiscoverySubmission = createSubmissionDetail(discoveryLinkedToAProspect, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+      initialDiscoverySubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      initialDiscoverySubmission.setSubmittedTimestamp(Instant.now().minusSeconds(2000));
+
+      var discoveryUpdateSubmission = createSubmissionDetail(discoveryLinkedToAProspect, SubmissionType.UPDATE_DISCOVERY);
+      discoveryUpdateSubmission.setStatus(SubmissionDetailStatus.SUBMITTED);
+      discoveryUpdateSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(1000));
+
+      if (linkedResources) {
+        var resourceLink = createResourceLink(prospectResource, discoveryLinkedToAProspect);
+      }
+
+      entityManager.persist(initialProspectSubmission);
+      entityManager.flush();
+      entityManager.persist(prospectUpdateSubmission);
+      entityManager.flush();
+      entityManager.persist(initialDiscoverySubmission);
+      entityManager.flush();
+      entityManager.persist(discoveryUpdateSubmission);
+      entityManager.flush();
+
+      var resourceId = discoveryLinkedToAProspect.getId();
+      var results = submissionHistoryQueryService
+          .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
+      if (linkedResources) {
+        AssertionsForInterfaceTypes.assertThat(results)
+            .extracting(
+                SubmissionQuerySearchRecord::getStatus,
+                SubmissionQuerySearchRecord::getSubmissionDetailId)
+            .containsExactly(
+                tuple(
+                    SubmissionDetailStatus.SUBMITTED,
+                    discoveryUpdateSubmission.getId()),
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    initialDiscoverySubmission.getId()),
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    prospectUpdateSubmission.getId()),
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    initialProspectSubmission.getId()
+                )
+            );
+      } else {
+        //if no link between discovery and prospect, only discovery submissions returned
+        AssertionsForInterfaceTypes.assertThat(results)
+            .extracting(
+                SubmissionQuerySearchRecord::getStatus,
+                SubmissionQuerySearchRecord::getSubmissionDetailId)
+            .containsExactly(
+                tuple(
+                    SubmissionDetailStatus.SUBMITTED,
+                    discoveryUpdateSubmission.getId()),
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    initialDiscoverySubmission.getId())
+            );
+      }
+    }
+
   }
 
   @Nested
@@ -164,6 +244,81 @@ class SubmissionHistoryQueryServiceIntegrationTest {
                   approvedSubmission.getApprovedTimestamp().toEpochMilli())
           );
     }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void WhenDiscoveryFromProspect_whenLinkedOrNot_assertReturnedOrder(boolean linkedResources) {
+      var prospectResource = createProspectResource();
+
+      var initialProspectSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      initialProspectSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(4000));
+      initialProspectSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+
+      var prospectUpdateSubmission = createSubmissionDetail(prospectResource, SubmissionType.PROSPECT_UPDATE);
+      prospectUpdateSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(3000));
+      prospectUpdateSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+
+      var discoveryLinkedToAProspect = createDiscoveryResource();
+
+      var initialDiscoverySubmission = createSubmissionDetail(discoveryLinkedToAProspect, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+      initialDiscoverySubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      initialDiscoverySubmission.setSubmittedTimestamp(Instant.now().minusSeconds(2000));
+
+      var discoveryUpdateSubmission = createSubmissionDetail(discoveryLinkedToAProspect, SubmissionType.UPDATE_DISCOVERY);
+      discoveryUpdateSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      discoveryUpdateSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(1000));
+
+      if (linkedResources) {
+        var resourceLink = createResourceLink(prospectResource, discoveryLinkedToAProspect);
+      }
+
+      entityManager.persist(initialProspectSubmission);
+      entityManager.flush();
+      entityManager.persist(prospectUpdateSubmission);
+      entityManager.flush();
+      entityManager.persist(initialDiscoverySubmission);
+      entityManager.flush();
+      entityManager.persist(discoveryUpdateSubmission);
+      entityManager.flush();
+
+      var resourceId = discoveryLinkedToAProspect.getId();
+      var results = submissionHistoryQueryService
+          .getApprovedSubmissionsOnResource(resourceId);
+      if (linkedResources) {
+        AssertionsForInterfaceTypes.assertThat(results)
+            .extracting(
+                SubmissionQuerySearchRecord::getStatus,
+                SubmissionQuerySearchRecord::getSubmissionDetailId)
+            .containsExactly(
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    discoveryUpdateSubmission.getId()),
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    initialDiscoverySubmission.getId()),
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    prospectUpdateSubmission.getId()),
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    initialProspectSubmission.getId())
+            );
+      } else {
+        //if no link between discovery and prospect, only discovery submissions returned
+        AssertionsForInterfaceTypes.assertThat(results)
+            .extracting(
+                SubmissionQuerySearchRecord::getStatus,
+                SubmissionQuerySearchRecord::getSubmissionDetailId)
+            .containsExactly(
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    discoveryUpdateSubmission.getId()),
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    initialDiscoverySubmission.getId())
+            );
+      }
+    }
   }
 
   private SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType) {
@@ -172,5 +327,13 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
   private Resource createProspectResource() {
     return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
+  }
+
+  private Resource createDiscoveryResource() {
+    return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
+  }
+
+  private ResourceLink createResourceLink(Resource discovery, Resource prospect) {
+    return SubmissionIntegrationTestUtils.createResourceLink(prospect, discovery, entityManager);
   }
 }

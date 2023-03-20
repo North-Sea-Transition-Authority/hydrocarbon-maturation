@@ -20,6 +20,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -57,6 +60,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   private SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
   @MockBean
   private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
+  @MockBean
+  private ResourceService resourceService;
 
   private final SubmissionRecordSummaryView SUBMISSION_RECORD_VIEW = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
       UUID.randomUUID(), 1, SubmissionType.CREATE_PROSPECT);
@@ -167,7 +172,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(
-                        submissionDetail.getResourceId().getId(), submissionDetail.getId()))),
+                        RESOURCE_ID, submissionDetail.getId()))),
             entry("withdrawUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
                 .showWithdrawConfirmationPage(submissionDetail.getId()))),
             entry("isRegulator", false)
@@ -186,6 +191,10 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail)).thenReturn(true);
     when(reviewSubmissionService.canReviewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail))
         .thenReturn(true);
+    var resource = new Resource();
+    resource.setId(RESOURCE_ID);
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.of(resource));
     var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
     when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
         .thenReturn(regulatorSummary);
@@ -212,7 +221,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(
-                        submissionDetail.getResourceId().getId(), submissionDetail.getId()))),
+                        RESOURCE_ID, submissionDetail.getId()))),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
             entry("withdrawUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
@@ -226,6 +235,28 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
             WorkAreaController.WORK_AREA_TITLE)
     );
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void showSubmissionModelAndView_whenIsRegulator_whenNoResource_assertStatus() throws Exception {
+    when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail)).thenReturn(true);
+    when(reviewSubmissionService.canReviewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail))
+        .thenReturn(true);
+    var resource = new Resource();
+    resource.setId(UUID.randomUUID());
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.empty());
+    var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
+    when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
+        .thenReturn(regulatorSummary);
+    mockModelAndViewCreation(submissionDetail);
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(true);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(RESOURCE_ID)))
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
   }
 
   @Test
@@ -269,6 +300,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
 
     doReturn(modelAndView)
         .when(submissionHistorySearchSelectorModelService)
-        .addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView, submissionDetail);
+        .addReviewSubmissionSearchSelectorItemsToModelAndView(
+            modelAndView, submissionDetail, RESOURCE_ID);
   }
 }

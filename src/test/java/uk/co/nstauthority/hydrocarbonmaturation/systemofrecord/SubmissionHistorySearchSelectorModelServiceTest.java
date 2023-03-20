@@ -42,7 +42,7 @@ class SubmissionHistorySearchSelectorModelServiceTest {
         "(1) Prospect create (Pending approval)");
     var modelAndView = new ModelAndView();
     assertThat(submissionHistorySearchSelectorModelService.addViewSorSubmissionSearchSelectorItemsToModelAndView(modelAndView,
-        submissionDetail).getModelMap())
+        submissionDetail, submissionDetail.getResourceId().getId()).getModelMap())
         .containsExactly(
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(submissionDetail.getResourceId().getId(), null))),
@@ -62,7 +62,7 @@ class SubmissionHistorySearchSelectorModelServiceTest {
         "(1) Prospect create (Pending approval)");
     var modelAndView = new ModelAndView();
     assertThat(submissionHistorySearchSelectorModelService.addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView,
-        submissionDetail).getModelMap())
+        submissionDetail, submissionDetail.getResourceId().getId()).getModelMap())
         .containsExactly(
             entry("submissionNumber", "1"),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
@@ -95,7 +95,7 @@ class SubmissionHistorySearchSelectorModelServiceTest {
     );
     var modelAndView = new ModelAndView();
     assertThat(submissionHistorySearchSelectorModelService.addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView,
-        selectedSubmissionDetail).getModelMap())
+        selectedSubmissionDetail, selectedSubmissionDetail.getResourceId().getId()).getModelMap())
         .containsExactly(
             entry("submissionNumber", "2"),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)

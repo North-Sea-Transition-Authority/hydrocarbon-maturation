@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
@@ -24,29 +25,29 @@ public class SubmissionHistorySearchSelectorModelService {
   }
 
   ModelAndView addViewSorSubmissionSearchSelectorItemsToModelAndView(
-      ModelAndView modelAndView, SubmissionDetail submissionDetail) {
+      ModelAndView modelAndView, SubmissionDetail submissionDetail, UUID resourceId) {
     var querySearchResults = submissionHistoryQueryService
-        .getApprovedSubmissionsOnResource(submissionDetail.getResourceId().getId());
+        .getApprovedSubmissionsOnResource(resourceId);
     var submissionSearchSelectorItems = getSubmissionSearchSelectorItems(querySearchResults);
 
     return modelAndView
         .addObject("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-            .viewSubmission(submissionDetail.getResourceId().getId(), null)))
+            .viewSubmission(resourceId, null)))
         .addObject("submissionNumber",
             getCurrentSubmissionNumber(submissionDetail, querySearchResults))
         .addObject("submissionsOnResource", submissionSearchSelectorItems);
   }
 
   public ModelAndView addReviewSubmissionSearchSelectorItemsToModelAndView(
-      ModelAndView modelAndView, SubmissionDetail submissionDetail) {
+      ModelAndView modelAndView, SubmissionDetail submissionDetail, UUID resourceId) {
     var querySearchResults = submissionHistoryQueryService
-        .getApprovedAndSubmittedSubmissionsOnResource(submissionDetail.getResourceId().getId());
+        .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
     var submissionSearchSelectorItems = getSubmissionSearchSelectorItems(querySearchResults);
     return modelAndView
         .addObject("submissionNumber",
             getCurrentSubmissionNumber(submissionDetail, querySearchResults))
         .addObject("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-            .viewSubmission(submissionDetail.getResourceId().getId(), null)))
+            .viewSubmission(resourceId, null)))
         .addObject("submissionsOnResource", submissionSearchSelectorItems);
   }
 

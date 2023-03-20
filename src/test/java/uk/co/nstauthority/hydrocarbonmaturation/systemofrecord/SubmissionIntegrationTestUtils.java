@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
@@ -89,6 +90,17 @@ public class SubmissionIntegrationTestUtils {
     entityManager.flush();
 
     return generalDetails;
+  }
+
+  public static ResourceLink createResourceLink(Resource prospect, Resource discovery, EntityManager entityManager) {
+    var resourceLink = new ResourceLink();
+    resourceLink.setDiscoveryResource(discovery);
+    resourceLink.setProspectResource(prospect);
+
+    entityManager.persist(resourceLink);
+    entityManager.flush();
+
+    return resourceLink;
   }
 
   public static ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId,

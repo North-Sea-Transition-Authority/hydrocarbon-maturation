@@ -18,6 +18,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -40,6 +42,7 @@ public class ReviewSubmissionController {
   private final SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
   private final RegulatorTeamService regulatorTeamService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
+  private final ResourceService resourceService;
 
   @Autowired
   public ReviewSubmissionController(ReviewSubmissionService reviewSubmissionService,
@@ -48,7 +51,8 @@ public class ReviewSubmissionController {
                                     SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService,
                                     UserDetailService userDetailService,
                                     RegulatorTeamService regulatorTeamService,
-                                    RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService) {
+                                    RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
+                                    ResourceService resourceService) {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -56,6 +60,7 @@ public class ReviewSubmissionController {
     this.submissionHistorySearchSelectorModelService = submissionHistorySearchSelectorModelService;
     this.regulatorTeamService = regulatorTeamService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
+    this.resourceService = resourceService;
   }
 
   @GetMapping
@@ -72,7 +77,7 @@ public class ReviewSubmissionController {
     }
     var form = new SubmissionSearchSelectorForm();
     form.setSelectedSubmissionId(submissionRecord.submissionDetailId().toString());
-    return getModelAndView(submissionRecord, submissionDetail, form, userDetail);
+    return getModelAndView(submissionRecord, userDetail, submissionDetail, form, resourceId);
   }
 
   @GetMapping("/{submissionDetailId}")
@@ -89,7 +94,7 @@ public class ReviewSubmissionController {
     }
 
     form.setSelectedSubmissionId(submissionDetailId.toString());
-    return getModelAndView(submissionRecord, submissionDetail, form, userDetail);
+    return getModelAndView(submissionRecord, userDetail, submissionDetail, form, resourceId);
   }
 
   @PostMapping
@@ -100,16 +105,17 @@ public class ReviewSubmissionController {
   }
 
   private ModelAndView getModelAndView(SubmissionRecordSummaryView submissionRecord,
+                                       ServiceUserDetail userDetail,
                                        SubmissionDetail submissionDetail,
                                        SubmissionSearchSelectorForm form,
-                                       ServiceUserDetail userDetail) {
+                                       UUID resourceId) {
     var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
         submissionDetail,
         "remi/review/reviewSubmission"
     );
 
     modelAndView = submissionHistorySearchSelectorModelService
-        .addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView, submissionDetail);
+        .addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView, submissionDetail, resourceId);
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(submissionRecord.resourceNameAndCentreOfInterest())
         .addWorkAreaBreadcrumb()
@@ -123,7 +129,9 @@ public class ReviewSubmissionController {
       modelAndView
           .addObject("regulatorManagedInformationSummaryView",
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(
-                  submissionDetail.getResourceId()));
+                  resourceService.getResourceById(resourceId)
+                      .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
+                          .formatted(resourceId)))));
     }
 
     return modelAndView
@@ -131,7 +139,7 @@ public class ReviewSubmissionController {
         .addObject("submissionRecord", submissionRecord)
         .addObject("submissionType", submissionDetail.getSubmissionType())
         .addObject("canReview", reviewSubmissionService.canReviewSubmission(
-            submissionRecord, userDetailService.getUserDetail(), submissionDetail))
+            submissionRecord, userDetail, submissionDetail))
         .addObject("resourceType", submissionDetail.getResourceId().getType().getDisplayName())
         .addObject("approveUrl",
             ReverseRouter.route(on(ApproveSubmissionController.class)
@@ -139,7 +147,7 @@ public class ReviewSubmissionController {
         .addObject("regulatorManagedInformationUrl",
             ReverseRouter.route(on(RegulatorManagedInformationController.class)
                 .getRegulatorManagedInformationPage(
-                    submissionDetail.getResourceId().getId(), submissionDetail.getId())))
+                    resourceId, submissionDetail.getId())))
         .addObject("withdrawUrl",
             ReverseRouter.route(on(WithdrawSubmissionController.class)
                 .showWithdrawConfirmationPage(submissionDetail.getId())))

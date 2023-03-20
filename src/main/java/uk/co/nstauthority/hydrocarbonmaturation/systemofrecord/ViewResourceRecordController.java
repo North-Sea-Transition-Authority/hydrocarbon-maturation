@@ -16,6 +16,8 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -35,6 +37,7 @@ public class ViewResourceRecordController {
   private final SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
   private final RegulatorTeamService regulatorTeamService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
+  private final ResourceService resourceService;
 
   @Autowired
   public ViewResourceRecordController(ViewResourceRecordService viewResourceRecordService,
@@ -43,7 +46,8 @@ public class ViewResourceRecordController {
                                       UserDetailService userDetailService,
                                       SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService,
                                       RegulatorTeamService regulatorTeamService,
-                                      RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService) {
+                                      RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
+                                      ResourceService resourceService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -51,6 +55,7 @@ public class ViewResourceRecordController {
     this.submissionHistorySearchSelectorModelService = submissionHistorySearchSelectorModelService;
     this.regulatorTeamService = regulatorTeamService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
+    this.resourceService = resourceService;
   }
 
   @GetMapping
@@ -66,7 +71,7 @@ public class ViewResourceRecordController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(resourceRecord.submissionDetailId());
     var form = new SubmissionSearchSelectorForm();
     form.setSelectedSubmissionId(submissionDetail.getId().toString());
-    return getModelAndView(resourceRecord, submissionDetail, userDetail, form);
+    return getModelAndView(resourceRecord, submissionDetail, userDetail, form, resourceId);
   }
 
   @PostMapping
@@ -89,15 +94,16 @@ public class ViewResourceRecordController {
           HttpStatus.FORBIDDEN, "Resource cannot be viewed by user with ID %s ".formatted(userDetail.wuaId()));
     }
     form.setSelectedSubmissionId(submissionDetailId.toString());
-    return getModelAndView(resourceRecord, submissionDetail, userDetail, form);
+    return getModelAndView(resourceRecord, submissionDetail, userDetail, form, resourceId);
   }
 
   private ModelAndView getModelAndView(ResourceRecordSummaryView resourceRecord,
-                                       SubmissionDetail submissionDetail,
+                                       SubmissionDetail submissionDetailSelected,
                                        ServiceUserDetail userDetail,
-                                       SubmissionSearchSelectorForm form) {
+                                       SubmissionSearchSelectorForm form,
+                                       UUID resourceId) {
     var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
-        submissionDetail,
+        submissionDetailSelected,
         "remi/systemofrecord/viewResourceRecord"
     );
 
@@ -110,21 +116,24 @@ public class ViewResourceRecordController {
       modelAndView
           .addObject("regulatorManagedInformationSummaryView",
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(
-                  submissionDetail.getResourceId()));
+                 resourceService.getResourceById(resourceId)
+                     .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
+                         .formatted(resourceId)))));
     }
 
     modelAndView = submissionHistorySearchSelectorModelService
-        .addViewSorSubmissionSearchSelectorItemsToModelAndView(modelAndView, submissionDetail);
+        .addViewSorSubmissionSearchSelectorItemsToModelAndView(
+            modelAndView, submissionDetailSelected, resourceId);
     return modelAndView
         .addObject("form", form)
         .addObject("resourceRecord", resourceRecord)
-        .addObject("submissionType", submissionDetail.getSubmissionType())
-        .addObject("resourceType", submissionDetail.getResourceId().getType().getDisplayName())
+        .addObject("submissionType", submissionDetailSelected.getSubmissionType())
+        .addObject("resourceType", submissionDetailSelected.getResourceId().getType().getDisplayName())
         .addObject("isRegulatorInResponsibleTeam",
             isRegulator && viewResourceRecordService.isInResponsibleRegulatorTeam(userDetail))
         .addObject("regulatorManagedInformationUrl",
             ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .getRegulatorManagedInformationPage(submissionDetail.getResourceId().getId(),
+                .getRegulatorManagedInformationPage(resourceId,
                     null)))
         .addObject("isRegulator", isRegulator
         );
