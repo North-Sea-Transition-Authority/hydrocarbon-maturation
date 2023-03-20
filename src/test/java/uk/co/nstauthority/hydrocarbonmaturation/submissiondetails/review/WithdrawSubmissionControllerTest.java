@@ -109,6 +109,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void showWithdrawConfirmationPageModelAndView_assertModelProperties() throws Exception {
     when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail)).thenReturn(true);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
@@ -141,7 +142,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
             WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(SUBMISSION_DETAIL_ID)),
+        entry(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(submissionDetail.getResourceId().getId())),
             expectedName)
     );
   }

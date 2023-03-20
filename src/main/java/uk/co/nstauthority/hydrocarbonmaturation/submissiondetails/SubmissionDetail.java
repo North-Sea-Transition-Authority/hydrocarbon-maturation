@@ -167,6 +167,11 @@ public class SubmissionDetail {
         || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY;
   }
 
+  public boolean isApprovedOrSubmittedSubmission() {
+    return status == SubmissionDetailStatus.SUBMITTED
+        || status == SubmissionDetailStatus.APPROVED;
+  }
+
   public boolean isDraftOrSubmittedSubmission() {
     return status == SubmissionDetailStatus.DRAFT
         || status == SubmissionDetailStatus.SUBMITTED;

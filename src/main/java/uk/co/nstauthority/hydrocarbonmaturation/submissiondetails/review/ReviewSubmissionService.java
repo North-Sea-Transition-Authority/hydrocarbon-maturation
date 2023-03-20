@@ -10,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
@@ -17,7 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Service
-class ReviewSubmissionService {
+public class ReviewSubmissionService {
 
   private final SubmissionRecordSummaryQueryService submissionRecordSummaryQueryService;
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
@@ -41,8 +42,8 @@ class ReviewSubmissionService {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
   }
 
-  SubmissionRecordSummaryView getSubmissionRecordOrThrow(UUID submissionDetailId) {
-    return submissionRecordSummaryQueryService.getSubmissionRecord(submissionDetailId)
+  public SubmissionRecordSummaryView getSubmissionRecordOrThrow(UUID resourceId) {
+    return submissionRecordSummaryQueryService.getSubmissionRecord(resourceId)
         .map(submissionRecordSummaryQueryResult -> new SubmissionRecordSummaryView(
             submissionRecordSummaryQueryResult.getSubmissionDetailId(),
             submissionRecordSummaryQueryResult.getSubmissionType(),
@@ -55,13 +56,17 @@ class ReviewSubmissionService {
             submissionRecordSummaryQueryResult.getResponsibleTeam()
             )
         )
-        .orElseThrow(() -> new RemiEntityNotFoundException("Submission record not found for submission ID %s"
-            .formatted(submissionDetailId)));
+        .orElseThrow(() -> new RemiEntityNotFoundException("Submission record not found for resource ID %s"
+            .formatted(resourceId)));
   }
 
   boolean canViewSubmission(SubmissionRecordSummaryView submissionRecord,
                             ServiceUserDetail user,
                             SubmissionDetail submissionDetail) {
+    if (!submissionDetail.isApprovedOrSubmittedSubmission()) {
+      return false;
+    }
+
     if (ResponsibleTeamType.EXPLORATION.equals(submissionRecord.responsibleTeamType())
         && regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION)) {
       return true;
@@ -77,9 +82,12 @@ class ReviewSubmissionService {
     }
   }
 
-  boolean canReviewSubmission(SubmissionRecordSummaryView submissionRecord, ServiceUserDetail userDetail) {
-    return ResponsibleTeamType.EXPLORATION.equals(submissionRecord.responsibleTeamType())
-        && regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION);
+  boolean canReviewSubmission(SubmissionRecordSummaryView submissionRecord,
+                              ServiceUserDetail userDetail,
+                              SubmissionDetail currentSubmission) {
+    return currentSubmission.getStatus() == SubmissionDetailStatus.SUBMITTED
+        && (ResponsibleTeamType.EXPLORATION.equals(submissionRecord.responsibleTeamType())
+        && regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION));
   }
 
   private boolean isResponsibleOrganisationMemberOnLatestApprovedSubmissionOnResource(

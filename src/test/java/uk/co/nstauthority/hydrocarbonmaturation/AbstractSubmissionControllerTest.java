@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -100,7 +101,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   @BeforeEach
   void setUp(TestInfo testInfo) {
     doCallRealMethod().when(userDetailService).getUserDetail();
-    submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT, SUBMISSION_DETAIL_ID);
+    submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT,
+        SUBMISSION_DETAIL_ID);
+    submissionDetail.setApprovedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(SUBMISSION_DETAIL_ID)).thenReturn(Optional.of(submissionDetail));
     submissionDetail.setId(SUBMISSION_DETAIL_ID);
     var securityTestAnnotation = testInfo

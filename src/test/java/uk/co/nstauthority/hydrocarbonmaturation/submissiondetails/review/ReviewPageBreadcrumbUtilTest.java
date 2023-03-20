@@ -30,7 +30,8 @@ class ReviewPageBreadcrumbUtilTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
             WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(submissionDetail.getId())),
+        entry(ReverseRouter.route(on(ReviewSubmissionController.class)
+                .showReviewPage(submissionDetail.getResourceId().getId())),
             submissionName)
     );
   }

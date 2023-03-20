@@ -1,0 +1,176 @@
+package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
+
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
+import org.assertj.core.api.AssertionsForInterfaceTypes;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+
+@Transactional
+@IntegrationTest
+class SubmissionHistoryQueryServiceIntegrationTest {
+
+  @Autowired
+  private SubmissionHistoryQueryService submissionHistoryQueryService;
+
+  @Autowired
+  private EntityManager entityManager;
+
+  @Nested
+  class GetApprovedAndSubmittedSubmissionsOnResource {
+
+    @Test
+    void WhenOneApprovedAndOneSubmittedOnResource_assertOrderAndAllValues() {
+      var prospectResource = createProspectResource();
+      var approvedSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      approvedSubmission.setSubmittedTimestamp(approvedSubmission.getSubmittedTimestamp().minusSeconds(3000));
+      var submittedSubmission = createSubmissionDetail(prospectResource, SubmissionType.PROSPECT_UPDATE);
+      submittedSubmission.setSubmittedTimestamp(approvedSubmission.getSubmittedTimestamp().minusSeconds(1000));
+      submittedSubmission.setStatus(SubmissionDetailStatus.SUBMITTED);
+      submittedSubmission.setApprovedTimestamp(null);
+      entityManager.persist(approvedSubmission);
+      entityManager.flush();
+      entityManager.persist(submittedSubmission);
+      entityManager.flush();
+
+      var resourceId = prospectResource.getId();
+      var results = submissionHistoryQueryService
+          .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
+
+      AssertionsForInterfaceTypes.assertThat(results)
+          .extracting(
+              SubmissionQuerySearchRecord::getStatus,
+              SubmissionQuerySearchRecord::getSubmissionDetailId,
+              SubmissionQuerySearchRecord::getSubmissionType,
+              searchRecord -> {
+                if (searchRecord.getApprovedTimestamp() != null) {
+                  return searchRecord.getApprovedTimestamp().getTime();
+                } else {
+                  return null;
+                }
+              })
+          .containsExactly(
+          tuple(
+              SubmissionDetailStatus.APPROVED,
+              approvedSubmission.getId(),
+              approvedSubmission.getSubmissionType(),
+              approvedSubmission.getApprovedTimestamp().toEpochMilli()),
+          tuple(
+              SubmissionDetailStatus.SUBMITTED,
+              submittedSubmission.getId(),
+              submittedSubmission.getSubmissionType(),
+              null)
+      );
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = SubmissionDetailStatus.class, names = {"SUBMITTED", "APPROVED"}, mode = EnumSource.Mode.EXCLUDE)
+    void WhenSubmissionWithNotSubmittedOrApprovedOnResource_assertNoneReturned(SubmissionDetailStatus status) {
+      var prospectResource = createProspectResource();
+      var submissionWithStatus = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      submissionWithStatus.setStatus(status);
+      entityManager.persist(submissionWithStatus);
+      entityManager.flush();
+
+      var resourceId = prospectResource.getId();
+      var results = submissionHistoryQueryService
+          .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
+
+      AssertionsForInterfaceTypes.assertThat(results).isEmpty();
+    }
+
+    @Test
+    void WhenNoApprovedOrSubmittedOnResource_assertNoneReturned() {
+      var prospectResource = createProspectResource();
+
+      var resourceId = prospectResource.getId();
+      var results = submissionHistoryQueryService
+          .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
+
+      AssertionsForInterfaceTypes.assertThat(results).isEmpty();
+    }
+  }
+
+  @Nested
+  class GetApprovedOnResource {
+
+    @Test
+    void WhenNoApprovedOnResource_assertNoneReturned() {
+      var prospectResource = createProspectResource();
+
+      var resourceId = prospectResource.getId();
+      var results = submissionHistoryQueryService
+          .getApprovedSubmissionsOnResource(resourceId);
+
+      AssertionsForInterfaceTypes.assertThat(results).isEmpty();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = SubmissionDetailStatus.class, names = {"APPROVED"}, mode = EnumSource.Mode.EXCLUDE)
+    void WhenSubmissionWithNoApprovedOnResource_assertNoneReturned(SubmissionDetailStatus status) {
+      var prospectResource = createProspectResource();
+      var submissionWithStatus = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      submissionWithStatus.setStatus(status);
+      entityManager.persist(submissionWithStatus);
+      entityManager.flush();
+
+      var resourceId = prospectResource.getId();
+      var results = submissionHistoryQueryService
+          .getApprovedSubmissionsOnResource(resourceId);
+
+      AssertionsForInterfaceTypes.assertThat(results).isEmpty();
+    }
+
+    @Test
+    void WhenOneApprovedAndOneSubmittedOnResource_assertApprovedReturnedAndAllValues() {
+      var prospectResource = createProspectResource();
+      var approvedSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      approvedSubmission.setSubmittedTimestamp(approvedSubmission.getSubmittedTimestamp().minusSeconds(3000));
+      var submittedSubmission = createSubmissionDetail(prospectResource, SubmissionType.PROSPECT_UPDATE);
+      submittedSubmission.setSubmittedTimestamp(approvedSubmission.getSubmittedTimestamp().minusSeconds(1000));
+      submittedSubmission.setStatus(SubmissionDetailStatus.SUBMITTED);
+      submittedSubmission.setApprovedTimestamp(null);
+      entityManager.persist(approvedSubmission);
+      entityManager.flush();
+      entityManager.persist(submittedSubmission);
+      entityManager.flush();
+
+      var resourceId = prospectResource.getId();
+      var results = submissionHistoryQueryService
+          .getApprovedSubmissionsOnResource(resourceId);
+
+      AssertionsForInterfaceTypes.assertThat(results)
+          .extracting(
+              SubmissionQuerySearchRecord::getStatus,
+              SubmissionQuerySearchRecord::getSubmissionDetailId,
+              SubmissionQuerySearchRecord::getSubmissionType,
+              searchRecord -> searchRecord.getApprovedTimestamp().getTime())
+          .containsExactly(
+              tuple(
+                  SubmissionDetailStatus.APPROVED,
+                  approvedSubmission.getId(),
+                  approvedSubmission.getSubmissionType(),
+                  approvedSubmission.getApprovedTimestamp().toEpochMilli())
+          );
+    }
+  }
+
+  private SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType) {
+    return SubmissionIntegrationTestUtils.createSubmissionDetail(resource, submissionType, entityManager);
+  }
+
+  private Resource createProspectResource() {
+    return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
+  }
+}

@@ -27,7 +27,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
   private static final String ASSETS_PATH = "/assets/**";
   private static final String SUBMISSION_DETAILS_PATH = "/submission-details/**";
-  private static final String REVIEW_SUBMISSION_PATH = "/review/**";
+  private static final String REVIEW_ACTION_SUBMISSION_PATH = "/review/**/*";
+  private static final String REVIEW_VIEW_SUBMISSION_PATH = "/review/resource/**";
+
   private final PermissionManagementHandlerInterceptor permissionManagementHandlerInterceptor;
   private final RegulatorPermissionManagementHandlerInterceptor regulatorPermissionManagementHandlerInterceptor;
   private final IndustryPermissionManagementHandlerInterceptor industryPermissionManagementHandlerInterceptor;
@@ -75,7 +77,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     registry.addInterceptor(industryPermissionManagementHandlerInterceptor)
         .addPathPatterns("/permission-management/industry/**");
     registry.addInterceptor(submissionHandlerInterceptor)
-        .addPathPatterns(SUBMISSION_DETAILS_PATH, REVIEW_SUBMISSION_PATH);
+        .addPathPatterns(SUBMISSION_DETAILS_PATH, REVIEW_ACTION_SUBMISSION_PATH)
+        .excludePathPatterns(REVIEW_VIEW_SUBMISSION_PATH);
     registry.addInterceptor(hasPermissionInterceptor)
         .excludePathPatterns(ASSETS_PATH);
     registry.addInterceptor(accessibleByRegulatorUsersInterceptor)

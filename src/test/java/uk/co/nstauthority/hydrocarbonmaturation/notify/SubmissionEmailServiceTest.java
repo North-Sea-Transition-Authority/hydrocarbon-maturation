@@ -307,7 +307,7 @@ class SubmissionEmailServiceTest {
           .thenReturn(List.of(licence, licence2));
       var expectedReviewSubmissionUrl = SERVICE_URL +
           ReverseRouter.route(on(ReviewSubmissionController.class)
-              .showReviewPage(SUBMISSION_DETAIL.getId()));
+              .showReviewPage(SUBMISSION_DETAIL.getResourceId().getId()));
       submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient1.emailAddress()));

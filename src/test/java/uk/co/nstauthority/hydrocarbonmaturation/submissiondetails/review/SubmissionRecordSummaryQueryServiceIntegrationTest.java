@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-import java.time.temporal.ChronoUnit;
+import java.time.Instant;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.jooq.DSLContext;
@@ -64,7 +64,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
     var licenceToBeQueried2 = createLicence(351, "BL6", generalDetailsToBeQueried);
 
     var result = submissionRecordSummaryQueryService
-        .getSubmissionRecord(queriedSubmissionDetail.getId());
+        .getSubmissionRecord(queriedSubmissionDetail.getResourceId().getId());
 
     assertThat(result)
         .isPresent()
@@ -78,8 +78,8 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
             SubmissionRecordSummaryQueryResult::getResponsibleTeam,
             SubmissionRecordSummaryQueryResult::getLicencesTheResourceIsOn,
             SubmissionRecordSummaryQueryResult::getSubmissionType,
-            r -> r.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            r -> r.getSubmittedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            r -> r.getCreatedOn().getTime(),
+            r -> r.getSubmittedOn().getTime()
         )
         .containsExactly(
             queriedSubmissionDetail.getId(),
@@ -90,8 +90,36 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
             ResponsibleTeamType.EXPLORATION,
             List.of(licenceToBeQueried.getLicenceId(), licenceToBeQueried2.getLicenceId()),
             queriedSubmissionDetail.getSubmissionType(),
-            queriedSubmissionDetail.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-            queriedSubmissionDetail.getSubmittedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+            queriedSubmissionDetail.getCreatedTimestamp().toEpochMilli(),
+            queriedSubmissionDetail.getSubmittedTimestamp().toEpochMilli()
+        );
+  }
+
+
+  @Test
+  void getSubmissionRecord_WhenTwoSubmissions_ReturnsLatestSubmitted() {
+    var resourceForQueriedSubmission = buildResource();
+    buildResponsibleTeam(resourceForQueriedSubmission, ResponsibleTeamType.EXPLORATION);
+    var latestSubmittedSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_PROSPECT);
+    latestSubmittedSubmissionDetail.setSubmittedTimestamp(Instant.now());
+    var otherSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_PROSPECT);
+    otherSubmissionDetail.setSubmittedTimestamp(Instant.now().minusSeconds(5000));
+    createResourceDetail(otherSubmissionDetail, "Not relevant name", 1);
+    createResourceDetail(latestSubmittedSubmissionDetail, "Not relevant name", 1);
+
+    var result = submissionRecordSummaryQueryService
+        .getSubmissionRecord(latestSubmittedSubmissionDetail.getResourceId().getId());
+
+    assertThat(result)
+        .isPresent()
+        .get()
+        .extracting(
+            SubmissionRecordSummaryQueryResult::getSubmissionDetailId,
+            r -> r.getSubmittedOn().getTime()
+        )
+        .containsExactly(
+            latestSubmittedSubmissionDetail.getId(),
+            latestSubmittedSubmissionDetail.getSubmittedTimestamp().toEpochMilli()
         );
   }
 

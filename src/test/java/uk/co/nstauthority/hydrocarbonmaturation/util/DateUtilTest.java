@@ -18,6 +18,16 @@ class DateUtilTest {
   }
 
   @Test
+  void formatLongDate() {
+    assertThat(DateUtil.formatLongDate(LocalDate.of(2012, 12, 1)))
+        .isEqualTo("1 December 2012");
+    assertThat(DateUtil.formatLongDate(LocalDate.of(2000, 1, 12)))
+        .isEqualTo("12 January 2000");
+    assertThat(DateUtil.formatLongDate(LocalDate.of(2055, 4, 22)))
+        .isEqualTo("22 April 2055");
+  }
+
+  @Test
   void formatDateOrBlank() {
     assertThat(DateUtil.formatDateOrBlank(LocalDate.of(2012, 12, 1)))
         .isEqualTo("1 Dec 2012");

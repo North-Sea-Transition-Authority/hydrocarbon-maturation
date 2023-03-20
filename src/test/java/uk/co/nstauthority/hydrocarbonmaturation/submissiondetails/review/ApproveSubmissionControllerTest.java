@@ -105,7 +105,8 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setStatus(status);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(ApproveSubmissionController.class).showApproveConfirmationPage(SUBMISSION_DETAIL_ID)))
+            get(ReverseRouter.route(on(ApproveSubmissionController.class).showApproveConfirmationPage(
+                SUBMISSION_DETAIL_ID)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -122,7 +123,8 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn(expectedTypeName);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(ApproveSubmissionController.class).showApproveConfirmationPage(SUBMISSION_DETAIL_ID)))
+            get(ReverseRouter.route(on(ApproveSubmissionController.class).showApproveConfirmationPage(
+                SUBMISSION_DETAIL_ID)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -135,7 +137,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
             entry("actionUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
                 .approveSubmission(SUBMISSION_DETAIL_ID, null))),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(SUBMISSION_DETAIL_ID)))
+                .showReviewPage(submissionDetail.getResourceId().getId())))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -143,7 +145,8 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
             WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(SUBMISSION_DETAIL_ID)),
+        entry(ReverseRouter.route(on(ReviewSubmissionController.class)
+                .showReviewPage(submissionDetail.getResourceId().getId())),
             expectedName)
     );
   }

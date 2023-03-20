@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +33,17 @@ public class SubmissionIntegrationTestUtils {
     return new SubmissionRecordSummaryView(submissionDetailId, submissionType, "",
         responsibleOrganisationId, "", List.of(1),
         List.of("1"), ResponsibleTeamType.EXPLORATION.getDisplayName(), ResponsibleTeamType.EXPLORATION);
+  }
+
+  public static SubmissionQuerySearchRecord getSubmissionQuerySearchRecord(SubmissionDetail submissionDetail) {
+    return new SubmissionQuerySearchRecord(
+        submissionDetail.getStatus().name(),
+        submissionDetail.getApprovedTimestamp() != null
+            ? Timestamp.from(submissionDetail.getApprovedTimestamp())
+            : null,
+        submissionDetail.getId(),
+        submissionDetail.getSubmissionType().name()
+    );
   }
 
   public static Licence createLicence(int id, String ref, GeneralDetail generalDetails, EntityManager entityManager) {
@@ -122,8 +134,8 @@ public class SubmissionIntegrationTestUtils {
     submissionDetail.setId(null);
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
-    submissionDetail.setCreatedTimestamp(Instant.now().minusSeconds(10));
-    submissionDetail.setSubmittedTimestamp(Instant.now().minusSeconds(5));
+    submissionDetail.setCreatedTimestamp(Instant.now().minusSeconds(100));
+    submissionDetail.setSubmittedTimestamp(Instant.now().minusSeconds(50));
     submissionDetail.setApprovedTimestamp(Instant.now());
     submissionDetail.setResourceId(resource);
 

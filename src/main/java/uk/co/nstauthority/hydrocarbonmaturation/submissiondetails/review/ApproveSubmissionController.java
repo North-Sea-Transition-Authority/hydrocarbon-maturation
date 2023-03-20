@@ -116,7 +116,7 @@ public class ApproveSubmissionController {
                 .approveSubmission(submissionDetail.getId(), null)))
         .addObject("cancelUrl",
             ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getId())));
+                .showReviewPage(submissionDetail.getResourceId().getId())));
 
     ReviewPageBreadcrumbUtil
         .addWorkAreaAndManagementPageToModelAndView(modelAndView, pageName, resourceName, submissionDetail);

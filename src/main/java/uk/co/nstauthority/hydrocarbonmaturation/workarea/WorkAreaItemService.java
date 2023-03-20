@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
@@ -17,12 +18,16 @@ class WorkAreaItemService {
 
   private final SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory;
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
+  private final SubmissionDetailService submissionDetailService;
+
 
   @Autowired
   WorkAreaItemService(SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory,
-                      SubmissionDetailDisplayService submissionDetailDisplayService) {
+                      SubmissionDetailDisplayService submissionDetailDisplayService,
+                      SubmissionDetailService submissionDetailService) {
     this.submissionWorkAreaServiceFactory = submissionWorkAreaServiceFactory;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
+    this.submissionDetailService = submissionDetailService;
   }
 
   List<WorkAreaItem> getWorkAreaItems() {
@@ -60,7 +65,9 @@ class WorkAreaItemService {
           .getTaskList(submissionWorkAreaQueryResult.getSubmissionDetailId()));
     } else {
       return ReverseRouter.route(on(ReviewSubmissionController.class)
-          .showReviewPage(submissionWorkAreaQueryResult.getSubmissionDetailId()));
+          .showReviewPage(submissionDetailService
+              .getSubmissionDetailForIdOrError(
+                  submissionWorkAreaQueryResult.getSubmissionDetailId()).getResourceId().getId()));
     }
   }
 

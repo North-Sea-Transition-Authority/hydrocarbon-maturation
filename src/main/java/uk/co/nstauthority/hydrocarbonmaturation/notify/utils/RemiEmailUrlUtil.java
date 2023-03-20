@@ -23,7 +23,7 @@ public class RemiEmailUrlUtil {
 
   public static String getReviewSubmissionPageUrl(SubmissionDetail submissionDetail) {
     var reviewPageUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
-        .showReviewPage(submissionDetail.getId()));
+        .showReviewPage(submissionDetail.getResourceId().getId()));
     return "%s%s".formatted(getBaseUrl(), reviewPageUrl);
   }
 

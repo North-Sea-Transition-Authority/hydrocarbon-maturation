@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
@@ -137,6 +138,29 @@ class ReviewSubmissionServiceTest {
         .emptySubmissionRecordSummaryView(UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.CREATE_PROSPECT);
     private final ServiceUserDetail USER_DETAIL = ServiceUserDetailTestUtil.Builder().build();
 
+    @BeforeEach
+    void setUp() {
+      submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    }
+
+    @ParameterizedTest
+    @EnumSource(SubmissionDetailStatus.class)
+    void AndSubmissionStatusIs_assertCorrect(SubmissionDetailStatus status) {
+      submissionDetail.setStatus(status);
+
+      if (status == SubmissionDetailStatus.SUBMITTED || status == SubmissionDetailStatus.APPROVED) {
+        when(regulatorTeamService.isRegulatorTeamRole(USER_DETAIL, RegulatorTeamRole.EXPLORATION))
+            .thenReturn(true);
+        var result = reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD, USER_DETAIL, submissionDetail);
+
+        assertThat(result).isTrue();
+      } else {
+        var result = reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD, USER_DETAIL, submissionDetail);
+
+        assertThat(result).isFalse();
+      }
+    }
+
     @Test
     void AndUserIsExploration_ThenTrue() {
       when(regulatorTeamService.isRegulatorTeamRole(USER_DETAIL, RegulatorTeamRole.EXPLORATION))
@@ -240,8 +264,8 @@ class ReviewSubmissionServiceTest {
     void whenIsInResponsibleTeam() {
       when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION))
           .thenReturn(true);
-
-      assertThat(reviewSubmissionService.canReviewSubmission(explorationResponsibleTeamSubmissionRecord, USER))
+      submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+      assertThat(reviewSubmissionService.canReviewSubmission(explorationResponsibleTeamSubmissionRecord, USER, submissionDetail))
           .isTrue();
     }
 
@@ -249,8 +273,9 @@ class ReviewSubmissionServiceTest {
     void whenIsNotInResponsibleTeam() {
       when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION))
           .thenReturn(false);
+      submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
 
-      assertThat(reviewSubmissionService.canReviewSubmission(explorationResponsibleTeamSubmissionRecord, USER))
+      assertThat(reviewSubmissionService.canReviewSubmission(explorationResponsibleTeamSubmissionRecord, USER, submissionDetail))
           .isFalse();
     }
 
@@ -259,8 +284,20 @@ class ReviewSubmissionServiceTest {
     void whenIsNotExplorationResponsibleTeamType(ResponsibleTeamType responsibleTeamType) {
       var notExplorationTeamResponsibleRecord =
           createSubmissionRecordWithResponsibleTeam(responsibleTeamType);
+      submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
 
-      assertThat(reviewSubmissionService.canReviewSubmission(notExplorationTeamResponsibleRecord, USER))
+      assertThat(reviewSubmissionService.canReviewSubmission(notExplorationTeamResponsibleRecord, USER, submissionDetail))
+          .isFalse();
+    }
+
+
+    @ParameterizedTest
+    @EnumSource(value = SubmissionDetailStatus.class, names = {"SUBMITTED"}, mode = EnumSource.Mode.EXCLUDE)
+    void whenStatusIsNotSubmitted(SubmissionDetailStatus status) {
+      var explorationResponsibleTeam = createSubmissionRecordWithResponsibleTeam(ResponsibleTeamType.EXPLORATION);
+      submissionDetail.setStatus(status);
+
+      assertThat(reviewSubmissionService.canReviewSubmission(explorationResponsibleTeam, USER, submissionDetail))
           .isFalse();
     }
 

@@ -26,7 +26,7 @@ class SubmissionRecordSummaryQueryService {
     this.context = dslContext;
   }
 
-  Optional<SubmissionRecordSummaryQueryResult> getSubmissionRecord(UUID submissionDetailId) {
+  Optional<SubmissionRecordSummaryQueryResult> getSubmissionRecord(UUID resourceId) {
     return context.select(
             SUBMISSION_DETAILS.ID,
             SUBMISSION_DETAILS.SUBMISSION_TYPE,
@@ -48,7 +48,7 @@ class SubmissionRecordSummaryQueryService {
             .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID)))
-        .where(SUBMISSION_DETAILS.ID.eq(submissionDetailId))
+        .where(RESOURCES.ID.eq(resourceId))
         .groupBy(List.of(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,
@@ -57,6 +57,8 @@ class SubmissionRecordSummaryQueryService {
             RESOURCE_DETAILS.ID,
             REGULATOR_MANAGED_INFORMATION.ID
         ))
+        .orderBy(SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc())
+        .limit(1)
         .fetchOptionalInto(SubmissionRecordSummaryQueryResult.class);
   }
 }

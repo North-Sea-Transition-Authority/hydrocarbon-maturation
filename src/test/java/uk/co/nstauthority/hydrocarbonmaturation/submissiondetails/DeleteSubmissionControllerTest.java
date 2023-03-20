@@ -60,7 +60,8 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
   void showDeleteConfirmationPage_assertStatusOk() throws Exception {
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-    mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(SUBMISSION_DETAIL_ID)))
+    mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
+            SUBMISSION_DETAIL_ID)))
             .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -70,7 +71,8 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-    mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(SUBMISSION_DETAIL_ID)))
+    mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
+            SUBMISSION_DETAIL_ID)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -80,7 +82,8 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
 
-    mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(SUBMISSION_DETAIL_ID)))
+    mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
+            SUBMISSION_DETAIL_ID)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -102,7 +105,8 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(resourceName);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
-    var modelMap = mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(SUBMISSION_DETAIL_ID)))
+    var modelMap = mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
+            SUBMISSION_DETAIL_ID)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView().getModelMap();

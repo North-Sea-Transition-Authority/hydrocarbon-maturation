@@ -1,11 +1,19 @@
 <#include '../layout/layout.ftl'>
 
 <#import '../submissiondetails/summary/_submissionSummary.ftl' as submissionSummary>
+<#import '../systemofrecord/submissionHistorySearchSelector.ftl' as submissionSelector>
+
 <#-- @ftlvariable name="submissionType" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType" -->
 <#-- @ftlvariable name="submissionRecord" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.SubmissionRecordSummaryView" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="canReview" type="boolean"-->
 <#-- @ftlvariable name="isApproved" type="boolean"-->
+<#-- @ftlvariable name="regulatorManagedInformationUrl" type="String"-->
+<#-- @ftlvariable name="withdrawUrl" type="String" -->
+<#-- @ftlvariable name="submissionSelectedUrl" type="String"-->
+<#-- @ftlvariable name="submissionNumber" type="String"-->
+<#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
+<#-- @ftlvariable name="resourceType" type="String"-->
 
 <#assign pageTitle = "${submissionRecord.resourceNameAndCentreOfInterest()}" />
 <#assign caption = "${submissionRecord.submissionType().getTypeName()}" />
@@ -42,7 +50,14 @@
         linkUrl=springUrl(regulatorManagedInformationUrl)/>
     </@fdsAction.buttonGroup>
   </#if>
-  <h2 class="govuk-heading-l">${submissionRecord.submissionType().getTypeName()}</h2>
+
+ <@fdsForm.htmlForm actionUrl=springUrl(submissionSelectedUrl)>
+   <@submissionSelector.submissionHistorySearchSelector
+      resourceType=resourceType
+      submissionsOnResource=submissionsOnResource/>
+ </@fdsForm.htmlForm>
+
+  <h2 class="govuk-heading-l">(${submissionNumber}) ${submissionType.getTypeName()}</h2>
 
   <@submissionSummary.submissionSummary
     submissionType="${submissionRecord.submissionType().name()}"/>

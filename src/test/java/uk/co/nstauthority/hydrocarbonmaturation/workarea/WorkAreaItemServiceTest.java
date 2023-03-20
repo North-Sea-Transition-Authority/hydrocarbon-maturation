@@ -26,7 +26,10 @@ import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
@@ -44,6 +47,9 @@ class WorkAreaItemServiceTest {
 
   @Mock
   private SubmissionDetailDisplayService submissionDetailDisplayService;
+
+  @Mock
+  private SubmissionDetailService submissionDetailService;
 
   @InjectMocks
   private WorkAreaItemService workAreaItemService;
@@ -327,7 +333,9 @@ class WorkAreaItemServiceTest {
         .thenReturn(List.of(queryResultInSubmitted));
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(any()))
         .thenReturn("Not provided");
-
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(queryResultInSubmitted.getSubmissionDetailId()))
+        .thenReturn(submissionDetail);
     var result = workAreaItemService.getWorkAreaItems();
 
     assertThat(result)
@@ -341,7 +349,7 @@ class WorkAreaItemServiceTest {
                 "resource name (25/5)",
                 "Prospect create",
                 ReverseRouter.route(on(ReviewSubmissionController.class)
-                    .showReviewPage(queryResultInSubmitted.getSubmissionDetailId())))
+                    .showReviewPage(submissionDetail.getResourceId().getId())))
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
@@ -363,6 +371,11 @@ class WorkAreaItemServiceTest {
     when(regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
         .thenReturn(List.of(queryResult));
 
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
+    if(status == SubmissionDetailStatus.SUBMITTED) {
+      when(submissionDetailService.getSubmissionDetailForIdOrError(queryResult.getSubmissionDetailId()))
+          .thenReturn(submissionDetail);
+    }
     var result = workAreaItemService.getWorkAreaItems();
 
     if (status == SubmissionDetailStatus.DRAFT) {
@@ -372,7 +385,7 @@ class WorkAreaItemServiceTest {
     } else {
       assertThat(result.get(0).actionUrl())
           .isEqualTo(ReverseRouter.route(on(ReviewSubmissionController.class)
-              .showReviewPage(queryResult.getSubmissionDetailId())));
+              .showReviewPage(submissionDetail.getResourceId().getId())));
     }
   }
 }

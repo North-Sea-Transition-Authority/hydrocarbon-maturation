@@ -7,9 +7,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstan
 public class DateUtil {
 
   static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMM yyyy");
+  static final DateTimeFormatter DATE_FORMATTER_LONG_DATE = DateTimeFormatter.ofPattern("d MMMM yyyy");
 
   private DateUtil() {
     throw new IllegalUtilClassInstantiationException(this.getClass());
+  }
+
+  /**
+   * Produce a GDS-complaint long date string for the provided date.
+   *
+   * @param localDate The LocalDate to format
+   * @return The formatted temporal in a GDS-complaint format
+   */
+  public static String formatLongDate(LocalDate localDate) {
+    return DATE_FORMATTER_LONG_DATE.format(localDate);
   }
 
   /**
