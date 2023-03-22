@@ -11,7 +11,7 @@ BEGIN
     )
     LOOP
 
-        INSERT INTO remi.responsible_teams (id, resource_id, responsible_team)
+        INSERT INTO remi.regulator_managed_information (id, resource_id, responsible_team)
         VALUES (gen_random_uuid(), resources.id, 'EXPLORATION');
 
     END LOOP;
