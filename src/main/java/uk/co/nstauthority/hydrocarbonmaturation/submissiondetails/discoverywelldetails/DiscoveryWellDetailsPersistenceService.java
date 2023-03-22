@@ -45,23 +45,25 @@ public class DiscoveryWellDetailsPersistenceService {
       );
     }
     discoveryWellDetails.setSubmissionDetail(submissionDetail);
-    discoveryWellDetails.setDatum(form.getWellDetailsForm().getReservoirDatum());
+    discoveryWellDetails.setTopReservoirDatum(form.getWellDetailsForm().getReservoirDatum());
     discoveryWellDetails.setChanceOfCommercialityComments(form.getChanceOfCommercialityComments());
     discoveryWellDetails.setDiscoveryStatus(form.getDiscoveryStatus());
-    discoveryWellDetails.setLatitudeDegrees(
+    discoveryWellDetails.setTopReservoirLatitudeDegrees(
         form.getWellDetailsForm().getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull());
-    discoveryWellDetails.setLatitudeMinutes(
+    discoveryWellDetails.setTopReservoirLatitudeMinutes(
         form.getWellDetailsForm().getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull());
-    discoveryWellDetails.setLatitudeSeconds(
+    discoveryWellDetails.setTopReservoirLatitudeSeconds(
         form.getWellDetailsForm().getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull());
-    discoveryWellDetails.setLongitudeDegrees(
+    discoveryWellDetails.setTopReservoirLongitudeDegrees(
         form.getWellDetailsForm().getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull());
-    discoveryWellDetails.setLongitudeMinutes(
+    discoveryWellDetails.setTopReservoirLongitudeMinutes(
         form.getWellDetailsForm().getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull());
-    discoveryWellDetails.setLongitudeSeconds(
+    discoveryWellDetails.setTopReservoirLongitudeSeconds(
         form.getWellDetailsForm().getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull());
     discoveryWellDetails.setSuccessRelatedCosts(form.getSuccessRelatedCosts().createBigDecimalOrNull());
-    discoveryWellDetails.setLongitudeHemisphere(form.getWellDetailsForm().getCoordinateInputForm().getLongitudeHemisphere());
+    discoveryWellDetails.setTopReservoirLongitudeHemisphere(
+        form.getWellDetailsForm().getCoordinateInputForm().getLongitudeHemisphere()
+    );
     discoveryWellDetails.setDataAcquisitionProgramme(form.getWellDetailsForm().getDataAcquisitionProgramme());
     discoveryWellDetails.setGeophysicalUpdateCommentary(form.getWellDetailsForm().getGeophysicalUpdate());
     discoveryWellDetails.setTotalDepthFormation(form.getWellDetailsForm().getTotalDepthFormation());

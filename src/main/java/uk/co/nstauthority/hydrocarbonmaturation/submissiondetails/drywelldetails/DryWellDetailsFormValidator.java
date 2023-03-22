@@ -25,7 +25,9 @@ class DryWellDetailsFormValidator extends PartialFullFormValidator {
         errors,
         dryWellForm.getDrillDetailsForm().getCoordinateInputForm(),
         "drillDetailsForm.coordinateInputForm.latitudeCoordinates",
-        "drillDetailsForm.coordinateInputForm.longitudeCoordinates"
+        "drillDetailsForm.coordinateInputForm.longitudeCoordinates",
+        "top reservoir latitude",
+        "top reservoir longitude"
     );
 
     DecimalInputValidator.configureOptionalValidator(
@@ -54,6 +56,8 @@ class DryWellDetailsFormValidator extends PartialFullFormValidator {
         dryWellForm.getDrillDetailsForm().getCoordinateInputForm(),
         "drillDetailsForm.coordinateInputForm.latitudeCoordinates",
         "drillDetailsForm.coordinateInputForm.longitudeCoordinates",
+        "top reservoir latitude",
+        "top reservoir longitude",
         "drillDetailsForm.coordinateInputForm.longitudeHemisphere"
     );
 
@@ -61,7 +65,7 @@ class DryWellDetailsFormValidator extends PartialFullFormValidator {
         errors,
         "drillDetailsForm.reservoirDatum",
         "drillDetailsForm.reservoirDatum.required",
-        "Select the datum"
+        "Select the top reservoir datum"
     );
 
     ValidationUtils.rejectIfEmptyOrWhitespace(

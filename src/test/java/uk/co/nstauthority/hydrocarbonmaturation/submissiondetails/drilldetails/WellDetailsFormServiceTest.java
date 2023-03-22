@@ -67,14 +67,14 @@ class WellDetailsFormServiceTest {
         .containsExactly(
             drillDetail.getDataAcquisitionProgramme(),
             drillDetail.getWellId().toString(),
-            drillDetail.getDatum(),
-            drillDetail.getLatitudeDegrees(),
-            drillDetail.getLongitudeDegrees(),
-            drillDetail.getLatitudeMinutes(),
-            drillDetail.getLongitudeMinutes(),
-            drillDetail.getLatitudeSeconds(),
-            drillDetail.getLongitudeSeconds(),
-            drillDetail.getLongitudeHemisphere(),
+            drillDetail.getTopReservoirDatum(),
+            drillDetail.getTopReservoirLatitudeDegrees(),
+            drillDetail.getTopReservoirLongitudeDegrees(),
+            drillDetail.getTopReservoirLatitudeMinutes(),
+            drillDetail.getTopReservoirLongitudeMinutes(),
+            drillDetail.getTopReservoirLatitudeSeconds(),
+            drillDetail.getTopReservoirLongitudeSeconds(),
+            drillDetail.getTopReservoirLongitudeHemisphere(),
             drillDetail.getGeophysicalUpdateCommentary(),
             drillDetail.getTotalDepthFormation(),
             drillDetail.getTotalDepthFormationComments()
@@ -105,14 +105,14 @@ class WellDetailsFormServiceTest {
     drillDetail.setSubmissionDetail(submissionDetail);
     drillDetail.setWellId(1);
     drillDetail.setWellReference("dryWellName");
-    drillDetail.setDatum(ReservoirDatum.ED50);
-    drillDetail.setLatitudeDegrees(BigDecimal.TEN);
-    drillDetail.setLatitudeMinutes(BigDecimal.TEN);
-    drillDetail.setLatitudeSeconds(BigDecimal.TEN);
-    drillDetail.setLongitudeDegrees(BigDecimal.ONE);
-    drillDetail.setLongitudeMinutes(BigDecimal.ONE);
-    drillDetail.setLongitudeSeconds(BigDecimal.ONE);
-    drillDetail.setLongitudeHemisphere(Hemisphere.EAST);
+    drillDetail.setTopReservoirDatum(ReservoirDatum.ED50);
+    drillDetail.setTopReservoirLatitudeDegrees(BigDecimal.TEN);
+    drillDetail.setTopReservoirLatitudeMinutes(BigDecimal.TEN);
+    drillDetail.setTopReservoirLatitudeSeconds(BigDecimal.TEN);
+    drillDetail.setTopReservoirLongitudeDegrees(BigDecimal.ONE);
+    drillDetail.setTopReservoirLongitudeMinutes(BigDecimal.ONE);
+    drillDetail.setTopReservoirLongitudeSeconds(BigDecimal.ONE);
+    drillDetail.setTopReservoirLongitudeHemisphere(Hemisphere.EAST);
     drillDetail.setDataAcquisitionProgramme("data");
     drillDetail.setGeophysicalUpdateCommentary("update");
     drillDetail.setTotalDepthFormation("formation");

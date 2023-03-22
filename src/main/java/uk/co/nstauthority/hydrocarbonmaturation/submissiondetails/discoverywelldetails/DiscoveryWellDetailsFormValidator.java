@@ -25,7 +25,9 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
         errors,
         discoveryWellDetailsForm.getWellDetailsForm().getCoordinateInputForm(),
         "wellDetailsForm.coordinateInputForm.latitudeCoordinates",
-        "wellDetailsForm.coordinateInputForm.longitudeCoordinates"
+        "wellDetailsForm.coordinateInputForm.longitudeCoordinates",
+        "top reservoir latitude",
+        "top reservoir longitude"
     );
 
     DecimalInputValidator.configureOptionalValidator(
@@ -67,10 +69,12 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
         discoveryWellDetailsForm.getWellDetailsForm().getCoordinateInputForm(),
         "wellDetailsForm.coordinateInputForm.latitudeCoordinates",
         "wellDetailsForm.coordinateInputForm.longitudeCoordinates",
+        "top reservoir latitude",
+        "top reservoir longitude",
         "wellDetailsForm.coordinateInputForm.longitudeHemisphere");
 
     ValidationUtils.rejectIfEmpty(errors, "wellDetailsForm.reservoirDatum",
-        "wellDetailsForm.reservoirDatum.required", "Select the datum");
+        "wellDetailsForm.reservoirDatum.required", "Select the top reservoir datum");
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "wellDetailsForm.totalDepthFormation",
         "wellDetailsForm.totalDepthFormation.required", "Enter the total depth formation"

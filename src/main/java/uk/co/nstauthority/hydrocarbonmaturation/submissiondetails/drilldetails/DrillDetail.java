@@ -29,23 +29,23 @@ public class DrillDetail {
 
   private String wellReference;
 
-  private BigDecimal latitudeDegrees;
+  private BigDecimal topReservoirLatitudeDegrees;
 
-  private BigDecimal latitudeMinutes;
+  private BigDecimal topReservoirLatitudeMinutes;
 
-  private BigDecimal latitudeSeconds;
+  private BigDecimal topReservoirLatitudeSeconds;
 
-  private BigDecimal longitudeDegrees;
+  private BigDecimal topReservoirLongitudeDegrees;
 
-  private BigDecimal longitudeMinutes;
+  private BigDecimal topReservoirLongitudeMinutes;
 
-  private BigDecimal longitudeSeconds;
-
-  @Enumerated(EnumType.STRING)
-  private Hemisphere longitudeHemisphere;
+  private BigDecimal topReservoirLongitudeSeconds;
 
   @Enumerated(EnumType.STRING)
-  private ReservoirDatum datum;
+  private Hemisphere topReservoirLongitudeHemisphere;
+
+  @Enumerated(EnumType.STRING)
+  private ReservoirDatum topReservoirDatum;
 
   private String totalDepthFormation;
 
@@ -87,69 +87,69 @@ public class DrillDetail {
     this.wellReference = wellReference;
   }
 
-  public BigDecimal getLatitudeDegrees() {
-    return latitudeDegrees;
+  public BigDecimal getTopReservoirLatitudeDegrees() {
+    return topReservoirLatitudeDegrees;
   }
 
-  public void setLatitudeDegrees(BigDecimal latitudeDegrees) {
-    this.latitudeDegrees = latitudeDegrees;
+  public void setTopReservoirLatitudeDegrees(BigDecimal latitudeDegrees) {
+    this.topReservoirLatitudeDegrees = latitudeDegrees;
   }
 
-  public BigDecimal getLatitudeMinutes() {
-    return latitudeMinutes;
+  public BigDecimal getTopReservoirLatitudeMinutes() {
+    return topReservoirLatitudeMinutes;
   }
 
-  public void setLatitudeMinutes(BigDecimal latitudeMinutes) {
-    this.latitudeMinutes = latitudeMinutes;
+  public void setTopReservoirLatitudeMinutes(BigDecimal latitudeMinutes) {
+    this.topReservoirLatitudeMinutes = latitudeMinutes;
   }
 
-  public BigDecimal getLatitudeSeconds() {
-    return latitudeSeconds;
+  public BigDecimal getTopReservoirLatitudeSeconds() {
+    return topReservoirLatitudeSeconds;
   }
 
-  public void setLatitudeSeconds(BigDecimal latitudeSeconds) {
-    this.latitudeSeconds = latitudeSeconds;
+  public void setTopReservoirLatitudeSeconds(BigDecimal latitudeSeconds) {
+    this.topReservoirLatitudeSeconds = latitudeSeconds;
   }
 
-  public BigDecimal getLongitudeDegrees() {
-    return longitudeDegrees;
+  public BigDecimal getTopReservoirLongitudeDegrees() {
+    return topReservoirLongitudeDegrees;
   }
 
-  public void setLongitudeDegrees(BigDecimal longitudeDegrees) {
-    this.longitudeDegrees = longitudeDegrees;
+  public void setTopReservoirLongitudeDegrees(BigDecimal longitudeDegrees) {
+    this.topReservoirLongitudeDegrees = longitudeDegrees;
   }
 
-  public BigDecimal getLongitudeMinutes() {
-    return longitudeMinutes;
+  public BigDecimal getTopReservoirLongitudeMinutes() {
+    return topReservoirLongitudeMinutes;
   }
 
-  public void setLongitudeMinutes(BigDecimal longitudeMinutes) {
-    this.longitudeMinutes = longitudeMinutes;
+  public void setTopReservoirLongitudeMinutes(BigDecimal longitudeMinutes) {
+    this.topReservoirLongitudeMinutes = longitudeMinutes;
   }
 
-  public BigDecimal getLongitudeSeconds() {
-    return longitudeSeconds;
+  public BigDecimal getTopReservoirLongitudeSeconds() {
+    return topReservoirLongitudeSeconds;
   }
 
-  public void setLongitudeSeconds(BigDecimal longitudeSeconds) {
-    this.longitudeSeconds = longitudeSeconds;
+  public void setTopReservoirLongitudeSeconds(BigDecimal longitudeSeconds) {
+    this.topReservoirLongitudeSeconds = longitudeSeconds;
   }
 
-  public Hemisphere getLongitudeHemisphere() {
-    return longitudeHemisphere;
+  public Hemisphere getTopReservoirLongitudeHemisphere() {
+    return topReservoirLongitudeHemisphere;
   }
 
-  public void setLongitudeHemisphere(
+  public void setTopReservoirLongitudeHemisphere(
       Hemisphere longitudeHemisphere) {
-    this.longitudeHemisphere = longitudeHemisphere;
+    this.topReservoirLongitudeHemisphere = longitudeHemisphere;
   }
 
-  public ReservoirDatum getDatum() {
-    return datum;
+  public ReservoirDatum getTopReservoirDatum() {
+    return topReservoirDatum;
   }
 
-  public void setDatum(ReservoirDatum datum) {
-    this.datum = datum;
+  public void setTopReservoirDatum(ReservoirDatum datum) {
+    this.topReservoirDatum = datum;
   }
 
   public String getTotalDepthFormation() {

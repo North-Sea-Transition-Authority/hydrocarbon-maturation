@@ -15,7 +15,7 @@
     minutesLocationPath="${formPath}.coordinateInputForm.latitudeCoordinates.minutes.decimalInputValue"
     secondsLocationPath="${formPath}.coordinateInputForm.latitudeCoordinates.seconds.decimalInputValue"
     formId="latitude"
-    labelText="Latitude"
+    labelText="Top reservoir latitude"
     wgs84Datum=false/>
 
   <@coordinateInput.coordinateInput
@@ -26,11 +26,11 @@
     direction="EW"
     directionPath="${formPath}.coordinateInputForm.longitudeHemisphere"
     directionList=longitudeHemisphere
-    labelText="Longitude"
+    labelText="Top reservoir longitude"
     hintText="From 0 to 30 for degrees, 0 to 59 for minutes, and 0 to 59.999 for seconds"
     wgs84Datum=false/>
 
-  <@fdsRadio.radioGroup path="${formPath}.reservoirDatum" labelText="Datum">
+  <@fdsRadio.radioGroup path="${formPath}.reservoirDatum" labelText="Top reservoir datum">
     <#assign firstItem=true/>
     <#list datumTypes as key, value>
       <@fdsRadio.radioItem path="${formPath}.reservoirDatum" itemMap={key : value} isFirstItem=firstItem/>

@@ -19,8 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -130,17 +130,17 @@ class DiscoveryWellDetailsFormServiceTest {
             theForm -> theForm.getDryHoleCost().asBigDecimal(),
             theForm -> theForm.getSuccessRelatedCosts().asBigDecimal())
         .containsExactly(
-            Optional.of(discoveryWellDetail.getLongitudeDegrees()),
-            Optional.of(discoveryWellDetail.getLongitudeMinutes()),
-            Optional.of(discoveryWellDetail.getLongitudeSeconds()),
-            Optional.of(discoveryWellDetail.getLatitudeDegrees()),
-            Optional.of(discoveryWellDetail.getLatitudeMinutes()),
-            Optional.of(discoveryWellDetail.getLatitudeSeconds()),
-            discoveryWellDetail.getLongitudeHemisphere(),
+            Optional.of(discoveryWellDetail.getTopReservoirLongitudeDegrees()),
+            Optional.of(discoveryWellDetail.getTopReservoirLongitudeMinutes()),
+            Optional.of(discoveryWellDetail.getTopReservoirLongitudeSeconds()),
+            Optional.of(discoveryWellDetail.getTopReservoirLatitudeDegrees()),
+            Optional.of(discoveryWellDetail.getTopReservoirLatitudeMinutes()),
+            Optional.of(discoveryWellDetail.getTopReservoirLatitudeSeconds()),
+            discoveryWellDetail.getTopReservoirLongitudeHemisphere(),
             discoveryWellDetail.getWellId().toString(),
             discoveryWellDetail.getDataAcquisitionProgramme(),
             discoveryWellDetail.getGeophysicalUpdateCommentary(),
-            discoveryWellDetail.getDatum(),
+            discoveryWellDetail.getTopReservoirDatum(),
             discoveryWellDetail.getTotalDepthFormation(),
             discoveryWellDetail.getTotalDepthFormationComments(),
             discoveryWellDetail.getChanceOfCommercialityComments(),
@@ -156,14 +156,14 @@ class DiscoveryWellDetailsFormServiceTest {
     discoveryWellDetail.setSubmissionDetail(submissionDetail);
     discoveryWellDetail.setWellId(1);
     discoveryWellDetail.setWellReference("well ref");
-    discoveryWellDetail.setDatum(ReservoirDatum.ED50);
-    discoveryWellDetail.setLatitudeDegrees(BigDecimal.TEN);
-    discoveryWellDetail.setLatitudeMinutes(BigDecimal.TEN);
-    discoveryWellDetail.setLatitudeSeconds(BigDecimal.TEN);
-    discoveryWellDetail.setLongitudeDegrees(BigDecimal.ONE);
-    discoveryWellDetail.setLongitudeMinutes(BigDecimal.ONE);
-    discoveryWellDetail.setLongitudeSeconds(BigDecimal.ONE);
-    discoveryWellDetail.setLongitudeHemisphere(Hemisphere.EAST);
+    discoveryWellDetail.setTopReservoirDatum(ReservoirDatum.ED50);
+    discoveryWellDetail.setTopReservoirLatitudeDegrees(BigDecimal.TEN);
+    discoveryWellDetail.setTopReservoirLatitudeMinutes(BigDecimal.TEN);
+    discoveryWellDetail.setTopReservoirLatitudeSeconds(BigDecimal.TEN);
+    discoveryWellDetail.setTopReservoirLongitudeDegrees(BigDecimal.ONE);
+    discoveryWellDetail.setTopReservoirLongitudeMinutes(BigDecimal.ONE);
+    discoveryWellDetail.setTopReservoirLongitudeSeconds(BigDecimal.ONE);
+    discoveryWellDetail.setTopReservoirLongitudeHemisphere(Hemisphere.EAST);
     discoveryWellDetail.setDataAcquisitionProgramme("data");
     discoveryWellDetail.setGeophysicalUpdateCommentary("update");
     discoveryWellDetail.setTotalDepthFormation("formation");

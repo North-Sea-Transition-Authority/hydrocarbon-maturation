@@ -1,17 +1,19 @@
 package uk.co.nstauthority.hydrocarbonmaturation.validationutil;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
+import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateType;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 
 public class CoordinateInputValidationUtil {
 
-  private static final String LATITUDE = "latitude";
-  private static final String LONGITUDE = "longitude";
+  private static final String LATITUDE_DEFAULT_NAME = "latitude";
+  private static final String LONGITUDE_DEFAULT_NAME = "longitude";
   private static final String DEGREES_FIELD_SUFFIX = "degrees.decimalInputValue";
   private static final String MINUTES_FIELD_SUFFIX = "minutes.decimalInputValue";
   private static final String SECONDS_FIELD_SUFFIX = "seconds.decimalInputValue";
@@ -30,61 +32,114 @@ public class CoordinateInputValidationUtil {
 
   public static void validateMandatoryCoordinateInputWithHemisphere(Errors errors, CoordinateInput coordinateInput,
                                                                     String fieldIdPrefix, String displayPrefix,
-                                                                    Hemisphere hemisphere, String hemisphereFieldPrefix) {
+                                                                    Hemisphere hemisphere, String hemisphereFieldPrefix,
+                                                                    CoordinateType coordinateType) {
 
-    validateCoordinateInputWithHemisphere(errors, coordinateInput, fieldIdPrefix, displayPrefix, hemisphere,
-        hemisphereFieldPrefix);
+    validateCoordinateInputWithHemisphere(
+        errors,
+        coordinateInput,
+        fieldIdPrefix,
+        displayPrefix,
+        hemisphere,
+        hemisphereFieldPrefix,
+        coordinateType
+    );
   }
 
-  public static void validateMandatoryCoordinateInputNoHemisphere(Errors errors, CoordinateInput coordinateInput,
-                                                                  String fieldIdPrefix, String displayPrefix) {
+  public static void validateMandatoryCoordinateInputNoHemisphere(Errors errors,
+                                                                  CoordinateInput coordinateInput,
+                                                                  String fieldIdPrefix,
+                                                                  String displayPrefix,
+                                                                  CoordinateType coordinateType) {
 
-    validateCoordinateInput(errors, coordinateInput, fieldIdPrefix, displayPrefix);
+    validateCoordinateInput(errors, coordinateInput, fieldIdPrefix, displayPrefix, coordinateType);
   }
 
-  public static void validateOptionalCoordinateInput(Errors errors, CoordinateInput coordinateInput, String fieldIdPrefix,
-                                                      String displayPrefix) {
+  public static void validateOptionalCoordinateInput(Errors errors,
+                                                     CoordinateInput coordinateInput,
+                                                     String fieldIdPrefix,
+                                                     String displayPrefix,
+                                                     CoordinateType coordinateType) {
 
-    validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.FALSE,
-        OptionalMandatory.OPTIONAL);
+    var degrees = coordinateInput.getDegrees().getDecimalInputValue();
+    var minutes = coordinateInput.getMinutes().getDecimalInputValue();
+    var seconds = coordinateInput.getSeconds().getDecimalInputValue();
+
+    // Validate coordinates if any of the details have been entered even on partial form save
+    if (!ObjectUtils.allNull(degrees, minutes, seconds)) {
+
+      if (ObjectUtils.anyNull(degrees, minutes, seconds)) {
+        addPartialNullValidationErrors(
+            errors,
+            fieldIdPrefix,
+            degrees,
+            minutes,
+            seconds,
+            displayPrefix
+        );
+      } else if (ObjectUtils.allNotNull(degrees, minutes, seconds)) {
+        validateDegreesMinutesSeconds(
+            errors,
+            fieldIdPrefix,
+            displayPrefix,
+            coordinateInput,
+            OverrideErrorMessage.FALSE,
+            OptionalMandatory.OPTIONAL,
+            coordinateType
+        );
+      }
+
+    }
+
+
   }
 
   public static void validateOptionalCoordinateInputForm(Errors errors,
                                                          CoordinateInputForm form,
                                                          String latitudeFieldIdPrefix,
-                                                         String longitudeFieldIdPrefix) {
+                                                         String longitudeFieldIdPrefix,
+                                                         String latDisplayPrefix,
+                                                         String longDisplayPrefix) {
     CoordinateInputValidationUtil.validateOptionalCoordinateInput(
         errors,
         form.getLatitudeCoordinates(),
         latitudeFieldIdPrefix,
-        LATITUDE);
+        Objects.requireNonNullElse(latDisplayPrefix, LATITUDE_DEFAULT_NAME),
+        CoordinateType.LATITUDE
+    );
 
     CoordinateInputValidationUtil.validateOptionalCoordinateInput(
         errors,
         form.getLongitudeCoordinates(),
         longitudeFieldIdPrefix,
-        LONGITUDE);
+        Objects.requireNonNullElse(longDisplayPrefix, LONGITUDE_DEFAULT_NAME),
+        CoordinateType.LONGITUDE
+    );
   }
 
   public static void validateMandatoryCoordinateInputForm(Errors errors,
                                                           CoordinateInputForm form,
                                                           String latitudeFieldIdPrefix,
                                                           String longitudeFieldIdPrefix,
+                                                          String latDisplayPrefix,
+                                                          String longDisplayPrefix,
                                                           String hemisphereFieldIdPrefix) {
     CoordinateInputValidationUtil.validateMandatoryCoordinateInputNoHemisphere(
         errors,
         form.getLatitudeCoordinates(),
         latitudeFieldIdPrefix,
-        LATITUDE
+        Objects.requireNonNullElse(latDisplayPrefix, LATITUDE_DEFAULT_NAME),
+        CoordinateType.LATITUDE
     );
 
     CoordinateInputValidationUtil.validateMandatoryCoordinateInputWithHemisphere(
         errors,
         form.getLongitudeCoordinates(),
         longitudeFieldIdPrefix,
-        LONGITUDE,
+        Objects.requireNonNullElse(longDisplayPrefix, LONGITUDE_DEFAULT_NAME),
         form.getLongitudeHemisphere(),
-        hemisphereFieldIdPrefix
+        hemisphereFieldIdPrefix,
+        CoordinateType.LONGITUDE
     );
 
   }
@@ -98,8 +153,11 @@ public class CoordinateInputValidationUtil {
    * @param displayPrefix The display version prefix of the form coordinate fields. E.g. for longitudeCoordinates it would be
    *                      longitude. It's used to format the error messages
    */
-  private static void validateCoordinateInput(Errors errors, CoordinateInput coordinateInput, String fieldIdPrefix,
-                                             String displayPrefix) {
+  private static void validateCoordinateInput(Errors errors,
+                                              CoordinateInput coordinateInput,
+                                              String fieldIdPrefix,
+                                              String displayPrefix,
+                                              CoordinateType coordinateType) {
 
     var degrees = coordinateInput.getDegrees().getDecimalInputValue();
     var minutes = coordinateInput.getMinutes().getDecimalInputValue();
@@ -108,14 +166,18 @@ public class CoordinateInputValidationUtil {
 
     if (ObjectUtils.allNull(degrees, minutes, seconds)) {
       addAllNullValidationErrors(errors, fieldIdPrefix, degrees, minutes, seconds, displayPrefix);
-
     } else if (ObjectUtils.anyNull(degrees, minutes, seconds)) {
       addPartialNullValidationErrors(errors, fieldIdPrefix, degrees, minutes, seconds, displayPrefix);
-      validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.TRUE,
-          OptionalMandatory.MANDATORY);
     } else {
-      validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.FALSE,
-          OptionalMandatory.MANDATORY);
+      validateDegreesMinutesSeconds(
+          errors,
+          fieldIdPrefix,
+          displayPrefix,
+          coordinateInput,
+          OverrideErrorMessage.FALSE,
+          OptionalMandatory.MANDATORY,
+          coordinateType
+      );
     }
   }
 
@@ -132,7 +194,7 @@ public class CoordinateInputValidationUtil {
    */
   private static void validateCoordinateInputWithHemisphere(Errors errors, CoordinateInput coordinateInput, String fieldIdPrefix,
                                                            String displayPrefix, Hemisphere hemisphere,
-                                                           String hemisphereFieldPrefix) {
+                                                           String hemisphereFieldPrefix, CoordinateType coordinateType) {
 
     var degrees = coordinateInput.getDegrees().getDecimalInputValue();
     var minutes = coordinateInput.getMinutes().getDecimalInputValue();
@@ -147,23 +209,29 @@ public class CoordinateInputValidationUtil {
       addPartialNullValidationErrors(errors, fieldIdPrefix, degrees, minutes, seconds, displayPrefix);
       validateHemisphere(hemisphere, errors, fieldIdPrefix, hemisphereFieldPrefix,
           displayPrefix);
-      validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput, OverrideErrorMessage.TRUE,
-          OptionalMandatory.MANDATORY);
 
     } else {
       validateHemisphere(hemisphere, errors, fieldIdPrefix, hemisphereFieldPrefix,
           displayPrefix);
       validateDegreesMinutesSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput,
           OverrideErrorMessage.getFromBoolean(errors.getFieldErrorCount(hemisphereFieldPrefix) != 0),
-          OptionalMandatory.MANDATORY);
+          OptionalMandatory.MANDATORY, coordinateType);
     }
   }
 
   private static void validateDegreesMinutesSeconds(Errors errors, String fieldIdPrefix, String displayPrefix,
                                                     CoordinateInput coordinateInput, OverrideErrorMessage overrideErrorMessage,
-                                                    OptionalMandatory optionalMandatory) {
+                                                    OptionalMandatory optionalMandatory, CoordinateType coordinateType) {
 
-    validateDegrees(errors, fieldIdPrefix, displayPrefix, coordinateInput.getDegrees(), overrideErrorMessage, optionalMandatory);
+    validateDegrees(
+        errors,
+        fieldIdPrefix,
+        displayPrefix,
+        coordinateInput.getDegrees(),
+        overrideErrorMessage,
+        optionalMandatory,
+        coordinateType
+    );
     validateMinutes(errors, fieldIdPrefix, displayPrefix, coordinateInput.getMinutes(), overrideErrorMessage, optionalMandatory);
     validateSeconds(errors, fieldIdPrefix, displayPrefix, coordinateInput.getSeconds(), overrideErrorMessage, optionalMandatory);
   }
@@ -201,7 +269,7 @@ public class CoordinateInputValidationUtil {
   }
 
   private static void addAllNullValidationErrors(Errors errors, String fieldIdPrefix, String degrees, String minutes,
-                                              String seconds, String displayPrefix) {
+                                                 String seconds, String displayPrefix) {
 
     rejectFieldsAndSetMessage(fieldIdPrefix,
         COORDINATE_REQUIRED_ERROR_MESSAGE.formatted(displayPrefix),
@@ -224,13 +292,13 @@ public class CoordinateInputValidationUtil {
    */
   private static void validateDegrees(Errors errors, String fieldIdPrefix, String displayPrefix, DecimalInput degrees,
                                       OverrideErrorMessage overrideErrorMessage,
-                                      OptionalMandatory optionalMandatory) {
+                                      OptionalMandatory optionalMandatory, CoordinateType coordinateType) {
 
     var degreesValidator =
         DecimalInputValidator.configureValidator(errors, "%s.%s".formatted(fieldIdPrefix, DEGREES_FIELD_SUFFIX),
             "The %s degrees".formatted(displayPrefix), degrees)
-            .setMaxValue(displayPrefix.equals(LATITUDE) ? UKCS_LATITUDE_MAX_DEGREES : UKCS_LONGITUDE_MAX_DEGREES)
-            .setMinValue(displayPrefix.equals(LATITUDE) ? UKCS_LATITUDE_MIN_DEGREES : UKCS_LONGITUDE_MIN_DEGREES)
+            .setMaxValue(CoordinateType.LATITUDE.equals(coordinateType) ? UKCS_LATITUDE_MAX_DEGREES : UKCS_LONGITUDE_MAX_DEGREES)
+            .setMinValue(CoordinateType.LATITUDE.equals(coordinateType) ? UKCS_LATITUDE_MIN_DEGREES : UKCS_LONGITUDE_MIN_DEGREES)
             .setMaxDecimalPlaces(0);
 
     if (!degrees.hasContent() || overrideErrorMessage.equals(OverrideErrorMessage.TRUE)) {

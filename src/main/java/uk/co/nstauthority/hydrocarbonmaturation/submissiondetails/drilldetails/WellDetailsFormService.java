@@ -26,20 +26,20 @@ public class WellDetailsFormService {
     if (drillDetail.getWellId() != null) {
       form.setWell(drillDetail.getWellId().toString());
     }
-    form.setReservoirDatum(drillDetail.getDatum());
+    form.setReservoirDatum(drillDetail.getTopReservoirDatum());
     form.setDataAcquisitionProgramme(drillDetail.getDataAcquisitionProgramme());
     form.setGeophysicalUpdate(drillDetail.getGeophysicalUpdateCommentary());
     var latitudeCoordinates =
         CoordinateInput.createCoordinateInputForForm(
-            drillDetail.getLatitudeDegrees(),
-            drillDetail.getLatitudeMinutes(),
-            drillDetail.getLatitudeSeconds());
+            drillDetail.getTopReservoirLatitudeDegrees(),
+            drillDetail.getTopReservoirLatitudeMinutes(),
+            drillDetail.getTopReservoirLatitudeSeconds());
     var longitudeCoordinates =
         CoordinateInput.createCoordinateInputForForm(
-            drillDetail.getLongitudeDegrees(),
-            drillDetail.getLongitudeMinutes(),
-            drillDetail.getLongitudeSeconds());
-    var hemisphere = drillDetail.getLongitudeHemisphere();
+            drillDetail.getTopReservoirLongitudeDegrees(),
+            drillDetail.getTopReservoirLongitudeMinutes(),
+            drillDetail.getTopReservoirLongitudeSeconds());
+    var hemisphere = drillDetail.getTopReservoirLongitudeHemisphere();
     var coordinateInputForm = new CoordinateInputForm();
     coordinateInputForm.setLongitudeCoordinates(longitudeCoordinates);
     coordinateInputForm.setLatitudeCoordinates(latitudeCoordinates);

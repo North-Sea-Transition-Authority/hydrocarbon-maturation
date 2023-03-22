@@ -26,7 +26,9 @@ class TrapPropertiesFormValidator extends PartialFullFormValidator {
         errors,
         trapPropertiesForm.getCoordinateInputForm(),
         "coordinateInputForm.latitudeCoordinates",
-        "coordinateInputForm.longitudeCoordinates"
+        "coordinateInputForm.longitudeCoordinates",
+        null,
+        null
     );
 
     var depthToCrestForm = trapPropertiesForm.getDepthToCrest();
@@ -79,6 +81,8 @@ class TrapPropertiesFormValidator extends PartialFullFormValidator {
         trapPropertiesForm.getCoordinateInputForm(),
         "coordinateInputForm.latitudeCoordinates",
         "coordinateInputForm.longitudeCoordinates",
+        null,
+        null,
         "coordinateInputForm.longitudeHemisphere"
     );
 

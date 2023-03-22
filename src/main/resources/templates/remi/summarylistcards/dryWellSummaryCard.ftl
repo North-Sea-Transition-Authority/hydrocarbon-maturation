@@ -6,17 +6,17 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Principal well">
       ${dryWellValues.principalWell()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Latitude ">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Top reservoir latitude">
       ${dryWellValues.latitudeDegrees()}
       ${dryWellValues.latitudeMinutes()}
       ${dryWellValues.latitudeSeconds()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Longitude">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Top reservoir longitude">
       ${dryWellValues.longitudeDegrees()}
       ${dryWellValues.longitudeMinutes()}
       ${dryWellValues.longitudeSeconds()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Longitude hemisphere">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Top reservoir longitude hemisphere">
       ${dryWellValues.longitudeHemisphere()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Top reservoir datum">

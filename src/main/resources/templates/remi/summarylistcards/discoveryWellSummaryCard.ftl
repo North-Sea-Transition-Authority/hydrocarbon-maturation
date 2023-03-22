@@ -6,17 +6,17 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Principal well">
       ${discoveryWellValues.principalWell()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Latitude ">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Top reservoir latitude">
       ${discoveryWellValues.latitudeDegrees()}
       ${discoveryWellValues.latitudeMinutes()}
       ${discoveryWellValues.latitudeSeconds()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Longitude">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Top reservoir longitude">
       ${discoveryWellValues.longitudeDegrees()}
       ${discoveryWellValues.longitudeMinutes()}
       ${discoveryWellValues.longitudeSeconds()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Longitude hemisphere">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Top reservoir longitude hemisphere">
       ${discoveryWellValues.longitudeHemisphere()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Top reservoir datum">

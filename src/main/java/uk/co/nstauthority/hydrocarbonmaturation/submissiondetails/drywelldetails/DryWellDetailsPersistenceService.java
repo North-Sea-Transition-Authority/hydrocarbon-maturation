@@ -41,21 +41,21 @@ class DryWellDetailsPersistenceService {
     dryWellDetail.setSubmissionDetail(submissionDetail);
     dryWellDetail.setDryHoleComments(form.getDryHoleComments());
     dryWellDetail.setDryHoleScope(form.getDryHoleScope());
-    dryWellDetail.setDatum(detailForm.getReservoirDatum());
+    dryWellDetail.setTopReservoirDatum(detailForm.getReservoirDatum());
     dryWellDetail.setDryHoleDescription(form.getDryHoleDescription());
-    dryWellDetail.setLatitudeDegrees(
+    dryWellDetail.setTopReservoirLatitudeDegrees(
         detailForm.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull());
-    dryWellDetail.setLatitudeMinutes(
+    dryWellDetail.setTopReservoirLatitudeMinutes(
         detailForm.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull());
-    dryWellDetail.setLatitudeSeconds(
+    dryWellDetail.setTopReservoirLatitudeSeconds(
         detailForm.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull());
-    dryWellDetail.setLongitudeDegrees(
+    dryWellDetail.setTopReservoirLongitudeDegrees(
         detailForm.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull());
-    dryWellDetail.setLongitudeMinutes(
+    dryWellDetail.setTopReservoirLongitudeMinutes(
         detailForm.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull());
-    dryWellDetail.setLongitudeSeconds(
+    dryWellDetail.setTopReservoirLongitudeSeconds(
         detailForm.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull());
-    dryWellDetail.setLongitudeHemisphere(detailForm.getCoordinateInputForm().getLongitudeHemisphere());
+    dryWellDetail.setTopReservoirLongitudeHemisphere(detailForm.getCoordinateInputForm().getLongitudeHemisphere());
     dryWellDetail.setDataAcquisitionProgramme(detailForm.getDataAcquisitionProgramme());
     dryWellDetail.setGeophysicalUpdateCommentary(detailForm.getGeophysicalUpdate());
     dryWellDetail.setTotalDepthFormation(detailForm.getTotalDepthFormation());
