@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +42,19 @@ class OpportunityDetailsDuplicationService implements SubmissionSectionDuplicati
           }
         });
 
-    supportingDocumentService.getSupportingDocumentsForType(oldSubmissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY)
-        .forEach(supportingDocument ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument,
-                SupportingDocument.class));
+    supportingDocumentService.getSupportingDocumentsForTypes(
+        oldSubmissionDetail,
+        Set.of(
+            SupportingDocumentType.MAP_OF_OPPORTUNITY,
+            SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION,
+            SupportingDocumentType.GEOLOGICAL_CROSS_SECTION
+        )
+    ).forEach(supportingDocument ->
+        submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+            newSubmissionDetail,
+            supportingDocument,
+            SupportingDocument.class
+        ));
   }
 
   @Transactional

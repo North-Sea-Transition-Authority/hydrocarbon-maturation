@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -72,7 +73,7 @@ class AdditionalInformationDuplicationServiceTest {
 
     var supportingDocument1 = mock(SupportingDocument.class);
     var supportingDocument2 = mock(SupportingDocument.class);
-    when(supportingDocumentService.getSupportingDocumentsForType(oldSubmissionDetail, SupportingDocumentType.ADDITIONAL_DOCUMENT))
+    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail, Set.of(SupportingDocumentType.ADDITIONAL_DOCUMENT)))
         .thenReturn(List.of(supportingDocument1, supportingDocument2));
 
     additionalInformationDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
@@ -88,7 +89,7 @@ class AdditionalInformationDuplicationServiceTest {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = mock(SubmissionDetail.class);
 
-    when(supportingDocumentService.getSupportingDocumentsForType(oldSubmissionDetail, SupportingDocumentType.ADDITIONAL_DOCUMENT))
+    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail, Set.of(SupportingDocumentType.ADDITIONAL_DOCUMENT)))
         .thenReturn(Collections.emptyList());
 
     additionalInformationDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);

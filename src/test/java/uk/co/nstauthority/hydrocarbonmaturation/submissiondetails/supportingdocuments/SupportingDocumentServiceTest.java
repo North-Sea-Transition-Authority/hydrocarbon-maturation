@@ -13,6 +13,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -129,8 +130,8 @@ class SupportingDocumentServiceTest {
     var supportingDocumentType = SupportingDocumentType.MAP_OF_OPPORTUNITY;
     var supportingDocument = createSupportingDocument(uuid, supportingDocumentType);
 
-    when(supportingDocumentRepository.findAllBySubmissionDetailAndSupportingDocumentType(submissionDetail,
-        supportingDocumentType)).thenReturn(List.of(supportingDocument));
+    when(supportingDocumentRepository.findAllBySubmissionDetailAndSupportingDocumentTypeIn(submissionDetail,
+        Set.of(supportingDocumentType))).thenReturn(List.of(supportingDocument));
     when(fileUploadService.createFileUploadForm(uploadedFile)).thenReturn(createFileUploadForm(uploadedFile));
 
     var fileUploadForms = supportingDocumentService.getFileUploadFormListForSubmissionAndType(

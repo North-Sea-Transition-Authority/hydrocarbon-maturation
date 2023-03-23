@@ -41,10 +41,14 @@ class TrapPropertiesDuplicationService implements SubmissionSectionDuplicationSe
                 TrapProperty.class)
         );
 
-    supportingDocumentService.getSupportingDocumentsForType(oldSubmissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP)
-        .forEach(supportingDocument ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument,
-                SupportingDocument.class));
+    supportingDocumentService.getSupportingDocumentsForTypes(
+        oldSubmissionDetail,
+        Set.of(SupportingDocumentType.PROSPECT_DEPTH_MAP)
+    ).forEach(supportingDocument -> submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+        newSubmissionDetail,
+        supportingDocument,
+        SupportingDocument.class
+    ));
 
     probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
             ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA,

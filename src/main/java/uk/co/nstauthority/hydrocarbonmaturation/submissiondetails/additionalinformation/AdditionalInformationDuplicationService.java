@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation;
 
+import java.util.Set;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,9 +35,13 @@ class AdditionalInformationDuplicationService implements SubmissionSectionDuplic
                 AdditionalInformation.class)
         );
 
-    supportingDocumentService.getSupportingDocumentsForType(oldSubmissionDetail, SupportingDocumentType.ADDITIONAL_DOCUMENT)
-        .forEach(supportingDocument ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument,
-                SupportingDocument.class));
+    supportingDocumentService.getSupportingDocumentsForTypes(
+        oldSubmissionDetail,
+        Set.of(SupportingDocumentType.ADDITIONAL_DOCUMENT)
+    ).forEach(supportingDocument -> submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+        newSubmissionDetail,
+        supportingDocument,
+        SupportingDocument.class
+    ));
   }
 }

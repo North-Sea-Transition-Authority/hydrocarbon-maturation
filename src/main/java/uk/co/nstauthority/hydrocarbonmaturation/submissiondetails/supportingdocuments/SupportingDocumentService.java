@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,19 +66,19 @@ public class SupportingDocumentService {
     return FileUploadResult.valid(uploadedFile.getId().toString(), filename, multipartFile);
   }
 
-  public List<FileUploadForm> getFileUploadFormListForSubmissionAndType(SubmissionDetail submissionDetail,
-                                                                          SupportingDocumentType supportingDocumentType) {
-    return supportingDocumentRepository
-        .findAllBySubmissionDetailAndSupportingDocumentType(submissionDetail, supportingDocumentType).stream()
+  public List<FileUploadForm> getFileUploadFormListForSubmissionAndType(
+      SubmissionDetail submissionDetail,
+      SupportingDocumentType supportingDocumentType) {
+    return getSupportingDocumentsForTypes(submissionDetail, Set.of(supportingDocumentType)).stream()
         .map(SupportingDocument::getUploadedFile)
         .map(fileUploadService::createFileUploadForm)
         .toList();
   }
 
-  public List<SupportingDocument> getSupportingDocumentsForType(SubmissionDetail submissionDetail,
-                                                                SupportingDocumentType supportingDocumentType) {
+  public List<SupportingDocument> getSupportingDocumentsForTypes(SubmissionDetail submissionDetail,
+                                                                 Set<SupportingDocumentType> supportingDocumentTypes) {
     return supportingDocumentRepository
-        .findAllBySubmissionDetailAndSupportingDocumentType(submissionDetail, supportingDocumentType);
+        .findAllBySubmissionDetailAndSupportingDocumentTypeIn(submissionDetail, supportingDocumentTypes);
   }
 
   public List<UploadedFileView> getUploadedFileViewList(List<UUID> fileUploadIdList) {

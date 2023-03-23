@@ -79,8 +79,9 @@ class TrapPropertiesDuplicationServiceTest {
 
     var supportingDocument1 = mock(SupportingDocument.class);
     var supportingDocument2 = mock(SupportingDocument.class);
-    when(supportingDocumentService.getSupportingDocumentsForType(oldSubmissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP))
-        .thenReturn(List.of(supportingDocument1, supportingDocument2));
+    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail,
+        Set.of(SupportingDocumentType.PROSPECT_DEPTH_MAP)
+    )).thenReturn(List.of(supportingDocument1, supportingDocument2));
 
     trapPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -95,8 +96,9 @@ class TrapPropertiesDuplicationServiceTest {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = mock(SubmissionDetail.class);
 
-    when(supportingDocumentService.getSupportingDocumentsForType(oldSubmissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP))
-        .thenReturn(Collections.emptyList());
+    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail,
+        Set.of(SupportingDocumentType.PROSPECT_DEPTH_MAP)
+    )).thenReturn(Collections.emptyList());
 
     trapPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -115,14 +116,18 @@ class OpportunityDetailsDuplicationServiceTest {
 
     var supportingDocument1 = mock(SupportingDocument.class);
     var supportingDocument2 = mock(SupportingDocument.class);
-    when(supportingDocumentService.getSupportingDocumentsForType(oldSubmissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY))
-        .thenReturn(List.of(supportingDocument1, supportingDocument2));
+    var supportingDocument3 = mock(SupportingDocument.class);
+    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail,
+        Set.of(SupportingDocumentType.MAP_OF_OPPORTUNITY, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION)
+    )).thenReturn(List.of(supportingDocument1, supportingDocument2, supportingDocument3));
 
     opportunityDetailDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
     verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument1,
         SupportingDocument.class);
     verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument2,
+        SupportingDocument.class);
+    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument3,
         SupportingDocument.class);
   }
 
@@ -131,8 +136,9 @@ class OpportunityDetailsDuplicationServiceTest {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = mock(SubmissionDetail.class);
 
-    when(supportingDocumentService.getSupportingDocumentsForType(oldSubmissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY))
-        .thenReturn(Collections.emptyList());
+    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail,
+        Set.of(SupportingDocumentType.MAP_OF_OPPORTUNITY, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION)
+    )).thenReturn(Collections.emptyList());
 
     opportunityDetailDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
