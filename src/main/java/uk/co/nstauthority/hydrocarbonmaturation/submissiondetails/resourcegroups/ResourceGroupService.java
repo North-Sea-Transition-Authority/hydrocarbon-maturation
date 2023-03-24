@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
@@ -45,6 +46,13 @@ public class ResourceGroupService {
         });
   }
 
+  Optional<ResourceGroupLink> getResourceGroupLinkByResource(Resource resource) {
+    return resourceGroupLinksRepository.findByResource(resource);
+  }
+
+  List<ResourceGroupLink> getResourceGroupLinksByResourceGroupId(UUID resourceGroupId) {
+    return resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId);
+  }
 
   private void addToGroup(RelatedResource relatedResource,
                           Resource currentResourceResource,

@@ -39,14 +39,13 @@ class SubmissionHistorySearchSelectorModelServiceTest {
         .thenReturn(queryResult);
     var expectedMap = Map.of(
         submissionDetail.getId().toString(),
-        "(1) Prospect create (Pending approval)");
+        "Submission 1: Prospect create (Pending approval)");
     var modelAndView = new ModelAndView();
-    assertThat(submissionHistorySearchSelectorModelService.addViewSorSubmissionSearchSelectorItemsToModelAndView(modelAndView,
-        submissionDetail, submissionDetail.getResourceId().getId()).getModelMap())
+    assertThat(submissionHistorySearchSelectorModelService.addViewSorSubmissionSearchSelectorItemsToModelAndView(
+        modelAndView, submissionDetail.getResourceId().getId()).getModelMap())
         .containsExactly(
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(submissionDetail.getResourceId().getId(), null))),
-            entry("submissionNumber", "1"),
             entry("submissionsOnResource", expectedMap));
   }
 
@@ -59,12 +58,11 @@ class SubmissionHistorySearchSelectorModelServiceTest {
         .thenReturn(queryResult);
     var expectedMap = Map.of(
         submissionDetail.getId().toString(),
-        "(1) Prospect create (Pending approval)");
+        "Submission 1: Prospect create (Pending approval)");
     var modelAndView = new ModelAndView();
-    assertThat(submissionHistorySearchSelectorModelService.addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView,
-        submissionDetail, submissionDetail.getResourceId().getId()).getModelMap())
+    assertThat(submissionHistorySearchSelectorModelService.addReviewSubmissionSearchSelectorItemsToModelAndView(
+        modelAndView, submissionDetail.getResourceId().getId()).getModelMap())
         .containsExactly(
-            entry("submissionNumber", "1"),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
                 .viewSubmission(submissionDetail.getResourceId().getId(), null))),
             entry("submissionsOnResource", expectedMap));
@@ -89,15 +87,14 @@ class SubmissionHistorySearchSelectorModelServiceTest {
         .thenReturn(queryResult);
     var expectedMap = Map.of(
         selectedSubmissionDetail.getId().toString(),
-        "(2) Prospect update (Pending approval)",
+        "Submission 2: Prospect update (Pending approval)",
         approvedSubmissiondetail.getId().toString(),
-        "(1) Prospect create (Approved: 11 November 2012)"
+        "Submission 1: Prospect create (Approved: 11 November 2012)"
     );
     var modelAndView = new ModelAndView();
-    assertThat(submissionHistorySearchSelectorModelService.addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView,
-        selectedSubmissionDetail, selectedSubmissionDetail.getResourceId().getId()).getModelMap())
+    assertThat(submissionHistorySearchSelectorModelService.addReviewSubmissionSearchSelectorItemsToModelAndView(
+        modelAndView, selectedSubmissionDetail.getResourceId().getId()).getModelMap())
         .containsExactly(
-            entry("submissionNumber", "2"),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
                 .viewSubmission(selectedSubmissionDetail.getResourceId().getId(), null))),
             entry("submissionsOnResource", expectedMap));

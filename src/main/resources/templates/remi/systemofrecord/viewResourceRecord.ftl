@@ -10,9 +10,10 @@
 <#-- @ftlvariable name="isRegulatorInResponsibleTeam" type="boolean"-->
 <#-- @ftlvariable name="regulatorManagedInformationUrl" type="String"-->
 <#-- @ftlvariable name="submissionSelectedUrl" type="String"-->
-<#-- @ftlvariable name="submissionNumber" type="String"-->
 <#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
 <#-- @ftlvariable name="resourceType" type="String"-->
+<#-- @ftlvariable name="regulatorManagedInformationSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
+<#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupSummaryView" -->
 <#-- @ftlvariable name="isRegulator" type="boolean"-->
 
 <#assign pageTitle = "${resourceRecord.resourceNameAndCentreOfInterest()}" />
@@ -49,13 +50,12 @@
       submissionsOnResource=submissionsOnResource />
   </@fdsForm.htmlForm>
 
-  <h2 class="govuk-heading-l">(${submissionNumber}) ${submissionType.getTypeName()}</h2>
-
+  <h2 class="govuk-heading-l">${submissionType.getTypeName()}</h2>
   <#if isRegulator>
     <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
-      regulatorManagedInformationValues=regulatorManagedInformationSummaryView/>
+      regulatorManagedInformationValues=regulatorManagedInformationSummaryView
+      resourceGroupsValues=resourceGroupsSummaryView/>
   </#if>
-
   <@submissionSummary.submissionSummary
     submissionType=submissionType.name()
     />

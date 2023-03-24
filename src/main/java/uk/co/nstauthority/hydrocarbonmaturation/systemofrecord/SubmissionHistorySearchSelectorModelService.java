@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
@@ -25,7 +24,7 @@ public class SubmissionHistorySearchSelectorModelService {
   }
 
   ModelAndView addViewSorSubmissionSearchSelectorItemsToModelAndView(
-      ModelAndView modelAndView, SubmissionDetail submissionDetail, UUID resourceId) {
+      ModelAndView modelAndView, UUID resourceId) {
     var querySearchResults = submissionHistoryQueryService
         .getApprovedSubmissionsOnResource(resourceId);
     var submissionSearchSelectorItems = getSubmissionSearchSelectorItems(querySearchResults);
@@ -33,32 +32,18 @@ public class SubmissionHistorySearchSelectorModelService {
     return modelAndView
         .addObject("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
             .viewSubmission(resourceId, null)))
-        .addObject("submissionNumber",
-            getCurrentSubmissionNumber(submissionDetail, querySearchResults))
         .addObject("submissionsOnResource", submissionSearchSelectorItems);
   }
 
   public ModelAndView addReviewSubmissionSearchSelectorItemsToModelAndView(
-      ModelAndView modelAndView, SubmissionDetail submissionDetail, UUID resourceId) {
+      ModelAndView modelAndView, UUID resourceId) {
     var querySearchResults = submissionHistoryQueryService
         .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
     var submissionSearchSelectorItems = getSubmissionSearchSelectorItems(querySearchResults);
     return modelAndView
-        .addObject("submissionNumber",
-            getCurrentSubmissionNumber(submissionDetail, querySearchResults))
         .addObject("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
             .viewSubmission(resourceId, null)))
         .addObject("submissionsOnResource", submissionSearchSelectorItems);
-  }
-
-  private String getCurrentSubmissionNumber(SubmissionDetail submissionDetail,
-                                            List<SubmissionQuerySearchRecord> queryResults) {
-    for (int i = queryResults.size() - 1; i >= 0; i--) {
-      if (queryResults.get(i).getSubmissionDetailId().equals(submissionDetail.getId())) {
-        return String.valueOf(queryResults.size() - i);
-      }
-    }
-    return String.valueOf(queryResults.size());
   }
 
   @NotNull
@@ -73,7 +58,7 @@ public class SubmissionHistorySearchSelectorModelService {
   }
 
   private String getRecordDisplay(SubmissionQuerySearchRecord submissionQuerySearchRecord, Integer number) {
-    return "(%s) %s (%s)"
+    return "Submission %s: %s (%s)"
         .formatted(number.toString(),
             submissionQuerySearchRecord.getSubmissionType().getTypeName(),
             getApprovedDateDisplay(submissionQuerySearchRecord));

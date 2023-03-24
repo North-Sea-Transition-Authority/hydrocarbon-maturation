@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySearchSelectorModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionSearchSelectorForm;
@@ -43,6 +44,7 @@ public class ReviewSubmissionController {
   private final RegulatorTeamService regulatorTeamService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   private final ResourceService resourceService;
+  private final ResourceGroupSummaryService resourceGroupSummaryService;
 
   @Autowired
   public ReviewSubmissionController(ReviewSubmissionService reviewSubmissionService,
@@ -52,7 +54,8 @@ public class ReviewSubmissionController {
                                     UserDetailService userDetailService,
                                     RegulatorTeamService regulatorTeamService,
                                     RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
-                                    ResourceService resourceService) {
+                                    ResourceService resourceService,
+                                    ResourceGroupSummaryService resourceGroupSummaryService) {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -61,6 +64,7 @@ public class ReviewSubmissionController {
     this.regulatorTeamService = regulatorTeamService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
     this.resourceService = resourceService;
+    this.resourceGroupSummaryService = resourceGroupSummaryService;
   }
 
   @GetMapping
@@ -115,7 +119,7 @@ public class ReviewSubmissionController {
     );
 
     modelAndView = submissionHistorySearchSelectorModelService
-        .addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView, submissionDetail, resourceId);
+        .addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView, resourceId);
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(submissionRecord.resourceNameAndCentreOfInterest())
         .addWorkAreaBreadcrumb()
@@ -126,12 +130,14 @@ public class ReviewSubmissionController {
     var isRegulator = regulatorTeamService.isRegulatorUser(userDetail);
 
     if (isRegulator) {
+      var resource = resourceService.getResourceById(resourceId)
+          .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
+              .formatted(resourceId)));
       modelAndView
           .addObject("regulatorManagedInformationSummaryView",
-              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(
-                  resourceService.getResourceById(resourceId)
-                      .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
-                          .formatted(resourceId)))));
+              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
+          .addObject("resourceGroupsSummaryView",
+              resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource));
     }
 
     return modelAndView

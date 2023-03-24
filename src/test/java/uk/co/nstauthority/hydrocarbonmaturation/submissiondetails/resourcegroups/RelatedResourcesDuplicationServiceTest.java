@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,8 +31,8 @@ class RelatedResourcesDuplicationServiceTest {
 
   @Test
   void duplicateSubmissionSection_RelatedResourceExists_DoesDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var newSubmissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
 
     var relatedResource = mock(RelatedResource.class);
     when(relatedResourcePersistenceService.getRelatedResource(oldSubmissionDetail))
@@ -45,8 +46,22 @@ class RelatedResourcesDuplicationServiceTest {
 
   @Test
   void duplicateSubmissionSection_RelatedResourceDoesNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var newSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+
+    when(relatedResourcePersistenceService.getRelatedResource(oldSubmissionDetail))
+        .thenReturn(Optional.empty());
+
+    relatedResourceDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(RelatedResource.class), eq(RelatedResource.class));
+  }
+
+  @Test
+  void duplicateSubmissionSection_differentResourceTypes_DoesNotDuplicate() {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var newSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
 
     when(relatedResourcePersistenceService.getRelatedResource(oldSubmissionDetail))
         .thenReturn(Optional.empty());

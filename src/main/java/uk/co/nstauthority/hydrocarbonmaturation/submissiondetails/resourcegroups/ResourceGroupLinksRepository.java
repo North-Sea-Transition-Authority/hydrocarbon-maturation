@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
@@ -12,4 +13,6 @@ interface ResourceGroupLinksRepository extends CrudRepository<ResourceGroupLink,
   Optional<ResourceGroupLink> findByResource(Resource resource);
 
   Optional<ResourceGroupLink> findByResourceGroupIdAndPreferredViewIsTrue(UUID resourceGroupId);
+
+  List<ResourceGroupLink> findByResourceGroupId(UUID resourceGroupId);
 }

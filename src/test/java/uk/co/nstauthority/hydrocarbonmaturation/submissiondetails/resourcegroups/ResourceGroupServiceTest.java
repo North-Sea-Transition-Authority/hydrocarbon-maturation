@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +35,28 @@ class ResourceGroupServiceTest {
   private RelatedResourcesSubmissionService relatedResourcesSubmissionService;
   @InjectMocks
   private ResourceGroupService resourceGroupService;
+
+  @Test
+  void getResourceGroupLinkByResource_assertReturn() {
+    var resource = mock(Resource.class);
+    var resourceGroupLink = mock(ResourceGroupLink.class);
+    when(resourceGroupLinksRepository.findByResource(resource))
+        .thenReturn(Optional.of(resourceGroupLink));
+
+    assertThat(resourceGroupService.getResourceGroupLinkByResource(resource))
+        .contains(resourceGroupLink);
+  }
+
+  @Test
+  void getResourceGroupLinksByResourceGroupId_assertReturn() {
+    var resourceGroupId = UUID.randomUUID();
+    var resourceGroupLink = mock(ResourceGroupLink.class);
+    when(resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId))
+        .thenReturn(List.of(resourceGroupLink));
+
+    assertThat(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupId))
+        .containsExactly(resourceGroupLink);
+  }
 
 
   @Nested

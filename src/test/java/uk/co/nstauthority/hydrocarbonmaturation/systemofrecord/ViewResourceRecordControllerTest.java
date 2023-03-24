@@ -19,6 +19,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,12 +35,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 
@@ -58,6 +62,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   @MockBean
   private ResourceService resourceService;
+  @MockBean
+  private ResourceGroupSummaryService resourceGroupSummaryService;
 
   private final UUID RESOURCE_ID = UUID.randomUUID();
   private final ResourceRecordSummaryView RESOURCE_RECORD_VIEW = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
@@ -76,7 +82,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     modelAndView
         .addObject("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
             .viewSubmission(RESOURCE_ID, null)))
-        .addObject("submissionTypePrefix", "(1)")
         .addObject("submissionsOnResource", Map.of());
 
     doReturn(modelAndView)
@@ -132,7 +137,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("submissionsOnResource", Map.of()),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(otherSubmissionOnResource.getResourceId().getId(), null))),
-            entry("submissionNumber", "1"),
             entry("resourceType", otherSubmissionOnResource.getResourceId().getType().getDisplayName()),
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType())
@@ -174,7 +178,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(RESOURCE_ID, null))),
             entry("isRegulator", false)
-        ).doesNotContainKey("regulatorManagedInformationSummaryView");
+        ).doesNotContainKeys("regulatorManagedInformationSummaryView", "resourceGroupsSummaryView");
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
@@ -200,6 +204,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     resource.setId(RESOURCE_ID);
     when(resourceService.getResourceById(RESOURCE_ID))
         .thenReturn(Optional.of(resource));
+    var resourceGroupSummary = new ResourceGroupSummaryView(List.of(), ResourceType.DISCOVERY, "");
+    when(resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
+        .thenReturn(resourceGroupSummary);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)))
                 .with(user(USER)))
@@ -211,7 +218,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("submissionsOnResource", Map.of()),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(SUBMISSION_DETAIL.getResourceId().getId(), null))),
-            entry("submissionNumber", "1"),
             entry("resourceType", SUBMISSION_DETAIL.getResourceId().getType().getDisplayName()),
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
@@ -220,6 +226,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(RESOURCE_ID, null))),
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
+            entry("resourceGroupsSummaryView", resourceGroupSummary),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
             entry("isRegulator", true)
         );
@@ -294,7 +301,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     doReturn(modelAndView)
         .when(submissionHistorySearchSelectorModelService)
-        .addViewSorSubmissionSearchSelectorItemsToModelAndView(
-            modelAndView, submissionDetail, RESOURCE_ID);
+        .addViewSorSubmissionSearchSelectorItemsToModelAndView(modelAndView, RESOURCE_ID);
   }
 }

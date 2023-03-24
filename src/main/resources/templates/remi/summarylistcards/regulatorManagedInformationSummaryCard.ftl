@@ -2,9 +2,10 @@
 <#import 'fileUploadSummaryCard.ftl' as fileUploadSummary>
 
 <#-- @ftlvariable name="regulatorManagedInformationValues" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
+<#-- @ftlvariable name="resourceGroupsValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupSummaryView" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 
-<#macro regulatorManagedInformationSummaryCard regulatorManagedInformationValues>
+<#macro regulatorManagedInformationSummaryCard regulatorManagedInformationValues resourceGroupsValues>
   <@fdsSummaryList.summaryListCard headingText="${customerBranding.mnemonic()} managed information" summaryListId="regulatormanagedinformation">
     <@fdsSummaryList.summaryListRowNoAction keyText="Responsible team">
       ${regulatorManagedInformationValues.responsibleTeamType()}
@@ -17,5 +18,20 @@
         filesUploaded=regulatorManagedInformationValues.relinquishmentReport()
         fieldName="Relinquishment report"/>
     </#if>
+    <@fdsSummaryList.summaryListRowNoAction keyText="${resourceGroupsValues.resourceType().getDisplayName()} group preferred view">
+      ${resourceGroupsValues.isPreferredView()}
+    </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="${resourceGroupsValues.resourceType().getPluralName()?capitalize} in group">
+      <#list resourceGroupsValues.resourcesInGroup() as resourceInGroup>
+        <div>
+          <#if resourceInGroup.disableLink()>
+            ${resourceInGroup.resourceName()}
+          <#else>
+            <@fdsAction.link linkText=resourceInGroup.resourceName() linkUrl=springUrl(resourceInGroup.viewSorUrl())/>
+          </#if>
+          ${resourceInGroup.preferredView()}
+        </div>
+      </#list>
+    </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 </#macro>

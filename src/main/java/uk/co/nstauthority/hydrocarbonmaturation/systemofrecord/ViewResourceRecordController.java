@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -37,6 +38,7 @@ public class ViewResourceRecordController {
   private final SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
   private final RegulatorTeamService regulatorTeamService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
+  private final ResourceGroupSummaryService resourceGroupSummaryService;
   private final ResourceService resourceService;
 
   @Autowired
@@ -47,6 +49,7 @@ public class ViewResourceRecordController {
                                       SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService,
                                       RegulatorTeamService regulatorTeamService,
                                       RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
+                                      ResourceGroupSummaryService resourceGroupSummaryService,
                                       ResourceService resourceService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
@@ -55,6 +58,7 @@ public class ViewResourceRecordController {
     this.submissionHistorySearchSelectorModelService = submissionHistorySearchSelectorModelService;
     this.regulatorTeamService = regulatorTeamService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
+    this.resourceGroupSummaryService = resourceGroupSummaryService;
     this.resourceService = resourceService;
   }
 
@@ -113,17 +117,19 @@ public class ViewResourceRecordController {
     var isRegulator = regulatorTeamService.isRegulatorUser(userDetail);
 
     if (isRegulator) {
+      var resource = resourceService.getResourceById(resourceId)
+          .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
+                  .formatted(resourceId)));
       modelAndView
           .addObject("regulatorManagedInformationSummaryView",
-              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(
-                 resourceService.getResourceById(resourceId)
-                     .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
-                         .formatted(resourceId)))));
+              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
+          .addObject("resourceGroupsSummaryView",
+              resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource));
     }
 
     modelAndView = submissionHistorySearchSelectorModelService
         .addViewSorSubmissionSearchSelectorItemsToModelAndView(
-            modelAndView, submissionDetailSelected, resourceId);
+            modelAndView, resourceId);
     return modelAndView
         .addObject("form", form)
         .addObject("resourceRecord", resourceRecord)
