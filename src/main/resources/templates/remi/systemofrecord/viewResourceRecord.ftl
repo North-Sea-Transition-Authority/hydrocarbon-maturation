@@ -13,6 +13,7 @@
 <#-- @ftlvariable name="submissionNumber" type="String"-->
 <#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
 <#-- @ftlvariable name="resourceType" type="String"-->
+<#-- @ftlvariable name="isRegulator" type="boolean"-->
 
 <#assign pageTitle = "${resourceRecord.resourceNameAndCentreOfInterest()}" />
 
@@ -49,8 +50,12 @@
   </@fdsForm.htmlForm>
 
   <h2 class="govuk-heading-l">(${submissionNumber}) ${submissionType.getTypeName()}</h2>
-  <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
-    regulatorManagedInformationValues=regulatorManagedInformationSummaryView/>
+
+  <#if isRegulator>
+    <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
+      regulatorManagedInformationValues=regulatorManagedInformationSummaryView/>
+  </#if>
+
   <@submissionSummary.submissionSummary
     submissionType=submissionType.name()
     />
