@@ -1,0 +1,2 @@
+ALTER TABLE hydrocarbon_case_details
+DROP COLUMN total_probability;
