@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType.DISCOVERY;
 import static uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType.PROSPECT;
 
 import java.util.List;
@@ -90,6 +91,79 @@ class ResourceGroupQueryServiceTest {
       when(resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())).thenReturn(Optional.empty());
 
       var resultList = resourceGroupQueryService.getProspectsAndGroupsByName(SEARCH_TERM);
+
+      assertThat(resultList)
+          .extracting(
+              ResourceGroupView::getSelectionId,
+              ResourceGroupView::getSelectionText
+          )
+          .containsExactly(
+              tuple(
+                  submissionDetail.getId().toString(),
+                  RESOURCE_NAME
+              )
+          );
+    }
+  }
+
+  @Nested
+  class WhenGettingDiscoveriesAndGroupsByName {
+    private final String SEARCH_TERM = "SEARCH_TERM";
+    private final String RESOURCE_NAME = "RESOURCE_NAME";
+    private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    @BeforeEach
+    void setup() {
+      var resource = mock(Resource.class);
+      when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(DISCOVERY, SEARCH_TERM))
+          .thenReturn(List.of(resource));
+
+      when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
+          .thenReturn(Optional.of(submissionDetail));
+
+      when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
+    }
+
+    @Test
+    void discoveryIsInGroupAndPreferredView_ReturnToListWithGroupPrefix() {
+
+      var resourceGroupLink = new ResourceGroupLink();
+      resourceGroupLink.setPreferredView(true);
+      when(resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())).thenReturn(Optional.of(resourceGroupLink));
+
+      var resultList = resourceGroupQueryService.getDiscoveriesAndGroupsByName(SEARCH_TERM);
+
+      assertThat(resultList)
+          .extracting(
+              ResourceGroupView::getSelectionId,
+              ResourceGroupView::getSelectionText
+          )
+          .containsExactly(
+              tuple(
+                  submissionDetail.getId().toString(),
+                  ResourceGroupQueryService.GROUP_PREFIX + RESOURCE_NAME
+              )
+          );
+    }
+
+    @Test
+    void discoveryIsInGroupButNotPreferredView_DontReturnToList() {
+
+      var resourceGroupLink = new ResourceGroupLink();
+      resourceGroupLink.setPreferredView(false);
+      when(resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())).thenReturn(Optional.of(resourceGroupLink));
+
+      var resultList = resourceGroupQueryService.getDiscoveriesAndGroupsByName(SEARCH_TERM);
+
+      assertThat(resultList).isEmpty();
+    }
+
+    @Test
+    void discoveryIsNotInGroup_ReturnToList() {
+
+      when(resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())).thenReturn(Optional.empty());
+
+      var resultList = resourceGroupQueryService.getDiscoveriesAndGroupsByName(SEARCH_TERM);
 
       assertThat(resultList)
           .extracting(

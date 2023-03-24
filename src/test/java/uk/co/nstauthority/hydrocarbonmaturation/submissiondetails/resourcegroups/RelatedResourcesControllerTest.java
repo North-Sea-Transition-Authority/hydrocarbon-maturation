@@ -31,6 +31,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -39,74 +41,74 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
-@ContextConfiguration(classes = RelatedProspectsController.class)
-class RelatedProspectsControllerTest extends AbstractSubmissionControllerTest {
+@ContextConfiguration(classes = RelatedResourcesController.class)
+class RelatedResourcesControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
-  RelatedProspectsFormService relatedProspectsFormService;
+  RelatedResourcesFormService relatedResourcesFormService;
 
   @MockBean
-  RelatedProspectsPersistenceService relatedProspectsPersistenceService;
+  RelatedResourcesPersistenceService relatedResourcesPersistenceService;
 
-  private RelatedProspectsForm form;
+  private RelatedResourcesForm form;
   private BindingResult bindingResult;
   private UUID submissionDetailId;
 
   @BeforeEach
   void setUp() {
-    form = new RelatedProspectsForm();
+    form = new RelatedResourcesForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetailId = submissionDetail.getId();
   }
 
   @SecurityTest
-  void getRelatedProspectsPage_assertStatusOk() throws Exception {
+  void getRelatedResourcesPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail)).thenReturn(new RelatedProspectsForm());
+    when(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail)).thenReturn(new RelatedResourcesForm());
     setUpWhenUserIsResponsibleTeam_passSecurity();
 
     mockMvc.perform(
-        get(ReverseRouter.route(on(RelatedProspectsController.class).getRelatedProspects(submissionDetailId, form)))
+        get(ReverseRouter.route(on(RelatedResourcesController.class).getRelatedResources(submissionDetailId, form)))
             .with(user(USER)))
         .andExpect(status().isOk());
   }
 
   @SecurityTest
-  void getRelatedProspectsPage_andStatusIsNotDraft_assertForbidden() throws Exception {
+  void getRelatedResourcesPage_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(
-            get(ReverseRouter.route(on(RelatedProspectsController.class).getRelatedProspects(submissionDetailId, form)))
+            get(ReverseRouter.route(on(RelatedResourcesController.class).getRelatedResources(submissionDetailId, form)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
-  void getRelatedProspectsPage_andTypeIsNotCreateProspect_assertForbidden() throws Exception {
+  void getRelatedResourcesPage_andTypeIsNotCreateResource_assertForbidden() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     mockMvc.perform(
-            get(ReverseRouter.route(on(RelatedProspectsController.class).getRelatedProspects(submissionDetailId, form)))
+            get(ReverseRouter.route(on(RelatedResourcesController.class).getRelatedResources(submissionDetailId, form)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
-  void getRelatedProspectsPage_andUserIsNotRegulatorAndNotResponsibleParty_assertForbidden() throws Exception {
+  void getRelatedResourcesPage_andUserIsNotRegulatorAndNotResponsibleParty_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
-            get(ReverseRouter.route(on(RelatedProspectsController.class)
-                .getRelatedProspects(submissionDetailId, null)))
+            get(ReverseRouter.route(on(RelatedResourcesController.class)
+                .getRelatedResources(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
-  void saveRelatedProspectsPage_andUserIsNotRegulatorAndNotResponsibleParty_assertForbidden() throws Exception {
+  void saveRelatedResourcesPage_andUserIsNotRegulatorAndNotResponsibleParty_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
-            post(ReverseRouter.route(on(RelatedProspectsController.class)
-                .saveRelatedProspects(submissionDetailId, null, null, null)))
+            post(ReverseRouter.route(on(RelatedResourcesController.class)
+                .saveRelatedResources(submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -114,67 +116,95 @@ class RelatedProspectsControllerTest extends AbstractSubmissionControllerTest {
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
-  void saveRelatedProspectsPage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(relatedProspectsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+  void saveRelatedResourcesPage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    when(relatedResourcesFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(true);
     mockMvc.perform(
-        post(ReverseRouter.route(on(RelatedProspectsController.class).saveRelatedProspects(submissionDetailId, form, bindingResult, null)))
+        post(ReverseRouter.route(on(RelatedResourcesController.class).saveRelatedResources(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(relatedProspectsPersistenceService, times(1)).saveRelatedProspects(any(RelatedProspectsForm.class), eq(submissionDetail));
+    verify(relatedResourcesPersistenceService, times(1)).saveRelatedResources(any(RelatedResourcesForm.class), eq(submissionDetail));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
-  void saveRelatedProspectsPage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+  void saveRelatedResourcesPage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
-    when(relatedProspectsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(relatedResourcesFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(true);
     mockMvc.perform(
-        post(ReverseRouter.route(on(RelatedProspectsController.class).saveRelatedProspects(submissionDetailId, form, bindingResult, null)))
+        post(ReverseRouter.route(on(RelatedResourcesController.class).saveRelatedResources(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(relatedProspectsPersistenceService, never()).saveRelatedProspects(any(), eq(submissionDetail));
+    verify(relatedResourcesPersistenceService, never()).saveRelatedResources(any(), eq(submissionDetail));
   }
 
   @Test
-  void getRelatedProspectsModelAndView_assertModelProperties() throws Exception {
+  void getRelatedResourcesModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail)).thenReturn(new RelatedProspectsForm());
+    when(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail)).thenReturn(new RelatedResourcesForm());
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-        get(ReverseRouter.route(on(RelatedProspectsController.class).getRelatedProspects(submissionDetailId, form)))
+        get(ReverseRouter.route(on(RelatedResourcesController.class).getRelatedResources(submissionDetailId, form)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
 
-    assertEquals(RelatedProspectsForm.class, modelMap.get("form").getClass());
+    assertEquals(RelatedResourcesForm.class, modelMap.get("form").getClass());
     assertThat(modelMap).contains(
-        entry("pageTitle", RelatedProspectsController.PAGE_NAME)
+        entry("pageTitle", "Related prospects"),
+        entry("resourceType", "prospect"),
+        entry("resourceGroupsEndpoint",
+            SearchSelectorService.route(on(ResourceGroupRestController.class).searchProspects(null)))
     )
     .containsKeys("breadcrumbsMap");
   }
 
+  @Test
+  void getRelatedResourcesModelAndView_whenDiscovery_assertModelProperties() throws Exception {
+    submissionDetail.getResourceId().setType(ResourceType.DISCOVERY);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail)).thenReturn(new RelatedResourcesForm());
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+        .thenReturn(true);
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(RelatedResourcesController.class).getRelatedResources(submissionDetailId, form)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+
+    assertEquals(RelatedResourcesForm.class, modelMap.get("form").getClass());
+    assertThat(modelMap).contains(
+        entry("pageTitle", "Related discoveries"),
+        entry("resourceType", "discovery"),
+        entry("resourceGroupsEndpoint",
+            SearchSelectorService.route(on(ResourceGroupRestController.class).searchDiscoveries(null)))
+        )
+        .containsKeys("breadcrumbsMap");
+  }
+
   @SecurityTest
-  void getRelatedProspects_notRelatedTeam_assertForbidden() throws Exception {
+  void getRelatedResources_notRelatedTeam_assertForbidden() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
 
     mockMvc.perform(
-        get(ReverseRouter.route(on(RelatedProspectsController.class).getRelatedProspects(submissionDetailId, form)))
+        get(ReverseRouter.route(on(RelatedResourcesController.class).getRelatedResources(submissionDetailId, form)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }

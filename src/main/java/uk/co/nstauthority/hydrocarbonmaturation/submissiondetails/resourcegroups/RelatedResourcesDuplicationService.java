@@ -8,13 +8,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Subm
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
 
 @Service
-class RelatedProspectsDuplicationService implements SubmissionSectionDuplicationService {
-  private final RelatedProspectsPersistenceService opportunityDetailsPersistenceService;
+class RelatedResourcesDuplicationService implements SubmissionSectionDuplicationService {
+  private final RelatedResourcesPersistenceService opportunityDetailsPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
 
   @Autowired
-  RelatedProspectsDuplicationService(RelatedProspectsPersistenceService opportunityDetailsPersistenceService,
-                                   SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+  RelatedResourcesDuplicationService(RelatedResourcesPersistenceService opportunityDetailsPersistenceService,
+                                     SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
     this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
   }
@@ -22,9 +22,9 @@ class RelatedProspectsDuplicationService implements SubmissionSectionDuplication
   @Override
   @Transactional
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    opportunityDetailsPersistenceService.getRelatedProspect(oldSubmissionDetail)
+    opportunityDetailsPersistenceService.getRelatedResource(oldSubmissionDetail)
         .ifPresent(opportunityDetail ->
             submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, opportunityDetail,
-                RelatedProspect.class));
+                RelatedResource.class));
   }
 }

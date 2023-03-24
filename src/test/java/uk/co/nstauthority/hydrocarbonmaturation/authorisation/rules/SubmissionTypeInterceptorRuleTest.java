@@ -78,9 +78,18 @@ class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
     assertThat(interceptorResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
   }
 
-  @Test
-  void validate_createProspect_whenCreateProspect() {
-    when(submissionDetail.getSubmissionType()).thenReturn(SubmissionType.CREATE_PROSPECT);
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {
+          "CREATE_PROSPECT",
+          "CREATE_DISCOVERY_FROM_PROSPECT",
+          "CREATE_DISCOVERY"
+      },
+      mode = EnumSource.Mode.INCLUDE)
+  void validate_createResourceSubmissions_whenCreateResource(SubmissionType submissionType) {
+    when(submissionDetail.getSubmissionType())
+        .thenReturn(submissionType);
 
     var annotation = getAnnotation(
         SubmissionTypeInterceptorRuleTest.TestControllerCreateProspect.class,
@@ -102,10 +111,12 @@ class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
   @EnumSource(
       value = SubmissionType.class,
       names = {
-          "CREATE_PROSPECT"
+          "CREATE_PROSPECT",
+          "CREATE_DISCOVERY_FROM_PROSPECT",
+          "CREATE_DISCOVERY"
       },
       mode = EnumSource.Mode.EXCLUDE)
-  void validate_createProspect_whenNotCreateProspect(SubmissionType submissionType) {
+  void validate_createResourceSubmissions_whenNotCreateResourceSubmission(SubmissionType submissionType) {
     when(submissionDetail.getSubmissionType()).thenReturn(submissionType);
 
     var annotation = getAnnotation(
@@ -375,7 +386,7 @@ class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
 
   @Controller
   @RequestMapping("/route2")
-  @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.CREATE_PROSPECT)
+  @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.CREATE_RESOURCE_SUBMISSIONS)
   private static class TestControllerCreateProspect {
     @GetMapping
     String get() {

@@ -17,48 +17,48 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormVal
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class RelatedProspectsFormService implements SubmissionFormService {
-  private final RelatedProspectsFormValidator relatedProspectsFormValidator;
-  private final RelatedProspectsPersistenceService relatedProspectsPersistenceService;
+class RelatedResourcesFormService implements SubmissionFormService {
+  private final RelatedResourcesFormValidator relatedResourcesFormValidator;
+  private final RelatedResourcesPersistenceService relatedResourcesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
   private final SearchSelectorService searchSelectorService;
   private final ResourceGroupQueryService resourceGroupQueryService;
   private final ResourceGroupLinksRepository resourceGroupLinksRepository;
 
   @Autowired
-  public RelatedProspectsFormService(RelatedProspectsFormValidator relatedProspectsFormValidator,
-                                     RelatedProspectsPersistenceService relatedProspectsPersistenceService,
+  public RelatedResourcesFormService(RelatedResourcesFormValidator relatedResourcesFormValidator,
+                                     RelatedResourcesPersistenceService relatedResourcesPersistenceService,
                                      SubmissionDetailService submissionDetailService,
                                      SearchSelectorService searchSelectorService,
                                      ResourceGroupQueryService resourceGroupQueryService,
                                      ResourceGroupLinksRepository resourceGroupLinksRepository) {
-    this.relatedProspectsFormValidator = relatedProspectsFormValidator;
-    this.relatedProspectsPersistenceService = relatedProspectsPersistenceService;
+    this.relatedResourcesFormValidator = relatedResourcesFormValidator;
+    this.relatedResourcesPersistenceService = relatedResourcesPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.searchSelectorService = searchSelectorService;
     this.resourceGroupQueryService = resourceGroupQueryService;
     this.resourceGroupLinksRepository = resourceGroupLinksRepository;
   }
 
-  RelatedProspectsForm getRelatedProspectsForm(SubmissionDetail submissionDetail) {
-    return relatedProspectsPersistenceService.getRelatedProspect(submissionDetail)
+  RelatedResourcesForm getRelatedResourcesForm(SubmissionDetail submissionDetail) {
+    return relatedResourcesPersistenceService.getRelatedResource(submissionDetail)
         .map(this::relatedProspectEntityToForm)
-        .orElse(new RelatedProspectsForm());
+        .orElse(new RelatedResourcesForm());
   }
 
-  private RelatedProspectsForm relatedProspectEntityToForm(RelatedProspect relatedProspect) {
-    var form = new RelatedProspectsForm();
+  private RelatedResourcesForm relatedProspectEntityToForm(RelatedResource relatedResource) {
+    var form = new RelatedResourcesForm();
 
-    form.setRelatedToAnotherProspect(relatedProspect.getRelatedToAnotherProspect());
+    form.setRelatedToAnotherResource(relatedResource.getRelatedToAnotherResource());
 
-    if (BooleanUtils.isTrue(form.getRelatedToAnotherProspect())) {
+    if (BooleanUtils.isTrue(form.getRelatedToAnotherResource())) {
 
-      Optional.ofNullable(relatedProspect.getRelatedSubmissionDetail())
+      Optional.ofNullable(relatedResource.getRelatedSubmissionDetail())
           .ifPresent(submissionDetail -> {
             var resourceGroupViewOptional =
                 resourceGroupQueryService.getResourceGroupViewForSumbissionDetail(submissionDetail);
             if (resourceGroupViewOptional.isPresent()) {
-              form.setSubmissionDetailIdOfRelatedProspect(submissionDetail.getId().toString());
+              form.setSubmissionDetailIdOfRelatedResource(submissionDetail.getId().toString());
             } else {
               resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())
                   .map(ResourceGroupLink::getResourceGroupId)
@@ -66,30 +66,30 @@ class RelatedProspectsFormService implements SubmissionFormService {
                   .map(ResourceGroupLink::getResource)
                   .flatMap(submissionDetailService::getLatestApprovedProspectSubmissionForResource)
                   .ifPresent(latestSubmissionDetail ->
-                      form.setSubmissionDetailIdOfRelatedProspect(latestSubmissionDetail.getId().toString()));
+                      form.setSubmissionDetailIdOfRelatedResource(latestSubmissionDetail.getId().toString()));
             }
           });
 
-      form.setPreferredView(relatedProspect.getPreferredView());
+      form.setPreferredView(relatedResource.getPreferredView());
     }
 
     return form;
   }
 
-  public Map<String, String> getPreSelectedSubmissionDetail(RelatedProspectsForm form) {
-    var submissionDetailId = form.getSubmissionDetailIdOfRelatedProspect();
+  Map<String, String> getPreSelectedSubmissionDetail(RelatedResourcesForm form) {
+    var submissionDetailId = form.getSubmissionDetailIdOfRelatedResource();
 
     if (submissionDetailId == null) {
       return Map.of();
     }
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(UUID.fromString(submissionDetailId));
-    var resourceId = submissionDetail.getResourceId();
-    var key = submissionDetailService.getLatestApprovedProspectSubmissionForResource(resourceId)
+    var key = submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
         .flatMap(resourceGroupQueryService::getResourceGroupViewForSumbissionDetail)
         .map(ResourceGroupView::resourceName)
         .orElseThrow(() -> new IllegalStateException(
-            "Could not get resource name for the latest approved submission of resource with ID %s".formatted(resourceId)));
+            "Could not get resource name for the latest approved submission of resource with ID %s"
+                .formatted(submissionDetail.getResourceId().getId())));
 
     return searchSelectorService.buildPrePopulatedSelections(
         Collections.singletonList(submissionDetailId),
@@ -99,7 +99,7 @@ class RelatedProspectsFormService implements SubmissionFormService {
   @Override
   public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
                                 ValidationType validationType, SubmissionDetail submissionDetail) {
-    relatedProspectsFormValidator.validate(
+    relatedResourcesFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
   }

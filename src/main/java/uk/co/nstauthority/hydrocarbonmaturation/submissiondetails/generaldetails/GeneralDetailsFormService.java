@@ -149,7 +149,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   }
 
   public boolean hasLicencesOnEarlierSubmission(SubmissionDetail submissionDetail) {
-    if (submissionDetail.isFirstSubmissionOnResource()) {
+    if (submissionDetail.isFirstSubmission()) {
       return false;
     }
     return submissionDetailService
@@ -164,7 +164,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
 
   private GeneralDetailsFormValidatorHints getValidationHints(SubmissionDetail submissionDetail,
                                                               ValidationType validationType) {
-    if (submissionDetail.isFirstSubmissionOnResource()) {
+    if (submissionDetail.isFirstSubmission()) {
       return new GeneralDetailsFormValidatorHints(
           validationType,
           submissionDetail,

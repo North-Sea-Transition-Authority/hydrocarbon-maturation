@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -11,6 +12,8 @@ import java.time.ZoneId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -109,9 +112,11 @@ class SubmissionDetailPersistenceServiceTest {
     verify(submissionDetailRepository, times(1)).save(submissionDetail);
   }
 
-  @Test
-  void approveSubmission_assertApprovedBy() {
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
+  void approveSubmission_whenSubmissionType_assertApprovedByAndCreateResourceGroupLink(SubmissionType submissionType) {
     var submissionDetail = new SubmissionDetail();
+    submissionDetail.setSubmissionType(submissionType);
     when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
     submissionDetailPersistenceService.approveSubmission(submissionDetail);
 
@@ -126,6 +131,13 @@ class SubmissionDetailPersistenceServiceTest {
             SubmissionDetailStatus.APPROVED
         );
     verify(submissionDetailRepository, times(1)).save(submissionDetail);
+    if (submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
+      verify(resourceGroupService, times(1)).createResourceGroupLink(submissionDetail);
+    } else {
+      verifyNoInteractions(resourceGroupService);
+    }
   }
 
   @Test

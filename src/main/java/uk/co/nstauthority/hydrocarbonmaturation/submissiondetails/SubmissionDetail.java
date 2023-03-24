@@ -206,7 +206,13 @@ public class SubmissionDetail {
     return submissionType == SubmissionType.POST_DRILL_DRY_HOLE;
   }
 
-  public boolean isFirstSubmissionOnResource() {
+  public boolean isInitialResourceSubmission() {
+    return submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT;
+  }
+
+  public boolean isFirstSubmission() {
     return submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.CREATE_DISCOVERY;
   }

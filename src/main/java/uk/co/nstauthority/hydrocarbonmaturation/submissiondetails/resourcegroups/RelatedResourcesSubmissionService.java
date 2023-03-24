@@ -9,20 +9,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class RelatedProspectsSubmissionService implements SectionSubmissionService {
+public class RelatedResourcesSubmissionService implements SectionSubmissionService {
 
-  private final RelatedProspectsFormService relatedProspectsFormService;
+  private final RelatedResourcesFormService relatedResourcesFormService;
 
   @Autowired
-  public RelatedProspectsSubmissionService(RelatedProspectsFormService relatedProspectsFormService) {
-    this.relatedProspectsFormService = relatedProspectsFormService;
+  public RelatedResourcesSubmissionService(RelatedResourcesFormService relatedResourcesFormService) {
+    this.relatedResourcesFormService = relatedResourcesFormService;
   }
 
   @Override
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    var form = relatedProspectsFormService.getRelatedProspectsForm(submissionDetail);
+    var form = relatedResourcesFormService.getRelatedResourcesForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = relatedProspectsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    bindingResult = relatedResourcesFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return !bindingResult.hasErrors();
   }
 }

@@ -10,65 +10,65 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 
 @Service
 public class ResourceGroupService {
-  private final RelatedProspectsPersistenceService relatedProspectsPersistenceService;
+  private final RelatedResourcesPersistenceService relatedResourcesPersistenceService;
   private final ResourceGroupLinksRepository resourceGroupLinksRepository;
-  private final RelatedProspectsSubmissionService relatedProspectsSubmissionService;
+  private final RelatedResourcesSubmissionService relatedResourcesSubmissionService;
 
-  public ResourceGroupService(RelatedProspectsPersistenceService relatedProspectsPersistenceService,
+  public ResourceGroupService(RelatedResourcesPersistenceService relatedResourcesPersistenceService,
                               ResourceGroupLinksRepository resourceGroupLinksRepository,
-                              RelatedProspectsSubmissionService relatedProspectsSubmissionService) {
-    this.relatedProspectsPersistenceService = relatedProspectsPersistenceService;
+                              RelatedResourcesSubmissionService relatedResourcesSubmissionService) {
+    this.relatedResourcesPersistenceService = relatedResourcesPersistenceService;
     this.resourceGroupLinksRepository = resourceGroupLinksRepository;
-    this.relatedProspectsSubmissionService = relatedProspectsSubmissionService;
+    this.relatedResourcesSubmissionService = relatedResourcesSubmissionService;
   }
 
   @Transactional
   public void createResourceGroupLink(SubmissionDetail submissionDetail) {
-    if (!relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail)) {
+    if (!relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)) {
       return;
     }
 
-    relatedProspectsPersistenceService.getRelatedProspectIfRelatedToAnotherProspect(submissionDetail)
-        .ifPresent(relatedProspect -> {
+    relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail)
+        .ifPresent(relatedResource -> {
 
-          var relatedProspectResource = relatedProspect.getRelatedSubmissionDetail().getResourceId();
-          var currentProspectResource = submissionDetail.getResourceId();
+          var relatedResourceResource = relatedResource.getRelatedSubmissionDetail().getResourceId();
+          var currentResourceResource = submissionDetail.getResourceId();
 
-          var resourceGroupLinkOptional = resourceGroupLinksRepository.findByResource(relatedProspectResource);
+          var resourceGroupLinkOptional = resourceGroupLinksRepository.findByResource(relatedResourceResource);
 
-          var relatedProspectIsInGroup = resourceGroupLinkOptional.isPresent();
-          if (relatedProspectIsInGroup) {
-            addToGroup(relatedProspect, currentProspectResource, resourceGroupLinkOptional.get());
+          var relatedResourceIsInGroup = resourceGroupLinkOptional.isPresent();
+          if (relatedResourceIsInGroup) {
+            addToGroup(relatedResource, currentResourceResource, resourceGroupLinkOptional.get());
           } else {
-            createNewGroup(relatedProspect, relatedProspectResource, currentProspectResource);
+            createNewGroup(relatedResource, relatedResourceResource, currentResourceResource);
           }
         });
   }
 
 
-  private void addToGroup(RelatedProspect relatedProspect,
-                          Resource currentProspectResource,
-                          ResourceGroupLink resourceGroupLinkForRelatedProspect) {
-    var resourceGroupId = resourceGroupLinkForRelatedProspect.getResourceGroupId();
+  private void addToGroup(RelatedResource relatedResource,
+                          Resource currentResourceResource,
+                          ResourceGroupLink resourceGroupLinkForRelatedResource) {
+    var resourceGroupId = resourceGroupLinkForRelatedResource.getResourceGroupId();
 
     // create the resource group link
-    var resourceGroupLinkForCurrentProspect = buildResourceGroupLink(
+    var resourceGroupLinkForCurrentResource = buildResourceGroupLink(
         resourceGroupId,
-        currentProspectResource
+        currentResourceResource
     );
-    resourceGroupLinksRepository.save(resourceGroupLinkForCurrentProspect);
+    resourceGroupLinksRepository.save(resourceGroupLinkForCurrentResource);
 
-    if (BooleanUtils.isTrue(relatedProspect.getPreferredView())) {
-      setCurrentlyPreferredViewAsNotPreferred(resourceGroupLinkForRelatedProspect, resourceGroupId);
+    if (BooleanUtils.isTrue(relatedResource.getPreferredView())) {
+      setCurrentlyPreferredViewAsNotPreferred(resourceGroupLinkForRelatedResource, resourceGroupId);
 
-      resourceGroupLinkForCurrentProspect.setPreferredView(true);
+      resourceGroupLinkForCurrentResource.setPreferredView(true);
     }
   }
 
-  private void setCurrentlyPreferredViewAsNotPreferred(ResourceGroupLink resourceGroupLinkForRelatedProspect,
+  private void setCurrentlyPreferredViewAsNotPreferred(ResourceGroupLink resourceGroupLinkForRelatedResource,
                                                        UUID resourceGroupId) {
-    if (resourceGroupLinkForRelatedProspect.getPreferredView()) {
-      resourceGroupLinkForRelatedProspect.setPreferredView(false);
+    if (resourceGroupLinkForRelatedResource.getPreferredView()) {
+      resourceGroupLinkForRelatedResource.setPreferredView(false);
     } else {
       var resourceGroupLink = getPreferredViewResourceGroupLinkByGroupIdOrThrow(resourceGroupId);
       resourceGroupLink.setPreferredView(false);
@@ -82,22 +82,22 @@ public class ResourceGroupService {
                 .formatted(resourceGroupId)));
   }
 
-  private void createNewGroup(RelatedProspect relatedProspect,
-                              Resource relatedProspectResource,
-                              Resource currentProspectResource) {
+  private void createNewGroup(RelatedResource relatedResource,
+                              Resource relatedResourceResource,
+                              Resource currentResource) {
     var resourceGroupId = UUID.randomUUID();
 
-    var resourceGroupLinkForCurrentProspect = buildResourceGroupLink(resourceGroupId, currentProspectResource);
+    var resourceGroupLinkForCurrentResource = buildResourceGroupLink(resourceGroupId, currentResource);
 
-    var resourceGroupLinkForRelatedProspect = buildResourceGroupLink(resourceGroupId, relatedProspectResource);
+    var resourceGroupLinkForRelatedResource = buildResourceGroupLink(resourceGroupId, relatedResourceResource);
 
-    if (BooleanUtils.isTrue(relatedProspect.getPreferredView())) {
-      resourceGroupLinkForCurrentProspect.setPreferredView(true);
+    if (BooleanUtils.isTrue(relatedResource.getPreferredView())) {
+      resourceGroupLinkForCurrentResource.setPreferredView(true);
     } else {
-      resourceGroupLinkForRelatedProspect.setPreferredView(true);
+      resourceGroupLinkForRelatedResource.setPreferredView(true);
     }
 
-    resourceGroupLinksRepository.saveAll(List.of(resourceGroupLinkForCurrentProspect, resourceGroupLinkForRelatedProspect));
+    resourceGroupLinksRepository.saveAll(List.of(resourceGroupLinkForCurrentResource, resourceGroupLinkForRelatedResource));
   }
 
   static ResourceGroupLink buildResourceGroupLink(UUID resourceGroupId, Resource resource) {

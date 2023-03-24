@@ -56,7 +56,7 @@ public class SubmissionDetailPersistenceService {
     submissionDetail.setApprovedByWuaId(userDetailService.getUserWuaId());
     submissionDetailRepository.save(submissionDetail);
 
-    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT) {
+    if (submissionDetail.isInitialResourceSubmission()) {
       resourceGroupService.createResourceGroupLink(submissionDetail);
     }
   }

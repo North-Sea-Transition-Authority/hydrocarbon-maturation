@@ -20,8 +20,10 @@ public enum AllowedSubmissionTypes {
       SubmissionType.CREATE_DISCOVERY,
       SubmissionType.UPDATE_DISCOVERY,
       SubmissionType.RELINQUISHMENT_DISCOVERY),
-  CREATE_PROSPECT(
-      SubmissionType.CREATE_PROSPECT),
+  CREATE_RESOURCE_SUBMISSIONS(
+      SubmissionType.CREATE_PROSPECT,
+      SubmissionType.CREATE_DISCOVERY,
+      SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT),
   DISCOVERY_AND_PROSPECT(
       SubmissionType.CREATE_PROSPECT,
       SubmissionType.PROSPECT_UPDATE,

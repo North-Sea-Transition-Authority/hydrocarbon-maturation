@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Repository
-interface RelatedProspectsRepository extends CrudRepository<RelatedProspect, UUID> {
+interface RelatedResourcesRepository extends CrudRepository<RelatedResource, UUID> {
 
-  Optional<RelatedProspect> findBySubmissionDetail(SubmissionDetail submissionDetail);
+  Optional<RelatedResource> findBySubmissionDetail(SubmissionDetail submissionDetail);
 }

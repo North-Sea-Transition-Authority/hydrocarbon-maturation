@@ -27,11 +27,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 class ResourceGroupServiceTest {
 
   @Mock
-  private RelatedProspectsPersistenceService relatedProspectsPersistenceService;
+  private RelatedResourcesPersistenceService relatedResourcesPersistenceService;
   @Mock
   private ResourceGroupLinksRepository resourceGroupLinksRepository;
   @Mock
-  private RelatedProspectsSubmissionService relatedProspectsSubmissionService;
+  private RelatedResourcesSubmissionService relatedResourcesSubmissionService;
   @InjectMocks
   private ResourceGroupService resourceGroupService;
 
@@ -44,22 +44,22 @@ class ResourceGroupServiceTest {
     void setUp() {
       submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
-      when(relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+      when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     }
 
     @Nested
     class RelatedToAProspectGroup_AddToGroup {
 
-      private RelatedProspect relatedProspectTaskList;
+      private RelatedResource relatedResourceTaskList;
       private ResourceGroupLink resourceGroupLinkForRelatedProspect;
 
       @BeforeEach
       void setup() {
 
         var relatedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-        relatedProspectTaskList = buildRelatedProspect(relatedSubmissionDetail);
-        when(relatedProspectsPersistenceService.getRelatedProspectIfRelatedToAnotherProspect(submissionDetail))
-            .thenReturn(Optional.of(relatedProspectTaskList));
+        relatedResourceTaskList = buildRelatedProspect(relatedSubmissionDetail);
+        when(relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail))
+            .thenReturn(Optional.of(relatedResourceTaskList));
 
         resourceGroupLinkForRelatedProspect = ResourceGroupService.buildResourceGroupLink(UUID.randomUUID(),
             relatedSubmissionDetail.getResourceId());
@@ -123,7 +123,7 @@ class ResourceGroupServiceTest {
 
       @Test
       void currentProspectIsNotToBePreferredView() {
-        relatedProspectTaskList.setPreferredView(false);
+        relatedResourceTaskList.setPreferredView(false);
         resourceGroupLinkForRelatedProspect.setPreferredView(true);
 
         var argumentCaptor = ArgumentCaptor.forClass(ResourceGroupLink.class);
@@ -150,7 +150,7 @@ class ResourceGroupServiceTest {
 
     @Nested
     class RelatedToAnotherProspect_CreateNewGroup {
-      private RelatedProspect relatedProspectTaskList;
+      private RelatedResource relatedResourceTaskList;
       private SubmissionDetail relatedSubmissionDetail;
 
       @BeforeEach
@@ -158,9 +158,9 @@ class ResourceGroupServiceTest {
 
         relatedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
-        relatedProspectTaskList = buildRelatedProspect(relatedSubmissionDetail);
-        when(relatedProspectsPersistenceService.getRelatedProspectIfRelatedToAnotherProspect(submissionDetail))
-            .thenReturn(Optional.of(relatedProspectTaskList));
+        relatedResourceTaskList = buildRelatedProspect(relatedSubmissionDetail);
+        when(relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail))
+            .thenReturn(Optional.of(relatedResourceTaskList));
 
         when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getResourceId()))
             .thenReturn(Optional.empty());
@@ -197,7 +197,7 @@ class ResourceGroupServiceTest {
 
       @Test
       void relatedProspectIsToBePreferredView() {
-        relatedProspectTaskList.setPreferredView(false);
+        relatedResourceTaskList.setPreferredView(false);
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<ResourceGroupLink>> argumentCaptor = ArgumentCaptor.forClass(List.class);
@@ -231,7 +231,7 @@ class ResourceGroupServiceTest {
     class NotRelatedToAnotherProspect {
       @BeforeEach
       void setup() {
-        when(relatedProspectsPersistenceService.getRelatedProspectIfRelatedToAnotherProspect(submissionDetail))
+        when(relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail))
             .thenReturn(Optional.empty());
       }
 
@@ -245,9 +245,9 @@ class ResourceGroupServiceTest {
     }
   }
 
-  private RelatedProspect buildRelatedProspect(SubmissionDetail submissionDetail) {
-    var relatedProspect = new RelatedProspect();
-    relatedProspect.setRelatedToAnotherProspect(true);
+  private RelatedResource buildRelatedProspect(SubmissionDetail submissionDetail) {
+    var relatedProspect = new RelatedResource();
+    relatedProspect.setRelatedToAnotherResource(true);
     relatedProspect.setRelatedSubmissionDetail(submissionDetail);
     relatedProspect.setPreferredView(true);
     return relatedProspect;

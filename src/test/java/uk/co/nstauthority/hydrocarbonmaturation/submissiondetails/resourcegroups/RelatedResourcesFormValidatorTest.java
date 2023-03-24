@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
@@ -21,10 +22,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormVal
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
-class RelatedProspectsFormValidatorTest {
+class RelatedResourcesFormValidatorTest {
 
   @InjectMocks
-  private RelatedProspectsFormValidator relatedProspectsFormValidator;
+  private RelatedResourcesFormValidator relatedResourcesFormValidator;
 
   static private SubmissionDetail submissionDetail;
 
@@ -35,14 +36,14 @@ class RelatedProspectsFormValidatorTest {
 
   @Test
   void supports_whenRelatedProspectsFormClass_thenTrue() {
-    var supportedClass = RelatedProspectsForm.class;
-    assertTrue(relatedProspectsFormValidator.supports(supportedClass));
+    var supportedClass = RelatedResourcesForm.class;
+    assertTrue(relatedResourcesFormValidator.supports(supportedClass));
   }
 
   @Test
   void supports_whenNotRelatedProspectsFormClass_thenFalse() {
     var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(relatedProspectsFormValidator.supports(nonSupportedClass));
+    assertFalse(relatedResourcesFormValidator.supports(nonSupportedClass));
   }
 
   @Test
@@ -55,86 +56,125 @@ class RelatedProspectsFormValidatorTest {
 
   @Test
   void validate_whenEmptyForm_thenValidationErrors() {
-    var form = new RelatedProspectsForm();
+    var form = new RelatedResourcesForm();
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateRelatedProspectsForm_fullValidation(form));
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("relatedToAnotherProspect", Set.of("relatedToAnotherProspect.required"))
+            entry("relatedToAnotherResource", Set.of("relatedToAnotherResource.required"))
         );
   }
 
   @Test
   void validate_whenInValidForm_noRelatedToAnotherProspect_thenValidationErrors() {
     var form = getValidRelatedProspectsForm();
-    form.setRelatedToAnotherProspect(null);
+    form.setRelatedToAnotherResource(null);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateRelatedProspectsForm_fullValidation(form));
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("relatedToAnotherProspect", Set.of("relatedToAnotherProspect.required"))
+            entry("relatedToAnotherResource", Set.of("relatedToAnotherResource.required"))
         );
   }
 
   @Test
   void validate_whenInValidForm_noRelatedSubmissionDetail_thenValidationErrors() {
+    submissionDetail.getResourceId().setType(ResourceType.PROSPECT);
     var form = getValidRelatedProspectsForm();
-    form.setRelatedToAnotherProspect(true);
-    form.setSubmissionDetailIdOfRelatedProspect(null);
+    form.setRelatedToAnotherResource(true);
+    form.setSubmissionDetailIdOfRelatedResource(null);
     form.setPreferredView(false);
 
-    var extractedErrors = ValidatorTestingUtil.extractErrors(validateRelatedProspectsForm_fullValidation(form));
+    var bindingResult = validateRelatedProspectsForm_fullValidation(form);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("submissionDetailIdOfRelatedProspect", Set.of("submissionDetailIdOfRelatedProspect.required"))
+            entry("submissionDetailIdOfRelatedResource", Set.of("submissionDetailIdOfRelatedResource.required"))
+        );
+    assertThat(extractedMessages)
+        .containsExactly(
+            entry("submissionDetailIdOfRelatedResource", Set.of("Select a prospect or prospect group"))
         );
   }
 
   @Test
   void validate_whenInValidForm_noPreferredView_thenValidationErrors() {
+    submissionDetail.getResourceId().setType(ResourceType.PROSPECT);
     var form = getValidRelatedProspectsForm();
-    form.setRelatedToAnotherProspect(true);
-    form.setSubmissionDetailIdOfRelatedProspect("1a3");
+    form.setRelatedToAnotherResource(true);
+    form.setSubmissionDetailIdOfRelatedResource("1a3");
     form.setPreferredView(null);
 
-    var extractedErrors = ValidatorTestingUtil.extractErrors(validateRelatedProspectsForm_fullValidation(form));
+    var bindingResult = validateRelatedProspectsForm_fullValidation(form);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
             entry("preferredView", Set.of("preferredView.required"))
         );
+
+    assertThat(extractedMessages)
+        .containsExactly(
+            entry("preferredView", Set.of("Select whether this is the NSTA preferred view of the prospect?"))
+        );
+  }
+
+  @Test
+  void validate_whenDiscovery_noPreferredView_thenValidationErrors_assertResourceType() {
+    submissionDetail.getResourceId().setType(ResourceType.DISCOVERY);
+    var form = getValidRelatedProspectsForm();
+    form.setRelatedToAnotherResource(true);
+    form.setSubmissionDetailIdOfRelatedResource(null);
+    form.setPreferredView(null);
+    var bindingResult = validateRelatedProspectsForm_fullValidation(form);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("submissionDetailIdOfRelatedResource", Set.of("submissionDetailIdOfRelatedResource.required")),
+            entry("preferredView", Set.of("preferredView.required"))
+        );
+
+    assertThat(extractedMessages)
+        .containsExactly(
+            entry("submissionDetailIdOfRelatedResource", Set.of("Select a discovery or discovery group")),
+            entry("preferredView", Set.of("Select whether this is the NSTA preferred view of the discovery?"))
+        );
   }
 
   @Test
   void validate_whenEmptyFormAndPartialValidation_thenNoValidationErrors() {
-    var form = new RelatedProspectsForm();
+    var form = new RelatedResourcesForm();
     var bindingResult = validateRelatedProspectsForm_partialValidation(form);
     assertFalse(bindingResult.hasErrors());
   }
 
-  private BindingResult validateRelatedProspectsForm_fullValidation(RelatedProspectsForm form) {
+  private BindingResult validateRelatedProspectsForm_fullValidation(RelatedResourcesForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    relatedProspectsFormValidator.validate(
+    relatedResourcesFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
 
     return bindingResult;
   }
 
-  private BindingResult validateRelatedProspectsForm_partialValidation(RelatedProspectsForm form) {
+  private BindingResult validateRelatedProspectsForm_partialValidation(RelatedResourcesForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    relatedProspectsFormValidator.validate(
+    relatedResourcesFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(ValidationType.PARTIAL, submissionDetail));
 
     return bindingResult;
   }
 
-  private RelatedProspectsForm getValidRelatedProspectsForm() {
-    var form = new RelatedProspectsForm();
-    form.setRelatedToAnotherProspect(false);
+  private RelatedResourcesForm getValidRelatedProspectsForm() {
+    var form = new RelatedResourcesForm();
+    form.setRelatedToAnotherResource(false);
     return form;
   }
 }

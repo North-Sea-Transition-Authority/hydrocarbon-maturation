@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -27,8 +28,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedResourcesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedResourcesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +38,7 @@ class GeneralDetailsTaskListSectionServiceTest {
   @Mock
   private GeneralDetailSubmissionService generalDetailSubmissionService;
   @Mock
-  private RelatedProspectsSubmissionService relatedProspectsSubmissionService;
+  private RelatedResourcesSubmissionService relatedResourcesSubmissionService;
   @Mock
   private ResourceDetailsSubmissionService resourceDetailsSubmissionService;
   @Mock
@@ -56,10 +57,16 @@ class GeneralDetailsTaskListSectionServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"CREATE_PROSPECT"}, mode = EnumSource.Mode.EXCLUDE)
+  @EnumSource(value = SubmissionType.class, names = {
+      "CREATE_PROSPECT",
+      "CREATE_DISCOVERY",
+      "CREATE_DISCOVERY_FROM_PROSPECT"},
+      mode = EnumSource.Mode.EXCLUDE)
   void getSection_AllSubmissionTypesExceptCreateProspect_OnlyGeneralDetails(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
-
+    if (submissionDetail.isInitialResourceSubmission()) {
+      when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    }
     var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
 
     var section = taskListSectionOptional.get();
@@ -84,7 +91,11 @@ class GeneralDetailsTaskListSectionServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"CREATE_PROSPECT"}, mode = EnumSource.Mode.INCLUDE)
+  @EnumSource(value = SubmissionType.class, names = {
+      "CREATE_PROSPECT",
+      "CREATE_DISCOVERY",
+      "CREATE_DISCOVERY_FROM_PROSPECT"},
+      mode = EnumSource.Mode.INCLUDE)
   void getSection_SubmissionTypeIsCreateProspect_ShowRelatedProspects(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
@@ -111,8 +122,8 @@ class GeneralDetailsTaskListSectionServiceTest {
                       .getGeneralDetails(submissionDetail.getId(), null))),
               new TaskListItem("Related prospects",
                   TaskListLabel.NOT_COMPLETE,
-                  ReverseRouter.route(on(RelatedProspectsController.class)
-                      .getRelatedProspects(submissionDetail.getId(), null)))
+                  ReverseRouter.route(on(RelatedResourcesController.class)
+                      .getRelatedResources(submissionDetail.getId(), null)))
             ),
             "General details",
             10
@@ -120,7 +131,51 @@ class GeneralDetailsTaskListSectionServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"CREATE_PROSPECT"}, mode = EnumSource.Mode.INCLUDE)
+  @EnumSource(value = SubmissionType.class, names = {
+      "CREATE_PROSPECT",
+      "CREATE_DISCOVERY",
+      "CREATE_DISCOVERY_FROM_PROSPECT"},
+      mode = EnumSource.Mode.INCLUDE)
+  void getSection_whenInitialSubmissionAndHasPermission_whenDiscovery_ShowRelatedDiscoveries(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    submissionDetail.getResourceId().setType(ResourceType.DISCOVERY);
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+
+    var section = taskListSectionOptional.get();
+
+    assertThat(section)
+        .extracting(
+            TaskListSection::items,
+            TaskListSection::displayName,
+            TaskListSection::displayOrder)
+        .containsExactly(List.of(
+                new TaskListItem("Resource details",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ResourceDetailsController.class)
+                        .getResourceDetails(submissionDetail.getId()))),
+                new TaskListItem("General details",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(GeneralDetailsController.class)
+                        .getGeneralDetails(submissionDetail.getId(), null))),
+                new TaskListItem("Related discoveries",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(RelatedResourcesController.class)
+                        .getRelatedResources(submissionDetail.getId(), null)))
+            ),
+            "General details",
+            10
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {
+      "CREATE_PROSPECT",
+      "CREATE_DISCOVERY",
+      "CREATE_DISCOVERY_FROM_PROSPECT"},
+      mode = EnumSource.Mode.INCLUDE)
   void getSection_SubmissionTypeIsCreateProspectAndUserDoesNotHaveCorrectRole_ShowRelatedProspects(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
@@ -181,7 +236,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
-    when(relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -211,7 +266,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
-    when(relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
 
     assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }

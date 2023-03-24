@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -17,28 +18,27 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedResourcesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedResourcesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Service
 class GeneralDetailsTaskListSectionService implements TaskListSectionService {
-
   private final GeneralDetailSubmissionService generalDetailSubmissionService;
   private final ResourceDetailsSubmissionService resourceDetailsSubmissionService;
-  private final RelatedProspectsSubmissionService relatedProspectsSubmissionService;
+  private final RelatedResourcesSubmissionService relatedResourcesSubmissionService;
   private final PermissionService permissionService;
   private final UserDetailService userDetailService;
 
   @Autowired
   GeneralDetailsTaskListSectionService(GeneralDetailSubmissionService generalDetailSubmissionService,
                                        ResourceDetailsSubmissionService resourceDetailsSubmissionService,
-                                       RelatedProspectsSubmissionService relatedProspectsSubmissionService,
+                                       RelatedResourcesSubmissionService relatedResourcesSubmissionService,
                                        PermissionService permissionService,
                                        UserDetailService userDetailService) {
     this.generalDetailSubmissionService = generalDetailSubmissionService;
     this.resourceDetailsSubmissionService = resourceDetailsSubmissionService;
-    this.relatedProspectsSubmissionService = relatedProspectsSubmissionService;
+    this.relatedResourcesSubmissionService = relatedResourcesSubmissionService;
     this.permissionService = permissionService;
     this.userDetailService = userDetailService;
   }
@@ -56,7 +56,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
         && resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail);
 
     if (isRelatedProspectsRequired(submissionDetail)) {
-      return sectionsSubmittable && relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail);
+      return sectionsSubmittable && relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail);
     }
 
     return sectionsSubmittable;
@@ -80,9 +80,13 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
     if (isRelatedProspectsRequired(submissionDetail)) {
 
       listOfItems.add(
-          new TaskListItem("Related prospects",
-              TaskListLabel.notStartedOrComplete(relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail)),
-              ReverseRouter.route(on(RelatedProspectsController.class).getRelatedProspects(submissionDetail.getId(), null)))
+          new TaskListItem("Related %s"
+              .formatted(
+                  submissionDetail.getResourceId().getType() == ResourceType.DISCOVERY
+                      ? "discoveries"
+                      : "prospects"),
+              TaskListLabel.notStartedOrComplete(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)),
+              ReverseRouter.route(on(RelatedResourcesController.class).getRelatedResources(submissionDetail.getId(), null)))
       );
     }
 
@@ -90,8 +94,11 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
   }
 
   private boolean isRelatedProspectsRequired(SubmissionDetail submissionDetail) {
-    var isCreateProspect = submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT;
-    return isCreateProspect
+    var submissionType = submissionDetail.getSubmissionType();
+    var isInitialResourceSubmission = submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT;
+    return isInitialResourceSubmission
         && permissionService.hasPermission(userDetailService.getUserDetail(), Set.of(RolePermission.EXPLORATION));
   }
 }

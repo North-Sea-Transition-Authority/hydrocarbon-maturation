@@ -10,7 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchRes
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @RestController
-@RequestMapping("/api/prospect-groups")
+@RequestMapping("/api/resource-groups")
 @AccessibleByServiceUsers
 public class ResourceGroupRestController {
 
@@ -24,8 +24,16 @@ public class ResourceGroupRestController {
     this.resourceGroupQueryService = resourceGroupQueryService;
   }
 
-  @GetMapping
+  @GetMapping("/prospect")
   public RestSearchResult searchProspects(@RequestParam("term") String searchTerm) {
     return searchSelectorService.search(searchTerm, resourceGroupQueryService::getProspectsAndGroupsByName);
+  }
+
+  @GetMapping("/discovery")
+  public RestSearchResult searchDiscoveries(@RequestParam("term") String searchTerm) {
+    return searchSelectorService.search(
+        searchTerm,
+        resourceGroupQueryService::getDiscoveriesAndGroupsByName
+    );
   }
 }

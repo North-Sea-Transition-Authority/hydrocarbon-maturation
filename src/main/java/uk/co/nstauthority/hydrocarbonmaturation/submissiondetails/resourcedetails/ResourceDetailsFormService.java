@@ -79,7 +79,7 @@ class ResourceDetailsFormService implements SubmissionFormService {
   private ResourceDetailsFormValidatorHints getValidationHints(SubmissionDetail submissionDetail,
                                                                ValidationType validationType) {
     var isRegulator = regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail());
-    if (submissionDetail.isFirstSubmissionOnResource()) {
+    if (submissionDetail.isFirstSubmission()) {
       return new ResourceDetailsFormValidatorHints(
           validationType,
           isRegulator,

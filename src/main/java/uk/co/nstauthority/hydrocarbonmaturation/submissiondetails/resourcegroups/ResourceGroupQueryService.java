@@ -34,6 +34,16 @@ class ResourceGroupQueryService {
         .toList();
   }
 
+  public List<ResourceGroupView> getDiscoveriesAndGroupsByName(String searchTerm) {
+    return submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm)
+        .stream()
+        .map(submissionDetailService::getLatestApprovedDiscoverySubmissionDetailForResource)
+        .flatMap(Optional::stream)
+        .map(this::getResourceGroupViewForSumbissionDetail)
+        .flatMap(Optional::stream)
+        .toList();
+  }
+
   public Optional<ResourceGroupView> getResourceGroupViewForSumbissionDetail(SubmissionDetail submissionDetail) {
     var resourceName = submissionResourceService.getResourceNameOrDefault(submissionDetail);
 

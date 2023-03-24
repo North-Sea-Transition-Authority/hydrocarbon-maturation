@@ -12,8 +12,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
 @Entity
-@Table(name = "related_prospects")
-class RelatedProspect implements SubmissionDetailChildEntity {
+@Table(name = "related_resources")
+class RelatedResource implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -24,7 +24,7 @@ class RelatedProspect implements SubmissionDetailChildEntity {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
-  private Boolean relatedToAnotherProspect;
+  private Boolean relatedToAnotherResource;
 
   @ManyToOne
   @JoinColumn(name = "related_submission_detail_id")
@@ -50,12 +50,12 @@ class RelatedProspect implements SubmissionDetailChildEntity {
     this.submissionDetail = submissionDetail;
   }
 
-  public Boolean getRelatedToAnotherProspect() {
-    return relatedToAnotherProspect;
+  public Boolean getRelatedToAnotherResource() {
+    return relatedToAnotherResource;
   }
 
-  public void setRelatedToAnotherProspect(Boolean relatedToAnotherProspect) {
-    this.relatedToAnotherProspect = relatedToAnotherProspect;
+  public void setRelatedToAnotherResource(Boolean relatedToAnotherProspect) {
+    this.relatedToAnotherResource = relatedToAnotherProspect;
   }
 
   public SubmissionDetail getRelatedSubmissionDetail() {
@@ -76,10 +76,10 @@ class RelatedProspect implements SubmissionDetailChildEntity {
 
   @Override
   public String toString() {
-    return "RelatedProspect{" +
+    return "RelatedResource{" +
         "id=" + id +
         ", submissionDetail=" + submissionDetail +
-        ", relatedToAnotherProspect=" + relatedToAnotherProspect +
+        ", relatedToAnotherResource=" + relatedToAnotherResource +
         ", relatedSubmissionDetail=" + relatedSubmissionDetail +
         ", preferredView=" + preferredView +
         '}';

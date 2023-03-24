@@ -15,49 +15,46 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.RelatedProspectsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
-class RelatedProspectsSubmissionServiceTest {
+class RelatedResourcesSubmissionServiceTest {
 
   @Mock
-  private RelatedProspectsFormService relatedProspectsFormService;
+  private RelatedResourcesFormService relatedResourcesFormService;
 
   @InjectMocks
-  private RelatedProspectsSubmissionService relatedProspectsSubmissionService;
+  private RelatedResourcesSubmissionService relatedResourcesSubmissionService;
 
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var form = new RelatedProspectsForm();
+    var form = new RelatedResourcesForm();
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
-    when(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail)).thenReturn(form);
+    when(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail)).thenReturn(form);
 
-    when(relatedProspectsFormService.validate(
+    when(relatedResourcesFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
-    assertTrue(relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail));
 
   }
 
   @Test
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var form = new RelatedProspectsForm();
+    var form = new RelatedResourcesForm();
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(relatedProspectsFormService.getRelatedProspectsForm(submissionDetail)).thenReturn(form);
+    when(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail)).thenReturn(form);
 
-    when(relatedProspectsFormService.validate(
+    when(relatedResourcesFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
-    assertFalse(relatedProspectsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail));
   }
 }
