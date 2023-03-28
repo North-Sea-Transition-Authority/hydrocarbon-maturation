@@ -1,17 +1,20 @@
 package uk.co.nstauthority.hydrocarbonmaturation.authentication;
 
 import java.io.Serializable;
+import java.util.Objects;
 import org.springframework.security.core.AuthenticatedPrincipal;
 
 public record ServiceUserDetail(Long wuaId,
                                 Long personId,
                                 String forename,
                                 String surname,
-                                String emailAddress) implements AuthenticatedPrincipal, Serializable {
+                                String emailAddress,
+                                Long proxyWuaId,
+                                String proxyUsername) implements AuthenticatedPrincipal, Serializable {
 
   @Override
   public String getName() {
-    return wuaId.toString();
+    return Objects.nonNull(proxyWuaId) ? proxyWuaId.toString() : wuaId.toString();
   }
 
   public String displayName() {

@@ -46,26 +46,28 @@ track changes over time.
 - In your IntelliJ run configuration for the Spring app, include `production` in your active profiles
 - The following environment variables are required when using this profile:
 
-| Environment Variable                        | Description                                                                                       |
-|---------------------------------------------|---------------------------------------------------------------------------------------------------|
-| REMI_DATABASE_URL                           | The URL to the database the service connect to                                                    |
-| REMI_DATABASE_PASSWORD                      | Database schema password                                                                          |
-| REMI_SAML_ENTITY_ID                         | Fox instance URL (dev: https://itportal.dev.fivium.local/engedudev1/fox)                          |
-| REMI_SAML_CERTIFICATE                       | The x509 certificate string                                                                       |
-| REMI_SAML_LOGIN_URL                         | The URL to hit the `login` entry theme of the SAML login module                                   |
+| Environment Variable                        | Description                                                                                        |
+|---------------------------------------------|----------------------------------------------------------------------------------------------------|
+| REMI_DATABASE_URL                           | The URL to the database the service connect to                                                     |
+| REMI_DATABASE_PASSWORD                      | Database schema password                                                                           |
+| REMI_SAML_ENTITY_ID                         | Fox instance URL (dev: https://itportal.dev.fivium.local/engedudev1/fox)                           |
+| REMI_SAML_CERTIFICATE                       | The x509 certificate string                                                                        |
+| REMI_SAML_LOGIN_URL                         | The URL to hit the `login` entry theme of the SAML login module                                    |
+| REMI_SAML_LOGOUT_URL                        | The saml logout url                                                                                |
 | REMI_SAML_BASE_URL                          | The url prior to the `/${serverContext}` part of the url  (E.G: https://itportal.dev.fivium.local) |
-| REMI_ENABLE_FLYWAY_OUT_OF_ORDER             | Flyway patch ordering                                                                             |
-| REMI_ENABLE_STACK_TRACE                     | Determines if the stack trace will show on error pages                                            |
-| S3_ACCESS_KEY                               | S3 username for document uploads / downloads                                                      |
-| S3_SECRET_KEY                               | S3 secret for document uploads / downloads                                                        |
-| CLAMAV_HOST                                 | Virus scanner host location                                                                       |
-| FILE_UPLOAD_MAX_ALLOWED_SIZE                | Maximum file upload size in bytes                                                                 |
-| FILE_UPLOAD_ALLOWED_EXTENSIONS              | Allowed file extensions for document uploads                                                      |
-| REMI_ENERGY_PORTAL_API_URL                  | The energy portal API URL                                                                         |
-| REMI_ENERGY_PORTAL_API_TOKEN                | Security key for access the energy portal API                                                     |
-| REMI_ENERGY_PORTAL_LOGOUT_URL               | Energy Portal logout URL                                                                          |
-| REMI_ENERGY_PORTAL_TEAM_ACCESS_API_BASE_URL | The Energy Portal team access API base url. (ending in the fox 5 context for the environment)     |
-| REMI_ENERGY_PORTAL_TEAM_ACCESS_API_TOKEN    | The Energy Portal team access API token                                                           |
+| REMI_ENABLE_FLYWAY_OUT_OF_ORDER             | Flyway patch ordering                                                                              |
+| REMI_ENABLE_STACK_TRACE                     | Determines if the stack trace will show on error pages                                             |
+| S3_ACCESS_KEY                               | S3 username for document uploads / downloads                                                       |
+| S3_SECRET_KEY                               | S3 secret for document uploads / downloads                                                         |
+| CLAMAV_HOST                                 | Virus scanner host location                                                                        |
+| FILE_UPLOAD_MAX_ALLOWED_SIZE                | Maximum file upload size in bytes                                                                  |
+| FILE_UPLOAD_ALLOWED_EXTENSIONS              | Allowed file extensions for document uploads                                                       |
+| REMI_ENERGY_PORTAL_API_URL                  | The energy portal API URL                                                                          |
+| REMI_ENERGY_PORTAL_API_TOKEN                | Security key for access the energy portal API                                                      |
+| REMI_ENERGY_PORTAL_LOGOUT_URL               | Energy Portal logout URL                                                                           |
+| REMI_ENERGY_PORTAL_LOGOUT_KEY               | The pre-shared logout key for the energy portal.                                                   |
+| REMI_ENERGY_PORTAL_TEAM_ACCESS_API_BASE_URL | The Energy Portal team access API base url. (ending in the fox 5 context for the environment)      |
+| REMI_ENERGY_PORTAL_TEAM_ACCESS_API_TOKEN    | The Energy Portal team access API token                                                            |
 | REMI_EMAIL_MODE                             | Can be test or production. Test mode will redirect all outbound emails to the test recipient(s)    |
 | REMI_EMAIL_TEST_RECIPIENT                   | If email is test mode, who to send emails to. Value can be a CSV list                              |
 | NOTIFY_API_KEY                              | The GOV.UK Notify key                                                                              |

@@ -47,12 +47,15 @@ public class WebSecurityConfiguration {
     authenticationProvider.setResponseAuthenticationConverter(r -> samlResponseParser.parseSamlResponse(r.getResponse()));
 
     httpSecurity
+        .csrf().ignoringAntMatchers("/notify/callback", "/api/v1/logout/*")
+        .and()
         .authorizeHttpRequests()
         .mvcMatchers("/*")
           .hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
         .mvcMatchers(
             "/assets/**",
-            "/notify/callback"
+            "/notify/callback",
+            "/api/v1/logout/*"
         )
           .permitAll()
         .anyRequest()
@@ -63,9 +66,6 @@ public class WebSecurityConfiguration {
         .saml2Login(saml2 -> saml2.authenticationManager(new ProviderManager(authenticationProvider)))
         .logout()
           .logoutSuccessHandler(serviceLogoutSuccessHandler);
-
-    httpSecurity
-        .csrf().ignoringAntMatchers("/notify/callback");
 
     return httpSecurity.build();
   }

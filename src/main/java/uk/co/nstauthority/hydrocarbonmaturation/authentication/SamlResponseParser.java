@@ -24,8 +24,16 @@ public class SamlResponseParser {
     var forename = getNonEmptyAttribute(parsedAttributes, EnergyPortalSamlAttribute.FORENAME);
     var surname = getNonEmptyAttribute(parsedAttributes, EnergyPortalSamlAttribute.SURNAME);
     var email = getNonEmptyAttribute(parsedAttributes, EnergyPortalSamlAttribute.EMAIL_ADDRESS);
-
-    var userDetail = new ServiceUserDetail(Long.parseLong(wuaId), Long.parseLong(personId), forename, surname, email);
+    var proxyWuaId = parsedAttributes.get(EnergyPortalSamlAttribute.PROXY_USER_WUA_ID.getAttributeName());
+    var proxyUserName = parsedAttributes.get(EnergyPortalSamlAttribute.PROXY_USER_NAME.getAttributeName());
+    var userDetail = new ServiceUserDetail(
+        Long.parseLong(wuaId),
+        Long.parseLong(personId),
+        forename,
+        surname,
+        email,
+        ObjectUtils.isNotEmpty(proxyWuaId) ? Long.parseLong(proxyWuaId) : null,
+        proxyUserName);
 
     var portalPrivileges = getNonNullAttribute(parsedAttributes, EnergyPortalSamlAttribute.PORTAL_PRIVILEGES);
 
