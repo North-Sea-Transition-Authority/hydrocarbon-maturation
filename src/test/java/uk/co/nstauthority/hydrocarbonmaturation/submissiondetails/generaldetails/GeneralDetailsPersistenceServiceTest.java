@@ -309,6 +309,19 @@ class GeneralDetailsPersistenceServiceTest {
   }
 
   @Test
+  void setRelinquishmentInformationSource_whenNoGeneralDetail() {
+    var generalDetailCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.RELINQUISHMENT_PROSPECT);
+    when(generalDetailsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+    generalDetailsPersistenceService.setRelinquishmentInformationSource(submissionDetail);
+    verify(generalDetailsRepository, times(1)).save(generalDetailCaptor.capture());
+    var savedGeneralDetail = generalDetailCaptor.getValue();
+    assertThat(savedGeneralDetail.getInformationSource()).isEqualTo(InformationSource.RELINQUISHMENT);
+    assertThat(savedGeneralDetail.getOtherInformationSource()).isNull();
+  }
+
+  @Test
   void getGeneralDetailBySubmissionId_verifyMethodCall() {
     generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail);
     verify(generalDetailsRepository, times(1)).findBySubmissionDetail(submissionDetail);

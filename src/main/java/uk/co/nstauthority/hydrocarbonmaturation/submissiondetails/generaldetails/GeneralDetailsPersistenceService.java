@@ -98,7 +98,9 @@ public class GeneralDetailsPersistenceService {
   @Transactional
   public void setRelinquishmentInformationSource(SubmissionDetail submissionDetail) {
     // Set the information source to Relinquishment
-    var generalDetail = getGeneralDetailOrThrow(submissionDetail);
+    var generalDetail = getGeneralDetailBySubmissionDetail(submissionDetail)
+        .orElse(new GeneralDetail());
+    generalDetail.setSubmissionDetail(submissionDetail);
     generalDetail.setInformationSource(InformationSource.RELINQUISHMENT);
     generalDetail.setOtherInformationSource(null);
     generalDetailsRepository.save(generalDetail);
