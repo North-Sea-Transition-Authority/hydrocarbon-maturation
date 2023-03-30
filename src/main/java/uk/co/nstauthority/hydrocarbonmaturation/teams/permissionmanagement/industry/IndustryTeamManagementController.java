@@ -144,7 +144,8 @@ public class IndustryTeamManagementController extends AbstractIndustryPermission
     if (!teamManagementService.isMemberOfTeamOrIndustryAccessManager(teamId, user)) {
       throw new ResponseStatusException(
           HttpStatus.FORBIDDEN,
-          "User with ID %s is not a member of the team %s nor an industry access manager".formatted(teamId.uuid(), user)
+          "User with ID %s is not a member of the team with ID %s nor an industry access manager"
+              .formatted(user.wuaId(), teamId.uuid())
       );
     }
 
