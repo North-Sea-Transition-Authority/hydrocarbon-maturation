@@ -45,9 +45,13 @@ The `SubmissionDetail` entity will then be updated to include the `Submission` a
 When a new update request comes in a new `DRAFT` `SubmissionDetail` will be created and the details copied forward from the previous version.
 The new `SubmissionDetail` version will be incremented by 1 from the previous version.
 
-The work area and review screens will then need to filter based on the following:
+The work area, review, and SoR screens will then need to be updated based on the following:
 - the operator work area will look at the latest version of the submission whether that is `DRAFT` or `SUBMITTED`
 - the review screen will look at the latest `SUBMITTED` version of the submission
+- the review submission view query should only show the latest submitted version of a given submission
+- the resource group links should go to the latest version of each submission. Resource groups should now be tied to
+the submission, not the submission detail.
+
 
 ## Pros and cons
 ### Option 1
