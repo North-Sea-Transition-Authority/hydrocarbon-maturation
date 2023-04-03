@@ -397,7 +397,9 @@ class SubmissionEmailServiceTest {
       when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
           .thenReturn(List.of(licence, licence2));
 
-      submissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL);
+      var withdrawalReason = "reason";
+
+      submissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL, withdrawalReason);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient.emailAddress()));
 
@@ -410,6 +412,7 @@ class SubmissionEmailServiceTest {
               Map.of(
                   "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
                   "LICENCES", expectedLicencesString,
+                  "WITHDRAW_REASON", withdrawalReason,
                   "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
                   "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
                   "RECIPIENT_NAME", "Bob The builder",
@@ -449,7 +452,9 @@ class SubmissionEmailServiceTest {
       when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
           .thenReturn(List.of());
 
-      submissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL);
+      var withdrawalReason = "the reason for withdrawal";
+
+      submissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL, withdrawalReason);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient.emailAddress()));
 
@@ -462,6 +467,7 @@ class SubmissionEmailServiceTest {
               Map.of(
                   "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
                   "LICENCES", expectedLicencesString,
+                  "WITHDRAW_REASON", withdrawalReason,
                   "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
                   "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
                   "RECIPIENT_NAME", "Jonathan Joestar",
@@ -479,7 +485,8 @@ class SubmissionEmailServiceTest {
       when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(invalidWuaId)))
           .thenReturn(Optional.empty());
 
-      submissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL);
+      submissionEmailService.sendSubmissionWithdrawalEmail(
+          SUBMISSION_DETAIL, "Not relevant reason");
 
       verifyNoInteractions(notifyEmailService);
     }

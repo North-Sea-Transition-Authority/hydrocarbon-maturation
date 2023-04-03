@@ -7,7 +7,9 @@ import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
@@ -39,6 +42,7 @@ public class WithdrawSubmissionController {
   private final SubmissionResourceService submissionResourceService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final WithdrawSubmissionService withdrawSubmissionService;
+  private final ControllerHelperService controllerHelperService;
   private final UserDetailService userDetailService;
 
   @Autowired
@@ -46,11 +50,13 @@ public class WithdrawSubmissionController {
                                       SubmissionResourceService submissionResourceService,
                                       SubmissionSummaryModelService submissionSummaryModelService,
                                       WithdrawSubmissionService withdrawSubmissionService,
+                                      ControllerHelperService controllerHelperService,
                                       UserDetailService userDetailService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.withdrawSubmissionService = withdrawSubmissionService;
+    this.controllerHelperService = controllerHelperService;
     this.userDetailService = userDetailService;
   }
 
@@ -64,19 +70,24 @@ public class WithdrawSubmissionController {
           .formatted(userDetailService.getUserWuaId()));
     }
 
-    return getWithdrawConfirmationModelAndView(submissionDetail);
+    return getWithdrawConfirmationModelAndView(submissionDetail, new WithdrawSubmissionForm());
   }
 
   @PostMapping
   public ModelAndView withdrawSubmission(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                         @ModelAttribute("form") WithdrawSubmissionForm form,
+                                         BindingResult bindingResult,
                                          @Nullable RedirectAttributes redirectAttributes) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-
-    withdrawSubmissionService.withdrawSubmissionOrThrow(submissionDetail);
-    withdrawSubmissionNotificationBanner(submissionDetail, redirectAttributes);
-
-    return ReverseRouter.redirect(on(WorkAreaController.class)
-        .getWorkArea());
+    bindingResult = withdrawSubmissionService.validate(bindingResult, form);
+    return controllerHelperService.checkErrorsAndRedirect(
+        bindingResult,
+        getWithdrawConfirmationModelAndView(submissionDetail, form),
+        () -> {
+          withdrawSubmissionService.withdrawSubmissionOrThrow(submissionDetail, form);
+          withdrawSubmissionNotificationBanner(submissionDetail, redirectAttributes);
+          return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
+        });
   }
 
   private String getPageName(SubmissionDetail submissionDetail) {
@@ -97,7 +108,8 @@ public class WithdrawSubmissionController {
     NotificationBannerUtil.applyNotificationBanner(redirectAttributes, banner);
   }
 
-  private ModelAndView getWithdrawConfirmationModelAndView(SubmissionDetail submissionDetail) {
+  private ModelAndView getWithdrawConfirmationModelAndView(SubmissionDetail submissionDetail,
+                                                           WithdrawSubmissionForm form) {
     var pageName = getPageName(submissionDetail);
     var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
         submissionDetail,
@@ -107,15 +119,16 @@ public class WithdrawSubmissionController {
     var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail);
 
     modelAndView
+        .addObject("form", form)
         .addObject("pageName", pageName)
         .addObject("resourceName", resourceName)
         .addObject("submissionType", submissionDetail.getSubmissionType())
         .addObject("actionUrl",
             ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .withdrawSubmission(submissionDetail.getId(), null)))
+                .withdrawSubmission(submissionDetail.getId(), null, null, null)))
         .addObject("cancelUrl",
             ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getId())));
+                .showReviewPage(submissionDetail.getResourceId().getId())));
 
     ReviewPageBreadcrumbUtil
         .addWorkAreaAndManagementPageToModelAndView(modelAndView, pageName, resourceName, submissionDetail);

@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
@@ -44,6 +45,8 @@ class WithdrawSubmissionServiceTest {
   private SubmissionEmailService submissionEmailService;
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
+  @Mock
+  private WithdrawSubmissionFormValidator withdrawSubmissionFormValidator;
   @InjectMocks
   private WithdrawSubmissionService underTest;
 
@@ -65,11 +68,12 @@ class WithdrawSubmissionServiceTest {
         submissionDetail.getResourceId()))
         .thenReturn(regulatorManagedInformation);
     when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION)).thenReturn(true);
+    var form = new WithdrawSubmissionForm();
+    form.setWithdrawReason("theReason");
+    underTest.withdrawSubmissionOrThrow(submissionDetail, form);
 
-    underTest.withdrawSubmissionOrThrow(submissionDetail);
-
-    verify(submissionDetailPersistenceService).withdrawSubmission(submissionDetail);
-    verify(submissionEmailService).sendSubmissionWithdrawalEmail(submissionDetail);
+    verify(submissionDetailPersistenceService).withdrawSubmission(submissionDetail, form.getWithdrawReason());
+    verify(submissionEmailService).sendSubmissionWithdrawalEmail(submissionDetail, form.getWithdrawReason());
   }
 
   @Test
@@ -81,8 +85,9 @@ class WithdrawSubmissionServiceTest {
         submissionDetail.getResourceId()))
         .thenReturn(responsibleTeam);
     when(userDetailService.getUserWuaId()).thenReturn(1);
+    var form = new WithdrawSubmissionForm();
 
-    assertThatThrownBy(() -> underTest.withdrawSubmissionOrThrow(submissionDetail))
+    assertThatThrownBy(() -> underTest.withdrawSubmissionOrThrow(submissionDetail, form))
         .isExactlyInstanceOf(ActionNotAllowedException.class)
         .hasMessage("Submission cannot be withdrawn by user with ID %s"
             .formatted(USER.wuaId()));
@@ -137,5 +142,15 @@ class WithdrawSubmissionServiceTest {
         .thenReturn(responsibleTeam);
 
     assertThat(underTest.canWithdrawSubmission(submissionDetail)).isFalse();
+  }
+
+  @Test
+  void validate_verifyMethodCall() {
+    var form = new WithdrawSubmissionForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    underTest.validate(bindingResult, form);
+
+    verify(withdrawSubmissionFormValidator).validate(form, bindingResult);
   }
 }

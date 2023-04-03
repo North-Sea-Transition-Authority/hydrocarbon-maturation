@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -132,9 +133,9 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
             entry("pageName", "Are you sure you want to withdraw this %s?".formatted(expectedTypeName.toLowerCase())),
             entry("resourceName", expectedName),
             entry("actionUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .withdrawSubmission(SUBMISSION_DETAIL_ID, null))),
+                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null))),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(SUBMISSION_DETAIL_ID)))
+                .showReviewPage(submissionDetail.getResourceId().getId())))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -156,16 +157,18 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     var expectedTypeName = "Type name";
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
         .thenReturn(expectedTypeName);
+    when(withdrawSubmissionService.validate(any(), any()))
+        .thenReturn(ReverseRouter.emptyBindingResult());
 
     mockMvc.perform(
             post(ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .withdrawSubmission(SUBMISSION_DETAIL_ID, null)))
+                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null)))
                 .with(user(USER)).with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class)
             .getWorkArea())));
 
-    verify(withdrawSubmissionService).withdrawSubmissionOrThrow(submissionDetail);
+    verify(withdrawSubmissionService).withdrawSubmissionOrThrow(eq(submissionDetail), any());
   }
 
   @SecurityTest
@@ -173,12 +176,16 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     doAnswer(invocation -> {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Submission cannot be withdrawn by user with ID %s "
           .formatted(USER.wuaId().toString()));
-    }).when(withdrawSubmissionService).withdrawSubmissionOrThrow(submissionDetail);
+    }).when(withdrawSubmissionService).withdrawSubmissionOrThrow(eq(submissionDetail), any());
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(withdrawSubmissionService.validate(any(), any()))
+        .thenReturn(ReverseRouter.emptyBindingResult());
+    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+        .thenReturn(submissionDetail.getSubmissionType().getTypeName());
 
     mockMvc.perform(
             post(ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .withdrawSubmission(SUBMISSION_DETAIL_ID, null)))
+                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null)))
                 .with(user(USER)).with(csrf()))
         .andExpect(status().isUnauthorized());
   }
@@ -189,7 +196,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
 
     mockMvc.perform(
             post(ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .withdrawSubmission(SUBMISSION_DETAIL_ID, null)))
+                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null)))
                 .with(user(USER)).with(csrf()))
         .andExpect(status().isForbidden());
     verifyNoInteractions(withdrawSubmissionService);

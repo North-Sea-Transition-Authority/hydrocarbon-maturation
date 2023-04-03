@@ -144,17 +144,19 @@ class SubmissionDetailPersistenceServiceTest {
   void withdrawSubmission_assertWithdrawnBy() {
     var submissionDetail = new SubmissionDetail();
     when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
-    submissionDetailPersistenceService.withdrawSubmission(submissionDetail);
+    submissionDetailPersistenceService.withdrawSubmission(submissionDetail, "no reason");
 
     assertThat(submissionDetail)
         .extracting(
             SubmissionDetail::getWithdrawnByWuaId,
             SubmissionDetail::getWithdrawnTimestamp,
-            SubmissionDetail::getStatus)
+            SubmissionDetail::getStatus,
+            SubmissionDetail::getWithdrawalReason)
         .containsExactly(
             USER_WUA_ID.intValue(),
             INSTANT,
-            SubmissionDetailStatus.WITHDRAWN
+            SubmissionDetailStatus.WITHDRAWN,
+            "no reason"
         );
     verify(submissionDetailRepository, times(1)).save(submissionDetail);
   }

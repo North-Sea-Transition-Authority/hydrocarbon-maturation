@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
@@ -21,25 +22,34 @@ class WithdrawSubmissionService {
   private final UserDetailService userDetailService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionEmailService submissionEmailService;
+  private final WithdrawSubmissionFormValidator withdrawSubmissionFormValidator;
 
   @Autowired
   public WithdrawSubmissionService(SubmissionDetailPersistenceService submissionDetailPersistenceService,
                                    RegulatorTeamService regulatorTeamService,
                                    UserDetailService userDetailService,
                                    RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
-                                   SubmissionEmailService submissionEmailService) {
+                                   SubmissionEmailService submissionEmailService,
+                                   WithdrawSubmissionFormValidator withdrawSubmissionFormValidator) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionEmailService = submissionEmailService;
+    this.withdrawSubmissionFormValidator = withdrawSubmissionFormValidator;
   }
 
-  void withdrawSubmissionOrThrow(SubmissionDetail submissionDetail) {
-    if (canWithdrawSubmission(submissionDetail)) {
-      submissionDetailPersistenceService.withdrawSubmission(submissionDetail);
+  BindingResult validate(BindingResult bindingResult, WithdrawSubmissionForm form) {
+    withdrawSubmissionFormValidator.validate(form, bindingResult);
+    return bindingResult;
+  }
 
-      submissionEmailService.sendSubmissionWithdrawalEmail(submissionDetail);
+  void withdrawSubmissionOrThrow(SubmissionDetail submissionDetail,
+                                 WithdrawSubmissionForm form) {
+    if (canWithdrawSubmission(submissionDetail)) {
+      submissionDetailPersistenceService.withdrawSubmission(submissionDetail, form.getWithdrawReason());
+
+      submissionEmailService.sendSubmissionWithdrawalEmail(submissionDetail, form.getWithdrawReason());
     } else {
       throw new ActionNotAllowedException("Submission cannot be withdrawn by user with ID %s"
           .formatted(userDetailService.getUserWuaId()));

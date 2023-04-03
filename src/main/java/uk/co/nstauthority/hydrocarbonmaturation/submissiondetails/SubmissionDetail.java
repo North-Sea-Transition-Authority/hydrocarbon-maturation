@@ -53,6 +53,8 @@ public class SubmissionDetail {
   @Enumerated(EnumType.STRING)
   private SubmitterType submitterType;
 
+  private String withdrawalReason;
+
   public UUID getId() {
     return id;
   }
@@ -231,5 +233,13 @@ public class SubmissionDetail {
 
   public void setWithdrawnTimestamp(Instant withdrawnTimestamp) {
     this.withdrawnTimestamp = withdrawnTimestamp;
+  }
+
+  public String getWithdrawalReason() {
+    return withdrawalReason;
+  }
+
+  public void setWithdrawalReason(String withdrawalReason) {
+    this.withdrawalReason = withdrawalReason;
   }
 }
