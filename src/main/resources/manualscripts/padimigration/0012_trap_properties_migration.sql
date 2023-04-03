@@ -41,6 +41,15 @@ BEGIN
             END
         INTO remi_trap_type;
 
+        lat_degrees := NULL;
+        lat_minutes_dec := NULL;
+        lat_minutes := NULL;
+        lat_seconds := NULL;
+        long_degrees := NULL;
+        long_minutes_dec := NULL;
+        long_minutes := NULL;
+        long_seconds := NULL;
+
         IF trap_rec.latitude_c_of_i IS NOT NULL THEN
 
             lat_degrees := FLOOR(ABS(trap_rec.latitude_c_of_i)); -- whole number part of latitude degrees
@@ -85,8 +94,14 @@ BEGIN
             long_degrees,
             long_minutes,
             long_seconds,
-            CASE WHEN trap_rec.longitude_c_of_i < 0 THEN 'WEST' ELSE 'EAST' END,
-            'ED50' -- to confirm with NSTA
+            CASE
+                WHEN trap_rec.longitude_c_of_i < 0 THEN 'WEST'
+                WHEN trap_rec.longitude_c_of_i >= 0 THEN 'EAST'
+            END,
+            CASE
+                WHEN trap_rec.latitude_c_of_i IS NOT NULL AND trap_rec.longitude_c_of_i IS NOT NULL
+                THEN 'ED50'
+            END -- to confirm with NSTA
         );
 
     END LOOP;

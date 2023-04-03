@@ -611,3 +611,10 @@ CREATE TABLE remi.padi_resource_groupings (
     legacy_res_data_id INTEGER,
     resource_type TEXT
 );
+
+CREATE TABLE remi.padi_well_mapping (
+    padi_resdat_id       INTEGER,
+    padi_resource_id     TEXT,
+    well_registration_no TEXT,
+    well_id              INTEGER
+);
