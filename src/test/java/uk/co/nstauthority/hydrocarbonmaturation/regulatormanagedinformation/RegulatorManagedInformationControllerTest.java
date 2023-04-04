@@ -35,13 +35,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchResourceRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
@@ -276,7 +276,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     assertThat(modelMap).contains(
             entry("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(SUBMISSION_DETAIL_ID))),
+                .showReviewPage(resourceId))),
         entry("relinquishmentReportTemplate", fileUploadTemplate),
         entry("relinquishmentReportUploads", fileUploadList)
         )
@@ -286,7 +286,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(SUBMISSION_DETAIL_ID)),
+        entry(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)),
             resourceName)
     );
   }
@@ -310,7 +310,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReviewSubmissionController.class)
-            .showReviewPage(SUBMISSION_DETAIL_ID))));
+            .showReviewPage(resourceId))));
   }
 
   @Test

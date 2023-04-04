@@ -67,6 +67,6 @@
       resourceGroupsValues=resourceGroupsSummaryView/>
   </#if>
   <@submissionSummary.submissionSummary
-    submissionType="${submissionRecord.submissionType().name()}"/>
+    submissionType="${submissionType.name()}"/>
 
 </@defaultPage>

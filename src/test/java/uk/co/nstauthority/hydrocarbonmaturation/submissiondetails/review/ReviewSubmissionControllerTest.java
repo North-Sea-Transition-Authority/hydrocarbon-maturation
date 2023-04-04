@@ -6,8 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -119,9 +118,16 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionOnResource.getId()))
         .thenReturn(otherSubmissionOnResource);
 
-    when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, otherSubmissionOnResource))
-        .thenReturn(true);
     when(reviewSubmissionService.canReviewSubmission(SUBMISSION_RECORD_VIEW, USER, otherSubmissionOnResource))
+        .thenReturn(true);
+    var resource = new Resource();
+    resource.setId(RESOURCE_ID);
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.of(resource));
+    var latestSubmission = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+        .thenReturn(Optional.of(latestSubmission));
+    when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, latestSubmission))
         .thenReturn(true);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -249,8 +255,6 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail)).thenReturn(true);
     when(reviewSubmissionService.canReviewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail))
         .thenReturn(true);
-    var resource = new Resource();
-    resource.setId(UUID.randomUUID());
     when(resourceService.getResourceById(RESOURCE_ID))
         .thenReturn(Optional.empty());
     var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
@@ -266,13 +270,45 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   }
 
   @Test
+  void showSubmissionSummary_whenInvalidResourceId_assertIsNotFound() throws Exception {
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.empty());
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class)
+                .showSubmissionSummary(RESOURCE_ID, UUID.randomUUID(), null)))
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void showSubmissionSummary_whenNoLatestApprovedOrSubmittedSubmission_assertIsNotFound() throws Exception {
+    var resource = mock(Resource.class);
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.of(resource));
+    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+        .thenReturn(Optional.empty());
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class)
+                .showSubmissionSummary(RESOURCE_ID, UUID.randomUUID(), null)))
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
   void showSubmissionSummary_whenCannotViewSubmission_assertForbidden() throws Exception{
     var otherSubmissionDetail = new SubmissionDetail();
     var otherSubmissionId = UUID.randomUUID();
     when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionId))
         .thenReturn(otherSubmissionDetail);
-    when(reviewSubmissionService.canViewSubmission(any(), eq(USER), eq(otherSubmissionDetail)))
+    var resource = new Resource();
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.of(resource));
+    var latestSubmission = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+        .thenReturn(Optional.of(latestSubmission));
+    when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, latestSubmission))
         .thenReturn(false);
+
     mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class)
                 .showSubmissionSummary(RESOURCE_ID, otherSubmissionId, null)))

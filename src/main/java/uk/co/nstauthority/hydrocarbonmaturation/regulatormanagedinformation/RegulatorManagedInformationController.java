@@ -120,7 +120,7 @@ public class RegulatorManagedInformationController {
         () -> {
           regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(form, resource);
           if (submissionDetailId != null) {
-            return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(submissionDetailId));
+            return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(resourceId));
           } else {
             return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resourceId));
           }
@@ -156,14 +156,14 @@ public class RegulatorManagedInformationController {
     String cancelUrl;
     if (submissionDetailId != null) {
       cancelUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
-          .showReviewPage(submissionDetailId));
+          .showReviewPage(resource.getId()));
       breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
           .addWorkAreaBreadcrumb()
           .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(
                   submissionDetailService.getSubmissionDetail(submissionDetailId)
                       .orElseThrow(() ->
                           new RemiEntityNotFoundException("Could not find resource with id %s"
-                              .formatted(submissionDetailId.toString())))), cancelUrl)
+                              .formatted(resource.getId())))), cancelUrl)
           .build();
     } else {
       var submissionOnResource = submissionDetailService

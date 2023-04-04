@@ -88,17 +88,25 @@ public class ReviewSubmissionController {
   public ModelAndView showSubmissionSummary(@PathVariable("resourceId") UUID resourceId,
                                             @PathVariable("submissionDetailId") UUID submissionDetailId,
                                             @ModelAttribute("form") SubmissionSearchSelectorForm form) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var selectedSubmission = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var resource = resourceService.getResourceById(resourceId)
+        .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource with id %s"
+            .formatted(resourceId)));
+    var latestSubmission = submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource)
+        .orElseThrow(() ->
+            new RemiEntityNotFoundException("Could not find latest submitted or approved submission for resource %s"
+                .formatted(resourceId)));
+
     var submissionRecord = reviewSubmissionService.getSubmissionRecordOrThrow(resourceId);
     var userDetail = userDetailService.getUserDetail();
 
-    if (!reviewSubmissionService.canViewSubmission(submissionRecord, userDetail, submissionDetail)) {
+    if (!reviewSubmissionService.canViewSubmission(submissionRecord, userDetail, latestSubmission)) {
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Submission cannot be reviewed by user with ID %s ".formatted(userDetail.wuaId()));
+          HttpStatus.FORBIDDEN, "Submission cannot be viewed by user with ID %s ".formatted(userDetail.wuaId()));
     }
 
     form.setSelectedSubmissionId(submissionDetailId.toString());
-    return getModelAndView(submissionRecord, userDetail, submissionDetail, form, resourceId);
+    return getModelAndView(submissionRecord, userDetail, selectedSubmission, form, resourceId);
   }
 
   @PostMapping
