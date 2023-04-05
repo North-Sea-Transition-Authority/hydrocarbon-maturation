@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywell
 
 import java.math.BigDecimal;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.DrillDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
@@ -10,6 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Subm
 @Table(name = "discovery_well_details")
 public class DiscoveryWellDetail extends DrillDetail implements SubmissionDetailChildEntity {
 
+  @Enumerated(EnumType.STRING)
   private HydrocarbonsDiscovered hydrocarbonsDiscovered;
 
   private DiscoveryStatus discoveryStatus;

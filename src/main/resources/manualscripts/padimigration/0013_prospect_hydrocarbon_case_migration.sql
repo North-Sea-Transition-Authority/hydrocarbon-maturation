@@ -23,7 +23,7 @@ BEGIN
             SELECT 1
             FROM remi.probability_distributions pd
             WHERE pd.instance IN (
-                'GAS_HYDROCARBON_SATURATION'
+                'GAS_HYDROCARBON_SATURATION',
                 'GAS_EXPANSION_FACTOR',
                 'GAS_RECOVERY_FACTOR',
                 'CONDENSATE_GAS_RATIO_LIFE_OF_FIELD',
@@ -42,7 +42,7 @@ BEGIN
             SELECT 1
             FROM remi.probability_distributions pd
             WHERE pd.instance IN (
-                'OIL_RECOVERY_FACTOR'
+                'OIL_RECOVERY_FACTOR',
                 'FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY',
                 'OIL_HYDROCARBON_SATURATION',
                 'ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD',
