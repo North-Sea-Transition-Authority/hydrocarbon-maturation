@@ -198,7 +198,12 @@ BEGIN
             dry_well_rec.td_comment,
             dry_well_rec.data_acquisition_programme,
             dry_well_rec.geophysical_update_comment,
-            dry_well_rec.shows_type,
+            CASE dry_well_rec.shows_type
+                WHEN 'Gas' THEN 'GAS'
+                WHEN 'Oil' THEN 'OIL'
+                WHEN 'Oil&Gas' THEN 'MIXED_OIL_AND_GAS'
+                ELSE 'NONE'
+            END,
             dry_well_rec.shows_description,
                   dry_well_rec.remaining_potential,
                   dry_well_rec.valid_dry_hole_comment,
