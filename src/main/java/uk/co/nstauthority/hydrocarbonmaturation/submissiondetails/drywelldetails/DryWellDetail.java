@@ -23,14 +23,19 @@ class DryWellDetail extends DrillDetail implements SubmissionDetailChildEntity {
 
   private BigDecimal dryHoleCost;
 
+  @Enumerated(EnumType.STRING)
   private SourceFailureCategory sourceFailureCategory;
 
+  @Enumerated(EnumType.STRING)
   private ReservoirFailureCategory reservoirFailureCategory;
 
+  @Enumerated(EnumType.STRING)
   private SealFailureCategory sealFailureCategory;
 
+  @Enumerated(EnumType.STRING)
   private TrapFailureCategory trapFailureCategory;
 
+  @Enumerated(EnumType.STRING)
   private MigrationFailureCategory migrationFailureCategory;
 
   DryHoleType getDryHoleType() {
