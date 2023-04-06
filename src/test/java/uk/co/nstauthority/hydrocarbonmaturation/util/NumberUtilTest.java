@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.util;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;

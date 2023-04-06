@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -139,7 +138,7 @@ class MixedCaseOutputsFormServiceTest {
     when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(submissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
 
-    Assertions.assertThat(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail))
+    assertThat(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail))
         .extracting(
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getCustom(),

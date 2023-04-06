@@ -1,14 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
-import static org.assertj.core.api.AssertionsForClassTypes.tuple;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -280,7 +279,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
         );
 
     //asserts the submittedOn timestamps
-    AssertionsForClassTypes.assertThat(results.get(0))
+    assertThat(results.get(0))
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
             result -> result.getSubmittedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
@@ -289,7 +288,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
             firstSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS)
         );
 
-    AssertionsForClassTypes.assertThat(results.get(1))
+    assertThat(results.get(1))
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
             result -> result.getSubmittedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
@@ -298,7 +297,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
             secondSubmissionDetailTimestamp.truncatedTo(ChronoUnit.MILLIS)
         );
 
-    AssertionsForClassTypes.assertThat(results.get(2))
+    assertThat(results.get(2))
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
             result -> result.getSubmittedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
@@ -366,7 +365,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
 
     var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
-    AssertionsForClassTypes.assertThat(results.get(0))
+    assertThat(results.get(0))
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
             SubmissionWorkAreaQueryResult::getCentreOfInterestQuadBlock,

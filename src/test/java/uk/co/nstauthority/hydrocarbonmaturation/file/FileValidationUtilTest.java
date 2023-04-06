@@ -1,12 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
-import static org.assertj.core.api.AssertionsForClassTypes.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -27,12 +27,12 @@ class FileValidationUtilTest {
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(errorMessages)
+    assertThat(errorMessages)
         .containsExactly(
             entry("fileUploadField", Set.of("Upload at most 1"))
         );
 
-    AssertionsForInterfaceTypes.assertThat(errors)
+    assertThat(errors)
         .containsExactly(
             entry("fileUploadField", Set.of("fileUploadField.limitExceeded"))
         );
@@ -50,12 +50,12 @@ class FileValidationUtilTest {
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(errorMessages)
+    assertThat(errorMessages)
         .containsExactly(
             entry("fileUploadField", Set.of("Upload at least 1"))
         );
 
-    AssertionsForInterfaceTypes.assertThat(errors)
+    assertThat(errors)
         .containsExactly(
             entry("fileUploadField", Set.of("fileUploadField.belowThreshold"))
         );
@@ -73,7 +73,7 @@ class FileValidationUtilTest {
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(errorMessages)
+    assertThat(errorMessages)
         .containsExactly(
             entry("fileUploadField[0].uploadedFileDescription",
                 Set.of("Enter a description of this file")),
@@ -81,7 +81,7 @@ class FileValidationUtilTest {
                 Set.of("Enter a description of this file"))
         );
 
-    AssertionsForInterfaceTypes.assertThat(errors)
+    assertThat(errors)
         .containsExactly(
             entry("fileUploadField[0].uploadedFileDescription",
                 Set.of("fileUploadField[0].uploadedFileDescription.required")),
@@ -104,13 +104,13 @@ class FileValidationUtilTest {
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(errorMessages)
+    assertThat(errorMessages)
         .containsExactly(
             entry("fileUploadField",
                 Set.of("Too many files"))
         );
 
-    AssertionsForInterfaceTypes.assertThat(errors)
+    assertThat(errors)
         .containsExactly(
             entry("fileUploadField",
                 Set.of("fileUploadField.limitExceeded"))

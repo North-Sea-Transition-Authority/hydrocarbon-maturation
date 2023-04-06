@@ -1,11 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
-import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 import java.time.Instant;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,7 +51,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       var results = submissionHistoryQueryService
           .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
 
-      AssertionsForInterfaceTypes.assertThat(results)
+      assertThat(results)
           .extracting(
               SubmissionQuerySearchRecord::getStatus,
               SubmissionQuerySearchRecord::getSubmissionDetailId,
@@ -90,7 +90,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       var results = submissionHistoryQueryService
           .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
 
-      AssertionsForInterfaceTypes.assertThat(results).isEmpty();
+      assertThat(results).isEmpty();
     }
 
     @Test
@@ -101,7 +101,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       var results = submissionHistoryQueryService
           .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
 
-      AssertionsForInterfaceTypes.assertThat(results).isEmpty();
+      assertThat(results).isEmpty();
     }
 
     @ParameterizedTest
@@ -144,7 +144,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       var results = submissionHistoryQueryService
           .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
       if (linkedResources) {
-        AssertionsForInterfaceTypes.assertThat(results)
+        assertThat(results)
             .extracting(
                 SubmissionQuerySearchRecord::getStatus,
                 SubmissionQuerySearchRecord::getSubmissionDetailId)
@@ -165,7 +165,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
             );
       } else {
         //if no link between discovery and prospect, only discovery submissions returned
-        AssertionsForInterfaceTypes.assertThat(results)
+        assertThat(results)
             .extracting(
                 SubmissionQuerySearchRecord::getStatus,
                 SubmissionQuerySearchRecord::getSubmissionDetailId)
@@ -193,7 +193,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       var results = submissionHistoryQueryService
           .getApprovedSubmissionsOnResource(resourceId);
 
-      AssertionsForInterfaceTypes.assertThat(results).isEmpty();
+      assertThat(results).isEmpty();
     }
 
     @ParameterizedTest
@@ -209,7 +209,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       var results = submissionHistoryQueryService
           .getApprovedSubmissionsOnResource(resourceId);
 
-      AssertionsForInterfaceTypes.assertThat(results).isEmpty();
+      assertThat(results).isEmpty();
     }
 
     @Test
@@ -230,7 +230,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       var results = submissionHistoryQueryService
           .getApprovedSubmissionsOnResource(resourceId);
 
-      AssertionsForInterfaceTypes.assertThat(results)
+      assertThat(results)
           .extracting(
               SubmissionQuerySearchRecord::getStatus,
               SubmissionQuerySearchRecord::getSubmissionDetailId,
@@ -285,7 +285,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       var results = submissionHistoryQueryService
           .getApprovedSubmissionsOnResource(resourceId);
       if (linkedResources) {
-        AssertionsForInterfaceTypes.assertThat(results)
+        assertThat(results)
             .extracting(
                 SubmissionQuerySearchRecord::getStatus,
                 SubmissionQuerySearchRecord::getSubmissionDetailId)
@@ -305,7 +305,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
             );
       } else {
         //if no link between discovery and prospect, only discovery submissions returned
-        AssertionsForInterfaceTypes.assertThat(results)
+        assertThat(results)
             .extracting(
                 SubmissionQuerySearchRecord::getStatus,
                 SubmissionQuerySearchRecord::getSubmissionDetailId)

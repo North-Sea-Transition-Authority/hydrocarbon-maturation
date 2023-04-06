@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;

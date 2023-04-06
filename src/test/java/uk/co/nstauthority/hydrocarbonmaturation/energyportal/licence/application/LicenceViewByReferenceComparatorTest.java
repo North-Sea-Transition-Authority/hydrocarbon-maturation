@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;

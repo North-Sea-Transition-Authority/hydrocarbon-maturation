@@ -1,13 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.newresource;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -88,7 +87,7 @@ class ResourceDetailsFormValidatorTest {
             validationType, true, ResourceType.PROSPECT, resourceDetail));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(extractedErrors)
+    assertThat(extractedErrors)
         .contains(
             entry("resourceName", Set.of("resourceName.required")),
             entry("responsibleOrganisationId", Set.of("responsibleOrganisationId.required"))
@@ -111,13 +110,13 @@ class ResourceDetailsFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(extractedErrors)
+    assertThat(extractedErrors)
         .contains(
             entry("resourceName", Set.of("resourceName.required")),
             entry("responsibleOrganisationId", Set.of("responsibleOrganisationId.required"))
         );
 
-    AssertionsForInterfaceTypes.assertThat(extractedErrorMessages)
+    assertThat(extractedErrorMessages)
         .contains(
             entry("resourceName", Set.of("Enter the prospect name")),
             entry("responsibleOrganisationId",
@@ -136,13 +135,13 @@ class ResourceDetailsFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(extractedErrors)
+    assertThat(extractedErrors)
         .containsExactly(
             entry("resourceName", Set.of("resourceName.required")),
             entry("onshoreOffshore", Set.of("onshoreOffshore.required"))
         );
 
-    AssertionsForInterfaceTypes.assertThat(extractedErrorMessages)
+    assertThat(extractedErrorMessages)
         .containsExactly(
             entry("resourceName", Set.of("Enter the discovery name")),
             entry("onshoreOffshore", Set.of("Select onshore or offshore"))
@@ -159,14 +158,14 @@ class ResourceDetailsFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(extractedErrors)
+    assertThat(extractedErrors)
         .containsExactly(
             entry("resourceName", Set.of("resourceName.required")),
             entry("responsibleOrganisationId", Set.of("responsibleOrganisationId.required")),
             entry("onshoreOffshore", Set.of("onshoreOffshore.required"))
         );
 
-    AssertionsForInterfaceTypes.assertThat(extractedErrorMessages)
+    assertThat(extractedErrorMessages)
         .containsExactly(
             entry("resourceName", Set.of("Enter the prospect name")),
             entry("responsibleOrganisationId", Set.of("Enter the responsible organisation")),
@@ -183,7 +182,7 @@ class ResourceDetailsFormValidatorTest {
             ValidationType.FULL, true, ResourceType.PROSPECT, null));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(extractedErrors)
+    assertThat(extractedErrors)
         .containsExactly(
             entry("resourceName", Set.of("resourceName.required")),
             entry("onshoreOffshore", Set.of("onshoreOffshore.required"))

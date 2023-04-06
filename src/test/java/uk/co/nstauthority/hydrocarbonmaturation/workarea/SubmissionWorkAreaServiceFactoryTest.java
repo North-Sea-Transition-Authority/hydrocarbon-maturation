@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;

@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +65,7 @@ class LicenceQueryServiceTest {
         any()
     )).thenReturn(List.of(licence));
 
-    Assertions.assertThat(licenceQueryService.getExtantLicencesBy(licenceRef))
+    assertThat(licenceQueryService.getExtantLicencesBy(licenceRef))
         .extracting(
             LicenceView::getSelectionId,
             LicenceView::getSelectionText

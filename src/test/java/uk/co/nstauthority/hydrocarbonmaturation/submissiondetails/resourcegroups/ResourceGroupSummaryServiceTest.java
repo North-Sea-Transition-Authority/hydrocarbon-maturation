@@ -1,9 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.tuple;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -12,7 +11,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,7 +25,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 
@@ -68,7 +65,7 @@ class ResourceGroupSummaryServiceTest {
             "Yes"
         );
 
-    AssertionsForInterfaceTypes.assertThat(summaryView.resourcesInGroup())
+    assertThat(summaryView.resourcesInGroup())
         .hasSize(1);
 
     assertThat(summaryView.resourcesInGroup().get(0))
@@ -118,7 +115,7 @@ class ResourceGroupSummaryServiceTest {
             "No"
         );
 
-    AssertionsForInterfaceTypes.assertThat(summaryView.resourcesInGroup())
+    assertThat(summaryView.resourcesInGroup())
         .extracting(
             ResourceItemSummaryView::resourceName,
             ResourceItemSummaryView::disableLink,

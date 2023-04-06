@@ -49,7 +49,11 @@ class SubmissionHistoryQueryService {
             .on(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(SUBMISSION_DETAILS.RESOURCE_ID)
                 .or(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(SUBMISSION_DETAILS.RESOURCE_ID))))
         .where(conditions)
-        .orderBy(SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc())
+        .orderBy(
+            SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc(),
+            // below is for legacy cases that have the same submitted date across multiple submissions.
+            SUBMISSION_DETAILS.LEGACY_RES_DATA_ID.desc()
+        )
         .fetchInto(SubmissionQuerySearchRecord.class);
   }
 

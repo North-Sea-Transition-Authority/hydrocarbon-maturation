@@ -1,10 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -64,8 +63,8 @@ class RegulatorTeamMembershipInterceptorRuleTest {
 
     var securityRuleResult = regulatorTeamMembershipInterceptorRule
         .hasRequiredTeamMembershipPermissions(user, submissionDetail);
-    AssertionsForClassTypes.assertThat(securityRuleResult.hasRulePassed()).isFalse();
-    AssertionsForClassTypes.assertThat(securityRuleResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
+    assertThat(securityRuleResult.hasRulePassed()).isFalse();
+    assertThat(securityRuleResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
   }
 
   @Test
@@ -81,8 +80,8 @@ class RegulatorTeamMembershipInterceptorRuleTest {
 
     var securityRuleResult = regulatorTeamMembershipInterceptorRule
         .hasRequiredTeamMembershipPermissions(user, submissionDetail);
-    AssertionsForClassTypes.assertThat(securityRuleResult.hasRulePassed()).isFalse();
-    AssertionsForClassTypes.assertThat(securityRuleResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
+    assertThat(securityRuleResult.hasRulePassed()).isFalse();
+    assertThat(securityRuleResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
   }
 
   @Test

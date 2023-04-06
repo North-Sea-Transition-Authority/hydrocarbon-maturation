@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verify;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -184,7 +183,7 @@ class DrillStemTestResultFormServiceTest {
         .extracting(
             DrillStemTestResultForm::getFormationName)
         .isEqualTo("otherName");
-    AssertionsForInterfaceTypes.assertThat(hintsCaptor.getAllValues())
+    assertThat(hintsCaptor.getAllValues())
         .extracting(DrillStemTestResultFormValidatorHints::getDrillStemTestTestNumbers)
         .containsExactly(List.of(), List.of());
   }

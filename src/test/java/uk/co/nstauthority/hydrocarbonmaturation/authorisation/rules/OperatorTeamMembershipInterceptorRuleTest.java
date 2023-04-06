@@ -1,12 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -83,7 +82,7 @@ class OperatorTeamMembershipInterceptorRuleTest {
 
     var securityRuleResult = operatorTeamMembershipInterceptorRule
         .hasRequiredTeamMembershipPermissions(user, submissionDetail);
-    AssertionsForClassTypes.assertThat(securityRuleResult.hasRulePassed()).isFalse();
-    AssertionsForClassTypes.assertThat(securityRuleResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
+    assertThat(securityRuleResult.hasRulePassed()).isFalse();
+    assertThat(securityRuleResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
   }
 }

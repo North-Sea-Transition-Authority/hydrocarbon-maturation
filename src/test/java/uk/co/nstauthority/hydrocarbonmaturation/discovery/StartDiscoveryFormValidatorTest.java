@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.discovery;
 
-import static java.util.Map.entry;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

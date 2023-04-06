@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.util;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;

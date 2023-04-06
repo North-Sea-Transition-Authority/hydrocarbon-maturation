@@ -1,8 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -63,11 +62,11 @@ class RegulatorManagedInformationFormValidatorTest {
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(errors)
+    assertThat(errors)
         .containsExactly(
             entry("geographicalArea", Set.of("geographicalArea.required"))
         );
-    AssertionsForInterfaceTypes.assertThat(errorMessages)
+    assertThat(errorMessages)
         .containsExactly(
             entry("geographicalArea", Set.of("Select a geographical area"))
         );
@@ -85,11 +84,11 @@ class RegulatorManagedInformationFormValidatorTest {
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(errors)
+    assertThat(errors)
         .containsExactly(
             entry("geographicalArea", Set.of("geographicalArea.required"))
         );
-    AssertionsForInterfaceTypes.assertThat(errorMessages)
+    assertThat(errorMessages)
         .containsExactly(
             entry("geographicalArea", Set.of("Select a geographical area"))
         );
@@ -107,11 +106,11 @@ class RegulatorManagedInformationFormValidatorTest {
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(errors)
+    assertThat(errors)
         .containsExactly(
             entry("relinquishmentReport", Set.of("relinquishmentReport.limitExceeded"))
             );
-    AssertionsForInterfaceTypes.assertThat(errorMessages)
+    assertThat(errorMessages)
         .containsExactly(
             entry("relinquishmentReport", Set.of("Upload at most one relinquishment report"))
         );
@@ -129,12 +128,12 @@ class RegulatorManagedInformationFormValidatorTest {
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
-    AssertionsForInterfaceTypes.assertThat(errors)
+    assertThat(errors)
         .containsExactly(
             entry("relinquishmentReport[0].uploadedFileDescription",
                 Set.of("relinquishmentReport[0].uploadedFileDescription.required"))
         );
-    AssertionsForInterfaceTypes.assertThat(errorMessages)
+    assertThat(errorMessages)
         .containsExactly(
             entry("relinquishmentReport[0].uploadedFileDescription",
                 Set.of("Enter a description of this file"))

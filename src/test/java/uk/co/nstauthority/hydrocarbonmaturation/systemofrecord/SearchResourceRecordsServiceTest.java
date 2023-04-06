@@ -1,8 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.entry;
-import static org.assertj.core.groups.Tuple.tuple;
+import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -78,7 +77,7 @@ class SearchResourceRecordsServiceTest {
 
   @Test
   void getOpportunityTypes() {
-    AssertionsForInterfaceTypes.assertThat(underTest.getOpportunityTypes())
+    assertThat(underTest.getOpportunityTypes())
         .containsExactly(
             entry(OpportunityType.LEAD.name(), "Lead"),
             entry(OpportunityType.PROSPECT.name(), "Prospect"),
@@ -92,7 +91,7 @@ class SearchResourceRecordsServiceTest {
 
   @Test
   void getResourceTypes() {
-    AssertionsForInterfaceTypes.assertThat(underTest.getResourceTypes())
+    assertThat(underTest.getResourceTypes())
         .containsExactly(
             entry(ResourceType.PROSPECT.name(), "Prospect"),
             entry(ResourceType.DISCOVERY.name(), "Discovery")

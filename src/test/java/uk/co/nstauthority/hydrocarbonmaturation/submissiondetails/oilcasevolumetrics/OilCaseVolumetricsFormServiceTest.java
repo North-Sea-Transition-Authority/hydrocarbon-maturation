@@ -1,12 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -99,7 +98,7 @@ class OilCaseVolumetricsFormServiceTest {
         submissionDetail, ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
 
-    Assertions.assertThat(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail))
+    assertThat(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail))
         .extracting(
             form -> form.getFormationVolumeFactor().getProbabilityDistributionType(),
             form -> form.getFormationVolumeFactor().getConstant().getConstant(),

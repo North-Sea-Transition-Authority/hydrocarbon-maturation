@@ -1,13 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.persistence.EntityManager;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
@@ -109,7 +108,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
 
     var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
-    AssertionsForClassTypes.assertThat(results.get(0))
+    assertThat(results.get(0))
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
             SubmissionWorkAreaQueryResult::getCentreOfInterestQuadBlock,

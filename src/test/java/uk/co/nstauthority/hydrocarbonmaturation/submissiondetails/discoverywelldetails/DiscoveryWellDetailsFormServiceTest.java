@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,7 +62,7 @@ class DiscoveryWellDetailsFormServiceTest {
     discoveryWellDetailsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     verify(discoveryWellDetailsFormValidator, times(1))
         .validate(eq(form), eq(bindingResult), captor.capture());
-    Assertions.assertThat(captor.getValue())
+    assertThat(captor.getValue())
         .extracting(SubmissionFormValidatorHints::getSubmissionDetail,
             SubmissionFormValidatorHints::getValidationType)
         .containsExactly(submissionDetail, ValidationType.FULL);
