@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
 
 @Service
 public class SubmissionDetailService {
@@ -20,15 +21,17 @@ public class SubmissionDetailService {
   private final SubmissionDetailRepository submissionDetailRepository;
   private final ResourceLinkService resourceLinkService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-
+  private final SubmissionPersistenceService submissionPersistenceService;
 
   @Autowired
   public SubmissionDetailService(SubmissionDetailRepository submissionDetailRepository,
                                  ResourceLinkService resourceLinkService,
-                                 ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
+                                 ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+                                 SubmissionPersistenceService submissionPersistenceService) {
     this.submissionDetailRepository = submissionDetailRepository;
     this.resourceLinkService = resourceLinkService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+    this.submissionPersistenceService = submissionPersistenceService;
   }
 
   public Optional<SubmissionDetail> getSubmissionDetail(UUID id) {
@@ -37,16 +40,16 @@ public class SubmissionDetailService {
 
   public Optional<SubmissionDetail> getLatestApprovedProspectSubmissionForResource(Resource resource) {
     // Finds the latest prospect update or create update submission that is approved.
-    return submissionDetailRepository.findFirstByResourceIdAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
-        resource,
+    return submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+        submissionPersistenceService.getSubmissionsByResource(resource),
         List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT),
         SubmissionDetailStatus.APPROVED
     );
   }
 
   public Optional<SubmissionDetail> getApprovedOrSubmittedSubmissionDetailByResource(Resource resource) {
-    return submissionDetailRepository.findFirstByResourceIdAndStatusIn(
-        resource,
+    return submissionDetailRepository.findFirstBySubmissionInAndStatusIn(
+        submissionPersistenceService.getSubmissionsByResource(resource),
         List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)
     );
   }
@@ -54,8 +57,8 @@ public class SubmissionDetailService {
   public Optional<SubmissionDetail> getLatestApprovedDiscoverySubmissionDetailForResource(Resource resource) {
     // Finds the latest approved discovery (update or create) submission that is approved for the resource.
     return submissionDetailRepository
-        .findFirstByResourceIdAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
-            resource,
+        .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+            submissionPersistenceService.getSubmissionsByResource(resource),
             List.of(
                 SubmissionType.CREATE_DISCOVERY,
                 SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
@@ -65,7 +68,9 @@ public class SubmissionDetailService {
 
   public Optional<SubmissionDetail> getLatestApprovedSubmissionDetailForResource(Resource resource) {
     return submissionDetailRepository
-        .findFirstByResourceIdAndStatusOrderByApprovedTimestampDesc(resource, SubmissionDetailStatus.APPROVED);
+        .findFirstBySubmissionInAndStatusOrderByApprovedTimestampDesc(
+            submissionPersistenceService.getSubmissionsByResource(resource),
+            SubmissionDetailStatus.APPROVED);
   }
 
   public SubmissionDetail getSubmissionDetailForIdOrError(UUID id) {
@@ -74,7 +79,8 @@ public class SubmissionDetailService {
   }
 
   public List<SubmissionDetail> getSubmissionDetailsForResource(Resource resource) {
-    return submissionDetailRepository.findSubmissionDetailsByResourceId(resource);
+    return submissionDetailRepository.findSubmissionDetailsBySubmissionIn(
+        submissionPersistenceService.getSubmissionsByResource(resource));
   }
 
   public String getSubmissionTypeName(SubmissionDetail submissionDetail) {
@@ -88,8 +94,8 @@ public class SubmissionDetailService {
 
   public boolean isLatestSubmissionForResourceRelinquishment(Resource resource) {
     return submissionDetailRepository
-        .findFirstByResourceIdAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
-            resource,
+        .findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+            submissionPersistenceService.getSubmissionsByResource(resource),
             List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT),
             List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED))
         .isPresent();
@@ -98,12 +104,12 @@ public class SubmissionDetailService {
   public Optional<SubmissionDetail> getLatestApprovedSubmissionForSubmission(SubmissionDetail submissionDetail) {
     return switch (submissionDetail.getSubmissionType()) {
       case UPDATE_DISCOVERY, CREATE_DISCOVERY, RELINQUISHMENT_DISCOVERY ->
-        getLatestApprovedDiscoverySubmissionDetailForResource(submissionDetail.getResourceId());
+        getLatestApprovedDiscoverySubmissionDetailForResource(submissionDetail.getSubmission().getResource());
       case POST_DRILL_DRY_HOLE, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
-        getLatestApprovedProspectSubmissionForResource(submissionDetail.getResourceId());
+        getLatestApprovedProspectSubmissionForResource(submissionDetail.getSubmission().getResource());
       case CREATE_DISCOVERY_FROM_PROSPECT ->
         resourceLinkService
-            .getResourceLinksByDiscovery(submissionDetail.getResourceId())
+            .getResourceLinksByDiscovery(submissionDetail.getSubmission().getResource())
             .stream()
             .map(ResourceLink::getProspectResource)
             .map(this::getLatestApprovedProspectSubmissionForResource)

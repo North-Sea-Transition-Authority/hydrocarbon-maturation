@@ -83,7 +83,7 @@ class ResourceDetailsFormService implements SubmissionFormService {
       return new ResourceDetailsFormValidatorHints(
           validationType,
           isRegulator,
-          submissionDetail.getResourceId().getType(),
+          submissionDetail.getSubmission().getResource().getType(),
           null);
     }
 
@@ -95,7 +95,7 @@ class ResourceDetailsFormService implements SubmissionFormService {
     return new ResourceDetailsFormValidatorHints(
         validationType,
         isRegulator,
-        submissionDetail.getResourceId().getType(),
+        submissionDetail.getSubmission().getResource().getType(),
         latestApprovedResourceDetails);
   }
 }

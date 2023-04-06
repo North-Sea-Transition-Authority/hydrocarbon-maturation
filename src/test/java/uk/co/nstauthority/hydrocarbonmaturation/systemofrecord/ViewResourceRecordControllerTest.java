@@ -5,10 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -136,8 +133,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .contains(
             entry("submissionsOnResource", Map.of()),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-                .viewSubmission(otherSubmissionOnResource.getResourceId().getId(), null))),
-            entry("resourceType", otherSubmissionOnResource.getResourceId().getType().getDisplayName()),
+                .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
+            entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType())
         );
@@ -217,8 +214,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .contains(
             entry("submissionsOnResource", Map.of()),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-                .viewSubmission(SUBMISSION_DETAIL.getResourceId().getId(), null))),
-            entry("resourceType", SUBMISSION_DETAIL.getResourceId().getType().getDisplayName()),
+                .viewSubmission(SUBMISSION_DETAIL.getSubmission().getResource().getId(), null))),
+            entry("resourceType", SUBMISSION_DETAIL.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
             entry("isRegulatorInResponsibleTeam", false),
@@ -295,7 +292,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(eq(submissionDetail), anyString());
     modelAndView
         .addObject("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-            .viewSubmission(submissionDetail.getResourceId().getId(), null)))
+            .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null)))
         .addObject("submissionNumber", "1")
         .addObject("submissionsOnResource", Map.of());
 

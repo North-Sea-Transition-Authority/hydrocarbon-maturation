@@ -44,11 +44,11 @@ class SubmissionResourceServiceTest {
     @Test
     void returnsOnlyResourcesOfCertainType() {
       var resource1 = buildResource(RESOURCE_TYPE);
-      var generalDetail1 = buildGeneralDetail(resource1);
-      var generalDetail2 = buildGeneralDetail(resource1);
+      var generalDetail1 = buildResourceDetail(resource1);
+      var generalDetail2 = buildResourceDetail(resource1);
 
       var resource2 = buildResource(ResourceType.FIELD);
-      var generalDetail3 = buildGeneralDetail(resource2);
+      var generalDetail3 = buildResourceDetail(resource2);
 
       when(resourceDetailsPersistenceService.getResourceDetailsByName(NAME))
           .thenReturn(List.of(generalDetail1, generalDetail2, generalDetail3));
@@ -77,8 +77,8 @@ class SubmissionResourceServiceTest {
     @Test
     void name() {
       var resource1 = buildResource(ResourceType.PROSPECT);
-      var resourceDetail = buildGeneralDetail(resource1);
-      var resourceDetail1 = buildGeneralDetail(resource1);
+      var resourceDetail = buildResourceDetail(resource1);
+      var resourceDetail1 = buildResourceDetail(resource1);
 
       when(resourceDetailsPersistenceService.getResourceDetailsByName(NAME))
           .thenReturn(List.of(resourceDetail, resourceDetail1));
@@ -260,10 +260,10 @@ class SubmissionResourceServiceTest {
   }
 
   @NotNull
-  private ResourceDetail buildGeneralDetail(Resource resource) {
+  private ResourceDetail buildResourceDetail(Resource resource) {
     var resourceDetail = new ResourceDetail();
-    var submissionDetail = new SubmissionDetail();
-    submissionDetail.setResourceId(resource);
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.getSubmission().setResource(resource);
     resourceDetail.setSubmissionDetail(submissionDetail);
     return resourceDetail;
   }

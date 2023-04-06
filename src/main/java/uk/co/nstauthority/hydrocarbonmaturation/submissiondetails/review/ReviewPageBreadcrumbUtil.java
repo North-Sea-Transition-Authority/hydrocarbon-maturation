@@ -32,7 +32,8 @@ class ReviewPageBreadcrumbUtil {
   private static BreadcrumbItem getReviewPageBreadcrumb(SubmissionDetail submissionDetail, String submissionName) {
     return new BreadcrumbItem(
         submissionName,
-        ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(submissionDetail.getResourceId().getId()))
+        ReverseRouter.route(on(ReviewSubmissionController.class)
+            .showReviewPage(submissionDetail.getSubmission().getResource().getId()))
     );
   }
 }

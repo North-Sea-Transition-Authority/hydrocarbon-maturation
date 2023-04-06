@@ -21,7 +21,7 @@ class RelatedResourcesFormValidator extends PartialFullFormValidator {
         .extractValidatorHints(validationHints);
     var validationType = hints
         .getValidationType();
-    resourceType = hints.getSubmissionDetail().getResourceId().getType().getDisplayName().toLowerCase();
+    resourceType = hints.getSubmissionDetail().getSubmission().getResource().getType().getDisplayName().toLowerCase();
 
     switch (validationType) {
       case FULL -> validateFull(form, errors);

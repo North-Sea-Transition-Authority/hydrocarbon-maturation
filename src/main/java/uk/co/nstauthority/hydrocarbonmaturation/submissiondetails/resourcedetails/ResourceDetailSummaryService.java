@@ -20,7 +20,7 @@ public class ResourceDetailSummaryService {
     var resourceDetail = resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail);
     return resourceDetail.map(this::createSummaryViewFromResourceDetail)
         .orElse(ResourceDetailSummaryView.empty(
-            DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(submissionDetail.getResourceId().getType())
+            DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(submissionDetail.getSubmission().getResource().getType())
                 .toLowerCase())
         );
   }
@@ -30,7 +30,8 @@ public class ResourceDetailSummaryService {
         StringUtils.defaultIfBlank(detail.getResourceName(), ""),
         getOrganisationDisplay(detail),
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(detail.getOnshoreOffshore()),
-        DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(detail.getSubmissionDetail().getResourceId().getType())
+        DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(
+            detail.getSubmissionDetail().getSubmission().getResource().getType())
             .toLowerCase()
     );
   }

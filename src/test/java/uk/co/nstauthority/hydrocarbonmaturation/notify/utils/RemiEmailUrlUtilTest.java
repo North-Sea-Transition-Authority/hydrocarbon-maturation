@@ -35,6 +35,6 @@ class RemiEmailUrlUtilTest {
   void getSystemOfRecordResourceUrl() {
     assertThat(RemiEmailUrlUtil.getSystemOfRecordResourceUrl(SUBMISSION_DETAIL))
         .isEqualTo(SERVICE_URL + ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(SUBMISSION_DETAIL.getResourceId().getId())));
+            .showResourceRecord(SUBMISSION_DETAIL.getSubmission().getResource().getId())));
   }
 }

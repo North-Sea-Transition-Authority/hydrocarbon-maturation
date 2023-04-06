@@ -11,7 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @Entity
 @Table(name = "submission_details")
@@ -22,9 +22,9 @@ public class SubmissionDetail {
   @GenericGenerator(name = "uuid", strategy = "uuid2")
   private UUID id;
 
-  @JoinColumn(name = "resource_id")
+  @JoinColumn(name = "submission_id")
   @ManyToOne
-  private Resource resourceId;
+  private Submission submission;
 
   private Instant createdTimestamp;
 
@@ -61,14 +61,6 @@ public class SubmissionDetail {
 
   public void setId(UUID id) {
     this.id = id;
-  }
-
-  public Resource getResourceId() {
-    return resourceId;
-  }
-
-  public void setResourceId(Resource resourceId) {
-    this.resourceId = resourceId;
   }
 
   public Instant getCreatedTimestamp() {
@@ -241,5 +233,13 @@ public class SubmissionDetail {
 
   public void setWithdrawalReason(String withdrawalReason) {
     this.withdrawalReason = withdrawalReason;
+  }
+
+  public Submission getSubmission() {
+    return submission;
+  }
+
+  public void setSubmission(Submission submission) {
+    this.submission = submission;
   }
 }

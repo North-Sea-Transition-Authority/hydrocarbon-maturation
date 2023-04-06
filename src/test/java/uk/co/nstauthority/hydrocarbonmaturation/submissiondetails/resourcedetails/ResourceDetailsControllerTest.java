@@ -161,7 +161,7 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
                     .searchOrganisationUnits(null))),
             entry("responsibleOrganisation", preselectedOrganisation),
-            entry("resourceType", submissionDetail.getResourceId().getType().name().toLowerCase()),
+            entry("resourceType", submissionDetail.getSubmission().getResource().getType().name().toLowerCase()),
             entry("isRegulator", false),
             entry("relinquishmentSubmission", false)
         );

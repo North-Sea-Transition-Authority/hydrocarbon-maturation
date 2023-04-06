@@ -75,7 +75,7 @@ public class GeneralDetailSummaryService {
   }
 
   private String getResourceTypeDisplay(SubmissionDetail submissionDetail) {
-    return submissionDetail.getResourceId().getType().getDisplayName().toLowerCase();
+    return submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase();
   }
 
   private boolean getIsResourceOnALicenceBoolean(GeneralDetail detail) {

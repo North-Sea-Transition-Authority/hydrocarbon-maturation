@@ -48,7 +48,8 @@ class RegulatorRegulatorManagedInformationInterceptorRuleTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(true);
@@ -71,7 +72,8 @@ class RegulatorRegulatorManagedInformationInterceptorRuleTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(false);
@@ -95,7 +97,8 @@ class RegulatorRegulatorManagedInformationInterceptorRuleTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.SOUTHERN_NORTH_SEA);
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
 
     var securityRuleResult = regulatorResponsibleTeamInterceptorRule

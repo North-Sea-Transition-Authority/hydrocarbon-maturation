@@ -349,7 +349,7 @@ class WorkAreaItemServiceTest {
                 "resource name (25/5)",
                 "Prospect create",
                 ReverseRouter.route(on(ReviewSubmissionController.class)
-                    .showReviewPage(submissionDetail.getResourceId().getId())))
+                    .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
@@ -385,7 +385,7 @@ class WorkAreaItemServiceTest {
     } else {
       assertThat(result.get(0).actionUrl())
           .isEqualTo(ReverseRouter.route(on(ReviewSubmissionController.class)
-              .showReviewPage(submissionDetail.getResourceId().getId())));
+              .showReviewPage(submissionDetail.getSubmission().getResource().getId())));
     }
   }
 }

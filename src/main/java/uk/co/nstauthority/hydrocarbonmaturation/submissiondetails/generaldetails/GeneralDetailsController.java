@@ -87,7 +87,7 @@ public class GeneralDetailsController {
         .addObject("licenceApplication",
             generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
         .addObject("resourceType",
-            submissionDetail.getResourceId().getType().getDisplayName().toLowerCase())
+            submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase())
         .addObject("quadrantBlocksApiEndpoint",
             SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null)))
         .addObject("alreadyAddedQuadrantBlocks", generalDetailsFormService.getQuadrantAndBlockViews(form))

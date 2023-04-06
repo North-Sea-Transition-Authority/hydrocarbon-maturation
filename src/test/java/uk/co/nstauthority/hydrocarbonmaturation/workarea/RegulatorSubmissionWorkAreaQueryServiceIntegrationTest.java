@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils.createSubmissionForIntegrationTest;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -31,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
@@ -172,19 +174,22 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var secondSubmissionDetailTimestamp = Instant.ofEpochMilli(LAST_SUBMISSION_DETAIL_EPOCH_TIME*2);
     secondSubmissionDetail.setCreatedTimestamp(secondSubmissionDetailTimestamp);
     var resource = createResource(ResourceType.PROSPECT);
-    secondSubmissionDetail.setResourceId(resource);
+    secondSubmissionDetail.getSubmission().setResource(resource);
     entityManager.persist(resource);
     entityManager.flush();
     createResponsibleTeam(resource, ResponsibleTeamType.EXPLORATION);
+    var submission = createSubmissionForIntegrationTest(resource, entityManager);
+    secondSubmissionDetail.setSubmission(submission);
     entityManager.persist(secondSubmissionDetail);
     entityManager.flush();
 
     var firstSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     firstSubmissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     firstSubmissionDetail.setId(null);
-    firstSubmissionDetail.setResourceId(resource);
+    firstSubmissionDetail.getSubmission().setResource(resource);
     var firstSubmissionDetailTimeStamp = Instant.ofEpochMilli(LAST_SUBMISSION_DETAIL_EPOCH_TIME*3);
     firstSubmissionDetail.setCreatedTimestamp(firstSubmissionDetailTimeStamp);
+    firstSubmissionDetail.setSubmission(createSubmissionForIntegrationTest(resource, entityManager));
     entityManager.persist(firstSubmissionDetail);
     entityManager.flush();
     var firstGeneralDetails = new GeneralDetail();
@@ -204,7 +209,8 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     secondResponsibleTeam.setResource(secondResource);
 
     thirdSubmissionDetail.setId(null);
-    thirdSubmissionDetail.setResourceId(secondResource);
+    thirdSubmissionDetail.getSubmission().setResource(secondResource);
+    thirdSubmissionDetail.setSubmission(createSubmissionForIntegrationTest(secondResource, entityManager));
     thirdSubmissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     var thirdSubmissionDetailTimeStamp = Instant.ofEpochMilli(LAST_SUBMISSION_DETAIL_EPOCH_TIME);
     thirdSubmissionDetail.setCreatedTimestamp(thirdSubmissionDetailTimeStamp);
@@ -219,10 +225,12 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     firstSubmittedSubmissionDetail.setSubmittedByWuaId(5);
     firstSubmittedSubmissionDetail.setSubmittedTimestamp(firstSubmissionDetailTimeStamp);
     firstSubmittedSubmissionDetail.setCreatedTimestamp(thirdSubmissionDetailTimeStamp);
-    firstSubmittedSubmissionDetail.getResourceId().setId(null);
-    entityManager.persist(firstSubmittedSubmissionDetail.getResourceId());
-    createResponsibleTeam(firstSubmittedSubmissionDetail.getResourceId(), ResponsibleTeamType.EXPLORATION);
+    var thirdResource = createResource(ResourceType.PROSPECT);
+    firstSubmittedSubmissionDetail.getSubmission().setResource(thirdResource);
+    firstSubmittedSubmissionDetail.setSubmission(createSubmissionForIntegrationTest(thirdResource, entityManager));
+    createResponsibleTeam(thirdResource, ResponsibleTeamType.EXPLORATION);
     entityManager.persist(firstSubmittedSubmissionDetail);
+    entityManager.flush();
 
     var secondSubmittedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     secondSubmittedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -230,10 +238,10 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     secondSubmittedSubmissionDetail.setSubmittedByWuaId(5);
     secondSubmittedSubmissionDetail.setCreatedTimestamp(thirdSubmissionDetailTimeStamp);
     secondSubmittedSubmissionDetail.setSubmittedTimestamp(secondSubmissionDetailTimestamp);
-    secondSubmittedSubmissionDetail.getResourceId().setId(null);
-    entityManager.persist(secondSubmittedSubmissionDetail.getResourceId());
-    entityManager.flush();
-    createResponsibleTeam(secondSubmittedSubmissionDetail.getResourceId(), ResponsibleTeamType.EXPLORATION);
+    var fourthResource = createResource(ResourceType.PROSPECT);
+    secondSubmittedSubmissionDetail.getSubmission().setResource(fourthResource);
+    secondSubmittedSubmissionDetail.setSubmission(createSubmissionForIntegrationTest(fourthResource, entityManager));
+    createResponsibleTeam(fourthResource, ResponsibleTeamType.EXPLORATION);
     entityManager.persist(secondSubmittedSubmissionDetail);
     entityManager.flush();
 
@@ -243,10 +251,10 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     thirdSubmittedSubmissionDetail.setSubmittedByWuaId(5);
     thirdSubmittedSubmissionDetail.setCreatedTimestamp(firstSubmissionDetailTimeStamp);
     thirdSubmittedSubmissionDetail.setSubmittedTimestamp(thirdSubmissionDetailTimeStamp);
-    thirdSubmittedSubmissionDetail.getResourceId().setId(null);
-    entityManager.persist(thirdSubmittedSubmissionDetail.getResourceId());
-    entityManager.flush();
-    createResponsibleTeam(thirdSubmittedSubmissionDetail.getResourceId(), ResponsibleTeamType.EXPLORATION);
+    var fifthResource = createResource(ResourceType.PROSPECT);
+    thirdSubmittedSubmissionDetail.getSubmission().setResource(fifthResource);
+    thirdSubmittedSubmissionDetail.setSubmission(createSubmissionForIntegrationTest(fifthResource, entityManager));
+    createResponsibleTeam(fifthResource, ResponsibleTeamType.EXPLORATION);
     entityManager.persist(thirdSubmittedSubmissionDetail);
     entityManager.flush();
 
@@ -321,9 +329,12 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     var createdTimestamp = Instant.now();
     submissionDetail.setCreatedTimestamp(createdTimestamp);
+
     entityManager.persist(responsibleTeam);
     entityManager.flush();
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
+    var submission = createSubmissionForIntegrationTest(resource, entityManager);
+    submissionDetail.setSubmission(submission);
     entityManager.persist(submissionDetail);
     entityManager.flush();
 
@@ -427,10 +438,15 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.flush();
   }
 
-  private static SubmissionDetail buildBasicSubmissionDetail(Resource resource) {
+  private SubmissionDetail buildBasicSubmissionDetail(Resource resource) {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var submission = new Submission();
+    submission.setResource(resource);
+    entityManager.persist(submission);
+    entityManager.flush();
     submissionDetail.setId(null);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.setSubmission(submission);
+    submissionDetail.getSubmission().setResource(resource);
     submissionDetail.setCreatedTimestamp(Instant.now());
     return submissionDetail;
   }

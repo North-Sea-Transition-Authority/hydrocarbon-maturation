@@ -84,7 +84,7 @@ public class ResourceDetailsController {
         .addObject("organisationUnitEndpoint",
             SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)))
         .addObject("resourceType",
-            submissionDetail.getResourceId().getType().getDisplayName().toLowerCase())
+            submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase())
         .addObject("responsibleOrganisation", resourceDetailsFormService
             .getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
         .addObject("form", form)

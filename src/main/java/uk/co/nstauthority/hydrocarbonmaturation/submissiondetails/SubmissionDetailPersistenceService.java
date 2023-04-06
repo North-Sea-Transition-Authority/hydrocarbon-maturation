@@ -5,8 +5,8 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Service
@@ -31,14 +31,15 @@ public class SubmissionDetailPersistenceService {
     this.regulatorTeamService = regulatorTeamService;
   }
 
-  SubmissionDetail createInitialSubmissionDetail(Resource resource, SubmissionType submissionType) {
+  SubmissionDetail createInitialSubmissionDetail(Submission submission,
+                                                 SubmissionType submissionType) {
     var submissionDetail = new SubmissionDetail();
     var user = userDetailService.getUserDetail();
-    submissionDetail.setResourceId(resource);
     submissionDetail.setCreatedByWuaId(user.wuaId().intValue());
     submissionDetail.setCreatedTimestamp(clock.instant());
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     submissionDetail.setSubmissionType(submissionType);
+    submissionDetail.setSubmission(submission);
     submissionDetail.setVersionNumber(SubmissionDetailService.FIRST_VERSION);
     if (regulatorTeamService.isRegulatorUser(user)) {
       submissionDetail.setSubmitterType(SubmitterType.NSTA);

@@ -3,13 +3,14 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import javax.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTest;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResult;
@@ -108,8 +109,9 @@ class SubmissionDuplicationPersistenceServiceTest {
 
   private SubmissionDetail createSubmissionDetail() {
     var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
-
-    return SubmissionIntegrationTestUtils.createSubmissionDetail(resource, SubmissionType.CREATE_PROSPECT, entityManager);
+    var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(resource, entityManager);
+    return SubmissionIntegrationTestUtils.createSubmissionDetail(
+        submission, SubmissionType.CREATE_PROSPECT, entityManager);
   }
 
   private QuadrantAndBlock createQuadBlock(GeneralDetail generalDetail) {

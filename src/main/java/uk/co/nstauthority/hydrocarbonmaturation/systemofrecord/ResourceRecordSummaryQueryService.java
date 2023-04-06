@@ -6,6 +6,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GEN
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.TRAP_PROPERTIES;
 
@@ -48,8 +49,9 @@ class ResourceRecordSummaryQueryService {
           .leftJoin(REGULATOR_MANAGED_INFORMATION).on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
           .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
                 select(SD_2.ID)
-                    .from(SD_2)
-                    .where(SD_2.RESOURCE_ID.eq(RESOURCES.ID))
+                    .from(SD_2
+                        .join(SUBMISSIONS).on(SUBMISSIONS.ID.eq(SD_2.SUBMISSION_ID)))
+                    .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
                     .and(SD_2.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))
                     .orderBy(SD_2.APPROVED_TIMESTAMP.desc())
                     .limit(1)

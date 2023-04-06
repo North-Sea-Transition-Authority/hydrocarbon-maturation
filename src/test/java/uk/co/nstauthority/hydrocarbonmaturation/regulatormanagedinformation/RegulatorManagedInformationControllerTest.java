@@ -77,7 +77,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     bindingResult = new BeanPropertyBindingResult(form, "form");
     resourceId = UUID.randomUUID();
     resource.setId(resourceId);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     fileUploadTemplate = new FileUploadTemplate("", "", "", "", "");
   }
 
@@ -210,7 +210,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
         .thenReturn(Optional.of(submissionDetail));
-    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(submissionDetail.getResourceId()))
+    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(true);
     when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
         .thenReturn(fileUploadTemplate);
@@ -297,7 +298,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
         .thenReturn(Optional.of(submissionDetail));
-    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(submissionDetail.getResourceId()))
+    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(false);
     when(regulatorManagedInformationFormService.validate(any(), any(), anyBoolean()))
         .thenReturn(bindingResult);

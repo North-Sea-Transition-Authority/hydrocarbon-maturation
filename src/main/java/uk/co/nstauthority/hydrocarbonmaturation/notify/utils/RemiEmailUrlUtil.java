@@ -17,13 +17,13 @@ public class RemiEmailUrlUtil {
 
   public static String getSystemOfRecordResourceUrl(SubmissionDetail submissionDetail) {
     var resourceSystemOfRecordUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
-        .showResourceRecord(submissionDetail.getResourceId().getId()));
+        .showResourceRecord(submissionDetail.getSubmission().getResource().getId()));
     return "%s%s".formatted(getBaseUrl(), resourceSystemOfRecordUrl);
   }
 
   public static String getReviewSubmissionPageUrl(SubmissionDetail submissionDetail) {
     var reviewPageUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
-        .showReviewPage(submissionDetail.getResourceId().getId()));
+        .showReviewPage(submissionDetail.getSubmission().getResource().getId()));
     return "%s%s".formatted(getBaseUrl(), reviewPageUrl);
   }
 

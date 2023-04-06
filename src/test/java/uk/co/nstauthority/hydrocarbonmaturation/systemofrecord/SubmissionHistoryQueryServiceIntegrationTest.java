@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @Transactional
@@ -322,7 +323,8 @@ class SubmissionHistoryQueryServiceIntegrationTest {
   }
 
   private SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType) {
-    return SubmissionIntegrationTestUtils.createSubmissionDetail(resource, submissionType, entityManager);
+    var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(resource, entityManager);
+    return SubmissionIntegrationTestUtils.createSubmissionDetail(submission, submissionType, entityManager);
   }
 
   private Resource createProspectResource() {

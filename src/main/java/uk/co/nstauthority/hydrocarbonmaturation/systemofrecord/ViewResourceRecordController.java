@@ -134,7 +134,8 @@ public class ViewResourceRecordController {
         .addObject("form", form)
         .addObject("resourceRecord", resourceRecord)
         .addObject("submissionType", submissionDetailSelected.getSubmissionType())
-        .addObject("resourceType", submissionDetailSelected.getResourceId().getType().getDisplayName())
+        .addObject("resourceType", submissionDetailSelected
+            .getSubmission().getResource().getType().getDisplayName())
         .addObject("isRegulatorInResponsibleTeam",
             isRegulator && viewResourceRecordService.isInResponsibleRegulatorTeam(userDetail))
         .addObject("regulatorManagedInformationUrl",

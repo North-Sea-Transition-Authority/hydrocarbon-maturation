@@ -3,7 +3,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.TRAP_PROPERTIES;
 
@@ -38,6 +40,8 @@ class SubmissionWorkAreaQueryCommonService {
             SUBMISSION_DETAILS.CREATED_TIMESTAMP,
             SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP)
         .from(SUBMISSION_DETAILS
+            .join(SUBMISSIONS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID))
+            .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
             .leftJoin(RESOURCE_DETAILS)
             .on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(GENERAL_DETAILS)
@@ -47,7 +51,7 @@ class SubmissionWorkAreaQueryCommonService {
             .leftJoin(GENERAL_DETAILS_LICENCES)
             .on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
             .leftJoin(REGULATOR_MANAGED_INFORMATION)
-            .on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(SUBMISSION_DETAILS.RESOURCE_ID))
+            .on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
             .where(conditions))
         .groupBy(
             SUBMISSION_DETAILS.ID,

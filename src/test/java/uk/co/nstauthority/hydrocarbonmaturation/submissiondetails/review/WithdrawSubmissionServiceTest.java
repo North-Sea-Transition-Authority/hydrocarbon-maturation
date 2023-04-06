@@ -65,7 +65,7 @@ class WithdrawSubmissionServiceTest {
 
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-        submissionDetail.getResourceId()))
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(regulatorManagedInformation);
     when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION)).thenReturn(true);
     var form = new WithdrawSubmissionForm();
@@ -82,7 +82,7 @@ class WithdrawSubmissionServiceTest {
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA);
 
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-        submissionDetail.getResourceId()))
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
     when(userDetailService.getUserWuaId()).thenReturn(1);
     var form = new WithdrawSubmissionForm();
@@ -103,7 +103,7 @@ class WithdrawSubmissionServiceTest {
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
 
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
     when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION)).thenReturn(true);
 
@@ -125,7 +125,8 @@ class WithdrawSubmissionServiceTest {
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
 
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
     when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION)).thenReturn(false);
 
@@ -138,7 +139,8 @@ class WithdrawSubmissionServiceTest {
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(responsibleTeamType);
 
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
 
     assertThat(underTest.canWithdrawSubmission(submissionDetail)).isFalse();

@@ -77,7 +77,7 @@ public class ApproveSubmissionController {
     approvedSubmissionNotificationBanner(submissionDetail, redirectAttributes);
 
     return ReverseRouter.redirect(on(ViewResourceRecordController.class)
-        .showResourceRecord(submissionDetail.getResourceId().getId()));
+        .showResourceRecord(submissionDetail.getSubmission().getResource().getId()));
   }
 
   private String getPageName(SubmissionDetail submissionDetail) {
@@ -91,7 +91,7 @@ public class ApproveSubmissionController {
         .withTitle("%s submission approved".formatted(submissionDetailService.getSubmissionTypeName(submissionDetail)))
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent("%s - %s has been approved and applied to the system of record."
-            .formatted(submissionDetail.getResourceId().getType().getDisplayName(),
+            .formatted(submissionDetail.getSubmission().getResource().getType().getDisplayName(),
                 submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail)))
         .build();
 
@@ -116,7 +116,7 @@ public class ApproveSubmissionController {
                 .approveSubmission(submissionDetail.getId(), null)))
         .addObject("cancelUrl",
             ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getResourceId().getId())));
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId())));
 
     ReviewPageBreadcrumbUtil
         .addWorkAreaAndManagementPageToModelAndView(modelAndView, pageName, resourceName, submissionDetail);

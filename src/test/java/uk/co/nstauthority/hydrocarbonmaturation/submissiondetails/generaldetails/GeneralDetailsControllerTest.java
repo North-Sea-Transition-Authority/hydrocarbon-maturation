@@ -41,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -196,7 +197,9 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     var discovery = new Resource();
     discovery.setType(ResourceType.DISCOVERY);
-    submissionDetail.setResourceId(discovery);
+    var submission = new Submission();
+    submission.setResource(discovery);
+    submissionDetail.setSubmission(submission);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");

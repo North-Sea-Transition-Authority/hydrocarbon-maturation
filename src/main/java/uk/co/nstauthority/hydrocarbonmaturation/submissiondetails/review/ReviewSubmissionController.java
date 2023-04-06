@@ -154,7 +154,7 @@ public class ReviewSubmissionController {
         .addObject("submissionType", submissionDetail.getSubmissionType())
         .addObject("canReview", reviewSubmissionService.canReviewSubmission(
             submissionRecord, userDetail, submissionDetail))
-        .addObject("resourceType", submissionDetail.getResourceId().getType().getDisplayName())
+        .addObject("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName())
         .addObject("approveUrl",
             ReverseRouter.route(on(ApproveSubmissionController.class)
                 .showApproveConfirmationPage(submissionDetail.getId())))

@@ -34,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
@@ -451,7 +452,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   }
 
   private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType) {
-
-    return SubmissionIntegrationTestUtils.createSubmissionDetail(resource, submissionType, entityManager);
+    var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(resource, entityManager);
+    return SubmissionIntegrationTestUtils.createSubmissionDetail(submission, submissionType, entityManager);
   }
 }

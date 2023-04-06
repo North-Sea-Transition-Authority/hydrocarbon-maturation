@@ -68,10 +68,10 @@ class SubmissionQueryServiceTest {
           searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
           .thenReturn(List.of(
-              latestApprovedResourceDetail.getSubmissionDetail().getResourceId(),
+              latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource(),
               resourceWithoutLatestApproved));
       when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(
-          latestApprovedResourceDetail.getSubmissionDetail().getResourceId()))
+          latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()))
           .thenReturn(Optional.of(latestApprovedResourceDetail.getSubmissionDetail()));
       when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(
           resourceWithoutLatestApproved))
@@ -109,9 +109,9 @@ class SubmissionQueryServiceTest {
       var latestApprovedResourceDetail = createResourceDetail(
           searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
-          .thenReturn(List.of(latestApprovedResourceDetail.getSubmissionDetail().getResourceId()));
+          .thenReturn(List.of(latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()));
       when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(
-          latestApprovedResourceDetail.getSubmissionDetail().getResourceId()))
+          latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()))
           .thenReturn(Optional.of(latestApprovedResourceDetail.getSubmissionDetail()));
       when(submissionFilterService.filterDiscoverySubmissionByOtherSubmissions(
           latestApprovedResourceDetail.getSubmissionDetail(), submissionType))
@@ -150,9 +150,9 @@ class SubmissionQueryServiceTest {
       var latestApprovedResourceDetail = createResourceDetail(
           searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, submissionType);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.PROSPECT, searchTerm))
-          .thenReturn(List.of(latestApprovedResourceDetail.getSubmissionDetail().getResourceId()));
+          .thenReturn(List.of(latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()));
       when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(
-          latestApprovedResourceDetail.getSubmissionDetail().getResourceId()))
+          latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()))
           .thenReturn(Optional.of(latestApprovedResourceDetail.getSubmissionDetail()));
       when(submissionFilterService.filterProspectSubmissionByOtherSubmissions(
           latestApprovedResourceDetail.getSubmissionDetail(), submissionType))
@@ -187,9 +187,9 @@ class SubmissionQueryServiceTest {
       var latestApprovedResourceDetail = createResourceDetail(
           searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, submissionType);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.PROSPECT, searchTerm))
-          .thenReturn(List.of(latestApprovedResourceDetail.getSubmissionDetail().getResourceId()));
+          .thenReturn(List.of(latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()));
       when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(
-          latestApprovedResourceDetail.getSubmissionDetail().getResourceId()))
+          latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()))
           .thenReturn(Optional.of(latestApprovedResourceDetail.getSubmissionDetail()));
       when(submissionFilterService.filterProspectSubmissionByOtherSubmissions(
           latestApprovedResourceDetail.getSubmissionDetail(), submissionType))
@@ -226,13 +226,13 @@ class SubmissionQueryServiceTest {
           searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, SubmissionType.PROSPECT_UPDATE);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.PROSPECT, searchTerm))
           .thenReturn(List.of(
-              latestApprovedResourceDetail.getSubmissionDetail().getResourceId(),
-              latestApprovedResourceDetail2.getSubmissionDetail().getResourceId()));
+              latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource(),
+              latestApprovedResourceDetail2.getSubmissionDetail().getSubmission().getResource()));
       when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(
-          latestApprovedResourceDetail.getSubmissionDetail().getResourceId()))
+          latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()))
           .thenReturn(Optional.of(latestApprovedResourceDetail.getSubmissionDetail()));
       when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(
-          latestApprovedResourceDetail2.getSubmissionDetail().getResourceId()))
+          latestApprovedResourceDetail2.getSubmissionDetail().getSubmission().getResource()))
           .thenReturn(Optional.of(latestApprovedResourceDetail2.getSubmissionDetail()));
       when(submissionFilterService.filterProspectSubmissionByOtherSubmissions(
           latestApprovedResourceDetail.getSubmissionDetail(), submissionType))
@@ -289,13 +289,13 @@ class SubmissionQueryServiceTest {
 
       when(submissionResourceService.getResourcesByName(searchTerm))
           .thenReturn(List.of(
-              latestApprovedProspectResourceDetail.getSubmissionDetail().getResourceId(),
-              latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getResourceId()));
+              latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource(),
+              latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource()));
       when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(
-          latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getResourceId()))
+          latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource()))
           .thenReturn(Optional.of(latestApprovedDiscoveryResourceDetail.getSubmissionDetail()));
       when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(
-          latestApprovedProspectResourceDetail.getSubmissionDetail().getResourceId()))
+          latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource()))
           .thenReturn(Optional.of(latestApprovedProspectResourceDetail.getSubmissionDetail()));
       when(resourceDetailsPersistenceService.getResourceDetailOrThrow(
           latestApprovedProspectResourceDetail.getSubmissionDetail()))
@@ -327,7 +327,7 @@ class SubmissionQueryServiceTest {
     detail.setStatus(submissionDetailStatus);
     var resource = new Resource();
     resource.setType(resourceType);
-    detail.setResourceId(resource);
+    detail.getSubmission().setResource(resource);
 
     var resourceDetail = new ResourceDetail();
     resourceDetail.setId(UUID.randomUUID());

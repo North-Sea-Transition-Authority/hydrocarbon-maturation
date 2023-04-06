@@ -5,22 +5,22 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @Repository
 interface SubmissionDetailRepository extends CrudRepository<SubmissionDetail, UUID> {
 
-  List<SubmissionDetail> findSubmissionDetailsByResourceId(Resource resource);
+  List<SubmissionDetail> findSubmissionDetailsBySubmissionIn(List<Submission> submissions);
 
-  Optional<SubmissionDetail> findFirstByResourceIdAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
-      Resource resource, List<SubmissionType> submissionTypes, List<SubmissionDetailStatus> statuses);
+  Optional<SubmissionDetail> findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+      List<Submission> submissions, List<SubmissionType> submissionTypes, List<SubmissionDetailStatus> statuses);
 
-  Optional<SubmissionDetail> findFirstByResourceIdAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
-      Resource resource, List<SubmissionType> submissionTypes, SubmissionDetailStatus status);
+  Optional<SubmissionDetail> findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+      List<Submission> submissions, List<SubmissionType> submissionTypes, SubmissionDetailStatus status);
 
-  Optional<SubmissionDetail> findFirstByResourceIdAndStatusOrderByApprovedTimestampDesc(
-      Resource resource, SubmissionDetailStatus status);
+  Optional<SubmissionDetail> findFirstBySubmissionInAndStatusOrderByApprovedTimestampDesc(
+      List<Submission> submissions, SubmissionDetailStatus status);
 
-  Optional<SubmissionDetail> findFirstByResourceIdAndStatusIn(
-      Resource resource, List<SubmissionDetailStatus> statuses);
+  Optional<SubmissionDetail> findFirstBySubmissionInAndStatusIn(
+      List<Submission> submissions, List<SubmissionDetailStatus> statuses);
 }

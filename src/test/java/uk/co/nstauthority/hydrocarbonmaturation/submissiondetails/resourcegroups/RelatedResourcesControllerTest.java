@@ -175,7 +175,7 @@ class RelatedResourcesControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getRelatedResourcesModelAndView_whenDiscovery_assertModelProperties() throws Exception {
-    submissionDetail.getResourceId().setType(ResourceType.DISCOVERY);
+    submissionDetail.getSubmission().getResource().setType(ResourceType.DISCOVERY);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail)).thenReturn(new RelatedResourcesForm());

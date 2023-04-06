@@ -33,7 +33,8 @@ public class RegulatorTeamMembershipInterceptorRule implements TeamMembershipInt
                                                                  SubmissionDetail submissionDetail) {
 
     var responsibleTeamType = regulatorManagedInformationPersistenceService
-        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()).getResponsibleTeamType();
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource())
+        .getResponsibleTeamType();
     var permissionRequired = responsibleTeamType.getRolePermissions();
 
     if (isNotDraftIndustrySubmission(submissionDetail)

@@ -143,8 +143,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("canReview", true),
             entry("submissionsOnResource", Map.of()),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .viewSubmission(otherSubmissionOnResource.getResourceId().getId(), null))),
-            entry("resourceType", otherSubmissionOnResource.getResourceId().getType().getDisplayName()),
+                .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
+            entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
             entry("approveUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
                 .showApproveConfirmationPage(otherSubmissionOnResource.getId()))),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType())
@@ -226,8 +226,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("canReview", true),
             entry("submissionsOnResource", Map.of()),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .viewSubmission(submissionDetail.getResourceId().getId(), null))),
-            entry("resourceType", submissionDetail.getResourceId().getType().getDisplayName()),
+                .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
+            entry("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName()),
             entry("approveUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
                 .showApproveConfirmationPage(submissionDetail.getId()))),
             entry("regulatorManagedInformationUrl",
@@ -336,7 +336,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         .when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(eq(submissionDetail), anyString());
     modelAndView
         .addObject("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-            .viewSubmission(submissionDetail.getResourceId().getId(), null)))
+            .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null)))
         .addObject("submissionsOnResource", Map.of());
 
     doReturn(modelAndView)

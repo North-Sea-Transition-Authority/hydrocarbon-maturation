@@ -137,7 +137,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
             entry("actionUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
                 .approveSubmission(SUBMISSION_DETAIL_ID, null))),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getResourceId().getId())))
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -146,7 +146,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
             WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getResourceId().getId())),
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId())),
             expectedName)
     );
   }
@@ -168,7 +168,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
             .with(user(USER)).with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(submissionDetail.getResourceId().getId()))));
+            .showResourceRecord(submissionDetail.getSubmission().getResource().getId()))));
 
     verify(submissionApprovalService).approveSubmissionOrThrow(submissionDetail);
   }

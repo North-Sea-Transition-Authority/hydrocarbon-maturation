@@ -29,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
@@ -66,7 +67,9 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetail.setCreatedTimestamp(createdTimestamp);
     entityManager.persist(responsibleTeam);
     entityManager.flush();
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
+    submissionDetail.setSubmission(SubmissionIntegrationTestUtils.createSubmission(resource, entityManager));
+
     entityManager.persist(submissionDetail);
     entityManager.flush();
 
@@ -157,12 +160,14 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     resource.setCreatedTimestamp(createdTimestamp);
     entityManager.persist(resource);
     entityManager.flush();
+    submissionWithWrongResponsibleOrg.setSubmission(SubmissionIntegrationTestUtils.createSubmission(resource, entityManager));
+
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     entityManager.persist(responsibleTeam);
     entityManager.flush();
-    submissionWithWrongResponsibleOrg.setResourceId(resource);
+    submissionWithWrongResponsibleOrg.getSubmission().setResource(resource);
     entityManager.persist(submissionWithWrongResponsibleOrg);
     entityManager.flush();
 
@@ -202,7 +207,8 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetail.setCreatedTimestamp(createdTimestamp);
     entityManager.persist(responsibleTeam);
     entityManager.flush();
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
+    submissionDetail.setSubmission(null);
     entityManager.persist(submissionDetail);
     entityManager.flush();
 
@@ -228,10 +234,12 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetail.setId(null);
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+    submissionDetail.setSubmission(SubmissionIntegrationTestUtils.createSubmission(resource, entityManager));
+
     var createdTimestamp = Instant.now().minusMillis(2000);
     submissionDetail.setCreatedTimestamp(createdTimestamp);
     submissionDetail.setApprovedTimestamp(createdTimestamp.plusMillis(1000));
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     entityManager.persist(submissionDetail);
     entityManager.flush();
     var generalDetails = new GeneralDetail();

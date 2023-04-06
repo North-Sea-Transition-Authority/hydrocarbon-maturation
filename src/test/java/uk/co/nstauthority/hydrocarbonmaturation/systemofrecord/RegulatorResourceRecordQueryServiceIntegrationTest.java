@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
@@ -763,9 +764,9 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var resourceWithMatchingLicenceApplication  = buildDiscoveryResource();
     var resourceNotMatchingLicenceApplication = buildDiscoveryResource();
     var submissionMatchingFilter = buildSubmissionDetail(resourceWithMatchingLicenceApplication ,
-        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+        SubmissionType.CREATE_DISCOVERY);
     var submissionNotMatchingFilter = buildSubmissionDetail(resourceNotMatchingLicenceApplication,
-        SubmissionType.CREATE_PROSPECT);
+        SubmissionType.CREATE_DISCOVERY);
     var matchingFilterLicenceRound = "LICENCE_ROUND_9000";
     var matchingFilterGeneralDetail = createGeneralDetail(submissionMatchingFilter);
     var notMatchingFilterRound = "COOL_LICENCE";
@@ -773,10 +774,10 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     notMatchingFilterGeneralDetail.setLicenceApplicationReference(notMatchingFilterRound);
     matchingFilterGeneralDetail.setLicenceApplicationReference(matchingFilterLicenceRound);
 
-    createResourceDetail(submissionNotMatchingFilter, "default", 1);
-    createResourceDetail(submissionMatchingFilter, "default", 1);
+    createResourceDetail(submissionNotMatchingFilter, "not matching filter", 1);
+    createResourceDetail(submissionMatchingFilter, "matching filter", 1);
     createOpportunityDetail(OpportunityType.DISCOVERY, submissionMatchingFilter);
-    createOpportunityDetail(OpportunityType.DISCOVERY, submissionNotMatchingFilter);
+    createOpportunityDetail(OpportunityType.PROSPECT, submissionNotMatchingFilter);
 
     var form = new SearchResourceRecordsForm();
     form.setLicenceRound("9000");
@@ -785,10 +786,15 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId
+            ResourceRecordQueryResult::getResourceId,
+            ResourceRecordQueryResult::getSubmissionDetailId,
+            ResourceRecordQueryResult::getResourceName
         )
         .containsExactly(
-            submissionMatchingFilter.getId()
+            tuple(
+                resourceWithMatchingLicenceApplication.getId(),
+                submissionMatchingFilter.getId(),
+                "matching filter")
         );
   }
 
@@ -1052,8 +1058,9 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType) {
+    var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(resource, entityManager);
 
-    return SubmissionIntegrationTestUtils.createSubmissionDetail(resource, submissionType, entityManager);
+    return SubmissionIntegrationTestUtils.createSubmissionDetail(submission, submissionType, entityManager);
   }
 
   private void setUpRegulatorTest() {

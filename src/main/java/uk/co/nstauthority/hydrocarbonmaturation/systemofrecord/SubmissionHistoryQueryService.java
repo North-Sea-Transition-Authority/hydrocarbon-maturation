@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_LINKS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 
 import java.util.List;
@@ -45,9 +46,10 @@ class SubmissionHistoryQueryService {
             SUBMISSION_DETAILS.ID,
             SUBMISSION_DETAILS.SUBMISSION_TYPE)
         .from(SUBMISSION_DETAILS
+            .join(SUBMISSIONS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID))
             .leftJoin(RESOURCE_LINKS)
-            .on(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(SUBMISSION_DETAILS.RESOURCE_ID)
-                .or(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(SUBMISSION_DETAILS.RESOURCE_ID))))
+            .on(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(SUBMISSIONS.RESOURCE_ID)
+                .or(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(SUBMISSIONS.RESOURCE_ID))))
         .where(conditions)
         .orderBy(
             SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc(),
@@ -58,7 +60,7 @@ class SubmissionHistoryQueryService {
   }
 
   private Condition getResourceIdCondition(UUID resourceId) {
-    return SUBMISSION_DETAILS.RESOURCE_ID.eq(resourceId)
+    return SUBMISSIONS.RESOURCE_ID.eq(resourceId)
         .or(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(resourceId))
         .or(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(resourceId));
   }

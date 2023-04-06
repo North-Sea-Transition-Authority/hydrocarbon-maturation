@@ -33,7 +33,7 @@ class ResourceDetailSummaryServiceTest {
     resourceDetail = new ResourceDetail();
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     resourceDetail.setSubmissionDetail(submissionDetail);
   }
 
@@ -43,7 +43,7 @@ class ResourceDetailSummaryServiceTest {
         .thenReturn(Optional.of(resourceDetail));
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     resourceDetail.setSubmissionDetail(submissionDetail);
     var view = resourceDetailSummaryService.getResourceDetailSummaryFromSubmissionDetail(submissionDetail);
     assertThat(view)
@@ -68,7 +68,7 @@ class ResourceDetailSummaryServiceTest {
 
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     resourceDetail.setSubmissionDetail(submissionDetail);
     resourceDetail.setResourceName("name");
     resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
@@ -100,7 +100,7 @@ class ResourceDetailSummaryServiceTest {
 
     var resource = new Resource();
     resource.setType(ResourceType.DISCOVERY);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     resourceDetail.setSubmissionDetail(submissionDetail);
     resourceDetail.setResourceName("name");
     resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);

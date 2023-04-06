@@ -101,7 +101,7 @@ public class WithdrawSubmissionController {
         .withTitle("%s submission withdrawn".formatted(submissionDetailService.getSubmissionTypeName(submissionDetail)))
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent("%s - %s has been withdrawn."
-            .formatted(submissionDetail.getResourceId().getType().getDisplayName(),
+            .formatted(submissionDetail.getSubmission().getResource().getType().getDisplayName(),
                 submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail)))
         .build();
 
@@ -128,7 +128,7 @@ public class WithdrawSubmissionController {
                 .withdrawSubmission(submissionDetail.getId(), null, null, null)))
         .addObject("cancelUrl",
             ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getResourceId().getId())));
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId())));
 
     ReviewPageBreadcrumbUtil
         .addWorkAreaAndManagementPageToModelAndView(modelAndView, pageName, resourceName, submissionDetail);

@@ -102,7 +102,7 @@ public class SubmissionEmailService {
 
   public void sendSubmittedSubmissionEmails(SubmissionDetail submissionDetail) {
     var responsibleTeam = regulatorManagedInformationPersistenceService
-        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId());
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
 
     if (responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION) {
       var explorationTeamUsers = regulatorTeamService.getExplorationTeamEnergyPortalUsers();

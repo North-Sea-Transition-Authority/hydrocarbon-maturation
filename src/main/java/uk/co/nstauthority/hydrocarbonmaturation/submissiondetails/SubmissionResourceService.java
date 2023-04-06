@@ -69,7 +69,7 @@ public class SubmissionResourceService {
 
   private Stream<Resource> getResourcesByNameStream(String name) {
     return resourceDetailsPersistenceService.getResourceDetailsByName(name).stream()
-        .map(detail -> detail.getSubmissionDetail().getResourceId())
+        .map(detail -> detail.getSubmissionDetail().getSubmission().getResource())
         .distinct();
   }
 }

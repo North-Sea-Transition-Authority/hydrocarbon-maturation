@@ -67,7 +67,7 @@ class WorkAreaItemService {
       return ReverseRouter.route(on(ReviewSubmissionController.class)
           .showReviewPage(submissionDetailService
               .getSubmissionDetailForIdOrError(
-                  submissionWorkAreaQueryResult.getSubmissionDetailId()).getResourceId().getId()));
+                  submissionWorkAreaQueryResult.getSubmissionDetailId()).getSubmission().getResource().getId()));
     }
   }
 

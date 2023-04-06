@@ -138,7 +138,7 @@ class SubmissionEmailServiceTest {
 
       var expectedRemiSystemOfRecordUrl = SERVICE_URL +
           ReverseRouter.route(on(ViewResourceRecordController.class)
-              .showResourceRecord(SUBMISSION_DETAIL.getResourceId().getId()));
+              .showResourceRecord(SUBMISSION_DETAIL.getSubmission().getResource().getId()));
 
       submissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL);
 
@@ -176,7 +176,7 @@ class SubmissionEmailServiceTest {
     SUBMISSION_DETAIL.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     var resourceWithRandomUUID = new Resource();
     resourceWithRandomUUID.setId(UUID.randomUUID());
-    SUBMISSION_DETAIL.setResourceId(resourceWithRandomUUID);
+    SUBMISSION_DETAIL.getSubmission().setResource(resourceWithRandomUUID);
     when(serviceBrandingConfigurationProperties.getServiceConfigurationProperties())
         .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
     when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(SUBMITTER_WUA_ID.toString())))
@@ -261,7 +261,8 @@ class SubmissionEmailServiceTest {
           .thenReturn(Optional.of(generalDetail));
       var responsibleTeam = new RegulatorManagedInformation();
       responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
+      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+          SUBMISSION_DETAIL.getSubmission().getResource()))
           .thenReturn(responsibleTeam);
       when(serviceBrandingConfigurationProperties.getServiceConfigurationProperties())
           .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
@@ -295,7 +296,8 @@ class SubmissionEmailServiceTest {
           .thenReturn(Optional.of(generalDetail));
       var responsibleTeam = new RegulatorManagedInformation();
       responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
+      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+          SUBMISSION_DETAIL.getSubmission().getResource()))
           .thenReturn(responsibleTeam);
       when(serviceBrandingConfigurationProperties.getServiceConfigurationProperties())
           .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
@@ -307,7 +309,7 @@ class SubmissionEmailServiceTest {
           .thenReturn(List.of(licence, licence2));
       var expectedReviewSubmissionUrl = SERVICE_URL +
           ReverseRouter.route(on(ReviewSubmissionController.class)
-              .showReviewPage(SUBMISSION_DETAIL.getResourceId().getId()));
+              .showReviewPage(SUBMISSION_DETAIL.getSubmission().getResource().getId()));
       submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient1.emailAddress()));
@@ -338,7 +340,8 @@ class SubmissionEmailServiceTest {
       var regulatorManagedInformation = new RegulatorManagedInformation();
       regulatorManagedInformation.setResponsibleTeamType(responsibleTeamType);
 
-      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
+      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+          SUBMISSION_DETAIL.getSubmission().getResource()))
           .thenReturn(regulatorManagedInformation);
 
       submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
@@ -351,7 +354,8 @@ class SubmissionEmailServiceTest {
       var regulatorManagedInformation = new RegulatorManagedInformation();
       regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
 
-      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(SUBMISSION_DETAIL.getResourceId()))
+      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+          SUBMISSION_DETAIL.getSubmission().getResource()))
           .thenReturn(regulatorManagedInformation);
       when(regulatorTeamService.getExplorationTeamEnergyPortalUsers())
           .thenReturn(List.of());
@@ -436,7 +440,7 @@ class SubmissionEmailServiceTest {
       SUBMISSION_DETAIL.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
       var resourceWithRandomUUID = new Resource();
       resourceWithRandomUUID.setId(UUID.randomUUID());
-      SUBMISSION_DETAIL.setResourceId(resourceWithRandomUUID);
+      SUBMISSION_DETAIL.getSubmission().setResource(resourceWithRandomUUID);
 
       when(serviceBrandingConfigurationProperties.getCustomerConfigurationProperties())
           .thenReturn(new CustomerConfigurationProperties("", REGULATOR_ORGANISATION_NAME));

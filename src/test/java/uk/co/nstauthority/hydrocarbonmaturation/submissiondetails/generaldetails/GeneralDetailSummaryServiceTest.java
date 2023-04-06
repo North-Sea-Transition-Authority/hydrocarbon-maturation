@@ -43,7 +43,7 @@ class GeneralDetailSummaryServiceTest {
     generalDetail = new GeneralDetail();
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     generalDetail.setSubmissionDetail(submissionDetail);
   }
 
@@ -53,7 +53,7 @@ class GeneralDetailSummaryServiceTest {
         .thenReturn(Optional.of(generalDetail));
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     generalDetail.setSubmissionDetail(submissionDetail);
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
     assertThat(view)
@@ -103,7 +103,7 @@ class GeneralDetailSummaryServiceTest {
         .thenReturn(List.of(licence1, licence2));
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     generalDetail.setSubmissionDetail(submissionDetail);
     generalDetail.setInformationSource(InformationSource.LICENCE_APPLICATION);
     generalDetail.setLicenceApplicationReference("licence application ref");
@@ -164,7 +164,7 @@ class GeneralDetailSummaryServiceTest {
         .thenReturn(List.of(licence1, licence2));
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     submissionDetail.setSubmissionType(submissionType);
     generalDetail.setSubmissionDetail(submissionDetail);
     generalDetail.setInformationSource(InformationSource.LICENCE_APPLICATION);
@@ -213,7 +213,7 @@ class GeneralDetailSummaryServiceTest {
         .thenReturn(Optional.of(generalDetail));
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     submissionDetail.setSubmissionType(submissionType);
     generalDetail.setSubmissionDetail(submissionDetail);
     generalDetail.setRelinquishmentDate(null);

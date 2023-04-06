@@ -56,7 +56,7 @@ public class SubmissionApprovalService {
 
   public boolean canApproveSubmission(SubmissionDetail submissionDetail) {
     var responsibleTeam = regulatorManagedInformationPersistenceService
-        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId());
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
     return responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION
         && regulatorTeamService.isRegulatorTeamRole(
             userDetailService.getUserDetail(), RegulatorTeamRole.EXPLORATION);

@@ -2,7 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import static org.jooq.impl.DSL.exists;
 import static org.jooq.impl.DSL.select;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 
 import java.util.List;
@@ -12,7 +14,9 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.ResourceDetails;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Resources;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
@@ -22,7 +26,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indus
 class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryStrategy {
 
   private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
+  private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
   private static final ResourceDetails RD_2 = RESOURCE_DETAILS.as("rd2");
+  private static final Resources RESOURCES_2 = RESOURCES.as("r2");
   private final UserDetailService userDetailService;
   private final IndustryTeamService industryTeamService;
   private final SubmissionWorkAreaQueryCommonService submissionWorkAreaQueryCommonService;
@@ -72,9 +78,10 @@ class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryS
     return exists(
         select(RD_2.ORGANISATION_ID)
             .from(SD_2)
-            .join(RD_2)
-            .on(SD_2.ID.eq(RD_2.SUBMISSION_DETAIL_ID))
-            .where(SD_2.RESOURCE_ID.eq(SUBMISSION_DETAILS.RESOURCE_ID)
+            .join(RD_2).on(SD_2.ID.eq(RD_2.SUBMISSION_DETAIL_ID))
+            .join(SUBMISSIONS_2).on(SUBMISSIONS_2.ID.eq(SD_2.SUBMISSION_ID))
+            .join(RESOURCES_2).on(RESOURCES_2.ID.eq(SUBMISSIONS_2.RESOURCE_ID))
+            .where(RESOURCES_2.ID.eq(SUBMISSIONS_2.RESOURCE_ID)
                 .and(RD_2.ORGANISATION_ID.in(userOrgUnits)))
             .and(SD_2.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))
             .orderBy(SD_2.APPROVED_TIMESTAMP.desc())

@@ -127,8 +127,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     var responsibleTeam = new RegulatorManagedInformation();
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    responsibleTeam.setResource(submissionDetail.getResourceId());
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
+    responsibleTeam.setResource(submissionDetail.getSubmission().getResource());
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
     var resourceDetail = new ResourceDetail();
     resourceDetail.setOrganisationId(1);
@@ -144,10 +145,10 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(regulatorTeamMembershipInterceptorRule);
     var regulatorManagedInformation = new RegulatorManagedInformation();
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    regulatorManagedInformation.setResource(submissionDetail.getResourceId());
+    regulatorManagedInformation.setResource(submissionDetail.getSubmission().getResource());
 
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-        submissionDetail.getResourceId()))
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(regulatorManagedInformation);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(true);
@@ -158,9 +159,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(operatorTeamMembershipInterceptorRule);
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    responsibleTeam.setResource(submissionDetail.getResourceId());
+    responsibleTeam.setResource(submissionDetail.getSubmission().getResource());
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-        submissionDetail.getResourceId()))
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(false);

@@ -22,47 +22,47 @@ class SubmissionFilterService {
     this.resourceLinkService = resourceLinkService;
   }
 
-  /** Checks other submissions on the discovery to determine whether a new submission can be made.
-   * @param submission Current latest approved submission being checked
+  /** Checks other submissions on the discovery to determine whether a new submissionDetail can be made.
+   * @param submissionDetail Current latest approved submissionDetail being checked
    * @param submissionToBeCreatedType Submission type that is being created
-   * @return if the submission should be available to be chosen
+   * @return if the submissionDetail should be available to be chosen
    */
-  boolean filterDiscoverySubmissionByOtherSubmissions(SubmissionDetail submission,
+  boolean filterDiscoverySubmissionByOtherSubmissions(SubmissionDetail submissionDetail,
                                                       SubmissionType submissionToBeCreatedType) {
-    var otherSubmissionsOnResource = submissionDetailService
-        .getSubmissionDetailsForResource(submission.getResourceId());
+    var otherSubmissionDetailsOnResource = submissionDetailService
+        .getSubmissionDetailsForResource(submissionDetail.getSubmission().getResource());
 
-    return otherSubmissionsOnResource
+    return otherSubmissionDetailsOnResource
         .stream()
-        .noneMatch(submissionToBeChecked ->
-            isSubmissionPreventingNewSubmission(submissionToBeChecked, submissionToBeCreatedType)
+        .noneMatch(submissionDetailToBeChecked ->
+            isSubmissionPreventingNewSubmission(submissionDetailToBeChecked, submissionToBeCreatedType)
         );
   }
 
-  /** Checks other submissions on the prospect to determine whether a new submission can be made.
-   * @param submission Current latest approved submission being checked
+  /** Checks other submissions on the prospect to determine whether a new submissionDetail can be made.
+   * @param submissionDetail Current latest approved submissionDetail being checked
    * @param submissionToBeCreatedType Submission type that is being created
-   * @return if the submission should be available to be chosen
+   * @return if the submissionDetail should be available to be chosen
    */
-  boolean filterProspectSubmissionByOtherSubmissions(SubmissionDetail submission,
+  boolean filterProspectSubmissionByOtherSubmissions(SubmissionDetail submissionDetail,
                                                      SubmissionType submissionToBeCreatedType) {
     if (isLinkedDiscoveryPreventingSubmission(
-        submissionToBeCreatedType, submission.getResourceId())) {
-      // cannot start a prospect update or relinquishment on a prospect with a discovery submission on it
+        submissionToBeCreatedType, submissionDetail.getSubmission().getResource())) {
+      // cannot start a prospect update or relinquishment on a prospect with a discovery submissionDetail on it
       return false;
     }
 
-    //Gets other submissions made on the submission's resource
-    var otherSubmissionsOnResource =
-        submissionDetailService.getSubmissionDetailsForResource(submission.getResourceId());
+    //Gets other submissions made on the submissionDetail's resource
+    var submissionDetailsForResource =
+        submissionDetailService.getSubmissionDetailsForResource(submissionDetail.getSubmission().getResource());
 
-    //True means the condition prevents the creation of a submission of type 'submissionToBeCreatedType',
-    //false means the submission does not prevent submissionToBeCreatedType
-    //and that the next submission for the resource should be checked
-    return otherSubmissionsOnResource
+    //True means the condition prevents the creation of a submissionDetail of type 'submissionToBeCreatedType',
+    //false means the submissionDetail does not prevent submissionToBeCreatedType
+    //and that the next submissionDetail for the resource should be checked
+    return submissionDetailsForResource
         .stream()
-        .noneMatch(submissionToBeChecked ->
-            isSubmissionPreventingNewSubmission(submissionToBeChecked, submissionToBeCreatedType)
+        .noneMatch(submissionDetailToBeChecked ->
+            isSubmissionPreventingNewSubmission(submissionDetailToBeChecked, submissionToBeCreatedType)
         );
   }
 
@@ -74,16 +74,16 @@ class SubmissionFilterService {
                                                         Resource prospect) {
     //gets discovery resources linked to the prospect
     var linkedDiscoveries = getLinkedDiscoveries(prospect);
-    var linkedDiscoverySubmissions = new ArrayList<SubmissionDetail>();
+    var linkedDiscoverySubmissionDetails = new ArrayList<SubmissionDetail>();
     ///Gets the submissions on the discovery and filters out the deleted ones
     linkedDiscoveries.forEach(discovery ->
-        linkedDiscoverySubmissions.addAll(submissionDetailService.getSubmissionDetailsForResource(discovery)
+        linkedDiscoverySubmissionDetails.addAll(submissionDetailService.getSubmissionDetailsForResource(discovery)
             .stream()
             .filter(submissionDetail -> submissionDetail.getStatus() != SubmissionDetailStatus.DELETED)
             .toList())
     );
     //The list will be empty if there are no non-deleted discovery submissions.
-    return !linkedDiscoverySubmissions.isEmpty()
+    return !linkedDiscoverySubmissionDetails.isEmpty()
         && (submissionTypeToBeCreated == SubmissionType.RELINQUISHMENT_PROSPECT
         || submissionTypeToBeCreated == SubmissionType.PROSPECT_UPDATE);
   }
@@ -91,23 +91,24 @@ class SubmissionFilterService {
   /**
    *  Checks the business rules relating to other submissions on the same resource
    *  for the submission type that is being created.
-   * @param submissionToBeChecked The submission to be checked whether it prevents newSubmissionType from being submitted.
+   * @param submissionDetailsToBeChecked The submission detail to be checked whether
+   *                                     it prevents newSubmissionType from being submitted.
    * @param newSubmissionType The type of the submission being created.
    * @return True if the old submission prevents a new submission of type newSubmissionType.
    */
-  private boolean isSubmissionPreventingNewSubmission(SubmissionDetail submissionToBeChecked,
+  private boolean isSubmissionPreventingNewSubmission(SubmissionDetail submissionDetailsToBeChecked,
                                                       SubmissionType newSubmissionType) {
     return switch (newSubmissionType) {
       case POST_DRILL_DRY_HOLE, CREATE_DISCOVERY_FROM_PROSPECT ->
-          SubmissionFilterUtil.isSubmissionPreventingDryHoleOrDiscovery(submissionToBeChecked);
+          SubmissionFilterUtil.isSubmissionPreventingDryHoleOrDiscovery(submissionDetailsToBeChecked);
       case PROSPECT_UPDATE ->
-          SubmissionFilterUtil.isSubmissionPreventingProspectUpdate(submissionToBeChecked);
+          SubmissionFilterUtil.isSubmissionPreventingProspectUpdate(submissionDetailsToBeChecked);
       case RELINQUISHMENT_PROSPECT ->
-          SubmissionFilterUtil.isSubmissionPreventingProspectRelinquishment(submissionToBeChecked);
+          SubmissionFilterUtil.isSubmissionPreventingProspectRelinquishment(submissionDetailsToBeChecked);
       case RELINQUISHMENT_DISCOVERY ->
-          SubmissionFilterUtil.isSubmissionPreventingDiscoveryRelinquishment(submissionToBeChecked);
+          SubmissionFilterUtil.isSubmissionPreventingDiscoveryRelinquishment(submissionDetailsToBeChecked);
       case UPDATE_DISCOVERY ->
-          SubmissionFilterUtil.isSubmissionPreventingDiscoveryUpdate(submissionToBeChecked);
+          SubmissionFilterUtil.isSubmissionPreventingDiscoveryUpdate(submissionDetailsToBeChecked);
       default -> false;
     };
   }

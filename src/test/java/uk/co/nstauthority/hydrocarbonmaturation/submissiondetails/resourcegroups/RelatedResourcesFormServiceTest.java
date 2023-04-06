@@ -48,7 +48,7 @@ class RelatedResourcesFormServiceTest {
 
   @BeforeEach
   void setUp() {
-    submissionDetail = new SubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(UUID.randomUUID());
   }
 
@@ -113,7 +113,8 @@ class RelatedResourcesFormServiceTest {
     var resourceGroupLink = new ResourceGroupLink();
     var resourceGroupId = UUID.randomUUID();
     resourceGroupLink.setResourceGroupId(resourceGroupId);
-    when(resourceGroupLinksRepository.findByResource(relatedResource.getRelatedSubmissionDetail().getResourceId()))
+    when(resourceGroupLinksRepository.findByResource(
+        relatedResource.getRelatedSubmissionDetail().getSubmission().getResource()))
         .thenReturn(Optional.of(resourceGroupLink));
     var resourceGroupLink2 = new ResourceGroupLink();
     var resource = new Resource();
@@ -191,7 +192,7 @@ class RelatedResourcesFormServiceTest {
         relatedResource.getSubmissionDetail().getId().toString());
     var resource = new Resource();
     resource.setId(UUID.randomUUID());
-    submissionDetail.setResourceId(resource);
+    submissionDetail.getSubmission().setResource(resource);
     var resourceGroup =
         new ResourceGroupView(submissionDetail.getId(), "returned resource", UUID.randomUUID());
     var expectedMap = Map.of(submissionDetail.getId().toString(), resourceGroup.resourceName());

@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Service
@@ -41,6 +42,7 @@ public class SubmissionCreateService {
   private final PermissionService permissionService;
   private final UserDetailService userDetailService;
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
+  private final SubmissionPersistenceService submissionPersistenceService;
 
   @Autowired
   public SubmissionCreateService(ResourceService resourceService,
@@ -53,7 +55,8 @@ public class SubmissionCreateService {
                                  OpportunityDetailsPersistenceService opportunityDetailsPersistenceService,
                                  PermissionService permissionService,
                                  UserDetailService userDetailService,
-                                 SubmissionDetailPersistenceService submissionDetailPersistenceService) {
+                                 SubmissionDetailPersistenceService submissionDetailPersistenceService,
+                                 SubmissionPersistenceService submissionPersistenceService) {
     this.resourceService = resourceService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
@@ -65,14 +68,16 @@ public class SubmissionCreateService {
     this.permissionService = permissionService;
     this.userDetailService = userDetailService;
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
+    this.submissionPersistenceService = submissionPersistenceService;
   }
 
   @Transactional
   public SubmissionDetail createInitialProspect(ResourceDetailsForm form) {
     var resource = resourceService.createResource(ResourceType.PROSPECT);
+    var submission = submissionPersistenceService.createSubmission(resource);
     regulatorManagedInformationPersistenceService.saveResponsibleTeamByResource(resource, ResponsibleTeamType.EXPLORATION);
     var submissionDetail = submissionDetailPersistenceService
-        .createInitialSubmissionDetail(resource, SubmissionType.CREATE_PROSPECT);
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_PROSPECT);
     resourceDetailsPersistenceService.createInitialResourceDetail(form, submissionDetail);
     return submissionDetail;
   }
@@ -81,10 +86,11 @@ public class SubmissionCreateService {
   public SubmissionDetail createUpdateProspect(UpdateProspectForm form) {
     var oldSubmissionDetail =
         submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(form.getProspectSelectedOption()));
-    var resource = oldSubmissionDetail.getResourceId();
+    var resource = oldSubmissionDetail.getSubmission().getResource();
+    var submission = submissionPersistenceService.createSubmission(resource);
 
     var newSubmissionDetail =
-        submissionDetailPersistenceService.createInitialSubmissionDetail(resource, SubmissionType.PROSPECT_UPDATE);
+        submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.PROSPECT_UPDATE);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -101,10 +107,11 @@ public class SubmissionCreateService {
   public SubmissionDetail createPostDrillDryHoleSubmission(PostDrillDryHoleForm form) {
     var oldSubmissionDetail =
         submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(form.getProspectSelectedOption()));
-    var resource = oldSubmissionDetail.getResourceId();
+    var resource = oldSubmissionDetail.getSubmission().getResource();
+    var submission = submissionPersistenceService.createSubmission(resource);
 
     var newSubmissionDetail =
-        submissionDetailPersistenceService.createInitialSubmissionDetail(resource, SubmissionType.POST_DRILL_DRY_HOLE);
+        submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.POST_DRILL_DRY_HOLE);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -117,8 +124,10 @@ public class SubmissionCreateService {
   public SubmissionDetail createDiscovery(ResourceDetailsForm form) {
     var resource = resourceService.createResource(ResourceType.DISCOVERY);
     regulatorManagedInformationPersistenceService.saveResponsibleTeamByResource(resource, ResponsibleTeamType.EXPLORATION);
+    var submission = submissionPersistenceService.createSubmission(resource);
+
     var submissionDetail = submissionDetailPersistenceService
-        .createInitialSubmissionDetail(resource, SubmissionType.CREATE_DISCOVERY);
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_DISCOVERY);
     resourceDetailsPersistenceService.createInitialResourceDetail(form, submissionDetail);
     opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(submissionDetail);
     return submissionDetail;
@@ -131,12 +140,13 @@ public class SubmissionCreateService {
         discoveryResource, ResponsibleTeamType.EXPLORATION);
     var oldSubmissionDetail =
         submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(form.getProspectSelectedOption()));
-    var prospectResource = oldSubmissionDetail.getResourceId();
+    var prospectResource = oldSubmissionDetail.getSubmission().getResource();
+    var submission = submissionPersistenceService.createSubmission(discoveryResource);
 
     resourceLinkService.createNewResourceLink(prospectResource, discoveryResource);
 
     var newSubmissionDetail = submissionDetailPersistenceService.createInitialSubmissionDetail(
-        discoveryResource,
+        submission,
         SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
     );
 
@@ -150,10 +160,10 @@ public class SubmissionCreateService {
   public SubmissionDetail createUpdateDiscovery(UpdateDiscoveryForm form) {
     var oldSubmissionDetail =
         submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(form.getDiscoverySelectedOption()));
-    var resource = oldSubmissionDetail.getResourceId();
-
+    var resource = oldSubmissionDetail.getSubmission().getResource();
+    var submission = submissionPersistenceService.createSubmission(resource);
     var newSubmissionDetail =
-        submissionDetailPersistenceService.createInitialSubmissionDetail(resource, SubmissionType.UPDATE_DISCOVERY);
+        submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.UPDATE_DISCOVERY);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -179,10 +189,10 @@ public class SubmissionCreateService {
     }
     var oldSubmissionDetail = submissionDetailService
         .getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(generalDetailId));
-    var resource = oldSubmissionDetail.getResourceId();
-
+    var resource = oldSubmissionDetail.getSubmission().getResource();
+    var submission = submissionPersistenceService.createSubmission(resource);
     var newSubmissionDetail = submissionDetailPersistenceService
-        .createInitialSubmissionDetail(resource, relinquishmentType);
+        .createInitialSubmissionDetail(submission, relinquishmentType);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);

@@ -85,8 +85,8 @@ class ResourceGroupServiceTest {
             .thenReturn(Optional.of(relatedResourceTaskList));
 
         resourceGroupLinkForRelatedProspect = ResourceGroupService.buildResourceGroupLink(UUID.randomUUID(),
-            relatedSubmissionDetail.getResourceId());
-        when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getResourceId()))
+            relatedSubmissionDetail.getSubmission().getResource());
+        when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getSubmission().getResource()))
             .thenReturn(Optional.of(resourceGroupLinkForRelatedProspect));
       }
 
@@ -108,7 +108,7 @@ class ResourceGroupServiceTest {
             .containsExactly(
                 true,
                 resourceGroupLinkForRelatedProspect.getResourceGroupId(),
-                submissionDetail.getResourceId()
+                submissionDetail.getSubmission().getResource()
             );
 
         assertThat(resourceGroupLinkForRelatedProspect.getPreferredView()).isFalse();
@@ -137,7 +137,7 @@ class ResourceGroupServiceTest {
             .containsExactly(
                 true,
                 resourceGroupLinkForRelatedProspect.getResourceGroupId(),
-                submissionDetail.getResourceId()
+                submissionDetail.getSubmission().getResource()
             );
 
         assertThat(resourceGroupLinkForRelatedProspect.getPreferredView()).isFalse();
@@ -163,7 +163,7 @@ class ResourceGroupServiceTest {
             .containsExactly(
                 false,
                 resourceGroupLinkForRelatedProspect.getResourceGroupId(),
-                submissionDetail.getResourceId()
+                submissionDetail.getSubmission().getResource()
             );
 
         assertThat(resourceGroupLinkForRelatedProspect.getPreferredView()).isTrue();
@@ -185,7 +185,7 @@ class ResourceGroupServiceTest {
         when(relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail))
             .thenReturn(Optional.of(relatedResourceTaskList));
 
-        when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getResourceId()))
+        when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getSubmission().getResource()))
             .thenReturn(Optional.empty());
       }
 
@@ -206,11 +206,11 @@ class ResourceGroupServiceTest {
             .containsExactly(
                 tuple(
                     true,
-                    submissionDetail.getResourceId()
+                    submissionDetail.getSubmission().getResource()
                 ),
                 tuple(
                     false,
-                    relatedSubmissionDetail.getResourceId()
+                    relatedSubmissionDetail.getSubmission().getResource()
                 )
             );
 
@@ -237,11 +237,11 @@ class ResourceGroupServiceTest {
             .containsExactly(
                 tuple(
                     false,
-                    submissionDetail.getResourceId()
+                    submissionDetail.getSubmission().getResource()
                 ),
                 tuple(
                     true,
-                    relatedSubmissionDetail.getResourceId()
+                    relatedSubmissionDetail.getSubmission().getResource()
                 )
             );
 

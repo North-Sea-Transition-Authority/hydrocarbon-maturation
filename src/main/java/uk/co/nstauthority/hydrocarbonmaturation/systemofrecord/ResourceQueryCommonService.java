@@ -8,6 +8,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REG
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_LINKS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.TRAP_PROPERTIES;
 
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.GeneralDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Service
@@ -32,6 +34,8 @@ class ResourceQueryCommonService {
   static final int MAX_RESULTS = 200;
   private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
   private static final SubmissionDetails SD_3 = SUBMISSION_DETAILS.as("sd3");
+  private static final Submissions SUBMISSIONS_3 = SUBMISSIONS.as("s3");
+  private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
   private static final GeneralDetails GD_3 = GENERAL_DETAILS.as("gd3");
   protected final DSLContext context;
 
@@ -55,10 +59,12 @@ class ResourceQueryCommonService {
             SUBMISSION_DETAILS.CREATED_TIMESTAMP,
             SUBMISSION_DETAILS.APPROVED_TIMESTAMP)
         .from(RESOURCES
-          .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
-              select(SD_2.ID)
-                  .from(SD_2)
-                  .where(SD_2.RESOURCE_ID.eq(RESOURCES.ID))
+          .join(SUBMISSIONS).on(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
+          .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(
+              select(SD_2.SUBMISSION_ID)
+                  .from(SD_2
+                      .join(SUBMISSIONS_2).on(SUBMISSIONS_2.ID.eq(SD_2.SUBMISSION_ID)))
+                  .where(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID))
                   .and(SD_2.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))
                   .orderBy(SD_2.APPROVED_TIMESTAMP.desc())
                   .limit(1)
@@ -74,6 +80,7 @@ class ResourceQueryCommonService {
         .where(conditionList)
         .groupBy(
             RESOURCES.ID,
+            SUBMISSIONS.RESOURCE_ID,
             SUBMISSION_DETAILS.ID,
             GENERAL_DETAILS.ID,
             TRAP_PROPERTIES.ID,
@@ -161,15 +168,14 @@ class ResourceQueryCommonService {
     // on the latest submission or any earlier approved submissions
     return GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE
         .likeIgnoreCase("%" + form.getLicenceRound() + "%")
-        .orExists(
-            context
-                .select()
+        .orExists(select()
                 .from(SD_3
+                    .join(SUBMISSIONS_3).on(SUBMISSIONS_3.ID.eq(SD_3.SUBMISSION_ID))
                   .join(GD_3).on(GD_3.SUBMISSION_DETAIL_ID.eq(SD_3.ID)
-                    .and(SD_3.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))
-                    .and(SD_3.RESOURCE_ID.eq(SUBMISSION_DETAILS.RESOURCE_ID))))
+                    .and(SD_3.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))))
                 .where(GD_3.LICENCE_APPLICATION_REFERENCE
-                    .likeIgnoreCase("%" + form.getLicenceRound() + "%")));
+                    .likeIgnoreCase("%" + form.getLicenceRound() + "%")
+                    .and(SUBMISSIONS_3.RESOURCE_ID.eq(RESOURCES.ID))));
   }
 
   Condition getOpportunityTypeCondition(SearchResourceRecordsForm form) {

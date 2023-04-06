@@ -138,7 +138,7 @@ class GeneralDetailsTaskListSectionServiceTest {
       mode = EnumSource.Mode.INCLUDE)
   void getSection_whenInitialSubmissionAndHasPermission_whenDiscovery_ShowRelatedDiscoveries(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
-    submissionDetail.getResourceId().setType(ResourceType.DISCOVERY);
+    submissionDetail.getSubmission().getResource().setType(ResourceType.DISCOVERY);
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 

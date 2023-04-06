@@ -109,7 +109,7 @@ class ResourceDetailsFormServiceTest {
             ResourceDetailsFormValidatorHints::latestApprovedResourceDetail)
         .containsExactly(
             validationType,
-            submissionDetail.getResourceId().getType(),
+            submissionDetail.getSubmission().getResource().getType(),
             true,
             null
         );
@@ -144,7 +144,7 @@ class ResourceDetailsFormServiceTest {
             ResourceDetailsFormValidatorHints::latestApprovedResourceDetail)
         .containsExactly(
             validationType,
-            submissionDetail.getResourceId().getType(),
+            submissionDetail.getSubmission().getResource().getType(),
             false,
             approvedResourceDetail
         );

@@ -135,7 +135,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
             entry("actionUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
                 .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null))),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getResourceId().getId())))
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -143,7 +143,8 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
             WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(submissionDetail.getResourceId().getId())),
+        entry(ReverseRouter.route(on(ReviewSubmissionController.class)
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId())),
             expectedName)
     );
   }

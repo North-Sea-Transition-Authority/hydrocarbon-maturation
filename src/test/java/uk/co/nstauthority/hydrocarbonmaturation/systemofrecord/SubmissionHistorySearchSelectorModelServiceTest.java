@@ -35,17 +35,17 @@ class SubmissionHistorySearchSelectorModelServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setApprovedTimestamp(Instant.now());
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(submissionDetail.getResourceId().getId()))
+    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(submissionDetail.getSubmission().getResource().getId()))
         .thenReturn(queryResult);
     var expectedMap = Map.of(
         submissionDetail.getId().toString(),
         "Submission 1: Prospect create (Pending approval)");
     var modelAndView = new ModelAndView();
     assertThat(submissionHistorySearchSelectorModelService.addViewSorSubmissionSearchSelectorItemsToModelAndView(
-        modelAndView, submissionDetail.getResourceId().getId()).getModelMap())
+        modelAndView, submissionDetail.getSubmission().getResource().getId()).getModelMap())
         .containsExactly(
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-                .viewSubmission(submissionDetail.getResourceId().getId(), null))),
+                .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
             entry("submissionsOnResource", expectedMap));
   }
 
@@ -54,17 +54,17 @@ class SubmissionHistorySearchSelectorModelServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setApprovedTimestamp(Instant.now());
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
-    when(submissionHistoryQueryService.getApprovedAndSubmittedSubmissionsOnResource(submissionDetail.getResourceId().getId()))
+    when(submissionHistoryQueryService.getApprovedAndSubmittedSubmissionsOnResource(submissionDetail.getSubmission().getResource().getId()))
         .thenReturn(queryResult);
     var expectedMap = Map.of(
         submissionDetail.getId().toString(),
         "Submission 1: Prospect create (Pending approval)");
     var modelAndView = new ModelAndView();
     assertThat(submissionHistorySearchSelectorModelService.addReviewSubmissionSearchSelectorItemsToModelAndView(
-        modelAndView, submissionDetail.getResourceId().getId()).getModelMap())
+        modelAndView, submissionDetail.getSubmission().getResource().getId()).getModelMap())
         .containsExactly(
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .viewSubmission(submissionDetail.getResourceId().getId(), null))),
+                .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
             entry("submissionsOnResource", expectedMap));
   }
 
@@ -83,7 +83,8 @@ class SubmissionHistorySearchSelectorModelServiceTest {
         SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(approvedSubmissiondetail)
     );
 
-    when(submissionHistoryQueryService.getApprovedAndSubmittedSubmissionsOnResource(selectedSubmissionDetail.getResourceId().getId()))
+    when(submissionHistoryQueryService.getApprovedAndSubmittedSubmissionsOnResource(
+        selectedSubmissionDetail.getSubmission().getResource().getId()))
         .thenReturn(queryResult);
     var expectedMap = Map.of(
         selectedSubmissionDetail.getId().toString(),
@@ -93,10 +94,10 @@ class SubmissionHistorySearchSelectorModelServiceTest {
     );
     var modelAndView = new ModelAndView();
     assertThat(submissionHistorySearchSelectorModelService.addReviewSubmissionSearchSelectorItemsToModelAndView(
-        modelAndView, selectedSubmissionDetail.getResourceId().getId()).getModelMap())
+        modelAndView, selectedSubmissionDetail.getSubmission().getResource().getId()).getModelMap())
         .containsExactly(
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .viewSubmission(selectedSubmissionDetail.getResourceId().getId(), null))),
+                .viewSubmission(selectedSubmissionDetail.getSubmission().getResource().getId(), null))),
             entry("submissionsOnResource", expectedMap));
   }
 }

@@ -13,7 +13,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
@@ -21,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.SubmissionRecordSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 public class SubmissionIntegrationTestUtils {
 
@@ -141,19 +141,29 @@ public class SubmissionIntegrationTestUtils {
     return regulatorManagedInformation;
   }
 
-  public static SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType, EntityManager entityManager) {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  public static SubmissionDetail createSubmissionDetail(Submission submission,
+                                                        SubmissionType submissionType,
+                                                        EntityManager entityManager) {
+    var submissionDetail = new SubmissionDetail();
     submissionDetail.setId(null);
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     submissionDetail.setCreatedTimestamp(Instant.now().minusSeconds(100));
+    submissionDetail.setCreatedByWuaId(1);
     submissionDetail.setSubmittedTimestamp(Instant.now().minusSeconds(50));
     submissionDetail.setApprovedTimestamp(Instant.now());
-    submissionDetail.setResourceId(resource);
-
+    submissionDetail.setSubmission(submission);
     entityManager.persist(submissionDetail);
     entityManager.flush();
 
     return submissionDetail;
+  }
+
+  public static Submission createSubmission(Resource resource, EntityManager entityManager) {
+    var submission = new Submission();
+    submission.setResource(resource);
+    entityManager.persist(submission);
+    entityManager.flush();
+    return submission;
   }
 }

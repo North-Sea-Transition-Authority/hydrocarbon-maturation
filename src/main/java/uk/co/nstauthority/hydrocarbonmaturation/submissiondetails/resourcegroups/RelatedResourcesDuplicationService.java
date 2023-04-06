@@ -22,7 +22,8 @@ class RelatedResourcesDuplicationService implements SubmissionSectionDuplication
   @Override
   @Transactional
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (oldSubmissionDetail.getResourceId().getType() == newSubmissionDetail.getResourceId().getType()) {
+    if (oldSubmissionDetail.getSubmission().getResource().getType()
+        == newSubmissionDetail.getSubmission().getResource().getType()) {
       relatedResourcesPersistenceService.getRelatedResource(oldSubmissionDetail)
           .ifPresent(relatedResource ->
               submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,

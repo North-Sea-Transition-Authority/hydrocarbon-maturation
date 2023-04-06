@@ -32,8 +32,8 @@ public class ResourceGroupService {
     relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail)
         .ifPresent(relatedResource -> {
 
-          var relatedResourceResource = relatedResource.getRelatedSubmissionDetail().getResourceId();
-          var currentResourceResource = submissionDetail.getResourceId();
+          var relatedResourceResource = relatedResource.getRelatedSubmissionDetail().getSubmission().getResource();
+          var currentResourceResource = submissionDetail.getSubmission().getResource();
 
           var resourceGroupLinkOptional = resourceGroupLinksRepository.findByResource(relatedResourceResource);
 

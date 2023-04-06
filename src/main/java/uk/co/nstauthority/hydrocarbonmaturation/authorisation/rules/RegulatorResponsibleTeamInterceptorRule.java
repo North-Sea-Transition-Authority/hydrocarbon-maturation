@@ -43,7 +43,7 @@ public class RegulatorResponsibleTeamInterceptorRule implements SubmissionInterc
                                   ServiceUserDetail userDetails,
                                   SubmissionDetail submissionDetail) {
     var responsibleTeam = regulatorManagedInformationPersistenceService
-        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId());
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
     var permissionsRequired = responsibleTeam.getResponsibleTeamType().getRolePermissions();
     if (permissionService.hasPermission(userDetails, permissionsRequired)) {
       return SecurityRuleResult.continueAsNormal();

@@ -78,7 +78,7 @@ public class RelatedResourcesController {
         .addObject("relatedSubmissionDetail", relatedResourcesFormService.getPreSelectedSubmissionDetail(
             form))
         .addObject("resourceType",
-            submissionDetail.getResourceId().getType().getDisplayName().toLowerCase())
+            submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase())
         .addObject("pageTitle", pageName);
 
     if (submissionDetail.isProspectSubmission()) {

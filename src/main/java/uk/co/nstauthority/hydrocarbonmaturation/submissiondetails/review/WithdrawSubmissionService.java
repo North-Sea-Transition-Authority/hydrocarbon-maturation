@@ -61,7 +61,7 @@ class WithdrawSubmissionService {
       return false;
     }
     var responsibleTeam = regulatorManagedInformationPersistenceService
-        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId());
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
     return responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION
         && regulatorTeamService.isRegulatorTeamRole(
         userDetailService.getUserDetail(), RegulatorTeamRole.EXPLORATION);

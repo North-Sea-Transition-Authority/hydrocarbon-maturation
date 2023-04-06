@@ -38,7 +38,8 @@ class RegulatorTeamMembershipInterceptorRuleTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var regulatorManagedInformation = new RegulatorManagedInformation();
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail
+        .getSubmission().getResource()))
         .thenReturn(regulatorManagedInformation);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(true);
@@ -58,7 +59,7 @@ class RegulatorTeamMembershipInterceptorRuleTest {
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-        submissionDetail.getResourceId()))
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(regulatorManagedInformation);
 
     var securityRuleResult = regulatorTeamMembershipInterceptorRule
@@ -75,7 +76,7 @@ class RegulatorTeamMembershipInterceptorRuleTest {
     submissionDetail.setSubmitterType(SubmitterType.NSTA);
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-        submissionDetail.getResourceId()))
+        submissionDetail.getSubmission().getResource()))
         .thenReturn(regulatorManagedInformation);
 
     var securityRuleResult = regulatorTeamMembershipInterceptorRule
@@ -93,7 +94,7 @@ class RegulatorTeamMembershipInterceptorRuleTest {
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     when(regulatorManagedInformationPersistenceService
-        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getResourceId()))
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(regulatorManagedInformation);
     when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
         .thenReturn(true);

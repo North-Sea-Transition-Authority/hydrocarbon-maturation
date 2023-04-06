@@ -82,7 +82,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
       listOfItems.add(
           new TaskListItem("Related %s"
               .formatted(
-                  submissionDetail.getResourceId().getType() == ResourceType.DISCOVERY
+                  submissionDetail.getSubmission().getResource().getType() == ResourceType.DISCOVERY
                       ? "discoveries"
                       : "prospects"),
               TaskListLabel.notStartedOrComplete(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)),

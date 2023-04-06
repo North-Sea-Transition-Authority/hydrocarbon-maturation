@@ -56,7 +56,8 @@ class ResourceGroupQueryServiceTest {
 
       var resourceGroupLink = new ResourceGroupLink();
       resourceGroupLink.setPreferredView(true);
-      when(resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())).thenReturn(Optional.of(resourceGroupLink));
+      when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource()))
+          .thenReturn(Optional.of(resourceGroupLink));
 
       var resultList = resourceGroupQueryService.getProspectsAndGroupsByName(SEARCH_TERM);
 
@@ -78,7 +79,7 @@ class ResourceGroupQueryServiceTest {
 
       var resourceGroupLink = new ResourceGroupLink();
       resourceGroupLink.setPreferredView(false);
-      when(resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())).thenReturn(Optional.of(resourceGroupLink));
+      when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource())).thenReturn(Optional.of(resourceGroupLink));
 
       var resultList = resourceGroupQueryService.getProspectsAndGroupsByName(SEARCH_TERM);
 
@@ -88,7 +89,7 @@ class ResourceGroupQueryServiceTest {
     @Test
     void prospectIsNotInGroup_ReturnToList() {
 
-      when(resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())).thenReturn(Optional.empty());
+      when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource())).thenReturn(Optional.empty());
 
       var resultList = resourceGroupQueryService.getProspectsAndGroupsByName(SEARCH_TERM);
 
@@ -129,7 +130,8 @@ class ResourceGroupQueryServiceTest {
 
       var resourceGroupLink = new ResourceGroupLink();
       resourceGroupLink.setPreferredView(true);
-      when(resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())).thenReturn(Optional.of(resourceGroupLink));
+      when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource()))
+          .thenReturn(Optional.of(resourceGroupLink));
 
       var resultList = resourceGroupQueryService.getDiscoveriesAndGroupsByName(SEARCH_TERM);
 
@@ -151,7 +153,8 @@ class ResourceGroupQueryServiceTest {
 
       var resourceGroupLink = new ResourceGroupLink();
       resourceGroupLink.setPreferredView(false);
-      when(resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())).thenReturn(Optional.of(resourceGroupLink));
+      when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource()))
+          .thenReturn(Optional.of(resourceGroupLink));
 
       var resultList = resourceGroupQueryService.getDiscoveriesAndGroupsByName(SEARCH_TERM);
 
@@ -161,7 +164,8 @@ class ResourceGroupQueryServiceTest {
     @Test
     void discoveryIsNotInGroup_ReturnToList() {
 
-      when(resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())).thenReturn(Optional.empty());
+      when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource()))
+          .thenReturn(Optional.empty());
 
       var resultList = resourceGroupQueryService.getDiscoveriesAndGroupsByName(SEARCH_TERM);
 

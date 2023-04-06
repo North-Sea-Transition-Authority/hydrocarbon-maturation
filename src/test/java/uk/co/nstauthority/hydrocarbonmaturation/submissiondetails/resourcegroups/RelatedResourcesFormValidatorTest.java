@@ -80,7 +80,7 @@ class RelatedResourcesFormValidatorTest {
 
   @Test
   void validate_whenInValidForm_noRelatedSubmissionDetail_thenValidationErrors() {
-    submissionDetail.getResourceId().setType(ResourceType.PROSPECT);
+    submissionDetail.getSubmission().getResource().setType(ResourceType.PROSPECT);
     var form = getValidRelatedProspectsForm();
     form.setRelatedToAnotherResource(true);
     form.setSubmissionDetailIdOfRelatedResource(null);
@@ -102,7 +102,7 @@ class RelatedResourcesFormValidatorTest {
 
   @Test
   void validate_whenInValidForm_noPreferredView_thenValidationErrors() {
-    submissionDetail.getResourceId().setType(ResourceType.PROSPECT);
+    submissionDetail.getSubmission().getResource().setType(ResourceType.PROSPECT);
     var form = getValidRelatedProspectsForm();
     form.setRelatedToAnotherResource(true);
     form.setSubmissionDetailIdOfRelatedResource("1a3");
@@ -125,7 +125,7 @@ class RelatedResourcesFormValidatorTest {
 
   @Test
   void validate_whenDiscovery_noPreferredView_thenValidationErrors_assertResourceType() {
-    submissionDetail.getResourceId().setType(ResourceType.DISCOVERY);
+    submissionDetail.getSubmission().getResource().setType(ResourceType.DISCOVERY);
     var form = getValidRelatedProspectsForm();
     form.setRelatedToAnotherResource(true);
     form.setSubmissionDetailIdOfRelatedResource(null);

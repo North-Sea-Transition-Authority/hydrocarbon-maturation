@@ -47,7 +47,8 @@ class ResourceGroupQueryService {
   public Optional<ResourceGroupView> getResourceGroupViewForSumbissionDetail(SubmissionDetail submissionDetail) {
     var resourceName = submissionResourceService.getResourceNameOrDefault(submissionDetail);
 
-    var resourceGroupLink = resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId());
+    var resourceGroupLink = resourceGroupLinksRepository.findByResource(
+        submissionDetail.getSubmission().getResource());
 
     var isInGroup = resourceGroupLink.isPresent();
 

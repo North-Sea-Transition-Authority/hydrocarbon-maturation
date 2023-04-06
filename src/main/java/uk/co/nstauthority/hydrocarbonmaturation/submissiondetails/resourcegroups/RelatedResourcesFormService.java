@@ -60,7 +60,7 @@ class RelatedResourcesFormService implements SubmissionFormService {
             if (resourceGroupViewOptional.isPresent()) {
               form.setSubmissionDetailIdOfRelatedResource(submissionDetail.getId().toString());
             } else {
-              resourceGroupLinksRepository.findByResource(submissionDetail.getResourceId())
+              resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource())
                   .map(ResourceGroupLink::getResourceGroupId)
                   .flatMap(resourceGroupLinksRepository::findByResourceGroupIdAndPreferredViewIsTrue)
                   .map(ResourceGroupLink::getResource)
@@ -89,7 +89,7 @@ class RelatedResourcesFormService implements SubmissionFormService {
         .map(ResourceGroupView::resourceName)
         .orElseThrow(() -> new IllegalStateException(
             "Could not get resource name for the latest approved submission of resource with ID %s"
-                .formatted(submissionDetail.getResourceId().getId())));
+                .formatted(submissionDetail.getSubmission().getResource().getId())));
 
     return searchSelectorService.buildPrePopulatedSelections(
         Collections.singletonList(submissionDetailId),
