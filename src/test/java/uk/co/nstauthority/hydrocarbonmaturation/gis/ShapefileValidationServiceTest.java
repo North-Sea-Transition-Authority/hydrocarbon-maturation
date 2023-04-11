@@ -14,8 +14,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 @IntegrationTest
 class ShapefileValidationServiceTest {
 
-  private static final String SHAPEFILE_RESOURCE_LOCATION = "classpath:shapefiles/test.shp";
-  private static final String SHAPEFILE_PROJECT_RESOURCE_LOCATION = "classpath:shapefiles/test.prj";
+  public static final String CLASSPATH_SHAPEFILES = "classpath:shapefiles";
+  private static final String SHAPEFILE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.shp";
+  private static final String NOT_SIMPLE_SHAPEFILE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/not_simple.shp";
+  private static final String NOT_SIMPLE_OGC_SHAPEFILE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/not_simple_ogc.shp";
+  private static final String SHAPEFILE_PROJECT_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.prj";
 
   @Autowired
   private ShapefileImportService shapefileImportService;
@@ -23,8 +26,8 @@ class ShapefileValidationServiceTest {
   private ShapefileValidationService shapefileValidationService;
 
   @Test
-  void isGeometryValid() throws IOException {
-    var geometry = getGeometryFromShapefile();
+  void isGeometryValid_SimplePolygon_True() throws IOException {
+    var geometry = getGeometryFromShapefile(SHAPEFILE_RESOURCE_LOCATION);
     var spatialReference = getSpatialReferenceFromShapefileProject();
 
     var result = shapefileValidationService.isGeometryValid(spatialReference, geometry);
@@ -33,8 +36,15 @@ class ShapefileValidationServiceTest {
   }
 
   @Test
-  void isGeometryValidStrict() throws IOException {
-    var geometry = getGeometryFromShapefile();
+  void isGeometryValid_NonSimple_False() throws IOException {
+    var geometry = getGeometryFromShapefile(NOT_SIMPLE_SHAPEFILE_RESOURCE_LOCATION);
+
+    assertThat(shapefileValidationService.isGeometryValid(null, geometry)).isFalse();
+  }
+
+  @Test
+  void isGeometryValidStrict_SimplePolygon_True() throws IOException {
+    var geometry = getGeometryFromShapefile(SHAPEFILE_RESOURCE_LOCATION);
     var spatialReference = getSpatialReferenceFromShapefileProject();
 
     var result = shapefileValidationService.isGeometryValidStrict(spatialReference, geometry);
@@ -43,16 +53,23 @@ class ShapefileValidationServiceTest {
   }
 
   @Test
+  void isGeometryValidStrict_NonSimpleOgc_False() throws IOException {
+    var geometry = getGeometryFromShapefile(NOT_SIMPLE_OGC_SHAPEFILE_RESOURCE_LOCATION);
+
+    assertThat(shapefileValidationService.isGeometryValidStrict(null, geometry)).isFalse();
+  }
+
+  @Test
   void validateGeometryIsOfType() throws IOException {
-    var geometry = getGeometryFromShapefile();
+    var geometry = getGeometryFromShapefile(SHAPEFILE_RESOURCE_LOCATION);
 
     var result = shapefileValidationService.validateGeometryIsOfType(geometry, Geometry.Type.Polygon);
 
     assertThat(result).isTrue();
   }
 
-  private Geometry getGeometryFromShapefile() throws IOException {
-    try (var shapefileStream = new FileInputStream(ResourceUtils.getFile(SHAPEFILE_RESOURCE_LOCATION))) {
+  private Geometry getGeometryFromShapefile(String shapefileResourceLocation) throws IOException {
+    try (var shapefileStream = new FileInputStream(ResourceUtils.getFile(shapefileResourceLocation))) {
       var geometryList = shapefileImportService.importShapefileAsGeometryList(shapefileStream);
       return geometryList.get(0);
     }

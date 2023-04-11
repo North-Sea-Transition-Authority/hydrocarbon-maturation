@@ -253,7 +253,7 @@ public class ShapefileGeometryLoader {
     };
   }
 
-  record ShapefileHeader(int fileLength, Geometry.Type geometryType) {}
+  public record ShapefileHeader(int fileLength, Geometry.Type geometryType) {}
 
   record RecordHeader(int recordId, int recordSizeBytes) {}
 }

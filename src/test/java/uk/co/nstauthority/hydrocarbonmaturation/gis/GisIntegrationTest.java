@@ -1,9 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.SpatialReference;
+import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,13 +14,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
+import uk.co.nstauthority.hydrocarbonmaturation.gis.esri.ShapefileGeometryLoader;
 
 @IntegrationTest
 class GisIntegrationTest {
 
-  private static final String SHAPEFILE_RESOURCE_LOCATION = "classpath:shapefiles/test.shp";
-  private static final String GEOJSON_RESOURCE_LOCATION = "classpath:shapefiles/test.json";
-  private static final String SHAPEFILE_PROJECT_RESOURCE_LOCATION = "classpath:shapefiles/test.prj";
+  private static final String CLASSPATH_SHAPEFILES = "classpath:shapefiles";
+  private static final String SHAPEFILE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.shp";
+  private static final String SHAPEFILE_PROJECT_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.prj";
+  private static final String EMPTY_SHAPEFILE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/empty.shp";
+  private static final String CORRUPT_SHAPEFILE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/corrupt.shp";
+  private static final String GEOJSON_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.json";
 
   @Autowired
   private ShapefileImportService shapefileImportService;
@@ -36,6 +42,21 @@ class GisIntegrationTest {
     assertThat(result).isEqualTo(geoJson);
   }
 
+  @Test
+  void importEmptyShapefile_ShouldReturnEmptyGeometryList() throws IOException {
+    var geometries = importShapefile(EMPTY_SHAPEFILE_RESOURCE_LOCATION);
+
+    assertThat(geometries.getShapefileHeader().geometryType()).isEqualTo(Geometry.Type.Point);
+    assertThat(geometries.getGeometryList()).isEmpty();
+  }
+
+  @Test
+  void importCorruptShapefile_ThrowsException() {
+    assertThrows(EOFException.class, () ->
+        importShapefile(CORRUPT_SHAPEFILE_RESOURCE_LOCATION)
+    );
+  }
+
   private static String getPreConvertedGeoJson() throws IOException {
     try (var jsonStream = new FileInputStream(ResourceUtils.getFile(GEOJSON_RESOURCE_LOCATION))) {
       return new String(jsonStream.readAllBytes(), StandardCharsets.UTF_8);
@@ -43,8 +64,14 @@ class GisIntegrationTest {
   }
 
   private List<Geometry> importShapefileAsGeometryList() throws IOException {
-    try (var shapefileStream = new FileInputStream(ResourceUtils.getFile(SHAPEFILE_RESOURCE_LOCATION))) {
+    try (var shapefileStream = new FileInputStream(ResourceUtils.getFile(GisIntegrationTest.SHAPEFILE_RESOURCE_LOCATION))) {
       return shapefileImportService.importShapefileAsGeometryList(shapefileStream);
+    }
+  }
+
+  private ShapefileGeometryLoader importShapefile(String shapefileResourceLocation) throws IOException {
+    try (var shapefileStream = new FileInputStream(ResourceUtils.getFile(shapefileResourceLocation))) {
+      return new ShapefileGeometryLoader(shapefileStream);
     }
   }
 
