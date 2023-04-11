@@ -510,45 +510,6 @@ BEGIN
 
         END IF;
 
-        -- oil equivalent recoverable resources
-        IF COALESCE(
-            mixed_output_rec.oilequiv_recoverable_p99,
-            mixed_output_rec.oilequiv_recoverable_p90,
-            mixed_output_rec.oilequiv_recoverable_mode,
-            mixed_output_rec.oilequiv_recoverable_p50,
-            mixed_output_rec.oilequiv_recoverable_mean,
-            mixed_output_rec.oilequiv_recoverable_p10,
-            mixed_output_rec.oilequiv_recoverable_p01
-        ) IS NOT NULL THEN
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1
-            ) VALUES (
-                gen_random_uuid(),
-                mixed_output_rec.sd_id,
-                custom_dist_type,
-                'MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES',
-                abs(mixed_output_rec.oilequiv_recoverable_p99),
-                abs(mixed_output_rec.oilequiv_recoverable_p90),
-                abs(mixed_output_rec.oilequiv_recoverable_mode),
-                abs(mixed_output_rec.oilequiv_recoverable_p50),
-                abs(mixed_output_rec.oilequiv_recoverable_mean),
-                abs(mixed_output_rec.oilequiv_recoverable_p10),
-                abs(mixed_output_rec.oilequiv_recoverable_p01)
-            );
-
-        END IF;
-
         -- gas in place
         IF COALESCE(
             mixed_output_rec.gas_inplace_p99,

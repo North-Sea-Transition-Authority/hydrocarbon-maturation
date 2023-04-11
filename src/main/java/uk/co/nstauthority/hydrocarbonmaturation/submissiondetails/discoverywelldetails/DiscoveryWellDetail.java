@@ -15,6 +15,7 @@ public class DiscoveryWellDetail extends DrillDetail implements SubmissionDetail
   @Enumerated(EnumType.STRING)
   private HydrocarbonsDiscovered hydrocarbonsDiscovered;
 
+  @Enumerated(EnumType.STRING)
   private DiscoveryStatus discoveryStatus;
 
   private String chanceOfCommercialityComments;
