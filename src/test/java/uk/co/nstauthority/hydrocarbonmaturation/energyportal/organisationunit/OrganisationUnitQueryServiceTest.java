@@ -421,4 +421,61 @@ class OrganisationUnitQueryServiceTest {
 
     verify(searchSelectorService).buildPrePopulatedSelection("1", "name (25)");
   }
+
+  @Test
+  void getOrganisationUnitNameAndNumberByIdOrEmpty_whenNullId_assertEmpty() {
+    var result = organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(null);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void getOrganisationUnitNameAndNumberByIdOrEmpty_whenNotInPortal_assertEmpty() {
+    var orgId = 1;
+    when(organisationApi.findOrganisationUnit(
+        eq(orgId),
+        eq(OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT),
+        any(),
+        any()
+    )).thenReturn(Optional.empty());
+    var result = organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(orgId);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void getOrganisationUnitNameAndNumberByIdOrEmpty_whenNoNumber_assertName() {
+    var orgId = 1;
+
+    when(organisationApi.findOrganisationUnit(
+        eq(orgId),
+        eq(OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT),
+        any(),
+        any()
+    )).thenReturn(Optional.of(OrganisationUnit.newBuilder()
+        .name(ORGANISATION_UNIT_NAME)
+        .registeredNumber(null)
+        .build()));
+    var result = organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(orgId);
+
+    assertThat(result).isEqualTo(ORGANISATION_UNIT_NAME);
+  }
+
+  @Test
+  void getOrganisationUnitNameAndNumberByIdOrEmpty_assertNameAndNumber() {
+    var orgId = 1;
+
+    when(organisationApi.findOrganisationUnit(
+        eq(orgId),
+        eq(OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT),
+        any(),
+        any()
+    )).thenReturn(Optional.of(OrganisationUnit.newBuilder()
+        .registeredNumber(ORGANISATION_COMPANY_NUMBER)
+        .name(ORGANISATION_UNIT_NAME).build()));
+    var result = organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(orgId);
+
+    assertThat(result).isEqualTo("%s (%s)"
+        .formatted(ORGANISATION_UNIT_NAME, ORGANISATION_COMPANY_NUMBER));
+  }
 }

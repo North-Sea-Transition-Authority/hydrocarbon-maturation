@@ -2,10 +2,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetai
 
 public record ResourceDetailSummaryView(String resourceName,
                                         String organisationNameAndNumber,
+                                        boolean showOrganisationNameAtTimeOfApproval,
+                                        String organisationNameAndNumberAtTimeOfApproval,
                                         String onshoreOffshore,
                                         String resourceType) {
   public static ResourceDetailSummaryView empty(String resourceType) {
     return new ResourceDetailSummaryView(
-        "", "", "", resourceType);
+        "", "", false, "", "", resourceType);
   }
 }

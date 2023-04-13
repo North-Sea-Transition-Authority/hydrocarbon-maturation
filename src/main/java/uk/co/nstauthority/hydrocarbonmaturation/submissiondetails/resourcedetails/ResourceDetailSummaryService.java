@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetai
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
@@ -10,10 +11,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 public class ResourceDetailSummaryService {
 
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
-  public ResourceDetailSummaryService(ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
+  public ResourceDetailSummaryService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+                                      OrganisationUnitQueryService organisationUnitQueryService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+    this.organisationUnitQueryService = organisationUnitQueryService;
   }
 
   public ResourceDetailSummaryView getResourceDetailSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -26,9 +30,15 @@ public class ResourceDetailSummaryService {
   }
 
   private ResourceDetailSummaryView createSummaryViewFromResourceDetail(ResourceDetail detail) {
+    var orgNameAtTimeOfApproval =  getSavedOrganisationDisplay(detail);
+    var currentOrganisationNameAndNumber = getCurrentOrganisationDisplay(detail);
+    var draftOrSubmitted = detail.getSubmissionDetail().isDraftOrSubmittedSubmission();
+    var showNameAtTimeOfApproval = !draftOrSubmitted && !orgNameAtTimeOfApproval.equals(currentOrganisationNameAndNumber);
     return new ResourceDetailSummaryView(
         StringUtils.defaultIfBlank(detail.getResourceName(), ""),
-        getOrganisationDisplay(detail),
+        currentOrganisationNameAndNumber,
+        showNameAtTimeOfApproval,
+        orgNameAtTimeOfApproval,
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(detail.getOnshoreOffshore()),
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(
             detail.getSubmissionDetail().getSubmission().getResource().getType())
@@ -36,7 +46,7 @@ public class ResourceDetailSummaryService {
     );
   }
 
-  private String getOrganisationDisplay(ResourceDetail detail) {
+  private String getSavedOrganisationDisplay(ResourceDetail detail) {
     var organisationName = detail.getOrganisationName();
     var organisationRegisteredNumber = detail.getOrganisationRegisteredNumber();
     var organisationDisplay = "";
@@ -49,6 +59,10 @@ public class ResourceDetailSummaryService {
       }
     }
     return organisationDisplay;
+  }
+
+  private String getCurrentOrganisationDisplay(ResourceDetail detail) {
+    return organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(detail.getOrganisationId());
   }
 }
 

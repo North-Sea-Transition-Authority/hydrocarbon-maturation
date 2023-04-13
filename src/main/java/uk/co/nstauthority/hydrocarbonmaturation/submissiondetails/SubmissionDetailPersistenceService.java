@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -17,18 +18,21 @@ public class SubmissionDetailPersistenceService {
   private final UserDetailService userDetailService;
   private final ResourceGroupService resourceGroupService;
   private final RegulatorTeamService regulatorTeamService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @Autowired
   public SubmissionDetailPersistenceService(SubmissionDetailRepository submissionDetailRepository,
                                             Clock clock,
                                             UserDetailService userDetailService,
                                             ResourceGroupService resourceGroupService,
-                                            RegulatorTeamService regulatorTeamService) {
+                                            RegulatorTeamService regulatorTeamService,
+                                            ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
     this.submissionDetailRepository = submissionDetailRepository;
     this.clock = clock;
     this.userDetailService = userDetailService;
     this.resourceGroupService = resourceGroupService;
     this.regulatorTeamService = regulatorTeamService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
   }
 
   SubmissionDetail createInitialSubmissionDetail(Submission submission,
@@ -55,6 +59,8 @@ public class SubmissionDetailPersistenceService {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     submissionDetail.setApprovedTimestamp(clock.instant());
     submissionDetail.setApprovedByWuaId(userDetailService.getUserWuaId());
+
+    resourceDetailsPersistenceService.updateOrganisationName(submissionDetail);
     submissionDetailRepository.save(submissionDetail);
 
     if (submissionDetail.isInitialResourceSubmission()) {

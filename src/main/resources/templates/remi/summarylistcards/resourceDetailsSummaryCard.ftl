@@ -9,6 +9,11 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Responsible organisation">
       ${resourceDetailValues.organisationNameAndNumber()}
     </@fdsSummaryList.summaryListRowNoAction>
+    <#if resourceDetailValues.showOrganisationNameAtTimeOfApproval()>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Name at time of approval">
+        ${resourceDetailValues.organisationNameAndNumberAtTimeOfApproval()}
+      </@fdsSummaryList.summaryListRowNoAction>
+    </#if>
     <@fdsSummaryList.summaryListRowNoAction keyText="Onshore or offshore">
       ${resourceDetailValues.onshoreOffshore()}
     </@fdsSummaryList.summaryListRowNoAction>

@@ -87,15 +87,7 @@ public class OrganisationUnitQueryService {
       return Map.of();
     }
 
-    var key = findOrganisationUnit(organisationUnitId)
-        .map(organisationUnit -> {
-          if (organisationUnit.getRegisteredNumber() != null) {
-            return "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber());
-          }
-
-          return organisationUnit.getName();
-        })
-        .orElse("");
+    var key = getOrganisationUnitNameAndNumberByIdOrEmpty(organisationUnitId);
 
     return searchSelectorService.buildPrePopulatedSelection(String.valueOf(organisationUnitId), key);
   }
@@ -109,6 +101,22 @@ public class OrganisationUnitQueryService {
             requestPurpose,
             logCorrelationId)
     );
+  }
+
+  public String getOrganisationUnitNameAndNumberByIdOrEmpty(Integer organisationUnitId) {
+    if (organisationUnitId == null) {
+      return "";
+    }
+    return findOrganisationUnit(organisationUnitId)
+        .map(organisationUnit -> {
+          if (organisationUnit.getRegisteredNumber() != null) {
+            return "%s (%s)"
+                .formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber());
+          } else {
+            return organisationUnit.getName();
+          }
+        })
+        .orElse("");
   }
 
   public List<Integer> findOrganisationGroupIdsByUnitId(Integer organisationUnitId) {

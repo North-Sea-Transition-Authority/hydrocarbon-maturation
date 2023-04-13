@@ -85,4 +85,19 @@ public class ResourceDetailsPersistenceService {
   public List<ResourceDetail> getResourceDetailsByName(String name) {
     return resourceDetailsRepository.findByResourceNameContainingIgnoreCase(name);
   }
+
+  @Transactional
+  public void updateOrganisationName(SubmissionDetail submissionDetail) {
+    getResourceDetailBySubmissionDetail(submissionDetail)
+        .ifPresent(resourceDetail -> {
+          if (resourceDetail.getOrganisationId() != null) {
+            organisationUnitQueryService.findOrganisationUnit(resourceDetail.getOrganisationId())
+                .ifPresent(organisationUnit -> {
+                  resourceDetail.setOrganisationName(organisationUnit.getName());
+                  resourceDetail.setOrganisationRegisteredNumber(organisationUnit.getRegisteredNumber());
+                  resourceDetailsRepository.save(resourceDetail);
+                });
+          }
+        });
+  }
 }

@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -42,6 +43,8 @@ class SubmissionDetailPersistenceServiceTest {
   private ResourceGroupService resourceGroupService;
   @Mock
   private RegulatorTeamService regulatorTeamService;
+  @Mock
+  private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
@@ -49,7 +52,7 @@ class SubmissionDetailPersistenceServiceTest {
   void setUp() {
     var clock = Clock.fixed(Instant.from(INSTANT), ZoneId.systemDefault());
     submissionDetailPersistenceService = new SubmissionDetailPersistenceService(submissionDetailRepository, clock, userDetailService, resourceGroupService,
-        regulatorTeamService);
+        regulatorTeamService, resourceDetailsPersistenceService);
   }
 
   @Test
@@ -136,6 +139,8 @@ class SubmissionDetailPersistenceServiceTest {
             SubmissionDetailStatus.APPROVED
         );
     verify(submissionDetailRepository, times(1)).save(submissionDetail);
+    verify(resourceDetailsPersistenceService, times(1))
+        .updateOrganisationName(submissionDetail);
     if (submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.CREATE_DISCOVERY
         || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {

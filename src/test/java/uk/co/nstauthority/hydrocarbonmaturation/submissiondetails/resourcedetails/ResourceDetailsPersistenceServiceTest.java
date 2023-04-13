@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -217,5 +218,55 @@ class ResourceDetailsPersistenceServiceTest {
     resourceDetailsPersistenceService.getResourceDetailsByName("prospect");
     verify(resourceDetailsRepository, times(1))
         .findByResourceNameContainingIgnoreCase("prospect");
+  }
+
+  @Test
+  void updateOrganisationName_ifResourceDetailAndOrgUnitPresent_assertUpdated() {
+    var resourceDetails = new ResourceDetail();
+    resourceDetails.setOrganisationId(1);
+    resourceDetails.setOrganisationName("Old name");
+    resourceDetails.setOrganisationRegisteredNumber("25");
+    var captor = ArgumentCaptor.forClass(ResourceDetail.class);
+    when(resourceDetailsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetails));
+    when(organisationUnitQueryService.findOrganisationUnit(resourceDetails.getOrganisationId()))
+        .thenReturn(Optional.of(OrganisationUnitTestUtil.Builder()
+            .withOrganisationNumber("25")
+            .withOrganisationName("New name")
+            .build()));
+    resourceDetailsPersistenceService.updateOrganisationName(submissionDetail);
+    verify(resourceDetailsRepository, times(1))
+        .save(captor.capture());
+    var result = captor.getValue();
+    assertThat(result)
+        .extracting(
+            ResourceDetail::getOrganisationId,
+            ResourceDetail::getOrganisationName,
+            ResourceDetail::getOrganisationRegisteredNumber)
+        .containsExactly(1, "New name", "25");
+
+    assertThat(result)
+        .hasAllNullFieldsOrPropertiesExcept(
+            "organisationId", "organisationName", "organisationRegisteredNumber");
+  }
+
+  @Test
+  void updateOrganisationName_ifResourceDetailNotPresent_assertNotUpdated() {
+    when(resourceDetailsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    resourceDetailsPersistenceService.updateOrganisationName(submissionDetail);
+    verifyNoMoreInteractions(resourceDetailsRepository);
+  }
+
+  @Test
+  void updateOrganisationName_ifResourceDetailOrgIdNotPresent_assertNotUpdated() {
+    var resourceDetails = new ResourceDetail();
+    resourceDetails.setOrganisationId(null);
+    when(resourceDetailsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetails));
+
+    resourceDetailsPersistenceService.updateOrganisationName(submissionDetail);
+    verifyNoMoreInteractions(resourceDetailsRepository);
   }
 }
