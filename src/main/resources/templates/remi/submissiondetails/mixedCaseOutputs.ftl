@@ -28,16 +28,14 @@
   breadcrumbsMap=breadcrumbsMap>
   <@fdsForm.htmlForm>
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-      probabilityDistributionTypePath="form.oilInPlace.probabilityDistributionType"
+      probabilityDistributionPath="form.oilInPlace"
       labelText="Oil in place"
-      formId="oilInPlace"
       template=oilInPlaceTemplate
       error=oilInPlaceError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-      probabilityDistributionTypePath="form.oilRecoverableResources.probabilityDistributionType"
+      probabilityDistributionPath="form.oilRecoverableResources"
       labelText="Oil recoverable resources"
-      formId="oilRecoverableResources"
       template=oilRecoverableResourcesTemplate
       error=oilRecoverableResourcesError/>
 
@@ -45,9 +43,8 @@
       labelText="Do you expect to find associated gas recoverable resources?">
       <@fdsRadio.radioYes path="form.hasAssociatedGasRecoverableResources">
         <@probabilityDistribution.probabilityDistributionCustomTemplate
-          probabilityDistributionTypePath="form.associatedGasRecoverableResources.probabilityDistributionType"
+          probabilityDistributionPath="form.associatedGasRecoverableResources"
           labelText="Associated gas recoverable resources"
-          formId="associatedGasRecoverableResources"
           template=associatedGasRecoverableResourcesTemplate
           error=associatedGasRecoverableResourcesError/>
       </@fdsRadio.radioYes>
@@ -55,30 +52,26 @@
     </@fdsRadio.radioGroup>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-      probabilityDistributionTypePath="form.gasInPlace.probabilityDistributionType"
+      probabilityDistributionPath="form.gasInPlace"
       labelText="Gas in place"
-      formId="gasInPlace"
       template=gasInPlaceTemplate
       error=gasInPlaceError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-      probabilityDistributionTypePath="form.gasRecoverableResources.probabilityDistributionType"
+      probabilityDistributionPath="form.gasRecoverableResources"
       labelText="Gas recoverable resources"
-      formId="gasRecoverableResources"
       template=gasRecoverableResourcesTemplate
       error=gasRecoverableResourcesError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-      probabilityDistributionTypePath="form.associatedCondensateRecoverableResources.probabilityDistributionType"
+      probabilityDistributionPath="form.associatedCondensateRecoverableResources"
       labelText="Associated condensate recoverable resources"
-      formId="associatedCondensateRecoverableResources"
       template=associatedCondensateRecoverableResourcesTemplate
       error=associatedCondensateRecoverableResourcesError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-      probabilityDistributionTypePath="form.oilEquivalentRecoverableResources.probabilityDistributionType"
+      probabilityDistributionPath="form.oilEquivalentRecoverableResources"
       labelText="Oil equivalent recoverable resources"
-      formId="oilEquivalentRecoverableResources"
       template=oilEquivalentRecoverableResourcesTemplate
       error=oilEquivalentRecoverableResourcesError/>
 

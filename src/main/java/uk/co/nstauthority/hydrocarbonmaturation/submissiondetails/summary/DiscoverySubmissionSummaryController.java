@@ -39,7 +39,7 @@ public class DiscoverySubmissionSummaryController {
   private final SubmissionReadyService submissionReadyService;
   private final SubmissionApprovalService submissionApprovalService;
 
-  public static final String PAGE_NAME = "Check your answers before submitting";
+  public static final String PAGE_NAME = "Review your submission before submitting";
 
   @Autowired
   public DiscoverySubmissionSummaryController(SubmissionDetailService submissionDetailService,
@@ -87,6 +87,7 @@ public class DiscoverySubmissionSummaryController {
 
     modelAndView
         .addObject("form", form)
+        .addObject("pageName", PAGE_NAME)
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())))
         .addObject("submittable", submissionReadyService.isSubmissionSubmittable(submissionDetail))
         .addObject("isRegulator", submissionSummaryFormService.isRegulator());

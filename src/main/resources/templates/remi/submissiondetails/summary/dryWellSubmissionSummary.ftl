@@ -3,7 +3,7 @@
 <#import '_dryWellSubmissionSummary.ftl' as dryWellSubmissionSummary>
 <#import '_summarySubmissionNotificationBanner.ftl' as banner>
 
-<#assign pageTitle = "Check your answers before submitting" />
+<#-- @ftlvariable name="pageName" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="submittable" type="Boolean" -->
@@ -27,8 +27,8 @@
 </#if>
 
 <@defaultPage
-  htmlTitle=pageTitle
-  pageHeading=pageTitle
+  htmlTitle=pageName
+  pageHeading=pageName
   pageSize=PageSize.FULL_WIDTH
   wrapperWidth=true
   errorItems=errorList

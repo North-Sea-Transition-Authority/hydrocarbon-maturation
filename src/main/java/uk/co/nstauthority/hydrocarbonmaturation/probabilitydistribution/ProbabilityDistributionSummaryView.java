@@ -12,8 +12,23 @@ public record ProbabilityDistributionSummaryView(String probabilityDistributionN
                                                  String p1,
                                                  String mostLikely,
                                                  String max,
-                                                 String units) {
+                                                 String units,
+                                                 String comments) {
   public static ProbabilityDistributionSummaryView empty(String probabilityDistributionName) {
-    return new ProbabilityDistributionSummaryView(probabilityDistributionName, "", "", "", "", "", "", "", "", "", "", "", "");
+    return new ProbabilityDistributionSummaryView(
+        probabilityDistributionName,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "");
   }
 }

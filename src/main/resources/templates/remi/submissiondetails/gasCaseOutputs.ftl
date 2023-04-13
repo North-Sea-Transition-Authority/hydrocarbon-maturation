@@ -22,16 +22,14 @@
   breadcrumbsMap=breadcrumbsMap>
   <@fdsForm.htmlForm>
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-      probabilityDistributionTypePath="form.gasInPlace.probabilityDistributionType"
+      probabilityDistributionPath="form.gasInPlace"
       labelText="Gas in place"
-      formId="gasInPlace"
       template=gasInPlaceTemplate
       error=gasInPlaceError/>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-      probabilityDistributionTypePath="form.gasRecoverableResources.probabilityDistributionType"
+      probabilityDistributionPath="form.gasRecoverableResources"
       labelText="Gas recoverable resources"
-      formId="gasRecoverableResources"
       template=gasRecoverableResourcesTemplate
       error=gasRecoverableResourcesError/>
 
@@ -41,9 +39,8 @@
       hiddenContent=true>
         <@fdsRadio.radioYes path="form.hasAssociatedCondensateRecoverableResources">
           <@probabilityDistribution.probabilityDistributionCustomTemplate
-            probabilityDistributionTypePath="form.associatedCondensateRecoverableResources.probabilityDistributionType"
+            probabilityDistributionPath="form.associatedCondensateRecoverableResources"
             labelText="Associated condensate recoverable resources"
-            formId="associatedCondensateRecoverableResources"
             template=associatedCondensateRecoverableResourcesTemplate
             error=associatedCondensateRecoverableResourcesError/>
         </@fdsRadio.radioYes>
@@ -51,9 +48,8 @@
     </@fdsRadio.radioGroup>
 
     <@probabilityDistribution.probabilityDistributionCustomTemplate
-      probabilityDistributionTypePath="form.oilEquivalentRecoverableResources.probabilityDistributionType"
+      probabilityDistributionPath="form.oilEquivalentRecoverableResources"
       labelText="Oil equivalent recoverable resources"
-      formId="oilEquivalentRecoverableResources"
       template=oilEquivalentRecoverableResourcesTemplate
       error=oilEquivalentRecoverableResourcesError/>
 

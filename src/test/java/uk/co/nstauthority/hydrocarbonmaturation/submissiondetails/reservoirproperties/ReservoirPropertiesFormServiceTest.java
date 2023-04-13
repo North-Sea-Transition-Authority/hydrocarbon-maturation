@@ -135,6 +135,7 @@ class ReservoirPropertiesFormServiceTest {
             form -> form.getNetToGross().getNormal().getP1(),
             form -> form.getNetToGross().getNormal().getMax(),
             form -> form.getNetToGross().getNormal().getConstant(),
+            form -> form.getNetToGross().getNormal().getComments(),
             form -> form.getAverageNetPayThickness().getProbabilityDistributionType(),
             form -> form.getAverageNetPayThickness().getNormal().getMin(),
             form -> form.getAverageNetPayThickness().getNormal().getP99(),
@@ -145,7 +146,8 @@ class ReservoirPropertiesFormServiceTest {
             form -> form.getAverageNetPayThickness().getNormal().getP10(),
             form -> form.getAverageNetPayThickness().getNormal().getP1(),
             form -> form.getAverageNetPayThickness().getNormal().getMax(),
-            form -> form.getAverageNetPayThickness().getNormal().getConstant()
+            form -> form.getAverageNetPayThickness().getNormal().getConstant(),
+            form -> form.getAverageNetPayThickness().getNormal().getComments()
         )
         .containsExactly(
             reservoirProperty.getFormationName(),
@@ -164,6 +166,7 @@ class ReservoirPropertiesFormServiceTest {
             probabilityDistributionForm.getNormal().getP1(),
             probabilityDistributionForm.getNormal().getMax(),
             probabilityDistributionForm.getNormal().getConstant(),
+            probabilityDistributionForm.getNormal().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getNormal().getMin(),
             probabilityDistributionForm.getNormal().getP99(),
@@ -174,7 +177,8 @@ class ReservoirPropertiesFormServiceTest {
             probabilityDistributionForm.getNormal().getP10(),
             probabilityDistributionForm.getNormal().getP1(),
             probabilityDistributionForm.getNormal().getMax(),
-            probabilityDistributionForm.getNormal().getConstant()
+            probabilityDistributionForm.getNormal().getConstant(),
+            probabilityDistributionForm.getNormal().getComments()
         );
   }
 

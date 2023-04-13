@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.DiscoverySubmissionSummaryController.PAGE_NAME;
 
 import java.util.List;
 import java.util.Objects;
@@ -208,6 +209,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
 
     assertThat(modelMap)
         .contains(
+            entry("pageName", PAGE_NAME),
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
             entry("submittable", true),
             entry("isRegulator", false),

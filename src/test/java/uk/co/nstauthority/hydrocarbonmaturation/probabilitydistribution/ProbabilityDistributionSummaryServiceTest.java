@@ -15,6 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 @ExtendWith(MockitoExtension.class)
 class ProbabilityDistributionSummaryServiceTest {
 
+  private static final String COMMENTS = "Comments";
+
   @Mock
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
@@ -46,7 +48,8 @@ class ProbabilityDistributionSummaryServiceTest {
             ProbabilityDistributionSummaryView::p10,
             ProbabilityDistributionSummaryView::p1,
             ProbabilityDistributionSummaryView::max,
-            ProbabilityDistributionSummaryView::units)
+            ProbabilityDistributionSummaryView::units,
+            ProbabilityDistributionSummaryView::comments)
         .contains(
             ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA.getDisplayName(),
             "",
@@ -60,7 +63,8 @@ class ProbabilityDistributionSummaryServiceTest {
             "",
             "",
             "",
-            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA.getUnits());
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA.getUnits(),
+            "");
   }
 
   @Test
@@ -79,6 +83,7 @@ class ProbabilityDistributionSummaryServiceTest {
     probabilityDistribution.setP90(BigDecimal.ONE);
     probabilityDistribution.setP99(BigDecimal.ONE);
     probabilityDistribution.setModeValue(BigDecimal.ONE);
+    probabilityDistribution.setComments(COMMENTS);
 
     when(probabilityDistributionPersistenceService.getProbabilityDistribution(
         submissionDetail, ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
@@ -98,7 +103,8 @@ class ProbabilityDistributionSummaryServiceTest {
             ProbabilityDistributionSummaryView::p10,
             ProbabilityDistributionSummaryView::p1,
             ProbabilityDistributionSummaryView::max,
-            ProbabilityDistributionSummaryView::units)
+            ProbabilityDistributionSummaryView::units,
+            ProbabilityDistributionSummaryView::comments)
         .contains(
             ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING.getDisplayName(),
             ProbabilityDistributionType.LOGNORMAL.getDisplayName(),
@@ -111,6 +117,8 @@ class ProbabilityDistributionSummaryServiceTest {
             "1",
             "1",
             "1",
-            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING.getUnits());
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING.getUnits(),
+            COMMENTS
+        );
   }
 }

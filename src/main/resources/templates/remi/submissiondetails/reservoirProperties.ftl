@@ -61,86 +61,75 @@
     </@grid.gridRow>
     <#if prospectSubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionTypePath="form.averageNetPayThickness.probabilityDistributionType"
+        probabilityDistributionPath="form.averageNetPayThickness"
         labelText="Average net pay thickness distribution used"
-        formId="averageNetPayThickness"
         template=averageNetPayThicknessTemplate
         error=averageNetPayThicknessError/>
     <#elseif dryHoleSubmission || discoverySubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionTypePath="form.averageNetPayThickness.probabilityDistributionType"
+        probabilityDistributionPath="form.averageNetPayThickness"
         labelText="Average net pay thickness distribution used"
-        formId="averageNetPayThickness"
         template=averageNetPayThicknessOptionalTemplate
         error=averageNetPayThicknessOptionalError/>
     </#if>
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionTypePath="form.grossReservoirThickness.probabilityDistributionType"
+      probabilityDistributionPath="form.grossReservoirThickness"
       labelText="Gross reservoir thickness distribution used"
-      formId="grossReservoirThickness"
       template=grossReservoirThicknessTemplate
       error=grossReservoirThicknessError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionTypePath="form.grossRockVolume.probabilityDistributionType"
+      probabilityDistributionPath="form.grossRockVolume"
       labelText="Gross rock volume (GRV) distribution used"
-      formId="grossRockVolume"
       template=grossRockVolumeTemplate
       error=grossRockVolumeError/>
 
     <#if dryHoleSubmission || mixedCase>
       <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionTypePath="form.percentOfGrvOilBearing.probabilityDistributionType"
+        probabilityDistributionPath="form.percentOfGrvOilBearing"
         labelText="% of GRV which is oil bearing distribution used"
-        formId="percentOfGrvOilBearing"
         template=percentOfGrvOilBearingTemplate
         error=percentOfGrvOilBearingError/>
     </#if>
       
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionTypePath="form.netToGross.probabilityDistributionType"
+      probabilityDistributionPath="form.netToGross"
       labelText="Net-to-gross distribution used"
-      formId="netToGross"
       template=netToGrossTemplate
       error=netToGrossError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionTypePath="form.netPorosity.probabilityDistributionType"
+      probabilityDistributionPath="form.netPorosity"
       labelText="Net porosity distribution used"
-      formId="netPorosity"
       template=netPorosityTemplate
       error=netPorosityError/>
 
     <#if prospectSubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionTypePath="form.depthToHydrocarbonContact.probabilityDistributionType"
+        probabilityDistributionPath="form.depthToHydrocarbonContact"
         labelText="Depth to hydrocarbon contact distribution used"
-        formId="depthToHydrocarbonContact"
         template=depthToHydrocarbonContactTemplate
         error=depthToHydrocarbonContactError/>
     </#if>
     <#if discoverySubmission>
       <#if oilCase || mixedCase>
         <@probabilityDistribution.probabilityDistributionCustomTemplate
-          probabilityDistributionTypePath="form.depthToOilWaterContact.probabilityDistributionType"
+          probabilityDistributionPath="form.depthToOilWaterContact"
           labelText="Depth to oil water contact"
-          formId="depthToOilWaterContact"
           template=depthToOilWaterContactTemplate
           error=depthToOilWaterContactError/>
       </#if>
       <#if gasCase || mixedCase>
         <@probabilityDistribution.probabilityDistributionCustomTemplate
-          probabilityDistributionTypePath="form.depthToGasWaterContact.probabilityDistributionType"
+          probabilityDistributionPath="form.depthToGasWaterContact"
           labelText="Depth to gas water contact"
-          formId="depthToGasWaterContact"
           template=depthToGasWaterContactTemplate
           error=depthToGasWaterContactError/>
       </#if>
       <#if mixedCase>
         <@probabilityDistribution.probabilityDistributionCustomTemplate
-          probabilityDistributionTypePath="form.depthToGasOilContact.probabilityDistributionType"
+          probabilityDistributionPath="form.depthToGasOilContact"
           labelText="Depth to gas oil contact"
-          formId="depthToGasOilContact"
           template=depthToGasOilContactTemplate
           error=depthToGasOilContactError/>
       </#if>

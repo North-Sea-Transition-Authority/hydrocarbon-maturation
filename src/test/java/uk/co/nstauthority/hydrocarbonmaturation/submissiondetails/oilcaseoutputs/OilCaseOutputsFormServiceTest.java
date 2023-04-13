@@ -117,23 +117,31 @@ class OilCaseOutputsFormServiceTest {
         .extracting(
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getCustom().getConstant(),
+            form -> form.getOilEquivalentRecoverableResources().getCustom().getComments(),
             form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilRecoverableResources().getCustom().getConstant(),
+            form -> form.getOilRecoverableResources().getCustom().getComments(),
             form -> form.getOilInPlace().getProbabilityDistributionType(),
             form -> form.getOilInPlace().getCustom().getConstant(),
+            form -> form.getOilInPlace().getCustom().getComments(),
             form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedGasRecoverableResources().getCustom().getConstant(),
+            form -> form.getAssociatedGasRecoverableResources().getCustom().getComments(),
             oilCaseOutputsForm -> oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().asBigDecimal().get()
         )
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getCustom().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getCustom().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getCustom().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getCustom().getComments(),
             BigDecimal.ONE
         );
   }

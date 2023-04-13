@@ -55,6 +55,8 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
 
   private BigDecimal mostLikelyValue;
 
+  private String comments;
+
   public UUID getId() {
     return id;
   }
@@ -175,5 +177,13 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
 
   public void setMostLikelyValue(BigDecimal mostLikelyValue) {
     this.mostLikelyValue = mostLikelyValue;
+  }
+
+  public String getComments() {
+    return comments;
+  }
+
+  public void setComments(String comments) {
+    this.comments = comments;
   }
 }

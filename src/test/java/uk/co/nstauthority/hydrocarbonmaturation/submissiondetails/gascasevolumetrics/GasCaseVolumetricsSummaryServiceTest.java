@@ -57,7 +57,7 @@ class GasCaseVolumetricsSummaryServiceTest {
         "test", "type", "20",
         "20", "20", "20",
         "20", "20", "20",
-        "20", "20", "unit", "");
+        "20", "20", "unit", "", "comments");
 
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))

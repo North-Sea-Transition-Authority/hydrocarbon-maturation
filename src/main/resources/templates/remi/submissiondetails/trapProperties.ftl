@@ -84,23 +84,20 @@
       </@grid.twoThirdsColumn>
     </@grid.gridRow>
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionTypePath="form.depthToCrest.probabilityDistributionType"
+      probabilityDistributionPath="form.depthToCrest"
       labelText="Depth to crest distribution used"
-      formId="depthToCrest"
       template=depthToCrestTemplate
       error=depthToCrestError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionTypePath="form.depthToSpillPoint.probabilityDistributionType"
+      probabilityDistributionPath="form.depthToSpillPoint"
         labelText="Depth to spill-point distribution used"
-        formId="depthToSpillPoint"
         template=depthToSpillPointTemplate
         error=depthToSpillPointError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionTypePath="form.productiveArea.probabilityDistributionType"
+      probabilityDistributionPath="form.productiveArea"
         labelText="Productive area distribution used"
-        formId="productiveArea"
         template=productiveAreaTemplate
         error=productiveAreaError/>
     <@grid.gridRow>

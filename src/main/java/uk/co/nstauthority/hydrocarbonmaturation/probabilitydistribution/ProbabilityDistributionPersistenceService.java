@@ -41,7 +41,7 @@ public class ProbabilityDistributionPersistenceService {
     probabilityDistribution.setMaxValue(exceedanceForm.getMax().createBigDecimalOrNull());
     probabilityDistribution.setMostLikelyValue(exceedanceForm.getMostLikely().createBigDecimalOrNull());
     probabilityDistribution.setConstantValue(exceedanceForm.getConstant().createBigDecimalOrNull());
-
+    probabilityDistribution.setComments(exceedanceForm.getComments());
     probabilityDistributionRepository.save(probabilityDistribution);
   }
 

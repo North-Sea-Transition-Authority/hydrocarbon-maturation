@@ -13,12 +13,27 @@
           <#if withDistributionType>
               ${probabilityDistribution.probabilityDistributionName()}
             <#if probabilityDistribution.probabilityDistributionType()?has_content>
-              <div class="govuk-caption-m">
+              <#assign hintClass>
+                govuk-hint <#if !probabilityDistribution.comments()?has_content>govuk-!-margin-bottom-0</#if>
+              </#assign>
+              <div class="${hintClass}">
                 ${probabilityDistribution.probabilityDistributionType()}
               </div>
             </#if>
           <#else>
             ${probabilityDistribution.probabilityDistributionName()}
+          </#if>
+          <#if probabilityDistribution.comments()?has_content>
+              <#assign comments>
+                <p class="govuk-body govuk-body__preserve-whitespace">${probabilityDistribution.comments()}</p>
+              </#assign>
+              <#assign commentsTitle>
+                  Comments<span class="govuk-visually-hidden"> for ${probabilityDistribution.probabilityDistributionName()}</span>
+              </#assign>
+              <#assign detailsClass>
+                govuk-!-margin-bottom-0 <#if !withDistributionType> govuk-!-margin-top-3</#if>
+              </#assign>
+              <@fdsDetails.details detailsText=comments detailsTitle=commentsTitle detailsClass=detailsClass/>
           </#if>
         </th>
         <#if withDistributionType>

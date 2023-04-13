@@ -116,23 +116,31 @@ class GasCaseOutputsFormServiceTest {
         .extracting(
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getCustom().getConstant(),
+            form -> form.getOilEquivalentRecoverableResources().getCustom().getComments(),
             form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getGasRecoverableResources().getCustom().getConstant(),
+            form -> form.getGasRecoverableResources().getCustom().getComments(),
             form -> form.getGasInPlace().getProbabilityDistributionType(),
             form -> form.getGasInPlace().getCustom().getConstant(),
+            form -> form.getGasInPlace().getCustom().getComments(),
             form -> form.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedCondensateRecoverableResources().getCustom().getConstant(),
+            form -> form.getAssociatedCondensateRecoverableResources().getCustom().getComments(),
             GasCaseOutputsForm::getHasAssociatedCondensateRecoverableResources
         )
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getCustom().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getCustom().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getCustom().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
+            probabilityDistributionForm.getCustom().getComments(),
             true
         );
   }

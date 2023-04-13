@@ -53,7 +53,8 @@ class ProbabilityDistributionPersistenceServiceTest {
             ProbabilityDistribution::getP10,
             ProbabilityDistribution::getP1,
             ProbabilityDistribution::getMaxValue,
-            ProbabilityDistribution::getConstantValue
+            ProbabilityDistribution::getConstantValue,
+            ProbabilityDistribution::getComments
         )
         .containsExactly(
             submissionDetail,
@@ -68,7 +69,8 @@ class ProbabilityDistributionPersistenceServiceTest {
             probabilityDistributionForm.getProbabilityOfExceedanceForm().getP10().createBigDecimalOrNull(),
             probabilityDistributionForm.getProbabilityOfExceedanceForm().getP1().createBigDecimalOrNull(),
             probabilityDistributionForm.getProbabilityOfExceedanceForm().getMax().createBigDecimalOrNull(),
-            probabilityDistributionForm.getProbabilityOfExceedanceForm().getConstant().createBigDecimalOrNull()
+            probabilityDistributionForm.getProbabilityOfExceedanceForm().getConstant().createBigDecimalOrNull(),
+            probabilityDistributionForm.getProbabilityOfExceedanceForm().getComments()
         );
   }
 
@@ -117,6 +119,7 @@ class ProbabilityDistributionPersistenceServiceTest {
     probabilityOfExceedanceForm.setP1(new DecimalInput("8"));
     probabilityOfExceedanceForm.setMax(new DecimalInput("9"));
     probabilityOfExceedanceForm.setConstant(new DecimalInput("10"));
+    probabilityOfExceedanceForm.setComments("Comments");
 
     var probabilityDistributionForm = new ProbabilityDistributionForm();
     probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.NORMAL);

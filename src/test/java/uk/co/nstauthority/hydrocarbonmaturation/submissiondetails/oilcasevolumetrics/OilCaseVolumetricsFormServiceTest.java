@@ -102,21 +102,29 @@ class OilCaseVolumetricsFormServiceTest {
         .extracting(
             form -> form.getFormationVolumeFactor().getProbabilityDistributionType(),
             form -> form.getFormationVolumeFactor().getConstant().getConstant(),
+            form -> form.getFormationVolumeFactor().getConstant().getComments(),
             form -> form.getOilRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getOilRecoveryFactor().getConstant().getConstant(),
+            form -> form.getOilRecoveryFactor().getConstant().getComments(),
             form -> form.getOilHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getOilHydrocarbonSaturation().getConstant().getConstant(),
+            form -> form.getOilHydrocarbonSaturation().getConstant().getComments(),
             form -> form.getAssociatedGasOilRatioLifeOfField().getProbabilityDistributionType(),
-            form -> form.getAssociatedGasOilRatioLifeOfField().getConstant().getConstant())
+            form -> form.getAssociatedGasOilRatioLifeOfField().getConstant().getConstant(),
+            form -> form.getAssociatedGasOilRatioLifeOfField().getConstant().getComments())
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getConstant().getConstant(),
+            probabilityDistributionForm.getConstant().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getConstant().getConstant(),
+            probabilityDistributionForm.getConstant().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getConstant().getConstant(),
+            probabilityDistributionForm.getConstant().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getConstant().getConstant()
+            probabilityDistributionForm.getConstant().getConstant(),
+            probabilityDistributionForm.getConstant().getComments()
         );
   }
 }

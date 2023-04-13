@@ -80,7 +80,7 @@ class MixedCaseOutputSummaryServiceTest {
          "test", "type", "20",
         "20", "20", "20",
         "20", "20", "20",
-        "20", "", "20", "unit");
+        "20", "", "20", "unit", "comments");
 
     when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(submissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));

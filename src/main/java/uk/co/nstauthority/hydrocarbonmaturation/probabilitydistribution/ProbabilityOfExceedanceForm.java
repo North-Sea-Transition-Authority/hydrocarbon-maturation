@@ -18,6 +18,7 @@ public class ProbabilityOfExceedanceForm {
   private DecimalInput max = new DecimalInput();
   private DecimalInput constant = new DecimalInput();
   private DecimalInput mostLikely = new DecimalInput();
+  private String comments;
 
   public String getError() {
     return error;
@@ -113,5 +114,13 @@ public class ProbabilityOfExceedanceForm {
 
   public void setMostLikely(DecimalInput mostLikely) {
     this.mostLikely = mostLikely;
+  }
+
+  public String getComments() {
+    return comments;
+  }
+
+  public void setComments(String comments) {
+    this.comments = comments;
   }
 }

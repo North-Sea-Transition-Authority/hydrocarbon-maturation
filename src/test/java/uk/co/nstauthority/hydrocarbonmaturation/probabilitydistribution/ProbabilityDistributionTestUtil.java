@@ -1,9 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalInputTestUtil;
 
 public class ProbabilityDistributionTestUtil {
@@ -124,28 +122,6 @@ public class ProbabilityDistributionTestUtil {
     return probabilityOfExceedanceForm;
   }
 
-  public static ProbabilityDistribution getProbabilityDistribution(
-      SubmissionDetail submissionDetail,
-      ProbabilityDistributionType probabilityDistributionType,
-      ProbabilityDistributionFieldInstance instance
-      ) {
-    var probabilityDistribution = new ProbabilityDistribution();
-    probabilityDistribution.setSubmissionDetail(submissionDetail);
-    probabilityDistribution.setDistributionType(probabilityDistributionType);
-    probabilityDistribution.setInstance(instance);
-    probabilityDistribution.setMinValue(BigDecimal.ONE);
-    probabilityDistribution.setP99(BigDecimal.ONE);
-    probabilityDistribution.setP90(BigDecimal.ONE);
-    probabilityDistribution.setModeValue(BigDecimal.ONE);
-    probabilityDistribution.setP50(BigDecimal.ONE);
-    probabilityDistribution.setMeanValue(BigDecimal.ONE);
-    probabilityDistribution.setP10(BigDecimal.ONE);
-    probabilityDistribution.setP1(BigDecimal.ONE);
-    probabilityDistribution.setMaxValue(BigDecimal.ONE);
-    probabilityDistribution.setConstantValue(BigDecimal.ONE);
-    return probabilityDistribution;
-  }
-
   private static ProbabilityOfExceedanceForm getValidProbabilityOfExceedanceForm(ProbabilityDistributionTypeBehaviour behaviour
   ) {
     var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
@@ -182,6 +158,7 @@ public class ProbabilityDistributionTestUtil {
     if (behaviour.isMostLikelyAvailable()) {
       probabilityOfExceedanceForm.setMostLikely(DecimalInputTestUtil.getDecimalInput(5));
     }
+    probabilityOfExceedanceForm.setComments("Comments");
     return probabilityOfExceedanceForm;
   }
 }

@@ -3,7 +3,7 @@
 <#import '_prospectSubmissionSummary.ftl' as prospectSubmissionSummary>
 <#import '_summarySubmissionNotificationBanner.ftl' as banner>
 
-<#assign pageTitle = "Check your answers before submitting" />
+<#-- @ftlvariable name="pageName" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
@@ -37,8 +37,8 @@
 </#if>
 
 <@defaultPage
-  htmlTitle=pageTitle
-  pageHeading=pageTitle
+  htmlTitle=pageName
+  pageHeading=pageName
   pageSize=PageSize.FULL_WIDTH
   wrapperWidth=true
   errorItems=errorList

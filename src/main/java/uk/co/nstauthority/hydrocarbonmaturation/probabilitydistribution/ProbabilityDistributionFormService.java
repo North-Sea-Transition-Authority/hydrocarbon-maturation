@@ -75,6 +75,8 @@ public class ProbabilityDistributionFormService {
     exceedanceForm.setConstant(DecimalInput.createDecimalInput(constant));
     var mostLikely = probabilityDistribution.getMostLikelyValue();
     exceedanceForm.setMostLikely(DecimalInput.createDecimalInput(mostLikely));
+    var comments = probabilityDistribution.getComments();
+    exceedanceForm.setComments(comments);
     return exceedanceForm;
   }
 }

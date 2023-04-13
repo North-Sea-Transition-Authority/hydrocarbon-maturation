@@ -128,25 +128,32 @@
 
 
 <#macro probabilityDistributionTemplate
-    probabilityDistributionTypePath
+    probabilityDistributionPath
     labelText
-    formId
     template
     error>
-    <@fdsRadio.radioGroup path=probabilityDistributionTypePath labelText=labelText hiddenContent=true>
+    <#assign probabilityDistributionTypePathString = probabilityDistributionPath+".probabilityDistributionType"/>
+    <@fdsRadio.radioGroup path=probabilityDistributionTypePathString labelText=labelText hiddenContent=true>
         <#assign firstItem=true/>
         <#list template.probabilityDistributionTypeWithInputsList as inputs>
             <@fdsRadio.radioItem
-                path=probabilityDistributionTypePath
+                path=probabilityDistributionTypePathString
                 itemMap={inputs.probabilityDistributionType.name() : inputs.probabilityDistributionType.displayName}
                 isFirstItem=firstItem>
                 <#if inputs.probabilityDistributionType.name() != 'NOT_CALCULATED'>
                     <@probabilityDistributionSingle
-                        probabilityDistributionTypePath=probabilityDistributionTypePath
-                        formId=formId
+                        probabilityDistributionTypePath=probabilityDistributionTypePathString
+                        formId=probabilityDistributionPath?replace("form.", "")
                         labelText="Probability of exceedance (${template.units})"
                         error=error
                         inputs=inputs/>
+                    <@fdsTextarea.textarea
+                        path=probabilityDistributionPath+"."+inputs.probabilityDistributionType.path+".comments"
+                        labelText="Comments"
+                        rows="3"
+                        optionalLabel=true
+                        inputClass="govuk-!-width-two-thirds"
+                        nestingPath=probabilityDistributionTypePathString/>
                 </#if>
             </@fdsRadio.radioItem>
         </#list>
@@ -157,19 +164,25 @@
 
 
 <#macro probabilityDistributionCustomTemplate
-    probabilityDistributionTypePath
+    probabilityDistributionPath
     labelText
-    formId
     template
     error>
 
-    <#assign probabilityDistributionTypePath=probabilityDistributionTypePath>
-    <@springFtl.formHiddenInput path=probabilityDistributionTypePath/>
+    <#assign probabilityDistributionTypePathString = probabilityDistributionPath+".probabilityDistributionType"/>
+    <@springFtl.formHiddenInput path=probabilityDistributionTypePathString/>
     <@probabilityDistributionSingle
-        probabilityDistributionTypePath=probabilityDistributionTypePath
-        formId=formId
+        probabilityDistributionTypePath=probabilityDistributionTypePathString
+        formId=probabilityDistributionPath?replace("form.", "")
         labelText=labelText+" (${template.units})"
         error=error
         inputs=template.probabilityDistributionTypeWithInputsList[0]/>
+    <@fdsTextarea.textarea
+        path=probabilityDistributionPath+"."+template.probabilityDistributionTypeWithInputsList[0].probabilityDistributionType.path+".comments"
+        labelText=labelText + " comments"
+        rows="3"
+        optionalLabel=true
+        inputClass="govuk-!-width-two-thirds"
+        nestingPath=probabilityDistributionTypePathString/>
 
 </#macro>

@@ -52,6 +52,7 @@ public class ProbabilityDistributionSummaryService {
 
     var probabilityDistributionName = Objects.requireNonNullElse(probabilityDistributionFieldInstance.getDisplayName(), "");
     var units = Objects.requireNonNullElse(probabilityDistribution.getInstance().getUnits(), "");
+    var comments = Objects.requireNonNullElse(probabilityDistribution.getComments(), "");
 
     return new ProbabilityDistributionSummaryView(
         probabilityDistributionName,
@@ -66,6 +67,7 @@ public class ProbabilityDistributionSummaryService {
         p1,
         mostLikely,
         max,
-        units);
+        units,
+        comments);
   }
 }
