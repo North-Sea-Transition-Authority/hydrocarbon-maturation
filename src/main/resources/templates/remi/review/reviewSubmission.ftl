@@ -16,7 +16,7 @@
 <#-- @ftlvariable name="resourceType" type="String"-->
 <#-- @ftlvariable name="isRegulator" type="boolean"-->
 <#-- @ftlvariable name="regulatorManagedInformationSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
-<#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupSummaryView" -->
+<#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
 
 <#assign pageTitle = "${submissionRecord.resourceNameAndCentreOfInterest()}" />
 <#assign caption = "${submissionRecord.submissionType().getTypeName()}" />

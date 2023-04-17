@@ -2,7 +2,7 @@
 <#import 'fileUploadSummaryCard.ftl' as fileUploadSummary>
 
 <#-- @ftlvariable name="regulatorManagedInformationValues" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
-<#-- @ftlvariable name="resourceGroupsValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupSummaryView" -->
+<#-- @ftlvariable name="resourceGroupsValues" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 
 <#macro regulatorManagedInformationSummaryCard regulatorManagedInformationValues resourceGroupsValues>

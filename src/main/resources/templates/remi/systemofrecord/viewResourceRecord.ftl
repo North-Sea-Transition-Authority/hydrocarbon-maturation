@@ -12,8 +12,9 @@
 <#-- @ftlvariable name="submissionSelectedUrl" type="String"-->
 <#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
 <#-- @ftlvariable name="resourceType" type="String"-->
+<#-- @ftlvariable name="resourceGroupUrl" type="String"-->
 <#-- @ftlvariable name="regulatorManagedInformationSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
-<#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupSummaryView" -->
+<#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
 <#-- @ftlvariable name="isRegulator" type="boolean"-->
 
 <#assign pageTitle = "${resourceRecord.resourceNameAndCentreOfInterest()}" />
@@ -42,6 +43,10 @@
         linkText="Manage resource information"
         linkClass="govuk-button govuk-button--secondary"
         linkUrl=springUrl(regulatorManagedInformationUrl)/>
+      <@fdsAction.link
+        linkText="Manage resource group"
+        linkClass="govuk-button govuk-button--secondary"
+        linkUrl=springUrl(resourceGroupUrl)/>
     </@fdsAction.buttonGroup>
   </#if>
   <@fdsForm.htmlForm actionUrl=springUrl(submissionSelectedUrl)>
