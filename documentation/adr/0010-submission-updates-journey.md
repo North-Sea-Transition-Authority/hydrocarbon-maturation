@@ -1,8 +1,8 @@
-### Submission updates journey
+## Submission updates journey
 
 - Author: Danny Betts
 - Status: DRAFT
-- Approved by:
+- Approved by: Dan Ashworth
 
 ## Overview
 When a resource submission is provided to the NSTA by an operator there may be incorrect or incomplete data on that submission.
