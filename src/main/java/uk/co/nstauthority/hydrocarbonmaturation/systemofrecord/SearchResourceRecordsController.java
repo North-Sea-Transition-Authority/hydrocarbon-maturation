@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
@@ -20,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Controller
 @RequestMapping("/search-resource-records")
@@ -29,12 +31,18 @@ public class SearchResourceRecordsController {
   public static final String PAGE_TITLE = "Search resource records";
   private final SearchResourceRecordsService searchResourceRecordsService;
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
+  private final RegulatorTeamService regulatorTeamService;
+  private final UserDetailService userDetailService;
 
   @Autowired
   public SearchResourceRecordsController(SearchResourceRecordsService searchResourceRecordsService,
-                                         ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory) {
+                                         ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
+                                         RegulatorTeamService regulatorTeamService,
+                                         UserDetailService userDetailService) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
+    this.regulatorTeamService = regulatorTeamService;
+    this.userDetailService = userDetailService;
   }
 
   @GetMapping
@@ -44,24 +52,32 @@ public class SearchResourceRecordsController {
 
   @PostMapping
   public ModelAndView searchResourceRecords(@ModelAttribute("form") SearchResourceRecordsForm form) {
+    var isRegulator = regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail());
     return getModelAndView(
         form,
         searchResourceRecordsService.getResourceRecordSearchResults(
             form,
             resourceRecordQueryServiceFactory.getQueryServiceStrategy()),
-        FiltersAdded.YES
+        FiltersAdded.YES,
+        isRegulator
     );
   }
 
   private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form) {
-    return getModelAndView(form, Collections.emptyList(), FiltersAdded.NO);
+    var isRegulator = regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail());
+    if (isRegulator) {
+      form.setShowOnlyPreferredViews(true);
+    }
+    return getModelAndView(form, Collections.emptyList(), FiltersAdded.NO, isRegulator);
   }
 
   private ModelAndView getModelAndView(SearchResourceRecordsForm form,
                                        List<ResourceRecordSearchResultItem> resourceRecordSearchResults,
-                                       FiltersAdded filtersAdded) {
+                                       FiltersAdded filtersAdded,
+                                       boolean isRegulator) {
     return new ModelAndView("remi/systemofrecord/searchResourceRecords")
         .addObject("form", form)
+        .addObject("isRegulator", isRegulator)
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("filtersAdded", filtersAdded.isHasFilters())
         .addObject("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)

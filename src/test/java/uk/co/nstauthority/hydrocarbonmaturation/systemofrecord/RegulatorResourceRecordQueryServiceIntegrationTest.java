@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import javax.persistence.EntityManager;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
@@ -994,6 +996,75 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     }
   }
 
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void getResourceRecordSearchResults_andFilterByPreferredView_assertResult(
+      boolean showOnlyPreferredViews) {
+    setUpRegulatorTest();
+
+    var preferredViewResource = buildProspectResource();
+    var preferredViewSubmissionDetail =
+        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT);
+    createGeneralDetail(preferredViewSubmissionDetail);
+    buildResourceGroupLink(true, preferredViewResource);
+
+    createResourceDetail(
+        preferredViewSubmissionDetail, "Not relevant name", 1);
+
+    var nonPreferredViewResource = buildProspectResource();
+    var nonPreferredSubmissionDetail =
+        buildSubmissionDetail(nonPreferredViewResource, SubmissionType.CREATE_PROSPECT);
+    buildResourceGroupLink(false, nonPreferredViewResource);
+    createGeneralDetail(nonPreferredSubmissionDetail);
+    createResourceDetail(
+        nonPreferredSubmissionDetail, "Not relevant name", 2);
+
+    var form = new SearchResourceRecordsForm();
+    form.setShowOnlyPreferredViews(showOnlyPreferredViews);
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    if (showOnlyPreferredViews) {
+      assertThat(results)
+          .extracting(
+              ResourceRecordQueryResult::getSubmissionDetailId)
+          .containsExactly(
+              preferredViewSubmissionDetail.getId()
+          );
+    } else {
+      assertThat(results)
+          .extracting(
+              ResourceRecordQueryResult::getSubmissionDetailId)
+          .containsExactlyInAnyOrder(
+              nonPreferredSubmissionDetail.getId(),
+              preferredViewSubmissionDetail.getId()
+          );
+    }
+  }
+
+  @Test
+  void getResourceRecordSearchResults_whenNoResourceLinkAndFilterByPreferredView_assertReturned() {
+    setUpRegulatorTest();
+
+    var preferredViewResource = buildProspectResource();
+    var preferredViewSubmissionDetail =
+        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT);
+    createGeneralDetail(preferredViewSubmissionDetail);
+    createResourceDetail(
+        preferredViewSubmissionDetail, "Not relevant name", 1);
+
+    var form = new SearchResourceRecordsForm();
+    form.setShowOnlyPreferredViews(true);
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::getSubmissionDetailId)
+        .containsExactly(
+            preferredViewSubmissionDetail.getId()
+        );
+  }
+
   private ResourceLink createResourceLink(Resource prospect, Resource discovery) {
     var resourceLink = new ResourceLink();
     resourceLink.setDiscoveryResource(discovery);
@@ -1050,6 +1121,16 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
       Resource resource, GeographicalArea geographicalArea) {
     return SubmissionIntegrationTestUtils.createRegulatorManagedInformation(
         resource, ResponsibleTeamType.EXPLORATION, geographicalArea, entityManager);
+  }
+
+  private ResourceGroupLink buildResourceGroupLink(boolean preferredView, Resource resource) {
+    var resourceGroupLink = new ResourceGroupLink();
+    resourceGroupLink.setResource(resource);
+    resourceGroupLink.setPreferredView(preferredView);
+    resourceGroupLink.setResourceGroupId(UUID.randomUUID());
+    entityManager.persist(resourceGroupLink);
+    entityManager.flush();
+    return resourceGroupLink;
   }
 
   private Resource buildDiscoveryResource() {

@@ -7,6 +7,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.OPP
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_GROUP_LINKS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_LINKS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
@@ -70,8 +71,9 @@ class ResourceQueryCommonService {
                   .limit(1)
           ))
           .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+          .leftJoin(RESOURCE_GROUP_LINKS).on(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID))
           .leftJoin(RESOURCE_LINKS).on(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(RESOURCES.ID)
-              .or(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(RESOURCES.ID)))
+            .or(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(RESOURCES.ID)))
           .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
           .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
           .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))

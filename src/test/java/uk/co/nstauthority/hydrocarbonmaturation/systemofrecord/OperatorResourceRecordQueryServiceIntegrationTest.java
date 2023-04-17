@@ -8,11 +8,13 @@ import static org.mockito.Mockito.when;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import javax.persistence.EntityManager;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcegroups.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
@@ -346,6 +349,49 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     }
   }
 
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void getResourceRecordSearchResults_andFilterByPreferredView_assertPreferredAndNonPreferredReturned(
+      boolean showOnlyPreferredView) {
+    //the filter for preferred view should not work for operators
+    var userOrgUnitId = 1;
+    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(userOrgUnitId));
+
+    var preferredViewResource = buildProspectResource();
+    var preferredViewSubmissionDetail =
+        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT);
+    createResourceDetail(
+        preferredViewSubmissionDetail, "Not relevant name", userOrgUnitId);
+    buildResourceGroupLink(true, preferredViewResource);
+    var preferredViewGeneralDetail = createGeneralDetail(preferredViewSubmissionDetail);
+    var extantLicence = createLicence(1, "licenceRef", preferredViewGeneralDetail);
+    when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
+        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+
+    var nonPreferredViewResource = buildProspectResource();
+    var nonPreferredSubmissionDetail =
+        buildSubmissionDetail(nonPreferredViewResource, SubmissionType.CREATE_PROSPECT);
+    buildResourceGroupLink(false, nonPreferredViewResource);
+    createResourceDetail(
+        nonPreferredSubmissionDetail, "Not relevant name", userOrgUnitId);
+    var nonPreferredGeneralDetail = createGeneralDetail(nonPreferredSubmissionDetail);
+    var extantLicence2 = createLicence(1, "licenceRef", nonPreferredGeneralDetail);
+    when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence2.getLicenceId().toString())))
+        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+
+    var form = new SearchResourceRecordsForm();
+    form.setShowOnlyPreferredViews(showOnlyPreferredView);
+
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::getSubmissionDetailId)
+        .containsExactly(
+            nonPreferredSubmissionDetail.getId(),
+            preferredViewSubmissionDetail.getId()
+        );
+  }
+
   private void setUpIndustryTest(Set<TeamRole> userRoles, List<Integer> userOrgUnitIds) {
     var user = ServiceUserDetailTestUtil.Builder()
         .withWuaId(1000L)
@@ -449,6 +495,16 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     entityManager.flush();
 
     return resource;
+  }
+
+  private ResourceGroupLink buildResourceGroupLink(boolean preferredView, Resource resource) {
+    var resourceGroupLink = new ResourceGroupLink();
+    resourceGroupLink.setResource(resource);
+    resourceGroupLink.setPreferredView(preferredView);
+    resourceGroupLink.setResourceGroupId(UUID.randomUUID());
+    entityManager.persist(resourceGroupLink);
+    entityManager.flush();
+    return resourceGroupLink;
   }
 
   private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType) {

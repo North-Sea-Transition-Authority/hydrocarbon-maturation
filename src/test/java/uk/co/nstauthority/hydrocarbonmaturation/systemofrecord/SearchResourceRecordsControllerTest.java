@@ -89,11 +89,27 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void showSearchResourceRecordsScreenModelAndView_assertModelProperties() throws Exception {
+  void showSearchResourceRecordsScreen_whenOperator_assertStatusOk() throws Exception {
+    var form = new SearchResourceRecordsForm();
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+    when(searchResourceRecordsService.getSearchResourceRecordsForm())
+        .thenReturn(form);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SearchResourceRecordsController.class)
+                .showSearchResourceRecordsScreen()))
+                .with(user(USER)))
+        .andExpect(status().isOk());
+    assertThat(form.isShowOnlyPreferredViews()).isFalse();
+  }
+
+  @Test
+  void showSearchResourceRecordsScreenModelAndView_whenRegulator_assertModelProperties() throws Exception {
     var form = new SearchResourceRecordsForm();
     form.setGeographicalArea(List.of(GeographicalArea.CENTRAL_NORTH_SEA.name()));
     when(searchResourceRecordsService.getSearchResourceRecordsForm())
         .thenReturn(form);
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()))
                 .with(user(USER)))
@@ -105,6 +121,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
         .contains(
             entry("pageTitle", SearchResourceRecordsController.PAGE_TITLE),
             entry("filtersAdded", false),
+            entry("isRegulator", true),
             entry("form", form),
             entry("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
                 .showSearchResourceRecordsScreen())),
@@ -121,5 +138,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
             entry("maxResultsReturned", false),
             entry("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class))
         );
+
+    assertThat(form.isShowOnlyPreferredViews()).isTrue();
   }
 }

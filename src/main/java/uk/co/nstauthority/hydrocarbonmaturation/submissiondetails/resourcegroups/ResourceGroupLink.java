@@ -12,7 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 
 @Entity
 @Table(name = "resource_group_links")
-class ResourceGroupLink {
+public class ResourceGroupLink {
 
   @Id
   @GeneratedValue(generator = "uuid")

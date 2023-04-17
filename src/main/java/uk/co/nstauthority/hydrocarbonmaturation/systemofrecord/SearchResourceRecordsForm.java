@@ -13,6 +13,7 @@ class SearchResourceRecordsForm {
   private String centreOfInterestBlock;
   private String licenceId;
   private List<String> geographicalArea = new ArrayList<>();
+  private boolean showOnlyPreferredViews;
 
   public String getResourceDetailIdForResourceSubmission() {
     return resourceDetailIdForResourceSubmission;
@@ -77,5 +78,13 @@ class SearchResourceRecordsForm {
 
   public void setGeographicalArea(List<String> geographicalArea) {
     this.geographicalArea = geographicalArea;
+  }
+
+  public boolean isShowOnlyPreferredViews() {
+    return showOnlyPreferredViews;
+  }
+
+  public void setShowOnlyPreferredViews(boolean showOnlyPreferredViews) {
+    this.showOnlyPreferredViews = showOnlyPreferredViews;
   }
 }
