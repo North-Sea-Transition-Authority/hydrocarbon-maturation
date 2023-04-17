@@ -46,7 +46,7 @@ public class SubmissionDetailPersistenceService {
     submissionDetail.setSubmission(submission);
     submissionDetail.setVersionNumber(SubmissionDetailService.FIRST_VERSION);
     if (regulatorTeamService.isRegulatorUser(user)) {
-      submissionDetail.setSubmitterType(SubmitterType.NSTA);
+      submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
     } else {
       submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     }

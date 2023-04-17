@@ -78,7 +78,7 @@ class OperatorTeamMembershipInterceptorRuleTest {
   void hasRequiredTeamMembershipPermissions_whenSubmissionIsNotIndustry_assertRuleFailForbidden() {
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    submissionDetail.setSubmitterType(SubmitterType.NSTA);
+    submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
 
     var securityRuleResult = operatorTeamMembershipInterceptorRule
         .hasRequiredTeamMembershipPermissions(user, submissionDetail);

@@ -45,7 +45,7 @@ public class RegulatorTeamMembershipInterceptorRule implements TeamMembershipInt
     var userId = userDetails.wuaId();
     var submissionDetailId = submissionDetail.getId();
 
-    LOGGER.warn("User {} attempted to access submission {} with expected NSTA role {}.",
+    LOGGER.warn("User {} attempted to access submission {} with expected regulator role {}.",
         userId,
         submissionDetailId,
         responsibleTeamType);

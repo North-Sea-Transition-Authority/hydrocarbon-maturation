@@ -69,7 +69,7 @@ class SubmissionDetailPersistenceServiceTest {
 
     var createdSubmissionDetail = submissionDetailArgumentCaptor.getValue();
     assertThat(createdSubmissionDetail.getCreatedTimestamp()).isEqualTo(INSTANT);
-    assertThat(createdSubmissionDetail.getSubmitterType()).isEqualTo(SubmitterType.NSTA);
+    assertThat(createdSubmissionDetail.getSubmitterType()).isEqualTo(SubmitterType.REGULATOR);
     assertThat(createdSubmissionDetail.getCreatedByWuaId()).isEqualTo(USER_WUA_ID.intValue());
     assertThat(createdSubmissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.DRAFT);
     assertThat(createdSubmissionDetail.getSubmissionType()).isEqualTo(submissionType);

@@ -64,7 +64,7 @@ class OperatorSubmissionSearchSelectorService implements SubmissionSearchSelecto
   /**
    * This filters out the resource if the user is not part of the team for the responsible organisation
    * for the resource. Submissions on a resource can only be made by the responsible organisation.
-   * Or by the NSTA in the Exploration team.
+   * Or by the regulator in the Exploration team.
    */
   private boolean filterByResponsibleOrganisationForCreatingSubmission(List<Integer> userSubmitterOrgUnits,
                                                                        ResourceDetail resourceDetail) {

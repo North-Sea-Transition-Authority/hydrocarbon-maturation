@@ -6,6 +6,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="resourceGroupsEndpoint" type="String" -->
+<#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -32,7 +33,7 @@
                 preselectedItems=relatedSubmissionDetail!{}/>
                 <@fdsRadio.radioGroup
                   path="form.preferredView"
-                  labelText="Is this the NSTA preferred view of the ${resourceType}?"
+                  labelText="Is this the ${customerBranding.mnemonic()} preferred view of the ${resourceType}?"
                   hiddenContent=true>
                     <@fdsRadio.radioYes path="form.preferredView"/>
                     <@fdsRadio.radioNo path="form.preferredView"/>

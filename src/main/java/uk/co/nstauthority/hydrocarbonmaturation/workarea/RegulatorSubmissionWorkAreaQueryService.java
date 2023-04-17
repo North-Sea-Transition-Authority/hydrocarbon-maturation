@@ -49,7 +49,7 @@ class RegulatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQuery
     if (regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION)) {
       return REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM
           .eq(ResponsibleTeamType.EXPLORATION.name())
-          .and(SUBMISSION_DETAILS.SUBMITTER_TYPE.eq(SubmitterType.NSTA.name())
+          .and(SUBMISSION_DETAILS.SUBMITTER_TYPE.eq(SubmitterType.REGULATOR.name())
               .or(SUBMISSION_DETAILS.STATUS.eq(SubmissionDetailStatus.SUBMITTED.name())));
     }
     return falseCondition();

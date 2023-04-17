@@ -6,7 +6,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 class OpportunityDetailsForm implements SubmissionForm {
-  //TODO HM-129
   private OpportunityType opportunityType;
   private String otherTypeOfOpportunity;
   private String opportunityComments;

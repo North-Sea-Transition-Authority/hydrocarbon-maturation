@@ -9,7 +9,6 @@ class GeneralDetailsForm implements SubmissionForm {
 
   private Boolean resourceLocatedInUkcs;
   private DecimalInput percentageLocatedInUkcs;
-  //TODO HM-129
 
   private List<String> quadrantBlocks = new ArrayList<>();
   private List<String> licences = new ArrayList<>();

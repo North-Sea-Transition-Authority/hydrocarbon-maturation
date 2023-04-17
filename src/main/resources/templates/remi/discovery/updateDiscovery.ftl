@@ -7,6 +7,7 @@
 <#-- @ftlvariable name="prospectSelectedOption" type="String" -->
 <#-- @ftlvariable name="otherSourceOfInformation" type="String" -->
 <#-- @ftlvariable name="informationSource" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource" -->
+<#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -26,7 +27,7 @@
         If the discovery you want to update is not shown in the list then you must contact the operator responsible for the prospect to provide you with access to their organisation.
       </p>
       <p class="govuk-body">
-        If you are already part of the organisation then contact the NSTA for advice.
+        If you are already part of the organisation then contact the ${customerBranding.mnemonic()} for advice.
       </p>
     </@fdsDetails.summaryDetails>
       <@fdsAction.submitButtons primaryButtonText="Save and continue" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl="${springUrl(backLinkUrl)}"/>

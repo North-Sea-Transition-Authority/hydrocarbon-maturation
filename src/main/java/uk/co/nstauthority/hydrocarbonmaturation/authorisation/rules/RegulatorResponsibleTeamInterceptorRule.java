@@ -51,7 +51,7 @@ public class RegulatorResponsibleTeamInterceptorRule implements SubmissionInterc
       var userId = userDetails.wuaId();
       var submissionDetailId = submissionDetail.getId();
 
-      LOGGER.warn("User {} attempted to access submission {} " + "without expected NSTA team role {}.",
+      LOGGER.warn("User {} attempted to access submission {} " + "without expected regulator team role {}.",
           userId,
           submissionDetailId,
           responsibleTeam.getResponsibleTeamType());

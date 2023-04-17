@@ -53,7 +53,7 @@ class RelatedResourcesFormValidator extends PartialFullFormValidator {
           "Select a %s or %s group".formatted(resourceType, resourceType));
 
       ValidationUtils.rejectIfEmpty(errors, "preferredView", "preferredView.required",
-          "Select whether this is the NSTA preferred view of the %s?".formatted(resourceType));
+          "Select whether this is the preferred view of the %s?".formatted(resourceType));
     }
   }
 }

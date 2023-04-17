@@ -73,7 +73,7 @@ class RegulatorTeamMembershipInterceptorRuleTest {
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var regulatorManagedInformation = new RegulatorManagedInformation();
-    submissionDetail.setSubmitterType(SubmitterType.NSTA);
+    submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
         submissionDetail.getSubmission().getResource()))

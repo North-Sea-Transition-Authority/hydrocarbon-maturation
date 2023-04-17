@@ -45,7 +45,7 @@ public class SubmissionDetailTestUtils {
     submissionDetail.setId(submissionDetailId);
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
-    submissionDetail.setSubmitterType(SubmitterType.NSTA);
+    submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
     submissionDetail.setCreatedByWuaId(1);
     var submission = new Submission();
     submission.setResource(resource);

@@ -42,7 +42,6 @@ public class ControllerHelperService {
     modelAndView.addObject("errorList", errorList);
   }
 
-  //TODO HM-99 need top update with proper error ordering
   private List<ErrorItem> getErrorItemsFromBindingResult(BindingResult bindingResult) {
     List<ErrorItem> errorItems = new ArrayList<>();
     var index = 0;
