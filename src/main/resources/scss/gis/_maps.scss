@@ -1,0 +1,11 @@
+.shape-map {
+  &__container {
+    height: 500px;
+    padding-bottom: govuk-spacing(6);
+  }
+}
+
+// Override the OpenLayers attribution text font
+.ol-attribution {
+  @include govuk-font(19);
+}

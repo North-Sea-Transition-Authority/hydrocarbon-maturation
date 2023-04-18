@@ -86,9 +86,14 @@
         <#assign notificationBannerContent=notificationBanner>
     </#if>
 
-    <#assign allScripts = springUrl('/assets/remi/javascript/all.js')/>
     <#assign hydrocarbonScripts>
+      <#assign allScripts = springUrl('/assets/remi/javascript/all.js')/>
       <script type="module" src="${allScripts}"></script>
+
+      <#-- GIS -->
+      <#assign gisScript = springUrl('/assets/static/js/remi-gis-bundle.js')/>
+      <script type="module" src="${gisScript}"></script>
+      <link rel="stylesheet" href="<@spring.url'/assets/static/css/ol.css'/>">
     </#assign>
 
     <#assign serviceHeader>

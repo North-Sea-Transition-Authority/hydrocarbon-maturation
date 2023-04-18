@@ -11,3 +11,6 @@ $govuk-assets-path: "../../govuk-frontend/govuk/assets/";
 
 // Imports all custom ReMi stylesheets
 @import "remi/all";
+
+// Import GIS components
+@import "gis/maps";
