@@ -72,6 +72,8 @@ track changes over time.
 | REMI_EMAIL_TEST_RECIPIENT                   | If email is test mode, who to send emails to. Value can be a CSV list                              |
 | NOTIFY_API_KEY                              | The GOV.UK Notify key                                                                              |
 | NOTIFY_CALLBACK_TOKEN                       | The GOV.UK Notify callback token                                                                   |
+| NOTIFY_PROXY_HOST                           | The GOV.UK Notify proxy host                                                                       |
+| NOTIFY_PROXY_PORT                           | The GOV.UK Notify proxy port                                                                       |
 
 ### 3. Initialise the Fivium Design System
 - `git submodule update --init --recursive`
