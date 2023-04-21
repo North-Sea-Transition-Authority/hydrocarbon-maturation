@@ -7,7 +7,7 @@
 <#macro trapPropertiesSummaryCard trapPropertiesValues>
   <@fdsSummaryList.summaryListCard headingText="Trap properties" summaryListId="trapproperties">
     <@fdsSummaryList.summaryListRowNoAction keyText="Trap description">
-      ${trapPropertiesValues.trapDescription()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${trapPropertiesValues.trapDescription()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Trap type">
       ${trapPropertiesValues.trapType()}

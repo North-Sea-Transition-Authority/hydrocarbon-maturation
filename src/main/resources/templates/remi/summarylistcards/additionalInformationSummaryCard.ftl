@@ -10,7 +10,7 @@
     </@fdsSummaryList.summaryListRowNoAction>
     <#if additionalInformationValues.providingAdditionalComments() == "Yes">
       <@fdsSummaryList.summaryListRowNoAction keyText="Additional comments">
-        ${additionalInformationValues.additionalComments()}
+        <p class="govuk-body govuk-body__preserve-whitespace">${additionalInformationValues.additionalComments()}</p>
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
     <@fdsSummaryList.summaryListRowNoAction keyText="Do you have any additional documents?">

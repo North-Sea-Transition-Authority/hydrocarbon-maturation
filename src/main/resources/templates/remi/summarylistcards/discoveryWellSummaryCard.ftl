@@ -26,13 +26,13 @@
       ${discoveryWellValues.totalDepthFormation()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Total depth formation comments">
-      ${discoveryWellValues.totalDepthFormationComments()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${discoveryWellValues.totalDepthFormationComments()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Data acquisition programme">
-      ${discoveryWellValues.dataAcquisitionProgramme()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${discoveryWellValues.dataAcquisitionProgramme()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Geophysical update commentary">
-      ${discoveryWellValues.geophysicalUpdate()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${discoveryWellValues.geophysicalUpdate()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Hydrocarbons discovered">
       ${discoveryWellValues.hydrocarbonsDiscovered()}
@@ -41,7 +41,7 @@
       ${discoveryWellValues.discoveryStatus()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Comments regarding chance of commerciality">
-      ${discoveryWellValues.commentsRegardingCommerciality()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${discoveryWellValues.commentsRegardingCommerciality()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Total well cost">
       ${discoveryWellValues.totalWellCost()}

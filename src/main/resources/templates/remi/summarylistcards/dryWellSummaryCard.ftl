@@ -26,22 +26,22 @@
       ${dryWellValues.totalDepthFormation()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Total depth formation comments">
-      ${dryWellValues.totalDepthFormationComments()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${dryWellValues.totalDepthFormationComments()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Data acquisition programme">
-      ${dryWellValues.dataAcquisitionProgramme()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${dryWellValues.dataAcquisitionProgramme()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Geophysical update commentary">
-      ${dryWellValues.geophysicalUpdate()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${dryWellValues.geophysicalUpdate()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole shows type">
       ${dryWellValues.dryHoleType()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole shows description">
-      ${dryWellValues.dryHoleDescription()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${dryWellValues.dryHoleDescription()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole scope for remaining potential">
-      ${dryWellValues.dryHoleScope()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${dryWellValues.dryHoleScope()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Source failure category for post-well analysis">
       ${dryWellValues.sourceFailureCategory()}
@@ -58,8 +58,8 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Migration failure category for post-well analysis">
       ${dryWellValues.migrationFailureCategory()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Total depth formation">
-      ${dryWellValues.dryHoleComments()}
+    <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole comments">
+      <p class="govuk-body govuk-body__preserve-whitespace">${dryWellValues.dryHoleComments()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Dry hole cost">
       ${dryWellValues.dryHoleCost()}

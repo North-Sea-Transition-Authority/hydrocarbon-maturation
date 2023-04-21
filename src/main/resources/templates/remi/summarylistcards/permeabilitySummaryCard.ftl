@@ -28,11 +28,11 @@
       </@fdsSummaryList.summaryListRowNoAction>
       <#if permeabilityDetailsValues.permeabilitySource() == "Other">
         <@fdsSummaryList.summaryListRowNoAction keyText="Other permeability (md) source">
-          ${permeabilityDetailsValues.otherPermeabilitySource()}
+          <p class="govuk-body govuk-body__preserve-whitespace">${permeabilityDetailsValues.otherPermeabilitySource()}</p>
         </@fdsSummaryList.summaryListRowNoAction>
       </#if>
       <@fdsSummaryList.summaryListRowNoAction keyText="Permeability (md) comments">
-        ${permeabilityDetailsValues.permeabilityComments()}
+        <p class="govuk-body govuk-body__preserve-whitespace">${permeabilityDetailsValues.permeabilityComments()}</p>
       </@fdsSummaryList.summaryListRowNoAction>
       <@fdsSummaryList.summaryListRowNoAction keyText="Kv/kh average">
         ${permeabilityDetailsValues.kvKhAverage()}

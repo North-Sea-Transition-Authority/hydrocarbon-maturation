@@ -11,7 +11,7 @@
         ${hydrocarbonCaseValues.oilOnlyProbability()}
       </@fdsSummaryList.summaryListRowNoAction>
       <@fdsSummaryList.summaryListRowNoAction keyText="Oil only comments">
-        ${hydrocarbonCaseValues.oilOnlyComments()}
+        <p class="govuk-body govuk-body__preserve-whitespace">${hydrocarbonCaseValues.oilOnlyComments()}</p>
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
     <@fdsSummaryList.summaryListRowNoAction keyText="Gas only">
@@ -22,7 +22,7 @@
         ${hydrocarbonCaseValues.gasOnlyProbability()}
       </@fdsSummaryList.summaryListRowNoAction>
       <@fdsSummaryList.summaryListRowNoAction keyText="Gas only comments">
-        ${hydrocarbonCaseValues.gasOnlyComments()}
+        <p class="govuk-body govuk-body__preserve-whitespace">${hydrocarbonCaseValues.gasOnlyComments()}</p>
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
       <@fdsSummaryList.summaryListRowNoAction keyText="Oil and gas">
@@ -33,7 +33,7 @@
         ${hydrocarbonCaseValues.oilAndGasProbability()}
       </@fdsSummaryList.summaryListRowNoAction>
       <@fdsSummaryList.summaryListRowNoAction keyText="Oil and gas comments">
-        ${hydrocarbonCaseValues.oilAndGasComments()}
+        <p class="govuk-body govuk-body__preserve-whitespace">${hydrocarbonCaseValues.oilAndGasComments()}</p>
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
 

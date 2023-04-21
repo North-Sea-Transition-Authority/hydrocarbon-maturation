@@ -20,10 +20,10 @@
       || reservoirPropertiesValues.submissionType() == "CREATE_DISCOVERY_FROM_PROSPECT"
       || reservoirPropertiesValues.submissionType() == "RELINQUISHMENT_DISCOVERY">
       <@fdsSummaryList.summaryListRowNoAction keyText="Reservoir facies">
-        ${reservoirPropertiesValues.reservoirFacies()}
+        <p class="govuk-body govuk-body__preserve-whitespace">${reservoirPropertiesValues.reservoirFacies()}</p>
       </@fdsSummaryList.summaryListRowNoAction>
       <@fdsSummaryList.summaryListRowNoAction keyText="Reservoir connectivity">
-        ${reservoirPropertiesValues.reservoirConnectivity()}
+        <p class="govuk-body govuk-body__preserve-whitespace">${reservoirPropertiesValues.reservoirConnectivity()}</p>
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
     </@fdsSummaryList.summaryListCard>

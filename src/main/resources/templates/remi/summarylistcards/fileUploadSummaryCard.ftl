@@ -14,7 +14,7 @@
       </@fdsSummaryList.summaryListRowNoAction>
       <@fdsSummaryList.summaryListRowNoAction keyText="File description">
       <#if file.getDescription()?has_content>
-        ${file.getDescription()}
+        <p class="govuk-body govuk-body__preserve-whitespace">${file.getDescription()}</p>
       </#if>
       </@fdsSummaryList.summaryListRowNoAction>
     </#list>

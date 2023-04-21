@@ -36,7 +36,7 @@
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
     <@fdsSummaryList.summaryListRowNoAction keyText="Advise of any other gases and their concentrations">
-      ${gasFluidValues.adviseOtherGasesConcentration()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${gasFluidValues.adviseOtherGasesConcentration()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
 
   </@fdsSummaryList.summaryListCard>

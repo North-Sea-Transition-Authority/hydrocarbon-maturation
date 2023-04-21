@@ -45,7 +45,7 @@
       ${drillStemTestResultValues.waterFlowrate()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Comments and interpretation">
-      ${drillStemTestResultValues.commentsAndInterpretation()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${drillStemTestResultValues.commentsAndInterpretation()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 </#macro>

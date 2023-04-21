@@ -14,13 +14,13 @@
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>
     <@fdsSummaryList.summaryListRowNoAction keyText="Opportunity comments">
-      ${opportunityDetailsValues.opportunityComments()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${opportunityDetailsValues.opportunityComments()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Key evaluation work carried out">
-      ${opportunityDetailsValues.keyEvaluationWork()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${opportunityDetailsValues.keyEvaluationWork()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Key work required for further maturation">
-      ${opportunityDetailsValues.keyWorkRequired()}
+      <p class="govuk-body govuk-body__preserve-whitespace">${opportunityDetailsValues.keyWorkRequired()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
     <@fileUploadSummary.fileUploadSummary
       filesUploaded=opportunityDetailsValues.mapOfOpportunity()
