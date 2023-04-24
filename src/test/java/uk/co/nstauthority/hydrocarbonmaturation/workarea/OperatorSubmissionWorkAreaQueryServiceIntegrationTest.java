@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -120,6 +121,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getLicencesTheResourceIsOn,
             SubmissionWorkAreaQueryResult::getStatus,
+            SubmissionWorkAreaQueryResult::isUpdateRequested,
             result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
         .containsExactly(
             submissionDetail.getId(),
@@ -129,6 +131,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionType.CREATE_PROSPECT,
             List.of(953, 951),
             SubmissionDetailStatus.SUBMITTED,
+            false,
             createdTimestamp.truncatedTo(ChronoUnit.MILLIS)
         );
   }
@@ -189,6 +192,87 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(SubmissionWorkAreaQueryResult::getSubmissionDetailId)
         .containsExactly(submissionWithWrongResponsibleOrg.getId());
+  }
+
+  @Test
+  void getSubmissions_whenTwoSubmissions_whenOneHasUnresolvedUpdateAndOneResolved_assertUpdateRequested() {
+    var responsibleOrganisationId = 46;
+    var userOrgUnits = List.of(responsibleOrganisationId);
+    setUpIndustryTest(userOrgUnits);
+    var submissionDetailWithResolvedUpdate = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetailWithResolvedUpdate.setId(null);
+    submissionDetailWithResolvedUpdate.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetailWithResolvedUpdate.setSubmitterType(SubmitterType.INDUSTRY);
+
+    var createdTimestamp = Instant.now();
+    var resource = new Resource();
+    submissionDetailWithResolvedUpdate.setCreatedTimestamp(createdTimestamp);
+    resource.setType(ResourceType.PROSPECT);
+    resource.setCreatedTimestamp(createdTimestamp);
+    entityManager.persist(resource);
+    entityManager.flush();
+    var submission = SubmissionIntegrationTestUtils.createSubmission(resource, entityManager);
+    submissionDetailWithResolvedUpdate.setSubmission(submission);
+    var responsibleTeam = new RegulatorManagedInformation();
+    responsibleTeam.setResource(resource);
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    entityManager.persist(responsibleTeam);
+    entityManager.flush();
+    submissionDetailWithResolvedUpdate.getSubmission().setResource(resource);
+    entityManager.persist(submissionDetailWithResolvedUpdate);
+    entityManager.flush();
+    var submissionUpdateResolved = SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(
+        submission, true, entityManager);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(responsibleOrganisationId);
+    resourceDetail.setSubmissionDetail(submissionDetailWithResolvedUpdate);
+    entityManager.persist(resourceDetail);
+    entityManager.flush();
+
+    var submissionDetailWithUnresolvedUpdate =
+        SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetailWithUnresolvedUpdate.setId(null);
+    submissionDetailWithUnresolvedUpdate.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetailWithUnresolvedUpdate.setSubmitterType(SubmitterType.INDUSTRY);
+    submissionDetailWithUnresolvedUpdate.setCreatedTimestamp(Instant.now());
+    var resource2 = createResource(Instant.now(), entityManager);
+    entityManager.persist(resource2);
+    entityManager.flush();
+    var submissionWithUnresolvedUpdate =
+        SubmissionIntegrationTestUtils.createSubmission(resource2, entityManager);
+    submissionDetailWithUnresolvedUpdate.setSubmission(submissionWithUnresolvedUpdate);
+    var regulatorManagedInformation = new RegulatorManagedInformation();
+    regulatorManagedInformation.setResource(resource2);
+    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    entityManager.persist(regulatorManagedInformation);
+    entityManager.flush();
+    submissionDetailWithUnresolvedUpdate.getSubmission().setResource(resource2);
+    entityManager.persist(submissionDetailWithUnresolvedUpdate);
+    entityManager.flush();
+    var submissionUpdateUnresolved = SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(
+        submissionWithUnresolvedUpdate, false, entityManager);
+    var resourceDetail2 = new ResourceDetail();
+    resourceDetail2.setOrganisationId(responsibleOrganisationId);
+    resourceDetail2.setSubmissionDetail(submissionDetailWithUnresolvedUpdate);
+    entityManager.persist(resourceDetail2);
+    entityManager.flush();
+
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+
+    assertThat(results)
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
+            SubmissionWorkAreaQueryResult::isUpdateRequested)
+        .containsExactly(
+            tuple(
+                submissionDetailWithUnresolvedUpdate.getId(),
+                true
+            ),
+            tuple(
+                submissionDetailWithResolvedUpdate.getId(),
+                false
+            )
+        );
   }
 
   @Test

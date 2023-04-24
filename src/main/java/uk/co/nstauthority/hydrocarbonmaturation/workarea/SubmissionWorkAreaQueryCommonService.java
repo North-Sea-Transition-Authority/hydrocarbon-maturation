@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
+import static org.jooq.impl.DSL.field;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
@@ -7,6 +8,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RES
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_UPDATE;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.TRAP_PROPERTIES;
 
 import java.util.List;
@@ -38,10 +40,16 @@ class SubmissionWorkAreaQueryCommonService {
             DSL.arrayAgg(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
             SUBMISSION_DETAILS.CREATED_TIMESTAMP,
-            SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP)
+            SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP,
+            //true if update has been requested and not resolved
+            field(SUBMISSION_UPDATE.SUBMISSION_ID.eq(SUBMISSION_DETAILS.SUBMISSION_ID)
+                .and(SUBMISSION_UPDATE.RESOLVED.isFalse())))
         .from(SUBMISSION_DETAILS
             .join(SUBMISSIONS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID))
             .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
+            .leftJoin(SUBMISSION_UPDATE)
+            .on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSION_UPDATE.SUBMISSION_ID)
+                .and(SUBMISSION_UPDATE.RESOLVED.isFalse()))
             .leftJoin(RESOURCE_DETAILS)
             .on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(GENERAL_DETAILS)
@@ -57,8 +65,12 @@ class SubmissionWorkAreaQueryCommonService {
             SUBMISSION_DETAILS.ID,
             RESOURCE_DETAILS.RESOURCE_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            RESOURCE_DETAILS.ORGANISATION_ID)
-        .orderBy(SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc().nullsLast(),
+            RESOURCE_DETAILS.ORGANISATION_ID,
+            SUBMISSION_UPDATE.ID)
+        .orderBy(
+            SUBMISSION_UPDATE.RESOLVED.desc().nullsLast(),
+            SUBMISSION_UPDATE.REQUESTED_TIMESTAMP.desc().nullsLast(),
+            SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc().nullsLast(),
             SUBMISSION_DETAILS.CREATED_TIMESTAMP.desc())
         .fetchInto(SubmissionWorkAreaQueryResult.class);
   }

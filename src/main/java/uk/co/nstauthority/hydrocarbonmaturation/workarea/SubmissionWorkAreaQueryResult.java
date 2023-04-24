@@ -17,6 +17,7 @@ class SubmissionWorkAreaQueryResult {
   private final SubmissionDetailStatus status;
   private final Timestamp createdOn;
   private final Timestamp submittedOn;
+  private final boolean updateRequested;
 
   SubmissionWorkAreaQueryResult(UUID submissionDetailId,
                                 String submissionType,
@@ -26,7 +27,8 @@ class SubmissionWorkAreaQueryResult {
                                 Integer organisationResponsibleId,
                                 List<Integer> licencesTheResourceIsOn,
                                 Timestamp createdOn,
-                                Timestamp submittedOn) {
+                                Timestamp submittedOn,
+                                boolean updateRequested) {
     this.submissionDetailId = submissionDetailId;
     this.submissionType = SubmissionType.valueOf(submissionType);
     this.resourceName = resourceName;
@@ -36,6 +38,7 @@ class SubmissionWorkAreaQueryResult {
     this.status = SubmissionDetailStatus.valueOf(status);
     this.createdOn = createdOn;
     this.submittedOn = submittedOn;
+    this.updateRequested = updateRequested;
   }
 
   UUID getSubmissionDetailId() {
@@ -72,5 +75,9 @@ class SubmissionWorkAreaQueryResult {
 
   Timestamp getSubmittedOn() {
     return submittedOn;
+  }
+
+  public boolean isUpdateRequested() {
+    return updateRequested;
   }
 }

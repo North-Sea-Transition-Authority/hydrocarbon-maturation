@@ -1,12 +1,22 @@
 <#include '../layout/layout.ftl'>
 <#-- @ftlvariable name="workAreaItem" type="uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaItem" -->
 
+
+
 <#macro submissionWorkAreaItem workAreaItem>
   <#assign modelProperties = workAreaItem.modelProperties().properties />
+    <#assign updateRequestedTag>
+      <#if modelProperties["updateRequested"]>
+        <@fdsResultList.resultListTag
+          tagText="Update requested"
+          tagClass="govuk-tag--blue govuk-tag--float-right"/>
+      </#if>
+    </#assign>
     <@fdsResultList.resultListItem
       captionHeadingText=workAreaItem.captionText()!""
       linkHeadingUrl=springUrl(workAreaItem.actionUrl())
-      linkHeadingText=workAreaItem.headingText()>
+      linkHeadingText=workAreaItem.headingText()
+      itemTag=updateRequestedTag>
 
     <@fdsResultList.resultListDataItem>
       <@fdsResultList.resultListDataValue
@@ -26,6 +36,5 @@
         key="Licences"
         value=licencesDisplay/>
     </@fdsResultList.resultListDataItem>
-
   </@fdsResultList.resultListItem>
 </#macro>

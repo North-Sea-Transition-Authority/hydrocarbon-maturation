@@ -27,6 +27,7 @@ class SubmissionWorkAreaQueryResultTestUtil {
     private List<Integer> licencesTheResourceIsOn = List.of(1,2);
     private Instant createdTime = Instant.now();
     private Instant submittedTime = Instant.now();
+    private Boolean updateRequested = false;
 
     private Builder() {
     }
@@ -76,13 +77,18 @@ class SubmissionWorkAreaQueryResultTestUtil {
       return this;
     }
 
+    public Builder withUpdateRequested(boolean updateRequested) {
+      this.updateRequested = updateRequested;
+      return this;
+    }
+
     public SubmissionWorkAreaQueryResult build() {
       var createdTimestamp = Timestamp.from(createdTime);
       var submittedTimestamp = Timestamp.from(submittedTime);
 
       return new SubmissionWorkAreaQueryResult(submissionDetailId, submissionType, status,
           resourceName, centreOfInterestQuadBlock, organisationResponsibleId,
-          licencesTheResourceIsOn, createdTimestamp, submittedTimestamp
+          licencesTheResourceIsOn, createdTimestamp, submittedTimestamp, updateRequested
       );
     }
   }

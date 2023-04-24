@@ -80,6 +80,7 @@ class WorkAreaItemService {
         .addProperty("organisationResponsible",
             submissionDetailDisplayService.getOrganisationResponsibleDisplay(organisationResponsibleId))
         .addProperty("licences", submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn))
-        .addProperty("submissionStatus", submissionWorkAreaQueryResult.getStatus().getDisplayName());
+        .addProperty("submissionStatus", submissionWorkAreaQueryResult.getStatus().getDisplayName())
+        .addProperty("updateRequested", submissionWorkAreaQueryResult.isUpdateRequested());
   }
 }

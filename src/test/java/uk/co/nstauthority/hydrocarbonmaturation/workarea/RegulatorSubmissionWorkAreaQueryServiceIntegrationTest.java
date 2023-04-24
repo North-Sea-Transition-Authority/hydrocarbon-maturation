@@ -385,6 +385,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getLicencesTheResourceIsOn,
             SubmissionWorkAreaQueryResult::getStatus,
+            SubmissionWorkAreaQueryResult::isUpdateRequested,
             result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
         .containsExactly(
             submissionDetail.getId(),
@@ -394,7 +395,60 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionType.CREATE_PROSPECT,
             List.of(953, 951),
             SubmissionDetailStatus.DRAFT,
+            false,
             createdTimestamp.truncatedTo(ChronoUnit.MILLIS)
+        );
+  }
+
+  @Test
+  void getSubmissions_whenOneUpdateUnresolvedAndOneResolved_assertUpdateRequestedAndOrder() {
+    Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
+    setUpRegulatorTest(userRoles);
+
+    var updateRequestedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    updateRequestedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    updateRequestedSubmissionDetail.setId(null);
+    updateRequestedSubmissionDetail.setSubmittedByWuaId(5);
+    updateRequestedSubmissionDetail.setCreatedTimestamp(Instant.now());
+    var resource = createResource(ResourceType.PROSPECT);
+    updateRequestedSubmissionDetail.getSubmission().setResource(resource);
+    var submissionUpdateRequested = createSubmissionForIntegrationTest(resource, entityManager);
+    updateRequestedSubmissionDetail.setSubmission(submissionUpdateRequested);
+    createResponsibleTeam(resource, ResponsibleTeamType.EXPLORATION);
+    entityManager.persist(updateRequestedSubmissionDetail);
+    entityManager.flush();
+    var submissionUpdateUnresolved = SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(
+        submissionUpdateRequested, false, entityManager);
+
+    var updateResolvedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    updateResolvedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    updateResolvedSubmissionDetail.setId(null);
+    updateResolvedSubmissionDetail.setSubmittedByWuaId(5);
+    updateResolvedSubmissionDetail.setCreatedTimestamp(Instant.now());
+    var resource2 = createResource(ResourceType.PROSPECT);
+    updateResolvedSubmissionDetail.getSubmission().setResource(resource2);
+    var submissionResolved = createSubmissionForIntegrationTest(resource2, entityManager);
+    updateResolvedSubmissionDetail.setSubmission(submissionResolved);
+    createResponsibleTeam(resource2, ResponsibleTeamType.EXPLORATION);
+    entityManager.persist(updateResolvedSubmissionDetail);
+    entityManager.flush();
+    var submissionUpdateResolved = SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(
+        submissionResolved, true, entityManager);
+
+    var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+
+    // asserts correct ordering of the list, the items are ordered by submittedOn if its present otherwise createdOn
+    assertThat(results)
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
+            SubmissionWorkAreaQueryResult::isUpdateRequested)
+        .containsExactly(
+            tuple(
+                updateRequestedSubmissionDetail.getId(),
+                true),
+            tuple(
+                updateResolvedSubmissionDetail.getId(),
+                false)
         );
   }
 

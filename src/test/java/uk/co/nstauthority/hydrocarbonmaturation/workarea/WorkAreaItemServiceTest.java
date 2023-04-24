@@ -35,7 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 
 @ExtendWith(MockitoExtension.class)
 class WorkAreaItemServiceTest {
-
+  private final static boolean UPDATE_REQUESTED = true;
   @Mock
   private SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory;
 
@@ -72,6 +72,7 @@ class WorkAreaItemServiceTest {
         .withCentreOfInterestQuadBlock(null)
         .withOrganisationResponsibleId(ORGANISATION_ID)
         .withLicencesTheResourceIsOn(null)
+        .withUpdateRequested(UPDATE_REQUESTED)
         .build();
     queryResults = List.of(queryResultWithEverythingFilledIn, queryResultWithoutLicencesAndBlock);
   }
@@ -114,13 +115,15 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"));
+            entry("submissionStatus", "Draft"),
+            entry("updateRequested", false));
 
     assertThat(result.get(1).modelProperties().getProperties())
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"));
+            entry("submissionStatus", "Draft"),
+            entry("updateRequested", UPDATE_REQUESTED));
   }
 
   @Test
@@ -162,7 +165,8 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "organisation (1)"),
             entry("licences", List.of(licence1.getName(), licence2.getName())),
-            entry("submissionStatus", "Draft"));
+            entry("submissionStatus", "Draft"),
+            entry("updateRequested", false));
   }
 
   @Test
@@ -208,7 +212,8 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"));
+            entry("submissionStatus", "Draft"),
+            entry("updateRequested", false));
   }
 
   @Test
@@ -240,7 +245,8 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"));
+            entry("submissionStatus", "Draft"),
+            entry("updateRequested", false));
   }
 
   @Test
@@ -272,7 +278,8 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"));
+            entry("submissionStatus", "Draft"),
+            entry("updateRequested", false));
   }
 
   @Test
@@ -295,7 +302,8 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", organisationName),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"));
+            entry("submissionStatus", "Draft"),
+            entry("updateRequested", false));
   }
 
 
@@ -318,7 +326,8 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Draft"));
+            entry("submissionStatus", "Draft"),
+            entry("updateRequested", false));
   }
 
   @Test
@@ -356,7 +365,8 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
-            entry("submissionStatus", "Submitted"));
+            entry("submissionStatus", "Submitted"),
+            entry("updateRequested", false));
   }
 
   @ParameterizedTest
