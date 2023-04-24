@@ -136,14 +136,15 @@ class RelatedResourcesFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("submissionDetailIdOfRelatedResource", Set.of("submissionDetailIdOfRelatedResource.required")),
-            entry("preferredView", Set.of("preferredView.required"))
-        );
+            entry("preferredView", Set.of("preferredView.required")),
+            entry("submissionDetailIdOfRelatedResource", Set.of("submissionDetailIdOfRelatedResource.required"))
+
+            );
 
     assertThat(extractedMessages)
         .containsExactly(
-            entry("submissionDetailIdOfRelatedResource", Set.of("Select a discovery or discovery group")),
-            entry("preferredView", Set.of("Select whether this is the preferred view of the discovery?"))
+            entry("preferredView", Set.of("Select whether this is the preferred view of the discovery?")),
+            entry("submissionDetailIdOfRelatedResource", Set.of("Select a discovery or discovery group"))
         );
   }
 

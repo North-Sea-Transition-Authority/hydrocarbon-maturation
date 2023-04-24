@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
@@ -52,6 +56,9 @@ class ReviewSubmissionServiceTest {
 
   @Mock
   private SubmissionDetailService submissionDetailService;
+
+  @Mock
+  private SubmissionUpdateService submissionUpdateService;
 
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
@@ -306,6 +313,25 @@ class ReviewSubmissionServiceTest {
           "", 1, "",
           List.of(1), List.of("1"), responsibleTeamType.getDisplayName(),
           responsibleTeamType);
+    }
+  }
+
+  @Nested
+  class WhenCheckingCanRequestUpdateOnSubmissionDetail {
+
+    @Test
+    void canRequestUpdateOnSubmissionDetail_verifyMethodCalls() {
+      reviewSubmissionService.canRequestUpdateOnSubmissionDetail(submissionDetail);
+      verify(submissionUpdateService, times(1)).canRequestUpdateOnSubmission(submissionDetail);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void canRequestUpdateOnSubmissionDetail_assertReturn(boolean canRequestUpdate) {
+      when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail)).thenReturn(canRequestUpdate);
+
+      var result = reviewSubmissionService.canRequestUpdateOnSubmissionDetail(submissionDetail);
+      assertThat(result).isEqualTo(canRequestUpdate);
     }
   }
 }

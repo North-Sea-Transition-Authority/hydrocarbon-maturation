@@ -13,6 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -26,6 +27,7 @@ public class ReviewSubmissionService {
   private final IndustryTeamMemberService industryTeamMemberService;
   private final SubmissionDetailService submissionDetailService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  private final SubmissionUpdateService submissionUpdateService;
 
   @Autowired
   ReviewSubmissionService(SubmissionRecordSummaryQueryService submissionRecordSummaryQueryService,
@@ -33,13 +35,15 @@ public class ReviewSubmissionService {
                           RegulatorTeamService regulatorTeamService,
                           IndustryTeamMemberService industryTeamMemberService,
                           SubmissionDetailService submissionDetailService,
-                          ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
+                          ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+                          SubmissionUpdateService submissionUpdateService) {
     this.submissionRecordSummaryQueryService = submissionRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.regulatorTeamService = regulatorTeamService;
     this.industryTeamMemberService = industryTeamMemberService;
     this.submissionDetailService = submissionDetailService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+    this.submissionUpdateService = submissionUpdateService;
   }
 
   public SubmissionRecordSummaryView getSubmissionRecordOrThrow(UUID resourceId) {
@@ -88,6 +92,10 @@ public class ReviewSubmissionService {
     return currentSubmission.getStatus() == SubmissionDetailStatus.SUBMITTED
         && (ResponsibleTeamType.EXPLORATION.equals(submissionRecord.responsibleTeamType())
         && regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION));
+  }
+
+  boolean canRequestUpdateOnSubmissionDetail(SubmissionDetail submissionDetail) {
+    return submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail);
   }
 
   private boolean isResponsibleOrganisationMemberOnLatestApprovedSubmissionOnResource(

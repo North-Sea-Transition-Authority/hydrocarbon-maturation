@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.RequestUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySearchSelectorModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionSearchSelectorForm;
@@ -145,7 +146,21 @@ public class ReviewSubmissionController {
           .addObject("regulatorManagedInformationSummaryView",
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
           .addObject("resourceGroupsSummaryView",
-              resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource));
+              resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
+          .addObject("canRequestUpdate", reviewSubmissionService
+              .canRequestUpdateOnSubmissionDetail(submissionDetail))
+          .addObject("requestUpdateUrl", ReverseRouter.route(on(RequestUpdateController.class)
+              .showRequestUpdateConfirmationPage(submissionDetail.getId())))
+          .addObject("approveUrl",
+              ReverseRouter.route(on(ApproveSubmissionController.class)
+                  .showApproveConfirmationPage(submissionDetail.getId())))
+          .addObject("regulatorManagedInformationUrl",
+              ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                  .getRegulatorManagedInformationPage(
+                      resourceId, submissionDetail.getId())))
+          .addObject("withdrawUrl",
+              ReverseRouter.route(on(WithdrawSubmissionController.class)
+                  .showWithdrawConfirmationPage(submissionDetail.getId())));
     }
 
     return modelAndView
@@ -155,16 +170,6 @@ public class ReviewSubmissionController {
         .addObject("canReview", reviewSubmissionService.canReviewSubmission(
             submissionRecord, userDetail, submissionDetail))
         .addObject("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName())
-        .addObject("approveUrl",
-            ReverseRouter.route(on(ApproveSubmissionController.class)
-                .showApproveConfirmationPage(submissionDetail.getId())))
-        .addObject("regulatorManagedInformationUrl",
-            ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .getRegulatorManagedInformationPage(
-                    resourceId, submissionDetail.getId())))
-        .addObject("withdrawUrl",
-            ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .showWithdrawConfirmationPage(submissionDetail.getId())))
         .addObject("isRegulator", isRegulator
         );
   }

@@ -49,11 +49,11 @@ class RelatedResourcesFormValidator extends PartialFullFormValidator {
             .formatted(resourceType, resourceType));
 
     if (BooleanUtils.isTrue(relatedProspectsForm.getRelatedToAnotherResource())) {
-      ValidationUtils.rejectIfEmpty(errors, "submissionDetailIdOfRelatedResource", "submissionDetailIdOfRelatedResource.required",
-          "Select a %s or %s group".formatted(resourceType, resourceType));
-
       ValidationUtils.rejectIfEmpty(errors, "preferredView", "preferredView.required",
           "Select whether this is the preferred view of the %s?".formatted(resourceType));
+
+      ValidationUtils.rejectIfEmpty(errors, "submissionDetailIdOfRelatedResource", "submissionDetailIdOfRelatedResource.required",
+          "Select a %s or %s group".formatted(resourceType, resourceType));
     }
   }
 }

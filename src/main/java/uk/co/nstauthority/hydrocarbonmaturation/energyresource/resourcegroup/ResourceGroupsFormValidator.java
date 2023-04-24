@@ -49,14 +49,14 @@ class ResourceGroupsFormValidator implements SmartValidator {
             .formatted(resourceType, resourceType));
 
     if (BooleanUtils.isTrue(form.getRelatedToAnotherResource())) {
+      ValidationUtils.rejectIfEmpty(errors, "preferredView", "preferredView.required",
+          "Select whether this is the regulator preferred view of the %s?".formatted(resourceType));
+
       ValidationUtils.rejectIfEmpty(
           errors,
           "submissionDetailIdOfRelatedResource",
           "submissionDetailIdOfRelatedResource.required",
           "Select a %s or %s group".formatted(resourceType, resourceType));
-
-      ValidationUtils.rejectIfEmpty(errors, "preferredView", "preferredView.required",
-          "Select whether this is the regulator preferred view of the %s?".formatted(resourceType));
 
       if (BooleanUtils.isFalse(form.getPreferredView())
           && isResourcePreferredViewAndGroupHasMoreThanTwo(existingGroupLink, resourceGroupLinks)) {

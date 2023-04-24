@@ -43,6 +43,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.RequestUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySearchSelectorModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
@@ -141,12 +142,11 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         .contains(
             entry("submissionRecord", SUBMISSION_RECORD_VIEW),
             entry("canReview", true),
+            entry("isRegulator", false),
             entry("submissionsOnResource", Map.of()),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
             entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
-            entry("approveUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
-                .showApproveConfirmationPage(otherSubmissionOnResource.getId()))),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType())
         );
 
@@ -176,15 +176,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         .contains(
             entry("submissionRecord", SUBMISSION_RECORD_VIEW),
             entry("canReview", false),
-            entry("approveUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
-                .showApproveConfirmationPage(submissionDetail.getId()))),
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("regulatorManagedInformationUrl",
-                ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(
-                        RESOURCE_ID, submissionDetail.getId()))),
-            entry("withdrawUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .showWithdrawConfirmationPage(submissionDetail.getId()))),
             entry("isRegulator", false)
         ).doesNotContainKey("regulatorManagedInformationSummaryView");
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -234,6 +226,9 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(
                         RESOURCE_ID, submissionDetail.getId()))),
+            entry("requestUpdateUrl", ReverseRouter.route(on(RequestUpdateController.class)
+                .showRequestUpdateConfirmationPage(submissionDetail.getId()))),
+            entry("canRequestUpdate", false),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
             entry("resourceGroupsSummaryView", resourceGroupSummary),

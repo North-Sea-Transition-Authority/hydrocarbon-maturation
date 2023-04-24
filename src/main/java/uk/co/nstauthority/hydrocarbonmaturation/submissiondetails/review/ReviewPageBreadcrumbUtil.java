@@ -10,7 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstan
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
-class ReviewPageBreadcrumbUtil {
+public class ReviewPageBreadcrumbUtil {
 
   private ReviewPageBreadcrumbUtil() {
     throw new IllegalUtilClassInstantiationException(this.getClass());

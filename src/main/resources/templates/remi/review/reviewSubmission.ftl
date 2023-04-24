@@ -11,6 +11,9 @@
 <#-- @ftlvariable name="isApproved" type="boolean"-->
 <#-- @ftlvariable name="regulatorManagedInformationUrl" type="String"-->
 <#-- @ftlvariable name="withdrawUrl" type="String" -->
+<#-- @ftlvariable name="approveUrl" type="String" -->
+<#-- @ftlvariable name="requestUpdateUrl" type="String" -->
+<#-- @ftlvariable name="canRequestUpdate" type="boolean" -->
 <#-- @ftlvariable name="submissionSelectedUrl" type="String"-->
 <#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
 <#-- @ftlvariable name="resourceType" type="String"-->
@@ -43,6 +46,12 @@
   <#if canReview>
     <@fdsAction.buttonGroup>
       <@fdsAction.link linkText="Approve submission" linkClass="govuk-button" linkUrl=springUrl(approveUrl)/>
+      <#if canRequestUpdate>
+        <@fdsAction.link
+          linkText="Request update"
+          linkClass="govuk-button govuk-button--secondary"
+          linkUrl=springUrl(requestUpdateUrl)/>
+      </#if>
       <@fdsAction.link
         linkText="Withdraw submission"
         linkClass="govuk-button govuk-button--secondary"

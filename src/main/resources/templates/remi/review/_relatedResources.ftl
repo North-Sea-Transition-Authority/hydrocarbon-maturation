@@ -8,6 +8,13 @@
     hintText="Different organisations may provide their own views of a ${resourceType}. Each is captured in the service and associated with each other so that it is clear they are different views of the same area."
     hiddenContent=true>
     <@fdsRadio.radioYes path="form.relatedToAnotherResource">
+      <@fdsRadio.radioGroup
+        path="form.preferredView"
+        labelText="Is this the ${CUSTOMER_MNEMONIC} preferred view of the ${resourceType}?"
+        hiddenContent=true>
+            <@fdsRadio.radioYes path="form.preferredView"/>
+            <@fdsRadio.radioNo path="form.preferredView"/>
+        </@fdsRadio.radioGroup>
       <@fdsSearchSelector.searchSelectorRest
         path="form.submissionDetailIdOfRelatedResource"
         restUrl=springUrl(resourceGroupsEndpoint)
@@ -15,13 +22,6 @@
         selectorMinInputLength=3
         nestingPath="form.submissionDetailIdOfRelatedResource"
         preselectedItems=relatedSubmissionDetail!{}/>
-        <@fdsRadio.radioGroup
-        path="form.preferredView"
-        labelText="Is this the ${CUSTOMER_MNEMONIC} preferred view of the ${resourceType}?"
-        hiddenContent=true>
-          <@fdsRadio.radioYes path="form.preferredView"/>
-          <@fdsRadio.radioNo path="form.preferredView"/>
-        </@fdsRadio.radioGroup>
     </@fdsRadio.radioYes>
     <@fdsRadio.radioNo path="form.relatedToAnotherResource"/>
   </@fdsRadio.radioGroup>
