@@ -1,38 +1,31 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
-import static uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter.emptyBindingResult;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -46,12 +39,6 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
 
   @MockBean
   private IndustryTeamService industryTeamService;
-
-  @MockBean
-  private NewTeamFormValidator newTeamFormValidator;
-
-  @MockBean
-  private OrganisationGroupQueryService organisationGroupQueryService;
 
   @MockBean
   protected PermissionService permissionService;
@@ -69,12 +56,20 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void renderMemberList_whenNotMemberOfTeam_thenForbidden() throws Exception {
-
     var user = ServiceUserDetailTestUtil.Builder().build();
 
-    var teamId = new TeamId(UUID.randomUUID());
+    var team = TeamTestUtil.Builder()
+        .withTeamType(TeamType.INDUSTRY)
+        .build();
 
-    when(teamManagementService.isMemberOfTeamOrIndustryAccessManager(teamId, user)).thenReturn(false);
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.VIEWER)
+        .build();
+    var teamId = team.toTeamId();
+
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(false);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(IndustryTeamManagementController.class).renderMemberList(teamId)))
@@ -82,8 +77,9 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
         .andExpect(status().isForbidden());
   }
 
-  @Test
-  void renderMemberList_whenMemberOfTeam_thenOk() throws Exception {
+  @ParameterizedTest
+  @EnumSource(value = IndustryTeamRole.class)
+  void renderMemberList_whenMemberOfTeam_thenOk(IndustryTeamRole industryTeamRole) throws Exception {
 
     var user = ServiceUserDetailTestUtil.Builder().build();
 
@@ -91,9 +87,14 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(industryTeamRole)
+        .build();
     var teamId = team.toTeamId();
 
-    when(teamManagementService.isMemberOfTeamOrIndustryAccessManager(teamId, user)).thenReturn(true);
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     mockMvc.perform(
@@ -102,14 +103,23 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
   }
 
-  @Test
+  @SecurityTest
   void renderMemberList_whenNoTeamFound_thenNotFound() throws Exception {
 
     var user = ServiceUserDetailTestUtil.Builder().build();
 
-    var teamId = new TeamId(UUID.randomUUID());
+    var team = TeamTestUtil.Builder()
+        .withTeamType(TeamType.INDUSTRY)
+        .build();
 
-    when(teamManagementService.isMemberOfTeamOrIndustryAccessManager(teamId, user)).thenReturn(true);
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
+    var teamId = team.toTeamId();
+
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.empty());
 
     mockMvc.perform(
@@ -127,9 +137,14 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
     var teamId = team.toTeamId();
 
-    when(teamManagementService.isMemberOfTeamOrIndustryAccessManager(teamId, user)).thenReturn(true);
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     var teamMemberView = TeamMemberViewTestUtil.Builder()
@@ -158,11 +173,14 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
     var teamId = team.toTeamId();
 
-    when(industryTeamService.isAccessManager(teamId, user)).thenReturn(true);
-
-    when(teamManagementService.isMemberOfTeamOrIndustryAccessManager(teamId, user)).thenReturn(true);
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     var teamMemberView = TeamMemberViewTestUtil.Builder()
@@ -171,8 +189,13 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
     when(teamMemberViewService.getTeamMemberViewsForTeam(team)).thenReturn(List.of(teamMemberView));
 
     var canRemoveUsers = true;
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS)))
-        .thenReturn(canRemoveUsers);
+    when(permissionService.hasPermission(
+        user,
+        Set.of(
+            RolePermission.INDUSTRY_MANAGE_ORGANISATION,
+            RolePermission.REGULATOR_MANAGE_ALL_ORGANISATIONS)
+        )
+    ).thenReturn(canRemoveUsers);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(IndustryTeamManagementController.class).renderMemberList(teamId)))
@@ -190,76 +213,4 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
         .andExpect(model().attribute("teamMembers", List.of(teamMemberView)));
   }
 
-
-  @Test
-  void renderNewTeamForm_authorisedUser_isOk() throws Exception {
-    var user = ServiceUserDetailTestUtil.Builder().build();
-
-    when(teamManagementService.isIndustryAccessManagerInRegulatorTeam(user)).thenReturn(true);
-
-    mockMvc.perform(
-            get(ReverseRouter.route(on(IndustryTeamManagementController.class).renderNewIndustryTeamForm(new NewTeamForm())))
-                .with(user(user)))
-        .andExpect(status().isOk())
-        .andExpect(view().name("remi/permissionmanagement/addTeam"))
-    ;
-  }
-
-  @Test
-  void addNewIndustryTeam_FormValidates_RedirectToTeamMemberList() throws Exception {
-    var user = ServiceUserDetailTestUtil.Builder().withWuaId(100L).build();
-    when(teamManagementService.isIndustryAccessManagerInRegulatorTeam(user)).thenReturn(true);
-
-    var organisationGroupId = 10000;
-    var orgGroup = OrganisationGroupTestUtil.createOrganisationGroupDto(organisationGroupId, "Royal Dutch Shell");
-
-    var form = new NewTeamForm();
-    form.setOrganisationGroupId(String.valueOf(organisationGroupId));
-
-    var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.INDUSTRY)
-        .build();
-
-    when(industryTeamService.getTeamByOrganisationGroupId((organisationGroupId)))
-        .thenReturn(Optional.of(team));
-
-    when(organisationGroupQueryService.getOrganisationGroupById(any())).thenReturn(Optional.of(orgGroup));
-
-    mockMvc.perform(
-            post(ReverseRouter.route(on(IndustryTeamManagementController.class).addNewIndustryTeam(form, emptyBindingResult(), null)))
-                .flashAttr("form", form)
-                .with(csrf())
-                .with(user(user)))
-        .andExpect(status().is3xxRedirection());
-  }
-
-  @Test
-  void addNewIndustryTeam_FormValidatesGroupDoesntExist_RedirectToTeamMemberList() throws Exception {
-    var user = ServiceUserDetailTestUtil.Builder().withWuaId(100L).build();
-    when(teamManagementService.isIndustryAccessManagerInRegulatorTeam(user)).thenReturn(true);
-
-    var organisationGroupId = 10000;
-    var orgGroup = OrganisationGroupTestUtil.createOrganisationGroupDto(organisationGroupId, "Royal Dutch Shell");
-
-    when(organisationGroupQueryService.getOrganisationGroupById(any())).thenReturn(Optional.of(orgGroup));
-
-    var form = new NewTeamForm();
-    form.setOrganisationGroupId(String.valueOf(organisationGroupId));
-
-    when(industryTeamService.getTeamByOrganisationGroupId((organisationGroupId)))
-        .thenReturn(Optional.empty());
-
-    var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.INDUSTRY)
-        .build();
-
-    when(industryTeamService.createTeam(anyString(), anyInt(), anyLong())).thenReturn(team);
-
-    mockMvc.perform(
-            post(ReverseRouter.route(on(IndustryTeamManagementController.class).addNewIndustryTeam(form, emptyBindingResult(), null)))
-                .flashAttr("form", form)
-                .with(csrf())
-                .with(user(user)))
-        .andExpect(status().is3xxRedirection());
-  }
 }

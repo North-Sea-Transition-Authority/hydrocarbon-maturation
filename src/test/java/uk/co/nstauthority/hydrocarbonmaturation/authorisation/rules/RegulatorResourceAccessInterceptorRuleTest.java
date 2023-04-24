@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ExtendWith(MockitoExtension.class)
-class RegulatorTeamMembershipInterceptorRuleTest {
+class RegulatorResourceAccessInterceptorRuleTest {
 
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
@@ -30,7 +30,7 @@ class RegulatorTeamMembershipInterceptorRuleTest {
   private PermissionService permissionService;
 
   @InjectMocks
-  private RegulatorTeamMembershipInterceptorRule regulatorTeamMembershipInterceptorRule;
+  private RegulatorResourceAccessInterceptorRule regulatorTeamMembershipInterceptorRule;
 
   @Test
   void hasRequiredTeamMembershipPermissions_whenInResponsibleTeam_assertRulePass() {
@@ -45,7 +45,7 @@ class RegulatorTeamMembershipInterceptorRuleTest {
         .thenReturn(true);
 
     var securityRuleResult = regulatorTeamMembershipInterceptorRule
-        .hasRequiredTeamMembershipPermissions(
+        .hasRequiredResourceAccessPermissions(
             user,
             submissionDetail);
     assertThat(securityRuleResult.hasRulePassed()).isTrue();
@@ -63,7 +63,7 @@ class RegulatorTeamMembershipInterceptorRuleTest {
         .thenReturn(regulatorManagedInformation);
 
     var securityRuleResult = regulatorTeamMembershipInterceptorRule
-        .hasRequiredTeamMembershipPermissions(user, submissionDetail);
+        .hasRequiredResourceAccessPermissions(user, submissionDetail);
     assertThat(securityRuleResult.hasRulePassed()).isFalse();
     assertThat(securityRuleResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
   }
@@ -80,7 +80,7 @@ class RegulatorTeamMembershipInterceptorRuleTest {
         .thenReturn(regulatorManagedInformation);
 
     var securityRuleResult = regulatorTeamMembershipInterceptorRule
-        .hasRequiredTeamMembershipPermissions(user, submissionDetail);
+        .hasRequiredResourceAccessPermissions(user, submissionDetail);
     assertThat(securityRuleResult.hasRulePassed()).isFalse();
     assertThat(securityRuleResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
   }
@@ -100,7 +100,7 @@ class RegulatorTeamMembershipInterceptorRuleTest {
         .thenReturn(true);
 
     var securityRuleResult = regulatorTeamMembershipInterceptorRule
-        .hasRequiredTeamMembershipPermissions(
+        .hasRequiredResourceAccessPermissions(
             user,
             submissionDetail);
     assertThat(securityRuleResult.hasRulePassed()).isTrue();

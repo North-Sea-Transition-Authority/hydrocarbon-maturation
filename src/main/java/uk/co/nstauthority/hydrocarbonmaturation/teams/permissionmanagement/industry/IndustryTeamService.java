@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
@@ -81,14 +80,12 @@ public class IndustryTeamService {
   }
 
   @Transactional
-  public Team createTeam(String groupName, int organisationGroupId, long wuaId) {
+  public Team createTeam(String groupName, int organisationGroupId) {
     var team = new Team();
     team.setTeamType(TeamType.INDUSTRY);
     team.setDisplayName(groupName);
     team.setOrganisationGroupId(organisationGroupId);
     teamService.createTeam(team);
-
-    teamMemberRoleService.updateUserTeamRoles(team, new WebUserAccountId(wuaId), Set.of("ACCESS_MANAGER"));
     return team;
   }
 

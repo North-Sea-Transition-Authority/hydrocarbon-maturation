@@ -15,15 +15,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
-class TeamMembershipInterceptorFactoryTest {
+class ResourceAccessInterceptorFactoryTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @Mock
-  private  RegulatorTeamMembershipInterceptorRule regulatorTeamMembershipInterceptorRule;
+  private RegulatorResourceAccessInterceptorRule regulatorTeamMembershipInterceptorRule;
 
   @Mock
-  private  OperatorTeamMembershipInterceptorRule operatorTeamMembershipInterceptorRule;
+  private OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
 
   @Mock
   private  UserDetailService userDetailService;
@@ -32,7 +32,7 @@ class TeamMembershipInterceptorFactoryTest {
   private  RegulatorTeamService regulatorTeamService;
 
   @InjectMocks
-  private TeamMembershipInterceptorFactory teamMembershipInterceptorFactory;
+  private ResourceAccessInterceptorFactory resourceAccessInterceptorFactory;
 
   @BeforeEach
   void setUp() {
@@ -43,7 +43,7 @@ class TeamMembershipInterceptorFactoryTest {
   void getTeamMembershipInterceptorStrategy_whenUserIsRegulator_assertRegulatorServiceProvided() {
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
 
-    assertThat(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
+    assertThat(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .isEqualTo(regulatorTeamMembershipInterceptorRule);
   }
 
@@ -51,7 +51,7 @@ class TeamMembershipInterceptorFactoryTest {
   void getTeamMembershipInterceptorStrategy_whenUserIsNotRegulator_assertOperatorServiceProvided() {
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
 
-    assertThat(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
+    assertThat(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .isEqualTo(operatorTeamMembershipInterceptorRule);
   }
 }

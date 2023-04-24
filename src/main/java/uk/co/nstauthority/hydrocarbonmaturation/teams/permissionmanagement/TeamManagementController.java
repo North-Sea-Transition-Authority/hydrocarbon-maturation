@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamManagementController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.NewIndustryTeamController;
 
 
 @Controller
@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indus
 public class TeamManagementController {
 
   public static final String NEW_TEAM_FORM_URL =
-      ReverseRouter.route(on(IndustryTeamManagementController.class).renderNewIndustryTeamForm(null));
+      ReverseRouter.route(on(NewIndustryTeamController.class).renderNewIndustryTeamForm(null));
   private final TeamManagementService teamManagementService;
   private final UserDetailService userDetailService;
 

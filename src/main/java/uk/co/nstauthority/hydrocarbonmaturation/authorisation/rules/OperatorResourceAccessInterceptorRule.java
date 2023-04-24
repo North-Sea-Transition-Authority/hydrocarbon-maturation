@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessInterceptorStrategy;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.TeamMembershipInterceptorStrategy;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
@@ -18,21 +18,21 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indus
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 
 @Component
-public class OperatorTeamMembershipInterceptorRule implements TeamMembershipInterceptorStrategy {
-  private static final Logger LOGGER = LoggerFactory.getLogger(OperatorTeamMembershipInterceptorRule.class);
+public class OperatorResourceAccessInterceptorRule implements ResourceAccessInterceptorStrategy {
+  private static final Logger LOGGER = LoggerFactory.getLogger(OperatorResourceAccessInterceptorRule.class);
 
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final IndustryTeamService industryTeamService;
 
   @Autowired
-  OperatorTeamMembershipInterceptorRule(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+  OperatorResourceAccessInterceptorRule(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                         IndustryTeamService industryTeamService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.industryTeamService = industryTeamService;
   }
 
   @Override
-  public SecurityRuleResult hasRequiredTeamMembershipPermissions(ServiceUserDetail userDetails,
+  public SecurityRuleResult hasRequiredResourceAccessPermissions(ServiceUserDetail userDetails,
                                                                  SubmissionDetail submissionDetail) {
     var responsibleOrganisationId = getResponsibleOrganisationId(submissionDetail);
     var userSubmitterOrgUnits = industryTeamService

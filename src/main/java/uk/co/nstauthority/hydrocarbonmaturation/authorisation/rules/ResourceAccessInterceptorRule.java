@@ -11,14 +11,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Component
-public class TeamMembershipInterceptorRule implements SubmissionInterceptorSecurityRule {
+public class ResourceAccessInterceptorRule implements SubmissionInterceptorSecurityRule {
 
-  private final TeamMembershipInterceptorFactory teamMembershipInterceptorFactory;
+  private final ResourceAccessInterceptorFactory resourceAccessInterceptorFactory;
 
 
   @Autowired
-  public TeamMembershipInterceptorRule(TeamMembershipInterceptorFactory teamMembershipInterceptorFactory) {
-    this.teamMembershipInterceptorFactory = teamMembershipInterceptorFactory;
+  public ResourceAccessInterceptorRule(ResourceAccessInterceptorFactory resourceAccessInterceptorFactory) {
+    this.resourceAccessInterceptorFactory = resourceAccessInterceptorFactory;
   }
 
   @Override
@@ -32,7 +32,7 @@ public class TeamMembershipInterceptorRule implements SubmissionInterceptorSecur
                                   HttpServletResponse response,
                                   ServiceUserDetail userDetails,
                                   SubmissionDetail submissionDetail) {
-    return teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy()
-        .hasRequiredTeamMembershipPermissions(userDetails, submissionDetail);
+    return resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy()
+        .hasRequiredResourceAccessPermissions(userDetails, submissionDetail);
   }
 }

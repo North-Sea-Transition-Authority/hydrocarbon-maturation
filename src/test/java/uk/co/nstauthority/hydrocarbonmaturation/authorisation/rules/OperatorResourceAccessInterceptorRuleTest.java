@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indus
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 
 @ExtendWith(MockitoExtension.class)
-class OperatorTeamMembershipInterceptorRuleTest {
+class OperatorResourceAccessInterceptorRuleTest {
 
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
@@ -30,7 +30,7 @@ class OperatorTeamMembershipInterceptorRuleTest {
   private IndustryTeamService industryTeamService;
 
   @InjectMocks
-  private OperatorTeamMembershipInterceptorRule operatorTeamMembershipInterceptorRule;
+  private OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
 
   @Test
   void hasRequiredTeamMembershipPermissions_whenIsIndustrySubmitterInResponsibleTeam_assertRulePass() {
@@ -46,7 +46,7 @@ class OperatorTeamMembershipInterceptorRuleTest {
         user, Set.of(IndustryTeamRole.SUBMITTER)))
         .thenReturn(List.of(1));
     var securityRuleResult = operatorTeamMembershipInterceptorRule
-        .hasRequiredTeamMembershipPermissions(
+        .hasRequiredResourceAccessPermissions(
             user,
             submissionDetail);
     assertThat(securityRuleResult.hasRulePassed()).isTrue();
@@ -67,7 +67,7 @@ class OperatorTeamMembershipInterceptorRuleTest {
         user, Set.of(IndustryTeamRole.SUBMITTER)))
         .thenReturn(List.of(1));
     var securityRuleResult = operatorTeamMembershipInterceptorRule
-        .hasRequiredTeamMembershipPermissions(
+        .hasRequiredResourceAccessPermissions(
             user,
             submissionDetail);
     assertThat(securityRuleResult.hasRulePassed()).isFalse();
@@ -81,7 +81,7 @@ class OperatorTeamMembershipInterceptorRuleTest {
     submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
 
     var securityRuleResult = operatorTeamMembershipInterceptorRule
-        .hasRequiredTeamMembershipPermissions(user, submissionDetail);
+        .hasRequiredResourceAccessPermissions(user, submissionDetail);
     assertThat(securityRuleResult.hasRulePassed()).isFalse();
     assertThat(securityRuleResult.failureStatus()).isEqualTo(HttpStatus.FORBIDDEN);
   }

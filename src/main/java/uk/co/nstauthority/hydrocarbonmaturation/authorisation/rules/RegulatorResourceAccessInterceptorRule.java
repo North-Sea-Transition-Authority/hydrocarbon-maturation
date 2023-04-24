@@ -7,21 +7,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessInterceptorStrategy;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.TeamMembershipInterceptorStrategy;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 
 @Component
-public class RegulatorTeamMembershipInterceptorRule implements TeamMembershipInterceptorStrategy {
-  private static final Logger LOGGER = LoggerFactory.getLogger(RegulatorTeamMembershipInterceptorRule.class);
+public class RegulatorResourceAccessInterceptorRule implements ResourceAccessInterceptorStrategy {
+  private static final Logger LOGGER = LoggerFactory.getLogger(RegulatorResourceAccessInterceptorRule.class);
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final PermissionService permissionService;
 
   @Autowired
-  RegulatorTeamMembershipInterceptorRule(
+  RegulatorResourceAccessInterceptorRule(
       RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
       PermissionService permissionService) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
@@ -29,7 +29,7 @@ public class RegulatorTeamMembershipInterceptorRule implements TeamMembershipInt
   }
 
   @Override
-  public SecurityRuleResult hasRequiredTeamMembershipPermissions(ServiceUserDetail userDetails,
+  public SecurityRuleResult hasRequiredResourceAccessPermissions(ServiceUserDetail userDetails,
                                                                  SubmissionDetail submissionDetail) {
 
     var responsibleTeamType = regulatorManagedInformationPersistenceService

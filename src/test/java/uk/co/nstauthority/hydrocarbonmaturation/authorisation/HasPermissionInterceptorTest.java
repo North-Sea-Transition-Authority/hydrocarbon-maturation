@@ -124,7 +124,7 @@ class HasPermissionInterceptorTest extends AbstractControllerTest {
         EnumSet.of(RolePermission.EXPLORATION)
     ),
     NOT_CREATE_NOMINATION_ROLE(
-        EnumSet.of(RolePermission.GRANT_ROLES)
+        EnumSet.of(RolePermission.GRANT_REGULATOR_ROLES)
     );
 
     private final Set<RolePermission> rolePermissions;

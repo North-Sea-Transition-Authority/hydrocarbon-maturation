@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
@@ -29,7 +29,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamM
 
 @Controller
 @RequestMapping("/permission-management/industry/{teamId}")
-@HasPermission(permissions = RolePermission.MANAGE_ORGANISATIONS)
+@HasTeamPermission(
+    anyTeamPermissionOf = RolePermission.INDUSTRY_MANAGE_ORGANISATION,
+    anyNonTeamPermissionOf = RolePermission.REGULATOR_MANAGE_ALL_ORGANISATIONS
+)
 class IndustryAddRolesController extends AbstractIndustryPermissionManagement {
 
   private final ControllerHelperService controllerHelperService;

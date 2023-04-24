@@ -15,6 +15,7 @@ import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SubmissionHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.StringToResourceSupportingDocumentTypeConverter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.StringToSupportingDocumentTypeConverter;
@@ -34,6 +35,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
   private final RegulatorPermissionManagementHandlerInterceptor regulatorPermissionManagementHandlerInterceptor;
   private final IndustryPermissionManagementHandlerInterceptor industryPermissionManagementHandlerInterceptor;
   private final HasPermissionInterceptor hasPermissionInterceptor;
+  private final HasTeamPermissionInterceptor hasTeamPermissionInterceptor;
   private final SubmissionHandlerInterceptor submissionHandlerInterceptor;
   private final AccessibleByRegulatorUsersInterceptor accessibleByRegulatorUsersInterceptor;
 
@@ -42,12 +44,14 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                              RegulatorPermissionManagementHandlerInterceptor regulatorPermissionManagementHandlerInterceptor,
                              IndustryPermissionManagementHandlerInterceptor industryPermissionManagementHandlerInterceptor,
                              HasPermissionInterceptor hasPermissionInterceptor,
+                             HasTeamPermissionInterceptor hasTeamPermissionInterceptor,
                              SubmissionHandlerInterceptor submissionHandlerInterceptor,
                              AccessibleByRegulatorUsersInterceptor accessibleByRegulatorUsersInterceptor) {
     this.permissionManagementHandlerInterceptor = permissionManagementHandlerInterceptor;
     this.regulatorPermissionManagementHandlerInterceptor = regulatorPermissionManagementHandlerInterceptor;
     this.industryPermissionManagementHandlerInterceptor = industryPermissionManagementHandlerInterceptor;
     this.hasPermissionInterceptor = hasPermissionInterceptor;
+    this.hasTeamPermissionInterceptor = hasTeamPermissionInterceptor;
     this.submissionHandlerInterceptor = submissionHandlerInterceptor;
     this.accessibleByRegulatorUsersInterceptor = accessibleByRegulatorUsersInterceptor;
   }
@@ -71,6 +75,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     registry.addInterceptor(new ResponseBufferSizeHandlerInterceptor())
         .excludePathPatterns(ASSETS_PATH);
     registry.addInterceptor(permissionManagementHandlerInterceptor)
+        .addPathPatterns("/permission-management/**");
+    registry.addInterceptor(hasTeamPermissionInterceptor)
         .addPathPatterns("/permission-management/**");
     registry.addInterceptor(regulatorPermissionManagementHandlerInterceptor)
         .addPathPatterns("/permission-management/regulator/**");

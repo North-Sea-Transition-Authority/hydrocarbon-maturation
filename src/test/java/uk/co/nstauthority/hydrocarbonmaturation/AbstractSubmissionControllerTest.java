@@ -20,13 +20,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegula
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.OperatorTeamMembershipInterceptorRule;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.OperatorResourceAccessInterceptorRule;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.RegulatorResourceAccessInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.RegulatorResponsibleTeamInterceptorRule;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.RegulatorTeamMembershipInterceptorRule;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.ResourceAccessInterceptorFactory;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.ResourceAccessInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionTypeInterceptorRule;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.TeamMembershipInterceptorFactory;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.TeamMembershipInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
@@ -55,10 +55,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
     HasPermissionInterceptor.class,
     SubmissionStatusInterceptorRule.class,
     RegulatorResponsibleTeamInterceptorRule.class,
-    TeamMembershipInterceptorRule.class,
-    TeamMembershipInterceptorFactory.class,
-    OperatorTeamMembershipInterceptorRule.class,
-    RegulatorTeamMembershipInterceptorRule.class,
+    ResourceAccessInterceptorRule.class,
+    ResourceAccessInterceptorFactory.class,
+    OperatorResourceAccessInterceptorRule.class,
+    RegulatorResourceAccessInterceptorRule.class,
     SubmissionTypeInterceptorRule.class,
     PermissionService.class})
 public abstract class AbstractSubmissionControllerTest extends AbstractControllerTest{
@@ -79,16 +79,16 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   protected PermissionService permissionService;
 
   @Autowired
-  protected OperatorTeamMembershipInterceptorRule operatorTeamMembershipInterceptorRule;
+  protected OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
 
   @Autowired
-  protected RegulatorTeamMembershipInterceptorRule regulatorTeamMembershipInterceptorRule;
+  protected RegulatorResourceAccessInterceptorRule regulatorTeamMembershipInterceptorRule;
 
   @Autowired
-  protected TeamMembershipInterceptorRule teamMembershipInterceptorRule;
+  protected ResourceAccessInterceptorRule resourceAccessInterceptorRule;
 
   @MockBean
-  protected TeamMembershipInterceptorFactory teamMembershipInterceptorFactory;
+  protected ResourceAccessInterceptorFactory resourceAccessInterceptorFactory;
 
   @Autowired
   protected ControllerHelperService controllerHelperService;
@@ -111,7 +111,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     if (securityTestAnnotation.isEmpty()) {
       //if the test doesn't have a @SecurityTest annotation, ensure the security passes
       var responsibleTeam = new RegulatorManagedInformation();
-      when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
+      when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
           .thenReturn(regulatorTeamMembershipInterceptorRule);
       responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
       when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(any()))
@@ -122,7 +122,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   }
 
   protected void setUpWhenUserIsResponsibleOrganisation_passSecurity(ServiceUserDetail user) {
-    when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
     var responsibleTeam = new RegulatorManagedInformation();
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
@@ -141,7 +141,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   }
 
   protected void setUpWhenUserIsResponsibleTeam_passSecurity() {
-    when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(regulatorTeamMembershipInterceptorRule);
     var regulatorManagedInformation = new RegulatorManagedInformation();
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
@@ -155,7 +155,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   }
 
   protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(ServiceUserDetail user) {
-    when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);

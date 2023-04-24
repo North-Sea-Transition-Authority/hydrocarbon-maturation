@@ -12,13 +12,13 @@ public enum RegulatorTeamRole implements TeamRole {
       "Access manager",
       "Manage regulator access to the team",
       10,
-      EnumSet.of(RolePermission.GRANT_ROLES, RolePermission.VIEW_SYSTEM_OF_RECORD)
+      EnumSet.of(RolePermission.GRANT_REGULATOR_ROLES, RolePermission.VIEW_SYSTEM_OF_RECORD)
   ),
   INDUSTRY_ACCESS_MANAGER(
       "Industry access manager",
       "Manage industry access to the service",
       20,
-      EnumSet.of(RolePermission.MANAGE_ORGANISATIONS, RolePermission.VIEW_SYSTEM_OF_RECORD)
+      EnumSet.of(RolePermission.REGULATOR_MANAGE_ALL_ORGANISATIONS, RolePermission.VIEW_SYSTEM_OF_RECORD)
   ),
   EXPLORATION(
       "Exploration team member",

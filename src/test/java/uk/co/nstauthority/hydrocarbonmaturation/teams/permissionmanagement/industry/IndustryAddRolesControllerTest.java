@@ -14,9 +14,9 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,9 +35,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUs
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @ContextConfiguration(classes = {
@@ -72,12 +73,46 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
+    when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
+    when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))
+        .thenReturn(Optional.of(EnergyPortalUserDtoTestUtil.Builder().build()));
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(IndustryAddRolesController.class)
+                .renderAddTeamMemberRoles(teamId, webUserAccountIdToAdd)))
+                .with(user(user)))
+        .andExpect(status().isOk());
+  }
+
+  @SecurityTest
+  void renderAddTeamMember_whenRegulatorIndustryAccessManager_thenOk() throws Exception {
+
+    var user = ServiceUserDetailTestUtil.Builder().build();
+
+    var team = TeamTestUtil.Builder()
+        .withTeamType(TeamType.REGULATOR)
+        .build();
+
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER)
+        .build();
+    var teamId = team.toTeamId();
+
+    var webUserAccountIdToAdd = new WebUserAccountId(123);
+
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))
@@ -99,12 +134,16 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.VIEWER)
+        .build();
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.SUBMITTER.name())))
-        .thenReturn(false);
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(IndustryAddRolesController.class)
@@ -114,27 +153,30 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderAddTeamMemberRoles_whenNotIndustryTeam_thenNotFound() throws Exception {
+  void renderAddTeamMemberRoles_whenNotIndustryTeam_thenForbidden() throws Exception {
 
     var user = ServiceUserDetailTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.INDUSTRY)
+        .withTeamType(TeamType.REGULATOR)
+        .build();
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
         .build();
 
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
-
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.empty());
 
     mockMvc.perform(
             get(ReverseRouter.route(on(IndustryAddRolesController.class)
                 .renderAddTeamMemberRoles(teamId, webUserAccountIdToAdd)))
                 .with(user(user)))
-        .andExpect(status().isNotFound());
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -146,12 +188,16 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
-
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))
@@ -174,12 +220,16 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
-
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))
@@ -200,16 +250,20 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
         .build();
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
 
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    var energyPortalUserToAdd = EnergyPortalUserDtoTestUtil.Builder().build();
-
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
-
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
+
+    var energyPortalUserToAdd = EnergyPortalUserDtoTestUtil.Builder().build();
 
     when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))
         .thenReturn(Optional.of(energyPortalUserToAdd));
@@ -241,11 +295,16 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.VIEWER)
+        .build();
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(false);
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(IndustryAddRolesController.class)
@@ -265,14 +324,17 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
-
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
-
     when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))
         .thenReturn(Optional.of(EnergyPortalUserDtoTestUtil.Builder().build()));
 
@@ -286,28 +348,63 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void saveAddTeamMemberRoles_whenNotIndustryTeam_thenNotFound() throws Exception {
+  void saveAddTeamMemberRoles_whenRegulatorIndustryAccessManager_thenOk() throws Exception {
 
     var user = ServiceUserDetailTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.INDUSTRY)
+        .withTeamType(TeamType.REGULATOR)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER)
+        .build();
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
+    when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))
+        .thenReturn(Optional.of(EnergyPortalUserDtoTestUtil.Builder().build()));
 
-    when(industryTeamService.getTeam(teamId)).thenReturn(Optional.empty());
     mockMvc.perform(
             post(ReverseRouter.route(on(IndustryAddRolesController.class)
                 .saveAddTeamMemberRoles(teamId, webUserAccountIdToAdd, null, null)))
                 .with(user(user))
                 .with(csrf())
         )
-        .andExpect(status().isNotFound());
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void saveAddTeamMemberRoles_whenNotIndustryTeam_thenForbidden() throws Exception {
+
+    var user = ServiceUserDetailTestUtil.Builder().build();
+
+    var team = TeamTestUtil.Builder()
+        .withTeamType(TeamType.REGULATOR)
+        .build();
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
+
+    var teamId = team.toTeamId();
+
+    var webUserAccountIdToAdd = new WebUserAccountId(123);
+
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
+    when(industryTeamService.getTeam(teamId)).thenReturn(Optional.empty());
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(IndustryAddRolesController.class)
+                .saveAddTeamMemberRoles(teamId, webUserAccountIdToAdd, null, null)))
+                .with(user(user))
+                .with(csrf())
+        )
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -319,15 +416,19 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
-
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
-    when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))
+    when(energyPortalUserService.findByWuaId(teamMember.wuaId()))
         .thenReturn(Optional.empty());
 
     mockMvc.perform(
@@ -349,12 +450,16 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
 
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
-
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))
@@ -377,13 +482,17 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
         .build();
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
 
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
-
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))
@@ -408,13 +517,17 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
         .build();
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamId(team.toTeamId())
+        .withRole(IndustryTeamRole.ACCESS_MANAGER)
+        .build();
 
     var teamId = team.toTeamId();
 
     var webUserAccountIdToAdd = new WebUserAccountId(123);
 
-    when(permissionService.hasPermission(user, Set.of(RolePermission.MANAGE_ORGANISATIONS))).thenReturn(true);
-
+    when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
     when(industryTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     when(energyPortalUserService.findByWuaId(webUserAccountIdToAdd))

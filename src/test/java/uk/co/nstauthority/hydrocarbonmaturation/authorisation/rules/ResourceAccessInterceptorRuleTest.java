@@ -22,23 +22,23 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 
 @ExtendWith(MockitoExtension.class)
-class TeamMembershipInterceptorRuleTest {
+class ResourceAccessInterceptorRuleTest {
 
   @Mock
-  private TeamMembershipInterceptorFactory teamMembershipInterceptorFactory;
+  private ResourceAccessInterceptorFactory resourceAccessInterceptorFactory;
 
   @Mock
-  private OperatorTeamMembershipInterceptorRule operatorTeamMembershipInterceptorRule;
+  private OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
 
   @Mock
-  private RegulatorTeamMembershipInterceptorRule regulatorTeamMembershipInterceptorRule;
+  private RegulatorResourceAccessInterceptorRule regulatorTeamMembershipInterceptorRule;
 
   @InjectMocks
-  private TeamMembershipInterceptorRule teamMembershipInterceptorRule;
+  private ResourceAccessInterceptorRule resourceAccessInterceptorRule;
 
   @Test
   void supports() {
-    assertThat(teamMembershipInterceptorRule.supports())
+    assertThat(resourceAccessInterceptorRule.supports())
         .isEqualTo(IsFromResponsibleTeam.class);
   }
 
@@ -52,11 +52,11 @@ class TeamMembershipInterceptorRuleTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
-    when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(regulatorTeamMembershipInterceptorRule);
-    when(regulatorTeamMembershipInterceptorRule.hasRequiredTeamMembershipPermissions(user, submissionDetail))
+    when(regulatorTeamMembershipInterceptorRule.hasRequiredResourceAccessPermissions(user, submissionDetail))
         .thenReturn(SecurityRuleResult.checkFailedWithStatus(HttpStatus.FORBIDDEN));
-    var securityRuleResult = teamMembershipInterceptorRule
+    var securityRuleResult = resourceAccessInterceptorRule
         .check(
             IsFromResponsibleTeam.class,
             mockRequest,
@@ -77,11 +77,11 @@ class TeamMembershipInterceptorRuleTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
-    when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
-    when(operatorTeamMembershipInterceptorRule.hasRequiredTeamMembershipPermissions(user, submissionDetail))
+    when(operatorTeamMembershipInterceptorRule.hasRequiredResourceAccessPermissions(user, submissionDetail))
         .thenReturn(SecurityRuleResult.checkFailedWithStatus(HttpStatus.FORBIDDEN));
-    var securityRuleResult = teamMembershipInterceptorRule
+    var securityRuleResult = resourceAccessInterceptorRule
         .check(
             IsFromResponsibleTeam.class,
             mockRequest,
@@ -102,11 +102,11 @@ class TeamMembershipInterceptorRuleTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
-    when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(regulatorTeamMembershipInterceptorRule);
-    when(regulatorTeamMembershipInterceptorRule.hasRequiredTeamMembershipPermissions(user, submissionDetail))
+    when(regulatorTeamMembershipInterceptorRule.hasRequiredResourceAccessPermissions(user, submissionDetail))
         .thenReturn(SecurityRuleResult.continueAsNormal());
-    var securityRuleResult = teamMembershipInterceptorRule
+    var securityRuleResult = resourceAccessInterceptorRule
         .check(
             IsFromResponsibleTeam.class,
             mockRequest,
@@ -126,11 +126,11 @@ class TeamMembershipInterceptorRuleTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
-    when(teamMembershipInterceptorFactory.getTeamMembershipInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
-    when(operatorTeamMembershipInterceptorRule.hasRequiredTeamMembershipPermissions(user, submissionDetail))
+    when(operatorTeamMembershipInterceptorRule.hasRequiredResourceAccessPermissions(user, submissionDetail))
         .thenReturn(SecurityRuleResult.continueAsNormal());
-    var securityRuleResult = teamMembershipInterceptorRule
+    var securityRuleResult = resourceAccessInterceptorRule
         .check(
             IsFromResponsibleTeam.class,
             mockRequest,
