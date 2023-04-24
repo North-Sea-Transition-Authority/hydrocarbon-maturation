@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,4 +120,7 @@ public class TeamMemberRoleService {
     removedFromTeamEventPublisher.publish(teamMember, instigationUser);
   }
 
+  public List<TeamMemberRole> getTeamMembersWithRoleInTeams(List<Team> listOfTeams, Set<String> roles) {
+    return teamMemberRoleRepository.findAllByTeamInAndRoleIn(listOfTeams, roles);
+  }
 }

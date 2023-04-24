@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortal
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.AddedToTeamEventPublisher;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RemovedFromTeamEventPublisher;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 
 @ExtendWith(MockitoExtension.class)
 class TeamMemberRoleServiceTest {
@@ -245,4 +246,24 @@ class TeamMemberRoleServiceTest {
     verifyNoInteractions(energyPortalAccessService);
   }
 
+  @Test
+  void getTeamMembersWithRoleInTeams_verifyMethodCall() {
+    var listOfTeams = List.of(TeamTestUtil.Builder().build());
+    var roles = Set.of(IndustryTeamRole.SUBMITTER.name());
+    teamMemberRoleService.getTeamMembersWithRoleInTeams(listOfTeams, roles);
+
+    verify(teamMemberRoleRepository).findAllByTeamInAndRoleIn(listOfTeams, roles);
+  }
+
+  @Test
+  void getTeamMembersWithRoleInTeams_assertReturn() {
+    var expectedReturn = List.of(TeamMemberRoleTestUtil.Builder().build());
+    var listOfTeams = List.of(TeamTestUtil.Builder().build());
+    var roles = Set.of(IndustryTeamRole.SUBMITTER.name());
+    when(teamMemberRoleRepository.findAllByTeamInAndRoleIn(listOfTeams, roles)).thenReturn(expectedReturn);
+
+    var result = teamMemberRoleService.getTeamMembersWithRoleInTeams(listOfTeams, roles);
+
+    assertThat(result).isEqualTo(expectedReturn);
+  }
 }

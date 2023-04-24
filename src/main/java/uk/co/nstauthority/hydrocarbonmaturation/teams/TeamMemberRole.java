@@ -11,7 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "team_member_roles")
-class TeamMemberRole {
+public class TeamMemberRole {
 
   @Id
   @GeneratedValue(generator = "uuid")

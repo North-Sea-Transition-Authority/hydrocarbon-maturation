@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUs
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
@@ -35,6 +36,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class IndustryTeamServiceTest {
+
+  private final static Integer ORGANISATION_GROUP_ID = 1;
+  private final static Integer ORGANISATION_UNIT_ID = 5;
 
   @Mock
   private TeamService teamService;
@@ -155,13 +159,13 @@ class IndustryTeamServiceTest {
   void isSubmitterForOrganisationUnit_verifyMethodCalls() {
     var user = ServiceUserDetailTestUtil.Builder().build();
     var team = TeamTestUtil.Builder().build();
-    when(teamService.getTeamByOrganisationGroupId(1))
+    when(teamService.getTeamByOrganisationGroupId(ORGANISATION_GROUP_ID))
         .thenReturn(Optional.of(team));
-    industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1,2,3));
+    industryTeamService.isSubmitterForOrganisationGroups(user, List.of(ORGANISATION_GROUP_ID,2,3));
     verify(teamMemberService).isMemberOfTeamWithAnyRoleOf(team.toTeamId(),
         user,
         Set.of(IndustryTeamRole.SUBMITTER.name()));
-    verify(teamService).getTeamByOrganisationGroupId(1);
+    verify(teamService).getTeamByOrganisationGroupId(ORGANISATION_GROUP_ID);
     verify(teamService).getTeamByOrganisationGroupId(2);
     verify(teamService).getTeamByOrganisationGroupId(3);
 
@@ -173,12 +177,12 @@ class IndustryTeamServiceTest {
     var team = mock(Team.class);
     var teamId = new TeamId(UUID.randomUUID());
     when(team.toTeamId()).thenReturn(teamId);
-    when(teamService.getTeamByOrganisationGroupId(1))
+    when(teamService.getTeamByOrganisationGroupId(ORGANISATION_GROUP_ID))
         .thenReturn(Optional.of(team));
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.SUBMITTER.name())))
         .thenReturn(true);
-    assertTrue(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1, 2)));
+    assertTrue(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(ORGANISATION_GROUP_ID, 2)));
   }
 
   @Test
@@ -188,25 +192,25 @@ class IndustryTeamServiceTest {
     var team = mock(Team.class);
     when(team.toTeamId()).thenReturn(teamId);
 
-    when(teamService.getTeamByOrganisationGroupId(1))
+    when(teamService.getTeamByOrganisationGroupId(ORGANISATION_GROUP_ID))
         .thenReturn(Optional.of(team));
     when(teamService.getTeamByOrganisationGroupId(2))
         .thenReturn(Optional.of(team));
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.SUBMITTER.name())))
         .thenReturn(false);
-    assertFalse(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1, 2)));
+    assertFalse(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(ORGANISATION_GROUP_ID, 2)));
   }
 
   @Test
   void isSubmitterForOrganisationUnit_whenNotMemberOfTeam_assertFalse() {
     var user = ServiceUserDetailTestUtil.Builder().build();
 
-    when(teamService.getTeamByOrganisationGroupId(1))
+    when(teamService.getTeamByOrganisationGroupId(ORGANISATION_GROUP_ID))
         .thenReturn(Optional.empty());
     when(teamService.getTeamByOrganisationGroupId(2))
         .thenReturn(Optional.empty());
 
-    assertFalse(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1, 2)));
+    assertFalse(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(ORGANISATION_GROUP_ID, 2)));
     verifyNoInteractions(teamMemberService);
   }
 
@@ -221,7 +225,7 @@ class IndustryTeamServiceTest {
   @Test
   void getOrganisationGroupIdsForUser_assertReturn() {
     var user = ServiceUserDetailTestUtil.Builder().build();
-    var expectedResult = List.of(1,2);
+    var expectedResult = List.of(ORGANISATION_GROUP_ID, 2);
     when(teamService.getOrganisationGroupsUserIsTeamMemberOf(user))
         .thenReturn(expectedResult);
     var result = industryTeamService.getOrganisationGroupIdsForUser(user);
@@ -231,27 +235,25 @@ class IndustryTeamServiceTest {
   @Test
   void getOrganisationUnitIdsForUserWithAnyIndustryTeamRoles_submitter_assertReturn() {
     var user = ServiceUserDetailTestUtil.Builder().build();
-    var orgGroupId = 1;
-    var orgUnitId = 5;
     var orgUnit = OrganisationUnitTestUtil.Builder()
-        .withOrganisationId(orgUnitId)
+        .withOrganisationId(ORGANISATION_UNIT_ID)
         .build();
     when(industryTeamService.getOrganisationGroupIdsForUser(user))
-        .thenReturn(List.of(orgGroupId));
+        .thenReturn(List.of(ORGANISATION_GROUP_ID));
     var team = TeamTestUtil.Builder().build();
-    when(industryTeamService.getTeamByOrganisationGroupId(orgGroupId))
+    when(industryTeamService.getTeamByOrganisationGroupId(ORGANISATION_GROUP_ID))
         .thenReturn(Optional.of(team));
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(team.toTeamId(), user, Set.of("SUBMITTER")))
         .thenReturn(true);
     var organisationGroup = new OrganisationGroup();
     organisationGroup.setOrganisationUnits(List.of(orgUnit));
-    organisationGroup.setOrganisationGroupId(orgGroupId);
-    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(orgGroupId)))
+    organisationGroup.setOrganisationGroupId(ORGANISATION_GROUP_ID);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(ORGANISATION_GROUP_ID)))
         .thenReturn(List.of(organisationGroup));
     var result = industryTeamService
         .getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Set.of(IndustryTeamRole.SUBMITTER));
 
-    assertThat(result).isEqualTo(List.of(orgUnitId));
+    assertThat(result).isEqualTo(List.of(ORGANISATION_UNIT_ID));
   }
 
   @Test
@@ -266,20 +268,36 @@ class IndustryTeamServiceTest {
   }
 
   @Test
+  void getWuaIdsOfUsersWithRoleForOrganisationGroupIds_assertReturn() {
+    var expectedWuaId = 1L;
+    var organisationGroupIds = List.of(ORGANISATION_GROUP_ID);
+    var teamForOrgGroup = TeamTestUtil.Builder().build();
+    var roleSet = Set.of(IndustryTeamRole.SUBMITTER.name());
+    var teamMemberRole = TeamMemberRoleTestUtil.Builder()
+        .withWebUserAccountId(expectedWuaId).build();
+    when(teamService.getTeamByOrganisationGroupId(ORGANISATION_GROUP_ID))
+        .thenReturn(Optional.of(teamForOrgGroup));
+    when(teamMemberRoleService.getTeamMembersWithRoleInTeams(List.of(teamForOrgGroup), roleSet))
+        .thenReturn(List.of(teamMemberRole));
+    var result = industryTeamService.getWuaIdsOfUsersWithRoleForOrganisationGroupIds(
+        organisationGroupIds, Set.of(IndustryTeamRole.SUBMITTER));
+    assertThat(result).containsExactly(expectedWuaId);
+  }
+
+  @Test
   void getOrganisationUnitIdsForUserWithAnyIndustryTeamRoles_whenUserNotInAnyOrgUnitGroup_assertReturn() {
     var user = ServiceUserDetailTestUtil.Builder().build();
-    var orgGroupId = 1;
     when(industryTeamService.getOrganisationGroupIdsForUser(user))
-        .thenReturn(List.of(orgGroupId));
+        .thenReturn(List.of(ORGANISATION_GROUP_ID));
     var team = TeamTestUtil.Builder().build();
-    when(industryTeamService.getTeamByOrganisationGroupId(orgGroupId))
+    when(industryTeamService.getTeamByOrganisationGroupId(ORGANISATION_GROUP_ID))
         .thenReturn(Optional.of(team));
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(team.toTeamId(), user, Set.of("VIEWER")))
         .thenReturn(true);
     var organisationGroup = new OrganisationGroup();
     organisationGroup.setOrganisationUnits(List.of());
-    organisationGroup.setOrganisationGroupId(orgGroupId);
-    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(orgGroupId)))
+    organisationGroup.setOrganisationGroupId(ORGANISATION_GROUP_ID);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(ORGANISATION_GROUP_ID)))
         .thenReturn(List.of(organisationGroup));
     var result = industryTeamService
         .getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Set.of(IndustryTeamRole.VIEWER));
@@ -290,13 +308,12 @@ class IndustryTeamServiceTest {
   @Test
   void getOrganisationUnitIdsForUser_whenUserNotInAnyOrgUnitGroup_assertEmpty() {
     var user = ServiceUserDetailTestUtil.Builder().build();
-    var orgGroupId = 1;
     when(industryTeamService.getOrganisationGroupIdsForUser(user))
-        .thenReturn(List.of(orgGroupId));
+        .thenReturn(List.of(ORGANISATION_GROUP_ID));
     var organisationGroup = new OrganisationGroup();
     organisationGroup.setOrganisationUnits(List.of());
-    organisationGroup.setOrganisationGroupId(orgGroupId);
-    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(orgGroupId)))
+    organisationGroup.setOrganisationGroupId(ORGANISATION_GROUP_ID);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(ORGANISATION_GROUP_ID)))
         .thenReturn(List.of(organisationGroup));
     var result = industryTeamService
         .getOrganisationUnitIdsForUser(user);
@@ -307,21 +324,19 @@ class IndustryTeamServiceTest {
   @Test
   void getOrganisationUnitIdsForUser_assertReturn() {
     var user = ServiceUserDetailTestUtil.Builder().build();
-    var orgGroupId = 1;
-    var orgUnitId = 5;
     var orgUnit = OrganisationUnitTestUtil.Builder()
-        .withOrganisationId(orgUnitId)
+        .withOrganisationId(ORGANISATION_UNIT_ID)
         .build();
     when(industryTeamService.getOrganisationGroupIdsForUser(user))
-        .thenReturn(List.of(orgGroupId));
+        .thenReturn(List.of(ORGANISATION_GROUP_ID));
     var organisationGroup = new OrganisationGroup();
     organisationGroup.setOrganisationUnits(List.of(orgUnit));
-    organisationGroup.setOrganisationGroupId(orgGroupId);
-    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(orgGroupId)))
+    organisationGroup.setOrganisationGroupId(ORGANISATION_GROUP_ID);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(ORGANISATION_GROUP_ID)))
         .thenReturn(List.of(organisationGroup));
     var result = industryTeamService
         .getOrganisationUnitIdsForUser(user);
 
-    assertThat(result).isEqualTo(List.of(orgUnitId));
+    assertThat(result).isEqualTo(List.of(ORGANISATION_UNIT_ID));
   }
 }

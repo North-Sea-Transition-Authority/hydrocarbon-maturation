@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.O
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
@@ -134,6 +135,19 @@ public class IndustryTeamService {
         .filter(Objects::nonNull)
         .map(OrganisationUnit::getOrganisationUnitId)
         .distinct()
+        .toList();
+  }
+
+  public List<Long> getWuaIdsOfUsersWithRoleForOrganisationGroupIds(List<Integer> organisationGroupIds,
+                                                                    Set<IndustryTeamRole> industryTeamRoles) {
+    var listOfTeams = organisationGroupIds
+        .stream()
+        .map(teamService::getTeamByOrganisationGroupId)
+        .flatMap(Optional::stream)
+        .toList();
+    return teamMemberRoleService.getTeamMembersWithRoleInTeams(listOfTeams, getRolesAsStrings(industryTeamRoles))
+        .stream()
+        .map(TeamMemberRole::getWuaId)
         .toList();
   }
 

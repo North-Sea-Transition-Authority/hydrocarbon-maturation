@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
@@ -32,6 +33,8 @@ class SubmissionUpdatePersistenceServiceTest {
   private UserDetailService userDetailService;
   @Mock
   private Clock clock;
+  @Mock
+  private SubmissionEmailService submissionEmailService;
   @InjectMocks
   private SubmissionUpdatePersistenceService underTest;
 
@@ -58,6 +61,8 @@ class SubmissionUpdatePersistenceServiceTest {
           underTest.requestUpdate(submissionDetail, form);
 
       verify(submissionUpdateRepository, times(1)).save(captor.capture());
+      verify(submissionEmailService, times(1))
+          .sendReturnedForUpdateEmails(submissionDetail);
 
       assertThat(captor.getValue())
           .extracting(

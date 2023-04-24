@@ -23,4 +23,5 @@ interface TeamMemberRoleRepository extends CrudRepository<TeamMemberRole, UUID> 
 
   List<TeamMemberRole> findAllByWuaId(long wuaId);
 
+  List<TeamMemberRole> findAllByTeamInAndRoleIn(List<Team> teams, Set<String> roles);
 }

@@ -2,22 +2,31 @@ package uk.co.nstauthority.hydrocarbonmaturation.notify;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.utils.RemiEmailUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.LicencePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.LicenceReferenceComparator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Service
@@ -43,6 +52,10 @@ public class SubmissionEmailService {
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final RegulatorTeamService regulatorTeamService;
   private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  private final IndustryTeamService industryTeamService;
+  private final OrganisationUnitQueryService organisationUnitQueryService;
+  private final SubmissionDetailService submissionDetailService;
 
   SubmissionEmailService(NotifyEmailService notifyEmailService,
                          EnergyPortalUserService energyPortalUserService,
@@ -51,7 +64,11 @@ public class SubmissionEmailService {
                          LicencePersistenceService licencePersistenceService,
                          RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                          RegulatorTeamService regulatorTeamService,
-                         ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties) {
+                         ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties,
+                         ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+                         IndustryTeamService industryTeamService,
+                         OrganisationUnitQueryService organisationUnitQueryService,
+                         SubmissionDetailService submissionDetailService) {
     this.notifyEmailService = notifyEmailService;
     this.energyPortalUserService = energyPortalUserService;
     this.submissionResourceService = submissionResourceService;
@@ -60,6 +77,10 @@ public class SubmissionEmailService {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.serviceBrandingConfigurationProperties = serviceBrandingConfigurationProperties;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+    this.industryTeamService = industryTeamService;
+    this.organisationUnitQueryService = organisationUnitQueryService;
+    this.submissionDetailService = submissionDetailService;
   }
 
   public void sendSubmissionWithdrawalEmail(SubmissionDetail submissionDetail, String withdrawalReason) {
@@ -122,6 +143,25 @@ public class SubmissionEmailService {
     }
   }
 
+  public void sendReturnedForUpdateEmails(SubmissionDetail submissionDetail) {
+    var recipients = getSubmitterRecipientsBySubmissionDetail(submissionDetail);
+    if (recipients.isEmpty()) {
+      LOGGER.warn("Could not send email, no submitters for the responsible organisation for submission {} found",
+          submissionDetail.getId());
+      return;
+    }
+    var emailProperties = new EmailProperties(NotifyTemplate.SUBMISSION_RETURNED_FOR_UPDATE);
+    var personalisations = emailProperties.getEmailPersonalisations();
+    var licencesString = getDisplayableLicences(submissionDetail);
+    personalisations.put(LICENCES_WITHOUT_LEADING_COLON, licencesString);
+    personalisations.put(REVIEW_PAGE_URL,
+        RemiEmailUrlUtil.getReviewSubmissionPageUrl(submissionDetail));
+    personalisations.put(REGULATOR_ORGANISATION_NAME,
+        serviceBrandingConfigurationProperties.getCustomerConfigurationProperties().mnemonic());
+    addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);
+    sendEmailToRecipients(emailProperties, recipients);
+  }
+
   private void addCommonSubmissionPersonalisations(Map<String, String> personalisations,
                                                    SubmissionDetail submissionDetail,
                                                    String licencesString) {
@@ -162,6 +202,41 @@ public class SubmissionEmailService {
       return "";
     } else {
       return String.join(", ", licences);
+    }
+  }
+
+  private List<EnergyPortalUserDto> getSubmitterRecipientsBySubmissionDetail(SubmissionDetail submissionDetail) {
+    var organisationUnitIdOpt = getResponsibleOrganisationId(submissionDetail);
+    if (organisationUnitIdOpt.isEmpty()) {
+      return List.of();
+    }
+
+    var organisationGroupIds = organisationUnitQueryService.findOrganisationGroupIdsByUnitId(
+        organisationUnitIdOpt.get());
+    if (organisationGroupIds.isEmpty()) {
+      return List.of();
+    }
+
+    var submitterWuaIds = industryTeamService.getWuaIdsOfUsersWithRoleForOrganisationGroupIds(
+            organisationGroupIds, Set.of(IndustryTeamRole.SUBMITTER))
+        .stream()
+        .map(id -> WebUserAccountId.valueOf(id.toString()))
+        .toList();
+    return energyPortalUserService.findByWuaIds(submitterWuaIds);
+  }
+
+  private Optional<Integer> getResponsibleOrganisationId(SubmissionDetail submissionDetail) {
+    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
+        || submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT) {
+      //if its the initial submission, takes the responsible organisation from the submitted submission
+      return resourceDetailsPersistenceService
+            .getResourceDetailBySubmissionDetail(submissionDetail)
+            .map(ResourceDetail::getOrganisationId);
+    } else {
+      return submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
+          .flatMap(latestApprovedSubmissionDetail ->
+              resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail)
+                  .map(ResourceDetail::getOrganisationId));
     }
   }
 }

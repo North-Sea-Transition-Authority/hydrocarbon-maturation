@@ -6,6 +6,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
@@ -14,14 +15,16 @@ class SubmissionUpdatePersistenceService {
 
   private final SubmissionUpdateRepository submissionUpdateRepository;
   private final UserDetailService userDetailService;
+  private final SubmissionEmailService submissionEmailService;
   private final Clock clock;
 
   @Autowired
   SubmissionUpdatePersistenceService(SubmissionUpdateRepository submissionUpdateRepository,
                                      UserDetailService userDetailService,
-                                     Clock clock) {
+                                     SubmissionEmailService submissionEmailService, Clock clock) {
     this.submissionUpdateRepository = submissionUpdateRepository;
     this.userDetailService = userDetailService;
+    this.submissionEmailService = submissionEmailService;
     this.clock = clock;
   }
 
@@ -35,6 +38,7 @@ class SubmissionUpdatePersistenceService {
     submissionUpdate.setRequestedTimestamp(clock.instant());
     submissionUpdate.setResolved(false);
     submissionUpdateRepository.save(submissionUpdate);
+    submissionEmailService.sendReturnedForUpdateEmails(submissionDetail);
   }
 
   Optional<SubmissionUpdate> getLatestSubmissionUpdateForSubmission(Submission submission) {
