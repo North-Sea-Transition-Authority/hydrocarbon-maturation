@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.zip.ZipInputStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
@@ -25,11 +26,14 @@ class GisIntegrationTest {
   private static final String EMPTY_SHAPEFILE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/empty.shp";
   private static final String CORRUPT_SHAPEFILE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/corrupt.shp";
   private static final String GEOJSON_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.json";
+  private static final String SHAPEFILE_ZIP_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.zip";
 
   @Autowired
   private ShapefileImportService shapefileImportService;
   @Autowired
   private GeoJsonExportService geoJsonExportService;
+  @Autowired
+  private ShapefileZipService shapefileZipService;
 
   @Test
   void convertShapeFileAndConvertToGeoJson_ResultShouldMatchPreConvertedGeoJson() throws IOException {
@@ -55,6 +59,24 @@ class GisIntegrationTest {
     assertThrows(EOFException.class, () ->
         importShapefile(CORRUPT_SHAPEFILE_RESOURCE_LOCATION)
     );
+  }
+
+  @Test
+  void zipHasFilesAndCanOpenGeometry() throws IOException {
+    var geometries = importShapefileZip(SHAPEFILE_ZIP_RESOURCE_LOCATION);
+
+    assertThat(geometries.getShapefileHeader().geometryType()).isEqualTo(Geometry.Type.Polygon);
+    assertThat(geometries.getGeometryList()).isNotEmpty();
+  }
+
+  private ShapefileGeometryLoader importShapefileZip(String shapefileZipResourceLocation) throws IOException {
+    try (var shapefileZipStream = new FileInputStream(ResourceUtils.getFile(shapefileZipResourceLocation))) {
+      try (var zis = new ZipInputStream(shapefileZipStream)) {
+        var inputStream = shapefileZipService.getInputStreamForShapefile(zis, "test");
+
+        return new ShapefileGeometryLoader(inputStream);
+      }
+    }
   }
 
   private static String getPreConvertedGeoJson() throws IOException {

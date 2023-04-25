@@ -6,6 +6,7 @@ import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.SpatialReference;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.zip.ZipInputStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
@@ -19,11 +20,15 @@ class ShapefileValidationServiceTest {
   private static final String NOT_SIMPLE_SHAPEFILE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/not_simple.shp";
   private static final String NOT_SIMPLE_OGC_SHAPEFILE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/not_simple_ogc.shp";
   private static final String SHAPEFILE_PROJECT_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.prj";
+  private static final String SHAPEFILE_ZIP_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.zip";
+  private static final String INVALID_SHAPEFILE_ZIP_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/missing.zip";
 
   @Autowired
   private ShapefileImportService shapefileImportService;
   @Autowired
   private ShapefileValidationService shapefileValidationService;
+  @Autowired
+  private ShapefileZipService shapefileZipService;
 
   @Test
   void isGeometryValid_SimplePolygon_True() throws IOException {
@@ -68,6 +73,20 @@ class ShapefileValidationServiceTest {
     assertThat(result).isTrue();
   }
 
+  @Test
+  void validateShapefileZip_ContainsAllFiles() throws IOException {
+    var result = validateShapefileZip(SHAPEFILE_ZIP_RESOURCE_LOCATION);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void validateShapefileZip_HasMissingFiles() throws IOException {
+    var result = validateShapefileZip(INVALID_SHAPEFILE_ZIP_RESOURCE_LOCATION);
+
+    assertThat(result).isFalse();
+  }
+
   private Geometry getGeometryFromShapefile(String shapefileResourceLocation) throws IOException {
     try (var shapefileStream = new FileInputStream(ResourceUtils.getFile(shapefileResourceLocation))) {
       var geometryList = shapefileImportService.importShapefileAsGeometryList(shapefileStream);
@@ -78,6 +97,15 @@ class ShapefileValidationServiceTest {
   private SpatialReference getSpatialReferenceFromShapefileProject() throws IOException {
     try (var shapefileStream = new FileInputStream(ResourceUtils.getFile(SHAPEFILE_PROJECT_RESOURCE_LOCATION))) {
       return shapefileImportService.importShapefileProjectAsSpatialReference(shapefileStream);
+    }
+  }
+
+  private boolean validateShapefileZip(String shapefileZipResourceLocation) throws IOException {
+    try (var shapefileZipStream = new FileInputStream(ResourceUtils.getFile(shapefileZipResourceLocation))) {
+      try (var zis = new ZipInputStream(shapefileZipStream)) {
+        var filesInZip = ZipUtils.getFilesInZip(zis);
+        return shapefileZipService.hasRequiredFiles(filesInZip);
+      }
     }
   }
 }
