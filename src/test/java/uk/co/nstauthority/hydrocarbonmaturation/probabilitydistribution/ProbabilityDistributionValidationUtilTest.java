@@ -122,6 +122,100 @@ class ProbabilityDistributionValidationUtilTest {
     assertThat(errors.getAllErrors()).isEmpty();
   }
 
+  @Test
+  void validateMinMax_wrongOrder() {
+    var dummyForm = new DummyForm();
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.RECTANGULAR);
+    var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
+    probabilityOfExceedanceForm.setMin(DecimalInput.createDecimalInput(100));
+    probabilityOfExceedanceForm.setMax(DecimalInput.createDecimalInput(50));
+    probabilityDistributionForm.setProbabilityOfExceedanceForm(probabilityOfExceedanceForm);
+    dummyForm.setDummy(probabilityDistributionForm);
+    var errors = new BeanPropertyBindingResult(dummyForm, "form");
+    ProbabilityDistributionValidationUtil.validateFull(
+        dummyForm.getDummy(),
+        errors,
+        "dummy",
+        "dummy"
+    );
+    assertThat(errors.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(ProbabilityDistributionValidationUtil.MIN_MAX_ERROR_MESSAGE.formatted("dummy"));
+  }
+
+  @Test
+  void validateMinMax_correctOrder() {
+    var dummyForm = new DummyForm();
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.RECTANGULAR);
+    var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
+    probabilityOfExceedanceForm.setMin(DecimalInput.createDecimalInput(10));
+    probabilityOfExceedanceForm.setMax(DecimalInput.createDecimalInput(50));
+    probabilityDistributionForm.setProbabilityOfExceedanceForm(probabilityOfExceedanceForm);
+    dummyForm.setDummy(probabilityDistributionForm);
+    var errors = new BeanPropertyBindingResult(dummyForm, "form");
+    ProbabilityDistributionValidationUtil.validateFull(
+        dummyForm.getDummy(),
+        errors,
+        "dummy",
+        "dummy"
+    );
+    assertThat(errors.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .doesNotContain(ProbabilityDistributionValidationUtil.MIN_MAX_ERROR_MESSAGE.formatted("dummy"));
+  }
+
+  @Test
+  void validateP99ToP1_wrongOrder() {
+    var dummyForm = new DummyForm();
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.NORMAL);
+    var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
+    probabilityOfExceedanceForm.setP99(DecimalInput.createDecimalInput(100));
+    probabilityOfExceedanceForm.setP90(DecimalInput.createDecimalInput(90));
+    probabilityOfExceedanceForm.setP50(DecimalInput.createDecimalInput(80));
+    probabilityOfExceedanceForm.setP10(DecimalInput.createDecimalInput(70));
+    probabilityOfExceedanceForm.setP1(DecimalInput.createDecimalInput(60));
+    probabilityDistributionForm.setProbabilityOfExceedanceForm(probabilityOfExceedanceForm);
+    dummyForm.setDummy(probabilityDistributionForm);
+    var errors = new BeanPropertyBindingResult(dummyForm, "form");
+    ProbabilityDistributionValidationUtil.validateFull(
+        dummyForm.getDummy(),
+        errors,
+        "dummy",
+        "dummy"
+    );
+    assertThat(errors.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(ProbabilityDistributionValidationUtil.P99_TO_P1_ERROR_MESSAGE.formatted("dummy"));
+  }
+
+  @Test
+  void validateP99ToP1_correctOrder() {
+    var dummyForm = new DummyForm();
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.NORMAL);
+    var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
+    probabilityOfExceedanceForm.setP99(DecimalInput.createDecimalInput(60));
+    probabilityOfExceedanceForm.setP90(DecimalInput.createDecimalInput(70));
+    probabilityOfExceedanceForm.setP50(DecimalInput.createDecimalInput(80));
+    probabilityOfExceedanceForm.setP10(DecimalInput.createDecimalInput(90));
+    probabilityOfExceedanceForm.setP1(DecimalInput.createDecimalInput(100));
+    probabilityDistributionForm.setProbabilityOfExceedanceForm(probabilityOfExceedanceForm);
+    dummyForm.setDummy(probabilityDistributionForm);
+    var errors = new BeanPropertyBindingResult(dummyForm, "form");
+    ProbabilityDistributionValidationUtil.validateFull(
+        dummyForm.getDummy(),
+        errors,
+        "dummy",
+        "dummy"
+    );
+    assertThat(errors.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .doesNotContain(ProbabilityDistributionValidationUtil.P99_TO_P1_ERROR_MESSAGE.formatted("dummy"));
+  }
+
   static class DummyForm {
     private ProbabilityDistributionForm dummy;
 

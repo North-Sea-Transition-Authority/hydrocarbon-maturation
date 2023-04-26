@@ -1,25 +1,39 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 public class ProbabilityDistributionValidationUtil {
 
-  public static final String ERROR_MESSAGE =
+  private static final String ERROR_CODE = ".error";
+  private static final String DECIMAL_INPUT_VALUE_PATH = ".decimalInputValue";
+
+  public static final String GENERAL_ERROR_MESSAGE =
       "%s - all mandatory probability of exceedence inputs must be provided. " +
           "All inputs must be numbers with up to 2 decimal places.";
 
   public static final String PERCENTAGE_ERROR_MESSAGE =
-      ERROR_MESSAGE + " Percentages must not be more than 100 percent.";
+      GENERAL_ERROR_MESSAGE + " Percentages must not be more than 100 percent.";
+
+  public static final String MIN_MAX_ERROR_MESSAGE =
+      "%s - min value must be less than max value";
+
+  public static final String P99_TO_P1_ERROR_MESSAGE =
+      "%s - P99 to P1 values must be in the order of P99 < P90 < P50 < P10 < P1";
 
   private ProbabilityDistributionValidationUtil() {
-    throw new IllegalStateException("ProbabilityDistributionValidationUtil is a util class and should not be instantiated");
+    throw new IllegalUtilClassInstantiationException(this.getClass());
   }
 
   public static void validatePartial(ProbabilityDistributionForm probabilityDistributionForm,
@@ -41,7 +55,8 @@ public class ProbabilityDistributionValidationUtil {
                                                Errors errors,
                                                String formField,
                                                String label) {
-    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT, ValidationType.PARTIAL,
+    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT,
+        ValidationType.PARTIAL,
         null);
   }
 
@@ -56,7 +71,8 @@ public class ProbabilityDistributionValidationUtil {
                                             Errors errors,
                                             String formField,
                                             String label) {
-    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT, ValidationType.FULL,
+    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT,
+        ValidationType.FULL,
         null);
   }
 
@@ -226,17 +242,106 @@ public class ProbabilityDistributionValidationUtil {
           errors
       );
 
+      var formTypePath = formField + "." + typePath + ".";
+      var errorPath = cleanPath(formTypePath + "error");
       var errorCountAfter = errors.getErrorCount();
+
       if (errorCountAfter > errorCountBefore) {
-        var errorPath = formField + "." + typePath + ".error";
-        errorPath = errorPath.replaceAll("[\n\r\t]", "_");
         errors.rejectValue(
             errorPath,
-            errorPath + ".error",
+            errorPath + ERROR_CODE,
             units == ProbabilityOfExceedanceUnits.PERCENT
                 ? PERCENTAGE_ERROR_MESSAGE.formatted(label)
-                : ERROR_MESSAGE.formatted(label)
+                : GENERAL_ERROR_MESSAGE.formatted(label)
         );
+      }
+
+      /* Min and max validation */
+      // Validate min and max values are in correct order if they have been provided
+      // and no other errors have been found so far
+      errorCountAfter = errors.getErrorCount();
+      if (probabilityOfExceedanceForm.getMin().hasContent()
+          && probabilityOfExceedanceForm.getMax().hasContent()
+          && errorCountAfter == errorCountBefore
+      ) {
+
+        var minPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.MIN.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        var maxPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.MAX.getPath() + DECIMAL_INPUT_VALUE_PATH);
+
+        ArrayList<DecimalInput> minMaxValues = new ArrayList<>(
+            Arrays.asList(
+                probabilityOfExceedanceForm.getMin(),
+                probabilityOfExceedanceForm.getMax()
+            )
+        );
+
+        ArrayList<String> minMaxPaths = new ArrayList<>(
+            Arrays.asList(
+                minPath,
+                maxPath
+            )
+        );
+
+        validateProbabilityFieldOrder(minMaxValues, minMaxPaths, errors);
+
+        errorCountAfter = errors.getErrorCount();
+        if (errorCountAfter > errorCountBefore) {
+          errors.rejectValue(
+              errorPath,
+              errorPath + ERROR_CODE,
+              MIN_MAX_ERROR_MESSAGE.formatted(label)
+          );
+        }
+      }
+
+      /* P99 to P1 validation */
+      var probabilityValues = List.of(
+          probabilityOfExceedanceForm.getP99(),
+          probabilityOfExceedanceForm.getP90(),
+          probabilityOfExceedanceForm.getP50(),
+          probabilityOfExceedanceForm.getP10(),
+          probabilityOfExceedanceForm.getP1()
+      );
+      ArrayList<DecimalInput> filteredProbabilityValues = probabilityValues.stream()
+          .filter(DecimalInput::hasContent)
+          .collect(Collectors.toCollection(ArrayList::new));
+
+      ArrayList<String> pathList = new ArrayList<>();
+      if (probabilityOfExceedanceForm.getP1().hasContent()) {
+        var p1Path = cleanPath(formTypePath + ProbabilityOfExceedanceType.P1.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(p1Path);
+      }
+      if (probabilityOfExceedanceForm.getP10().hasContent()) {
+        var p10Path = cleanPath(formTypePath + ProbabilityOfExceedanceType.P10.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(p10Path);
+      }
+      if (probabilityOfExceedanceForm.getP50().hasContent()) {
+        var p50Path = cleanPath(formTypePath + ProbabilityOfExceedanceType.P50.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(p50Path);
+      }
+      if (probabilityOfExceedanceForm.getP90().hasContent()) {
+        var p90Path = cleanPath(formTypePath + ProbabilityOfExceedanceType.P90.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(p90Path);
+      }
+      if (probabilityOfExceedanceForm.getP99().hasContent()) {
+        var p99Path = cleanPath(formTypePath + ProbabilityOfExceedanceType.P99.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(p99Path);
+      }
+
+      errorCountAfter = errors.getErrorCount();
+
+      // validate P99 to P1 values if any have been entered and no other errors have been found so far
+      if (!filteredProbabilityValues.isEmpty() && errorCountAfter == errorCountBefore) {
+        validateProbabilityFieldOrder(filteredProbabilityValues, pathList, errors);
+
+        errorCountAfter = errors.getErrorCount();
+        if (errorCountAfter > errorCountBefore) {
+          errors.rejectValue(
+              errorPath,
+              errorPath + ERROR_CODE,
+              P99_TO_P1_ERROR_MESSAGE.formatted(label)
+          );
+        }
       }
     }
   }
@@ -255,8 +360,7 @@ public class ProbabilityDistributionValidationUtil {
     if (!isAvailable) {
       return;
     }
-    var pathToExceedance = formField + "." + typePath + "." + inputPath + ".decimalInputValue";
-    pathToExceedance = pathToExceedance.replaceAll("[\n\r\t]", "_");
+    var pathToExceedance = cleanPath(formField + "." + typePath + "." + inputPath + DECIMAL_INPUT_VALUE_PATH);
     var validator = ProbabilityDistributionValidationUtil.configureProbabilityOfExceedanceInputValidator(
         input,
         pathToExceedance,
@@ -291,5 +395,41 @@ public class ProbabilityDistributionValidationUtil {
     }
 
     return decimalInputValidator;
+  }
+
+  /** Validates order of inputs and highlights fields with error in error styling.
+   * Blank error message as general error message is provided separately.
+   * @param inputs the probability inputs to compare
+   * @param paths the paths to inputs to compare
+   * @param errors the existing error list
+   */
+  private static void validateProbabilityFieldOrder(
+      ArrayList<DecimalInput> inputs,
+      ArrayList<String> paths,
+      Errors errors
+  ) {
+    if (!isInOrder(inputs)) {
+      paths.forEach(p -> errors.rejectValue(p, p + ".invalid", ""));
+    }
+
+  }
+
+  /** Takes an already ordered list of inputs and validates that the decimal values are in ascending order.
+   * @param inputs the input values to check
+   * @return whether the decimal input list is in the correct order
+   */
+  private static boolean isInOrder(
+      ArrayList<DecimalInput> inputs
+  ) {
+    for (int i = 0; i < inputs.size() - 1; i++) {
+      if (inputs.get(i).createBigDecimalOrNull().compareTo(inputs.get(i + 1).createBigDecimalOrNull()) > 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static String cleanPath(String path) {
+    return path.replaceAll("[\n\r\t]", "_");
   }
 }
