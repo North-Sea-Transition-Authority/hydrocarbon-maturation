@@ -63,6 +63,7 @@ dependencies {
 	implementation 'uk.co.fivium.digital.energyportalteamaccesslibrary:energy-portal-team-access-libray:develop-SNAPSHOT'
 	implementation 'uk.co.fivium:fivium-notify-spring-boot-starter:3.17.2-4.2-SNAPSHOT'
 	implementation 'com.esri.geometry:esri-geometry-api:2.2.4'
+	implementation 'mil.nga:crs:1.1.5'
 
 	implementation 'org.springframework.boot:spring-boot-starter-jooq'
 	implementation 'org.jooq:jooq-codegen'

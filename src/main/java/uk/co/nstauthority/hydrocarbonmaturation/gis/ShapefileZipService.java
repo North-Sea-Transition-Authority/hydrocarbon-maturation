@@ -59,6 +59,11 @@ class ShapefileZipService {
     return ZipUtils.getInputStreamForFileInZip(inputStream, shapefileName + ShapefileExtension.SHP.getExtension());
   }
 
+  InputStream getInputStreamForShapefileProjection(ZipInputStream inputStream, String shapefileName) throws IOException {
+
+    return ZipUtils.getInputStreamForFileInZip(inputStream, shapefileName + ShapefileExtension.PRJ.getExtension());
+  }
+
   private static List<String> getShapefilesInZip(List<String> filesInZip) {
     return filesInZip.stream()
         .filter(file -> file.endsWith(ShapefileExtension.SHP.getExtension()))

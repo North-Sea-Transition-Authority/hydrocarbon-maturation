@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import com.esri.core.geometry.Geometry;
-import com.esri.core.geometry.SpatialReference;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -17,8 +16,7 @@ class ShapefileImportService {
     return shapefileGeometryLoader.getGeometryList();
   }
 
-  SpatialReference importShapefileProjectAsSpatialReference(InputStream shapefileProjectStream) throws IOException {
-    var wkt = new String(shapefileProjectStream.readAllBytes(), StandardCharsets.UTF_8);
-    return SpatialReference.create(wkt);
+  String importShapefileProjectAsWkt(InputStream shapefileProjectStream) throws IOException {
+    return new String(shapefileProjectStream.readAllBytes(), StandardCharsets.UTF_8);
   }
 }

@@ -39,12 +39,13 @@ class GeoJsonExportServiceTest {
     private Geometry geometry2;
     @Mock
     private SpatialReference spatialReference;
+    private final SupportedCoordinateReferenceSystem coordinateReferenceSystem = SupportedCoordinateReferenceSystem.WGS84;
 
     @Test
     void noGeometriesFound_ThrowException() {
 
       assertThatExceptionOfType(IllegalArgumentException.class)
-          .isThrownBy(() -> underTest.exportShapefileAsGeoJson(spatialReference, List.of()));
+          .isThrownBy(() -> underTest.exportShapefileAsGeoJson(spatialReference, coordinateReferenceSystem, List.of()));
     }
 
     @Test
@@ -52,25 +53,26 @@ class GeoJsonExportServiceTest {
       var geometryCursor = new SimpleGeometryCursor(geometry1);
 
       var result = underTest.exportShapefileAsGeoJson(
-          spatialReference, List.of(geometry1)
+          spatialReference, coordinateReferenceSystem, List.of(geometry1)
       );
 
       verify(operatorUnion, never()).execute(eq(geometryCursor), any(), any());
-      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportSkipCRS, spatialReference, geometry1);
+      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportSkipCRS, coordinateReferenceSystem.toSpatialReference(), geometry1);
     }
 
     @Test
     void twoGeometriesFound_VerifyGeometryUnionedAndPassedInForConversion() {
       var simpleGeometryCursor = Mockito.mock(SimpleGeometryCursor.class);
       when(operatorUnion.execute(any(SimpleGeometryCursor.class), eq(spatialReference), eq(null))).thenReturn(simpleGeometryCursor);
+
       var geometry = Mockito.mock(Geometry.class);
       when(simpleGeometryCursor.next()).thenReturn(geometry);
 
-      var result = underTest.exportShapefileAsGeoJson(spatialReference, List.of(geometry1, geometry2));
+      var result = underTest.exportShapefileAsGeoJson(spatialReference, coordinateReferenceSystem, List.of(geometry1, geometry2));
 
       verify(exportToGeoJson, never()).execute(geometry1);
       verify(exportToGeoJson, never()).execute(geometry2);
-      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportSkipCRS, spatialReference, geometry);
+      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportSkipCRS, coordinateReferenceSystem.toSpatialReference(), geometry);
     }
   }
 
@@ -78,14 +80,15 @@ class GeoJsonExportServiceTest {
   class WhenExportingGeometryAsGeoJson {
     @Mock
     private Geometry geometry;
-    @Mock
-    private SpatialReference spatialReference;
+    private final SupportedCoordinateReferenceSystem supportedCoordinateReferenceSystem = SupportedCoordinateReferenceSystem.WGS84;
 
     @Test
     void verifyGeometryPassedInForConversion() {
-      var result = underTest.exportGeometryAsGeoJson(spatialReference, geometry);
+      var result = underTest.exportGeometryAsGeoJson(supportedCoordinateReferenceSystem, geometry);
 
-      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportSkipCRS, spatialReference, geometry);
+      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportSkipCRS, supportedCoordinateReferenceSystem.toSpatialReference(), geometry);
     }
+
   }
+
 }

@@ -22,34 +22,36 @@ class GeoJsonExportService {
     this.operatorUnion = operatorUnion;
   }
 
-  public String exportShapefileAsGeoJson(SpatialReference spatialReference, List<Geometry> geometries) {
+  public String exportShapefileAsGeoJson(SpatialReference thresholds,
+                                         SupportedCoordinateReferenceSystem coordinateReferenceSystem,
+                                         List<Geometry> geometries) {
 
     if (geometries.isEmpty()) {
       throw new IllegalArgumentException("Could not find geometries in shapefile");
     }
 
-    var geometry = getFirstGeometryOrFlattenMultipleGeometries(spatialReference, geometries);
+    var geometry = getFirstGeometryOrFlattenMultipleGeometries(thresholds, geometries);
 
-    return exportGeometryAsGeoJson(spatialReference, geometry);
+    return exportGeometryAsGeoJson(coordinateReferenceSystem, geometry);
   }
 
-  private Geometry getFirstGeometryOrFlattenMultipleGeometries(SpatialReference spatialReference, List<Geometry> geometries) {
+  private Geometry getFirstGeometryOrFlattenMultipleGeometries(SpatialReference thresholds, List<Geometry> geometries) {
     if (geometries.size() == 1) {
       return geometries.get(0);
     }
 
     var geometriesArray = geometries.toArray(Geometry[]::new);
-    return getUnionOfGeometries(spatialReference, geometriesArray);
+    return getUnionOfGeometries(thresholds, geometriesArray);
   }
 
-  public String exportGeometryAsGeoJson(SpatialReference spatialReference, Geometry geometry) {
-    // TODO create a spatial reference that contains a WKID, otherwise the export fails without the geoJsonExportSkipCRS flag
-    return exportToGeoJson.execute(GeoJsonExportFlags.geoJsonExportSkipCRS, spatialReference, geometry);
+  public String exportGeometryAsGeoJson(SupportedCoordinateReferenceSystem coordinateReferenceSystem, Geometry geometry) {
+    var crs = coordinateReferenceSystem.toSpatialReference();
+    return exportToGeoJson.execute(GeoJsonExportFlags.geoJsonExportSkipCRS, crs, geometry);
   }
 
-  private Geometry getUnionOfGeometries(SpatialReference spatialReference, Geometry[] geometriesArray) {
+  private Geometry getUnionOfGeometries(SpatialReference thresholds, Geometry[] geometriesArray) {
     var geometryCursor = new SimpleGeometryCursor(geometriesArray);
-    var resultCursor = operatorUnion.execute(geometryCursor, spatialReference, null);
+    var resultCursor = operatorUnion.execute(geometryCursor, thresholds, null);
     return resultCursor.next();
   }
 }

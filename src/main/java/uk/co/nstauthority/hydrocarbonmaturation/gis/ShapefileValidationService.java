@@ -11,12 +11,15 @@ import org.springframework.stereotype.Service;
 class ShapefileValidationService {
   private final OperatorSimplifyOGC operatorSimplifyOgc;
   private final OperatorSimplify operatorSimplify;
+  private final SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService;
 
   @Autowired
   ShapefileValidationService(OperatorSimplifyOGC operatorSimplifyOgc,
-                             OperatorSimplify operatorSimplify) {
+                             OperatorSimplify operatorSimplify,
+                             SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService) {
     this.operatorSimplifyOgc = operatorSimplifyOgc;
     this.operatorSimplify = operatorSimplify;
+    this.supportedCoordinateReferenceSystemService = supportedCoordinateReferenceSystemService;
   }
 
   /**
@@ -35,5 +38,12 @@ class ShapefileValidationService {
 
   boolean validateGeometryIsOfType(Geometry geometry, Geometry.Type expectType) {
     return geometry.getType() == expectType;
+  }
+
+  boolean validateWktHasSupportedCoordinateReferenceSystem(String wellKnownText) {
+    var supportedCrsListFromWkt =
+        supportedCoordinateReferenceSystemService.getSupportedCoordinateReferenceSystemFromWkt(wellKnownText);
+
+    return supportedCrsListFromWkt != null;
   }
 }
