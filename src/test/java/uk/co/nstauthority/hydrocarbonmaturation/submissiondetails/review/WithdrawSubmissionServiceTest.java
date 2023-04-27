@@ -73,7 +73,7 @@ class WithdrawSubmissionServiceTest {
     underTest.withdrawSubmissionOrThrow(submissionDetail, form);
 
     verify(submissionDetailPersistenceService).withdrawSubmission(submissionDetail, form.getWithdrawReason());
-    verify(submissionEmailService).sendSubmissionWithdrawalEmail(submissionDetail, form.getWithdrawReason());
+    verify(submissionEmailService).sendSubmissionWithdrawalEmail(submissionDetail);
   }
 
   @Test

@@ -49,7 +49,7 @@ class WithdrawSubmissionService {
     if (canWithdrawSubmission(submissionDetail)) {
       submissionDetailPersistenceService.withdrawSubmission(submissionDetail, form.getWithdrawReason());
 
-      submissionEmailService.sendSubmissionWithdrawalEmail(submissionDetail, form.getWithdrawReason());
+      submissionEmailService.sendSubmissionWithdrawalEmail(submissionDetail);
     } else {
       throw new ActionNotAllowedException("Submission cannot be withdrawn by user with ID %s"
           .formatted(userDetailService.getUserWuaId()));

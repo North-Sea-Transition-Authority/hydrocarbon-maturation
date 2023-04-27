@@ -42,7 +42,6 @@ public class SubmissionEmailService {
   private static final String RECIPIENT_NAME = "RECIPIENT_NAME";
   private static final String REGULATOR_ORGANISATION_NAME = "REGULATOR_ORGANISATION_NAME";
   private static final String SERVICE_NAME_MNEMONIC = "SERVICE_NAME_MNEMONIC";
-  private static final String WITHDRAW_REASON = "WITHDRAW_REASON";
 
   private final NotifyEmailService notifyEmailService;
   private final EnergyPortalUserService energyPortalUserService;
@@ -83,7 +82,7 @@ public class SubmissionEmailService {
     this.submissionDetailService = submissionDetailService;
   }
 
-  public void sendSubmissionWithdrawalEmail(SubmissionDetail submissionDetail, String withdrawalReason) {
+  public void sendSubmissionWithdrawalEmail(SubmissionDetail submissionDetail) {
     var energyPortalUserDtoOptional = energyPortalUserService.findByWuaId(
         WebUserAccountId.valueOf(submissionDetail.getSubmittedByWuaId().toString()));
 
@@ -93,7 +92,6 @@ public class SubmissionEmailService {
           var licencesString = getDisplayableLicences(submissionDetail);
           personalisations.put(REGULATOR_ORGANISATION_NAME,
               serviceBrandingConfigurationProperties.getCustomerConfigurationProperties().mnemonic());
-          personalisations.put(WITHDRAW_REASON, withdrawalReason);
           addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);
           sendEmailToRecipient(emailProperties, recipient);
         },
