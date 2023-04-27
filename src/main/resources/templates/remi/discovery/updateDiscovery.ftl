@@ -1,4 +1,5 @@
 <#include '../layout/layout.ftl'>
+<#import '../prospect/newSubmissionGuidance.ftl' as guidance>
 
 <#assign pageTitle = "Discovery update" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
@@ -23,12 +24,7 @@
       <p class="govuk-body">
         Only discoveries that have not been relinquished are shown.
       </p>
-      <p class="govuk-body">
-        If the discovery you want to update is not shown in the list then you must contact the operator responsible for the prospect to provide you with access to their organisation.
-      </p>
-      <p class="govuk-body">
-        If you are already part of the organisation then contact the ${customerBranding.mnemonic()} for advice.
-      </p>
+      <@guidance.newSubmissionGuidanceText resourceTypeString="discovery"/>
     </@fdsDetails.summaryDetails>
       <@fdsAction.submitButtons primaryButtonText="Save and continue" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl="${springUrl(backLinkUrl)}"/>
   </@fdsForm.htmlForm>

@@ -1,5 +1,5 @@
 <#include '../layout/layout.ftl'>
-
+<#import '../prospect/newSubmissionGuidance.ftl' as guidance>
 <#assign pageTitle = "Relinquishment" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -7,7 +7,6 @@
 <#-- @ftlvariable name="prospectSelectedOption" type="String" -->
 <#-- @ftlvariable name="otherSourceOfInformation" type="String" -->
 <#-- @ftlvariable name="informationSource" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource" -->
-<#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -28,13 +27,9 @@
           <@fdsDetails.summaryDetails summaryTitle="The prospect I want to relinquish is not listed">
             <p class="govuk-body">
               Only prospects with your organisation are shown.
-              If a prospect has already progressed to a discovery then you should relinquish the discovery instead.            </p>
-            <p class="govuk-body">
-              If the prospect you want to relinquish is not shown in the list then you must contact the operator responsible for the prospect to provide you with access to their organisation.
+              If a prospect has already progressed to a discovery then you should relinquish the discovery instead.
             </p>
-            <p class="govuk-body">
-              If you are already part of the organisation then contact the ${customerBranding.mnemonic()} for advice.
-            </p>
+            <@guidance.newSubmissionGuidanceText resourceTypeString="prospect" actionString="relinquish"/>
           </@fdsDetails.summaryDetails>
       </@fdsRadio.radioItem>
       <@fdsRadio.radioItem
@@ -51,9 +46,8 @@
               If the discovery you want to relinquish is not shown in the list then you must contact the operator responsible for the discovery
               to provide you with access to their organisation.
             </p>
-            <p>
-              If you are already part of the organisation then contact the ${customerBranding.mnemonic()} for advice
-            </p>
+            <@guidance.newSubmissionGuidanceText resourceTypeString="discovery" actionString="relinquish"/>
+
           </@fdsDetails.summaryDetails>
       </@fdsRadio.radioItem>
     </@fdsRadio.radioGroup>

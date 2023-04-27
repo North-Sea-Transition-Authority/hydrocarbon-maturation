@@ -1,4 +1,5 @@
 <#include '../layout/layout.ftl'>
+<#import '../prospect/newSubmissionGuidance.ftl' as guidance>
 
 <#assign pageTitle = "Prospect update" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
@@ -7,7 +8,6 @@
 <#-- @ftlvariable name="prospectSelectedOption" type="String" -->
 <#-- @ftlvariable name="otherSourceOfInformation" type="String" -->
 <#-- @ftlvariable name="informationSource" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.InformationSource" -->
-<#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -20,12 +20,8 @@
       <p class="govuk-body">
         Only prospects that exist on an extant licence are shown. Prospects that have already had a post-drill or relinquishment submission can no longer be updated here.
       </p>
-      <p class="govuk-body">
-        If the prospect you want to update is not shown in the list then you must contact the operator responsible for the prospect to provide you with access to their organisation.
-      </p>
-      <p class="govuk-body">
-        If you are already part of the organisation then contact the ${customerBranding.mnemonic()} for advice.
-      </p>
+      <@guidance.newSubmissionGuidanceText resourceTypeString="prospect" actionString="update"/>
+
     </@fdsDetails.summaryDetails>
 
     <@fdsRadio.radioGroup path="form.informationSource" labelText="Source of Information" hiddenContent=true>
