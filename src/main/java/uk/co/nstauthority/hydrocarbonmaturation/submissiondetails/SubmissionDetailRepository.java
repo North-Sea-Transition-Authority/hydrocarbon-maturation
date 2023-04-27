@@ -10,7 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 @Repository
 interface SubmissionDetailRepository extends CrudRepository<SubmissionDetail, UUID> {
 
-  List<SubmissionDetail> findSubmissionDetailsBySubmissionIn(List<Submission> submissions);
+  List<SubmissionDetail> findSubmissionDetailsBySubmissionInOrderByVersionNumberDesc(List<Submission> submissions);
 
   Optional<SubmissionDetail> findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
       List<Submission> submissions, List<SubmissionType> submissionTypes, List<SubmissionDetailStatus> statuses);
@@ -21,6 +21,8 @@ interface SubmissionDetailRepository extends CrudRepository<SubmissionDetail, UU
   Optional<SubmissionDetail> findFirstBySubmissionInAndStatusOrderByApprovedTimestampDesc(
       List<Submission> submissions, SubmissionDetailStatus status);
 
-  Optional<SubmissionDetail> findFirstBySubmissionInAndStatusIn(
+  Optional<SubmissionDetail> findFirstBySubmissionInAndStatusInOrderByVersionNumberDesc(
       List<Submission> submissions, List<SubmissionDetailStatus> statuses);
+
+  List<SubmissionDetail> findAllBySubmission(Submission submission);
 }

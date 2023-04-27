@@ -54,6 +54,20 @@ public class SubmissionDetailPersistenceService {
     return submissionDetail;
   }
 
+  SubmissionDetail createUpdateSubmissionDetail(SubmissionDetail parentSubmissionDetail) {
+    var submissionDetail = new SubmissionDetail();
+    submissionDetail.setCreatedByWuaId(userDetailService.getUserWuaId());
+    submissionDetail.setCreatedTimestamp(clock.instant());
+    submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+    submissionDetail.setSubmissionType(parentSubmissionDetail.getSubmissionType());
+    submissionDetail.setSubmission(parentSubmissionDetail.getSubmission());
+    submissionDetail.setVersionNumber(parentSubmissionDetail.getVersionNumber() + 1);
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+
+    submissionDetailRepository.save(submissionDetail);
+    return submissionDetail;
+  }
+
   @Transactional
   void approveSubmission(SubmissionDetail submissionDetail) {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);

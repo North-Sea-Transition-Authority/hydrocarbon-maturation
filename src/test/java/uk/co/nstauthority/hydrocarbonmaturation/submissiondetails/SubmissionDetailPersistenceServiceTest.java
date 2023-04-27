@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -177,5 +178,62 @@ class SubmissionDetailPersistenceServiceTest {
     submissionDetailPersistenceService.deleteSubmission(submissionDetail);
 
     assertThat(submissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.DELETED);
+  }
+
+  @Test
+  void createUpdateSubmissionDetail_assertUpdateProperties() {
+    var parentSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var submission = SubmissionTestUtils.createSubmission(mock(Resource.class));
+    parentSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    parentSubmissionDetail.setVersionNumber(2);
+    parentSubmissionDetail.setCreatedByWuaId(1);
+    parentSubmissionDetail.setSubmittedTimestamp(INSTANT);
+    parentSubmissionDetail.setSubmission(submission);
+
+    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
+
+    var updateSubmissionDetail = submissionDetailPersistenceService.createUpdateSubmissionDetail(parentSubmissionDetail);
+
+    assertThat(updateSubmissionDetail)
+        .extracting(
+            SubmissionDetail::getSubmission,
+            SubmissionDetail::getSubmissionType,
+            SubmissionDetail::getStatus,
+            SubmissionDetail::getVersionNumber,
+            SubmissionDetail::getCreatedTimestamp,
+            SubmissionDetail::getCreatedByWuaId,
+            SubmissionDetail::getSubmitterType)
+        .containsExactly(
+            submission,
+            parentSubmissionDetail.getSubmissionType(),
+            SubmissionDetailStatus.DRAFT,
+            parentSubmissionDetail.getVersionNumber() + 1,
+            INSTANT,
+            USER_WUA_ID.intValue(),
+            SubmitterType.INDUSTRY
+        );
+    assertThat(updateSubmissionDetail)
+        .hasAllNullFieldsOrPropertiesExcept(
+            "submission", "submissionType",
+            "status", "versionNumber",
+            "createdTimestamp", "createdByWuaId",
+            "submitterType");
+    verify(submissionDetailRepository, times(1)).save(updateSubmissionDetail);
+  }
+
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
+  void createUpdateSubmissionDetail_whenSubmissionType_assertSubmissionTypeAndVersionIncremented(
+      SubmissionType submissionType) {
+    var parentVersion = 5;
+    var parentSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    parentSubmissionDetail.setVersionNumber(parentVersion);
+    var updateSubmissionDetail = submissionDetailPersistenceService.createUpdateSubmissionDetail(
+        parentSubmissionDetail);
+
+    assertThat(updateSubmissionDetail.getSubmissionType())
+        .isEqualTo(parentSubmissionDetail.getSubmissionType());
+    assertThat(updateSubmissionDetail.getVersionNumber())
+        .isEqualTo(parentVersion+1);
   }
 }

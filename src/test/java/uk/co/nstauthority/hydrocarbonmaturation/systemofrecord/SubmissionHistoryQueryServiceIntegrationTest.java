@@ -320,6 +320,60 @@ class SubmissionHistoryQueryServiceIntegrationTest {
             );
       }
     }
+
+    @Test
+    void WhenProspectWithUpdate_whenOneDraftOneSubmitted_assertNoDraftUpdatesAndOnlyLatestSubmitted() {
+      var prospectResource = createProspectResource();
+
+      var initialProspectSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      initialProspectSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(4000));
+      initialProspectSubmission.setStatus(SubmissionDetailStatus.SUBMITTED);
+      initialProspectSubmission.setVersionNumber(1);
+
+      var prospectUpdateDraftSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      prospectUpdateDraftSubmission.setSubmission(initialProspectSubmission.getSubmission());
+      prospectUpdateDraftSubmission.setVersionNumber(2);
+      prospectUpdateDraftSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(3000));
+      prospectUpdateDraftSubmission.setStatus(SubmissionDetailStatus.DRAFT);
+
+
+      var initialProspectSubmission2 = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      initialProspectSubmission2.setSubmittedTimestamp(Instant.now().minusSeconds(2000));
+      initialProspectSubmission2.setStatus(SubmissionDetailStatus.SUBMITTED);
+      initialProspectSubmission2.setVersionNumber(1);
+
+      var prospectUpdateSubmittedSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      prospectUpdateSubmittedSubmission.setSubmission(initialProspectSubmission2.getSubmission());
+      prospectUpdateSubmittedSubmission.setVersionNumber(2);
+      prospectUpdateSubmittedSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(1000));
+      prospectUpdateSubmittedSubmission.setStatus(SubmissionDetailStatus.SUBMITTED);
+
+
+      entityManager.persist(initialProspectSubmission);
+      entityManager.flush();
+      entityManager.persist(prospectUpdateDraftSubmission);
+      entityManager.flush();
+      entityManager.persist(initialProspectSubmission2);
+      entityManager.flush();
+      entityManager.persist(prospectUpdateSubmittedSubmission);
+      entityManager.flush();
+
+      var results = submissionHistoryQueryService
+          .getApprovedAndSubmittedSubmissionsOnResource(prospectResource.getId());
+
+      assertThat(results)
+          .extracting(
+              SubmissionQuerySearchRecord::getStatus,
+              SubmissionQuerySearchRecord::getSubmissionDetailId)
+          .containsExactly(
+              tuple(
+                  SubmissionDetailStatus.SUBMITTED,
+                  prospectUpdateSubmittedSubmission.getId()),
+              tuple(
+                  SubmissionDetailStatus.SUBMITTED,
+                  initialProspectSubmission.getId())
+          );
+    }
   }
 
   private SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType) {

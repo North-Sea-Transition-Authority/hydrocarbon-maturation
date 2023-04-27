@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -20,7 +21,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
@@ -35,6 +39,10 @@ class SubmissionUpdatePersistenceServiceTest {
   private Clock clock;
   @Mock
   private SubmissionEmailService submissionEmailService;
+  @Mock
+  private SubmissionCreateService submissionCreateService;
+  @Mock
+  private SubmissionDetailService submissionDetailService;
   @InjectMocks
   private SubmissionUpdatePersistenceService underTest;
 
@@ -93,7 +101,7 @@ class SubmissionUpdatePersistenceServiceTest {
 
     @Test
     void verifyMethodCalls() {
-      underTest.getLatestSubmissionUpdateForSubmission(submission);
+      underTest.getLatestSubmissionUpdateBySubmission(submission);
       verify(submissionUpdateRepository, times(1))
           .findFirstBySubmissionOrderByRequestedTimestampDesc(submission);
     }
@@ -102,8 +110,96 @@ class SubmissionUpdatePersistenceServiceTest {
     void assertReturn() {
       when(submissionUpdateRepository.findFirstBySubmissionOrderByRequestedTimestampDesc(submission))
           .thenReturn(Optional.of(submissionUpdate));
-      var result = underTest.getLatestSubmissionUpdateForSubmission(submission);
+      var result = underTest.getLatestSubmissionUpdateBySubmission(submission);
       assertThat(result).contains(submissionUpdate);
+    }
+  }
+
+  @Nested
+  class WhenGettingSubmissionUpdate {
+
+    @Mock
+    private Submission submission;
+
+    @Mock
+    private SubmissionUpdate submissionUpdate;
+
+    @Test
+    void getLatestSubmissionUpdateForSubmission() {
+      when(submissionUpdateRepository.findFirstBySubmissionOrderByRequestedTimestampDesc(submission))
+          .thenReturn(Optional.of(submissionUpdate));
+
+      assertThat(underTest.getLatestSubmissionUpdateBySubmission(submission)).contains(submissionUpdate);
+    }
+
+    @Test
+    void getUnresolvedSubmissionUpdateBySubmissionDetail() {
+      when(submissionUpdateRepository.findFirstBySubmissionAndResolvedFalse(submission))
+          .thenReturn(Optional.of(submissionUpdate));
+
+      assertThat(underTest.getUnresolvedSubmissionUpdateBySubmission(submission)).contains(submissionUpdate);
+    }
+  }
+
+  @Nested
+  class WhenStartingUpdate {
+
+    @Mock
+    private SubmissionDetail submissionDetail;
+
+    @Mock
+    private SubmissionDetail updateSubmissionDetail;
+
+    @Test
+    void startUpdate() {
+      when(submissionCreateService.createUpdateSubmissionDetail(submissionDetail))
+          .thenReturn(updateSubmissionDetail);
+
+      assertThat(underTest.startUpdate(submissionDetail)).isEqualTo(updateSubmissionDetail);
+    }
+  }
+
+  @Nested
+  class WhenGettingDraftUpdateSubmissionDetail {
+    @Mock
+    private Submission submission;
+
+    private SubmissionDetail submissionDetailSubmitted;
+    private SubmissionDetail submissionDetailUpdateDraft;
+    private SubmissionDetail submissionDetailSubmitted2;
+
+    @BeforeEach
+    void setUp() {
+      submissionDetailSubmitted = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+      submissionDetailSubmitted.setStatus(SubmissionDetailStatus.SUBMITTED);
+      submissionDetailUpdateDraft = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+      submissionDetailUpdateDraft.setStatus(SubmissionDetailStatus.DRAFT);
+      submissionDetailSubmitted2 = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+      submissionDetailSubmitted2.setStatus(SubmissionDetailStatus.SUBMITTED);
+    }
+
+    @Test
+    void whenSingleSubmissionDetailOnSubmission_assertEmptyOptional() {
+      when(submissionDetailService.getSubmissionDetailsBySubmission(submission))
+          .thenReturn(List.of(submissionDetailSubmitted));
+
+      assertThat(underTest.getDraftUpdateSubmissionDetail(submission)).isNotPresent();
+    }
+
+    @Test
+    void whenOneDraftAndSubmittedSubmissionDetailOnSubmission_assertDraftReturned() {
+      when(submissionDetailService.getSubmissionDetailsBySubmission(submission))
+          .thenReturn(List.of(submissionDetailSubmitted, submissionDetailUpdateDraft));
+
+      assertThat(underTest.getDraftUpdateSubmissionDetail(submission)).contains(submissionDetailUpdateDraft);
+    }
+
+    @Test
+    void whenTwoSubmittedSubmissionDetailOnSubmission_assertEmptyOptional() {
+      when(submissionDetailService.getSubmissionDetailsBySubmission(submission))
+          .thenReturn(List.of(submissionDetailSubmitted, submissionDetailSubmitted2));
+
+      assertThat(underTest.getDraftUpdateSubmissionDetail(submission)).isNotPresent();
     }
   }
 }

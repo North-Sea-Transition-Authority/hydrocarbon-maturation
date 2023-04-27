@@ -70,7 +70,7 @@ class SubmissionDetailServiceTest {
         .thenReturn(submissionList);
     submissionDetailService.getSubmissionDetailsForResource(resource);
 
-    verify(submissionDetailRepository, times(1)).findSubmissionDetailsBySubmissionIn(submissionList);
+    verify(submissionDetailRepository, times(1)).findSubmissionDetailsBySubmissionInOrderByVersionNumberDesc(submissionList);
   }
 
   @Test
@@ -96,7 +96,7 @@ class SubmissionDetailServiceTest {
     var submissionDetail = new SubmissionDetail();
     when(submissionPersistenceService.getSubmissionsByResource(any()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndStatusIn(
+    when(submissionDetailRepository.findFirstBySubmissionInAndStatusInOrderByVersionNumberDesc(
         submissionList,
         List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)
     )).thenReturn(Optional.of(submissionDetail));
@@ -184,5 +184,16 @@ class SubmissionDetailServiceTest {
   void getSubmissionTypeName_assertReturn() {
     assertThat(submissionDetailService.getSubmissionTypeName(submissionDetail))
         .isEqualTo(SubmissionType.PROSPECT_UPDATE.getTypeName());
+  }
+
+  @Test
+  void getSubmissionDetailsBySubmission_assertReturn() {
+    var expectedList = List.of(submissionDetail, mock(SubmissionDetail.class));
+    var submission = mock(Submission.class);
+    when(submissionDetailRepository.findAllBySubmission(submission))
+        .thenReturn(expectedList);
+
+    assertThat(submissionDetailService.getSubmissionDetailsBySubmission(submission))
+        .isEqualTo(expectedList);
   }
 }

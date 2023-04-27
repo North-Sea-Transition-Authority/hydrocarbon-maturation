@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -30,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
@@ -310,6 +312,75 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
     assertThat(results).isEmpty();
+  }
+
+  @Test
+  void getSubmissions_whenOneHasUpdateInProgressAndOneHasSubmittedUpdate_assertCorrectSubmissionsReturned() {
+    var responsibleOrganisationId = 46;
+    var userOrgUnits = List.of(responsibleOrganisationId);
+    setUpIndustryTest(userOrgUnits);
+
+    var resource = createResource(Instant.now(), entityManager);
+    var submissionWithTwoSubmitted = SubmissionIntegrationTestUtils.createSubmission(resource, entityManager);
+    var initialSubmissionDetail = setUpSubmissionDetailWithResponsibleOrgForSubmission(
+        submissionWithTwoSubmitted, Instant.parse("2006-12-03T10:15:15.00Z"),
+        responsibleOrganisationId, 1, SubmissionDetailStatus.SUBMITTED);
+    var updateSubmissionDetailSubmitted = setUpSubmissionDetailWithResponsibleOrgForSubmission(
+        submissionWithTwoSubmitted, Instant.parse("2007-12-03T10:15:15.00Z"),
+        responsibleOrganisationId, 2, SubmissionDetailStatus.SUBMITTED);
+
+    var resource2 = createResource(Instant.now(), entityManager);
+    var submissionWithDraftUpdate = SubmissionIntegrationTestUtils.createSubmission(resource2, entityManager);
+    var initialSubmissionDetail2 = setUpSubmissionDetailWithResponsibleOrgForSubmission(
+        submissionWithDraftUpdate, Instant.parse("2006-12-03T10:15:30.00Z"),
+        responsibleOrganisationId, 1, SubmissionDetailStatus.SUBMITTED);
+    var updateSubmissionDetailDraft = setUpSubmissionDetailWithResponsibleOrgForSubmission(
+        submissionWithDraftUpdate, Instant.parse("2007-12-03T10:15:30.00Z"),
+        responsibleOrganisationId, 2, SubmissionDetailStatus.DRAFT);
+
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+
+    assertThat(results)
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId)
+        .containsExactly(
+            updateSubmissionDetailSubmitted.getId(),
+            initialSubmissionDetail2.getId()
+        );
+  }
+
+  private SubmissionDetail setUpSubmissionDetailWithResponsibleOrgForSubmission(Submission submission,
+                                                                                Instant submittedTimestamp,
+                                                                                int responsibleOrgId,
+                                                                                int versionNumber,
+                                                                                SubmissionDetailStatus status) {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.setId(null);
+    submissionDetail.setStatus(status);
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+    submissionDetail.setSubmittedTimestamp(submittedTimestamp);
+    submissionDetail.setVersionNumber(versionNumber);
+    submissionDetail.setSubmission(submission);
+    var createdTimestamp = Instant.now();
+    var resource = new Resource();
+    submissionDetail.setCreatedTimestamp(createdTimestamp);
+    resource.setType(ResourceType.PROSPECT);
+    resource.setCreatedTimestamp(createdTimestamp);
+    entityManager.persist(resource);
+    entityManager.flush();
+    var responsibleTeam = new RegulatorManagedInformation();
+    responsibleTeam.setResource(resource);
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    entityManager.persist(responsibleTeam);
+    entityManager.flush();
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(responsibleOrgId);
+    resourceDetail.setSubmissionDetail(submissionDetail);
+    entityManager.persist(resourceDetail);
+    entityManager.flush();
+    return submissionDetail;
   }
 
   private void setUpLatestApprovedSubmissionOnResource(Resource resource,

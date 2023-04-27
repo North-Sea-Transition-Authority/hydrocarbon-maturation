@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
+import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
@@ -16,9 +17,14 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Service
 class SubmissionRecordSummaryQueryService {
+  private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
+  private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
 
   private final DSLContext context;
 
@@ -42,15 +48,28 @@ class SubmissionRecordSummaryQueryService {
             SUBMISSION_DETAILS.CREATED_TIMESTAMP,
             SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP
         )
-        .from(SUBMISSION_DETAILS
-            .join(SUBMISSIONS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID))
+        .from(SUBMISSIONS
             .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
+            .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(
+                select(SD_2.SUBMISSION_ID)
+                    .from(SUBMISSIONS_2.join(SD_2)
+                        .on(SUBMISSIONS_2.ID.eq(SD_2.SUBMISSION_ID)
+                            //gets latest approved or submitted submission detail for a submission
+                            .and(SD_2.STATUS.in(
+                                SubmissionDetailStatus.SUBMITTED.name(),
+                                SubmissionDetailStatus.APPROVED.name()))))
+                    .where(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID))
+                    .orderBy(SD_2.APPROVED_TIMESTAMP.desc().nullsLast(), SD_2.VERSION_NUMBER.desc())
+                    .limit(1)))
             .leftJoin(REGULATOR_MANAGED_INFORMATION).on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
             .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID)))
-        .where(RESOURCES.ID.eq(resourceId))
+        .where(RESOURCES.ID.eq(resourceId)
+            .and(SUBMISSION_DETAILS.STATUS.in(
+                SubmissionDetailStatus.SUBMITTED.name(),
+                SubmissionDetailStatus.APPROVED.name())))
         .groupBy(List.of(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,

@@ -27,7 +27,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.RequestUpdateController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.StartUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySearchSelectorModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionSearchSelectorForm;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -137,7 +139,8 @@ public class ReviewSubmissionController {
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
 
     var isRegulator = regulatorTeamService.isRegulatorUser(userDetail);
-
+    var optionalSubmissionDetailUpdate = reviewSubmissionService.getUpdateSubmissionDetailBySubmission(
+        submissionDetail.getSubmission());
     if (isRegulator) {
       var resource = resourceService.getResourceById(resourceId)
           .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
@@ -163,6 +166,20 @@ public class ReviewSubmissionController {
                   .showWithdrawConfirmationPage(submissionDetail.getId())));
     }
 
+    var isIndustrySubmitter = reviewSubmissionService
+        .canUpdateSubmission(submissionRecord, userDetail, submissionDetail);
+    if (isIndustrySubmitter) {
+      var updateSubmissionUrl = optionalSubmissionDetailUpdate
+          .map(detail -> ReverseRouter.route(on(TaskListController.class)
+              .getTaskList(detail.getId())))
+          .orElseGet(() -> ReverseRouter.route(on(StartUpdateController.class)
+              .showStartUpdatePage(submissionDetail.getId())));
+
+      modelAndView
+          .addObject("updateSubmissionUrl", updateSubmissionUrl)
+          .addObject("updateStarted", optionalSubmissionDetailUpdate.isPresent());
+    }
+
     return modelAndView
         .addObject("form", form)
         .addObject("submissionRecord", submissionRecord)
@@ -170,7 +187,10 @@ public class ReviewSubmissionController {
         .addObject("canReview", reviewSubmissionService.canReviewSubmission(
             submissionRecord, userDetail, submissionDetail))
         .addObject("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName())
-        .addObject("isRegulator", isRegulator
+        .addObject("isRegulator", isRegulator)
+        .addObject("isIndustrySubmitter", isIndustrySubmitter)
+        .addObject("updateRequested",
+            reviewSubmissionService.hasUpdateBeenRequestedOnSubmission(submissionDetail.getSubmission())
         );
   }
 }

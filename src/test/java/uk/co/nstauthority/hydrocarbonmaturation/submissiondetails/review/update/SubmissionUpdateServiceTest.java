@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionUpdateServiceTest {
@@ -61,7 +64,7 @@ class SubmissionUpdateServiceTest {
     @Test
     void AndSubmissionUpdateResolvedAndSubmitted_assertTrue() {
       submissionUpdate.setResolved(true);
-      when(submissionUpdatePersistenceService.getLatestSubmissionUpdateForSubmission(submissionDetail.getSubmission()))
+      when(submissionUpdatePersistenceService.getLatestSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
           .thenReturn(Optional.of(submissionUpdate));
 
       var result = underTest.canRequestUpdateOnSubmission(submissionDetail);
@@ -72,7 +75,7 @@ class SubmissionUpdateServiceTest {
     @Test
     void AndSubmissionUpdateNotResolvedAndSubmitted_assertTrue() {
       submissionUpdate.setResolved(false);
-      when(submissionUpdatePersistenceService.getLatestSubmissionUpdateForSubmission(submissionDetail.getSubmission()))
+      when(submissionUpdatePersistenceService.getLatestSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
           .thenReturn(Optional.of(submissionUpdate));
 
       var result = underTest.canRequestUpdateOnSubmission(submissionDetail);
@@ -83,7 +86,7 @@ class SubmissionUpdateServiceTest {
     @Test
     void AndSubmissionUpdateNullResolvedAndSubmitted_assertTrue() {
       submissionUpdate.setResolved(null);
-      when(submissionUpdatePersistenceService.getLatestSubmissionUpdateForSubmission(submissionDetail.getSubmission()))
+      when(submissionUpdatePersistenceService.getLatestSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
           .thenReturn(Optional.of(submissionUpdate));
 
       var result = underTest.canRequestUpdateOnSubmission(submissionDetail);
@@ -104,12 +107,90 @@ class SubmissionUpdateServiceTest {
 
     @Test
     void AndNotFoundUpdateAndSubmittedStatus_assertTrue() {
-      when(submissionUpdatePersistenceService.getLatestSubmissionUpdateForSubmission(submissionDetail.getSubmission()))
+      when(submissionUpdatePersistenceService.getLatestSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
           .thenReturn(Optional.empty());
 
       var result = underTest.canRequestUpdateOnSubmission(submissionDetail);
 
       assertThat(result).isTrue();
+    }
+  }
+
+  @Nested
+  class WhenCheckingIfHasAnUnresolvedUpdateOnSubmission {
+    @Mock
+    private Submission submission;
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void hasUnresolvedUpdate(boolean hasUnresolvedUpdate) {
+      when(submissionUpdatePersistenceService.submissionHasAnUnresolvedUpdate(submission))
+          .thenReturn(hasUnresolvedUpdate);
+
+      assertThat(underTest.hasAnUnresolvedUpdateOnSubmission(submission))
+          .isEqualTo(hasUnresolvedUpdate);
+    }
+  }
+
+  @Nested
+  class WhenGettingDraftUpdateSubmissionDetailBySubmission {
+    @Mock
+    private Submission submission;
+
+    @Mock
+    private SubmissionDetail submissionDetail;
+
+    @Test
+    void whenFound() {
+      when(submissionUpdatePersistenceService.getDraftUpdateSubmissionDetail(submission))
+          .thenReturn(Optional.of(submissionDetail));
+
+      assertThat(underTest.getDraftUpdateSubmissionDetailBySubmission(submission)).contains(submissionDetail);
+    }
+
+    @Test
+    void whenNotFound() {
+      when(submissionUpdatePersistenceService.getDraftUpdateSubmissionDetail(submission))
+          .thenReturn(Optional.empty());
+
+      assertThat(underTest.getDraftUpdateSubmissionDetailBySubmission(submission)).isNotPresent();
+    }
+  }
+
+  @Nested
+  class WhenCheckingIfCanStartUpdateSubmissionDetailOnSubmission {
+
+    @Mock
+    private Submission submission;
+
+    @Test
+    void whenDoesNotHaveUnresolvedUpdate() {
+      when(submissionUpdatePersistenceService.submissionHasAnUnresolvedUpdate(submission))
+          .thenReturn(false);
+
+      assertThat(underTest.canStartUpdateSubmissionDetailOnSubmission(submission)).isFalse();
+    }
+
+    @Test
+    void whenDoesNotHaveDraftUpdate() {
+      when(submissionUpdatePersistenceService.submissionHasAnUnresolvedUpdate(submission))
+          .thenReturn(true);
+
+      when(submissionUpdatePersistenceService.getDraftUpdateSubmissionDetail(submission))
+          .thenReturn(Optional.empty());
+
+      assertThat(underTest.canStartUpdateSubmissionDetailOnSubmission(submission)).isTrue();
+    }
+
+    @Test
+    void whenHasUnresolvedUpdateAndDraftUpdate_assertFalse() {
+      when(submissionUpdatePersistenceService.submissionHasAnUnresolvedUpdate(submission))
+          .thenReturn(true);
+
+      when(submissionUpdatePersistenceService.getDraftUpdateSubmissionDetail(submission))
+          .thenReturn(Optional.of(mock(SubmissionDetail.class)));
+
+      assertThat(underTest.canStartUpdateSubmissionDetailOnSubmission(submission)).isFalse();
     }
   }
 }

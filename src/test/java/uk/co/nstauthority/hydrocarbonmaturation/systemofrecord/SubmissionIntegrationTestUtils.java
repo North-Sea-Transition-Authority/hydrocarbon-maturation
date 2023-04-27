@@ -148,6 +148,7 @@ public class SubmissionIntegrationTestUtils {
     submissionDetail.setId(null);
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setVersionNumber(1);
     submissionDetail.setCreatedTimestamp(Instant.now().minusSeconds(100));
     submissionDetail.setCreatedByWuaId(1);
     submissionDetail.setSubmittedTimestamp(Instant.now().minusSeconds(50));

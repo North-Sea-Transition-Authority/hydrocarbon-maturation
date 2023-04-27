@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
 
 @Service
@@ -48,7 +49,7 @@ public class SubmissionDetailService {
   }
 
   public Optional<SubmissionDetail> getApprovedOrSubmittedSubmissionDetailByResource(Resource resource) {
-    return submissionDetailRepository.findFirstBySubmissionInAndStatusIn(
+    return submissionDetailRepository.findFirstBySubmissionInAndStatusInOrderByVersionNumberDesc(
         submissionPersistenceService.getSubmissionsByResource(resource),
         List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)
     );
@@ -79,7 +80,7 @@ public class SubmissionDetailService {
   }
 
   public List<SubmissionDetail> getSubmissionDetailsForResource(Resource resource) {
-    return submissionDetailRepository.findSubmissionDetailsBySubmissionIn(
+    return submissionDetailRepository.findSubmissionDetailsBySubmissionInOrderByVersionNumberDesc(
         submissionPersistenceService.getSubmissionsByResource(resource));
   }
 
@@ -103,7 +104,7 @@ public class SubmissionDetailService {
 
   public Optional<SubmissionDetail> getLatestApprovedSubmissionForSubmission(SubmissionDetail submissionDetail) {
     return switch (submissionDetail.getSubmissionType()) {
-      case UPDATE_DISCOVERY, CREATE_DISCOVERY, RELINQUISHMENT_DISCOVERY ->
+      case UPDATE_DISCOVERY, RELINQUISHMENT_DISCOVERY ->
         getLatestApprovedDiscoverySubmissionDetailForResource(submissionDetail.getSubmission().getResource());
       case POST_DRILL_DRY_HOLE, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
         getLatestApprovedProspectSubmissionForResource(submissionDetail.getSubmission().getResource());
@@ -115,8 +116,12 @@ public class SubmissionDetailService {
             .map(this::getLatestApprovedProspectSubmissionForResource)
             .flatMap(Optional::stream)
             .min(Comparator.comparing(SubmissionDetail::getApprovedTimestamp));
-      case CREATE_PROSPECT ->
+      case CREATE_PROSPECT, CREATE_DISCOVERY ->
           Optional.of(submissionDetail);
     };
+  }
+
+  public List<SubmissionDetail> getSubmissionDetailsBySubmission(Submission submission) {
+    return submissionDetailRepository.findAllBySubmission(submission);
   }
 }

@@ -22,4 +22,9 @@ public class IndustryTeamMemberService {
     var organisationGroups = organisationUnitQueryService.findOrganisationGroupIdsByUnitId(organisationUnitId);
     return industryTeamService.isTeamMemberForOrganisationGroups(userDetail, organisationGroups);
   }
+
+  public boolean isSubmitterOfOrganisationUnit(ServiceUserDetail userDetail, Integer organisationUnitId) {
+    var organisationGroups = organisationUnitQueryService.findOrganisationGroupIdsByUnitId(organisationUnitId);
+    return industryTeamService.isSubmitterForOrganisationGroups(userDetail, organisationGroups);
+  }
 }

@@ -96,7 +96,6 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
         );
   }
 
-
   @Test
   void getSubmissionRecord_WhenTwoSubmissions_ReturnsLatestSubmitted() {
     var resourceForQueriedSubmission = buildResource();
@@ -121,6 +120,35 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
         .containsExactly(
             latestSubmittedSubmissionDetail.getId(),
             latestSubmittedSubmissionDetail.getSubmittedTimestamp().toEpochMilli()
+        );
+  }
+
+  @Test
+  void getSubmissionRecord_WhenTwoSubmissionDetailsOnOneSubmission_returnHighestVersion() {
+    var resourceForQueriedSubmission = buildResource();
+    buildResponsibleTeam(resourceForQueriedSubmission, ResponsibleTeamType.EXPLORATION);
+    var firstSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_PROSPECT);
+    firstSubmissionDetail.setSubmittedTimestamp(Instant.now());
+    var submittedUpdate = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_PROSPECT);
+    submittedUpdate.setVersionNumber(2);
+    submittedUpdate.setSubmission(firstSubmissionDetail.getSubmission());
+    submittedUpdate.setSubmittedTimestamp(Instant.now().plusSeconds(5000));
+    createResourceDetail(submittedUpdate, "Not relevant name", 1);
+    createResourceDetail(firstSubmissionDetail, "Not relevant name", 1);
+
+    var result = submissionRecordSummaryQueryService
+        .getSubmissionRecord(firstSubmissionDetail.getSubmission().getResource().getId());
+
+    assertThat(result)
+        .isPresent()
+        .get()
+        .extracting(
+            SubmissionRecordSummaryQueryResult::getSubmissionDetailId,
+            r -> r.getSubmittedOn().getTime()
+        )
+        .containsExactly(
+            submittedUpdate.getId(),
+            submittedUpdate.getSubmittedTimestamp().toEpochMilli()
         );
   }
 

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -371,5 +372,20 @@ class SubmissionCreateServiceTest {
     assertThatThrownBy(() -> submissionCreateService.createRelinquishment(relinquishmentForm))
         .isExactlyInstanceOf(ActionNotAllowedException.class)
         .hasMessage("You must create a relinquishment off of a discovery or prospect.");
+  }
+
+  @Test
+  void createUpdateSubmissionDetail() {
+    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var updateSubmissionDetail = mock(SubmissionDetail.class);
+
+    when(submissionDetailPersistenceService.createUpdateSubmissionDetail(oldSubmissionDetail))
+        .thenReturn(updateSubmissionDetail);
+
+    assertThat(submissionCreateService.createUpdateSubmissionDetail(oldSubmissionDetail))
+        .isEqualTo(updateSubmissionDetail);
+
+    verify(submissionDetailDuplicationService, times(1))
+        .duplicateSubmissionDetailSections(oldSubmissionDetail, updateSubmissionDetail);
   }
 }

@@ -18,12 +18,14 @@ import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Service
 class ResourceRecordSummaryQueryService {
 
   private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
+  private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
   private final DSLContext context;
 
   @Autowired
@@ -47,12 +49,13 @@ class ResourceRecordSummaryQueryService {
         )
         .from(RESOURCES
           .leftJoin(REGULATOR_MANAGED_INFORMATION).on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
+          .join(SUBMISSIONS).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
           .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
                 select(SD_2.ID)
-                    .from(SD_2
-                        .join(SUBMISSIONS).on(SUBMISSIONS.ID.eq(SD_2.SUBMISSION_ID)))
-                    .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
-                    .and(SD_2.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))
+                    .from(SUBMISSIONS_2
+                        .join(SD_2).on(SUBMISSIONS_2.ID.eq(SD_2.SUBMISSION_ID))
+                        .and(SD_2.STATUS.eq(SubmissionDetailStatus.APPROVED.name())))
+                    .where(SUBMISSIONS_2.ID.eq(SUBMISSIONS.ID))
                     .orderBy(SD_2.APPROVED_TIMESTAMP.desc())
                     .limit(1)
             ))
@@ -69,6 +72,7 @@ class ResourceRecordSummaryQueryService {
             RESOURCE_DETAILS.ID,
             REGULATOR_MANAGED_INFORMATION.ID
         ))
+        .orderBy(SUBMISSION_DETAILS.APPROVED_TIMESTAMP.desc().nullsLast())
         .fetchOptionalInto(ResourceRecordSummaryQueryResult.class);
   }
 }

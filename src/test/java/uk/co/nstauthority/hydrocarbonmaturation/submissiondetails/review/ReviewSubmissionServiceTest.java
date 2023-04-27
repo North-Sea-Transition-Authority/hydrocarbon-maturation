@@ -334,4 +334,118 @@ class ReviewSubmissionServiceTest {
       assertThat(result).isEqualTo(canRequestUpdate);
     }
   }
+
+  @Nested
+  class WhenCheckingIfCanUpdateSubmission {
+    private static final Integer ORGANISATION_UNIT_ID = 1;
+    private static final Integer LATEST_APPROVED_ORG_UNIT_ID = 5;
+
+    private final ServiceUserDetail USER_DETAIL = ServiceUserDetailTestUtil.Builder().build();
+
+    private SubmissionDetail latestApprovedSubmissionDetail;
+
+    @BeforeEach
+    void setUp() {
+      latestApprovedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = SubmissionType.class,
+        mode = EnumSource.Mode.INCLUDE,
+        names = {"CREATE_PROSPECT", "CREATE_DISCOVERY"})
+    void WhenInitialSubmission_whenSubmitter(SubmissionType submissionType) {
+      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+          UUID.randomUUID(), ORGANISATION_UNIT_ID, submissionType);
+
+      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID))
+          .thenReturn(true);
+
+      var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
+
+      assertThat(result).isTrue();
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = SubmissionType.class,
+        mode = EnumSource.Mode.INCLUDE,
+        names = {"CREATE_PROSPECT", "CREATE_DISCOVERY"})
+    void WhenInitialSubmission_whenNotSubmitter(SubmissionType submissionType) {
+      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+          UUID.randomUUID(), ORGANISATION_UNIT_ID, submissionType);
+
+      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID))
+          .thenReturn(false);
+
+      var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
+
+      assertThat(result).isFalse();
+    }
+
+    @Test
+    void WhenNotInitialSubmission_whenFoundLatestApproved_andWhenNotSubmitter() {
+      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+          UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
+      var resourceDetail = new ResourceDetail();
+      resourceDetail.setOrganisationId(LATEST_APPROVED_ORG_UNIT_ID);
+      when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+          .thenReturn(Optional.of(latestApprovedSubmissionDetail));
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
+          .thenReturn(Optional.of(resourceDetail));
+      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, LATEST_APPROVED_ORG_UNIT_ID))
+          .thenReturn(false);
+
+      var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
+
+      assertThat(result).isFalse();
+    }
+
+    @Test
+    void WhenNotInitialSubmission_whenFoundLatestApproved_andWhenSubmitter() {
+      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+          UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
+      var resourceDetail = new ResourceDetail();
+      resourceDetail.setOrganisationId(LATEST_APPROVED_ORG_UNIT_ID);
+      when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+          .thenReturn(Optional.of(latestApprovedSubmissionDetail));
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
+          .thenReturn(Optional.of(resourceDetail));
+      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, LATEST_APPROVED_ORG_UNIT_ID))
+          .thenReturn(true);
+
+      var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
+
+      assertThat(result).isTrue();
+    }
+
+    @Test
+    void WhenNotInitialSubmission_whenDidNotFindLatestApproved() {
+      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+          UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
+      when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+          .thenReturn(Optional.empty());
+
+      var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
+
+      assertThat(result).isFalse();
+    }
+
+    @Test
+    void WhenNotInitialSubmission_whenDidNotFindResourceDetails() {
+      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+          UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
+
+      when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+          .thenReturn(Optional.of(latestApprovedSubmissionDetail));
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
+          .thenReturn(Optional.empty());
+
+      var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
+
+      assertThat(result).isFalse();
+    }
+  }
+
+
 }

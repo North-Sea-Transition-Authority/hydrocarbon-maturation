@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -86,6 +88,19 @@ public class ReviewSubmissionService {
     }
   }
 
+  boolean canUpdateSubmission(SubmissionRecordSummaryView submissionRecord,
+                              ServiceUserDetail userDetail,
+                              SubmissionDetail submissionDetail) {
+    if (submissionRecord.submissionType() == SubmissionType.CREATE_PROSPECT
+        || submissionRecord.submissionType() == SubmissionType.CREATE_DISCOVERY) {
+      //when there is no latest approved submission on resource, checks the current submission
+      var organisationUnitId = submissionRecord.responsibleOrganisationId();
+      return industryTeamMemberService.isSubmitterOfOrganisationUnit(userDetail, organisationUnitId);
+    } else {
+      return isSubmitterForResponsibleOrgOnLatestApprovedSubmissionOnResource(userDetail, submissionDetail);
+    }
+  }
+
   boolean canReviewSubmission(SubmissionRecordSummaryView submissionRecord,
                               ServiceUserDetail userDetail,
                               SubmissionDetail currentSubmission) {
@@ -96,6 +111,23 @@ public class ReviewSubmissionService {
 
   boolean canRequestUpdateOnSubmissionDetail(SubmissionDetail submissionDetail) {
     return submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail);
+  }
+
+  boolean hasUpdateBeenRequestedOnSubmission(Submission submission) {
+    return submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submission);
+  }
+
+  Optional<SubmissionDetail> getUpdateSubmissionDetailBySubmission(Submission submission) {
+    return submissionUpdateService.getDraftUpdateSubmissionDetailBySubmission(submission);
+  }
+
+  private boolean isSubmitterForResponsibleOrgOnLatestApprovedSubmissionOnResource(
+      ServiceUserDetail user, SubmissionDetail submissionDetail) {
+    return submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
+        .flatMap(resourceDetailsPersistenceService::getResourceDetailBySubmissionDetail)
+        .map(resourceDetail -> industryTeamMemberService
+                    .isSubmitterOfOrganisationUnit(user, resourceDetail.getOrganisationId()))
+        .orElse(false);
   }
 
   private boolean isResponsibleOrganisationMemberOnLatestApprovedSubmissionOnResource(

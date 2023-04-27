@@ -17,6 +17,9 @@
 <#-- @ftlvariable name="submissionSelectedUrl" type="String"-->
 <#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
 <#-- @ftlvariable name="resourceType" type="String"-->
+<#-- @ftlvariable name="updateSubmissionUrl" type="String"-->
+<#-- @ftlvariable name="updateRequested" type="boolean"-->
+<#-- @ftlvariable name="isIndustrySubmitter" type="boolean"-->
 <#-- @ftlvariable name="isRegulator" type="boolean"-->
 <#-- @ftlvariable name="regulatorManagedInformationSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
 <#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
@@ -43,23 +46,29 @@
       </#assign>
       <@fdsDataItems.dataValues key="Licenses" value="${licencesDisplay}"/>
   </@fdsDataItems.dataItem>
-  <#if canReview>
-    <@fdsAction.buttonGroup>
-      <@fdsAction.link linkText="Approve submission" linkClass="govuk-button" linkUrl=springUrl(approveUrl)/>
-      <#if canRequestUpdate>
+    <#if updateRequested && isIndustrySubmitter>
+      <@fdsAction.buttonGroup>
+        <@fdsAction.link linkText="Update submission" linkClass="govuk-button" linkUrl=springUrl(updateSubmissionUrl)/>
+      </@fdsAction.buttonGroup>
+    <#elseif canReview>
+      <@fdsAction.buttonGroup>
+        <#if !updateRequested>
+          <@fdsAction.link linkText="Approve submission" linkClass="govuk-button" linkUrl=springUrl(approveUrl)/>
+          <#if canRequestUpdate>
+            <@fdsAction.link
+              linkText="Request update"
+              linkClass="govuk-button govuk-button--secondary"
+              linkUrl=springUrl(requestUpdateUrl)/>
+          </#if>
+          <@fdsAction.link
+            linkText="Withdraw submission"
+            linkClass="govuk-button govuk-button--secondary"
+            linkUrl=springUrl(withdrawUrl)/>
+        </#if>
         <@fdsAction.link
-          linkText="Request update"
+          linkText="Manage resource information"
           linkClass="govuk-button govuk-button--secondary"
-          linkUrl=springUrl(requestUpdateUrl)/>
-      </#if>
-      <@fdsAction.link
-        linkText="Withdraw submission"
-        linkClass="govuk-button govuk-button--secondary"
-        linkUrl=springUrl(withdrawUrl)/>
-      <@fdsAction.link
-        linkText="Manage resource information"
-        linkClass="govuk-button govuk-button--secondary"
-        linkUrl=springUrl(regulatorManagedInformationUrl)/>
+          linkUrl=springUrl(regulatorManagedInformationUrl)/>
     </@fdsAction.buttonGroup>
   </#if>
 

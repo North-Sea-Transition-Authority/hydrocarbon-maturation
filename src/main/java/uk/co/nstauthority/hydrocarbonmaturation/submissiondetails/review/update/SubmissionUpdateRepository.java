@@ -9,5 +9,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 @Repository
 interface SubmissionUpdateRepository extends CrudRepository<SubmissionUpdate, UUID> {
 
+  boolean existsBySubmissionAndResolvedFalse(Submission submission);
+
+  Optional<SubmissionUpdate> findFirstBySubmissionAndResolvedFalse(Submission submission);
+
   Optional<SubmissionUpdate> findFirstBySubmissionOrderByRequestedTimestampDesc(Submission submission);
 }

@@ -43,6 +43,7 @@ public class SubmissionDetailTestUtils {
 
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
+    submissionDetail.setVersionNumber(1);
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     submissionDetail.setSubmitterType(SubmitterType.REGULATOR);

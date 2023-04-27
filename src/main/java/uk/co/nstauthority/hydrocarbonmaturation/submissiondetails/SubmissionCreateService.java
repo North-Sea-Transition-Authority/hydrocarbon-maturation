@@ -202,6 +202,19 @@ public class SubmissionCreateService {
     return newSubmissionDetail;
   }
 
+  @Transactional
+  public SubmissionDetail createUpdateSubmissionDetail(SubmissionDetail parentSubmissionDetail) {
+    var updateSubmissionDetail = submissionDetailPersistenceService
+        .createUpdateSubmissionDetail(parentSubmissionDetail);
+
+    //todo HM-421 make sure duplication service correctly duplicates
+    // all information when creating the same submission type
+    submissionDetailDuplicationService
+        .duplicateSubmissionDetailSections(parentSubmissionDetail, updateSubmissionDetail);
+
+    return updateSubmissionDetail;
+  }
+
   public Map<String, String> getSubmissionTypeOptionsForUser() {
     var userDetail = userDetailService.getUserDetail();
     var submissionTypeOptions = SubmissionType.getSubmissionTypes();
