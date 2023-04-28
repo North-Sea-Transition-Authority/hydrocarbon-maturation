@@ -1,47 +1,105 @@
-import GeoJSON from 'ol/format/GeoJSON.js';
-import Map from 'ol/Map.js';
+import GeoJSON from 'ol/format/GeoJSON';
+import Map from 'ol/Map';
 import TileLayer from 'ol/layer/Tile';
-import {OSM} from 'ol/source';
-import VectorLayer from 'ol/layer/Vector.js';
-import VectorSource from 'ol/source/Vector.js';
-import View from 'ol/View.js';
-import {Fill, Style} from 'ol/style.js';
+import VectorLayer from "ol/layer/Vector";
+import OSM from 'ol/source/OSM';
+import VectorSource from "ol/source/Vector";
+import View from 'ol/View';
+import {Fill, Style, Stroke, Text} from 'ol/style';
 
 export default class ShapeMap {
 
   constructor(module) {
     this.module = module;
     this.geoJsonDataUrl = this.module.getAttribute("data-geojson-url");
+    this.mapAttributions = this.module.getAttribute("data-map-attributions");
+    this.showFieldDeterminationBoundariesLayer = this.module.getAttribute("data-show-field-determination-boundaries-layer") === 'true';
+    this.showQuadBlocksLayer = this.module.getAttribute("data-show-quad-blocks-layer") === 'true';
+    this.showLicenceBlocksLayer = this.module.getAttribute("data-show-licence-blocks-layer") === 'true';
+    this.showFieldBlobsLayer = this.module.getAttribute("data-show-field-blobs-layer") === 'true';
+
+    this.fieldDeterminationBoundariesStyle = ShapeMap._getStyle('rgba(0, 0, 0, 0)', 'red', 0.5);
+    this.quadBlockStyle = ShapeMap._getStyle('rgba(0, 0, 0, 0)', 'rgba(200, 200, 200, 0.7)', 0.5);
+    this.licenseBlockStyle = ShapeMap._getStyle('rgba(255, 253, 208, 0.5)', 'blue', 0.5);
+    this.fieldBlobStyle = ShapeMap._getStyle('rgba(255, 0, 0, 0.5)', 'rgba(0, 0, 0, 0)', 0);
+
+    this.fieldDeterminationBoundariesUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Offshore_FieldDets_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
+    this.quadBlockUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_ReferenceBlocks_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
+    this.licenseBlockUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Licences_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
+    this.fieldBlobUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Offshore_Fields_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
   }
 
   async init() {
 
-    // TODO HM-480 - Get CRS from shapefile and register projection using proj4
+    const layers = this.getBaseLayers();
 
-    const shapeLayer = this.getShapeLayer();
+    const shapeLayer = this.getShapeLayer(ShapeMap._getStyle('#eeeeee'));
+    layers.push(shapeLayer);
 
-    const backgroundLayer = this.getBackgroundLayer();
-
-    // TODO HM-479 - Add NSTA layers to reusable shape map
-    const map = this.createMap(backgroundLayer, shapeLayer);
+    const map = this.createMap(layers);
 
     this.fitMapToExtentOfShapeLayer(shapeLayer, map);
   }
 
-  getShapeLayer() {
-    return new VectorLayer({
-      source: new VectorSource({
-        url: this.geoJsonDataUrl,
-        format: new GeoJSON(),
-      }),
-      style: function (feature) {
-        return new Style({
-          fill: new Fill({
-            color: '#eeeeee',
-          }),
-        });
-      },
-    });
+  getFieldDeterminationBoundariesLayer() {
+    return ShapeMap._getVectorLayer(
+      'Field Determination Boundaries',
+      ShapeMap._getVectorSource(this.fieldDeterminationBoundariesUrl, this.mapAttributions),
+      this.fieldDeterminationBoundariesStyle,
+      'FIELDNAME'
+    );
+  }
+
+  getQuadBlocksLayer() {
+    return ShapeMap._getVectorLayer(
+      'Quadrant and Blocks',
+      ShapeMap._getVectorSource(this.quadBlockUrl, this.mapAttributions),
+      this.quadBlockStyle,
+      'BLOCK_REF'
+    );
+  }
+
+  getLicenceBlocksLayer() {
+    return ShapeMap._getVectorLayer(
+      'License Blocks',
+      ShapeMap._getVectorSource(this.licenseBlockUrl, this.mapAttributions),
+      this.licenseBlockStyle ,
+      'LICNO'
+    );
+  }
+
+  getFieldBlobsLayer() {
+    return ShapeMap._getVectorLayer(
+      'License Blocks',
+      ShapeMap._getVectorSource(this.fieldBlobUrl, this.mapAttributions),
+      this.fieldBlobStyle ,
+      'FIELDNAME'
+    );
+  }
+
+  getBaseLayers() {
+    const layers = [];
+
+    const backgroundLayer = this.getBackgroundLayer();
+    layers.push(backgroundLayer);
+
+    if (this.showFieldDeterminationBoundariesLayer) {
+      layers.push(this.getFieldDeterminationBoundariesLayer());
+    }
+
+    if (this.showQuadBlocksLayer) {
+      layers.push(this.getQuadBlocksLayer());
+    }
+
+    if (this.showLicenceBlocksLayer) {
+      layers.push(this.getLicenceBlocksLayer());
+    }
+
+    if (this.showFieldBlobsLayer) {
+      layers.push(this.getFieldBlobsLayer());
+    }
+
+    return layers;
   }
 
   getBackgroundLayer() {
@@ -50,12 +108,19 @@ export default class ShapeMap {
     });
   }
 
-  createMap(backgroundLayer, shapeLayer) {
+  getShapeLayer(style) {
+    return new VectorLayer({
+      source: new VectorSource({
+        url: this.geoJsonDataUrl,
+        format: new GeoJSON(),
+      }),
+      style: style,
+    });
+  }
+
+  createMap(layers) {
     return new Map({
-      layers: [
-        backgroundLayer,
-        shapeLayer
-      ],
+      layers: layers,
       target: this.module,
       view: new View({
         center: [0, 0],
@@ -78,6 +143,46 @@ export default class ShapeMap {
       });
       map.setView(ukView);
     }
+  }
+
+  static _getVectorLayer(title, vectorSource, style, featureName) {
+    return new VectorLayer({
+      source: vectorSource,
+      style: function (feature) {
+        style.getText().setText(String(feature.get(featureName)));
+        return style;
+      }
+    });
+  }
+
+  static _getVectorSource(layerUrl, attributions) {
+    return new VectorSource({
+      url: layerUrl,
+      format: new GeoJSON(),
+      attributions: attributions
+    });
+  }
+
+  static _getStyle(fillColor = 'rgba(0, 0, 0, 0)', strokeColor = '#319FD3', strokeWidth = 1) {
+    return new Style({
+      fill: new Fill({
+        color: fillColor
+      }),
+      stroke: new Stroke({
+        color: strokeColor,
+        width: strokeWidth
+      }),
+      text: new Text({
+        font: '12px Calibri,sans-serif',
+        fill: new Fill({
+          color: '#000'
+        }),
+        stroke: new Stroke({
+          color: '#fff',
+          width: 3
+        })
+      })
+    });
   }
 }
 
