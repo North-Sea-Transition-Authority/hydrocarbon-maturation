@@ -74,6 +74,10 @@ track changes over time.
 | NOTIFY_CALLBACK_TOKEN                       | The GOV.UK Notify callback token                                                                   |
 | NOTIFY_PROXY_HOST                           | The GOV.UK Notify proxy host                                                                       |
 | NOTIFY_PROXY_PORT                           | The GOV.UK Notify proxy port                                                                       |
+| FMS_URL_BASE                                | The URL for the FMS instance on your environment                                                   |
+| FMS_SUBMIT_ENDPOINT                         | The FMS endpoint where feedback will be sent. Defaults to /api/v1/save-feedback                    |
+| FMS_PRESHARED_KEY                           | This is the api key used when making requests                                                      |
+| FMS_CONNECTION_TIMEOUT                      | Connection timeout in seconds. Defaults to 20                                                      |
 
 ### 3. Initialise the Fivium Design System
 - `git submodule update --init --recursive`

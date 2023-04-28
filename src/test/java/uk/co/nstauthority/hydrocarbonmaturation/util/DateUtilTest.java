@@ -3,6 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.util;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.Test;
 
 class DateUtilTest {
@@ -33,5 +35,18 @@ class DateUtilTest {
         .isEqualTo("1 Dec 2012");
     assertThat(DateUtil.formatDateOrBlank(null))
         .isEmpty();
+  }
+
+  @Test
+  void formatInstantOrBlank() {
+    var instant1 = LocalDateTime.of(2012, 10, 25, 20, 20)
+        .toInstant(ZoneOffset.UTC);
+    assertThat(DateUtil.formatInstantOrBlank(instant1)).isEqualTo("25 Oct 2012 09:20 BST");
+    var instant2 = LocalDateTime.of(2015, 8, 22, 6, 20)
+        .toInstant(ZoneOffset.UTC);
+    assertThat(DateUtil.formatInstantOrBlank(instant2)).isEqualTo("22 Aug 2015 07:20 BST");
+    var instant3 = LocalDateTime.of(2000, 1, 1, 9, 20)
+        .toInstant(ZoneOffset.UTC);
+    assertThat(DateUtil.formatInstantOrBlank(instant3)).isEqualTo("1 Jan 2000 09:20 GMT");
   }
 }

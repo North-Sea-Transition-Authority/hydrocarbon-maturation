@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
+import uk.co.nstauthority.hydrocarbonmaturation.feedback.SubmissionFeedbackController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -39,13 +40,16 @@ public class SubmissionConfirmationController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var resourceName = submissionResourceService.getResourceNameOrDefault(submissionDetail);
 
-    return getSubmissionConfirmationModelAndView(resourceName, submissionDetail.getSubmissionType());
+    return getSubmissionConfirmationModelAndView(resourceName, submissionDetail.getSubmissionType(), submissionDetailId);
   }
 
-  private ModelAndView getSubmissionConfirmationModelAndView(String prospectName, SubmissionType submissionType) {
+  private ModelAndView getSubmissionConfirmationModelAndView(
+      String prospectName, SubmissionType submissionType, UUID submissionDetailId) {
     return new ModelAndView("remi/submissiondetails/submissionConfirmation")
         .addObject("assetName", prospectName)
         .addObject("typeOfUpdate", submissionType.getDisplayName())
+        .addObject("feedbackUrl", ReverseRouter.route(on(SubmissionFeedbackController.class)
+            .getFeedback(submissionDetailId, null)))
         .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
   }
 }

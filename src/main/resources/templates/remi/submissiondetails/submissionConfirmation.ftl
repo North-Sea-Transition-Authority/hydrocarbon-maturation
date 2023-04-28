@@ -22,7 +22,11 @@ pageSize=PageSize.TWO_THIRDS_COLUMN>
   </p>
 
   <p class="govuk-body">
-    <a href="#" class="govuk-link">What did you think of this service?</a> (takes 30 seconds)
+    <@fdsAction.link
+      linkClass="govuk-link"
+      linkText="What did you think of this service?"
+      linkUrl=springUrl(feedbackUrl)/>
+    (takes 30 seconds)
   </p>
 
   <p class="govuk-body">

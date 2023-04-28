@@ -13,9 +13,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-class RemiEmailUrlUtilTest {
+class RemiAbsoluteUrlUtilTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
   private static final String CONTEXT_PATH = "/remi";
@@ -33,8 +36,29 @@ class RemiEmailUrlUtilTest {
 
   @Test
   void getSystemOfRecordResourceUrl() {
-    assertThat(RemiEmailUrlUtil.getSystemOfRecordResourceUrl(SUBMISSION_DETAIL))
+    assertThat(RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(SUBMISSION_DETAIL))
         .isEqualTo(SERVICE_URL + ReverseRouter.route(on(ViewResourceRecordController.class)
             .showResourceRecord(SUBMISSION_DETAIL.getSubmission().getResource().getId())));
+  }
+
+  @Test
+  void getReviewSubmissionPageUrl() {
+    assertThat(RemiAbsoluteUrlUtil.getReviewSubmissionPageUrl(SUBMISSION_DETAIL))
+        .isEqualTo(SERVICE_URL + ReverseRouter.route(on(ReviewSubmissionController.class)
+            .showReviewPage(SUBMISSION_DETAIL.getSubmission().getResource().getId())));
+  }
+
+  @Test
+  void getTasklistPageUrl() {
+    assertThat(RemiAbsoluteUrlUtil.getTasklistPageUrl(SUBMISSION_DETAIL))
+        .isEqualTo(SERVICE_URL + ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(SUBMISSION_DETAIL.getId())));
+  }
+
+  @Test
+  void getWorkAreaUrl() {
+    assertThat(RemiAbsoluteUrlUtil.getWorkAreaUrl())
+        .isEqualTo(SERVICE_URL + ReverseRouter.route(on(WorkAreaController.class)
+            .getWorkArea()));
   }
 }

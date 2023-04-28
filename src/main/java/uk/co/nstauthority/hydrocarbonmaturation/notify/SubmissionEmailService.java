@@ -12,7 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.utils.RemiEmailUrlUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.notify.utils.RemiAbsoluteUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -111,7 +111,7 @@ public class SubmissionEmailService {
           var licencesString = getDisplayableLicences(submissionDetail);
           addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);
           personalisations.put(SYSTEM_OF_RECORD_RESOURCE_URL,
-              RemiEmailUrlUtil.getSystemOfRecordResourceUrl(submissionDetail));
+              RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(submissionDetail));
           sendEmailToRecipient(emailProperties, recipient);
         },
         () -> LOGGER.warn("Could not find recipient with WUA_ID %s for submission approval email"
@@ -135,7 +135,7 @@ public class SubmissionEmailService {
       var licencesString = getDisplayableLicences(submissionDetail);
       personalisations.put(LICENCES_WITHOUT_LEADING_COLON, licencesString);
       personalisations.put(REVIEW_PAGE_URL,
-          RemiEmailUrlUtil.getReviewSubmissionPageUrl(submissionDetail));
+          RemiAbsoluteUrlUtil.getReviewSubmissionPageUrl(submissionDetail));
       addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);
       sendEmailToRecipients(emailProperties, regulatorTeamService.getExplorationTeamEnergyPortalUsers());
     }
@@ -153,7 +153,7 @@ public class SubmissionEmailService {
     var licencesString = getDisplayableLicences(submissionDetail);
     personalisations.put(LICENCES_WITHOUT_LEADING_COLON, licencesString);
     personalisations.put(REVIEW_PAGE_URL,
-        RemiEmailUrlUtil.getReviewSubmissionPageUrl(submissionDetail));
+        RemiAbsoluteUrlUtil.getReviewSubmissionPageUrl(submissionDetail));
     personalisations.put(REGULATOR_ORGANISATION_NAME,
         serviceBrandingConfigurationProperties.getCustomerConfigurationProperties().mnemonic());
     addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);

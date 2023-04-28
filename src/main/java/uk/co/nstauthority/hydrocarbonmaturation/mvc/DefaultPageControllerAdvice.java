@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.InvalidAuthenticationException;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -74,6 +75,8 @@ public class DefaultPageControllerAdvice {
 
   private void addCommonUrls(Model model) {
     model.addAttribute("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+    model.addAttribute("feedbackPageUrl", ReverseRouter.route(on(FeedbackController.class)
+        .getFeedback(null)));
   }
 
   private void addSubmitButtonText(Model model) {

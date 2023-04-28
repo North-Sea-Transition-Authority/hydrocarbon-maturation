@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnicalSupportConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
@@ -77,16 +78,18 @@ class DefaultPageControllerAdviceTest {
         "submitPrimaryButtonText",
         "submitSecondaryButtonText",
         "loggedInUser",
+        "feedbackPageUrl",
         "org.springframework.validation.BindingResult.loggedInUser"
     );
 
     assertThat((CustomerConfigurationProperties) modelMap.get("customerBranding")).hasNoNullFieldsOrProperties();
     assertThat((ServiceConfigurationProperties) modelMap.get("serviceBranding")).hasNoNullFieldsOrProperties();
     assertThat((TechnicalSupportConfigurationProperties) modelMap.get("technicalSupport")).hasNoNullFieldsOrProperties();
-
     Map<String, Object> commonPropertiesMap = new HashMap<>();
     commonPropertiesMap.put("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
     commonPropertiesMap.put("submitPrimaryButtonText", "Save and complete");
+    commonPropertiesMap.put("feedbackPageUrl",
+        ReverseRouter.route(on(FeedbackController.class).getFeedback(null)));
     commonPropertiesMap.put("submitSecondaryButtonText", "Save and complete later");
     commonPropertiesMap.put("loggedInUser", loggedInUser);
     assertThat(modelMap).containsAllEntriesOf(commonPropertiesMap);

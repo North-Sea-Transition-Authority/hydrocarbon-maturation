@@ -7,11 +7,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstan
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-public class RemiEmailUrlUtil {
+public class RemiAbsoluteUrlUtil {
 
-  private RemiEmailUrlUtil() {
+  private RemiAbsoluteUrlUtil() {
     throw new IllegalUtilClassInstantiationException(getClass());
   }
 
@@ -25,6 +27,17 @@ public class RemiEmailUrlUtil {
     var reviewPageUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
         .showReviewPage(submissionDetail.getSubmission().getResource().getId()));
     return "%s%s".formatted(getBaseUrl(), reviewPageUrl);
+  }
+
+  public static String getTasklistPageUrl(SubmissionDetail submissionDetail) {
+    var tasklistUrl = ReverseRouter.route(on(TaskListController.class)
+        .getTaskList(submissionDetail.getId()));
+    return "%s%s".formatted(getBaseUrl(), tasklistUrl);
+  }
+
+  public static String getWorkAreaUrl() {
+    var workAreaUrl = ReverseRouter.route(on(WorkAreaController.class).getWorkArea());
+    return "%s%s".formatted(getBaseUrl(), workAreaUrl);
   }
 
   private static String getBaseUrl() {
