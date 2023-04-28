@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -145,5 +146,18 @@ class SubmissionDetailTest {
     assertTrue(submissionDetail.isDryWellSubmission());
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     assertFalse(submissionDetail.isDryWellSubmission());
+  }
+
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
+  void hasSameSubmissionType(SubmissionType submissionType) {
+    var otherSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    if (submissionDetail.getSubmissionType() == submissionType) {
+      assertThat(otherSubmissionDetail.hasSameSubmissionType(submissionDetail)).isTrue();
+      assertThat(submissionDetail.hasSameSubmissionType(otherSubmissionDetail)).isTrue();
+    } else {
+      assertThat(otherSubmissionDetail.hasSameSubmissionType(submissionDetail)).isFalse();
+      assertThat(submissionDetail.hasSameSubmissionType(otherSubmissionDetail)).isFalse();
+    }
   }
 }

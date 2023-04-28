@@ -77,7 +77,8 @@ class ReservoirPropertiesDuplicationServiceTest {
       names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"},
       mode = EnumSource.Mode.INCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsExist_ProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = new SubmissionDetail();
+    oldSubmissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     var newSubmissionDetail = new SubmissionDetail();
     newSubmissionDetail.setSubmissionType(submissionType);
 
@@ -100,7 +101,8 @@ class ReservoirPropertiesDuplicationServiceTest {
       names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT", "CREATE_DISCOVERY", "CREATE_PROSPECT"},
       mode = EnumSource.Mode.EXCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsExist_NonProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = new SubmissionDetail();
+    oldSubmissionDetail.setSubmissionType(submissionType);
     var newSubmissionDetail = new SubmissionDetail();
     newSubmissionDetail.setSubmissionType(submissionType);
 
@@ -109,6 +111,9 @@ class ReservoirPropertiesDuplicationServiceTest {
     if (submissionType == SubmissionType.UPDATE_DISCOVERY
         || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
       whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
+          .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
+    } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+      whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(oldSubmissionDetail)
           .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
     } else {
       whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
@@ -177,7 +182,8 @@ class ReservoirPropertiesDuplicationServiceTest {
 
   @Test
   void duplicateSubmissionSection_averageNetPayExists_PostDrill_duplicates() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = new SubmissionDetail();
+    oldSubmissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     var newSubmissionDetail = new SubmissionDetail();
     newSubmissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     var averageNetPayProbDistribution = new ProbabilityDistribution();
@@ -194,6 +200,22 @@ class ReservoirPropertiesDuplicationServiceTest {
 
     verify(mockNetPayThickness, times(1))
         .setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
+    verify(submissionDuplicationPersistenceService, times(1))
+        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
+  @Test
+  void duplicateSubmissionSection_PostDrill_update_Duplicates() {
+    var oldSubmissionDetail =  new SubmissionDetail();
+    oldSubmissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    var newSubmissionDetail = new SubmissionDetail();
+    newSubmissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    var averageNetPayProbDistribution = new ProbabilityDistribution();
+    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(oldSubmissionDetail)
+        .thenReturn(List.of(averageNetPayProbDistribution));
+
+    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
     verify(submissionDuplicationPersistenceService, times(1))
         .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
@@ -249,5 +271,18 @@ class ReservoirPropertiesDuplicationServiceTest {
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
         ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
     )));
+  }
+
+  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(
+      SubmissionDetail oldSubmissionDetails) {
+    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetails, Set.of(
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY,
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT
+        )));
   }
 }

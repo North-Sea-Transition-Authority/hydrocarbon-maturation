@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -68,7 +69,7 @@ class GeneralDetailsDuplicationServiceTest {
   @ParameterizedTest
   @EnumSource(
       value = SubmissionType.class,
-      names = {"PROSPECT_UPDATE", "UPDATE_DISCOVERY"},
+      names = {"PROSPECT_UPDATE", "UPDATE_DISCOVERY", "CREATE_DISCOVERY_FROM_PROSPECT"},
       mode = EnumSource.Mode.INCLUDE)
   void duplicateSubmissionSection_sourceOfInformationAndLicenceAppDoesNotCopyForward_DoesDuplicate(
       SubmissionType submissionType) {
@@ -156,5 +157,30 @@ class GeneralDetailsDuplicationServiceTest {
 
     verify(submissionDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(generalDetail), any(QuadrantAndBlock.class), eq(QuadrantAndBlock.class));
+  }
+
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
+  void duplicateSubmissionSection_sameSubmissionType_DoesDuplicate_andCopiesForward(SubmissionType submissionType) {
+    var oldSubmissionDetail = new SubmissionDetail();
+    oldSubmissionDetail.setSubmissionType(submissionType);
+    var newSubmissionDetail = new SubmissionDetail();
+    newSubmissionDetail.setSubmissionType(submissionType);
+    var oldGeneralDetail = new GeneralDetail();
+    var newGeneralDetail = mock(GeneralDetail.class);
+
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
+        .thenReturn(Optional.of(oldGeneralDetail));
+    when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(oldGeneralDetail))
+        .thenReturn(Collections.emptyList());
+    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, oldGeneralDetail,
+        GeneralDetail.class))
+        .thenReturn(newGeneralDetail);
+    generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(oldGeneralDetail), any(QuadrantAndBlock.class), eq(QuadrantAndBlock.class));
+
+    verifyNoInteractions(newGeneralDetail);
   }
 }

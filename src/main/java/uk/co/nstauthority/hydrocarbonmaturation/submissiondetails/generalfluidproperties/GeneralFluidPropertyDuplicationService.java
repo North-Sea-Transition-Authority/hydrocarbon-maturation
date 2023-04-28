@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidp
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
 
@@ -21,8 +20,7 @@ class GeneralFluidPropertyDuplicationService implements SubmissionSectionDuplica
 
   @Override
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (newSubmissionDetail.getSubmissionType() == SubmissionType.UPDATE_DISCOVERY
-        || newSubmissionDetail.getSubmissionType() == SubmissionType.RELINQUISHMENT_DISCOVERY) {
+    if (newSubmissionDetail.isDiscoverySubmission()) {
       generalFluidPropertyPersistenceService.getGeneralFluidProperty(oldSubmissionDetail)
           .ifPresent(generalFluidProperty ->
               submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,

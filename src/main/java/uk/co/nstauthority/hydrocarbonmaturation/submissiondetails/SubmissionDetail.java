@@ -211,6 +211,10 @@ public class SubmissionDetail {
         || submissionType == SubmissionType.CREATE_DISCOVERY;
   }
 
+  public boolean hasSameSubmissionType(SubmissionDetail otherSubmissionDetail) {
+    return submissionType == otherSubmissionDetail.getSubmissionType();
+  }
+
   public Integer getWithdrawnByWuaId() {
     return withdrawnByWuaId;
   }

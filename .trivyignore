@@ -48,3 +48,6 @@ CVE-2022-45688
 
 # Spring boot actuator autoconfigure
 CVE-2023-20873
+
+# Govuk notify transient vulnerability
+GHSA-jgvc-jfgh-rjvv

@@ -52,6 +52,13 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
       applicableInstances.remove(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT);
     }
 
+    if (newSubmissionDetail.isDryWellSubmission()
+        && oldSubmissionDetail.hasSameSubmissionType(newSubmissionDetail)) {
+      applicableInstances.remove(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
+      applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
+      applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
+    }
+
     if (newSubmissionDetail.isDiscoverySubmission()
         && newSubmissionDetail.getSubmissionType() != SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
       applicableInstances.remove(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
@@ -65,8 +72,9 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
         .forEach(probabilityDistribution -> {
           //this ensures the correct probability field instance is saved, for the new submission type,
           //since the question is mandatory for dry hole submissions the not calculated option is not copied forward
+          //unless its an update submission, then all information for dry wells is copied forward
           if (probabilityDistribution.getInstance() == ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT
-              && (newSubmissionDetail.isDryWellOrDiscoverySubmission())) {
+              && newSubmissionDetail.isDryWellOrDiscoverySubmission()) {
             if (probabilityDistribution.getDistributionType() == ProbabilityDistributionType.NOT_CALCULATED) {
               return;
             }
