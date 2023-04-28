@@ -85,8 +85,8 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
   }
 
   @Test
-  void getSubmissionConfirmationModelAndView_assertModelProperties() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+  void getSubmissionConfirmationModelAndView_whenNotAutoApproved_assertModelProperties() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
 
@@ -99,7 +99,28 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
     assertThat(modelMap).contains(
             entry("assetName", prospectName),
             entry("typeOfUpdate", submissionDetail.getSubmissionType().getDisplayName()),
-            entry("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
+            entry("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea())),
+            entry("hasBeenAutoApproved", false)
         );
+  }
+
+  @Test
+  void getSubmissionConfirmationModelAndView_whenHasBeenAutoApproved_assertModelProperties() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
+
+    ModelMap modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap).contains(
+        entry("assetName", prospectName),
+        entry("typeOfUpdate", submissionDetail.getSubmissionType().getDisplayName()),
+        entry("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea())),
+        entry("hasBeenAutoApproved", true)
+    );
   }
 }

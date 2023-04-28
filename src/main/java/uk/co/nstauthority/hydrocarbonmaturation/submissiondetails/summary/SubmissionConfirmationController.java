@@ -13,10 +13,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.SubmissionFeedbackController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
@@ -40,16 +40,17 @@ public class SubmissionConfirmationController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var resourceName = submissionResourceService.getResourceNameOrDefault(submissionDetail);
 
-    return getSubmissionConfirmationModelAndView(resourceName, submissionDetail.getSubmissionType(), submissionDetailId);
+    return getSubmissionConfirmationModelAndView(resourceName, submissionDetail);
   }
 
-  private ModelAndView getSubmissionConfirmationModelAndView(
-      String prospectName, SubmissionType submissionType, UUID submissionDetailId) {
+  private ModelAndView getSubmissionConfirmationModelAndView(String prospectName, SubmissionDetail submissionDetail) {
     return new ModelAndView("remi/submissiondetails/submissionConfirmation")
+        .addObject("hasBeenAutoApproved",
+            submissionDetail.getStatus() == SubmissionDetailStatus.APPROVED)
         .addObject("assetName", prospectName)
-        .addObject("typeOfUpdate", submissionType.getDisplayName())
+        .addObject("typeOfUpdate", submissionDetail.getSubmissionType().getDisplayName())
         .addObject("feedbackUrl", ReverseRouter.route(on(SubmissionFeedbackController.class)
-            .getFeedback(submissionDetailId, null)))
+            .getFeedback(submissionDetail.getId(), null)))
         .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
   }
 }
