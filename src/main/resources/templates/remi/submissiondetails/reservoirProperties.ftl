@@ -35,6 +35,8 @@
     <@grid.gridRow>
       <@grid.twoThirdsColumn>
         <@fdsFieldset.fieldset>
+            <@fdsSearchSelector.searchSelectorEnhanced path="form.ageStageOrSeries" options=ageSeries labelText="Age stage or series"/>
+            <@fdsSearchSelector.searchSelectorEnhanced path="form.groupName" options=groupNames labelText="Group name"/>
             <@fdsSearchSelector.searchSelectorRest
               path="form.formationName"
               restUrl=springUrl(formationRestEndpoint)
@@ -48,8 +50,6 @@
               preselectedItems=preSelectedSubUnit!{}
               optionalLabel=true
             />
-            <@fdsSearchSelector.searchSelectorEnhanced path="form.ageStageOrSeries" options=ageSeries labelText="Age stage or series"/>
-            <@fdsSearchSelector.searchSelectorEnhanced path="form.groupName" options=groupNames labelText="Group name"/>
             <@fdsRadio.radioGroup path="form.lithology" labelText="Lithology" hiddenContent=true>
                 <#assign firstItem=true/>
                 <#list lithologyOptions as key, value>

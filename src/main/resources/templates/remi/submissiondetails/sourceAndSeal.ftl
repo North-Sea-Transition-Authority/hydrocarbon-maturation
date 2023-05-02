@@ -14,26 +14,26 @@
 
   <@fdsForm.htmlForm>
     <@fdsFieldset.fieldset legendHeading="Source">
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.sourceAgeStage" options=ageSeries labelText="Age stage or series"/>
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.sourceGroupName" options=groupNames labelText="Group name"/>
         <@fdsSearchSelector.searchSelectorRest
           path="form.sourceFormationName"
           restUrl=springUrl(formationRestEndpoint)
           labelText="Formation name"
           preselectedItems=preSelectedSourceFormation!{}
         />
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.sourceAgeStage" options=ageSeries labelText="Age stage or series"/>
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.sourceGroupName" options=groupNames labelText="Group name"/>
       <@fdsTextInput.textInput path="form.sourceLithology" labelText="Lithology" optionalLabel=true/>
     </@fdsFieldset.fieldset>
 
     <@fdsFieldset.fieldset legendHeading="Top seal">
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.topSealAgeStage" options=ageSeries labelText="Age stage or series"/>
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.topSealGroupName" options=groupNames labelText="Group name"/>
         <@fdsSearchSelector.searchSelectorRest
           path="form.topSealFormationName"
           restUrl=springUrl(formationRestEndpoint)
           labelText="Formation name"
           preselectedItems=preSelectedTopSealFormation!{}
         />
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.topSealAgeStage" options=ageSeries labelText="Age stage or series"/>
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.topSealGroupName" options=groupNames labelText="Group name"/>
         <@fdsRadio.radioGroup path="form.topSealLithology" labelText="Lithology" hiddenContent=true>
             <#assign firstItem=true/>
             <#list topSealLithologyOptions as key, value>
