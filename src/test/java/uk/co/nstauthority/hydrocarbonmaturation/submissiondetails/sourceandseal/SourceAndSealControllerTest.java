@@ -31,8 +31,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -46,6 +51,9 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   SourceAndSealPersistenceService sourceAndSealPersistenceService;
+
+  @MockBean
+  private FormationSearchService formationSearchService;
 
   private SourceAndSealForm form;
   private BindingResult bindingResult;
@@ -139,7 +147,9 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
   @Test
   void getSourceAndSealModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(new SourceAndSealForm());
+    when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(form);
+    Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
+    when(formationSearchService.getPreSelectedFormation(form.getSourceFormationName())).thenReturn(preSelectedFormation);
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
@@ -158,5 +168,16 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
     );
+
+    assertThat(modelMap)
+        .containsEntry("form", form)
+        .containsEntry("ageSeries", AgeSeries.getAgeSeriesOptions())
+        .containsEntry("groupNames", GroupName.getGroupNames())
+        .containsEntry("formationRestEndpoint",
+            SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
+        )
+        .containsEntry("preSelectedSourceFormation", preSelectedFormation)
+        .containsEntry("preSelectedTopSealFormation", preSelectedFormation)
+        .containsEntry("topSealLithologyOptions", TopSealLithology.getTopSealLithologyOptions());
   }
 }

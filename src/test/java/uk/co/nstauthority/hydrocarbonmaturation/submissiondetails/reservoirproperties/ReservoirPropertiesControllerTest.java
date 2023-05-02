@@ -34,6 +34,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
@@ -43,6 +44,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -67,6 +72,12 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
+
+  @MockBean
+  private FormationSearchService formationSearchService;
+
+  @MockBean
+  private ReservoirSubUnitSearchService reservoirSubUnitSearchService;
 
   private ReservoirPropertiesForm form;
   private BindingResult bindingResult;
@@ -184,7 +195,6 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void getReservoirPropertiesModelAndView_whenProspectSubmission_assertModelProperties() throws Exception {
-    var form = new ReservoirPropertiesForm();
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
 
@@ -193,6 +203,11 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(Optional.of(hydrocarbonCaseDetail));
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail))
         .thenReturn(true);
+    Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
+    when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
+    Map<String, String> preSelectedSubUnit = Map.of("SUBUNIT", "sub unit");
+    when(reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit())).thenReturn(preSelectedSubUnit);
+
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId)))
@@ -213,6 +228,17 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(modelMap)
         .containsEntry("form", form)
+        .containsEntry("formationRestEndpoint",
+            SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
+        )
+        .containsEntry("preSelectedFormation", preSelectedFormation)
+        .containsEntry("subUnitRestEndpoint",
+            SearchSelectorService.route(on(ReservoirSubUnitRestController.class).getSubUnitListWithManualEntry(null))
+        )
+        .containsEntry("preSelectedSubUnit", preSelectedSubUnit)
+        .containsEntry("ageSeries", AgeSeries.getAgeSeriesOptions())
+        .containsEntry("groupNames", GroupName.getGroupNames())
+        .containsEntry("lithologyOptions", ReservoirLithology.getReservoirLithologyOptions())
         .containsEntry("averageNetPayThicknessError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("grossReservoirThicknessError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("grossRockVolumeError", ProbabilityDistributionTypeError.emptyError())
@@ -249,6 +275,10 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(any())).thenReturn(true);
     when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(discoveryWellDetails));
+    Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
+    when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
+    Map<String, String> preSelectedSubUnit = Map.of("SUBUNIT", "sub unit");
+    when(reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit())).thenReturn(preSelectedSubUnit);
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
@@ -270,6 +300,17 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(modelMap)
         .containsEntry("form", form)
+        .containsEntry("formationRestEndpoint",
+            SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
+        )
+        .containsEntry("preSelectedFormation", preSelectedFormation)
+        .containsEntry("subUnitRestEndpoint",
+            SearchSelectorService.route(on(ReservoirSubUnitRestController.class).getSubUnitListWithManualEntry(null))
+        )
+        .containsEntry("preSelectedSubUnit", preSelectedSubUnit)
+        .containsEntry("ageSeries", AgeSeries.getAgeSeriesOptions())
+        .containsEntry("groupNames", GroupName.getGroupNames())
+        .containsEntry("lithologyOptions", ReservoirLithology.getReservoirLithologyOptions())
         .containsEntry("averageNetPayThicknessOptionalError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("grossReservoirThicknessError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("grossRockVolumeError", ProbabilityDistributionTypeError.emptyError())
@@ -307,6 +348,11 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
 
+    Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
+    when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
+    Map<String, String> preSelectedSubUnit = Map.of("SUBUNIT", "sub unit");
+    when(reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit())).thenReturn(preSelectedSubUnit);
+
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId)))
@@ -327,6 +373,17 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(modelMap)
         .containsEntry("form", form)
+        .containsEntry("formationRestEndpoint",
+            SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
+        )
+        .containsEntry("preSelectedFormation", preSelectedFormation)
+        .containsEntry("subUnitRestEndpoint",
+            SearchSelectorService.route(on(ReservoirSubUnitRestController.class).getSubUnitListWithManualEntry(null))
+        )
+        .containsEntry("preSelectedSubUnit", preSelectedSubUnit)
+        .containsEntry("ageSeries", AgeSeries.getAgeSeriesOptions())
+        .containsEntry("groupNames", GroupName.getGroupNames())
+        .containsEntry("lithologyOptions", ReservoirLithology.getReservoirLithologyOptions())
         .containsEntry("averageNetPayThicknessOptionalError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("grossReservoirThicknessError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("grossRockVolumeError", ProbabilityDistributionTypeError.emptyError())

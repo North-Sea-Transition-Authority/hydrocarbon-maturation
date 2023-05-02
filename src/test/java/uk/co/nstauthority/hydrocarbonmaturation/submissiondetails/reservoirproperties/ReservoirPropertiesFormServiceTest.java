@@ -17,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
@@ -25,6 +26,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -89,7 +93,9 @@ class ReservoirPropertiesFormServiceTest {
         .extracting(
             ReservoirPropertiesForm::getFormationName,
             ReservoirPropertiesForm::getAgeStageOrSeries,
+            ReservoirPropertiesForm::getGroupName,
             ReservoirPropertiesForm::getLithology,
+            ReservoirPropertiesForm::getLithologyOther,
             ReservoirPropertiesForm::getReservoirFacies,
             ReservoirPropertiesForm::getReservoirConnectivity,
             form -> form.getAverageNetPayThickness().getProbabilityDistributionType(),
@@ -119,9 +125,10 @@ class ReservoirPropertiesFormServiceTest {
 
     assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail))
         .extracting(
-            ReservoirPropertiesForm::getFormationName,
             ReservoirPropertiesForm::getAgeStageOrSeries,
+            ReservoirPropertiesForm::getGroupName,
             ReservoirPropertiesForm::getLithology,
+            ReservoirPropertiesForm::getLithologyOther,
             ReservoirPropertiesForm::getReservoirFacies,
             ReservoirPropertiesForm::getReservoirConnectivity,
             form -> form.getNetToGross().getProbabilityDistributionType(),
@@ -150,9 +157,10 @@ class ReservoirPropertiesFormServiceTest {
             form -> form.getAverageNetPayThickness().getNormal().getComments()
         )
         .containsExactly(
-            reservoirProperty.getFormationName(),
             reservoirProperty.getAgeStage(),
+            reservoirProperty.getGroupName(),
             reservoirProperty.getLithology(),
+            reservoirProperty.getLithologyOther(),
             expectedFacies,
             expectedConnectivity,
             probabilityDistributionForm.getProbabilityDistributionType(),
@@ -213,12 +221,69 @@ class ReservoirPropertiesFormServiceTest {
             ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
   }
 
+  @Test
+  void reservoirPropertiesEntityToForm_existingEntity_withFormationEnum_thenPopulatedForm() {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setFormationName(Formation.ASGARD);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    assertThat(
+        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)
+            .getFormationName()
+    ).isEqualTo(Formation.ASGARD.name());
+  }
+
+  @Test
+  void reservoirPropertiesEntityToForm_existingEntity_withManualFormation_thenPopulatedForm() {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setFormationNameManual("manual formation name");
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    assertThat(
+        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)
+            .getFormationName()
+    ).isEqualTo(
+        SearchSelectorService.getValueWithManualEntryPrefix(
+            reservoirProperty.getFormationNameManual()
+        )
+    );
+
+  }
+
+  @Test
+  void reservoirPropertiesEntityToForm_existingEntity_withSubUnitEnum_thenPopulatedForm() {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setSubUnit(ReservoirSubUnit.T10);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    assertThat(
+        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getSubUnit()
+    ).isEqualTo(ReservoirSubUnit.T10.name());
+  }
+
+  @Test
+  void reservoirPropertiesEntityToForm_existingEntity_withManualSubUnit_thenPopulatedForm() {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setSubUnitManual("manual sub unit");
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    assertThat(
+        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getSubUnit()
+    ).isEqualTo(
+        SearchSelectorService.getValueWithManualEntryPrefix(
+            reservoirProperty.getSubUnitManual()
+        )
+    );
+
+  }
+
   private ReservoirProperty getReservoirProperty(SubmissionDetail submissionDetail) {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setSubmissionDetail(submissionDetail);
-    reservoirProperty.setFormationName("formation name");
-    reservoirProperty.setAgeStage("age stage");
-    reservoirProperty.setLithology("lithology");
+    reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    reservoirProperty.setGroupName(GroupName.BRENT);
+    reservoirProperty.setLithology(ReservoirLithology.OTHER);
+    reservoirProperty.setLithologyOther("other lithology");
     reservoirProperty.setReservoirConnectivity("connectivity");
     reservoirProperty.setReservoirFacies("facies");
     return reservoirProperty;

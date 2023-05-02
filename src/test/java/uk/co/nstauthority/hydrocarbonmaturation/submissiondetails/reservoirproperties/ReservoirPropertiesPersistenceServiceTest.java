@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
@@ -18,6 +19,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesPersistenceServiceTest {
@@ -56,17 +60,19 @@ class ReservoirPropertiesPersistenceServiceTest {
     assertThat(savedReservoirProperty)
         .extracting(
             ReservoirProperty::getSubmissionDetail,
-            ReservoirProperty::getFormationName,
             ReservoirProperty::getAgeStage,
+            ReservoirProperty::getGroupName,
             ReservoirProperty::getLithology,
+            ReservoirProperty::getLithologyOther,
             ReservoirProperty::getReservoirConnectivity,
             ReservoirProperty::getReservoirFacies
         )
         .containsExactly(
             submissionDetail,
-            form.getFormationName(),
             form.getAgeStageOrSeries(),
+            form.getGroupName(),
             form.getLithology(),
+            form.getLithologyOther(),
             null,
             null
         );
@@ -87,17 +93,19 @@ class ReservoirPropertiesPersistenceServiceTest {
     assertThat(savedReservoirProperty)
         .extracting(
             ReservoirProperty::getSubmissionDetail,
-            ReservoirProperty::getFormationName,
             ReservoirProperty::getAgeStage,
+            ReservoirProperty::getGroupName,
             ReservoirProperty::getLithology,
+            ReservoirProperty::getLithologyOther,
             ReservoirProperty::getReservoirConnectivity,
             ReservoirProperty::getReservoirFacies
         )
         .containsExactly(
             submissionDetail,
-            form.getFormationName(),
             form.getAgeStageOrSeries(),
+            form.getGroupName(),
             form.getLithology(),
+            form.getLithologyOther(),
             form.getReservoirConnectivity(),
             form.getReservoirFacies()
         );
@@ -118,17 +126,19 @@ class ReservoirPropertiesPersistenceServiceTest {
     assertThat(savedReservoirProperty)
         .extracting(
             ReservoirProperty::getSubmissionDetail,
-            ReservoirProperty::getFormationName,
             ReservoirProperty::getAgeStage,
+            ReservoirProperty::getGroupName,
             ReservoirProperty::getLithology,
+            ReservoirProperty::getLithologyOther,
             ReservoirProperty::getReservoirConnectivity,
             ReservoirProperty::getReservoirFacies
         )
         .containsExactly(
             submissionDetail,
-            form.getFormationName(),
             form.getAgeStageOrSeries(),
+            form.getGroupName(),
             form.getLithology(),
+            form.getLithologyOther(),
             form.getReservoirConnectivity(),
             form.getReservoirFacies()
         );
@@ -212,11 +222,146 @@ class ReservoirPropertiesPersistenceServiceTest {
     }
   }
 
+  @Test
+  void saveReservoirProperties_whenGivenAForm_NoFormationProvided_verifyCreatedEntity() {
+    var form = new ReservoirPropertiesForm();
+    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    var savedReservoirProperty = reservoirArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getFormationName,
+            ReservoirProperty::getFormationNameManual
+        )
+        .containsExactly(
+            null,
+            null
+        );
+  }
+
+  @Test
+  void saveReservoirProperties_whenGivenAForm_formationEnumProvided_verifyCreatedEntity() {
+    var form = new ReservoirPropertiesForm();
+    form.setFormationName(Formation.ASGARD.name());
+    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    var savedReservoirProperty = reservoirArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getFormationName,
+            ReservoirProperty::getFormationNameManual
+        )
+        .containsExactly(
+            Formation.ASGARD,
+            null
+        );
+  }
+
+  @Test
+  void saveReservoirProperties_whenGivenAForm_manualFormationProvided_verifyCreatedEntity() {
+    var form = new ReservoirPropertiesForm();
+    var formation = "formation";
+    form.setFormationName(SearchSelectorService.getValueWithManualEntryPrefix(formation));
+    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    var savedReservoirProperty = reservoirArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getFormationName,
+            ReservoirProperty::getFormationNameManual
+        )
+        .containsExactly(
+            null,
+            formation
+        );
+  }
+
+
+
+  @Test
+  void saveReservoirProperties_whenGivenAForm_NoSubUnitProvided_verifyCreatedEntity() {
+    var form = new ReservoirPropertiesForm();
+    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    var savedReservoirProperty = reservoirArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getSubUnit,
+            ReservoirProperty::getSubUnitManual
+        )
+        .containsExactly(
+            null,
+            null
+        );
+  }
+
+  @Test
+  void saveReservoirProperties_whenGivenAForm_subUnitEnumProvided_verifyCreatedEntity() {
+    var form = new ReservoirPropertiesForm();
+    form.setSubUnit(ReservoirSubUnit.ALBA.name());
+    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    var savedReservoirProperty = reservoirArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getSubUnit,
+            ReservoirProperty::getSubUnitManual
+        )
+        .containsExactly(
+            ReservoirSubUnit.ALBA,
+            null
+        );
+  }
+
+  @Test
+  void saveReservoirProperties_whenGivenAForm_manualSubUnitProvided_verifyCreatedEntity() {
+    var form = new ReservoirPropertiesForm();
+    var subUnit = "sub unit";
+    form.setSubUnit(SearchSelectorService.getValueWithManualEntryPrefix(subUnit));
+    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    var savedReservoirProperty = reservoirArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getSubUnit,
+            ReservoirProperty::getSubUnitManual
+        )
+        .containsExactly(
+            null,
+            subUnit
+        );
+  }
+
   private ReservoirPropertiesForm getValidForm() {
     var form = new ReservoirPropertiesForm();
-    form.setFormationName("formation name");
-    form.setAgeStageOrSeries("age stage or series");
-    form.setLithology("lithology");
+    form.setAgeStageOrSeries(AgeSeries.LOWER_DEVONIAN);
+    form.setGroupName(GroupName.CLAIR);
+    form.setLithology(ReservoirLithology.OTHER);
+    form.setLithologyOther("lithology other");
     form.setReservoirFacies("facies");
     form.setReservoirConnectivity("connectivity");
     form.setPercentOfGrvOilBearing(

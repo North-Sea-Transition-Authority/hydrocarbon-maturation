@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
@@ -86,7 +85,9 @@ class SubmissionSummaryModelServiceTest {
     reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(
         SubmissionType.CREATE_PROSPECT,
         "formation",
+        "sub unit",
         "age",
+        "group name",
         "lithology",
         "facies",
         "connectivity",
@@ -105,7 +106,9 @@ class SubmissionSummaryModelServiceTest {
     reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(
         SubmissionType.POST_DRILL_DRY_HOLE,
         "formation",
+        "sub unit",
         "age",
+        "group name",
         "lithology",
         "facies",
         "connectivity",

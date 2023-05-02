@@ -22,6 +22,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -72,6 +74,7 @@ class ReservoirPropertiesFormValidatorTest {
     form.setLithology(null);
     form.setFormationName(null);
     form.setAgeStageOrSeries(null);
+    form.setGroupName(null);
     var bindingResult = validateReservoirProperties(form, ValidationType.FULL, SubmissionType.CREATE_PROSPECT);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -79,6 +82,7 @@ class ReservoirPropertiesFormValidatorTest {
         .contains(
             entry("formationName", Set.of("formationName.required")),
             entry("ageStageOrSeries", Set.of("ageStageOrSeries.required")),
+            entry("groupName", Set.of("groupName.required")),
             entry("lithology", Set.of("lithology.required")),
             entry("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error",
                 Set.of("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error.error")),
@@ -98,6 +102,20 @@ class ReservoirPropertiesFormValidatorTest {
                 Set.of("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error.error")),
             entry("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error",
                 Set.of("percentOfGrvOilBearing." + probabilityDistributionType.getPath() + ".error.error"))
+        );
+  }
+
+  @Test
+  void validate_otherLithologyNotProvided_thenValidationErrors() {
+    var form = new ReservoirPropertiesForm();
+    form.setLithology(ReservoirLithology.OTHER);
+    form.setLithologyOther(null);
+    var bindingResult = validateReservoirProperties(form, ValidationType.FULL, SubmissionType.CREATE_PROSPECT);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("lithologyOther", Set.of("lithologyOther.required"))
         );
   }
 
@@ -429,8 +447,10 @@ class ReservoirPropertiesFormValidatorTest {
   private ReservoirPropertiesForm getValidForm() {
     var form = new ReservoirPropertiesForm();
     form.setFormationName("source formation name");
-    form.setAgeStageOrSeries("age stage");
-    form.setLithology("lithology");
+    form.setAgeStageOrSeries(AgeSeries.LOWER_CARBONIFEROUS);
+    form.setGroupName(GroupName.BRENT);
+    form.setLithology(ReservoirLithology.OTHER);
+    form.setLithologyOther("other lithology");
     form.setReservoirConnectivity("connectivity");
     form.setReservoirFacies("facies");
     form.setAverageNetPayThickness(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());

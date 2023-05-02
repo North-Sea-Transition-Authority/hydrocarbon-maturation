@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 
 import java.util.UUID;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -10,6 +12,9 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
 @Entity
 @Table(name = "reservoir_properties")
@@ -24,9 +29,27 @@ class ReservoirProperty implements SubmissionDetailChildEntity {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
-  private String formationName;
-  private String ageStage;
-  private String lithology;
+  @Enumerated(EnumType.STRING)
+  private Formation formationName;
+
+  private String formationNameManual;
+
+  @Enumerated(EnumType.STRING)
+  private ReservoirSubUnit subUnit;
+
+  private String subUnitManual;
+
+  @Enumerated(EnumType.STRING)
+  private AgeSeries ageStage;
+
+  @Enumerated(EnumType.STRING)
+  private GroupName groupName;
+
+  @Enumerated(EnumType.STRING)
+  private ReservoirLithology lithology;
+
+  private String lithologyOther;
+
   private String reservoirFacies;
   private String reservoirConnectivity;
 
@@ -46,28 +69,71 @@ class ReservoirProperty implements SubmissionDetailChildEntity {
     this.submissionDetail = submissionDetail;
   }
 
-  public String getFormationName() {
+  public Formation getFormationName() {
     return formationName;
   }
 
-  public void setFormationName(String formationName) {
+  public void setFormationName(Formation formationName) {
     this.formationName = formationName;
   }
 
-  public String getAgeStage() {
+  public String getFormationNameManual() {
+    return formationNameManual;
+  }
+
+  public void setFormationNameManual(String formationNameManual) {
+    this.formationNameManual = formationNameManual;
+  }
+
+  public ReservoirSubUnit getSubUnit() {
+    return subUnit;
+  }
+
+  public void setSubUnit(
+      ReservoirSubUnit subUnit) {
+    this.subUnit = subUnit;
+  }
+
+  public String getSubUnitManual() {
+    return subUnitManual;
+  }
+
+  public void setSubUnitManual(String subUnitManual) {
+    this.subUnitManual = subUnitManual;
+  }
+
+  public AgeSeries getAgeStage() {
     return ageStage;
   }
 
-  public void setAgeStage(String ageStage) {
+  public void setAgeStage(AgeSeries ageStage) {
     this.ageStage = ageStage;
   }
 
-  public String getLithology() {
+  public GroupName getGroupName() {
+    return groupName;
+  }
+
+  public void setGroupName(
+      GroupName groupName) {
+    this.groupName = groupName;
+  }
+
+  public ReservoirLithology getLithology() {
     return lithology;
   }
 
-  public void setLithology(String lithology) {
+  public void setLithology(
+      ReservoirLithology lithology) {
     this.lithology = lithology;
+  }
+
+  public String getLithologyOther() {
+    return lithologyOther;
+  }
+
+  public void setLithologyOther(String lithologyOther) {
+    this.lithologyOther = lithologyOther;
   }
 
   public String getReservoirFacies() {

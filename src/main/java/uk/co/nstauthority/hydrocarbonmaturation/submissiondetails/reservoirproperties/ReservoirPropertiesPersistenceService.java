@@ -1,12 +1,16 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
+import java.util.Objects;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 
 @Service
 class ReservoirPropertiesPersistenceService {
@@ -25,9 +29,16 @@ class ReservoirPropertiesPersistenceService {
   public void saveReservoirProperty(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
     var reservoirProperty = getReservoirProperty(submissionDetail).orElse(new ReservoirProperty());
     reservoirProperty.setSubmissionDetail(submissionDetail);
-    reservoirProperty.setFormationName(form.getFormationName());
+
+    setFormation(form, reservoirProperty);
+    setSubUnit(form, reservoirProperty);
     reservoirProperty.setAgeStage(form.getAgeStageOrSeries());
+    reservoirProperty.setGroupName(form.getGroupName());
     reservoirProperty.setLithology(form.getLithology());
+    reservoirProperty.setLithologyOther(
+        form.getLithology() == ReservoirLithology.OTHER ? form.getLithologyOther() : null
+    );
+
     if (submissionDetail.isDryWellOrDiscoverySubmission()) {
       reservoirProperty.setReservoirConnectivity(form.getReservoirConnectivity());
       reservoirProperty.setReservoirFacies(form.getReservoirFacies());
@@ -114,6 +125,36 @@ class ReservoirPropertiesPersistenceService {
 
   Optional<ReservoirProperty> getReservoirProperty(SubmissionDetail submissionDetail) {
     return reservoirPropertiesRepository.findBySubmissionDetail(submissionDetail);
+  }
+
+  private void setFormation(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
+    if (!Objects.isNull(form.getFormationName())) {
+      if (SearchSelectorService.isManualEntry(form.getFormationName())) {
+        reservoirProperty.setFormationNameManual(SearchSelectorService.removePrefix(form.getFormationName()));
+        reservoirProperty.setFormationName(null);
+      } else {
+        reservoirProperty.setFormationName(EnumUtils.getEnumValue(Formation.class, form.getFormationName()));
+        reservoirProperty.setFormationNameManual(null);
+      }
+    } else {
+      reservoirProperty.setFormationName(null);
+      reservoirProperty.setFormationNameManual(null);
+    }
+  }
+
+  private void setSubUnit(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
+    if (!Objects.isNull(form.getSubUnit())) {
+      if (SearchSelectorService.isManualEntry(form.getSubUnit())) {
+        reservoirProperty.setSubUnitManual(SearchSelectorService.removePrefix(form.getSubUnit()));
+        reservoirProperty.setSubUnit(null);
+      } else {
+        reservoirProperty.setSubUnit(EnumUtils.getEnumValue(ReservoirSubUnit.class, form.getSubUnit()));
+        reservoirProperty.setSubUnitManual(null);
+      }
+    } else {
+      reservoirProperty.setSubUnit(null);
+      reservoirProperty.setSubUnitManual(null);
+    }
   }
 
   private void saveDiscoveryProbabilityDistributions(SubmissionDetail submissionDetail,

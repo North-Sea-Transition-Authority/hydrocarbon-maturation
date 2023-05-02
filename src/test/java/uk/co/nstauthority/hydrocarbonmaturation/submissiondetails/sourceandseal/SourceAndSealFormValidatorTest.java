@@ -14,6 +14,8 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
@@ -46,9 +48,7 @@ class SourceAndSealFormValidatorTest {
 
   @Test
   void validate_whenValidForm_thenNoValidationErrors() {
-    var form = new SourceAndSealForm();
-    form.setSourceFormationName("source formation name");
-    form.setTopSealFormationName("top seal formation name");
+    var form = getPopulatedSourceAndSealForm();
     var bindingResult = validateSourceAndSealForm_fullValidation(form);
 
     assertFalse(bindingResult.hasErrors());
@@ -63,7 +63,25 @@ class SourceAndSealFormValidatorTest {
     assertThat(extractedErrors)
         .containsExactly(
             entry("sourceFormationName", Set.of("sourceFormationName.required")),
-            entry("topSealFormationName", Set.of("topSealFormationName.required"))
+            entry("sourceAgeStage", Set.of("sourceAgeStage.required")),
+            entry("sourceGroupName", Set.of("sourceGroupName.required")),
+            entry("topSealFormationName", Set.of("topSealFormationName.required")),
+            entry("topSealAgeStage", Set.of("topSealAgeStage.required")),
+            entry("topSealGroupName", Set.of("topSealGroupName.required")),
+            entry("topSealLithology", Set.of("topSealLithology.required"))
+        );
+  }
+
+  @Test
+  void validate_whenOtherLithologyNotProvided_thenValidationErrors() {
+    var form = getPopulatedSourceAndSealForm();
+    form.setTopSealLithology(TopSealLithology.OTHER);
+    var bindingResult = validateSourceAndSealForm_fullValidation(form);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("topSealLithologyOther", Set.of("topSealLithologyOther.required"))
         );
   }
 
@@ -90,5 +108,17 @@ class SourceAndSealFormValidatorTest {
     sourceAndSealFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(ValidationType.PARTIAL, submissionDetail));
     return bindingResult;
+  }
+
+  private SourceAndSealForm getPopulatedSourceAndSealForm() {
+    var form = new SourceAndSealForm();
+    form.setSourceFormationName("source formation name");
+    form.setTopSealFormationName("top seal formation name");
+    form.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    form.setTopSealAgeStage(AgeSeries.LOWER_CRETACEOUS);
+    form.setSourceGroupName(GroupName.BRENT);
+    form.setTopSealGroupName(GroupName.CLAIR);
+    form.setTopSealLithology(TopSealLithology.CEMENTED_SANDSTONE);
+    return form;
   }
 }

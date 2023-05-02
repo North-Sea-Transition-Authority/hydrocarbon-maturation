@@ -97,7 +97,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     generalDetailSummaryView = GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(), "Prospect");
     drillStemTestSummaryView = DrillStemTestSummaryView.empty();
     reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(SubmissionType.CREATE_DISCOVERY,
-        "", "", "", "", "", List.of(), List.of());
+        "", "", "", "", "", "", "", List.of(), List.of());
     mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty();
     gasCaseOutputsSummaryView = GasCaseOutputsSummaryView.empty();
     oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();

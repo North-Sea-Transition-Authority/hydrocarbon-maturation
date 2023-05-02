@@ -15,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
@@ -23,6 +24,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -46,6 +51,8 @@ public class ReservoirPropertiesController {
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+  private final FormationSearchService formationSearchService;
+  private final ReservoirSubUnitSearchService reservoirSubUnitSearchService;
 
   @Autowired
   public ReservoirPropertiesController(ControllerHelperService controllerHelperService,
@@ -54,7 +61,9 @@ public class ReservoirPropertiesController {
                                        SubmissionDetailService submissionDetailService,
                                        ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
                                        DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
-                                       HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService) {
+                                       HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
+                                       FormationSearchService formationSearchService,
+                                       ReservoirSubUnitSearchService reservoirSubUnitSearchService) {
     this.controllerHelperService = controllerHelperService;
     this.reservoirPropertiesFormService = reservoirPropertiesFormService;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
@@ -62,6 +71,8 @@ public class ReservoirPropertiesController {
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
+    this.formationSearchService = formationSearchService;
+    this.reservoirSubUnitSearchService = reservoirSubUnitSearchService;
   }
 
   @GetMapping
@@ -92,6 +103,17 @@ public class ReservoirPropertiesController {
   private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/reservoirProperties")
         .addObject("form", form)
+        .addObject("ageSeries", AgeSeries.getAgeSeriesOptions())
+        .addObject("groupNames", GroupName.getGroupNames())
+        .addObject("lithologyOptions", ReservoirLithology.getReservoirLithologyOptions())
+        .addObject("formationRestEndpoint",
+            SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
+        )
+        .addObject("preSelectedFormation", formationSearchService.getPreSelectedFormation(form.getFormationName()))
+        .addObject("subUnitRestEndpoint",
+            SearchSelectorService.route(on(ReservoirSubUnitRestController.class).getSubUnitListWithManualEntry(null))
+        )
+        .addObject("preSelectedSubUnit", reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit()))
         .addObject("discoverySubmission", submissionDetail.isDiscoverySubmission())
         .addObject("prospectSubmission", submissionDetail.isProspectSubmission())
         .addObject("dryHoleSubmission", submissionDetail.isDryWellSubmission());

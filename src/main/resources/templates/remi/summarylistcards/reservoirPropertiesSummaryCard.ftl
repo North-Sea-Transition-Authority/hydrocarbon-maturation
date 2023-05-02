@@ -8,6 +8,9 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Formation name">
       ${reservoirPropertiesValues.formationName()}
     </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Member or sub unit">
+        ${reservoirPropertiesValues.subUnit()}
+    </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Age stage or series">
       ${reservoirPropertiesValues.ageStageOrSeries()}
     </@fdsSummaryList.summaryListRowNoAction>

@@ -116,10 +116,17 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
 
   @Override
   public void validateFull(SubmissionForm form, Errors errors) {
+    ReservoirPropertiesForm reservoirPropertiesForm = (ReservoirPropertiesForm) form;
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "formationName", "formationName.required", "Enter a formation name");
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "ageStageOrSeries", "ageStageOrSeries.required",
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors,
+        "ageStageOrSeries",
+        "ageStageOrSeries.required",
         "Enter an age stage or series");
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groupName", "groupName.required", "Enter a group name");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithology", "lithology.required", "Enter a lithology");
+    if (reservoirPropertiesForm.getLithology() == ReservoirLithology.OTHER) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithologyOther", "lithologyOther.required", "Enter an other lithology");
+    }
 
     if (submissionType == SubmissionType.CREATE_DISCOVERY
         || submissionType == SubmissionType.UPDATE_DISCOVERY

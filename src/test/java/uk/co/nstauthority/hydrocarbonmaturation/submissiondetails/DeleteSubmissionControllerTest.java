@@ -141,7 +141,9 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     var reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(
         SubmissionType.POST_DRILL_DRY_HOLE,
         "formation",
+        "sub unit",
         "age",
+        "group name",
         "lithology",
         "facies",
         "connectivity",

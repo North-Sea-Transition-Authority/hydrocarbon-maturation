@@ -92,7 +92,9 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
     reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(
         SubmissionType.CREATE_PROSPECT,
         "formation",
+        "sub unit",
         "age",
+        "group name",
         "lithology",
         "facies",
         "connectivity",

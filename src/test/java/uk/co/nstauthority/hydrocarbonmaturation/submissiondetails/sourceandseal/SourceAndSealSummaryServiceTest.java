@@ -11,6 +11,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
 @ExtendWith(MockitoExtension.class)
 class SourceAndSealSummaryServiceTest {
@@ -35,15 +38,11 @@ class SourceAndSealSummaryServiceTest {
 
     assertThat(summaryView)
         .extracting(
-            SourceAndSealSummaryView::sourceFormationName,
             SourceAndSealSummaryView::sourceAgeStage,
             SourceAndSealSummaryView::sourceLithology,
             SourceAndSealSummaryView::sealAgeStage,
-            SourceAndSealSummaryView::sealLithology,
-            SourceAndSealSummaryView::sealFormationName)
+            SourceAndSealSummaryView::sealLithology)
         .containsExactly(
-            "",
-            "",
             "",
             "",
             "",
@@ -52,13 +51,42 @@ class SourceAndSealSummaryServiceTest {
   }
 
   @Test
-  void getSourceAndSealSummaryFromSubmissionDetail_fullView() {
+  void getSourceAndSealSummaryFromSubmissionDetail_view() {
+    sourceAndSeal.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    sourceAndSeal.setSourceGroupName(GroupName.BRENT);
     sourceAndSeal.setSourceLithology("source lithology");
-    sourceAndSeal.setSourceFormationName("source formation name");
-    sourceAndSeal.setSourceAgeStage("source age");
-    sourceAndSeal.setTopSealFormationName("seal name");
-    sourceAndSeal.setTopSealLithology("seal lithology");
-    sourceAndSeal.setTopSealAgeStage("seal age");
+    sourceAndSeal.setTopSealAgeStage(AgeSeries.LOWER_DEVONIAN);
+    sourceAndSeal.setTopSealGroupName(GroupName.BRUCE);
+    sourceAndSeal.setTopSealLithology(TopSealLithology.CEMENTED_SANDSTONE);
+
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
+        .thenReturn(Optional.of(sourceAndSeal));
+
+    var summaryView = sourceAndSealSummaryService
+        .getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(summaryView)
+        .extracting(
+            SourceAndSealSummaryView::sourceAgeStage,
+            SourceAndSealSummaryView::sourceGroupName,
+            SourceAndSealSummaryView::sourceLithology,
+            SourceAndSealSummaryView::sealAgeStage,
+            SourceAndSealSummaryView::sealGroupName,
+            SourceAndSealSummaryView::sealLithology)
+        .containsExactly(
+            AgeSeries.LOWER_CARBONIFEROUS.getDisplayName(),
+            GroupName.BRENT.getDisplayName(),
+            "source lithology",
+            AgeSeries.LOWER_DEVONIAN.getDisplayName(),
+            GroupName.BRUCE.getDisplayName(),
+            TopSealLithology.CEMENTED_SANDSTONE.getDisplayName()
+        );
+  }
+
+  @Test
+  void getSourceAndSealSummaryFromSubmissionDetail_formationEnumView() {
+    sourceAndSeal.setSourceFormationName(Formation.ASGARD);
+    sourceAndSeal.setTopSealFormationName(Formation.AUK);
 
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
         .thenReturn(Optional.of(sourceAndSeal));
@@ -69,18 +97,50 @@ class SourceAndSealSummaryServiceTest {
     assertThat(summaryView)
         .extracting(
             SourceAndSealSummaryView::sourceFormationName,
-            SourceAndSealSummaryView::sourceAgeStage,
-            SourceAndSealSummaryView::sourceLithology,
-            SourceAndSealSummaryView::sealAgeStage,
-            SourceAndSealSummaryView::sealLithology,
-            SourceAndSealSummaryView::sealFormationName)
+            SourceAndSealSummaryView::sealFormationName
+        )
         .containsExactly(
-            "source formation name",
-            "source age",
-            "source lithology",
-            "seal age",
-            "seal lithology",
-            "seal name"
+            Formation.ASGARD.getDisplayName(),
+            Formation.AUK.getDisplayName()
         );
+  }
+
+  @Test
+  void getSourceAndSealSummaryFromSubmissionDetail_manualFormationView() {
+    var sourceFormation = "manual source formation";
+    var sealFormation = "manual seal formation";
+    sourceAndSeal.setSourceFormationNameManual(sourceFormation);
+    sourceAndSeal.setTopSealFormationNameManual(sealFormation);
+
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
+        .thenReturn(Optional.of(sourceAndSeal));
+
+    var summaryView = sourceAndSealSummaryService
+        .getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(summaryView)
+        .extracting(
+            SourceAndSealSummaryView::sourceFormationName,
+            SourceAndSealSummaryView::sealFormationName
+        )
+        .containsExactly(
+            sourceFormation,
+            sealFormation
+        );
+  }
+
+  @Test
+  void getSourceAndSealSummaryFromSubmissionDetail_otherSeaLithologyView() {
+    var otherSealLithology = "other";
+    sourceAndSeal.setTopSealLithology(TopSealLithology.OTHER);
+    sourceAndSeal.setTopSealLithologyOther(otherSealLithology);
+
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
+        .thenReturn(Optional.of(sourceAndSeal));
+
+    var summaryView = sourceAndSealSummaryService
+        .getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(summaryView.sealLithology()).isEqualTo(otherSealLithology);
   }
 }

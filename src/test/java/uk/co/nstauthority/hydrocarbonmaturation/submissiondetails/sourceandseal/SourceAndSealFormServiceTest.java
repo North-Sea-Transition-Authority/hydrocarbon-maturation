@@ -15,7 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -26,7 +30,6 @@ class SourceAndSealFormServiceTest {
   private static SourceAndSealFormService sourceAndSealFormService;
   private static SourceAndSealPersistenceService sourceAndSealPersistenceService;
 
-  private static UUID submissionDetailId;
   private static SubmissionDetail submissionDetail;
 
 
@@ -36,7 +39,7 @@ class SourceAndSealFormServiceTest {
     sourceAndSealPersistenceService = mock(SourceAndSealPersistenceService.class);
     sourceAndSealFormService = new SourceAndSealFormService(sourceAndSealFormValidator, sourceAndSealPersistenceService);
 
-    submissionDetailId = UUID.randomUUID();
+    UUID submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
     submissionDetail.setId(submissionDetailId);
   }
@@ -70,9 +73,11 @@ class SourceAndSealFormServiceTest {
             SourceAndSealForm::getSourceLithology,
             SourceAndSealForm::getTopSealFormationName,
             SourceAndSealForm::getTopSealAgeStage,
-            SourceAndSealForm::getTopSealLithology
+            SourceAndSealForm::getTopSealLithology,
+            SourceAndSealForm::getTopSealLithologyOther
         )
         .containsExactly(
+            null,
             null,
             null,
             null,
@@ -89,28 +94,66 @@ class SourceAndSealFormServiceTest {
 
     assertThat(sourceAndSealFormService.getSourceAndSealForm(submissionDetail))
         .extracting(
-            SourceAndSealForm::getSourceFormationName,
             SourceAndSealForm::getSourceAgeStage,
             SourceAndSealForm::getSourceLithology,
-            SourceAndSealForm::getTopSealFormationName,
             SourceAndSealForm::getTopSealAgeStage,
-            SourceAndSealForm::getTopSealLithology
+            SourceAndSealForm::getTopSealLithology,
+            SourceAndSealForm::getTopSealLithologyOther
         )
         .containsExactly(
-            sourceAndSeal.getSourceFormationName(),
             sourceAndSeal.getSourceAgeStage(),
             sourceAndSeal.getSourceLithology(),
-            sourceAndSeal.getTopSealFormationName(),
             sourceAndSeal.getTopSealAgeStage(),
-            sourceAndSeal.getTopSealLithology()
+            sourceAndSeal.getTopSealLithology(),
+            sourceAndSeal.getTopSealLithologyOther()
+        );
+  }
+
+  @Test
+  void sourceAndSealEntityToForm_existingEntity_withFormationEnum_thenPopulatedForm() {
+    var sourceAndSeal = getSourceAndSeal(submissionDetail);
+    sourceAndSeal.setSourceFormationName(Formation.ASGARD);
+    sourceAndSeal.setTopSealFormationName(Formation.AUK);
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail)).thenReturn(Optional.of(sourceAndSeal));
+
+    assertThat(sourceAndSealFormService.getSourceAndSealForm(submissionDetail))
+        .extracting(
+            SourceAndSealForm::getSourceFormationName,
+            SourceAndSealForm::getTopSealFormationName
+        )
+        .containsExactly(
+            sourceAndSeal.getSourceFormationName().name(),
+            sourceAndSeal.getTopSealFormationName().name()
+        );
+  }
+
+  @Test
+  void sourceAndSealEntityToForm_existingEntity_withManualFormation_thenPopulatedForm() {
+    var sourceAndSeal = getSourceAndSeal(submissionDetail);
+    sourceAndSeal.setSourceFormationNameManual("manual source formation");
+    sourceAndSeal.setTopSealFormationNameManual("manual seal formation");
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail)).thenReturn(Optional.of(sourceAndSeal));
+
+    assertThat(sourceAndSealFormService.getSourceAndSealForm(submissionDetail))
+        .extracting(
+            SourceAndSealForm::getSourceFormationName,
+            SourceAndSealForm::getTopSealFormationName
+        )
+        .containsExactly(
+            SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getSourceFormationNameManual()),
+            SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getTopSealFormationNameManual())
         );
   }
 
   private SourceAndSeal getSourceAndSeal(SubmissionDetail submissionDetail) {
     var sourceAndSeal = new SourceAndSeal();
     sourceAndSeal.setSubmissionDetail(submissionDetail);
-    sourceAndSeal.setSourceFormationName("formation name");
-    sourceAndSeal.setTopSealFormationName("formation name");
+    sourceAndSeal.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    sourceAndSeal.setTopSealAgeStage(AgeSeries.LOWER_CRETACEOUS);
+    sourceAndSeal.setSourceGroupName(GroupName.DUNLIN);
+    sourceAndSeal.setTopSealGroupName(GroupName.CLAIR);
+    sourceAndSeal.setTopSealLithology(TopSealLithology.OTHER);
+    sourceAndSeal.setTopSealLithologyOther("other");
 
     return sourceAndSeal;
   }

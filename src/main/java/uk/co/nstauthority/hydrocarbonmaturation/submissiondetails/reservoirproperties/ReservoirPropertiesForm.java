@@ -3,12 +3,17 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
 class ReservoirPropertiesForm implements SubmissionForm {
 
   private String formationName;
-  private String ageStageOrSeries;
-  private String lithology;
+  private String subUnit;
+  private AgeSeries ageStageOrSeries;
+  private GroupName groupName;
+  private ReservoirLithology lithology;
+  private String lithologyOther;
   private ProbabilityDistributionForm averageNetPayThickness = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm grossReservoirThickness = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm grossRockVolume = new ProbabilityDistributionForm();
@@ -30,20 +35,47 @@ class ReservoirPropertiesForm implements SubmissionForm {
     this.formationName = formationName;
   }
 
-  public String getAgeStageOrSeries() {
+  public String getSubUnit() {
+    return subUnit;
+  }
+
+  public void setSubUnit(String subUnit) {
+    this.subUnit = subUnit;
+  }
+
+  public AgeSeries getAgeStageOrSeries() {
     return ageStageOrSeries;
   }
 
-  public void setAgeStageOrSeries(String ageStageOrSeries) {
+  public void setAgeStageOrSeries(
+      AgeSeries ageStageOrSeries) {
     this.ageStageOrSeries = ageStageOrSeries;
   }
 
-  public String getLithology() {
+  public GroupName getGroupName() {
+    return groupName;
+  }
+
+  public void setGroupName(
+      GroupName groupName) {
+    this.groupName = groupName;
+  }
+
+  public ReservoirLithology getLithology() {
     return lithology;
   }
 
-  public void setLithology(String lithology) {
+  public void setLithology(
+      ReservoirLithology lithology) {
     this.lithology = lithology;
+  }
+
+  public String getLithologyOther() {
+    return lithologyOther;
+  }
+
+  public void setLithologyOther(String lithologyOther) {
+    this.lithologyOther = lithologyOther;
   }
 
   public ProbabilityDistributionForm getAverageNetPayThickness() {

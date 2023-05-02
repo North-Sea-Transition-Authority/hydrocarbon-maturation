@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -97,9 +98,12 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
   private ReservoirPropertiesForm reservoirPropertyToEntity(ReservoirProperty reservoirProperty) {
     var form = new ReservoirPropertiesForm();
 
-    form.setFormationName(reservoirProperty.getFormationName());
+    setFormation(reservoirProperty, form);
+    setSubUnit(reservoirProperty, form);
     form.setAgeStageOrSeries(reservoirProperty.getAgeStage());
+    form.setGroupName(reservoirProperty.getGroupName());
     form.setLithology(reservoirProperty.getLithology());
+    form.setLithologyOther(reservoirProperty.getLithologyOther());
 
     var submissionDetail = reservoirProperty.getSubmissionDetail();
     if (submissionDetail.isProspectSubmission()) {
@@ -184,5 +188,25 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
     }
 
     return form;
+  }
+
+  private void setFormation(ReservoirProperty reservoirProperty, ReservoirPropertiesForm form) {
+    if (reservoirProperty.getFormationName() != null) {
+      form.setFormationName(reservoirProperty.getFormationName().name());
+    } else if (reservoirProperty.getFormationNameManual() != null) {
+      form.setFormationName(
+          SearchSelectorService.getValueWithManualEntryPrefix(reservoirProperty.getFormationNameManual())
+      );
+    }
+  }
+
+  private void setSubUnit(ReservoirProperty reservoirProperty, ReservoirPropertiesForm form) {
+    if (reservoirProperty.getSubUnit() != null) {
+      form.setSubUnit(reservoirProperty.getSubUnit().name());
+    } else if (reservoirProperty.getSubUnitManual() != null) {
+      form.setSubUnit(
+          SearchSelectorService.getValueWithManualEntryPrefix(reservoirProperty.getSubUnitManual())
+      );
+    }
   }
 }

@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
@@ -38,12 +39,30 @@ class SourceAndSealFormService implements SubmissionFormService {
 
   private SourceAndSealForm sourceAndSealEntityToForm(SourceAndSeal sourceAndSeal) {
     var form = new SourceAndSealForm();
-    form.setTopSealFormationName(sourceAndSeal.getTopSealFormationName());
-    form.setSourceFormationName(sourceAndSeal.getSourceFormationName());
+    if (sourceAndSeal.getSourceFormationName() != null) {
+      form.setSourceFormationName(sourceAndSeal.getSourceFormationName().name());
+    } else if (sourceAndSeal.getSourceFormationNameManual() != null) {
+      form.setSourceFormationName(
+          SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getSourceFormationNameManual())
+      );
+    }
+
     form.setSourceAgeStage(sourceAndSeal.getSourceAgeStage());
-    form.setTopSealAgeStage(sourceAndSeal.getTopSealAgeStage());
+    form.setSourceGroupName(sourceAndSeal.getSourceGroupName());
     form.setSourceLithology(sourceAndSeal.getSourceLithology());
+
+    if (sourceAndSeal.getTopSealFormationName() != null) {
+      form.setTopSealFormationName(sourceAndSeal.getTopSealFormationName().name());
+    } else if (sourceAndSeal.getTopSealFormationNameManual() != null) {
+      form.setTopSealFormationName(
+          SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getTopSealFormationNameManual())
+      );
+    }
+
+    form.setTopSealAgeStage(sourceAndSeal.getTopSealAgeStage());
+    form.setTopSealGroupName(sourceAndSeal.getTopSealGroupName());
     form.setTopSealLithology(sourceAndSeal.getTopSealLithology());
+    form.setTopSealLithologyOther(sourceAndSeal.getTopSealLithologyOther());
 
     return form;
   }

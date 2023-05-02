@@ -15,10 +15,15 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -30,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class SourceAndSealController {
 
   private final SourceAndSealFormService sourceAndSealFormService;
+  private final FormationSearchService formationSearchService;
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final SourceAndSealPersistenceService sourceAndSealPersistenceService;
@@ -38,10 +44,11 @@ public class SourceAndSealController {
 
   @Autowired
   public SourceAndSealController(SourceAndSealFormService sourceAndSealFormService,
-                                 ControllerHelperService controllerHelperService,
+                                 FormationSearchService formationSearchService, ControllerHelperService controllerHelperService,
                                  SubmissionDetailService submissionDetailService,
                                  SourceAndSealPersistenceService sourceAndSealPersistenceService) {
     this.sourceAndSealFormService = sourceAndSealFormService;
+    this.formationSearchService = formationSearchService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.sourceAndSealPersistenceService = sourceAndSealPersistenceService;
@@ -72,7 +79,15 @@ public class SourceAndSealController {
 
   private ModelAndView getSourceAndSealModelAndView(SourceAndSealForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/sourceAndSeal")
-        .addObject("form", form);
+        .addObject("form", form)
+        .addObject("ageSeries", AgeSeries.getAgeSeriesOptions())
+        .addObject("groupNames", GroupName.getGroupNames())
+        .addObject("formationRestEndpoint",
+            SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
+        )
+        .addObject("preSelectedSourceFormation", formationSearchService.getPreSelectedFormation(form.getSourceFormationName()))
+        .addObject("preSelectedTopSealFormation", formationSearchService.getPreSelectedFormation(form.getTopSealFormationName()))
+        .addObject("topSealLithologyOptions", TopSealLithology.getTopSealLithologyOptions());
 
     return TaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

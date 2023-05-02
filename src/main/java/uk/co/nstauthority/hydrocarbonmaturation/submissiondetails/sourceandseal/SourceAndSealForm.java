@@ -1,15 +1,20 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal;
 
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
 class SourceAndSealForm implements SubmissionForm {
 
   private String sourceFormationName;
-  private String sourceAgeStage;
+  private AgeSeries sourceAgeStage;
+  private GroupName sourceGroupName;
   private String sourceLithology;
   private String topSealFormationName;
-  private String topSealAgeStage;
-  private String topSealLithology;
+  private AgeSeries topSealAgeStage;
+  private GroupName topSealGroupName;
+  private TopSealLithology topSealLithology;
+  private String topSealLithologyOther;
 
   public String getSourceFormationName() {
     return sourceFormationName;
@@ -19,12 +24,22 @@ class SourceAndSealForm implements SubmissionForm {
     this.sourceFormationName = sourceFormationName;
   }
 
-  public String getSourceAgeStage() {
+  public AgeSeries getSourceAgeStage() {
     return sourceAgeStage;
   }
 
-  public void setSourceAgeStage(String sourceAgeStage) {
+  public void setSourceAgeStage(
+      AgeSeries sourceAgeStage) {
     this.sourceAgeStage = sourceAgeStage;
+  }
+
+  public GroupName getSourceGroupName() {
+    return sourceGroupName;
+  }
+
+  public void setSourceGroupName(
+      GroupName sourceGroupName) {
+    this.sourceGroupName = sourceGroupName;
   }
 
   public String getSourceLithology() {
@@ -43,19 +58,38 @@ class SourceAndSealForm implements SubmissionForm {
     this.topSealFormationName = topSealFormationName;
   }
 
-  public String getTopSealAgeStage() {
+  public AgeSeries getTopSealAgeStage() {
     return topSealAgeStage;
   }
 
-  public void setTopSealAgeStage(String topSealAgeStage) {
+  public void setTopSealAgeStage(
+      AgeSeries topSealAgeStage) {
     this.topSealAgeStage = topSealAgeStage;
   }
 
-  public String getTopSealLithology() {
+  public GroupName getTopSealGroupName() {
+    return topSealGroupName;
+  }
+
+  public void setTopSealGroupName(
+      GroupName topSealGroupName) {
+    this.topSealGroupName = topSealGroupName;
+  }
+
+  public TopSealLithology getTopSealLithology() {
     return topSealLithology;
   }
 
-  public void setTopSealLithology(String topSealLithology) {
+  public void setTopSealLithology(
+      TopSealLithology topSealLithology) {
     this.topSealLithology = topSealLithology;
+  }
+
+  public String getTopSealLithologyOther() {
+    return topSealLithologyOther;
+  }
+
+  public void setTopSealLithologyOther(String topSealLithologyOther) {
+    this.topSealLithologyOther = topSealLithologyOther;
   }
 }

@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -82,17 +83,44 @@ public class ReservoirPropertiesSummaryService {
       addDepthToHydrocarbonContact(submissionDetail, listOfSummaryViews);
     }
 
-
     return new ReservoirPropertiesSummaryView(
         submissionDetail.getSubmissionType(),
-        Objects.requireNonNullElse(reservoirProperty.getFormationName(), ""),
-        Objects.requireNonNullElse(reservoirProperty.getAgeStage(), ""),
-        Objects.requireNonNullElse(reservoirProperty.getLithology(), ""),
+        getFormationDisplay(reservoirProperty),
+        getSubUnitDisplay(reservoirProperty),
+        reservoirProperty.getAgeStage() != null ? reservoirProperty.getAgeStage().getDisplayName() : "",
+        reservoirProperty.getGroupName() != null ? reservoirProperty.getGroupName().getDisplayName() : "",
+        getLithologyDisplay(reservoirProperty),
         Objects.requireNonNullElse(reservoirProperty.getReservoirFacies(), ""),
         Objects.requireNonNullElse(reservoirProperty.getReservoirConnectivity(), ""),
         listOfSummaryViews,
         listOfDepthToContactDistributions
     );
+  }
+
+  private String getFormationDisplay(ReservoirProperty reservoirProperty) {
+    String formationName = "";
+    if (reservoirProperty.getFormationName() != null) {
+      formationName = reservoirProperty.getFormationName().getDisplayName();
+    } else if (reservoirProperty.getFormationNameManual() != null) {
+      formationName = reservoirProperty.getFormationNameManual();
+    }
+    return formationName;
+  }
+
+  private String getSubUnitDisplay(ReservoirProperty reservoirProperty) {
+    String subUnit = "";
+    if (reservoirProperty.getSubUnit() != null) {
+      subUnit = reservoirProperty.getSubUnit().getDisplayName();
+    } else if (reservoirProperty.getSubUnitManual() != null) {
+      subUnit = reservoirProperty.getSubUnitManual();
+    }
+    return subUnit;
+  }
+
+  private String getLithologyDisplay(ReservoirProperty reservoirProperty) {
+    var lithology = reservoirProperty.getLithology() != null ? reservoirProperty.getLithology().getDisplayName() : "";
+    var lithologyOther = ObjectUtils.defaultIfNull(reservoirProperty.getLithologyOther(), "");
+    return reservoirProperty.getLithology() == ReservoirLithology.OTHER ? lithologyOther : lithology;
   }
 
   private void addNetPorosity(SubmissionDetail submissionDetail,

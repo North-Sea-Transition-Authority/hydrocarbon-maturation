@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal
 
 import java.util.UUID;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -10,6 +12,9 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
 @Entity
 @Table(name = "source_and_seal_details")
@@ -24,17 +29,34 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
-  private String sourceFormationName;
+  @Enumerated(EnumType.STRING)
+  private Formation sourceFormationName;
 
-  private String sourceAgeStage;
+  private String sourceFormationNameManual;
+
+  @Enumerated(EnumType.STRING)
+  private AgeSeries sourceAgeStage;
+
+  @Enumerated(EnumType.STRING)
+  private GroupName sourceGroupName;
 
   private String sourceLithology;
 
-  private String topSealFormationName;
+  @Enumerated(EnumType.STRING)
+  private Formation topSealFormationName;
 
-  private String topSealAgeStage;
+  private String topSealFormationNameManual;
 
-  private String topSealLithology;
+  @Enumerated(EnumType.STRING)
+  private AgeSeries topSealAgeStage;
+
+  @Enumerated(EnumType.STRING)
+  private GroupName topSealGroupName;
+
+  @Enumerated(EnumType.STRING)
+  private TopSealLithology topSealLithology;
+
+  private String topSealLithologyOther;
 
   public UUID getId() {
     return id;
@@ -52,20 +74,39 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
     this.submissionDetail = submissionDetail;
   }
 
-  public String getSourceFormationName() {
+  public Formation getSourceFormationName() {
     return sourceFormationName;
   }
 
-  public void setSourceFormationName(String sourceFormationName) {
+  public void setSourceFormationName(
+      Formation sourceFormationName) {
     this.sourceFormationName = sourceFormationName;
   }
 
-  public String getSourceAgeStage() {
+  public String getSourceFormationNameManual() {
+    return sourceFormationNameManual;
+  }
+
+  public void setSourceFormationNameManual(String sourceFormationNameManual) {
+    this.sourceFormationNameManual = sourceFormationNameManual;
+  }
+
+  public AgeSeries getSourceAgeStage() {
     return sourceAgeStage;
   }
 
-  public void setSourceAgeStage(String sourceAgeStage) {
+  public void setSourceAgeStage(
+      AgeSeries sourceAgeStage) {
     this.sourceAgeStage = sourceAgeStage;
+  }
+
+  public GroupName getSourceGroupName() {
+    return sourceGroupName;
+  }
+
+  public void setSourceGroupName(
+      GroupName groupName) {
+    this.sourceGroupName = groupName;
   }
 
   public String getSourceLithology() {
@@ -76,27 +117,55 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
     this.sourceLithology = sourceLithology;
   }
 
-  public String getTopSealFormationName() {
+  public Formation getTopSealFormationName() {
     return topSealFormationName;
   }
 
-  public void setTopSealFormationName(String topSealFormationName) {
+  public void setTopSealFormationName(
+      Formation topSealFormationName) {
     this.topSealFormationName = topSealFormationName;
   }
 
-  public String getTopSealAgeStage() {
+  public String getTopSealFormationNameManual() {
+    return topSealFormationNameManual;
+  }
+
+  public void setTopSealFormationNameManual(String topSealFormationNameManual) {
+    this.topSealFormationNameManual = topSealFormationNameManual;
+  }
+
+  public AgeSeries getTopSealAgeStage() {
     return topSealAgeStage;
   }
 
-  public void setTopSealAgeStage(String topSealAgeStage) {
+  public void setTopSealAgeStage(
+      AgeSeries topSealAgeStage) {
     this.topSealAgeStage = topSealAgeStage;
   }
 
-  public String getTopSealLithology() {
+  public GroupName getTopSealGroupName() {
+    return topSealGroupName;
+  }
+
+  public void setTopSealGroupName(
+      GroupName topSealGroupName) {
+    this.topSealGroupName = topSealGroupName;
+  }
+
+  public TopSealLithology getTopSealLithology() {
     return topSealLithology;
   }
 
-  public void setTopSealLithology(String topSealLithology) {
+  public void setTopSealLithology(
+      TopSealLithology topSealLithology) {
     this.topSealLithology = topSealLithology;
+  }
+
+  public String getTopSealLithologyOther() {
+    return topSealLithologyOther;
+  }
+
+  public void setTopSealLithologyOther(String topSealLithologyOther) {
+    this.topSealLithologyOther = topSealLithologyOther;
   }
 }

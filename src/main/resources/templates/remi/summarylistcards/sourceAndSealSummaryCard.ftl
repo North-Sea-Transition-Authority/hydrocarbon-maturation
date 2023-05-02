@@ -9,6 +9,9 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Source age stage or series">
       ${sourceAndSealValues.sourceAgeStage()}
     </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Source group name">
+        ${sourceAndSealValues.sourceGroupName()}
+    </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Source lithology">
       ${sourceAndSealValues.sourceLithology()}
     </@fdsSummaryList.summaryListRowNoAction>
@@ -17,6 +20,9 @@
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Top seal age stage or series">
       ${sourceAndSealValues.sealAgeStage()}
+    </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Top seal group name">
+        ${sourceAndSealValues.sealGroupName()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Top seal lithology">
       ${sourceAndSealValues.sealLithology()}

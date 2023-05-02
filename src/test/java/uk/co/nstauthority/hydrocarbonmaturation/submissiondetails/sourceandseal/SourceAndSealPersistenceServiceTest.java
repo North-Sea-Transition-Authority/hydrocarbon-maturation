@@ -11,7 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
 @ExtendWith(MockitoExtension.class)
 class SourceAndSealPersistenceServiceTest {
@@ -35,32 +39,116 @@ class SourceAndSealPersistenceServiceTest {
   @Test
   void saveSourceAndSealDetails_whenGivenAForm_verifyCreatedEntity() {
     var form = new SourceAndSealForm();
-    form.setSourceFormationName("source formation name");
-    form.setTopSealFormationName("top seal formation name");
-
+    form.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    form.setSourceGroupName(GroupName.BRENT);
+    form.setTopSealAgeStage(AgeSeries.LOWER_CRETACEOUS);
+    form.setTopSealGroupName(GroupName.CLAIR);
+    form.setTopSealLithology(TopSealLithology.OTHER);
+    form.setTopSealLithologyOther("other");
     var sourceAndSealArgumentCaptor = ArgumentCaptor.forClass(SourceAndSeal.class);
 
     sourceAndSealPersistenceService.saveSourceAndSealDetails(form, submissionDetail);
 
     verify(sourceAndSealRepository, times(1)).save(sourceAndSealArgumentCaptor.capture());
-    var savedSourceAndSeal = (SourceAndSeal) sourceAndSealArgumentCaptor.getValue();
+    var savedSourceAndSeal = sourceAndSealArgumentCaptor.getValue();
+
+    assertThat(savedSourceAndSeal)
+        .extracting(
+            SourceAndSeal::getSourceAgeStage,
+            SourceAndSeal::getSourceGroupName,
+            SourceAndSeal::getTopSealAgeStage,
+            SourceAndSeal::getTopSealGroupName,
+            SourceAndSeal::getTopSealLithology,
+            SourceAndSeal::getTopSealLithologyOther
+        )
+        .containsExactly(
+            form.getSourceAgeStage(),
+            form.getSourceGroupName(),
+            form.getTopSealAgeStage(),
+            form.getTopSealGroupName(),
+            form.getTopSealLithology(),
+            form.getTopSealLithologyOther()
+        );
+  }
+
+  @Test
+  void saveSourceAndSealDetails_whenGivenAForm_NoFormationProvided_verifyCreatedEntity() {
+    var form = new SourceAndSealForm();
+    var sourceAndSealArgumentCaptor = ArgumentCaptor.forClass(SourceAndSeal.class);
+
+    sourceAndSealPersistenceService.saveSourceAndSealDetails(form, submissionDetail);
+
+    verify(sourceAndSealRepository, times(1)).save(sourceAndSealArgumentCaptor.capture());
+    var savedSourceAndSeal = sourceAndSealArgumentCaptor.getValue();
 
     assertThat(savedSourceAndSeal)
         .extracting(
             SourceAndSeal::getSourceFormationName,
-            SourceAndSeal::getSourceAgeStage,
-            SourceAndSeal::getSourceLithology,
+            SourceAndSeal::getSourceFormationNameManual,
             SourceAndSeal::getTopSealFormationName,
-            SourceAndSeal::getTopSealAgeStage,
-            SourceAndSeal::getTopSealLithology
+            SourceAndSeal::getTopSealFormationNameManual
         )
         .containsExactly(
-            form.getSourceFormationName(),
-            form.getSourceAgeStage(),
-            form.getSourceLithology(),
-            form.getTopSealFormationName(),
-            form.getTopSealAgeStage(),
-            form.getTopSealLithology()
+            null,
+            null,
+            null,
+            null
+        );
+  }
+
+  @Test
+  void saveSourceAndSealDetails_whenGivenAForm_formationEnumProvided_verifyCreatedEntity() {
+    var form = new SourceAndSealForm();
+    form.setSourceFormationName(Formation.ASGARD.name());
+    form.setTopSealFormationName(Formation.AUK.name());
+    var sourceAndSealArgumentCaptor = ArgumentCaptor.forClass(SourceAndSeal.class);
+
+    sourceAndSealPersistenceService.saveSourceAndSealDetails(form, submissionDetail);
+
+    verify(sourceAndSealRepository, times(1)).save(sourceAndSealArgumentCaptor.capture());
+    var savedSourceAndSeal = sourceAndSealArgumentCaptor.getValue();
+
+    assertThat(savedSourceAndSeal)
+        .extracting(
+            SourceAndSeal::getSourceFormationName,
+            SourceAndSeal::getSourceFormationNameManual,
+            SourceAndSeal::getTopSealFormationName,
+            SourceAndSeal::getTopSealFormationNameManual
+        )
+        .containsExactly(
+            Formation.ASGARD,
+            null,
+            Formation.AUK,
+            null
+        );
+  }
+
+  @Test
+  void saveSourceAndSealDetails_whenGivenAForm_manualProvided_verifyCreatedEntity() {
+    var form = new SourceAndSealForm();
+    var sourceFormation = "source formation";
+    var sealFormation = "seal formation";
+    form.setSourceFormationName(SearchSelectorService.getValueWithManualEntryPrefix(sourceFormation));
+    form.setTopSealFormationName(SearchSelectorService.getValueWithManualEntryPrefix(sealFormation));
+    var sourceAndSealArgumentCaptor = ArgumentCaptor.forClass(SourceAndSeal.class);
+
+    sourceAndSealPersistenceService.saveSourceAndSealDetails(form, submissionDetail);
+
+    verify(sourceAndSealRepository, times(1)).save(sourceAndSealArgumentCaptor.capture());
+    var savedSourceAndSeal = sourceAndSealArgumentCaptor.getValue();
+
+    assertThat(savedSourceAndSeal)
+        .extracting(
+            SourceAndSeal::getSourceFormationName,
+            SourceAndSeal::getSourceFormationNameManual,
+            SourceAndSeal::getTopSealFormationName,
+            SourceAndSeal::getTopSealFormationNameManual
+        )
+        .containsExactly(
+            null,
+            sourceFormation,
+            null,
+            sealFormation
         );
   }
 

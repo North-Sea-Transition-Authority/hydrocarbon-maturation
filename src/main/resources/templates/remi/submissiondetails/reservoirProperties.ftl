@@ -35,9 +35,36 @@
     <@grid.gridRow>
       <@grid.twoThirdsColumn>
         <@fdsFieldset.fieldset>
-            <@fdsTextInput.textInput path="form.formationName" labelText="Formation name"/>
-            <@fdsTextInput.textInput path="form.ageStageOrSeries" labelText="Age stage or series"/>
-            <@fdsTextInput.textInput path="form.lithology" labelText="Lithology"/>
+            <@fdsSearchSelector.searchSelectorRest
+              path="form.formationName"
+              restUrl=springUrl(formationRestEndpoint)
+              labelText="Formation name"
+              preselectedItems=preSelectedFormation!{}
+            />
+            <@fdsSearchSelector.searchSelectorRest
+              path="form.subUnit"
+              restUrl=springUrl(subUnitRestEndpoint)
+              labelText="Member or sub unit"
+              preselectedItems=preSelectedSubUnit!{}
+              optionalLabel=true
+            />
+            <@fdsSearchSelector.searchSelectorEnhanced path="form.ageStageOrSeries" options=ageSeries labelText="Age stage or series"/>
+            <@fdsSearchSelector.searchSelectorEnhanced path="form.groupName" options=groupNames labelText="Group name"/>
+            <@fdsRadio.radioGroup path="form.lithology" labelText="Lithology" hiddenContent=true>
+                <#assign firstItem=true/>
+                <#list lithologyOptions as key, value>
+                    <@fdsRadio.radioItem path="form.lithology" itemMap={key : value} isFirstItem=firstItem>
+                        <#if key == "OTHER">
+                            <@fdsTextInput.textInput
+                            path="form.lithologyOther"
+                            labelText="Provide the other lithology"
+                            nestingPath="form.lithology"
+                            />
+                        </#if>
+                        <#assign firstItem=false/>
+                    </@fdsRadio.radioItem>
+                </#list>
+            </@fdsRadio.radioGroup>
             <#if dryHoleSubmission>
               <#assign optionalFaciesAndConnectivity = true />
             </#if>

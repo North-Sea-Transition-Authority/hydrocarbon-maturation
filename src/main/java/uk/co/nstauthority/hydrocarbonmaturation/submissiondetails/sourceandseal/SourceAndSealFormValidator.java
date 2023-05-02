@@ -21,10 +21,31 @@ class SourceAndSealFormValidator extends PartialFullFormValidator {
 
   @Override
   public void validateFull(SubmissionForm form, Errors errors) {
+    SourceAndSealForm sourceAndSealForm = (SourceAndSealForm) form;
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sourceFormationName", "sourceFormationName.required",
         "Enter a source formation name");
 
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sourceAgeStage", "sourceAgeStage.required",
+        "Enter a source age");
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sourceGroupName", "sourceGroupName.required",
+        "Enter a source group name");
+
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "topSealFormationName", "topSealFormationName.required",
         "Enter a top seal formation name");
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "topSealAgeStage", "topSealAgeStage.required",
+        "Enter a top seal age");
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "topSealGroupName", "topSealGroupName.required",
+        "Enter a top seal group name");
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "topSealLithology", "topSealLithology.required",
+        "Enter a top seal lithology");
+
+    if (sourceAndSealForm.getTopSealLithology() == TopSealLithology.OTHER) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "topSealLithologyOther", "topSealLithologyOther.required",
+          "Enter other top seal lithology");
+    }
   }
 }
