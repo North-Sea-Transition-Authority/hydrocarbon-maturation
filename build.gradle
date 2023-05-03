@@ -69,7 +69,7 @@ dependencies {
 	implementation 'org.jooq:jooq-codegen'
 	implementation 'org.jooq:jooq-meta'
 
-	implementation 'uk.co.fivium.feedbackmanagementservice:client:develop-SNAPSHOT'
+	implementation 'uk.co.fivium.feedbackmanagementservice:client:v2.2.0'
 
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
