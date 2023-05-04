@@ -16,9 +16,7 @@
       </p>
       <@fdsDetails.summaryDetails
         summaryTitle="What information have I been asked to update?">
-        <p class="govuk-body govuk-body__preserve-whitespace">
-          ${updateRequestReason}
-        </p>
+        <p class="govuk-body govuk-body__preserve-whitespace">${updateRequestReason}</p>
       </@fdsDetails.summaryDetails>
     </@fdsStartPage.startPage>
 </@defaultPage>
