@@ -25,6 +25,8 @@ class GisIntegrationTest {
   private ShapefileZipService shapefileZipService;
   @Autowired
   private SupportedCoordinateReferenceSystemService crsService;
+  @Autowired
+  private ShapefileAttributesService shapefileAttributesService;
 
   @Test
   void convertShapeFileAndConvertToGeoJson_ResultShouldMatchPreConvertedGeoJson() throws IOException {
@@ -61,6 +63,19 @@ class GisIntegrationTest {
     assertThat(geometries.getGeometryList()).isNotEmpty();
   }
 
+  @Test
+  void testShapefileDbase() throws IOException {
+    var result = importShapefileDbase();
+
+    assertThat(result.headers())
+        .containsExactly("gid", "id", "objectid", "polygon_id", "resource_i", "pid", "circle", "shape_leng", "shape_area");
+
+    assertThat(result.rows())
+        .containsExactly(
+            List.of("1", "2", "1", "cp53_5_2", "RID0007075", "PID0007075", "0", "0.239981417960000", "0.001359597960000")
+        );
+  }
+
   private ShapefileGeometryLoader importShapefileZip(String shapefileZipResourceLocation) throws IOException {
     try (var shapefileZipStream = ShapefileTestUtils.getFileInputStream(shapefileZipResourceLocation)) {
       try (var zis = new ZipInputStream(shapefileZipStream)) {
@@ -81,6 +96,12 @@ class GisIntegrationTest {
     try (var shapefileProjectStream = ShapefileTestUtils.getFileInputStream(ShapefileTestUtils.SHAPEFILE_PROJECT_RESOURCE_LOCATION)) {
       var wkt = shapefileImportService.importShapefileProjectAsWkt(shapefileProjectStream);
       return crsService.getSpatialReferenceFromWkt(wkt);
+    }
+  }
+
+  private ShapefileAttributes importShapefileDbase() throws IOException {
+    try (var shapefileProjectStream = ShapefileTestUtils.getFileInputStream(ShapefileTestUtils.SHAPEFILE_DBASE_RESOURCE_LOCATION)) {
+      return shapefileAttributesService.getAttributesFromShapefileDbase(shapefileProjectStream);
     }
   }
 }
