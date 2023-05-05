@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -21,9 +22,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -41,7 +47,11 @@ class ViewResourceRecordServiceTest {
   @Mock
   private IndustryTeamMemberService industryTeamMemberService;
   @Mock
+  private ResourceLinkService resourceLinkService;
+  @Mock
   private LicenceQueryService licenceQueryService;
+  @Mock
+  private SubmissionDetailService submissionDetailService;
   @InjectMocks
   private ViewResourceRecordService underTest;
 
@@ -191,6 +201,70 @@ class ViewResourceRecordServiceTest {
 
         assertThat(result).isFalse();
       }
+    }
+  }
+
+  @Nested
+  class WhenCheckingCanViewSelectedSubmissionDetail {
+
+    private SubmissionDetail submissionDetail;
+
+    @BeforeEach
+    void setUp() {
+      submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+      submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    }
+
+    @Test
+    void whenIsSameResourceAndValidStatusAndLatest_assertTrue() {
+      when(resourceLinkService.isResourceLinkedOrSameResource(
+          submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
+          .thenReturn(true);
+      when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+          submissionDetail, Set.of(SubmissionDetailStatus.APPROVED)))
+          .thenReturn(true);
+
+      var result = underTest.canViewSubmissionDetail(
+          submissionDetail, submissionDetail.getSubmission().getResource());
+
+      assertThat(result).isTrue();
+    }
+
+    @Test
+    void whenIsSameResourceAndValidStatusAndNotLatest_assertFalse() {
+      when(resourceLinkService.isResourceLinkedOrSameResource(
+          submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
+          .thenReturn(true);
+      when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+          submissionDetail, Set.of(SubmissionDetailStatus.APPROVED)))
+          .thenReturn(false);
+
+      var result = underTest.canViewSubmissionDetail(
+          submissionDetail, submissionDetail.getSubmission().getResource());
+
+      assertThat(result).isFalse();
+    }
+
+    @Test
+    void whenIsSameResourceAndNotValidStatus_assertFalse() {
+      submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
+
+      var result = underTest.canViewSubmissionDetail(
+          submissionDetail, submissionDetail.getSubmission().getResource());
+
+      assertThat(result).isFalse();
+    }
+
+    @Test
+    void whenIsNotSameResourceOrLinked_assertFalse() {
+      when(resourceLinkService.isResourceLinkedOrSameResource(
+          submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
+          .thenReturn(false);
+
+      var result = underTest.canViewSubmissionDetail(
+          submissionDetail, submissionDetail.getSubmission().getResource());
+
+      assertThat(result).isFalse();
     }
   }
 }

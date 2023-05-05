@@ -86,11 +86,11 @@ public class ViewResourceRecordController {
         .showSubmissionSummary(resourceId, UUID.fromString(form.getSelectedSubmissionId()), null));
   }
 
-  @GetMapping("{submissionDetailId}")
+  @GetMapping("submission-details/{submissionDetailId}")
   public ModelAndView showSubmissionSummary(@PathVariable("resourceId") UUID resourceId,
                                             @PathVariable("submissionDetailId") UUID submissionDetailId,
                                             @ModelAttribute("form") SubmissionSearchSelectorForm form) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var resourceRecord = viewResourceRecordService.getResourceRecordOrThrow(resourceId);
     var userDetail = userDetailService.getUserDetail();
 
@@ -98,8 +98,9 @@ public class ViewResourceRecordController {
       throw new ResponseStatusException(
           HttpStatus.FORBIDDEN, "Resource cannot be viewed by user with ID %s ".formatted(userDetail.wuaId()));
     }
+
     form.setSelectedSubmissionId(submissionDetailId.toString());
-    return getModelAndView(resourceRecord, submissionDetail, userDetail, form, resourceId);
+    return getModelAndView(resourceRecord, selectedSubmissionDetail, userDetail, form, resourceId);
   }
 
   private ModelAndView getModelAndView(ResourceRecordSummaryView resourceRecord,
@@ -107,6 +108,18 @@ public class ViewResourceRecordController {
                                        ServiceUserDetail userDetail,
                                        SubmissionSearchSelectorForm form,
                                        UUID resourceId) {
+    var resource = resourceService.getResourceById(resourceId)
+        .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
+            .formatted(resourceId)));
+
+    if (!viewResourceRecordService.canViewSubmissionDetail(submissionDetailSelected, resource)) {
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          ("You cannot view this %s submission detail due to it being a draft or deleted submission detail " +
+              "or a submission detail not on the same resource")
+              .formatted(submissionDetailSelected.getId()));
+    }
+
     var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
         submissionDetailSelected,
         "remi/systemofrecord/viewResourceRecord"
@@ -118,9 +131,6 @@ public class ViewResourceRecordController {
     var isRegulator = regulatorTeamService.isRegulatorUser(userDetail);
 
     if (isRegulator) {
-      var resource = resourceService.getResourceById(resourceId)
-          .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
-                  .formatted(resourceId)));
       modelAndView
           .addObject("regulatorManagedInformationSummaryView",
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))

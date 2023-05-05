@@ -1,13 +1,19 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -21,18 +27,24 @@ class ViewResourceRecordService {
   private final RegulatorTeamService regulatorTeamService;
   private final IndustryTeamMemberService industryTeamMemberService;
   private final LicenceQueryService licenceQueryService;
+  private final ResourceLinkService resourceLinkService;
+  private final SubmissionDetailService submissionDetailService;
 
   @Autowired
   ViewResourceRecordService(ResourceRecordSummaryQueryService resourceRecordSummaryQueryService,
                             SubmissionDetailDisplayService submissionDetailDisplayService,
                             RegulatorTeamService regulatorTeamService,
                             IndustryTeamMemberService industryTeamMemberService,
-                            LicenceQueryService licenceQueryService) {
+                            LicenceQueryService licenceQueryService,
+                            ResourceLinkService resourceLinkService,
+                            SubmissionDetailService submissionDetailService) {
     this.resourceRecordSummaryQueryService = resourceRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.regulatorTeamService = regulatorTeamService;
     this.industryTeamMemberService = industryTeamMemberService;
     this.licenceQueryService = licenceQueryService;
+    this.resourceLinkService = resourceLinkService;
+    this.submissionDetailService = submissionDetailService;
   }
 
   ResourceRecordSummaryView getResourceRecordOrThrow(UUID resourceId) {
@@ -69,6 +81,16 @@ class ViewResourceRecordService {
 
   private static String getResponsibleTeam(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
     return resourceRecordSummaryQueryResult.getResponsibleTeam().getDisplayName();
+  }
+
+  public boolean canViewSubmissionDetail(SubmissionDetail selectedSubmissionDetail, Resource resource) {
+    //can only view submitted or approved submissions on the same resource, or linked resource
+    //the submission detail to be viewed also has to be the latest approved on submission
+    return selectedSubmissionDetail.getStatus() == SubmissionDetailStatus.APPROVED
+        && resourceLinkService.isResourceLinkedOrSameResource(
+            resource, selectedSubmissionDetail.getSubmission().getResource())
+        && submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+            selectedSubmissionDetail, Set.of(SubmissionDetailStatus.APPROVED));
   }
 
   public boolean canViewResource(ResourceRecordSummaryView resourceRecord, ServiceUserDetail user) {

@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.ModelAndView;
@@ -61,6 +62,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private ResourceService resourceService;
   @MockBean
   private ResourceGroupSummaryService resourceGroupSummaryService;
+
+  @Mock
+  private Resource resource;
 
   private final UUID RESOURCE_ID = UUID.randomUUID();
   private final ResourceRecordSummaryView RESOURCE_RECORD_VIEW = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
@@ -103,8 +107,12 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void showResourceRecord_UserCanViewRecord_assertStatusUnauthorized() throws Exception {
+  void showResourceRecord_UserCanViewRecordAndSubmission_assertIsOk() throws Exception {
     when(viewResourceRecordService.canViewResource(RESOURCE_RECORD_VIEW, USER)).thenReturn(true);
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.of(resource));
+    when(viewResourceRecordService.canViewSubmissionDetail(SUBMISSION_DETAIL, resource))
+        .thenReturn(true);
     mockModelAndViewCreation(SUBMISSION_DETAIL);
     mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)))
@@ -120,6 +128,10 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var otherSubmissionOnResource = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
     when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionOnResource.getId()))
         .thenReturn(otherSubmissionOnResource);
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.of(resource));
+    when(viewResourceRecordService.canViewSubmissionDetail(otherSubmissionOnResource, resource))
+        .thenReturn(true);
     mockModelAndViewCreation(otherSubmissionOnResource);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -160,6 +172,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     resource.setId(RESOURCE_ID);
     when(resourceService.getResourceById(RESOURCE_ID))
         .thenReturn(Optional.of(resource));
+    when(viewResourceRecordService.canViewSubmissionDetail(SUBMISSION_DETAIL, resource))
+        .thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)))
                 .with(user(USER)))
@@ -198,6 +212,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     resource.setId(RESOURCE_ID);
     when(resourceService.getResourceById(RESOURCE_ID))
         .thenReturn(Optional.of(resource));
+    when(viewResourceRecordService.canViewSubmissionDetail(SUBMISSION_DETAIL, resource))
+        .thenReturn(true);
     var resourceGroupSummary = new ResourceGroupSummaryView(List.of(), ResourceType.DISCOVERY, "");
     when(resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
         .thenReturn(resourceGroupSummary);
@@ -240,6 +256,26 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionId))
         .thenReturn(otherSubmissionDetail);
     when(viewResourceRecordService.canViewResource(any(), eq(USER)))
+        .thenReturn(false);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ViewResourceRecordController.class)
+                .showSubmissionSummary(RESOURCE_ID, otherSubmissionId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void showSubmissionSummary_whenCannotViewSelectedSubmission_assertForbidden() throws Exception{
+    var otherSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var otherSubmissionId = UUID.randomUUID();
+    mockModelAndViewCreation(otherSubmissionDetail);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionId))
+        .thenReturn(otherSubmissionDetail);
+    when(viewResourceRecordService.canViewResource(any(), eq(USER)))
+        .thenReturn(true);
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.of(resource));
+    when(viewResourceRecordService.canViewSubmissionDetail(otherSubmissionDetail, resource))
         .thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class)

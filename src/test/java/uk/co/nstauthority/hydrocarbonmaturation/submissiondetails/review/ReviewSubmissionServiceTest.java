@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -59,6 +61,9 @@ class ReviewSubmissionServiceTest {
 
   @Mock
   private SubmissionUpdateService submissionUpdateService;
+
+  @Mock
+  private ResourceLinkService resourceLinkService;
 
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
@@ -336,6 +341,65 @@ class ReviewSubmissionServiceTest {
   }
 
   @Nested
+  class WhenCheckingCanViewSelectedSubmissionDetail {
+
+    @Test
+    void whenIsSameResourceAndValidStatusAndLatest_assertTrue() {
+      submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+      when(resourceLinkService.isResourceLinkedOrSameResource(
+          submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
+          .thenReturn(true);
+      when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+          submissionDetail, Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+          .thenReturn(true);
+
+      var result = reviewSubmissionService.canViewSelectedSubmissionDetail(
+          submissionDetail, submissionDetail.getSubmission().getResource());
+
+      assertThat(result).isTrue();
+    }
+
+    @Test
+    void whenIsSameResourceAndValidStatusAndNotLatest_assertFalse() {
+      submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+      when(resourceLinkService.isResourceLinkedOrSameResource(
+          submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
+          .thenReturn(true);
+      when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+          submissionDetail, Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+          .thenReturn(false);
+
+      var result = reviewSubmissionService.canViewSelectedSubmissionDetail(
+          submissionDetail, submissionDetail.getSubmission().getResource());
+
+      assertThat(result).isFalse();
+    }
+
+    @Test
+    void whenIsSameResourceAndNotValidStatus_assertFalse() {
+      submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
+
+      var result = reviewSubmissionService.canViewSelectedSubmissionDetail(
+          submissionDetail, submissionDetail.getSubmission().getResource());
+
+      assertThat(result).isFalse();
+    }
+
+    @Test
+    void whenIsNotSameResourceOrLinked_assertFalse() {
+      submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+      when(resourceLinkService.isResourceLinkedOrSameResource(
+          submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
+          .thenReturn(false);
+
+      var result = reviewSubmissionService.canViewSelectedSubmissionDetail(
+          submissionDetail, submissionDetail.getSubmission().getResource());
+
+      assertThat(result).isFalse();
+    }
+  }
+
+  @Nested
   class WhenCheckingIfCanUpdateSubmission {
     private static final Integer ORGANISATION_UNIT_ID = 1;
     private static final Integer LATEST_APPROVED_ORG_UNIT_ID = 5;
@@ -446,6 +510,4 @@ class ReviewSubmissionServiceTest {
       assertThat(result).isFalse();
     }
   }
-
-
 }

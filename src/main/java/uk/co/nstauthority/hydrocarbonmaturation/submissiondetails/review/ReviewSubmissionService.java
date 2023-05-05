@@ -2,10 +2,13 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -30,6 +33,7 @@ public class ReviewSubmissionService {
   private final SubmissionDetailService submissionDetailService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final SubmissionUpdateService submissionUpdateService;
+  private final ResourceLinkService resourceLinkService;
 
   @Autowired
   ReviewSubmissionService(SubmissionRecordSummaryQueryService submissionRecordSummaryQueryService,
@@ -38,7 +42,8 @@ public class ReviewSubmissionService {
                           IndustryTeamMemberService industryTeamMemberService,
                           SubmissionDetailService submissionDetailService,
                           ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                          SubmissionUpdateService submissionUpdateService) {
+                          SubmissionUpdateService submissionUpdateService,
+                          ResourceLinkService resourceLinkService) {
     this.submissionRecordSummaryQueryService = submissionRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.regulatorTeamService = regulatorTeamService;
@@ -46,6 +51,7 @@ public class ReviewSubmissionService {
     this.submissionDetailService = submissionDetailService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionUpdateService = submissionUpdateService;
+    this.resourceLinkService = resourceLinkService;
   }
 
   public SubmissionRecordSummaryView getSubmissionRecordOrThrow(UUID resourceId) {
@@ -115,6 +121,16 @@ public class ReviewSubmissionService {
 
   boolean hasUpdateBeenRequestedOnSubmission(Submission submission) {
     return submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submission);
+  }
+
+  boolean canViewSelectedSubmissionDetail(SubmissionDetail selectedSubmissionDetail, Resource currentResource) {
+    //can only view submitted or approved submissions on the same resource, or linked resource
+    //the submission detail to be viewed also has to be the latest update on submission
+    return selectedSubmissionDetail.isApprovedOrSubmittedSubmission()
+        && resourceLinkService.isResourceLinkedOrSameResource(
+            currentResource, selectedSubmissionDetail.getSubmission().getResource())
+        && submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+            selectedSubmissionDetail, Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED));
   }
 
   Optional<SubmissionDetail> getUpdateSubmissionDetailBySubmission(Submission submission) {

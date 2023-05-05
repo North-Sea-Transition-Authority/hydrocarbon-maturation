@@ -87,7 +87,7 @@ public class ReviewSubmissionController {
     return getModelAndView(submissionRecord, userDetail, submissionDetail, form, resourceId);
   }
 
-  @GetMapping("/{submissionDetailId}")
+  @GetMapping("submission-details/{submissionDetailId}")
   public ModelAndView showSubmissionSummary(@PathVariable("resourceId") UUID resourceId,
                                             @PathVariable("submissionDetailId") UUID submissionDetailId,
                                             @ModelAttribute("form") SubmissionSearchSelectorForm form) {
@@ -95,6 +95,15 @@ public class ReviewSubmissionController {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource with id %s"
             .formatted(resourceId)));
+
+    if (!reviewSubmissionService.canViewSelectedSubmissionDetail(selectedSubmission, resource)) {
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          ("You cannot view this %s submission detail due to it being a draft or deleted submission detail " +
+              "or a submission detail not on the same resource")
+              .formatted(submissionDetailId));
+    }
+
     var latestSubmission = submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource)
         .orElseThrow(() ->
             new RemiEntityNotFoundException("Could not find latest submitted or approved submission for resource %s"

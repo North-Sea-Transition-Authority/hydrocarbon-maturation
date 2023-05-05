@@ -7,6 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedExcept
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -18,17 +19,20 @@ public class SubmissionApprovalService {
   private final UserDetailService userDetailService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionEmailService submissionEmailService;
+  private final SubmissionUpdateService submissionUpdateService;
 
   public SubmissionApprovalService(SubmissionDetailPersistenceService submissionDetailPersistenceService,
                                    RegulatorTeamService regulatorTeamService,
                                    UserDetailService userDetailService,
                                    RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
-                                   SubmissionEmailService submissionEmailService) {
+                                   SubmissionEmailService submissionEmailService,
+                                   SubmissionUpdateService submissionUpdateService) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionEmailService = submissionEmailService;
+    this.submissionUpdateService = submissionUpdateService;
   }
 
   @Transactional
@@ -59,7 +63,8 @@ public class SubmissionApprovalService {
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
     return responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION
         && regulatorTeamService.isRegulatorTeamRole(
-            userDetailService.getUserDetail(), RegulatorTeamRole.EXPLORATION);
+            userDetailService.getUserDetail(), RegulatorTeamRole.EXPLORATION)
+        && !submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission());
   }
 
   private boolean canAutoApproveSubmission() {

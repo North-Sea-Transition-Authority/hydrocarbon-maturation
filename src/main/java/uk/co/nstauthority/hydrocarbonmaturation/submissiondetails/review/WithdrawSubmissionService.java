@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -23,6 +24,7 @@ class WithdrawSubmissionService {
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionEmailService submissionEmailService;
   private final WithdrawSubmissionFormValidator withdrawSubmissionFormValidator;
+  private final SubmissionUpdateService submissionUpdateService;
 
   @Autowired
   public WithdrawSubmissionService(SubmissionDetailPersistenceService submissionDetailPersistenceService,
@@ -30,13 +32,15 @@ class WithdrawSubmissionService {
                                    UserDetailService userDetailService,
                                    RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                                    SubmissionEmailService submissionEmailService,
-                                   WithdrawSubmissionFormValidator withdrawSubmissionFormValidator) {
+                                   WithdrawSubmissionFormValidator withdrawSubmissionFormValidator,
+                                   SubmissionUpdateService submissionUpdateService) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionEmailService = submissionEmailService;
     this.withdrawSubmissionFormValidator = withdrawSubmissionFormValidator;
+    this.submissionUpdateService = submissionUpdateService;
   }
 
   BindingResult validate(BindingResult bindingResult, WithdrawSubmissionForm form) {
@@ -64,6 +68,7 @@ class WithdrawSubmissionService {
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
     return responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION
         && regulatorTeamService.isRegulatorTeamRole(
-        userDetailService.getUserDetail(), RegulatorTeamRole.EXPLORATION);
+        userDetailService.getUserDetail(), RegulatorTeamRole.EXPLORATION)
+        && !submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission());
   }
 }

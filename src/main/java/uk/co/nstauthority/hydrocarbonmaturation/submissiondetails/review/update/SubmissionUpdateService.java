@@ -49,5 +49,4 @@ public class SubmissionUpdateService {
     return hasAnUnresolvedUpdateOnSubmission(submission)
         && submissionUpdatePersistenceService.getDraftUpdateSubmissionDetail(submission).isEmpty();
   }
-
 }

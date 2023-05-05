@@ -45,6 +45,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.RequestUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.StartUpdateController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySearchSelectorModelService;
@@ -67,6 +68,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   @MockBean
   private ResourceService resourceService;
+  @MockBean
+  private SubmissionUpdateService submissionUpdateService;
   @MockBean
   private ResourceGroupSummaryService resourceGroupSummaryService;
 
@@ -136,6 +139,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         .thenReturn(true);
     when(reviewSubmissionService.canUpdateSubmission(SUBMISSION_RECORD_VIEW, USER, otherSubmissionOnResource))
         .thenReturn(true);
+    when(reviewSubmissionService.canViewSelectedSubmissionDetail(otherSubmissionOnResource, resource))
+        .thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class)
                 .showSubmissionSummary(RESOURCE_ID, otherSubmissionOnResource.getId(), null)))
@@ -166,6 +171,26 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
             WorkAreaController.WORK_AREA_TITLE)
     );
+  }
+
+  @SecurityTest
+  void showSubmissionSummary_whenCannotViewSelectedSubmissionDetail_assertForbidden() throws Exception {
+    var otherSubmissionOnResource = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    otherSubmissionOnResource.setStatus(SubmissionDetailStatus.SUBMITTED);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionOnResource.getId()))
+        .thenReturn(otherSubmissionOnResource);
+    var resource = new Resource();
+    resource.setId(RESOURCE_ID);
+    when(resourceService.getResourceById(RESOURCE_ID))
+        .thenReturn(Optional.of(resource));
+    when(reviewSubmissionService.canViewSelectedSubmissionDetail(otherSubmissionOnResource, resource))
+        .thenReturn(false);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class)
+                .showSubmissionSummary(RESOURCE_ID, otherSubmissionOnResource.getId(), null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -299,13 +324,18 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   @Test
   void showSubmissionSummary_whenNoLatestApprovedOrSubmittedSubmission_assertIsNotFound() throws Exception {
     var resource = mock(Resource.class);
+    var submissionDetailId = UUID.randomUUID();
     when(resourceService.getResourceById(RESOURCE_ID))
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.empty());
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
+        .thenReturn(submissionDetail);
+    when(reviewSubmissionService.canViewSelectedSubmissionDetail(submissionDetail, resource))
+        .thenReturn(true);
     mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showSubmissionSummary(RESOURCE_ID, UUID.randomUUID(), null)))
+                .showSubmissionSummary(RESOURCE_ID, submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isNotFound());
   }

@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -39,6 +40,8 @@ class SubmissionApprovalServiceTest {
   private UserDetailService userDetailService;
   @Mock
   private SubmissionEmailService submissionEmailService;
+  @Mock
+  private SubmissionUpdateService submissionUpdateService;
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @InjectMocks
@@ -139,6 +142,21 @@ class SubmissionApprovalServiceTest {
           .thenReturn(responsibleTeam);
       when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION)).thenReturn(false);
 
+      assertThat(underTest.canApproveSubmission(submissionDetail)).isFalse();
+    }
+
+    @Test
+    void canApproveSubmission_whenRegulator_inResponsibleTeam_hasUnresolvedUpdate_assertFalse() {
+      when(userDetailService.getUserDetail()).thenReturn(USER);
+
+      var responsibleTeam = new RegulatorManagedInformation();
+      responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+
+      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+          .thenReturn(responsibleTeam);
+      when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION)).thenReturn(true);
+      when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
+          .thenReturn(true);
       assertThat(underTest.canApproveSubmission(submissionDetail)).isFalse();
     }
 

@@ -12,10 +12,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -195,5 +198,42 @@ class SubmissionDetailServiceTest {
 
     assertThat(submissionDetailService.getSubmissionDetailsBySubmission(submission))
         .isEqualTo(expectedList);
+  }
+
+  @ParameterizedTest
+  @EnumSource(SubmissionDetailStatus.class)
+  void isLatestSubmissionDetailForSubmissionWithStatuses_whenStatus_assertReturn(SubmissionDetailStatus status) {
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+        submissionDetail.getSubmission(), Set.of(status)))
+        .thenReturn(Optional.of(submissionDetail));
+
+    var result = submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+        submissionDetail, Set.of(status));
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void isLatestSubmissionDetailForSubmissionWithStatuses_whenNotFoundDetail_assertFalse() {
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+        submissionDetail.getSubmission(), Set.of(SubmissionDetailStatus.SUBMITTED)))
+        .thenReturn(Optional.empty());
+
+    var result = submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+        submissionDetail, Set.of(SubmissionDetailStatus.SUBMITTED));
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void isLatestSubmissionDetailForSubmissionWithStatuses_whenFoundDifferentDetail_assertFalse() {
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+        submissionDetail.getSubmission(), Set.of(SubmissionDetailStatus.SUBMITTED)))
+        .thenReturn(Optional.of(SubmissionDetailTestUtils.createNewProspectSubmissionDetail()));
+
+    var result = submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+        submissionDetail, Set.of(SubmissionDetailStatus.SUBMITTED));
+
+    assertThat(result).isFalse();
   }
 }

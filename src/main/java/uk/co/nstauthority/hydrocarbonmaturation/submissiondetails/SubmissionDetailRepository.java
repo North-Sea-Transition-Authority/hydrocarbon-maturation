@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -25,4 +26,7 @@ interface SubmissionDetailRepository extends CrudRepository<SubmissionDetail, UU
       List<Submission> submissions, List<SubmissionDetailStatus> statuses);
 
   List<SubmissionDetail> findAllBySubmission(Submission submission);
+
+  Optional<SubmissionDetail> findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+      Submission submission, Set<SubmissionDetailStatus> statuses);
 }

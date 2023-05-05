@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -119,6 +120,14 @@ public class SubmissionDetailService {
       case CREATE_PROSPECT, CREATE_DISCOVERY ->
           Optional.of(submissionDetail);
     };
+  }
+
+  public boolean isLatestSubmissionDetailForSubmissionWithStatuses(
+      SubmissionDetail submissionDetail, Set<SubmissionDetailStatus> statuses) {
+    return submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+        submissionDetail.getSubmission(), statuses)
+        .map(foundSubmissionDetail -> foundSubmissionDetail.getId().equals(submissionDetail.getId()))
+        .orElse(false);
   }
 
   public List<SubmissionDetail> getSubmissionDetailsBySubmission(Submission submission) {
