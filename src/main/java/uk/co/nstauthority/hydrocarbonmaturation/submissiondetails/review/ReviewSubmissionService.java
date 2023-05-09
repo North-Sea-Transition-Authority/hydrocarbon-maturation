@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
@@ -121,6 +122,10 @@ public class ReviewSubmissionService {
 
   boolean hasUpdateBeenRequestedOnSubmission(Submission submission) {
     return submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submission);
+  }
+
+  Optional<SubmissionUpdate> getLatestUnresolvedSubmissionUpdateBySubmission(Submission submission) {
+    return submissionUpdateService.getLatestUnresolvedUpdateOnSubmission(submission);
   }
 
   boolean canViewSelectedSubmissionDetail(SubmissionDetail selectedSubmissionDetail, Resource currentResource) {

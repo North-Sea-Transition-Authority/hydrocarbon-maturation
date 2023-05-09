@@ -71,7 +71,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn("resource name");
     when(submissionUpdatePersistenceService
-        .getUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
+        .getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
         .thenReturn(Optional.of(submissionUpdate));
     mockMvc.perform(
             get(ReverseRouter.route(on(StartUpdateController.class).showStartUpdatePage(SUBMISSION_DETAIL_ID)))
@@ -108,7 +108,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn(submissionDetail);
     when(submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(true);
-    when(submissionUpdatePersistenceService.getUnresolvedSubmissionUpdateBySubmission(
+    when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(
         submissionDetail.getSubmission()))
         .thenReturn(Optional.empty());
     mockMvc.perform(
@@ -127,7 +127,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
     submissionUpdate.setReason(expectedReason);
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn("resource name");
-    when(submissionUpdatePersistenceService.getUnresolvedSubmissionUpdateBySubmission(
+    when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(
         submissionDetail.getSubmission()))
         .thenReturn(Optional.of(submissionUpdate));
     var modelMap  = Objects.requireNonNull(mockMvc.perform(

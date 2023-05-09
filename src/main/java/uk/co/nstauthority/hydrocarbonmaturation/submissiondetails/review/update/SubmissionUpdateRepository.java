@@ -11,7 +11,5 @@ interface SubmissionUpdateRepository extends CrudRepository<SubmissionUpdate, UU
 
   boolean existsBySubmissionAndResolvedFalse(Submission submission);
 
-  Optional<SubmissionUpdate> findFirstBySubmissionAndResolvedFalse(Submission submission);
-
-  Optional<SubmissionUpdate> findFirstBySubmissionOrderByRequestedTimestampDesc(Submission submission);
+  Optional<SubmissionUpdate> findFirstBySubmissionAndResolvedFalseOrderByRequestedTimestampDesc(Submission submission);
 }

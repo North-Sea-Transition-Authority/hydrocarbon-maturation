@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,7 +35,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
@@ -508,6 +511,44 @@ class ReviewSubmissionServiceTest {
       var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
 
       assertThat(result).isFalse();
+    }
+  }
+
+  @Nested
+  class WhenPassingSubmission {
+
+    @Mock
+    private Submission submission;
+
+    @Test
+    void getSubmissionUpdateBySubmission_assertReturn() {
+      var submissionUpdate = mock(SubmissionUpdate.class);
+      when(submissionUpdateService.getLatestUnresolvedUpdateOnSubmission(submission))
+          .thenReturn(Optional.of(submissionUpdate));
+
+      assertThat(reviewSubmissionService.getLatestUnresolvedSubmissionUpdateBySubmission(submission))
+          .contains(submissionUpdate);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void hasUpdateBeenRequestedOnSubmission_assertResult(boolean updateRequested) {
+      when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submission))
+          .thenReturn(updateRequested);
+
+      assertThat(reviewSubmissionService.hasUpdateBeenRequestedOnSubmission(submission))
+          .isEqualTo(updateRequested);
+    }
+
+    @Test
+    void getUpdateSubmissionDetailBySubmission_assertReturn() {
+      var submissionDetail = mock(SubmissionDetail.class);
+
+      when(submissionUpdateService.getDraftUpdateSubmissionDetailBySubmission(submission))
+          .thenReturn(Optional.of(submissionDetail));
+
+      assertThat(reviewSubmissionService.getUpdateSubmissionDetailBySubmission(submission))
+          .contains(submissionDetail);
     }
   }
 }

@@ -3,6 +3,7 @@
 <#import '../submissiondetails/summary/_submissionSummary.ftl' as submissionSummary>
 <#import '../systemofrecord/submissionHistorySearchSelector.ftl' as submissionSelector>
 <#import '../summarylistcards/regulatorManagedInformationSummaryCard.ftl' as regulatorManagedInformationSummary>
+<#import '../review/updateSummaryDetails.ftl' as updateSummaryDetails>
 
 <#-- @ftlvariable name="submissionType" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType" -->
 <#-- @ftlvariable name="submissionRecord" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.SubmissionRecordSummaryView" -->
@@ -18,6 +19,7 @@
 <#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
 <#-- @ftlvariable name="resourceType" type="String"-->
 <#-- @ftlvariable name="updateSubmissionUrl" type="String"-->
+<#-- @ftlvariable name="submissionUpdateReason" type="String"-->
 <#-- @ftlvariable name="updateRequested" type="boolean"-->
 <#-- @ftlvariable name="isIndustrySubmitter" type="boolean"-->
 <#-- @ftlvariable name="isRegulator" type="boolean"-->
@@ -46,6 +48,16 @@
       </#assign>
       <@fdsDataItems.dataValues key="Licenses" value="${licencesDisplay}"/>
   </@fdsDataItems.dataItem>
+    <#if updateRequested>
+      <#assign submissionUpdateDetails>
+        <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
+      </#assign>
+      <@fdsNotificationBanner.notificationBannerInfo bannerTitleText="An update has been requested on this submission">
+        <@fdsNotificationBanner.notificationBannerContent
+          headingText="Update your submission to provide the information requested."
+          moreContent=submissionUpdateDetails/>
+      </@fdsNotificationBanner.notificationBannerInfo>
+    </#if>
     <#if updateRequested && isIndustrySubmitter>
       <@fdsAction.buttonGroup>
         <@fdsAction.link linkText="Update submission" linkClass="govuk-button" linkUrl=springUrl(updateSubmissionUrl)/>

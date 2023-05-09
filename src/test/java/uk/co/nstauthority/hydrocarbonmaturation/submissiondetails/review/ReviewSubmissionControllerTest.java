@@ -45,6 +45,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.RequestUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.StartUpdateController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -57,6 +58,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 class ReviewSubmissionControllerTest extends AbstractControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final String SUBMISSION_UPDATE_REASON = "reason for update";
 
   @MockBean
   private ReviewSubmissionService reviewSubmissionService;
@@ -117,7 +119,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  void showSubmissionSummary_assertModelProperties() throws Exception {
+  void showSubmissionSummary_whenSubmissionUpdateUnresolved_assertModelProperties() throws Exception {
     var otherSubmissionOnResource = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
     otherSubmissionOnResource.setStatus(SubmissionDetailStatus.SUBMITTED);
     mockModelAndViewCreation(otherSubmissionOnResource);
@@ -133,6 +135,11 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     var latestSubmission = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(latestSubmission));
+    var submissionUpdate = new SubmissionUpdate();
+    submissionUpdate.setResolved(false);
+    submissionUpdate.setReason(SUBMISSION_UPDATE_REASON);
+    when(reviewSubmissionService.getLatestUnresolvedSubmissionUpdateBySubmission(otherSubmissionOnResource.getSubmission()))
+        .thenReturn(Optional.of(submissionUpdate));
     when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, latestSubmission))
         .thenReturn(true);
     when(reviewSubmissionService.hasUpdateBeenRequestedOnSubmission(otherSubmissionOnResource.getSubmission()))
@@ -162,6 +169,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
                 .showStartUpdatePage(otherSubmissionOnResource.getId()))),
             entry("updateStarted", false),
             entry("updateRequested", true),
+            entry("submissionUpdateReason", SUBMISSION_UPDATE_REASON),
             entry("isIndustrySubmitter", true)
         );
 
@@ -289,6 +297,28 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
             WorkAreaController.WORK_AREA_TITLE)
     );
+  }
+
+  @Test
+  void showSubmissionModelAndView_whenSubmissionUpdateRequested_assertUpdateModelProperties() throws Exception {
+    when(reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD_VIEW, USER, submissionDetail)).thenReturn(true);
+    mockModelAndViewCreation(submissionDetail);
+    var submissionUpdate = new SubmissionUpdate();
+    submissionUpdate.setReason(SUBMISSION_UPDATE_REASON);
+    when(reviewSubmissionService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
+        .thenReturn(Optional.of(submissionUpdate));
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(RESOURCE_ID)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("updateRequested", true),
+            entry("submissionUpdateReason", SUBMISSION_UPDATE_REASON),
+            entry("isIndustrySubmitter", false)
+        );
   }
 
   @Test

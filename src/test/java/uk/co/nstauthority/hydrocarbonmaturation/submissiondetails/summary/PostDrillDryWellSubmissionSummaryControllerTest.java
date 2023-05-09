@@ -216,6 +216,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
         .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
         .addObject("submittable", true)
+        .addObject("isSubmissionUpdate", false)
         .addObject("accordionId", submissionDetail.getId());
     when(submissionSummaryModelService.createPostDrillDryWellSubmissionSummaryModelAndView(
         submissionDetail,

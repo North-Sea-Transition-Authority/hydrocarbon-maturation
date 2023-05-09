@@ -104,16 +104,16 @@ class SubmissionUpdatePersistenceServiceTest {
 
     @Test
     void verifyMethodCalls() {
-      underTest.getLatestSubmissionUpdateBySubmission(submission);
+      underTest.getLatestUnresolvedSubmissionUpdateBySubmission(submission);
       verify(submissionUpdateRepository, times(1))
-          .findFirstBySubmissionOrderByRequestedTimestampDesc(submission);
+          .findFirstBySubmissionAndResolvedFalseOrderByRequestedTimestampDesc(submission);
     }
 
     @Test
     void assertReturn() {
-      when(submissionUpdateRepository.findFirstBySubmissionOrderByRequestedTimestampDesc(submission))
+      when(submissionUpdateRepository.findFirstBySubmissionAndResolvedFalseOrderByRequestedTimestampDesc(submission))
           .thenReturn(Optional.of(submissionUpdate));
-      var result = underTest.getLatestSubmissionUpdateBySubmission(submission);
+      var result = underTest.getLatestUnresolvedSubmissionUpdateBySubmission(submission);
       assertThat(result).contains(submissionUpdate);
     }
   }
@@ -129,18 +129,10 @@ class SubmissionUpdatePersistenceServiceTest {
 
     @Test
     void getLatestSubmissionUpdateForSubmission() {
-      when(submissionUpdateRepository.findFirstBySubmissionOrderByRequestedTimestampDesc(submission))
+      when(submissionUpdateRepository.findFirstBySubmissionAndResolvedFalseOrderByRequestedTimestampDesc(submission))
           .thenReturn(Optional.of(submissionUpdate));
 
-      assertThat(underTest.getLatestSubmissionUpdateBySubmission(submission)).contains(submissionUpdate);
-    }
-
-    @Test
-    void getUnresolvedSubmissionUpdateBySubmissionDetail() {
-      when(submissionUpdateRepository.findFirstBySubmissionAndResolvedFalse(submission))
-          .thenReturn(Optional.of(submissionUpdate));
-
-      assertThat(underTest.getUnresolvedSubmissionUpdateBySubmission(submission)).contains(submissionUpdate);
+      assertThat(underTest.getLatestUnresolvedSubmissionUpdateBySubmission(submission)).contains(submissionUpdate);
     }
   }
 

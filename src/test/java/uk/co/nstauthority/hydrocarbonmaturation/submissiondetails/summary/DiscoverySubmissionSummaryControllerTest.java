@@ -262,6 +262,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .addObject("oilOnlyDiscovery", false)
         .addObject("mixedDiscovery", false)
         .addObject("submittable", true)
+        .addObject("isSubmissionUpdate", false)
         .addObject("accordionId", submissionDetail.getId());
     when(submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(
         submissionDetail, VIEW_NAME)

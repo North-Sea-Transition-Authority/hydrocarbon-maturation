@@ -1,5 +1,6 @@
 <#include '../../layout/layout.ftl'>
 <#import '../../tasklist/standardTaskList.ftl' as taskList>
+<#import '../../review/updateSummaryDetails.ftl' as updateSummaryDetails>
 
 <#-- @ftlvariable name="taskListSections" type="java.util.List<uk.co.nstauthority.offshoresafetydirective.tasklist.TaskListSectionView>" -->
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
@@ -12,8 +13,11 @@
   pageHeading=submissionTypeName
   pageSize=PageSize.TWO_THIRDS_COLUMN
   breadcrumbsMap=breadcrumbsMap
-  caption=resourceName
->
+  caption=resourceName>
+
+  <#if isSubmissionUpdate>
+    <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
+  </#if>
 
   <@fdsAction.link
     linkText="Delete submission"

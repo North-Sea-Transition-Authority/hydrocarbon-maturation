@@ -6,6 +6,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 
 @Service
 public class SubmissionSummaryModelService {
@@ -14,18 +15,21 @@ public class SubmissionSummaryModelService {
   private final DiscoverySummaryService discoverySummaryService;
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
   private final PostDrillDryWellSummaryService postDrillDryWellSummaryService;
+  private final SubmissionUpdateService submissionUpdateService;
 
   @Autowired
   SubmissionSummaryModelService(ProspectSummaryService prospectSummaryService,
                                 HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
                                 DiscoverySummaryService discoverySummaryService,
                                 DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
-                                PostDrillDryWellSummaryService postDrillDryWellSummaryService) {
+                                PostDrillDryWellSummaryService postDrillDryWellSummaryService,
+                                SubmissionUpdateService submissionUpdateService) {
     this.prospectSummaryService = prospectSummaryService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
     this.discoverySummaryService = discoverySummaryService;
     this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
     this.postDrillDryWellSummaryService = postDrillDryWellSummaryService;
+    this.submissionUpdateService = submissionUpdateService;
   }
 
   public ModelAndView createSummaryForSubmissionTypeToModelAndView(SubmissionDetail submissionDetail, String viewName) {
@@ -176,5 +180,11 @@ public class SubmissionSummaryModelService {
   private void addCommonAttributes(SubmissionDetail submissionDetail, ModelAndView modelAndView) {
     modelAndView
         .addObject("accordionId", submissionDetail.getId());
+
+    var submissionUpdateOpt = submissionUpdateService.getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail);
+    submissionUpdateOpt.ifPresent(submissionUpdate ->
+        modelAndView
+            .addObject("submissionUpdateReason", submissionUpdate.getReason()));
+    modelAndView.addObject("isSubmissionUpdate", submissionUpdateOpt.isPresent());
   }
 }

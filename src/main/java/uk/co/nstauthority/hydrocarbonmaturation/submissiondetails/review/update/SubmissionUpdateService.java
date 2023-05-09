@@ -27,9 +27,23 @@ public class SubmissionUpdateService {
       return false;
     }
 
-    return submissionUpdatePersistenceService.getLatestSubmissionUpdateBySubmission(submissionDetail.getSubmission())
+    return submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())
         .map(submissionUpdate -> BooleanUtils.isTrue(submissionUpdate.getResolved()))
         .orElse(true);
+  }
+
+  public Optional<SubmissionUpdate> getLatestUnresolvedUpdateOnSubmission(Submission submission) {
+    return submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submission);
+  }
+
+  public Optional<SubmissionUpdate> getLatestUnresolvedUpdateForUpdateSubmissionDetail(
+      SubmissionDetail submissionDetail) {
+    if (submissionDetail.getVersionNumber() > 1) {
+      return submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(
+          submissionDetail.getSubmission());
+    } else {
+      return Optional.empty();
+    }
   }
 
   public boolean hasAnUnresolvedUpdateOnSubmission(Submission submission) {
@@ -42,7 +56,7 @@ public class SubmissionUpdateService {
 
   public void resolveUpdateOnSubmission(SubmissionDetail submissionDetail) {
     var submissionUpdate =
-        submissionUpdatePersistenceService.getUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())
+        submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())
             .orElseThrow(() -> new IllegalArgumentException("Could not find an unresolved update on submission %s"
                 .formatted(submissionDetail.getSubmission().getId())));
 
@@ -58,4 +72,6 @@ public class SubmissionUpdateService {
     return hasAnUnresolvedUpdateOnSubmission(submission)
         && submissionUpdatePersistenceService.getDraftUpdateSubmissionDetail(submission).isEmpty();
   }
+
+
 }

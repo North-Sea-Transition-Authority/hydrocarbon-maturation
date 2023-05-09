@@ -50,12 +50,8 @@ class SubmissionUpdatePersistenceService {
     submissionEmailService.sendReturnedForUpdateEmails(submissionDetail);
   }
 
-  Optional<SubmissionUpdate> getUnresolvedSubmissionUpdateBySubmission(Submission submission) {
-    return submissionUpdateRepository.findFirstBySubmissionAndResolvedFalse(submission);
-  }
-
-  Optional<SubmissionUpdate> getLatestSubmissionUpdateBySubmission(Submission submission) {
-    return submissionUpdateRepository.findFirstBySubmissionOrderByRequestedTimestampDesc(submission);
+  Optional<SubmissionUpdate> getLatestUnresolvedSubmissionUpdateBySubmission(Submission submission) {
+    return submissionUpdateRepository.findFirstBySubmissionAndResolvedFalseOrderByRequestedTimestampDesc(submission);
   }
 
   boolean submissionHasAnUnresolvedUpdate(Submission submission) {

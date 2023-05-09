@@ -138,7 +138,7 @@ public class ReviewSubmissionController {
         "remi/review/reviewSubmission"
     );
 
-    modelAndView = submissionHistorySearchSelectorModelService
+    submissionHistorySearchSelectorModelService
         .addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView, resourceId);
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(submissionRecord.resourceNameAndCentreOfInterest())
@@ -151,28 +151,7 @@ public class ReviewSubmissionController {
     var optionalSubmissionDetailUpdate = reviewSubmissionService.getUpdateSubmissionDetailBySubmission(
         submissionDetail.getSubmission());
     if (isRegulator) {
-      var resource = resourceService.getResourceById(resourceId)
-          .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
-              .formatted(resourceId)));
-      modelAndView
-          .addObject("regulatorManagedInformationSummaryView",
-              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
-          .addObject("resourceGroupsSummaryView",
-              resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
-          .addObject("canRequestUpdate", reviewSubmissionService
-              .canRequestUpdateOnSubmissionDetail(submissionDetail))
-          .addObject("requestUpdateUrl", ReverseRouter.route(on(RequestUpdateController.class)
-              .showRequestUpdateConfirmationPage(submissionDetail.getId())))
-          .addObject("approveUrl",
-              ReverseRouter.route(on(ApproveSubmissionController.class)
-                  .showApproveConfirmationPage(submissionDetail.getId())))
-          .addObject("regulatorManagedInformationUrl",
-              ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPage(
-                      resourceId, submissionDetail.getId())))
-          .addObject("withdrawUrl",
-              ReverseRouter.route(on(WithdrawSubmissionController.class)
-                  .showWithdrawConfirmationPage(submissionDetail.getId())));
+      addRegulatorProperties(modelAndView, resourceId, submissionDetail);
     }
 
     var isIndustrySubmitter = reviewSubmissionService
@@ -189,6 +168,15 @@ public class ReviewSubmissionController {
           .addObject("updateStarted", optionalSubmissionDetailUpdate.isPresent());
     }
 
+    reviewSubmissionService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())
+        .ifPresentOrElse(submissionUpdate ->
+            modelAndView
+                .addObject("submissionUpdateReason", submissionUpdate.getReason())
+                .addObject("updateRequested", true),
+            () -> modelAndView
+                .addObject("updateRequested", false));
+
+
     return modelAndView
         .addObject("form", form)
         .addObject("submissionRecord", submissionRecord)
@@ -197,9 +185,32 @@ public class ReviewSubmissionController {
             submissionRecord, userDetail, submissionDetail))
         .addObject("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName())
         .addObject("isRegulator", isRegulator)
-        .addObject("isIndustrySubmitter", isIndustrySubmitter)
-        .addObject("updateRequested",
-            reviewSubmissionService.hasUpdateBeenRequestedOnSubmission(submissionDetail.getSubmission())
-        );
+        .addObject("isIndustrySubmitter", isIndustrySubmitter);
+  }
+
+  private ModelAndView addRegulatorProperties(ModelAndView modelAndView, UUID resourceId,
+                                              SubmissionDetail selectedSubmissionDetail) {
+    var resource = resourceService.getResourceById(resourceId)
+        .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
+            .formatted(resourceId)));
+    return modelAndView
+        .addObject("regulatorManagedInformationSummaryView",
+            regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
+        .addObject("resourceGroupsSummaryView",
+            resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
+        .addObject("canRequestUpdate", reviewSubmissionService
+            .canRequestUpdateOnSubmissionDetail(selectedSubmissionDetail))
+        .addObject("requestUpdateUrl", ReverseRouter.route(on(RequestUpdateController.class)
+            .showRequestUpdateConfirmationPage(selectedSubmissionDetail.getId())))
+        .addObject("approveUrl",
+            ReverseRouter.route(on(ApproveSubmissionController.class)
+                .showApproveConfirmationPage(selectedSubmissionDetail.getId())))
+        .addObject("regulatorManagedInformationUrl",
+            ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                .getRegulatorManagedInformationPage(
+                    resourceId, selectedSubmissionDetail.getId())))
+        .addObject("withdrawUrl",
+            ReverseRouter.route(on(WithdrawSubmissionController.class)
+                .showWithdrawConfirmationPage(selectedSubmissionDetail.getId())));
   }
 }

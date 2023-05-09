@@ -79,7 +79,7 @@ public class StartUpdateController {
   private ModelAndView getModelAndView(SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/review/startUpdateSubmission");
     var submissionUpdate = submissionUpdatePersistenceService
-        .getUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())
+        .getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())
         .orElseThrow(() -> new RemiEntityNotFoundException(
             "Could not find an unresolved submission update for submission %s"
                 .formatted(submissionDetail.getSubmission().getId())));

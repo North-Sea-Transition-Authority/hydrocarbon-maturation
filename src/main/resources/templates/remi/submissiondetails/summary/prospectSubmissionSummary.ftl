@@ -2,6 +2,7 @@
 
 <#import '_prospectSubmissionSummary.ftl' as prospectSubmissionSummary>
 <#import '_summarySubmissionNotificationBanner.ftl' as banner>
+<#import '../../review/updateSummaryDetails.ftl' as updateSummaryDetails>
 
 <#-- @ftlvariable name="pageName" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -25,6 +26,7 @@
 <#-- @ftlvariable name="mixedCaseOutputsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView" -->
 <#-- @ftlvariable name="resourceDetailSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView" -->
 <#-- @ftlvariable name="gasCase" type="Boolean" -->
+<#-- @ftlvariable name="isSubmissionUpdate" type="Boolean" -->
 <#-- @ftlvariable name="oilCase" type="Boolean" -->
 <#-- @ftlvariable name="mixedCase" type="Boolean" -->
 
@@ -44,8 +46,10 @@
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap
   notificationBanner=notificationBanner>
-
     <@fdsForm.htmlForm>
+        <#if isSubmissionUpdate>
+          <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
+        </#if>
         <@prospectSubmissionSummary.prospectSubmissionSummary
           generalDetailsSummaryView=generalDetailsSummaryView
           opportunityDetailsSummaryView=opportunityDetailsSummaryView

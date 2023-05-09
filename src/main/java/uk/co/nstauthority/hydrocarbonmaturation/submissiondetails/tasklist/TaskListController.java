@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.DeleteSubmissi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/task-list")
@@ -28,14 +29,17 @@ public class TaskListController {
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionResourceService submissionResourceService;
   private final TaskListService taskListService;
+  private final SubmissionUpdateService submissionUpdateService;
   public static final String PAGE_NAME = "Task list";
 
   @Autowired
   public TaskListController(SubmissionDetailService submissionDetailService,
-                            SubmissionResourceService submissionResourceService, TaskListService taskListService) {
+                            SubmissionResourceService submissionResourceService, TaskListService taskListService,
+                            SubmissionUpdateService submissionUpdateService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.taskListService = taskListService;
+    this.submissionUpdateService = submissionUpdateService;
   }
 
   @GetMapping
@@ -49,6 +53,14 @@ public class TaskListController {
         .addObject("resourceName", submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .addObject("deleteSubmissionUrl",
             ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(submissionId)));
+
+    var submissionUpdateOpt = submissionUpdateService
+        .getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail);
+
+    submissionUpdateOpt.ifPresent(submissionUpdate ->
+        modelAndView
+            .addObject("submissionUpdateReason", submissionUpdate.getReason()));
+    modelAndView.addObject("isSubmissionUpdate", submissionUpdateOpt.isPresent());
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
         .addWorkAreaBreadcrumb()

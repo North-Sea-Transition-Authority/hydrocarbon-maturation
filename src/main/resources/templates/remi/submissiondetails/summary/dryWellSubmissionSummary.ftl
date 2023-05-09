@@ -2,6 +2,7 @@
 
 <#import '_dryWellSubmissionSummary.ftl' as dryWellSubmissionSummary>
 <#import '_summarySubmissionNotificationBanner.ftl' as banner>
+<#import '../../review/updateSummaryDetails.ftl' as updateSummaryDetails>
 
 <#-- @ftlvariable name="pageName" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -17,6 +18,7 @@
 <#-- @ftlvariable name="sourceAndSealSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView" -->
 <#-- @ftlvariable name="trapPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView" -->
 <#-- @ftlvariable name="resourceDetailSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView" -->
+<#-- @ftlvariable name="isSubmissionUpdate" type="Boolean" -->
 
 <#if !submittable>
   <#assign notificationBanner>
@@ -34,7 +36,9 @@
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap
   notificationBanner=notificationBanner>
-
+    <#if isSubmissionUpdate>
+      <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
+    </#if>
     <@fdsForm.htmlForm>
         <@dryWellSubmissionSummary.dryWellSubmissionSummary
           generalDetailsSummaryView=generalDetailsSummaryView

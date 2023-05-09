@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -36,11 +36,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproper
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionSummaryModelServiceTest {
+
+  private static final String SUBMISSION_UPDATE_REASON = "reason for update here";
 
   @Mock
   private ProspectSummaryService prospectSummaryService;
@@ -53,7 +57,7 @@ class SubmissionSummaryModelServiceTest {
   @Mock
   private PostDrillDryWellSummaryService postDrillDryWellSummaryService;
   @Mock
-  private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
+  private SubmissionUpdateService submissionUpdateService;
 
   @InjectMocks
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -126,8 +130,7 @@ class SubmissionSummaryModelServiceTest {
   void createSummaryForSubmissionTypeToModelAndView(SubmissionType submissionType) {
     var submissionSummaryModelServiceSpy = spy(submissionSummaryModelService);
 
-    var submissionDetail = new SubmissionDetail();
-    submissionDetail.setSubmissionType(submissionType);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     var viewName = "view-name";
 
     submissionSummaryModelServiceSpy.createSummaryForSubmissionTypeToModelAndView(submissionDetail, viewName);
@@ -261,15 +264,36 @@ class SubmissionSummaryModelServiceTest {
         );
   }
 
-  @ParameterizedTest
-  @EnumSource(SubmissionType.class)
-  void checkCommonAttributes(SubmissionType submissionType) {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+  @Test
+  void checkCommonAttributes_whenSubmissionUpdatePresent() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.setVersionNumber(2);
+    var submissionUpdate = new SubmissionUpdate();
+    submissionUpdate.setReason(SUBMISSION_UPDATE_REASON);
+    when(submissionUpdateService.getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(submissionUpdate));
     var modelAndView =
         submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name");
     assertThat(modelAndView.getModelMap())
         .contains(
-            entry("accordionId", submissionDetail.getId())
+            entry("accordionId", submissionDetail.getId()),
+            entry("submissionUpdateReason", submissionUpdate.getReason()),
+            entry("isSubmissionUpdate", true)
         );
+  }
+
+  @Test
+  void checkCommonAttributes_whenUpdateNotPresent_assertNotSubmissionUpdate() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+    when(submissionUpdateService.getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+    var modelAndView =
+        submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name");
+    assertThat(modelAndView.getModelMap())
+        .contains(
+            entry("accordionId", submissionDetail.getId()),
+            entry("isSubmissionUpdate", false))
+        .doesNotContainKey("submissionUpdateReason");
   }
 }
