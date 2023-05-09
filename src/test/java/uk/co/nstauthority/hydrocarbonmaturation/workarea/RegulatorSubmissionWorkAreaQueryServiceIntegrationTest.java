@@ -506,6 +506,74 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
         );
   }
 
+
+  @Test
+  void getSubmissions_whenOneHasDeletedDraftUpdateAndOneHasDraftUpdate_assertSubmittedSubmissionsReturned() {
+    Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
+    setUpRegulatorTest(userRoles);
+
+    var initialSubmittedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    initialSubmittedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    initialSubmittedSubmissionDetail.setId(null);
+    initialSubmittedSubmissionDetail.setSubmittedByWuaId(5);
+    initialSubmittedSubmissionDetail.setCreatedTimestamp(Instant.now());
+    initialSubmittedSubmissionDetail.setVersionNumber(1);
+    var resource = createResource(ResourceType.PROSPECT);
+    var submissionWithDraftUpdate = createSubmissionForIntegrationTest(resource, entityManager);
+    initialSubmittedSubmissionDetail.setSubmission(submissionWithDraftUpdate);
+    createResponsibleTeam(resource, ResponsibleTeamType.EXPLORATION);
+    entityManager.persist(initialSubmittedSubmissionDetail);
+    entityManager.flush();
+
+    var deletedDraftUpdate = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    deletedDraftUpdate.setStatus(SubmissionDetailStatus.DELETED);
+    deletedDraftUpdate.setId(null);
+    deletedDraftUpdate.setSubmittedByWuaId(5);
+    deletedDraftUpdate.setVersionNumber(2);
+    deletedDraftUpdate.setCreatedTimestamp(Instant.now());
+    deletedDraftUpdate.setSubmission(submissionWithDraftUpdate);
+    entityManager.persist(deletedDraftUpdate);
+    entityManager.flush();
+    SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(submissionWithDraftUpdate, false, entityManager);
+
+    var initialSubmittedSubmissionDetail2 = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    initialSubmittedSubmissionDetail2.setStatus(SubmissionDetailStatus.SUBMITTED);
+    initialSubmittedSubmissionDetail2.setId(null);
+    initialSubmittedSubmissionDetail2.setSubmittedByWuaId(5);
+    initialSubmittedSubmissionDetail2.setCreatedTimestamp(Instant.now());
+    initialSubmittedSubmissionDetail2.setSubmittedTimestamp(Instant.now());
+    initialSubmittedSubmissionDetail2.setVersionNumber(1);
+    var resource2 = createResource(ResourceType.PROSPECT);
+    var submissionWithTwoSubmittedDetails = createSubmissionForIntegrationTest(resource2, entityManager);
+    initialSubmittedSubmissionDetail2.setSubmission(submissionWithTwoSubmittedDetails);
+    createResponsibleTeam(resource2, ResponsibleTeamType.EXPLORATION);
+    entityManager.persist(initialSubmittedSubmissionDetail2);
+    entityManager.flush();
+
+    var withdrawnSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    withdrawnSubmissionDetail.setStatus(SubmissionDetailStatus.WITHDRAWN);
+    withdrawnSubmissionDetail.setId(null);
+    withdrawnSubmissionDetail.setSubmittedByWuaId(5);
+    withdrawnSubmissionDetail.setVersionNumber(2);
+    withdrawnSubmissionDetail.setCreatedTimestamp(Instant.now());
+    withdrawnSubmissionDetail.setSubmittedTimestamp(Instant.now());
+    withdrawnSubmissionDetail.setSubmission(submissionWithTwoSubmittedDetails);
+    entityManager.persist(withdrawnSubmissionDetail);
+    entityManager.flush();
+    SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(submissionWithTwoSubmittedDetails, true, entityManager);
+
+    var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    //todo HM-502 update this test after handling withdrawing submissions with updates
+    // initialSubmittedSubmissionDetail2 should not appear in such a case
+    assertThat(results)
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId)
+        .containsExactly(
+            initialSubmittedSubmissionDetail.getId(),
+            initialSubmittedSubmissionDetail2.getId()
+        );
+  }
+
   private RegulatorManagedInformation createResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType) {
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResource(resource);

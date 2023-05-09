@@ -1065,6 +1065,69 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         );
   }
 
+  @Test
+  void getResourceRecordSearchResults_whenSubmittedUpdatesPresent_assertReturnedLatestApproved() {
+    setUpRegulatorTest();
+    var prospect = buildProspectResource();
+    var submission = SubmissionIntegrationTestUtils.createSubmission(prospect, entityManager);
+
+    var submissionDetailInitial =
+        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT);
+    submissionDetailInitial.setVersionNumber(1);
+    submissionDetailInitial.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetailInitial.setSubmission(submission);
+    createGeneralDetail(submissionDetailInitial);
+    createResourceDetail(
+        submissionDetailInitial, "Not relevant name", 1);
+    entityManager.persist(submissionDetailInitial);
+    entityManager.flush();
+
+    var submissionDetailSubmittedUpdate =
+        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT);
+    submissionDetailSubmittedUpdate.setVersionNumber(2);
+    submissionDetailSubmittedUpdate.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetailSubmittedUpdate.setSubmission(submission);
+    entityManager.persist(submissionDetailSubmittedUpdate);
+    entityManager.flush();
+    createGeneralDetail(submissionDetailSubmittedUpdate);
+    createResourceDetail(
+        submissionDetailSubmittedUpdate, "Not relevant name", 1);
+
+    var submissionDetailApprovedUpdate =
+        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT);
+    submissionDetailApprovedUpdate.setVersionNumber(3);
+    submissionDetailApprovedUpdate.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetailApprovedUpdate.setSubmission(submission);
+    entityManager.persist(submissionDetailApprovedUpdate);
+    entityManager.flush();
+    createGeneralDetail(submissionDetailApprovedUpdate);
+    createResourceDetail(
+        submissionDetailApprovedUpdate, "Not relevant name", 1);
+
+    var deletedDraftUpdate =
+        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT);
+    deletedDraftUpdate.setVersionNumber(4);
+    deletedDraftUpdate.setStatus(SubmissionDetailStatus.DELETED);
+    deletedDraftUpdate.setSubmission(submission);
+    entityManager.persist(deletedDraftUpdate);
+    entityManager.flush();
+    createGeneralDetail(deletedDraftUpdate);
+    createResourceDetail(
+        deletedDraftUpdate, "Not relevant name", 1);
+
+    var form = new SearchResourceRecordsForm();
+    form.setShowOnlyPreferredViews(true);
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::getSubmissionDetailId)
+        .containsExactly(
+            submissionDetailApprovedUpdate.getId()
+        );
+  }
+
   private ResourceLink createResourceLink(Resource prospect, Resource discovery) {
     var resourceLink = new ResourceLink();
     resourceLink.setDiscoveryResource(discovery);

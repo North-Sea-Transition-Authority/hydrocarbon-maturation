@@ -80,9 +80,12 @@ public class SubmissionDetailService {
         .orElseThrow(() -> new RemiEntityNotFoundException("Submission detail with id %s not found".formatted(id)));
   }
 
-  public List<SubmissionDetail> getSubmissionDetailsForResource(Resource resource) {
-    return submissionDetailRepository.findSubmissionDetailsBySubmissionInOrderByVersionNumberDesc(
-        submissionPersistenceService.getSubmissionsByResource(resource));
+  public List<SubmissionDetail> getExtantSubmissionDetailsForResource(Resource resource) {
+    return submissionPersistenceService.getSubmissionsByResource(resource)
+        .stream()
+        .map(this::getLatestExtantVersionSubmissionDetailBySubmission)
+        .flatMap(Optional::stream)
+        .toList();
   }
 
   public String getSubmissionTypeName(SubmissionDetail submissionDetail) {
@@ -132,5 +135,12 @@ public class SubmissionDetailService {
 
   public List<SubmissionDetail> getSubmissionDetailsBySubmission(Submission submission) {
     return submissionDetailRepository.findAllBySubmission(submission);
+  }
+
+  private Optional<SubmissionDetail> getLatestExtantVersionSubmissionDetailBySubmission(Submission submission) {
+    //gets the latest submission detail for submission
+    return submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+        submission,
+        Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT));
   }
 }

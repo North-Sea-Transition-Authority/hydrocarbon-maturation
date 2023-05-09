@@ -40,6 +40,15 @@ public class SubmissionUpdateService {
     return submissionUpdatePersistenceService.getDraftUpdateSubmissionDetail(submission);
   }
 
+  public void resolveUpdateOnSubmission(SubmissionDetail submissionDetail) {
+    var submissionUpdate =
+        submissionUpdatePersistenceService.getUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())
+            .orElseThrow(() -> new IllegalArgumentException("Could not find an unresolved update on submission %s"
+                .formatted(submissionDetail.getSubmission().getId())));
+
+    submissionUpdatePersistenceService.resolveUpdate(submissionUpdate);
+  }
+
   BindingResult validate(BindingResult bindingResult, RequestUpdateForm form) {
     requestUpdateFormValidator.validate(form, bindingResult);
     return bindingResult;

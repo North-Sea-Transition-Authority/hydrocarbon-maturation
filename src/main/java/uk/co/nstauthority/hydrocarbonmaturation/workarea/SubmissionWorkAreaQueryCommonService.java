@@ -57,11 +57,14 @@ class SubmissionWorkAreaQueryCommonService {
                     select(SD_2.ID)
                         .from(SUBMISSIONS_2.join(SD_2)
                             .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID)
-                                // Gets the latest submitted submission detail for the submission or the initial draft
+                                // Gets the latest submission detail for the submission or the initial draft
                                 // submission detail if there are no submitted submission details.
                                 .and((SD_2.STATUS.in(SubmissionDetailStatus.DRAFT.name(), SubmissionDetailStatus.SUBMITTED.name())
                                     .and(SD_2.VERSION_NUMBER.eq(1)))
-                                    .or(SD_2.STATUS.eq(SubmissionDetailStatus.SUBMITTED.name())))))
+                                    .or(SD_2.STATUS.notIn(
+                                        SubmissionDetailStatus.DRAFT.name(),
+                                        SubmissionDetailStatus.DELETED.name(),
+                                        SubmissionDetailStatus.WITHDRAWN.name())))))
                         .where(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID))
                         .orderBy(SD_2.VERSION_NUMBER.desc())
                         .limit(1)))

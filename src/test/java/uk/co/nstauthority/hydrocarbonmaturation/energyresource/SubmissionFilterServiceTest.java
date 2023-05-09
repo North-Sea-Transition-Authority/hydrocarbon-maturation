@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionFilterServiceTest {
@@ -28,6 +29,9 @@ class SubmissionFilterServiceTest {
 
   @Mock
   private ResourceLinkService resourceLinkService;
+
+  @Mock
+  private SubmissionPersistenceService submissionPersistenceService;
 
   @InjectMocks
   private SubmissionFilterService submissionFilterService;
@@ -45,7 +49,7 @@ class SubmissionFilterServiceTest {
           SubmissionType.CREATE_DISCOVERY);
       var otherSubmissionsOnResource = List.of(
           SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.RELINQUISHMENT_DISCOVERY));
-      when(submissionDetailService.getSubmissionDetailsForResource(
+      when(submissionDetailService.getExtantSubmissionDetailsForResource(
           submissionToBeFiltered.getSubmission().getResource()))
           .thenReturn(otherSubmissionsOnResource);
 
@@ -65,7 +69,7 @@ class SubmissionFilterServiceTest {
           SubmissionType.CREATE_DISCOVERY);
       var otherSubmissionsOnResource = List.of(
           SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.UPDATE_DISCOVERY));
-      when(submissionDetailService.getSubmissionDetailsForResource(submissionToBeFiltered.getSubmission().getResource()))
+      when(submissionDetailService.getExtantSubmissionDetailsForResource(submissionToBeFiltered.getSubmission().getResource()))
           .thenReturn(otherSubmissionsOnResource);
       var result = submissionFilterService
           .filterDiscoverySubmissionByOtherSubmissions(submissionToBeFiltered, submissionType);
@@ -81,7 +85,7 @@ class SubmissionFilterServiceTest {
           SubmissionType.UPDATE_DISCOVERY);
       var otherSubmissionsOnResource = List.of(
           SubmissionDetailTestUtils.createSubmissionDetail(submissionType));
-      when(submissionDetailService.getSubmissionDetailsForResource(
+      when(submissionDetailService.getExtantSubmissionDetailsForResource(
           submissionToBeFiltered.getSubmission().getResource()))
           .thenReturn(otherSubmissionsOnResource);
       var result = submissionFilterService
@@ -105,7 +109,7 @@ class SubmissionFilterServiceTest {
       var otherSubmissionOnResource = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
       otherSubmissionOnResource.setStatus(SubmissionDetailStatus.DELETED);
       var otherSubmissionsOnResource = List.of(otherSubmissionOnResource);
-      when(submissionDetailService.getSubmissionDetailsForResource(
+      when(submissionDetailService.getExtantSubmissionDetailsForResource(
           submissionToBeFiltered.getSubmission().getResource()))
           .thenReturn(otherSubmissionsOnResource);
       var result = submissionFilterService
@@ -126,7 +130,7 @@ class SubmissionFilterServiceTest {
       var otherSubmissionOnResource = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
       otherSubmissionOnResource.setStatus(SubmissionDetailStatus.DELETED);
       var otherSubmissionsOnResource = List.of(otherSubmissionOnResource);
-      when(submissionDetailService.getSubmissionDetailsForResource(
+      when(submissionDetailService.getExtantSubmissionDetailsForResource(
           submissionToBeFiltered.getSubmission().getResource()))
           .thenReturn(otherSubmissionsOnResource);
       var result = submissionFilterService
@@ -142,7 +146,7 @@ class SubmissionFilterServiceTest {
           SubmissionType.PROSPECT_UPDATE);
       var otherSubmissionOnResource = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
       var otherSubmissionsOnResource = List.of(otherSubmissionOnResource);
-      when(submissionDetailService.getSubmissionDetailsForResource(
+      when(submissionDetailService.getExtantSubmissionDetailsForResource(
           submissionToBeFiltered.getSubmission().getResource()))
           .thenReturn(otherSubmissionsOnResource);
       var result = submissionFilterService
@@ -178,7 +182,7 @@ class SubmissionFilterServiceTest {
 
       if (submissionType != SubmissionType.PROSPECT_UPDATE
           && submissionType != SubmissionType.RELINQUISHMENT_PROSPECT) {
-        when(submissionDetailService.getSubmissionDetailsForResource(
+        when(submissionDetailService.getExtantSubmissionDetailsForResource(
             submissionToBeFiltered.getSubmission().getResource()))
             .thenReturn(List.of());
       }
@@ -187,7 +191,7 @@ class SubmissionFilterServiceTest {
           submissionToBeFiltered.getSubmission().getResource()))
           .thenReturn(List.of(resourceLink));
       var linkedDiscoverySubmission = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-      when(submissionDetailService.getSubmissionDetailsForResource(discoveryResource))
+      when(submissionDetailService.getExtantSubmissionDetailsForResource(discoveryResource))
           .thenReturn(List.of(linkedDiscoverySubmission));
 
       var result = submissionFilterService
@@ -212,6 +216,7 @@ class SubmissionFilterServiceTest {
         SubmissionType submissionType) {
       var submissionToBeFiltered = SubmissionDetailTestUtils.createSubmissionDetail(
           SubmissionType.PROSPECT_UPDATE);
+      submissionToBeFiltered.setStatus(SubmissionDetailStatus.APPROVED);
       var resourceLink = new ResourceLink();
       var discoveryResource = new Resource();
       discoveryResource.setType(ResourceType.DISCOVERY);
@@ -222,18 +227,14 @@ class SubmissionFilterServiceTest {
       var deletedPostDrillDryHoleSubmission = SubmissionDetailTestUtils
           .createNewPostDrillDryWellSubmissionDetail();
       deletedPostDrillDryHoleSubmission.setStatus(SubmissionDetailStatus.DELETED);
-      when(submissionDetailService.getSubmissionDetailsForResource(
+      when(submissionDetailService.getExtantSubmissionDetailsForResource(
           submissionToBeFiltered.getSubmission().getResource()))
-          .thenReturn(List.of(deletedPostDrillDryHoleSubmission));
-
-
+          .thenReturn(List.of(submissionToBeFiltered, deletedPostDrillDryHoleSubmission));
       when(resourceLinkService.getResourceLinksByProspect(
           submissionToBeFiltered.getSubmission().getResource()))
           .thenReturn(List.of(resourceLink));
-      var linkedDiscoverySubmission = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-      linkedDiscoverySubmission.setStatus(SubmissionDetailStatus.DELETED);
-      when(submissionDetailService.getSubmissionDetailsForResource(discoveryResource))
-          .thenReturn(List.of(linkedDiscoverySubmission));
+      when(submissionDetailService.getExtantSubmissionDetailsForResource(discoveryResource))
+          .thenReturn(List.of());
 
       var result = submissionFilterService
           .filterProspectSubmissionByOtherSubmissions(submissionToBeFiltered, submissionType);

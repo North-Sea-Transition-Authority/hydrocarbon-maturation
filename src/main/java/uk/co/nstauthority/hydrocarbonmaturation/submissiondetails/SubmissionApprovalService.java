@@ -39,6 +39,10 @@ public class SubmissionApprovalService {
   public void submitSubmission(SubmissionDetail submissionDetail) {
     submissionDetailPersistenceService.submitSubmission(submissionDetail);
 
+    if (submissionDetail.getVersionNumber() > 1) {
+      submissionUpdateService.resolveUpdateOnSubmission(submissionDetail);
+    }
+
     if (canAutoApproveSubmission()) {
       submissionDetailPersistenceService.approveSubmission(submissionDetail);
     } else {

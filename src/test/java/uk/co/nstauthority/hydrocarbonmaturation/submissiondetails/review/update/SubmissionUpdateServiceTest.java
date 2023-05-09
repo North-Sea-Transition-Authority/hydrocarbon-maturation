@@ -1,7 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -191,6 +193,43 @@ class SubmissionUpdateServiceTest {
           .thenReturn(Optional.of(mock(SubmissionDetail.class)));
 
       assertThat(underTest.canStartUpdateSubmissionDetailOnSubmission(submission)).isFalse();
+    }
+  }
+
+  @Nested
+  class WhenResolvingUpdateOnSubmission {
+
+    private SubmissionDetail submissionDetail;
+
+    @Mock
+    private SubmissionUpdate submissionUpdate;
+
+    @BeforeEach
+    void setUp() {
+      submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    }
+
+    @Test
+    void resolveUpdateOnSubmission_whenUnresolvedSubmissionUpdatePresent_verifyMethodCall() {
+      when(submissionUpdatePersistenceService.getUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
+          .thenReturn(Optional.of(submissionUpdate));
+
+      underTest.resolveUpdateOnSubmission(submissionDetail);
+
+      verify(submissionUpdatePersistenceService, times(1)).resolveUpdate(submissionUpdate);
+    }
+
+    @Test
+    void resolveUpdateOnSubmission_whenSubmissionUpdateNotPresent_verifyMethodCall() {
+      when(submissionUpdatePersistenceService.getUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
+          .thenReturn(Optional.empty());
+
+      assertThatThrownBy(() -> underTest.resolveUpdateOnSubmission(submissionDetail))
+          .hasMessage("Could not find an unresolved update on submission %s"
+              .formatted(submissionDetail.getSubmission().getId()))
+          .isExactlyInstanceOf(IllegalArgumentException.class);
+
+      verify(submissionUpdatePersistenceService, never()).resolveUpdate(submissionUpdate);
     }
   }
 }

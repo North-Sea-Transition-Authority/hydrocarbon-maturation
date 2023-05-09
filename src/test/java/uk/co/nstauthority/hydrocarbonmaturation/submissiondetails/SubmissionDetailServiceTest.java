@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -64,16 +62,6 @@ class SubmissionDetailServiceTest {
 
     assertThat(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
         .isEqualTo(Optional.of(submissionDetail));
-  }
-
-  @Test
-  void getSubmissionDetailsForResource_verifyMethodCall() {
-    var resource = new Resource();
-    when(submissionPersistenceService.getSubmissionsByResource(any()))
-        .thenReturn(submissionList);
-    submissionDetailService.getSubmissionDetailsForResource(resource);
-
-    verify(submissionDetailRepository, times(1)).findSubmissionDetailsBySubmissionInOrderByVersionNumberDesc(submissionList);
   }
 
   @Test
@@ -235,5 +223,53 @@ class SubmissionDetailServiceTest {
         submissionDetail, Set.of(SubmissionDetailStatus.SUBMITTED));
 
     assertThat(result).isFalse();
+  }
+
+  @Test
+  void getExtantSubmissionDetailsForResource_oneNotExtant_assertReturn() {
+    var resource = mock(Resource.class);
+    var submissionDetail1 = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    var submissionDetail2 = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var submissionDetailNotExtant = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    var listOfSubmissions = List.of(
+        submissionDetail1.getSubmission(), submissionDetail2.getSubmission(), submissionDetailNotExtant.getSubmission());
+
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
+        .thenReturn(listOfSubmissions);
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submissionDetail1.getSubmission(),
+        Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        .thenReturn(Optional.of(submissionDetail1));
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submissionDetail2.getSubmission(),
+        Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        .thenReturn(Optional.of(submissionDetail2));
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submissionDetailNotExtant.getSubmission(),
+        Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        .thenReturn(Optional.empty());
+
+    var result = submissionDetailService.getExtantSubmissionDetailsForResource(resource);
+
+    assertThat(result)
+        .containsExactly(submissionDetail1, submissionDetail2);
+  }
+
+  @Test
+  void getExtantSubmissionDetailsForResource_whenOnSameSubmission_assertLatest() {
+    var resource = mock(Resource.class);
+    var submission = mock(Submission.class);
+    var latestExtantSubmissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    latestExtantSubmissionDetail.setSubmission(submission);
+
+    var listOfSubmissions = List.of(submission);
+
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
+        .thenReturn(listOfSubmissions);
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submission,
+        Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        .thenReturn(Optional.of(latestExtantSubmissionDetail));
+
+    var result = submissionDetailService.getExtantSubmissionDetailsForResource(resource);
+
+    assertThat(result)
+        .containsExactly(latestExtantSubmissionDetail);
   }
 }

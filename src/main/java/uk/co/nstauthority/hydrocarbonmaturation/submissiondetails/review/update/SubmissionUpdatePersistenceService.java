@@ -67,6 +67,15 @@ class SubmissionUpdatePersistenceService {
     return submissionCreateService.createUpdateSubmissionDetail(parentSubmissionDetail);
   }
 
+  @Transactional
+  SubmissionUpdate resolveUpdate(SubmissionUpdate submissionUpdate) {
+    submissionUpdate.setResolved(true);
+    submissionUpdate.setResolvedTimestamp(clock.instant());
+    submissionUpdate.setResolvedByWuaId(userDetailService.getUserWuaId());
+    submissionUpdateRepository.save(submissionUpdate);
+    return submissionUpdate;
+  }
+
   Optional<SubmissionDetail> getDraftUpdateSubmissionDetail(Submission submission) {
     var submissionDetails = submissionDetailService.getSubmissionDetailsBySubmission(submission);
     if (submissionDetails.size() == 1) {

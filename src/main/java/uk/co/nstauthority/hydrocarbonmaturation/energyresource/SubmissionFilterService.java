@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @Service
@@ -29,10 +28,10 @@ class SubmissionFilterService {
    */
   boolean filterDiscoverySubmissionByOtherSubmissions(SubmissionDetail submissionDetail,
                                                       SubmissionType submissionToBeCreatedType) {
-    var otherSubmissionDetailsOnResource = submissionDetailService
-        .getSubmissionDetailsForResource(submissionDetail.getSubmission().getResource());
+    var submissionsOnResource = submissionDetailService
+        .getExtantSubmissionDetailsForResource(submissionDetail.getSubmission().getResource());
 
-    return otherSubmissionDetailsOnResource
+    return submissionsOnResource
         .stream()
         .noneMatch(submissionDetailToBeChecked ->
             isSubmissionPreventingNewSubmission(submissionDetailToBeChecked, submissionToBeCreatedType)
@@ -53,13 +52,13 @@ class SubmissionFilterService {
     }
 
     //Gets other submissions made on the submissionDetail's resource
-    var submissionDetailsForResource =
-        submissionDetailService.getSubmissionDetailsForResource(submissionDetail.getSubmission().getResource());
+    var submissionDetailsOnResource = submissionDetailService
+        .getExtantSubmissionDetailsForResource(submissionDetail.getSubmission().getResource());
 
     //True means the condition prevents the creation of a submissionDetail of type 'submissionToBeCreatedType',
     //false means the submissionDetail does not prevent submissionToBeCreatedType
     //and that the next submissionDetail for the resource should be checked
-    return submissionDetailsForResource
+    return submissionDetailsOnResource
         .stream()
         .noneMatch(submissionDetailToBeChecked ->
             isSubmissionPreventingNewSubmission(submissionDetailToBeChecked, submissionToBeCreatedType)
@@ -77,9 +76,8 @@ class SubmissionFilterService {
     var linkedDiscoverySubmissionDetails = new ArrayList<SubmissionDetail>();
     ///Gets the submissions on the discovery and filters out the deleted ones
     linkedDiscoveries.forEach(discovery ->
-        linkedDiscoverySubmissionDetails.addAll(submissionDetailService.getSubmissionDetailsForResource(discovery)
+        linkedDiscoverySubmissionDetails.addAll(submissionDetailService.getExtantSubmissionDetailsForResource(discovery)
             .stream()
-            .filter(submissionDetail -> submissionDetail.getStatus() != SubmissionDetailStatus.DELETED)
             .toList())
     );
     //The list will be empty if there are no non-deleted discovery submissions.

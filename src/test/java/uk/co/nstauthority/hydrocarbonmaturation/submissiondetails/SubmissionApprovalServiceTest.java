@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -50,21 +51,39 @@ class SubmissionApprovalServiceTest {
   @Nested
   class WhenSubmittingSubmission {
 
-    @Mock
     private SubmissionDetail submissionDetail;
 
     @BeforeEach
     void setup() {
       when(userDetailService.getUserDetail()).thenReturn(USER);
+      submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     }
 
     @Test
-    void andCanNotAutoApprove_ThenVerifyCallToSubmit() {
+    void whenVersionNumberGreaterThanOne_thenVerifyUpdateResolved() {
+      submissionDetail.setVersionNumber(2);
       when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
 
       underTest.submitSubmission(submissionDetail);
 
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
+      verify(submissionUpdateService, times(1))
+          .resolveUpdateOnSubmission(submissionDetail);
+      verify(submissionEmailService, times(1))
+          .sendSubmittedSubmissionEmails(submissionDetail);
+    }
+
+    @Test
+    void andCanNotAutoApprove_ThenVerifyCallToSubmit() {
+      submissionDetail.setVersionNumber(1);
+      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+
+      underTest.submitSubmission(submissionDetail);
+
+      verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
+      verifyNoInteractions(submissionUpdateService);
+      verify(submissionEmailService, times(1))
+          .sendSubmittedSubmissionEmails(submissionDetail);
     }
 
     @Test
@@ -75,6 +94,8 @@ class SubmissionApprovalServiceTest {
 
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
       verify(submissionDetailPersistenceService).approveSubmission(submissionDetail);
+      verifyNoInteractions(submissionEmailService);
+      verifyNoInteractions(submissionUpdateService);
     }
   }
 

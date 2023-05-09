@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,12 +21,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @ExtendWith(MockitoExtension.class)
@@ -200,6 +203,83 @@ class SubmissionUpdatePersistenceServiceTest {
           .thenReturn(List.of(submissionDetailSubmitted, submissionDetailSubmitted2));
 
       assertThat(underTest.getDraftUpdateSubmissionDetail(submission)).isNotPresent();
+    }
+  }
+
+  @Nested
+  class WhenResolvingSubmissionUpdate {
+
+    private static final Instant RESOLVED_TIMESTAMP = Instant.now();
+    private static final Instant REQUESTED_TIMESTAMP = Instant.now();
+    private static final Submission SUBMISSION = SubmissionTestUtils.createSubmission(mock(Resource.class));
+    private static final String REASON = "reason for update";
+    private static final Integer REQUESTED_BY_WUA_ID = 4;
+    private static final Integer RESOLVED_BY_WUA_ID = 7;
+
+    @Test
+    void whenPassingEmptySubmissionUpdate_assertResolvedFields() {
+      var submissionUpdate = new SubmissionUpdate();
+      var captor = ArgumentCaptor.forClass(SubmissionUpdate.class);
+
+      when(clock.instant())
+          .thenReturn(RESOLVED_TIMESTAMP);
+      when(userDetailService.getUserWuaId())
+          .thenReturn(RESOLVED_BY_WUA_ID);
+
+      underTest.resolveUpdate(submissionUpdate);
+
+      verify(submissionUpdateRepository, times(1))
+          .save(captor.capture());
+
+      assertThat(captor.getValue())
+          .hasAllNullFieldsOrPropertiesExcept(
+              "resolved", "resolvedTimestamp", "resolvedByWuaId")
+          .extracting(
+              SubmissionUpdate::getResolved,
+              SubmissionUpdate::getResolvedTimestamp,
+              SubmissionUpdate::getResolvedByWuaId)
+          .containsExactly(
+              true,
+              RESOLVED_TIMESTAMP,
+              RESOLVED_BY_WUA_ID);
+    }
+
+    @Test
+    void whenPassinFilledSubmissionUpdate_assertResolvedFields() {
+      var submissionUpdate = new SubmissionUpdate();
+      submissionUpdate.setSubmission(SUBMISSION);
+      submissionUpdate.setResolved(false);
+      submissionUpdate.setReason(REASON);
+      submissionUpdate.setRequestedTimestamp(REQUESTED_TIMESTAMP);
+      submissionUpdate.setRequestedByWuaId(REQUESTED_BY_WUA_ID);
+
+      var captor = ArgumentCaptor.forClass(SubmissionUpdate.class);
+
+      when(clock.instant())
+          .thenReturn(RESOLVED_TIMESTAMP);
+      when(userDetailService.getUserWuaId())
+          .thenReturn(RESOLVED_BY_WUA_ID);
+
+      underTest.resolveUpdate(submissionUpdate);
+
+      verify(submissionUpdateRepository, times(1))
+          .save(captor.capture());
+
+      assertThat(captor.getValue())
+          .extracting(
+              SubmissionUpdate::getSubmission,
+              SubmissionUpdate::getRequestedByWuaId,
+              SubmissionUpdate::getRequestedTimestamp,
+              SubmissionUpdate::getResolved,
+              SubmissionUpdate::getResolvedTimestamp,
+              SubmissionUpdate::getResolvedByWuaId)
+          .containsExactly(
+              SUBMISSION,
+              REQUESTED_BY_WUA_ID,
+              REQUESTED_TIMESTAMP,
+              true,
+              RESOLVED_TIMESTAMP,
+              RESOLVED_BY_WUA_ID);
     }
   }
 }

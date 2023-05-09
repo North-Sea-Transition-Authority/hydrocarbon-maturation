@@ -5,7 +5,6 @@ import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 public class SubmissionDetailTestUtils {
 
@@ -48,7 +47,7 @@ public class SubmissionDetailTestUtils {
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
     submissionDetail.setCreatedByWuaId(1);
-    var submission = new Submission();
+    var submission = SubmissionTestUtils.createSubmission(resource);
     submission.setResource(resource);
     submissionDetail.setSubmission(submission);
     return submissionDetail;
