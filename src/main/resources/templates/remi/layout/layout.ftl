@@ -7,6 +7,7 @@
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 <#-- @ftlvariable name="serviceHomeUrl" type="String" -->
 <#-- @ftlvariable name="feedbackPageUrl" type="String" -->
+<#-- @ftlvariable name="accessibilityStatementUrl" type="String" -->
 <#-- @ftlvariable name="singleErrorMessage" type="String" -->
 <#-- @ftlvariable name="loggedInUser" type="uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail" -->
 <#-- @ftlvariable name="flash" type="uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner" -->
@@ -15,6 +16,7 @@
 <#assign CUSTOMER_MNEMONIC = customerBranding.mnemonic() />
 <#assign SERVICE_HOME_URL = springUrl(serviceHomeUrl) />
 <#assign FEEDBACK_PAGE_URL = springUrl(feedbackPageUrl) />
+<#assign ACCESSIBILITY_PAGE_URL = springUrl(accessibilityStatementUrl) />
 
 <#macro defaultPage
   htmlTitle
@@ -100,6 +102,7 @@
 
     <#local footerMetaContent>
       <@fdsFooter.footerMeta footerMetaHiddenHeading="Support links">
+        <@fdsFooter.footerMetaLink linkText="Accessibility statement" linkUrl=ACCESSIBILITY_PAGE_URL/>
         <@fdsFooter.footerMetaLink linkText="Feedback" linkUrl=FEEDBACK_PAGE_URL/>
       </@fdsFooter.footerMeta>
     </#local>

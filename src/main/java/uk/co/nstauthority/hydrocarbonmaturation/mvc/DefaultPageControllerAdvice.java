@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.InvalidAuthentica
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
+import uk.co.nstauthority.hydrocarbonmaturation.legal.AccessibilityStatementController;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -75,6 +76,8 @@ public class DefaultPageControllerAdvice {
 
   private void addCommonUrls(Model model) {
     model.addAttribute("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+    model.addAttribute("accessibilityStatementUrl",
+        ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement()));
     model.addAttribute("feedbackPageUrl", ReverseRouter.route(on(FeedbackController.class)
         .getFeedback(null)));
   }
@@ -92,7 +95,7 @@ public class DefaultPageControllerAdvice {
     try {
       model.addAttribute("loggedInUser", userDetailService.getUserDetail());
     } catch (InvalidAuthenticationException e) {
-      LOGGER.error("Could not get logged in user", e);
+      LOGGER.warn("Could not get logged in user", e);
     }
   }
 }

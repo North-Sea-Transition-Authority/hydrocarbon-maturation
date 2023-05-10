@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
+import uk.co.nstauthority.hydrocarbonmaturation.legal.AccessibilityStatementController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -83,5 +85,9 @@ public class ErrorService {
 
   private void addCommonUrls(ModelAndView modelAndView) {
     modelAndView.addObject("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+    modelAndView.addObject("accessibilityStatementUrl",
+        ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement()));
+    modelAndView.addObject("feedbackPageUrl", ReverseRouter.route(on(FeedbackController.class)
+        .getFeedback(null)));
   }
 }

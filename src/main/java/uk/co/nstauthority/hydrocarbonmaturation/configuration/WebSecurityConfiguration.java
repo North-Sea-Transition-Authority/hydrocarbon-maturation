@@ -50,14 +50,15 @@ public class WebSecurityConfiguration {
         .csrf().ignoringAntMatchers("/notify/callback", "/api/v1/logout/*")
         .and()
         .authorizeHttpRequests()
-        .mvcMatchers("/*")
-          .hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
         .mvcMatchers(
             "/assets/**",
             "/notify/callback",
-            "/api/v1/logout/*"
+            "/api/v1/logout/*",
+            "/accessibility-statement"
         )
-          .permitAll()
+        .permitAll()
+        .mvcMatchers("/*")
+          .hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
         .anyRequest()
           .authenticated()
         .and()
