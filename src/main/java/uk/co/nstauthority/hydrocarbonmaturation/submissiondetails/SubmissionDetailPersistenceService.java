@@ -93,6 +93,9 @@ public class SubmissionDetailPersistenceService {
   @Transactional
   public void deleteSubmission(SubmissionDetail submissionDetail) {
     submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
+    if (submissionDetail.isUpdateSubmission()) {
+      submissionDetail.setVersionNumber(null);
+    }
     submissionDetailRepository.save(submissionDetail);
   }
 

@@ -58,6 +58,7 @@ public class DeleteSubmissionController {
         .addObject("pageName", pageName)
         .addObject("resourceName", submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .addObject("submissionType", submissionDetail.getSubmissionType())
+        .addObject("isDraftUpdate", submissionDetail.isUpdateSubmission())
         .addObject("deleteUrl",
             ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(submissionDetailId, null)))
         .addObject("cancelUrl",
@@ -75,15 +76,8 @@ public class DeleteSubmissionController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     submissionDetailPersistenceService.deleteSubmission(submissionDetail);
 
-    var banner = NotificationBanner.builder()
-        .withTitle("%s deleted".formatted(submissionDetailService.getSubmissionTypeName(submissionDetail)))
-        .withBannerType(NotificationBannerType.SUCCESS)
-        .withContent("%s for %s has been deleted"
-            .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail),
-                submissionResourceService.getResourceNameOrDefault(submissionDetail)))
-        .build();
-
-    NotificationBannerUtil.applyNotificationBanner(redirectAttributes, banner);
+    NotificationBannerUtil.applyNotificationBanner(
+        redirectAttributes, getNotificationBanner(submissionDetail, submissionDetail.isUpdateSubmission()));
 
     return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
   }
@@ -91,5 +85,25 @@ public class DeleteSubmissionController {
   private String getPageName(SubmissionDetail submissionDetail) {
     return "Are you sure you want to delete this %s?"
         .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail).toLowerCase());
+  }
+
+  private NotificationBanner getNotificationBanner(SubmissionDetail submissionDetail, boolean isDraftUpdate) {
+    var bannerContent = "";
+    var bannerTitle = "";
+    if (isDraftUpdate) {
+      bannerContent = "%s draft update for %s has been deleted";
+      bannerTitle = "%s draft update deleted";
+    } else {
+      bannerContent = "%s for %s has been deleted";
+      bannerTitle = "%s deleted";
+    }
+
+    return NotificationBanner.builder()
+        .withBannerType(NotificationBannerType.SUCCESS)
+        .withContent(bannerContent
+            .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail),
+                submissionResourceService.getResourceNameOrDefault(submissionDetail)))
+        .withTitle(bannerTitle.formatted(submissionDetailService.getSubmissionTypeName(submissionDetail)))
+        .build();
   }
 }

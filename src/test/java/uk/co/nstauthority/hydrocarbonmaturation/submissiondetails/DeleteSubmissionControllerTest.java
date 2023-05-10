@@ -15,6 +15,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,6 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
@@ -39,6 +41,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   public static final String VIEW_NAME = "remi/submissiondetails/deleteConfirmation";
+
+  public static final String RESOURCE_NAME = "resource name";
+  public static final String TYPE_NAME = "type name";
 
   @MockBean
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -101,37 +106,100 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void showDeleteConfirmationPage_assertModelProperties() throws Exception {
-    var resourceName = "ResourceName";
-    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(resourceName);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
-    var modelMap = mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
-            SUBMISSION_DETAIL_ID)))
+    var modelMap = Objects.requireNonNull(mockMvc.perform(get(
+            ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
+                SUBMISSION_DETAIL_ID)))
             .with(user(USER)))
         .andReturn()
-        .getModelAndView().getModelMap();
+        .getModelAndView()).getModelMap();
 
     assertThat(modelMap)
         .contains(
-            entry("resourceName", resourceName),
+            entry("resourceName", RESOURCE_NAME),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("deleteUrl",
                 ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(SUBMISSION_DETAIL_ID, null))),
-            entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID)))
+            entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID))),
+            entry("isDraftUpdate", false)
         )
         .containsKeys("pageName");
   }
 
   @Test
-  void saveOpportunityDetailsPage_assertRedirection() throws Exception {
-    mockMvc.perform(
-            post(ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(SUBMISSION_DETAIL_ID, null)))
-                .with(user(USER))
-                .with(csrf()))
+  void showDeleteConfirmationPage_whenIsDraftUpdate_assertIsDraftUpdate() throws Exception {
+    submissionDetail.setVersionNumber(2);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
+    mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(get(
+            ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
+                SUBMISSION_DETAIL_ID)))
+            .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("isDraftUpdate", true));
+  }
+
+  @Test
+  void deleteSubmission_assertRedirection() throws Exception {
+    submissionDetail.setVersionNumber(1);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail))
+        .thenReturn(RESOURCE_NAME);
+    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+        .thenReturn(TYPE_NAME);
+
+    var flashMap = mockMvc.perform(
+        post(ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(SUBMISSION_DETAIL_ID, null)))
+            .with(user(USER))
+            .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea())));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea())))
+        .andReturn().getFlashMap();
 
     verify(submissionDetailPersistenceService, times(1)).deleteSubmission(submissionDetail);
+
+    assertThat((NotificationBanner) flashMap.get("flash"))
+        .extracting(
+            NotificationBanner::getTitle,
+            NotificationBanner::getContent)
+        .containsExactly(
+            "%s deleted".formatted(TYPE_NAME),
+            "%s for %s has been deleted".formatted(TYPE_NAME, RESOURCE_NAME));
+  }
+
+  @Test
+  void deleteSubmission_whenDraftUpdate_assertRedirection() throws Exception {
+
+    submissionDetail.setVersionNumber(2);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail))
+        .thenReturn(RESOURCE_NAME);
+    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+        .thenReturn(TYPE_NAME);
+
+    var flashMap = mockMvc.perform(
+        post(ReverseRouter.route(on(DeleteSubmissionController.class)
+            .deleteSubmission(SUBMISSION_DETAIL_ID, null)))
+            .with(user(USER))
+            .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea())))
+        .andReturn().getFlashMap();
+
+    verify(submissionDetailPersistenceService, times(1)).deleteSubmission(submissionDetail);
+
+    assertThat((NotificationBanner) flashMap.get("flash"))
+        .extracting(
+            NotificationBanner::getTitle,
+            NotificationBanner::getContent)
+        .containsExactly(
+            "%s draft update deleted".formatted(TYPE_NAME),
+            "%s draft update for %s has been deleted".formatted(TYPE_NAME, RESOURCE_NAME));
   }
 
   private void mockCreatePostDrillDryWellSubmissionSummaryModelAndView() {

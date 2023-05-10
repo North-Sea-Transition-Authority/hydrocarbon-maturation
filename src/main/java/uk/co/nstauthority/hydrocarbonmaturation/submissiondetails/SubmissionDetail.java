@@ -215,6 +215,10 @@ public class SubmissionDetail {
     return submissionType == otherSubmissionDetail.getSubmissionType();
   }
 
+  public boolean isUpdateSubmission() {
+    return versionNumber > 1;
+  }
+
   public Integer getWithdrawnByWuaId() {
     return withdrawnByWuaId;
   }

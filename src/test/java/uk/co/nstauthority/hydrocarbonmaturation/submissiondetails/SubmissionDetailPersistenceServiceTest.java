@@ -173,11 +173,23 @@ class SubmissionDetailPersistenceServiceTest {
   }
 
   @Test
-  void deleteSubmission() {
-    var submissionDetail = new SubmissionDetail();
+  void deleteSubmission_whenDraftUpdate() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.setVersionNumber(55);
     submissionDetailPersistenceService.deleteSubmission(submissionDetail);
 
     assertThat(submissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.DELETED);
+    assertThat(submissionDetail.getVersionNumber()).isNull();
+  }
+
+  @Test
+  void deleteSubmission() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.setVersionNumber(1);
+    submissionDetailPersistenceService.deleteSubmission(submissionDetail);
+
+    assertThat(submissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.DELETED);
+    assertThat(submissionDetail.getVersionNumber()).isEqualTo(1);
   }
 
   @Test

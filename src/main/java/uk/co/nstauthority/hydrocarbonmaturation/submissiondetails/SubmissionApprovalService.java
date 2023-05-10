@@ -39,7 +39,7 @@ public class SubmissionApprovalService {
   public void submitSubmission(SubmissionDetail submissionDetail) {
     submissionDetailPersistenceService.submitSubmission(submissionDetail);
 
-    if (submissionDetail.getVersionNumber() > 1) {
+    if (submissionDetail.isUpdateSubmission()) {
       submissionUpdateService.resolveUpdateOnSubmission(submissionDetail);
     }
 
