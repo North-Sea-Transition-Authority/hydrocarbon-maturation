@@ -183,7 +183,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
 
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
-            entry(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()),
+            entry(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null)),
                 SearchResourceRecordsController.PAGE_TITLE),
             entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)),
                 resourceName)

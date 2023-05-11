@@ -87,4 +87,18 @@ class SearchResourceRecordsForm {
   public void setShowOnlyPreferredViews(boolean showOnlyPreferredViews) {
     this.showOnlyPreferredViews = showOnlyPreferredViews;
   }
+
+  public static SearchResourceRecordsForm from(SearchResourceRecordsFilter filter) {
+    var form = new SearchResourceRecordsForm();
+    form.setShowOnlyPreferredViews(filter.isShowOnlyPreferredViews());
+    form.setResourceTypes(filter.getResourceTypes());
+    form.setOpportunityTypes(filter.getOpportunityTypes());
+    form.setLicenceId(filter.getLicenceId());
+    form.setLicenceRound(filter.getLicenceRound());
+    form.setResourceDetailIdForResourceSubmission(filter.getResourceDetailIdForResourceSubmission());
+    form.setCentreOfInterestBlock(filter.getCentreOfInterestBlock());
+    form.setResponsibleOrganisationId(filter.getResponsibleOrganisationId());
+    form.setGeographicalArea(filter.getGeographicalArea());
+    return form;
+  }
 }

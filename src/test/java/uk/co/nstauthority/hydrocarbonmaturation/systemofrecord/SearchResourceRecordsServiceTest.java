@@ -55,27 +55,6 @@ class SearchResourceRecordsServiceTest {
   private OrganisationUnitQueryService organisationUnitQueryService;
 
   @Test
-  void getSearchResourceRecordsForm_assertResourceTypesAndOpportunityTypes() {
-    var returnedForm = underTest.getSearchResourceRecordsForm();
-    assertThat(returnedForm)
-        .extracting(
-            SearchResourceRecordsForm::getResourceTypes,
-            SearchResourceRecordsForm::getOpportunityTypes)
-        .containsExactly(
-            List.of(
-                "PROSPECT",
-                "DISCOVERY"),
-            List.of(
-                "LEAD",
-                "PROSPECT",
-                "DRILL_READY_PROSPECT",
-                "DRY_WELL",
-                "DISCOVERY",
-                "OTHER",
-                "NOT_SET"));
-  }
-
-  @Test
   void getOpportunityTypes() {
     assertThat(underTest.getOpportunityTypes())
         .containsExactly(

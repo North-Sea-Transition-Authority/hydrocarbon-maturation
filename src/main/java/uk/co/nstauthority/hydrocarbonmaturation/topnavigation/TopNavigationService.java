@@ -31,7 +31,7 @@ public class TopNavigationService {
 
     navigationItems.add(
         new TopNavigationItem(SEARCH_RESOURCE_RECORDS,
-            ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()))
+            ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null)))
     );
 
     return navigationItems;

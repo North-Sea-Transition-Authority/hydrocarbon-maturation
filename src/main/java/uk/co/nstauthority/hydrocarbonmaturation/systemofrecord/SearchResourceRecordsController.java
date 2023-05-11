@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
@@ -26,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 @Controller
 @RequestMapping("/search-resource-records")
 @AccessibleByServiceUsers
+@SessionAttributes({"searchSystemOfRecordFilter"})
 public class SearchResourceRecordsController {
 
   public static final String PAGE_TITLE = "Search resource records";
@@ -46,21 +49,40 @@ public class SearchResourceRecordsController {
   }
 
   @GetMapping
-  public ModelAndView showSearchResourceRecordsScreen() {
-    return getModelAndViewWithNoFiltersAdded(searchResourceRecordsService.getSearchResourceRecordsForm());
+  public ModelAndView showSearchResourceRecordsScreen(
+      @ModelAttribute("searchSystemOfRecordFilter") SearchResourceRecordsFilter filter) {
+    var form = SearchResourceRecordsForm.from(filter);
+
+    if (filter.isShowResults()) {
+      return getModelAndView(
+          form,
+          searchResourceRecordsService.getResourceRecordSearchResults(
+              form,
+              resourceRecordQueryServiceFactory.getQueryServiceStrategy()),
+          FiltersAdded.YES,
+          regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail())
+      );
+    }
+
+    return getModelAndViewWithNoFiltersAdded(form);
+  }
+
+  @GetMapping("/clear-filters")
+  public ModelAndView clearSearchResourceRecordFilter(
+      @ModelAttribute("searchSystemOfRecordFilter") SearchResourceRecordsFilter filter,
+      SessionStatus sessionStatus) {
+    sessionStatus.setComplete();
+    filter.clearFilter();
+    return ReverseRouter.redirect(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null));
   }
 
   @PostMapping
-  public ModelAndView searchResourceRecords(@ModelAttribute("form") SearchResourceRecordsForm form) {
-    var isRegulator = regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail());
-    return getModelAndView(
-        form,
-        searchResourceRecordsService.getResourceRecordSearchResults(
-            form,
-            resourceRecordQueryServiceFactory.getQueryServiceStrategy()),
-        FiltersAdded.YES,
-        isRegulator
-    );
+  public ModelAndView searchResourceRecords(
+      @ModelAttribute("searchSystemOfRecordFilter") SearchResourceRecordsFilter filter,
+      @ModelAttribute("form") SearchResourceRecordsForm form) {
+    filter.update(form);
+    return ReverseRouter.redirect(on(SearchResourceRecordsController.class)
+        .showSearchResourceRecordsScreen(null));
   }
 
   private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form) {
@@ -81,7 +103,7 @@ public class SearchResourceRecordsController {
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("filtersAdded", filtersAdded.isHasFilters())
         .addObject("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
-            .showSearchResourceRecordsScreen()))
+            .clearSearchResourceRecordFilter(null, null)))
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
         .addObject("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
             .searchResources(null)))
@@ -100,5 +122,12 @@ public class SearchResourceRecordsController {
         .addObject("resourceTypes", searchResourceRecordsService.getResourceTypes())
         .addObject("maxResultsReturned", searchResourceRecordsService.maxResultsReturned(resourceRecordSearchResults))
         .addObject("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class));
+  }
+
+  @ModelAttribute("searchSystemOfRecordFilter")
+  private SearchResourceRecordsFilter getDefaultFilter() {
+    var filter = new SearchResourceRecordsFilter();
+    filter.clearFilter();
+    return filter;
   }
 }

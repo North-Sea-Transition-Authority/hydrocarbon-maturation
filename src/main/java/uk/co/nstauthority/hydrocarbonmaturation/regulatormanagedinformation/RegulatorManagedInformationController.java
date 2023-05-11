@@ -176,7 +176,7 @@ public class RegulatorManagedInformationController {
       breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
           .addBreadcrumb(
               SearchResourceRecordsController.PAGE_TITLE,
-              ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null)))
+              ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null, null)))
           .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionOnResource),
               cancelUrl)
           .build();

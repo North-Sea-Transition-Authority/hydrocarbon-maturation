@@ -43,7 +43,8 @@ class TopNavigationServiceTest {
             Tuple.tuple(
                 TopNavigationService.SEARCH_RESOURCE_RECORDS,
                 StringUtils.stripEnd(
-                    ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()), "/")
+                    ReverseRouter.route(on(SearchResourceRecordsController.class)
+                        .showSearchResourceRecordsScreen(null)), "/")
             )
         );
   }

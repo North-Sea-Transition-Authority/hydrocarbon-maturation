@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
@@ -30,10 +31,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @ContextConfiguration(classes = SearchResourceRecordsController.class)
 class SearchResourceRecordsControllerTest extends AbstractControllerTest {
@@ -48,70 +51,106 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
   @SecurityTest
   void showSearchResourceRecordsScreen_NoUser_assertStatusUnauthorized() throws Exception {
     mockMvc.perform(
-            get(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen())))
+            get(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null))))
         .andExpect(status().isUnauthorized());
   }
 
   @Test
   void searchResourceRecords_whenRegulator_assertStatusOk() throws Exception {
-    var form = new SearchResourceRecordsForm();
-    var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
-    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
-        .thenReturn(regulatorQueryService);
     mockMvc.perform(
-            post(ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(form)))
+            post(ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null, null)))
                 .with(user(USER))
                 .with(csrf()))
-        .andExpect(status().isOk());
-
-    verify(searchResourceRecordsService, times(1))
-        .getResourceRecordSearchResults(
-            any(SearchResourceRecordsForm.class),
-            eq(regulatorQueryService));
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(SearchResourceRecordsController.class)
+            .showSearchResourceRecordsScreen(null))));
   }
 
   @Test
   void searchResourceRecords_whenOperator_assertStatusOk() throws Exception {
-    var form = new SearchResourceRecordsForm();
-    var operatorQueryService = mock(OperatorResourceRecordQueryService.class);
-    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
-        .thenReturn(operatorQueryService);
     mockMvc.perform(
-            post(ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(form)))
+            post(ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null, null)))
                 .with(user(USER))
                 .with(csrf()))
-        .andExpect(status().isOk());
-
-    verify(searchResourceRecordsService, times(1))
-        .getResourceRecordSearchResults(
-            any(SearchResourceRecordsForm.class),
-            eq(operatorQueryService));
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(SearchResourceRecordsController.class)
+            .showSearchResourceRecordsScreen(null))));
   }
 
   @Test
   void showSearchResourceRecordsScreen_whenOperator_assertStatusOk() throws Exception {
     var form = new SearchResourceRecordsForm();
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
-    when(searchResourceRecordsService.getSearchResourceRecordsForm())
-        .thenReturn(form);
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchResourceRecordsController.class)
-                .showSearchResourceRecordsScreen()))
+                .showSearchResourceRecordsScreen(null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
     assertThat(form.isShowOnlyPreferredViews()).isFalse();
   }
 
   @Test
+  void showSearchResourceRecordsScreen_whenRegulator_whenFilterInSessionAndShowResults_verifyMethodCalls() throws Exception {
+    var operatorQueryService = mock(OperatorResourceRecordQueryService.class);
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+        .thenReturn(operatorQueryService);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SearchResourceRecordsController.class)
+                .showSearchResourceRecordsScreen(null)))
+                .with(user(USER))
+                .flashAttr("searchSystemOfRecordFilter", getFullFilter(true)))
+        .andExpect(status().isOk());
+
+    verify(searchResourceRecordsService, times(1))
+        .getResourceRecordSearchResults(any(SearchResourceRecordsForm.class), eq(operatorQueryService));
+  }
+
+  @Test
+  void clearSearchResourceRecordFilter_verifyFilterDefaultsSet() throws Exception {
+    var filter = getFullFilter(true);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SearchResourceRecordsController.class)
+                .clearSearchResourceRecordFilter(null, null)))
+                .with(user(USER))
+                .flashAttr("searchSystemOfRecordFilter", filter))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(SearchResourceRecordsController.class)
+            .showSearchResourceRecordsScreen(null))));
+
+    assertThat(filter)
+        .hasAllNullFieldsOrPropertiesExcept(
+            "opportunityTypes",
+            "resourceTypes",
+            "showResults",
+            "showOnlyPreferredViews",
+            "geographicalArea")
+        .extracting(
+            SearchResourceRecordsFilter::getOpportunityTypes,
+            SearchResourceRecordsFilter::getResourceTypes,
+            SearchResourceRecordsFilter::isShowResults,
+            SearchResourceRecordsFilter::isShowOnlyPreferredViews,
+            SearchResourceRecordsFilter::getGeographicalArea)
+        .containsExactly(
+            List.of("LEAD",
+                "PROSPECT",
+                "DRILL_READY_PROSPECT",
+                "DRY_WELL",
+                "DISCOVERY",
+                "OTHER",
+                "NOT_SET"),
+            List.of("PROSPECT", "DISCOVERY"),
+            false,
+            true,
+            List.of());
+  }
+
+  @Test
   void showSearchResourceRecordsScreenModelAndView_whenRegulator_assertModelProperties() throws Exception {
-    var form = new SearchResourceRecordsForm();
-    form.setGeographicalArea(List.of(GeographicalArea.CENTRAL_NORTH_SEA.name()));
-    when(searchResourceRecordsService.getSearchResourceRecordsForm())
-        .thenReturn(form);
     when(regulatorTeamService.isRegulatorUser(USER))
         .thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen()))
+            get(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -122,9 +161,8 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
             entry("pageTitle", SearchResourceRecordsController.PAGE_TITLE),
             entry("filtersAdded", false),
             entry("isRegulator", true),
-            entry("form", form),
             entry("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
-                .showSearchResourceRecordsScreen())),
+                .clearSearchResourceRecordFilter(null, null))),
             entry("resourceRecordSearchResultItems", Collections.emptyList()),
             entry("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
                 .searchResources(null))),
@@ -138,7 +176,20 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
             entry("maxResultsReturned", false),
             entry("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class))
         );
+  }
 
-    assertThat(form.isShowOnlyPreferredViews()).isTrue();
+  SearchResourceRecordsFilter getFullFilter(boolean showResults) {
+    var filter = new SearchResourceRecordsFilter();
+    filter.setShowResults(showResults);
+    filter.setCentreOfInterestBlock("2/15");
+    filter.setGeographicalArea(List.of(GeographicalArea.ONSHORE.name()));
+    filter.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
+    filter.setShowOnlyPreferredViews(false);
+    filter.setOpportunityTypes(List.of(OpportunityType.DISCOVERY.name()));
+    filter.setLicenceId("2");
+    filter.setLicenceRound("2");
+    filter.setResourceDetailIdForResourceSubmission("random id");
+    filter.setResponsibleOrganisationId(1);
+    return filter;
   }
 }

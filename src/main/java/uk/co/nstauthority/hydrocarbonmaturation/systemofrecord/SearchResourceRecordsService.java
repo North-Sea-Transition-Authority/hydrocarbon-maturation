@@ -2,12 +2,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -85,17 +83,6 @@ class SearchResourceRecordsService {
     }
 
     return organisationUnitQueryService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId());
-  }
-
-  public SearchResourceRecordsForm getSearchResourceRecordsForm() {
-    var form = new SearchResourceRecordsForm();
-    form.setResourceTypes(List.of(ResourceType.PROSPECT.name(), ResourceType.DISCOVERY.name()));
-    var opportunityTypes = Arrays.stream(OpportunityType.values())
-        .map(OpportunityType::getEnumName)
-        .collect(Collectors.toList());
-    opportunityTypes.add("NOT_SET");
-    form.setOpportunityTypes(opportunityTypes);
-    return form;
   }
 
   public Map<String, String> getPreSelectedQuadAndBlock(SearchResourceRecordsForm form) {

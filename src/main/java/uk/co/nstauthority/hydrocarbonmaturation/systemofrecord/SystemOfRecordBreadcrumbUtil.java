@@ -28,7 +28,7 @@ public class SystemOfRecordBreadcrumbUtil {
   private static BreadcrumbItem getSearchSystemOfRecordBreadcrumb() {
     return new BreadcrumbItem(
             SearchResourceRecordsController.PAGE_TITLE,
-            ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null))
+            ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null, null))
     );
   }
 }

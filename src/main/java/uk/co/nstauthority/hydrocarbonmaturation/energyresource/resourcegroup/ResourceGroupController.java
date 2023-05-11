@@ -119,7 +119,7 @@ public class ResourceGroupController {
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(pageName)
         .addBreadcrumb(
             SearchResourceRecordsController.PAGE_TITLE,
-            ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null)))
+            ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null, null)))
         .addBreadcrumb(resourceName, cancelUrl)
         .build();
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
