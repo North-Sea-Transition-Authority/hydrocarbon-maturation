@@ -34,7 +34,7 @@ class ErrorServiceTest {
   private static final String SERVICE_HOME_URLS_ATTRIBUTE_NAME = "serviceHomeUrl";
   private static final String ACCESSIBILITY_STATEMENT_URL = "accessibilityStatementUrl";
   private static final String FEEDBACK_PAGE_URL = "feedbackPageUrl";
-
+  private static final String CONTACT_URL = "contactInformationUrl";
   private static final String STACK_TRACE_ATTRIBUTE = "stackTrace";
   private static final String SERVICE_BRANDING_ATTRIBUTE = "serviceBranding";
   private static final String CUSTOMER_BRANDING_ATTRIBUTE = "customerBranding";
@@ -75,7 +75,8 @@ class ErrorServiceTest {
         TECHNICAL_SUPPORT_ATTRIBUTE,
         ACCESSIBILITY_STATEMENT_URL,
         FEEDBACK_PAGE_URL,
-        STACK_TRACE_ATTRIBUTE
+        STACK_TRACE_ATTRIBUTE,
+        CONTACT_URL
     );
     Object errorRef = resultingModelMap.get(ERROR_REF_ATTRIBUTE_NAME);
     assertThat(errorRef).isNotNull();
@@ -94,9 +95,10 @@ class ErrorServiceTest {
         SERVICE_HOME_URLS_ATTRIBUTE_NAME,
         SERVICE_BRANDING_ATTRIBUTE,
         CUSTOMER_BRANDING_ATTRIBUTE,
+        TECHNICAL_SUPPORT_ATTRIBUTE,
         ACCESSIBILITY_STATEMENT_URL,
-        FEEDBACK_PAGE_URL,
-        TECHNICAL_SUPPORT_ATTRIBUTE
+        CONTACT_URL,
+        FEEDBACK_PAGE_URL
     );
   }
 }

@@ -25,7 +25,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationPr
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
-import uk.co.nstauthority.hydrocarbonmaturation.legal.AccessibilityStatementController;
+import uk.co.nstauthority.hydrocarbonmaturation.footer.AccessibilityStatementController;
+import uk.co.nstauthority.hydrocarbonmaturation.footer.ContactInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnicalSupportConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
@@ -80,6 +81,7 @@ class DefaultPageControllerAdviceTest {
         "submitSecondaryButtonText",
         "loggedInUser",
         "feedbackPageUrl",
+        "contactInformationUrl",
         "accessibilityStatementUrl",
         "org.springframework.validation.BindingResult.loggedInUser"
     );
@@ -94,6 +96,8 @@ class DefaultPageControllerAdviceTest {
         ReverseRouter.route(on(FeedbackController.class).getFeedback(null)));
     commonPropertiesMap.put("submitSecondaryButtonText", "Save and complete later");
     commonPropertiesMap.put("loggedInUser", loggedInUser);
+    commonPropertiesMap.put("contactInformationUrl",
+        ReverseRouter.route(on(ContactInformationController.class).getContactInformationPage()));
     commonPropertiesMap.put("accessibilityStatementUrl",
         ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement()));
     assertThat(modelMap).containsAllEntriesOf(commonPropertiesMap);

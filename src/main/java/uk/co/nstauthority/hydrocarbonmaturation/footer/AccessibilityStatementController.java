@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.legal;
+package uk.co.nstauthority.hydrocarbonmaturation.footer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,7 +26,7 @@ public class AccessibilityStatementController {
 
   @GetMapping
   public ModelAndView getAccessibilityStatement() {
-    return new ModelAndView("remi/legal/accessibilityStatement")
+    return new ModelAndView("remi/footer/accessibilityStatement")
         .addObject("technicalSupport",
             technicalSupportConfiguration.getTechnicalSupportConfigurationProperties())
         .addObject("accessibilityConfig",

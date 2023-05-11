@@ -54,7 +54,8 @@ public class WebSecurityConfiguration {
             "/assets/**",
             "/notify/callback",
             "/api/v1/logout/*",
-            "/accessibility-statement"
+            "/accessibility-statement",
+            "/contact-information"
         )
         .permitAll()
         .mvcMatchers("/*")

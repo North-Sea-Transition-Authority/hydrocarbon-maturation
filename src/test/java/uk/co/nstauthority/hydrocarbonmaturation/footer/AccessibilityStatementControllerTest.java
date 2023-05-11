@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.legal;
+package uk.co.nstauthority.hydrocarbonmaturation.footer;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -40,7 +40,7 @@ class AccessibilityStatementControllerTest extends RealSecurityAbstractControlle
     mockMvc.perform(get(ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement()))
             .with(user(USER)))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/legal/accessibilityStatement"))
+        .andExpect(view().name("remi/footer/accessibilityStatement"))
         .andExpect(model().attribute("technicalSupport",
             technicalSupportConfiguration.getTechnicalSupportConfigurationProperties()))
         .andExpect(model().attribute("accessibilityConfig",

@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
-import uk.co.nstauthority.hydrocarbonmaturation.legal.AccessibilityStatementController;
+import uk.co.nstauthority.hydrocarbonmaturation.footer.AccessibilityStatementController;
+import uk.co.nstauthority.hydrocarbonmaturation.footer.ContactInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -89,5 +90,7 @@ public class ErrorService {
         ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement()));
     modelAndView.addObject("feedbackPageUrl", ReverseRouter.route(on(FeedbackController.class)
         .getFeedback(null)));
+    modelAndView.addObject("contactInformationUrl", ReverseRouter.route(on(ContactInformationController.class)
+        .getContactInformationPage()));
   }
 }

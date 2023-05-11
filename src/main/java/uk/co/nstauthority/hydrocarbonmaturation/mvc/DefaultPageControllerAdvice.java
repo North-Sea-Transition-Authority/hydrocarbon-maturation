@@ -16,7 +16,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.InvalidAuthentica
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
-import uk.co.nstauthority.hydrocarbonmaturation.legal.AccessibilityStatementController;
+import uk.co.nstauthority.hydrocarbonmaturation.footer.AccessibilityStatementController;
+import uk.co.nstauthority.hydrocarbonmaturation.footer.ContactInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -80,6 +81,8 @@ public class DefaultPageControllerAdvice {
         ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement()));
     model.addAttribute("feedbackPageUrl", ReverseRouter.route(on(FeedbackController.class)
         .getFeedback(null)));
+    model.addAttribute("contactInformationUrl", ReverseRouter.route(on(ContactInformationController.class)
+        .getContactInformationPage()));
   }
 
   private void addSubmitButtonText(Model model) {
