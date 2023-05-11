@@ -30,8 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
@@ -64,7 +62,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 @ExtendWith(MockitoExtension.class)
 class SubmissionEmailServiceTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
   private static final String CONTEXT_PATH = "/remi";
   private static final String SERVICE_URL = "http://localhost" + CONTEXT_PATH;
   private static final SubmissionDetail SUBMISSION_DETAIL = SubmissionDetailTestUtils
@@ -123,6 +120,7 @@ class SubmissionEmailServiceTest {
     request.setContextPath(CONTEXT_PATH);
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     SUBMISSION_DETAIL.setSubmittedByWuaId(SUBMITTER_WUA_ID);
+    SUBMISSION_DETAIL.setVersionNumber(1);
   }
 
   @Nested
@@ -353,6 +351,67 @@ class SubmissionEmailServiceTest {
           );
     }
 
+    @Test
+    void sendSubmittedUpdateSubmissionEmails_whenExplorationTeam_assertEmailPersonalisation() {
+      SUBMISSION_DETAIL.setVersionNumber(2);
+
+      var recipient1 = EnergyPortalUserDtoTestUtil.Builder()
+          .withWebUserAccountId(EXPLORATION_USER_WUA_ID_1)
+          .withEmailAddress("expected@email.co.uk")
+          .withForename("Bob")
+          .withSurname("Johnson")
+          .build();
+
+      var expectedName = "resource name (25/5)";
+      var expectedLicencesString = "A2:";
+      var expectedLicencesStringWithoutColon = "A2";
+
+      when(regulatorTeamService.getExplorationTeamEnergyPortalUsers())
+          .thenReturn(List.of(recipient1));
+      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+          .thenReturn(expectedName);
+      var generalDetail = mock(GeneralDetail.class);
+      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
+          .thenReturn(Optional.of(generalDetail));
+      var responsibleTeam = new RegulatorManagedInformation();
+      responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+          SUBMISSION_DETAIL.getSubmission().getResource()))
+          .thenReturn(responsibleTeam);
+      when(serviceBrandingConfigurationProperties.getServiceConfigurationProperties())
+          .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
+      var licence = new Licence();
+      licence.setLicenceReference("A2");
+      when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
+          .thenReturn(List.of(licence));
+      var expectedReviewSubmissionUrl = SERVICE_URL +
+          ReverseRouter.route(on(ReviewSubmissionController.class)
+              .showReviewPage(SUBMISSION_DETAIL.getSubmission().getResource().getId()));
+
+      submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
+
+      verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient1.emailAddress()));
+      verifyNoMoreInteractions(notifyEmailService);
+
+      assertThat(argumentCaptor.getValue())
+          .extracting(
+              EmailProperties::getTemplate,
+              EmailProperties::getEmailPersonalisations)
+          .containsExactly(
+              NotifyTemplate.SUBMISSION_UPDATE_SUBMITTED_CONFIRMATION,
+              Map.of(
+                  "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
+                  "LICENCES", expectedLicencesString,
+                  "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
+                  "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
+                  "REVIEW_PAGE_URL", expectedReviewSubmissionUrl,
+                  "LICENCES_WITHOUT_LEADING_COLON", expectedLicencesStringWithoutColon,
+                  "RECIPIENT_NAME", "Bob Johnson",
+                  "SERVICE_NAME_MNEMONIC", SERVICE_NAME,
+                  "TEST_EMAIL", "no")
+          );
+    }
+
     @ParameterizedTest
     @EnumSource(value = ResponsibleTeamType.class, names = {"EXPLORATION"}, mode = EnumSource.Mode.EXCLUDE)
     void sendSubmittedSubmissionEmails_whenNotExploration_verifyNoSentEmails(ResponsibleTeamType responsibleTeamType) {
@@ -384,7 +443,6 @@ class SubmissionEmailServiceTest {
       verifyNoInteractions(notifyEmailService);
     }
   }
-
 
   @Nested
   class WhenSendingWithdrawalEmail {

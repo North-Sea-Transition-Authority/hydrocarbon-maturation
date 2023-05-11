@@ -130,7 +130,8 @@ public class SubmissionEmailService {
             .formatted(submissionDetail.getId()));
         return;
       }
-      var emailProperties = new EmailProperties(NotifyTemplate.SUBMISSION_CONFIRMATION_NOTIFICATION);
+      var emailTemplate = getSubmittedSubmissionConfirmationTemplate(submissionDetail);
+      var emailProperties = new EmailProperties(emailTemplate);
       var personalisations = emailProperties.getEmailPersonalisations();
       var licencesString = getDisplayableLicences(submissionDetail);
       personalisations.put(LICENCES_WITHOUT_LEADING_COLON, licencesString);
@@ -236,5 +237,11 @@ public class SubmissionEmailService {
               resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail)
                   .map(ResourceDetail::getOrganisationId));
     }
+  }
+
+  private NotifyTemplate getSubmittedSubmissionConfirmationTemplate(SubmissionDetail submissionDetail) {
+    return submissionDetail.isUpdateSubmission()
+        ? NotifyTemplate.SUBMISSION_UPDATE_SUBMITTED_CONFIRMATION
+        : NotifyTemplate.SUBMISSION_CONFIRMATION_NOTIFICATION;
   }
 }
