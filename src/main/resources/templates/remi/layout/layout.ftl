@@ -25,6 +25,7 @@
   errorItems=[]
   pageSize=PageSize.TWO_THIRDS_COLUMN
   backLinkUrl=""
+  backLinkEnabled=false
   caption=""
   breadcrumbsMap={}
   wrapperWidth=false
@@ -60,8 +61,8 @@
     </#if>
 
     <#assign backLink = false>
-    <#if backLinkUrl?has_content>
-        <#assign backLink=true/>
+    <#if backLinkUrl?has_content || backLinkEnabled>
+      <#assign backLink=true/>
     </#if>
 
     <#if flash?has_content>

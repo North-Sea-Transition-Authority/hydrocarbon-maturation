@@ -13,7 +13,7 @@
   pageHeading=pageTitle
   pageSize=PageSize.TWO_THIRDS_COLUMN
   phaseBanner=false
-  backLinkUrl=springUrl(cancelUrl)
+  backLinkEnabled=true
   errorItems=errorList>
   <@fdsForm.htmlForm actionUrl=springUrl(actionUrl)>
     <@fdsRadio.radio

@@ -13,6 +13,7 @@
 <@defaultPage
   htmlTitle=pageHeading
   pageHeading=pageHeading
+  backLinkEnabled=true
   topNavigation=false>
 
   <h2 class="govuk-heading-m" id="using-website">Using this website</h2>
