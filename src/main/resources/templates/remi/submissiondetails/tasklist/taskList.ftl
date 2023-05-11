@@ -18,9 +18,16 @@
   <#if isSubmissionUpdate>
     <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
   </#if>
+  <#assign deleteLinkText>
+    <#if isSubmissionUpdate>
+      Delete submission update
+    <#else>
+      Delete submission
+    </#if>
+  </#assign>
 
   <@fdsAction.link
-    linkText="Delete submission"
+    linkText="${deleteLinkText}"
     linkUrl=springUrl(deleteSubmissionUrl)
     linkClass="govuk-button govuk-button--secondary"
     role=true/>

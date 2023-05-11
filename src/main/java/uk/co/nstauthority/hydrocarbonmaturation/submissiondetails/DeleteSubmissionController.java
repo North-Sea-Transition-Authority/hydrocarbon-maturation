@@ -74,10 +74,11 @@ public class DeleteSubmissionController {
   public ModelAndView deleteSubmission(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                        RedirectAttributes redirectAttributes) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var isDraftUpdate = submissionDetail.isUpdateSubmission();
     submissionDetailPersistenceService.deleteSubmission(submissionDetail);
 
     NotificationBannerUtil.applyNotificationBanner(
-        redirectAttributes, getNotificationBanner(submissionDetail, submissionDetail.isUpdateSubmission()));
+        redirectAttributes, getNotificationBanner(submissionDetail, isDraftUpdate));
 
     return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
   }
