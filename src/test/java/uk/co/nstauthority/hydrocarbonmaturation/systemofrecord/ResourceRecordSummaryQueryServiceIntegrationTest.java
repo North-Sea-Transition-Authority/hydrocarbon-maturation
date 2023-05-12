@@ -95,6 +95,37 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         );
   }
 
+  @Test
+  void getResourceRecord_WhenTwoResourceRecords_returnsNonWithdrawnResourceRecord() {
+    var resource1 = buildResource();
+    var submissionNotWithdrawn = SubmissionIntegrationTestUtils.createSubmission(resource1, null, entityManager);
+    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
+    submissionDetail1.setSubmission(submissionNotWithdrawn);
+    var resourceName1 = "The resource name A";
+    var organisationId1 = 46;
+    createGeneralDetail(submissionDetail1);
+    createResourceDetail(submissionDetail1, resourceName1, organisationId1);
+
+    buildResponsibleTeam(resource1, ResponsibleTeamType.EXPLORATION);
+    var submissionDetail2 = buildSubmissionDetail(resource1, SubmissionType.PROSPECT_UPDATE);
+    var submissionWithdrawn = SubmissionIntegrationTestUtils.createSubmission(resource1, true, entityManager);
+    submissionDetail2.setSubmission(submissionWithdrawn);
+    createGeneralDetail(submissionDetail2);
+    createResourceDetail(submissionDetail2, resourceName1, organisationId1);
+
+    var result = resourceRecordSummaryQueryService.getResourceRecord(resource1.getId());
+
+    assertThat(result)
+        .isPresent()
+        .get()
+        .extracting(
+            ResourceRecordSummaryQueryResult::getSubmissionDetailId
+        )
+        .isEqualTo(
+            submissionDetail1.getId()
+        );
+  }
+
   private Licence createLicence(int id, String ref, GeneralDetail generalDetails) {
 
     return SubmissionIntegrationTestUtils.createLicence(id, ref, generalDetails, entityManager);

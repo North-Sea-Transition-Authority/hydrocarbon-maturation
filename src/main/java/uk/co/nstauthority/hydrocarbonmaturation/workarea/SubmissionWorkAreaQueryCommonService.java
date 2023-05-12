@@ -63,8 +63,7 @@ class SubmissionWorkAreaQueryCommonService {
                                     .and(SD_2.VERSION_NUMBER.eq(1)))
                                     .or(SD_2.STATUS.notIn(
                                         SubmissionDetailStatus.DRAFT.name(),
-                                        SubmissionDetailStatus.DELETED.name(),
-                                        SubmissionDetailStatus.WITHDRAWN.name())))))
+                                        SubmissionDetailStatus.DELETED.name())))))
                         .where(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID))
                         .orderBy(SD_2.VERSION_NUMBER.desc())
                         .limit(1)))
@@ -101,7 +100,7 @@ class SubmissionWorkAreaQueryCommonService {
     return SUBMISSION_DETAILS.STATUS
         .in(
             SubmissionDetailStatus.DRAFT.name(),
-            SubmissionDetailStatus.SUBMITTED.name()
-        );
+            SubmissionDetailStatus.SUBMITTED.name())
+        .and(SUBMISSIONS.WITHDRAWN.isNull());
   }
 }

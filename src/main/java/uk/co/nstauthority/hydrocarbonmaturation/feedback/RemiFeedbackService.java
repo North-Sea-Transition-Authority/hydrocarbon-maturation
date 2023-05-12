@@ -72,7 +72,7 @@ class RemiFeedbackService {
   private String getTransactionLink(SubmissionDetail submissionDetail) {
     return switch (submissionDetail.getStatus()) {
       case DRAFT -> RemiAbsoluteUrlUtil.getTasklistPageUrl(submissionDetail);
-      case DELETED, WITHDRAWN -> RemiAbsoluteUrlUtil.getWorkAreaUrl();
+      case DELETED -> RemiAbsoluteUrlUtil.getWorkAreaUrl();
       case SUBMITTED -> RemiAbsoluteUrlUtil.getReviewSubmissionPageUrl(submissionDetail);
       case APPROVED -> RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(submissionDetail);
     };

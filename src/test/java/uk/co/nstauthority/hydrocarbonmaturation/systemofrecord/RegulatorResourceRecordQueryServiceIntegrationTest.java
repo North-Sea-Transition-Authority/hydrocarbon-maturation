@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.EntityManager;
+import org.apache.commons.lang3.BooleanUtils;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,11 +19,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
@@ -1126,6 +1129,45 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .containsExactly(
             submissionDetailApprovedUpdate.getId()
         );
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void getResourceRecordSearchResults_whenSubmissionWithdrawn_assertOnlyNonWithdrawnDisplayed(
+      Boolean withdrawn) {
+    setUpRegulatorTest();
+    if(!withdrawn) {
+      withdrawn = null;
+    }
+    var resourceWithWithdrawnSubmission = buildDiscoveryResource();
+    var submissionDetailWithWithdrawnSubmission =
+        buildSubmissionDetail(resourceWithWithdrawnSubmission, SubmissionType.CREATE_DISCOVERY);
+    var withdrawnSubmission =
+        SubmissionIntegrationTestUtils.createSubmission(resourceWithWithdrawnSubmission, withdrawn, entityManager);
+    submissionDetailWithWithdrawnSubmission.setSubmission(withdrawnSubmission);
+    entityManager.persist(submissionDetailWithWithdrawnSubmission);
+    entityManager.flush();
+    createResourceDetail(
+        submissionDetailWithWithdrawnSubmission, "Not relevant name", 1);
+    var preferredViewGeneralDetail = createGeneralDetail(submissionDetailWithWithdrawnSubmission);
+    var extantLicence = createLicence(1, "licenceRef", preferredViewGeneralDetail);
+    when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
+        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+
+    var form = new SearchResourceRecordsForm();
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    if (BooleanUtils.isTrue(withdrawn)) {
+      assertThat(results).isEmpty();
+    } else {
+      assertThat(results)
+          .extracting(
+              ResourceRecordQueryResult::getSubmissionDetailId)
+          .containsExactly(
+              submissionDetailWithWithdrawnSubmission.getId()
+          );
+    }
   }
 
   private ResourceLink createResourceLink(Resource prospect, Resource discovery) {

@@ -181,6 +181,57 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       }
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void WhenProspect_whenWithdrawnOrNot_assertReturnedOrder(Boolean withdrawn) {
+      var prospectResource = createProspectResource();
+      if (!withdrawn) {
+        withdrawn = null;
+      }
+
+      var initialProspectSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
+      initialProspectSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(4000));
+      initialProspectSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+
+      var prospectUpdateSubmission = createSubmissionDetail(
+          prospectResource, withdrawn, SubmissionType.PROSPECT_UPDATE);
+      prospectUpdateSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(3000));
+      prospectUpdateSubmission.setStatus(SubmissionDetailStatus.SUBMITTED);
+
+      entityManager.persist(initialProspectSubmission);
+      entityManager.flush();
+      entityManager.persist(prospectUpdateSubmission);
+      entityManager.flush();
+
+      var resourceId = prospectResource.getId();
+      var results = submissionHistoryQueryService
+          .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
+      if (withdrawn == null) {
+        assertThat(results)
+            .extracting(
+                SubmissionQuerySearchRecord::getStatus,
+                SubmissionQuerySearchRecord::getSubmissionDetailId)
+            .containsExactly(
+                tuple(
+                    SubmissionDetailStatus.SUBMITTED,
+                    prospectUpdateSubmission.getId()),
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    initialProspectSubmission.getId()
+                )
+            );
+      } else {
+        assertThat(results)
+            .extracting(
+                SubmissionQuerySearchRecord::getStatus,
+                SubmissionQuerySearchRecord::getSubmissionDetailId)
+            .containsExactly(
+                tuple(
+                    SubmissionDetailStatus.APPROVED,
+                    initialProspectSubmission.getId())
+            );
+      }
+    }
   }
 
   @Nested
@@ -378,6 +429,11 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
   private SubmissionDetail createSubmissionDetail(Resource resource, SubmissionType submissionType) {
     var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(resource, entityManager);
+    return SubmissionIntegrationTestUtils.createSubmissionDetail(submission, submissionType, entityManager);
+  }
+
+  private SubmissionDetail createSubmissionDetail(Resource resource, Boolean withdrawn, SubmissionType submissionType) {
+    var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(resource, withdrawn, entityManager);
     return SubmissionIntegrationTestUtils.createSubmissionDetail(submission, submissionType, entityManager);
   }
 

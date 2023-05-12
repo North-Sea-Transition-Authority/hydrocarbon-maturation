@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -15,8 +15,8 @@ class SubmissionFilterUtilTest {
 
   static private SubmissionDetail submissionDetail;
 
-  @BeforeAll
-  static void setUp() {
+  @BeforeEach
+  void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
@@ -191,7 +191,8 @@ class SubmissionFilterUtilTest {
 
     submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
     assertThat(SubmissionFilterUtil.isExtantDiscoverySubmission(submissionDetail)).isFalse();
-    submissionDetail.setStatus(SubmissionDetailStatus.WITHDRAWN);
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetail.getSubmission().setWithdrawn(true);
     assertThat(SubmissionFilterUtil.isExtantDiscoverySubmission(submissionDetail)).isFalse();
   }
 
@@ -274,7 +275,8 @@ class SubmissionFilterUtilTest {
     submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
     assertThat(SubmissionFilterUtil.isExtantPostDrillDryHoleSubmission(submissionDetail)).isFalse();
 
-    submissionDetail.setStatus(SubmissionDetailStatus.WITHDRAWN);
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetail.getSubmission().setWithdrawn(true);
     assertThat(SubmissionFilterUtil.isExtantPostDrillDryHoleSubmission(submissionDetail)).isFalse();
   }
 }

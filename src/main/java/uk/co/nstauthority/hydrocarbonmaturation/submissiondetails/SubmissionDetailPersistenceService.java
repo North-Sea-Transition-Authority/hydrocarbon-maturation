@@ -98,13 +98,4 @@ public class SubmissionDetailPersistenceService {
     }
     submissionDetailRepository.save(submissionDetail);
   }
-
-  @Transactional
-  public void withdrawSubmission(SubmissionDetail submissionDetail, String withdrawalReason) {
-    submissionDetail.setStatus(SubmissionDetailStatus.WITHDRAWN);
-    submissionDetail.setWithdrawnTimestamp(clock.instant());
-    submissionDetail.setWithdrawnByWuaId(userDetailService.getUserWuaId());
-    submissionDetail.setWithdrawalReason(withdrawalReason);
-    submissionDetailRepository.save(submissionDetail);
-  }
 }

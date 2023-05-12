@@ -15,7 +15,7 @@ class SubmissionDetailTest {
 
   @BeforeAll
   static void setUp() {
-    submissionDetail = new SubmissionDetail();
+    submissionDetail =  SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
   @ParameterizedTest
@@ -133,7 +133,7 @@ class SubmissionDetailTest {
   @EnumSource(SubmissionDetailStatus.class)
   void isDeletedOrWithdrawnSubmission(SubmissionDetailStatus status) {
     submissionDetail.setStatus(status);
-    if (status == SubmissionDetailStatus.DELETED || status == SubmissionDetailStatus.WITHDRAWN) {
+    if (status == SubmissionDetailStatus.DELETED) {
       assertTrue(submissionDetail.isDeletedOrWithdrawnSubmission());
     } else {
       assertFalse(submissionDetail.isDeletedOrWithdrawnSubmission());

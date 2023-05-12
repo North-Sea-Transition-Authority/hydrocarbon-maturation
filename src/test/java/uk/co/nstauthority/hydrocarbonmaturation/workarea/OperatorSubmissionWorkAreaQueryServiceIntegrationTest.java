@@ -8,9 +8,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.persistence.EntityManager;
+import org.apache.commons.lang3.BooleanUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -347,6 +350,39 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
             updateSubmissionDetailSubmitted.getId(),
             initialSubmissionDetail2.getId()
         );
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void getSubmissions_whenWithdrawn_assertReturnWhenNotWithdrawn(Boolean withdrawn) {
+    if(!withdrawn) {
+      withdrawn = null;
+    }
+    var responsibleOrganisationId = 46;
+    var userOrgUnits = List.of(responsibleOrganisationId);
+    setUpIndustryTest(userOrgUnits);
+
+    var resource = createResource(Instant.now(), entityManager);
+    var submissionWithTwoSubmitted =
+        SubmissionIntegrationTestUtils.createSubmission(resource, withdrawn, entityManager);
+    var initialSubmissionDetail = setUpSubmissionDetailWithResponsibleOrgForSubmission(
+        submissionWithTwoSubmitted, Instant.parse("2006-12-03T10:15:15.00Z"),
+        responsibleOrganisationId, 1, SubmissionDetailStatus.SUBMITTED);
+    var updateSubmissionDetailSubmitted = setUpSubmissionDetailWithResponsibleOrgForSubmission(
+        submissionWithTwoSubmitted, Instant.parse("2007-12-03T10:15:15.00Z"),
+        responsibleOrganisationId, 2, SubmissionDetailStatus.SUBMITTED);
+
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    if (BooleanUtils.isTrue(withdrawn)) {
+      assertThat(results).isEmpty();
+    } else {
+      assertThat(results)
+          .extracting(
+              SubmissionWorkAreaQueryResult::getSubmissionDetailId)
+          .containsExactly(
+              updateSubmissionDetailSubmitted.getId()
+          );
+    }
   }
 
   private SubmissionDetail setUpSubmissionDetailWithResponsibleOrgForSubmission(Submission submission,

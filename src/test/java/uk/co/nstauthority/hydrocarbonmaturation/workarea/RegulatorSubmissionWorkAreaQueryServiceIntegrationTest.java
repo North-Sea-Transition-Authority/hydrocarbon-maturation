@@ -551,26 +551,25 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.flush();
 
     var withdrawnSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    withdrawnSubmissionDetail.setStatus(SubmissionDetailStatus.WITHDRAWN);
+    withdrawnSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     withdrawnSubmissionDetail.setId(null);
     withdrawnSubmissionDetail.setSubmittedByWuaId(5);
     withdrawnSubmissionDetail.setVersionNumber(2);
     withdrawnSubmissionDetail.setCreatedTimestamp(Instant.now());
     withdrawnSubmissionDetail.setSubmittedTimestamp(Instant.now());
     withdrawnSubmissionDetail.setSubmission(submissionWithTwoSubmittedDetails);
+    submissionWithTwoSubmittedDetails.setWithdrawn(true);
     entityManager.persist(withdrawnSubmissionDetail);
     entityManager.flush();
     SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(submissionWithTwoSubmittedDetails, true, entityManager);
 
     var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
-    //todo HM-502 update this test after handling withdrawing submissions with updates
-    // initialSubmittedSubmissionDetail2 should not appear in such a case
+
     assertThat(results)
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId)
         .containsExactly(
-            initialSubmittedSubmissionDetail.getId(),
-            initialSubmittedSubmissionDetail2.getId()
+            initialSubmittedSubmissionDetail.getId()
         );
   }
 

@@ -69,7 +69,8 @@ class SubmissionRecordSummaryQueryService {
         .where(RESOURCES.ID.eq(resourceId)
             .and(SUBMISSION_DETAILS.STATUS.in(
                 SubmissionDetailStatus.SUBMITTED.name(),
-                SubmissionDetailStatus.APPROVED.name())))
+                SubmissionDetailStatus.APPROVED.name()))
+            .and(SUBMISSIONS.WITHDRAWN.isNull()))
         .groupBy(List.of(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,

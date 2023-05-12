@@ -29,7 +29,7 @@ class SubmissionHistoryQueryService {
   List<SubmissionQuerySearchRecord> getApprovedAndSubmittedSubmissionsOnResource(UUID resourceId) {
     return getSubmissionsOnResourceQueryResults(
         List.of(
-            getResourceIdCondition(resourceId),
+            getResourceIdAndNotWithdrawnCondition(resourceId),
             SUBMISSION_DETAILS.STATUS.in(
                 SubmissionDetailStatus.APPROVED.name(),
                 SubmissionDetailStatus.SUBMITTED.name()))
@@ -39,7 +39,7 @@ class SubmissionHistoryQueryService {
   List<SubmissionQuerySearchRecord> getApprovedSubmissionsOnResource(UUID resourceId) {
     return getSubmissionsOnResourceQueryResults(
         List.of(
-            getResourceIdCondition(resourceId),
+            getResourceIdAndNotWithdrawnCondition(resourceId),
             SUBMISSION_DETAILS.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))
     );
   }
@@ -74,9 +74,9 @@ class SubmissionHistoryQueryService {
         .fetchInto(SubmissionQuerySearchRecord.class);
   }
 
-  private Condition getResourceIdCondition(UUID resourceId) {
-    return SUBMISSIONS.RESOURCE_ID.eq(resourceId)
+  private Condition getResourceIdAndNotWithdrawnCondition(UUID resourceId) {
+    return SUBMISSIONS.WITHDRAWN.isNull().and(SUBMISSIONS.RESOURCE_ID.eq(resourceId)
         .or(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(resourceId))
-        .or(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(resourceId));
+        .or(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(resourceId)));
   }
 }

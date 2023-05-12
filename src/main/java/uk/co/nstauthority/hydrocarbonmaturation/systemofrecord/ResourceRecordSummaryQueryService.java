@@ -63,7 +63,7 @@ class ResourceRecordSummaryQueryService {
           .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
           .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
           .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID)))
-        .where(RESOURCES.ID.eq(resourceId))
+        .where(RESOURCES.ID.eq(resourceId).and(SUBMISSIONS.WITHDRAWN.isNull()))
         .groupBy(List.of(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,

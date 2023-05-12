@@ -24,10 +24,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -37,7 +37,7 @@ class WithdrawSubmissionServiceTest {
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @Mock
-  private SubmissionDetailPersistenceService submissionDetailPersistenceService;
+  private SubmissionPersistenceService submissionPersistenceService;
   @Mock
   private RegulatorTeamService regulatorTeamService;
   @Mock
@@ -77,7 +77,7 @@ class WithdrawSubmissionServiceTest {
     form.setWithdrawReason("theReason");
     underTest.withdrawSubmissionOrThrow(submissionDetail, form);
 
-    verify(submissionDetailPersistenceService).withdrawSubmission(submissionDetail, form.getWithdrawReason());
+    verify(submissionPersistenceService).withdrawSubmission(submissionDetail.getSubmission(), form.getWithdrawReason());
     verify(submissionEmailService).sendSubmissionWithdrawalEmail(submissionDetail);
   }
 
@@ -97,7 +97,7 @@ class WithdrawSubmissionServiceTest {
         .hasMessage("Submission cannot be withdrawn by user with ID %s"
             .formatted(USER.wuaId()));
 
-    verifyNoInteractions(submissionDetailPersistenceService);
+    verifyNoInteractions(submissionPersistenceService);
     verifyNoInteractions(submissionEmailService);
   }
 

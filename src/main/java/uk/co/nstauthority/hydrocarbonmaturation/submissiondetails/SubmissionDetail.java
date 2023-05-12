@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import org.apache.commons.lang3.BooleanUtils;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
@@ -32,15 +33,11 @@ public class SubmissionDetail {
 
   private Integer submittedByWuaId;
 
-  private Integer withdrawnByWuaId;
-
   private Integer approvedByWuaId;
 
   private Instant submittedTimestamp;
 
   private Instant approvedTimestamp;
-
-  private Instant withdrawnTimestamp;
 
   @Enumerated(EnumType.STRING)
   private SubmissionDetailStatus status;
@@ -52,8 +49,6 @@ public class SubmissionDetail {
 
   @Enumerated(EnumType.STRING)
   private SubmitterType submitterType;
-
-  private String withdrawalReason;
 
   public UUID getId() {
     return id;
@@ -193,7 +188,7 @@ public class SubmissionDetail {
   }
 
   public boolean isDeletedOrWithdrawnSubmission() {
-    return status == SubmissionDetailStatus.DELETED || status == SubmissionDetailStatus.WITHDRAWN;
+    return status == SubmissionDetailStatus.DELETED || BooleanUtils.isTrue(submission.isWithdrawn());
   }
 
   public boolean isDryWellSubmission() {
@@ -217,30 +212,6 @@ public class SubmissionDetail {
 
   public boolean isUpdateSubmission() {
     return versionNumber > 1;
-  }
-
-  public Integer getWithdrawnByWuaId() {
-    return withdrawnByWuaId;
-  }
-
-  public void setWithdrawnByWuaId(Integer withdrawnByWuaId) {
-    this.withdrawnByWuaId = withdrawnByWuaId;
-  }
-
-  public Instant getWithdrawnTimestamp() {
-    return withdrawnTimestamp;
-  }
-
-  public void setWithdrawnTimestamp(Instant withdrawnTimestamp) {
-    this.withdrawnTimestamp = withdrawnTimestamp;
-  }
-
-  public String getWithdrawalReason() {
-    return withdrawalReason;
-  }
-
-  public void setWithdrawalReason(String withdrawalReason) {
-    this.withdrawalReason = withdrawalReason;
   }
 
   public Submission getSubmission() {

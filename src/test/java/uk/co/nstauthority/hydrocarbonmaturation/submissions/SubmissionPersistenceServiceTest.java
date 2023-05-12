@@ -5,6 +5,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,13 +16,24 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionPersistenceServiceTest {
+  private static final Integer USER_WUA_ID = 1;
+  private static final Instant WITHDRAWN_INSTANT = Instant.now();
+  private static final String WITHDRAW_REASON = "no reason";
 
   @Mock
   private SubmissionRepository submissionRepository;
+
+  @Mock
+  private Clock clock;
+
+  @Mock
+  private UserDetailService userDetailService;
 
   @InjectMocks
   private SubmissionPersistenceService submissionPersistenceService;
@@ -49,17 +62,48 @@ class SubmissionPersistenceServiceTest {
     var resource = new Resource();
     var submissionArgumentCaptor = ArgumentCaptor.forClass(Submission.class);
     var submission = submissionPersistenceService.createSubmission(resource);
-    submission.setId(UUID.randomUUID());
+
     verify(submissionRepository, times(1)).save(submissionArgumentCaptor.capture());
 
     var createdSubmission = submissionArgumentCaptor.getValue();
     assertThat(createdSubmission)
         .extracting(
             Submission::getId,
+            Submission::isWithdrawn,
             Submission::getResource)
         .containsExactly(
             submission.getId(),
+            null,
             submission.getResource());
+  }
+
+  @Test
+  void withdrawSubmission() {
+    var resource = new Resource();
+    var submission = SubmissionTestUtils.createSubmission(resource);
+
+    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID);
+    when(clock.instant()).thenReturn(WITHDRAWN_INSTANT);
+
+    var returnedSubmission = submissionPersistenceService.withdrawSubmission(submission, WITHDRAW_REASON);
+
+    verify(submissionRepository, times(1)).save(returnedSubmission);
+
+    assertThat(returnedSubmission)
+        .extracting(
+            Submission::getId,
+            Submission::getResource,
+            Submission::isWithdrawn,
+            Submission::getWithdrawalReason,
+            Submission::getWithdrawnByWuaId,
+            Submission::getWithdrawnTimestamp)
+        .containsExactly(
+            submission.getId(),
+            resource,
+            true,
+            WITHDRAW_REASON,
+            USER_WUA_ID,
+            WITHDRAWN_INSTANT);
   }
 
   @Test
@@ -77,11 +121,25 @@ class SubmissionPersistenceServiceTest {
   void getSubmissionsByResource_assertMultipleReturned() {
     var resource = new Resource();
     var submission = new Submission();
+    submission.setWithdrawn(null);
     var submission2 = new Submission();
     when(submissionRepository.findSubmissionsByResource(resource))
         .thenReturn(List.of(submission, submission2));
 
     assertThat(submissionPersistenceService.getSubmissionsByResource(resource))
         .containsExactly(submission, submission2);
+  }
+
+  @Test
+  void getSubmissionsByResource_assertWithdrawnNotReturned() {
+    var resource = new Resource();
+    var submission = new Submission();
+    submission.setWithdrawn(true);
+    var submission2 = new Submission();
+    when(submissionRepository.findSubmissionsByResource(resource))
+        .thenReturn(List.of(submission, submission2));
+
+    assertThat(submissionPersistenceService.getSubmissionsByResource(resource))
+        .containsExactly(submission2);
   }
 }

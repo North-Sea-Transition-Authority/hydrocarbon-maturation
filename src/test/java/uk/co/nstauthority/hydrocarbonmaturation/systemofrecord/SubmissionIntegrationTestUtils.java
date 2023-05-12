@@ -167,4 +167,13 @@ public class SubmissionIntegrationTestUtils {
     entityManager.flush();
     return submission;
   }
+
+  public static Submission createSubmission(Resource resource, Boolean withdrawn, EntityManager entityManager) {
+    var submission = new Submission();
+    submission.setResource(resource);
+    submission.setWithdrawn(withdrawn);
+    entityManager.persist(submission);
+    entityManager.flush();
+    return submission;
+  }
 }

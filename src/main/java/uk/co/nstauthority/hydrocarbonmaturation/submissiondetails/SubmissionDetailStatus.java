@@ -7,8 +7,7 @@ public enum SubmissionDetailStatus implements Displayable {
   DRAFT("Draft", 10),
   APPROVED("Approved", 20),
   SUBMITTED("Submitted", 30),
-  DELETED("Deleted", 40),
-  WITHDRAWN("Withdrawn", 50);
+  DELETED("Deleted", 40);
 
   private final String displayName;
   private final int displayOrder;

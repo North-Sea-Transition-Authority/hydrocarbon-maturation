@@ -65,7 +65,8 @@ class ResourceQueryCommonService {
                       //gets latest approved submission detail for a submission on a resource
                       .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID)
                           .and(SD_2.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))))
-                  .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
+                  .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID)
+                      .and(SUBMISSIONS.WITHDRAWN.isNull()))
                   .orderBy(SD_2.APPROVED_TIMESTAMP.desc().nullsLast())
                   .limit(1)))
           .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))

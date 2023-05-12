@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Instant;
 import java.util.List;
 import javax.persistence.EntityManager;
+import org.apache.commons.lang3.BooleanUtils;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
@@ -15,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
@@ -150,6 +154,56 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
             submittedUpdate.getId(),
             submittedUpdate.getSubmittedTimestamp().toEpochMilli()
         );
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void getSubmissionRecord_whenSubmissionUpdateWithdrawn_returnLatestWhenNotWithdrawn(Boolean withdrawn) {
+    if(!withdrawn) {
+      withdrawn = null;
+    }
+
+    var resourceForQueriedSubmission = buildResource();
+    buildResponsibleTeam(resourceForQueriedSubmission, ResponsibleTeamType.EXPLORATION);
+    var parentSubmission =
+        SubmissionIntegrationTestUtils.createSubmission(resourceForQueriedSubmission, withdrawn, entityManager);
+    var submissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_PROSPECT);
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetail.setSubmittedTimestamp(Instant.now());
+    submissionDetail.setSubmission(parentSubmission);
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
+
+    var submittedUpdate = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_PROSPECT);
+    submittedUpdate.setSubmission(parentSubmission);
+    submittedUpdate.setVersionNumber(2);
+    submittedUpdate.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submittedUpdate.getSubmission().setWithdrawn(withdrawn);
+    submittedUpdate.setSubmission(submissionDetail.getSubmission());
+    submittedUpdate.setSubmittedTimestamp(Instant.now().plusSeconds(5000));
+    entityManager.persist(submittedUpdate);
+    entityManager.flush();
+
+    createResourceDetail(submittedUpdate, "Not relevant name", 1);
+    createResourceDetail(submissionDetail, "Not relevant name", 1);
+
+    var result = submissionRecordSummaryQueryService
+        .getSubmissionRecord(submissionDetail.getSubmission().getResource().getId());
+    if (BooleanUtils.isTrue(withdrawn)) {
+      assertThat(result).isNotPresent();
+    } else {
+      assertThat(result)
+          .isPresent()
+          .get()
+          .extracting(
+              SubmissionRecordSummaryQueryResult::getSubmissionDetailId,
+              r -> r.getSubmittedOn().getTime()
+          )
+          .containsExactly(
+              submittedUpdate.getId(),
+              submittedUpdate.getSubmittedTimestamp().toEpochMilli()
+          );
+    }
   }
 
   private Licence createLicence(int id, String ref, GeneralDetail generalDetails) {

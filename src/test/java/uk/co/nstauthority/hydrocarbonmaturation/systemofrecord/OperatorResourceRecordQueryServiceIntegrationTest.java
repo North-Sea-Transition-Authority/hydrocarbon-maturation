@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.EntityManager;
+import org.apache.commons.lang3.BooleanUtils;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,7 +30,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
@@ -41,11 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTest
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
@@ -392,6 +388,47 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         );
   }
 
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void getResourceRecordSearchResults_whenSubmissionWithdrawn_assertOnlyNonWithdrawnDisplayed(
+      Boolean withdrawn) {
+    if(!withdrawn) {
+      withdrawn = null;
+    }
+    var userOrgUnitId = 1;
+    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(userOrgUnitId));
+
+    var resourceWithWithdrawnSubmission = buildDiscoveryResource();
+    var submissionDetailWithWithdrawnSubmission =
+        buildSubmissionDetail(resourceWithWithdrawnSubmission, SubmissionType.CREATE_DISCOVERY);
+    var withdrawnSubmission =
+        SubmissionIntegrationTestUtils.createSubmission(resourceWithWithdrawnSubmission, withdrawn, entityManager);
+    submissionDetailWithWithdrawnSubmission.setSubmission(withdrawnSubmission);
+    entityManager.persist(submissionDetailWithWithdrawnSubmission);
+    entityManager.flush();
+    createResourceDetail(
+        submissionDetailWithWithdrawnSubmission, "Not relevant name", userOrgUnitId);
+    var preferredViewGeneralDetail = createGeneralDetail(submissionDetailWithWithdrawnSubmission);
+    var extantLicence = createLicence(1, "licenceRef", preferredViewGeneralDetail);
+    when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
+        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+
+    var form = new SearchResourceRecordsForm();
+
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    if (BooleanUtils.isTrue(withdrawn)) {
+      assertThat(results).isEmpty();
+    } else {
+      assertThat(results)
+          .extracting(
+              ResourceRecordQueryResult::getSubmissionDetailId)
+          .containsExactly(
+              submissionDetailWithWithdrawnSubmission.getId()
+          );
+    }
+  }
+
   private void setUpIndustryTest(Set<TeamRole> userRoles, List<Integer> userOrgUnitIds) {
     var user = ServiceUserDetailTestUtil.Builder()
         .withWuaId(1000L)
@@ -435,41 +472,9 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         resource, ResponsibleTeamType.EXPLORATION, geographicalArea, entityManager);
   }
 
-  private ResourceLink createResourceLink(Resource prospect, Resource discovery) {
-    var resourceLink = new ResourceLink();
-    resourceLink.setDiscoveryResource(discovery);
-    resourceLink.setProspectResource(prospect);
-
-    entityManager.persist(resourceLink);
-    entityManager.flush();
-
-    return resourceLink;
-  }
-
   private Licence createLicence(int id, String ref, GeneralDetail generalDetails) {
 
     return SubmissionIntegrationTestUtils.createLicence(id, ref, generalDetails, entityManager);
-  }
-
-  private OpportunityDetail createOpportunityDetail(OpportunityType opportunityType, SubmissionDetail submissionDetail) {
-    var opportunityDetail = new OpportunityDetail();
-    opportunityDetail.setOpportunityType(opportunityType);
-    opportunityDetail.setSubmissionDetail(submissionDetail);
-
-    entityManager.persist(opportunityDetail);
-    entityManager.flush();
-
-    return opportunityDetail;
-  }
-
-  private TrapProperty createTrapProperty(SubmissionDetail submissionDetail, String centreOfInterestQuadrantBlock) {
-
-    return SubmissionIntegrationTestUtils.createTrapProperty(submissionDetail, centreOfInterestQuadrantBlock, entityManager);
-  }
-
-  private QuadrantAndBlock createQuadAndBlock(GeneralDetail generalDetails, String quadrantBlock) {
-
-    return SubmissionIntegrationTestUtils.createQuadAndBlock(generalDetails, quadrantBlock, entityManager);
   }
 
   private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail) {
@@ -483,18 +488,11 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   }
 
   private Resource buildProspectResource() {
-
     return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
   }
 
   private Resource buildDiscoveryResource() {
-    var resource = new Resource();
-    resource.setType(ResourceType.DISCOVERY);
-
-    entityManager.persist(resource);
-    entityManager.flush();
-
-    return resource;
+    return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
   }
 
   private ResourceGroupLink buildResourceGroupLink(boolean preferredView, Resource resource) {
