@@ -15,6 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncas
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseUploadController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesController;
@@ -28,18 +30,21 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
   private final SourceAndSealSubmissionService sourceAndSealSubmissionService;
   private final HydrocarbonCaseSubmissionService hydrocarbonCaseSubmissionService;
   private final ChanceOfSuccessSubmissionService chanceOfSuccessSubmissionService;
+  private final OutlineForMaximumCaseSubmissionService outlineForMaximumCaseSubmissionService;
 
   @Autowired
   OpportunityTaskListSectionService(OpportunityDetailsSubmissionService opportunityDetailsSubmissionService,
                                     TrapPropertiesSubmissionService trapPropertiesSubmissionService,
                                     SourceAndSealSubmissionService sourceAndSealSubmissionService,
                                     HydrocarbonCaseSubmissionService hydrocarbonCaseSubmissionService,
-                                    ChanceOfSuccessSubmissionService chanceOfSuccessSubmissionService) {
+                                    ChanceOfSuccessSubmissionService chanceOfSuccessSubmissionService,
+                                    OutlineForMaximumCaseSubmissionService outlineForMaximumCaseSubmissionService) {
     this.opportunityDetailsSubmissionService = opportunityDetailsSubmissionService;
     this.trapPropertiesSubmissionService = trapPropertiesSubmissionService;
     this.sourceAndSealSubmissionService = sourceAndSealSubmissionService;
     this.hydrocarbonCaseSubmissionService = hydrocarbonCaseSubmissionService;
     this.chanceOfSuccessSubmissionService = chanceOfSuccessSubmissionService;
+    this.outlineForMaximumCaseSubmissionService = outlineForMaximumCaseSubmissionService;
   }
 
   @Override
@@ -55,11 +60,13 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
     return switch (submissionDetail.getSubmissionType()) {
       case PROSPECT_UPDATE, CREATE_PROSPECT, RELINQUISHMENT_PROSPECT ->
           opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)
+          && outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)
           && chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)
           && trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)
           && sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
           && hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail);
       default -> opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)
+          && outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)
           && sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
           && trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail);
     };
@@ -75,6 +82,13 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
                 opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)),
             ReverseRouter.route(
                 on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetail.getId(), null)))
+    );
+
+    listOfItems.add(
+        new TaskListItem("Outline for maximum case",
+            TaskListLabel.notStartedOrComplete(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)),
+            ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
+                .getOutlineForMaximumCaseUpload(submissionDetail.getId(), null)))
     );
 
     listOfItems.add(

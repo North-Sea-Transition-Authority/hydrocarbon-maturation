@@ -1,43 +1,79 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.annotation.Nullable;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 
 @Service
 class ShapefileZipService {
-  enum ShapefileExtension {
-    SHP(".shp"),
-    SHX(".shx"),
-    DBF(".dbf"),
-    PRJ(".prj");
+  private final ShapefileImportService shapefileImportService;
+  private final SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService;
 
-    private final String extension;
+  public ShapefileZipService(ShapefileImportService shapefileImportService,
+                             SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService) {
+    this.shapefileImportService = shapefileImportService;
+    this.supportedCoordinateReferenceSystemService = supportedCoordinateReferenceSystemService;
+  }
 
-    ShapefileExtension(String extension) {
-      this.extension = extension;
+  public ShapefileZipContents getShapefileZipContents(InputStream shapefileZipInputStream, String filename) {
+    ShapefileZipContents shapefileZip;
+    try (var zis = new ZipInputStream(shapefileZipInputStream)) {
+
+      shapefileZip = ShapefileZipUtils.getShapefileZipContents(
+          zis,
+          filename,
+          getFileHandler(zis));
+
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Could not open shapefile zip %s".formatted(filename), e);
     }
+    return shapefileZip;
+  }
 
-    public String getExtension() {
-      return extension;
+  private BiConsumer<ShapefileZipContents.ShapefileZipBuilder, ZipEntry> getFileHandler(ZipInputStream zis) {
+    return (shapefileZipBuilder, zipEntry) -> {
+      if (zipEntry.getName().endsWith(ShapefileExtension.SHP.getExtension())) {
+        handleShapefile(zis, zipEntry, shapefileZipBuilder);
+      } else if (zipEntry.getName().endsWith(ShapefileExtension.PRJ.getExtension())) {
+        handleShapefileProject(zis, shapefileZipBuilder);
+      }
+    };
+  }
+
+  private void handleShapefile(ZipInputStream zis,
+                               ZipEntry zipEntry,
+                               ShapefileZipContents.ShapefileZipBuilder shapefileZipBuilder) {
+    try {
+      var shapefileStream = new ByteArrayInputStream(zis.readAllBytes());
+      var geometries = shapefileImportService.importShapefileAsGeometryList(shapefileStream);
+      var filenameWithoutExtension = getFilenameWithoutExtension(zipEntry.getName());
+      shapefileZipBuilder.withGeometries(geometries);
+      shapefileZipBuilder.withShapefileName(filenameWithoutExtension);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Could not import shapefile %s".formatted(zipEntry.getName()), e);
     }
   }
 
-  @Nullable
-  String getShapefileName(List<String> filesInZip) {
-    var shapefilesInZip = getShapefilesInZip(filesInZip);
-
-    var hasOneShapefile = shapefilesInZip.size() == 1;
-    if (hasOneShapefile) {
-      return getFilenameWithoutExtension(filesInZip.get(0));
+  private void handleShapefileProject(ZipInputStream zis, ShapefileZipContents.ShapefileZipBuilder shapefileZipBuilder) {
+    try {
+      var wkt = supportedCoordinateReferenceSystemService.importShapefileProjectAsWkt(zis);
+      var thresholds = supportedCoordinateReferenceSystemService.getSpatialReferenceFromWkt(wkt);
+      var crs = supportedCoordinateReferenceSystemService.getSupportedCoordinateReferenceSystemFromWkt(wkt);
+      shapefileZipBuilder.withThresholds(thresholds);
+      shapefileZipBuilder.withCoordinateReferenceSystem(crs);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Could not import shapefile project", e);
     }
-    return null;
   }
 
-  boolean hasRequiredFiles(List<String> filesInZip) {
+  boolean hasRequiredFiles(ShapefileZipContents shapefileZipContents) {
+    var filesInZip = shapefileZipContents.filenames();
     var shapefilesInZip = getShapefilesInZip(filesInZip);
 
     var hasOneShapefile = shapefilesInZip.size() == 1;
@@ -54,14 +90,8 @@ class ShapefileZipService {
     return hasShxFile && hasPrjFile && hasDbfFile;
   }
 
-  InputStream getInputStreamForShapefile(ZipInputStream inputStream, String shapefileName) throws IOException {
-
-    return ZipUtils.getInputStreamForFileInZip(inputStream, shapefileName + ShapefileExtension.SHP.getExtension());
-  }
-
-  InputStream getInputStreamForShapefileProjection(ZipInputStream inputStream, String shapefileName) throws IOException {
-
-    return ZipUtils.getInputStreamForFileInZip(inputStream, shapefileName + ShapefileExtension.PRJ.getExtension());
+  private String getFilenameWithoutExtension(String fullShapefileName) {
+    return FilenameUtils.getBaseName(fullShapefileName);
   }
 
   private static List<String> getShapefilesInZip(List<String> filesInZip) {
@@ -74,9 +104,4 @@ class ShapefileZipService {
     return filesInZip.stream()
         .anyMatch(file -> file.equalsIgnoreCase(filename));
   }
-
-  private static String getFilenameWithoutExtension(String fullShapefileName) {
-    return fullShapefileName.substring(0, fullShapefileName.length() - 4);
-  }
-
 }

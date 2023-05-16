@@ -6,13 +6,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import java.io.IOException;
 import java.io.InputStream;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,7 +48,6 @@ class FileUploadStorageServiceTest {
 
   @Test
   void uploadFile() {
-    when(s3ClientService.getDefaultBucketName()).thenReturn(FileTestUtil.VALID_BUCKET_NAME);
     fileUploadStorageService.uploadFile(multipartFile, uploadedFile);
     verify(s3ClientService).storeFile(eq(FileTestUtil.VALID_BUCKET_NAME), anyString(), any(InputStream.class), any(ObjectMetadata.class));
   }

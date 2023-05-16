@@ -22,9 +22,9 @@ class GeoJsonExportService {
     this.operatorUnion = operatorUnion;
   }
 
-  public String exportShapefileAsGeoJson(SpatialReference thresholds,
-                                         SupportedCoordinateReferenceSystem coordinateReferenceSystem,
-                                         List<Geometry> geometries) {
+  public String exportGeometryAsGeoJson(SpatialReference thresholds,
+                                        SupportedCoordinateReferenceSystem coordinateReferenceSystem,
+                                        List<Geometry> geometries) {
 
     if (geometries.isEmpty()) {
       throw new IllegalArgumentException("Could not find geometries in shapefile");

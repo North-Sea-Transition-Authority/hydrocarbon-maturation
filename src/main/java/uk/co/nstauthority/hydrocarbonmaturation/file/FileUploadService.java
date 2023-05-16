@@ -26,6 +26,10 @@ public class FileUploadService {
     fileUploadStorageService.uploadFile(multipartFile, uploadedFile);
   }
 
+  public void uploadFile(InputStream inputStream, UploadedFile uploadedFile) {
+    fileUploadStorageService.uploadFile(inputStream, uploadedFile);
+  }
+
   @Transactional
   public UploadedFile createUploadedFile(VirtualFolder virtualFolder, long fileSize, String filename, String contentType) {
     return uploadedFilePersistenceService.createUploadedFile(virtualFolder, fileSize, filename, contentType);
@@ -64,12 +68,17 @@ public class FileUploadService {
   }
 
   public FileUploadTemplate buildFileUploadTemplate(String downloadUrl, String uploadUrl, String deleteUrl) {
+    return buildFileUploadTemplate(downloadUrl, uploadUrl, deleteUrl, fileUploadConfig.allowedExtensions());
+  }
+
+  public FileUploadTemplate buildFileUploadTemplate(String downloadUrl, String uploadUrl, String deleteUrl,
+                                                     String allowedExtensions) {
     return new FileUploadTemplate(
         downloadUrl,
         uploadUrl,
         deleteUrl,
         fileUploadConfig.maxAllowedSize().toString(),
-        fileUploadConfig.allowedExtensions()
+        allowedExtensions
     );
   }
 

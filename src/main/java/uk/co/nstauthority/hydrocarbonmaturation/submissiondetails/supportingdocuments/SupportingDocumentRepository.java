@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
@@ -15,4 +16,7 @@ interface SupportingDocumentRepository extends CrudRepository<SupportingDocument
   SupportingDocument findBySubmissionDetailAndUploadedFile(SubmissionDetail submissionDetail, UploadedFile uploadedFile);
 
   List<SupportingDocument> findAllByUploadedFile(UploadedFile uploadedFile);
+
+  Optional<SupportingDocument> findBySubmissionDetailAndSupportingDocumentType(SubmissionDetail submissionDetail,
+                                                                               SupportingDocumentType supportingDocumentType);
 }

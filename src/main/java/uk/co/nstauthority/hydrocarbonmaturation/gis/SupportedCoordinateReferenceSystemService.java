@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import com.esri.core.geometry.SpatialReference;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import mil.nga.crs.wkt.CRSReader;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,10 @@ class SupportedCoordinateReferenceSystemService {
 
   SpatialReference getSpatialReferenceFromWkt(String wellKnownText) {
     return SpatialReference.create(wellKnownText);
+  }
+
+  String importShapefileProjectAsWkt(InputStream shapefileProjectStream) throws IOException {
+    return new String(shapefileProjectStream.readAllBytes(), StandardCharsets.UTF_8);
   }
 
   SupportedCoordinateReferenceSystem getSupportedCoordinateReferenceSystemFromWkt(String wellKnownText) {

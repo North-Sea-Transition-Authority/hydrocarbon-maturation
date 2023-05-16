@@ -7,54 +7,31 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ShapefileZipServiceTest {
-
-
   @InjectMocks
   private ShapefileZipService underTest;
-
-  @Nested
-  class WhenGettingShapefileName {
-
-    @Test
-    void hasShapefile() {
-      var files = List.of("file1.shp", "file2.txt");
-
-      var result = underTest.getShapefileName(files);
-
-      assertThat(result).isEqualTo("file1");
-    }
-
-    @Test
-    void doesNotHaveShapefile() {
-      var files = List.of("file1.shx", "file2.txt");
-
-      var result = underTest.getShapefileName(files);
-
-      assertThat(result).isNull();
-    }
-
-    @Test
-    void hasMultipleShapefiles() {
-      var files = List.of("file1.shp", "file2.shp");
-
-      var result = underTest.getShapefileName(files);
-
-      assertThat(result).isNull();
-    }
-  }
+  @Mock
+  private ShapefileImportService shapefileImportService;
+  @Mock
+  private SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService;
 
   @Nested
   class WhenCheckingIfHasRequiredFiles {
 
+    private final String STRING = "STRING";
+
     @Test
     void hasShapefiles() {
-      var files = List.of("file1.shp", "file1.shx", "file1.prj", "file1.dbf");
 
-      var result = underTest.hasRequiredFiles(files);
+      var files = List.of("file1.shp", "file1.shx", "file1.prj", "file1.dbf");
+      var shapefileZipContents = new ShapefileZipContents("shapefile_name",
+          files, null, null, null);
+
+      var result = underTest.hasRequiredFiles(shapefileZipContents);
 
       assertThat(result).isTrue();
     }
@@ -62,8 +39,10 @@ class ShapefileZipServiceTest {
     @Test
     void missingShx() {
       var files = List.of("file1.shp", "file1.prj", "file1.dbf");
+      var shapefileZipContents = new ShapefileZipContents("shapefile_name",
+          files, null, null, null);
 
-      var hasRequiredFiles = underTest.hasRequiredFiles(files);
+      var hasRequiredFiles = underTest.hasRequiredFiles(shapefileZipContents);
 
       assertThat(hasRequiredFiles).isFalse();
     }
@@ -71,8 +50,10 @@ class ShapefileZipServiceTest {
     @Test
     void missingShp() {
       var files = List.of("file1.shx", "file1.prj", "file1.dbf");
+      var shapefileZipContents = new ShapefileZipContents("shapefile_name",
+          files, null, null, null);
 
-      var result = underTest.hasRequiredFiles(files);
+      var result = underTest.hasRequiredFiles(shapefileZipContents);
 
       assertThat(result).isFalse();
     }
@@ -80,8 +61,10 @@ class ShapefileZipServiceTest {
     @Test
     void missingPrj() {
       var files = List.of("file1.shp", "file1.shx", "file1.dbf");
+      var shapefileZipContents = new ShapefileZipContents("shapefile_name",
+          files, null, null, null);
 
-      var result = underTest.hasRequiredFiles(files);
+      var result = underTest.hasRequiredFiles(shapefileZipContents);
 
       assertThat(result).isFalse();
     }
@@ -89,8 +72,10 @@ class ShapefileZipServiceTest {
     @Test
     void missingDbf() {
       var files = List.of("file1.shp", "file1.shx", "file1.prj");
+      var shapefileZipContents = new ShapefileZipContents("shapefile_name",
+          files, null, null, null);
 
-      var result = underTest.hasRequiredFiles(files);
+      var result = underTest.hasRequiredFiles(shapefileZipContents);
 
       assertThat(result).isFalse();
     }

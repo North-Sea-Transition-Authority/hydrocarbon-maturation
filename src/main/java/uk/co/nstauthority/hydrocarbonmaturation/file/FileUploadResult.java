@@ -13,22 +13,36 @@ public class FileUploadResult {
   private final String contentType;
   @Nullable
   private final UploadErrorType errorType;
+  @Nullable
+  private final String errorMessage;
 
-  public FileUploadResult(@Nullable String fileId, String fileName, MultipartFile multipartFile,
-                           @Nullable UploadErrorType errorType) {
+  public FileUploadResult(@Nullable String fileId,
+                          String fileName,
+                          MultipartFile multipartFile,
+                          @Nullable UploadErrorType errorType,
+                          @Nullable String errorMessage) {
     this.fileId = fileId;
     this.fileName = fileName;
     this.size = multipartFile.getSize();
     this.contentType = multipartFile.getContentType();
     this.errorType = errorType;
+    this.errorMessage = errorMessage;
+  }
+
+  public static FileUploadResult customError(String fileName, MultipartFile multipartFile, String errorMessage) {
+    return new FileUploadResult(null, fileName, multipartFile, UploadErrorType.OTHER_ERRORS_FOUND, errorMessage);
   }
 
   public static FileUploadResult error(String fileName, MultipartFile multipartFile, UploadErrorType errorType) {
-    return new FileUploadResult(null, fileName, multipartFile, errorType);
+    return new FileUploadResult(null, fileName, multipartFile, errorType, getErrorMessageFromErrorType(errorType));
   }
 
   public static FileUploadResult valid(String fileId, String fileName, MultipartFile multipartFile) {
-    return new FileUploadResult(fileId, fileName, multipartFile, null);
+    return new FileUploadResult(fileId, fileName, multipartFile, null, null);
+  }
+
+  private static String getErrorMessageFromErrorType(UploadErrorType errorType) {
+    return Optional.ofNullable(errorType).map(UploadErrorType::getErrorMessage).orElse(null);
   }
 
   public Optional<String> getFileId() {
@@ -52,7 +66,7 @@ public class FileUploadResult {
   }
 
   public Optional<String> getErrorMessage() {
-    return getErrorType().map(UploadErrorType::getErrorMessage);
+    return Optional.ofNullable(errorMessage);
   }
 
   public boolean isValid() {

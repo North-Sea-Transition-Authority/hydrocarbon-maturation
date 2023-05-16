@@ -25,6 +25,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncas
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseUploadController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesController;
@@ -47,6 +49,8 @@ class OpportunityTaskListSectionServiceTest {
 
   @Mock
   private ChanceOfSuccessSubmissionService chanceOfSuccessSubmissionService;
+  @Mock
+  private OutlineForMaximumCaseSubmissionService outlineForMaximumCaseSubmissionService;
 
   @InjectMocks
   private OpportunityTaskListSectionService opportunityTaskListSectionService;
@@ -76,6 +80,9 @@ class OpportunityTaskListSectionServiceTest {
             new TaskListItem("Opportunity details",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetail.getId(), null))),
+            new TaskListItem("Outline for maximum case",
+                TaskListLabel.NOT_COMPLETE,
+                ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetail.getId(), null))),
             new TaskListItem("Trap properties",
                 TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId()))),
@@ -109,6 +116,9 @@ class OpportunityTaskListSectionServiceTest {
             new TaskListItem("Opportunity details",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetail.getId(), null))),
+            new TaskListItem("Outline for maximum case",
+                TaskListLabel.NOT_COMPLETE,
+                ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetail.getId(), null))),
             new TaskListItem("Trap properties",
                 TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId()))),
@@ -129,6 +139,7 @@ class OpportunityTaskListSectionServiceTest {
     when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -149,6 +160,7 @@ class OpportunityTaskListSectionServiceTest {
     when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -160,6 +172,7 @@ class OpportunityTaskListSectionServiceTest {
     when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
     when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
   }

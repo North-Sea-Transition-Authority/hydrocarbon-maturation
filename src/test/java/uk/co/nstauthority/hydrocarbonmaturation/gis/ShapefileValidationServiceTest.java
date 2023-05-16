@@ -1,153 +1,113 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import com.esri.core.geometry.Geometry;
+import com.esri.core.geometry.OperatorSimplify;
+import com.esri.core.geometry.OperatorSimplifyOGC;
 import com.esri.core.geometry.SpatialReference;
-import java.io.IOException;
-import java.util.zip.ZipInputStream;
+import java.io.InputStream;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@IntegrationTest
+@ExtendWith(MockitoExtension.class)
 class ShapefileValidationServiceTest {
-
-  @Autowired
-  private ShapefileImportService shapefileImportService;
-  @Autowired
-  private ShapefileValidationService shapefileValidationService;
-  @Autowired
-  private ShapefileZipService shapefileZipService;
-  @Autowired
+  @Mock
+  private OperatorSimplifyOGC operatorSimplifyOgc;
+  @Mock
+  private OperatorSimplify operatorSimplify;
+  @Mock
   private SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService;
+  @Mock
+  private ShapefileZipService shapefileZipService;
+  @Mock
+  private ShapefileImportService shapefileImportService;
+  @InjectMocks
+  private ShapefileValidationService underTest;
 
-  @Test
-  void isGeometryValid_SimplePolygon_True() throws IOException {
-    var geometry = getGeometryFromShapefile(ShapefileTestUtils.SHAPEFILE_RESOURCE_LOCATION);
-    var spatialReference = getSpatialReferenceFromShapefileProject(ShapefileTestUtils.SHAPEFILE_PROJECT_RESOURCE_LOCATION);
 
-    var result = shapefileValidationService.isGeometryValid(spatialReference, geometry);
+  @Nested
+  class WhenValidatingFileUpload {
+    @Mock
+    private InputStream zipInputStream;
+    @Mock
+    private SpatialReference spatialReferenceFromWkt;
+    @Mock
+    private Geometry geometry;
+    private final String WKT = "WKT";
 
-    assertThat(result).isTrue();
-  }
+    private static final String FILENAME = "FILENAME";
+    private ShapefileZipContents SHAPEFILE_ZIP_CONTENTS_VALID;
+    private ShapefileZipContents SHAPEFILE_ZIP_CONTENTS_NO_CRS;
 
-  @Test
-  void isGeometryValid_NonSimple_False() throws IOException {
-    var geometry = getGeometryFromShapefile(ShapefileTestUtils.NOT_SIMPLE_SHAPEFILE_RESOURCE_LOCATION);
+    @BeforeEach
+    void setup() {
+      SHAPEFILE_ZIP_CONTENTS_VALID = new ShapefileZipContents(
+          "SHAPEFILE_NAME",
+          List.of(FILENAME),
+          spatialReferenceFromWkt,
+          SupportedCoordinateReferenceSystem.ED50,
+          List.of(geometry)
+      );
 
-    assertThat(shapefileValidationService.isGeometryValid(null, geometry)).isFalse();
-  }
-
-  @Test
-  void isGeometryValidStrict_SimplePolygon_True() throws IOException {
-    var geometry = getGeometryFromShapefile(ShapefileTestUtils.SHAPEFILE_RESOURCE_LOCATION);
-    var spatialReference = getSpatialReferenceFromShapefileProject(ShapefileTestUtils.SHAPEFILE_PROJECT_RESOURCE_LOCATION);
-
-    var result = shapefileValidationService.isGeometryValidStrict(spatialReference, geometry);
-
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  void isGeometryValidStrict_NonSimpleOgc_False() throws IOException {
-    var geometry = getGeometryFromShapefile(ShapefileTestUtils.NOT_SIMPLE_OGC_SHAPEFILE_RESOURCE_LOCATION);
-
-    assertThat(shapefileValidationService.isGeometryValidStrict(null, geometry)).isFalse();
-  }
-
-  @Test
-  void validateGeometryIsOfType() throws IOException {
-    var geometry = getGeometryFromShapefile(ShapefileTestUtils.SHAPEFILE_RESOURCE_LOCATION);
-
-    var result = shapefileValidationService.validateGeometryIsOfType(geometry, Geometry.Type.Polygon);
-
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  void validateShapefileZip_ContainsAllFiles() throws IOException {
-    var result = validateShapefileZip(ShapefileTestUtils.SHAPEFILE_ZIP_RESOURCE_LOCATION);
-
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  void validateShapefileZip_HasMissingFiles() throws IOException {
-    var result = validateShapefileZip(ShapefileTestUtils.INVALID_SHAPEFILE_ZIP_RESOURCE_LOCATION);
-
-    assertThat(result).isFalse();
-  }
-
-  @Test
-  void validateShapefileZip_ValidateShapefileProject() throws IOException {
-
-    var result = validateShapefileProjectInZip(ShapefileTestUtils.SHAPEFILE_ZIP_RESOURCE_LOCATION);
-
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  void validateWktHasSupportedCoordinateReferenceSystem_HasSupportedCrs() throws IOException {
-    var wkt = getWktFromShapefileProject(ShapefileTestUtils.SHAPEFILE_PROJECT_RESOURCE_LOCATION);
-
-    var result = shapefileValidationService.validateWktHasSupportedCoordinateReferenceSystem(wkt);
-
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  void validateWktHasSupportedCoordinateReferenceSystem_ProjectionDefinition_HasSupportedCrs() throws IOException {
-    var wkt = getWktFromShapefileProject(ShapefileTestUtils.PROJCS_SHAPEFILE_PROJECT_RESOURCE_LOCATION);
-
-    var result = shapefileValidationService.validateWktHasSupportedCoordinateReferenceSystem(wkt);
-
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  void validateWktHasSupportedCoordinateReferenceSystem_DoesNotHaveSupportedCrs() throws IOException {
-    var wkt = getWktFromShapefileProject(ShapefileTestUtils.UNSUPPORTED_SHAPEFILE_PROJECT_RESOURCE_LOCATION);
-
-    var result = shapefileValidationService.validateWktHasSupportedCoordinateReferenceSystem(wkt);
-
-    assertThat(result).isFalse();
-  }
-
-  private Geometry getGeometryFromShapefile(String shapefileResourceLocation) throws IOException {
-    try (var shapefileStream = ShapefileTestUtils.getFileInputStream(shapefileResourceLocation)) {
-      var geometryList = shapefileImportService.importShapefileAsGeometryList(shapefileStream);
-      return geometryList.get(0);
+      SHAPEFILE_ZIP_CONTENTS_NO_CRS = new ShapefileZipContents(
+          "SHAPEFILE_NAME",
+          List.of(FILENAME),
+          spatialReferenceFromWkt,
+          null,
+          List.of(geometry)
+      );
     }
-  }
 
-  private SpatialReference getSpatialReferenceFromShapefileProject(String shapefileProjectResourceLocation) throws IOException {
-    return supportedCoordinateReferenceSystemService
-        .getSpatialReferenceFromWkt(getWktFromShapefileProject(shapefileProjectResourceLocation));
-  }
+    @Test
+    void shapefileDoesNotContainRequiredFiles() {
+      when(shapefileZipService.hasRequiredFiles(any(ShapefileZipContents.class))).thenReturn(false);
+      when(operatorSimplify.isSimpleAsFeature(geometry, spatialReferenceFromWkt, false, null, null))
+          .thenReturn(true);
+      when(shapefileZipService.getShapefileZipContents(zipInputStream, FILENAME)).thenReturn(SHAPEFILE_ZIP_CONTENTS_VALID);
 
-  private String getWktFromShapefileProject(String shapefileProjectResourceLocation) throws IOException {
-    try (var shapefileStream = ShapefileTestUtils.getFileInputStream(shapefileProjectResourceLocation)) {
-      return shapefileImportService.importShapefileProjectAsWkt(shapefileStream);
+      var result = underTest.validateFileUpload(zipInputStream, FILENAME);
+
+      assertThat(result)
+          .hasSize(1)
+          .contains(ShapefileValidationService.SHAPEFILE_DOES_NOT_CONTAIN_REQUIRED_FILES);
     }
-  }
 
-  private boolean validateShapefileZip(String shapefileZipResourceLocation) throws IOException {
-    try (var shapefileZipStream = ShapefileTestUtils.getFileInputStream(shapefileZipResourceLocation)) {
-      try (var zis = new ZipInputStream(shapefileZipStream)) {
-        var filesInZip = ZipUtils.getFilesInZip(zis);
-        return shapefileZipService.hasRequiredFiles(filesInZip);
-      }
+    @Test
+    void shapefileContainsInvalidGeometries() {
+
+      when(shapefileZipService.hasRequiredFiles(any(ShapefileZipContents.class))).thenReturn(true);
+      when(operatorSimplify.isSimpleAsFeature(geometry, spatialReferenceFromWkt, false, null, null))
+          .thenReturn(false);
+      when(shapefileZipService.getShapefileZipContents(zipInputStream, FILENAME)).thenReturn(SHAPEFILE_ZIP_CONTENTS_VALID);
+
+      var result = underTest.validateFileUpload(zipInputStream, FILENAME);
+
+      assertThat(result)
+          .hasSize(1)
+          .contains(ShapefileValidationService.SHAPEFILE_CONTAINS_INVALID_GEOMETRIES);
     }
-  }
 
-  private boolean validateShapefileProjectInZip(String shapefileZipResourceLocation) throws IOException {
-    try (var shapefileZipStream = ShapefileTestUtils.getFileInputStream(shapefileZipResourceLocation)) {
-      try (var zis = new ZipInputStream(shapefileZipStream)) {
-        var inputStream = shapefileZipService.getInputStreamForShapefileProjection(zis, "test");
-        var wkt = shapefileImportService.importShapefileProjectAsWkt(inputStream);
-        return shapefileValidationService.validateWktHasSupportedCoordinateReferenceSystem(wkt);
-      }
+    @Test
+    void shapefileContainsUnsupportedCoordinateReferenceSystem() {
+      when(shapefileZipService.hasRequiredFiles(any(ShapefileZipContents.class))).thenReturn(true);
+      when(operatorSimplify.isSimpleAsFeature(geometry, spatialReferenceFromWkt, false, null, null))
+          .thenReturn(true);
+      when(shapefileZipService.getShapefileZipContents(zipInputStream, FILENAME)).thenReturn(SHAPEFILE_ZIP_CONTENTS_NO_CRS);
+
+      var result = underTest.validateFileUpload(zipInputStream, FILENAME);
+
+      assertThat(result)
+          .hasSize(1)
+          .contains(ShapefileValidationService.SHAPEFILE_CONTAINS_UNSUPPORTED_COORDINATE_REFERENCE_SYSTEM);
     }
   }
 }

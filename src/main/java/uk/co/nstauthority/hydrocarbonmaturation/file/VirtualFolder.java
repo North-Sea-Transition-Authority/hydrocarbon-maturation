@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.file;
 
 public enum VirtualFolder {
   SUPPORTING_DOCUMENTS("supporting-documents"),
-  ;
+  SHAPEFILE_GEOJSON("shapefile-geojson");
 
   private final String folderPath;
 

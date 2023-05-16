@@ -45,14 +45,14 @@ class GeoJsonExportServiceTest {
     void noGeometriesFound_ThrowException() {
 
       assertThatExceptionOfType(IllegalArgumentException.class)
-          .isThrownBy(() -> underTest.exportShapefileAsGeoJson(spatialReference, coordinateReferenceSystem, List.of()));
+          .isThrownBy(() -> underTest.exportGeometryAsGeoJson(spatialReference, coordinateReferenceSystem, List.of()));
     }
 
     @Test
     void oneGeometryFound_VerifySingleGeometryPassedInForConversion() {
       var geometryCursor = new SimpleGeometryCursor(geometry1);
 
-      var result = underTest.exportShapefileAsGeoJson(
+      var result = underTest.exportGeometryAsGeoJson(
           spatialReference, coordinateReferenceSystem, List.of(geometry1)
       );
 
@@ -68,7 +68,7 @@ class GeoJsonExportServiceTest {
       var geometry = Mockito.mock(Geometry.class);
       when(simpleGeometryCursor.next()).thenReturn(geometry);
 
-      var result = underTest.exportShapefileAsGeoJson(spatialReference, coordinateReferenceSystem, List.of(geometry1, geometry2));
+      var result = underTest.exportGeometryAsGeoJson(spatialReference, coordinateReferenceSystem, List.of(geometry1, geometry2));
 
       verify(exportToGeoJson, never()).execute(geometry1);
       verify(exportToGeoJson, never()).execute(geometry2);

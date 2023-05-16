@@ -21,17 +21,20 @@ class FileUploadStorageService {
   }
 
   void uploadFile(MultipartFile multipartFile, UploadedFile uploadedFile) {
+    try {
+      uploadFile(multipartFile.getInputStream(), uploadedFile);
+    } catch (Exception e) {
+      throw new FileUploadException(multipartFile, e);
+    }
+  }
+
+  void uploadFile(InputStream inputStream, UploadedFile uploadedFile) {
     var objectMetadata = new ObjectMetadata();
     objectMetadata.setContentLength(uploadedFile.getFileSizeBytes());
     objectMetadata.setContentType(uploadedFile.getFileContentType());
 
-    try {
-      s3ClientService.storeFile(s3ClientService.getDefaultBucketName(), uploadedFile.getS3Key(), multipartFile.getInputStream(),
-          objectMetadata);
-      LOGGER.debug("Completed upload of file {}", uploadedFile.getFilename());
-    } catch (Exception e) {
-      throw new FileUploadException(multipartFile, e);
-    }
+    s3ClientService.storeFile(uploadedFile.getBucketName(), uploadedFile.getS3Key(), inputStream, objectMetadata);
+    LOGGER.debug("Completed upload of file {}", uploadedFile.getFilename());
   }
 
   void deleteFile(UploadedFile uploadedFile) {

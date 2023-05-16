@@ -4,22 +4,30 @@ import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.OperatorSimplify;
 import com.esri.core.geometry.OperatorSimplifyOGC;
 import com.esri.core.geometry.SpatialReference;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.FileUploadCustomValidator;
 
 @Service
-class ShapefileValidationService {
+public class ShapefileValidationService implements FileUploadCustomValidator {
+  public static final String SHAPEFILE_DOES_NOT_CONTAIN_REQUIRED_FILES = "Shapefile does not contain required files.";
+  public static final String SHAPEFILE_CONTAINS_INVALID_GEOMETRIES = "Shapefile contains invalid geometries.";
+  public static final String SHAPEFILE_CONTAINS_UNSUPPORTED_COORDINATE_REFERENCE_SYSTEM
+      = "Shapefile contains unsupported coordinate reference system.";
   private final OperatorSimplifyOGC operatorSimplifyOgc;
   private final OperatorSimplify operatorSimplify;
-  private final SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService;
+  private final ShapefileZipService shapefileZipService;
 
   @Autowired
   ShapefileValidationService(OperatorSimplifyOGC operatorSimplifyOgc,
                              OperatorSimplify operatorSimplify,
-                             SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService) {
+                             ShapefileZipService shapefileZipService) {
     this.operatorSimplifyOgc = operatorSimplifyOgc;
     this.operatorSimplify = operatorSimplify;
-    this.supportedCoordinateReferenceSystemService = supportedCoordinateReferenceSystemService;
+    this.shapefileZipService = shapefileZipService;
   }
 
   /**
@@ -40,10 +48,37 @@ class ShapefileValidationService {
     return geometry.getType() == expectType;
   }
 
-  boolean validateWktHasSupportedCoordinateReferenceSystem(String wellKnownText) {
-    var supportedCrsListFromWkt =
-        supportedCoordinateReferenceSystemService.getSupportedCoordinateReferenceSystemFromWkt(wellKnownText);
+  boolean validateHasSupportedCoordinateReferenceSystem(SupportedCoordinateReferenceSystem coordinateReferenceSystem) {
+    return coordinateReferenceSystem != null;
+  }
 
-    return supportedCrsListFromWkt != null;
+  @Override
+  public List<String> validateFileUpload(InputStream inputStream, String filename) {
+    var errors = new ArrayList<String>();
+
+    var shapefileZip = shapefileZipService.getShapefileZipContents(inputStream, filename);
+    var shapefileZipHasRequiredFiles = shapefileZipService.hasRequiredFiles(shapefileZip);
+    if (!shapefileZipHasRequiredFiles) {
+      errors.add(SHAPEFILE_DOES_NOT_CONTAIN_REQUIRED_FILES);
+    }
+
+    var shapefileGeometriesAreValid = areShapefileGeometriesValid(shapefileZip);
+
+    if (!shapefileGeometriesAreValid) {
+      errors.add(SHAPEFILE_CONTAINS_INVALID_GEOMETRIES);
+    }
+
+    var wktHasSupportedCoordinateReferenceSystem = validateHasSupportedCoordinateReferenceSystem(
+        shapefileZip.coordinateReferenceSystem());
+    if (!wktHasSupportedCoordinateReferenceSystem) {
+      errors.add(SHAPEFILE_CONTAINS_UNSUPPORTED_COORDINATE_REFERENCE_SYSTEM);
+    }
+
+    return errors;
+  }
+
+  private boolean areShapefileGeometriesValid(ShapefileZipContents shapefileZip) {
+    return shapefileZip.geometries().stream()
+        .allMatch(geometry -> isGeometryValid(shapefileZip.thresholds(), geometry));
   }
 }

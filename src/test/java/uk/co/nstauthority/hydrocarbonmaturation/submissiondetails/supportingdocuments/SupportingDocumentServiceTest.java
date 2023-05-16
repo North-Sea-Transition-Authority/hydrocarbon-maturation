@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdoc
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -13,6 +15,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadErrorType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.VirtualFolder;
+import uk.co.nstauthority.hydrocarbonmaturation.gis.ShapefileValidationService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -44,6 +48,10 @@ class SupportingDocumentServiceTest {
   private FileUploadValidationService fileUploadValidationService;
   @Mock
   private SupportingDocumentRepository supportingDocumentRepository;
+  @Mock
+  private FileUploadCustomValidatorFactory fileUploadCustomValidatorFactory;
+  @Mock
+  private ShapefileValidationService shapefileValidationService;
 
   @InjectMocks
   private SupportingDocumentService supportingDocumentService;
@@ -78,14 +86,31 @@ class SupportingDocumentServiceTest {
   }
 
   @Test
+  void processFileUpload_FailsCustomValidation_ReturnsInvalidResult() {
+    var submissionDetail = mock(SubmissionDetail.class);
+    when(fileUploadService.sanitiseFilename(filename)).thenReturn(filename);
+    when(fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename))
+        .thenReturn(null);
+    var supportingDocumentType = SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
+    when(fileUploadCustomValidatorFactory.getFileUploadCustomValidator(supportingDocumentType)).thenReturn(Optional.of(shapefileValidationService));
+    when(shapefileValidationService.validateFileUpload(any(), eq(filename))).thenReturn(List.of("error"));
+
+    var fileUploadResult = supportingDocumentService.processFileUpload(submissionDetail, supportingDocumentType, multipartFile);
+
+    assertThat(fileUploadResult.isValid()).isFalse();
+  }
+
+  @Test
   void processFileUpload_PassesValidationAndUploadsFile_VerifyInteractions() {
     var submissionDetail = mock(SubmissionDetail.class);
     when(fileUploadService.sanitiseFilename(filename)).thenReturn(filename);
     doReturn(uploadedFile)
         .when(fileUploadService)
         .createUploadedFile(virtualFolder, fileSize, filename, contentType);
+    var supportingDocumentType = SupportingDocumentType.MAP_OF_OPPORTUNITY;
+    when(fileUploadCustomValidatorFactory.getFileUploadCustomValidator(supportingDocumentType)).thenReturn(Optional.empty());
 
-    var fileUploadResult = supportingDocumentService.processFileUpload(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY, multipartFile);
+    var fileUploadResult = supportingDocumentService.processFileUpload(submissionDetail, supportingDocumentType, multipartFile);
 
     assertThat(fileUploadResult.isValid()).isTrue();
   }
@@ -167,8 +192,7 @@ class SupportingDocumentServiceTest {
     var uuid = UUID.randomUUID();
     var supportingDocumentType = SupportingDocumentType.MAP_OF_OPPORTUNITY;
 
-    var fileUploadTemplate = supportingDocumentService.buildFileUploadTemplate(uuid,
-        supportingDocumentType);
+    var fileUploadTemplate = supportingDocumentService.buildFileUploadTemplate(uuid, supportingDocumentType);
 
     verify(fileUploadService).buildFileUploadTemplate(
         ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).download(uuid, null)),

@@ -8,11 +8,9 @@ import com.esri.core.geometry.SpatialReference;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
-import java.util.zip.ZipInputStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
-import uk.co.nstauthority.hydrocarbonmaturation.gis.esri.ShapefileGeometryLoader;
 
 @IntegrationTest
 class GisIntegrationTest {
@@ -24,7 +22,7 @@ class GisIntegrationTest {
   @Autowired
   private ShapefileZipService shapefileZipService;
   @Autowired
-  private SupportedCoordinateReferenceSystemService crsService;
+  private SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService;
   @Autowired
   private ShapefileAttributesService shapefileAttributesService;
 
@@ -33,7 +31,7 @@ class GisIntegrationTest {
     var spatialReference = importShapefileProjectAsSpatialReference();
     var geometries = importShapefileAsGeometryList();
     var supportedCoordinateReferenceSystem = SupportedCoordinateReferenceSystem.WGS84;
-    var result = geoJsonExportService.exportShapefileAsGeoJson(spatialReference, supportedCoordinateReferenceSystem, geometries);
+    var result = geoJsonExportService.exportGeometryAsGeoJson(spatialReference, supportedCoordinateReferenceSystem, geometries);
 
     var geoJson = ShapefileTestUtils.getStreamAsString(ShapefileTestUtils.GEOJSON_RESOURCE_LOCATION);
 
@@ -57,10 +55,8 @@ class GisIntegrationTest {
 
   @Test
   void zipHasFilesAndCanOpenGeometry() throws IOException {
-    var geometries = importShapefileZip(ShapefileTestUtils.SHAPEFILE_ZIP_RESOURCE_LOCATION);
-
-    assertThat(geometries.getShapefileHeader().geometryType()).isEqualTo(Geometry.Type.Polygon);
-    assertThat(geometries.getGeometryList()).isNotEmpty();
+    var shapefileZipContents = getShapefileZipContents(ShapefileTestUtils.SHAPEFILE_ZIP_RESOURCE_LOCATION);
+    assertThat(shapefileZipContents.geometries()).isNotEmpty();
   }
 
   @Test
@@ -76,13 +72,11 @@ class GisIntegrationTest {
         );
   }
 
-  private ShapefileGeometryLoader importShapefileZip(String shapefileZipResourceLocation) throws IOException {
-    try (var shapefileZipStream = ShapefileTestUtils.getFileInputStream(shapefileZipResourceLocation)) {
-      try (var zis = new ZipInputStream(shapefileZipStream)) {
-        var inputStream = shapefileZipService.getInputStreamForShapefile(zis, "test");
 
-        return new ShapefileGeometryLoader(inputStream);
-      }
+
+  private ShapefileZipContents getShapefileZipContents(String shapefileZipResourceLocation) throws IOException {
+    try (var shapefileZipStream = ShapefileTestUtils.getFileInputStream(shapefileZipResourceLocation)) {
+      return shapefileZipService.getShapefileZipContents(shapefileZipStream, "test");
     }
   }
 
@@ -94,8 +88,8 @@ class GisIntegrationTest {
 
   private SpatialReference importShapefileProjectAsSpatialReference() throws IOException {
     try (var shapefileProjectStream = ShapefileTestUtils.getFileInputStream(ShapefileTestUtils.SHAPEFILE_PROJECT_RESOURCE_LOCATION)) {
-      var wkt = shapefileImportService.importShapefileProjectAsWkt(shapefileProjectStream);
-      return crsService.getSpatialReferenceFromWkt(wkt);
+      var wkt = supportedCoordinateReferenceSystemService.importShapefileProjectAsWkt(shapefileProjectStream);
+      return supportedCoordinateReferenceSystemService.getSpatialReferenceFromWkt(wkt);
     }
   }
 
