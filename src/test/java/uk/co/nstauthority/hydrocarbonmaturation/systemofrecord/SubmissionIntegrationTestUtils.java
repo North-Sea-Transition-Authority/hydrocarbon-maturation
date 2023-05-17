@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.SubmissionRecordSummaryView;
@@ -71,10 +72,19 @@ public class SubmissionIntegrationTestUtils {
     return trapProperty;
   }
 
-  public static QuadrantAndBlock createQuadAndBlock(GeneralDetail generalDetails, String quadrantBlock, EntityManager entityManager) {
+  public static QuadrantAndBlock createQuadAndBlock(
+      GeneralDetail generalDetails,
+      String quadrantBlockReference,
+      String quadrant,
+      Integer block,
+      OnshoreOffshore onshoreOffshore,
+      EntityManager entityManager) {
     var quadBlocks = new QuadrantAndBlock();
     quadBlocks.setGeneralDetail(generalDetails);
-    quadBlocks.setQuadrantBlock(quadrantBlock);
+    quadBlocks.setQuadrantBlockReference(quadrantBlockReference);
+    quadBlocks.setQuadrant(quadrant);
+    quadBlocks.setBlock(block);
+    quadBlocks.setOnshoreOffshore(onshoreOffshore);
 
     entityManager.persist(quadBlocks);
     entityManager.flush();

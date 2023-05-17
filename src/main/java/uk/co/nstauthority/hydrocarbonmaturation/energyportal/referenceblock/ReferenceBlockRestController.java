@@ -28,7 +28,7 @@ public class ReferenceBlockRestController {
 
   @GetMapping("/quadrant-blocks")
   public RestSearchResult searchQuadrantBlocks(@RequestParam("term") String searchReference) {
-    var results = searchSelectorService.search(searchReference, referenceBlockQueryService::getReferenceBlocksBy);
+    var results = searchSelectorService.search(searchReference, referenceBlockQueryService::getReferenceBlocksContaining);
 
     if (!Objects.isNull(results)) {
       return new RestSearchResult(results.getResults());

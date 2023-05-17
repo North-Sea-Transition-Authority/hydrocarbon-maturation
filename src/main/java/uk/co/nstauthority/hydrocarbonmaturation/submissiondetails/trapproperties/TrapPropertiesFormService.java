@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.ReferenceBlockComparator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
@@ -124,10 +124,10 @@ public class TrapPropertiesFormService implements SubmissionFormService {
     return generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
         .map(detail -> quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail)
             .stream()
-            .sorted(Comparator.comparing(QuadrantAndBlock::getSortKey))
+            .sorted(new ReferenceBlockComparator())
             .collect(StreamUtil.toLinkedHashMap(
-                QuadrantAndBlock::getQuadrantBlock,
-                QuadrantAndBlock::getQuadrantBlock)))
+                QuadrantAndBlock::getQuadrantBlockReference,
+                QuadrantAndBlock::getQuadrantBlockReference)))
         .orElseGet(LinkedHashMap::new);
   }
 }

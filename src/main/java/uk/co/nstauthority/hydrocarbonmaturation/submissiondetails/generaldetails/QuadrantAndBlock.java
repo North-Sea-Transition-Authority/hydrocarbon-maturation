@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import java.util.UUID;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -23,9 +25,16 @@ public class QuadrantAndBlock implements GeneralDetailChildEntity {
   @ManyToOne
   private GeneralDetail generalDetail;
 
-  private String quadrantBlock;
+  private String quadrantBlockReference;
 
-  private String sortKey;
+  private String quadrant;
+
+  private Integer block;
+
+  @Enumerated(EnumType.STRING)
+  private OnshoreOffshore onshoreOffshore;
+
+
 
   public UUID getId() {
     return id;
@@ -44,19 +53,36 @@ public class QuadrantAndBlock implements GeneralDetailChildEntity {
     this.generalDetail = generalDetail;
   }
 
-  public String getQuadrantBlock() {
-    return quadrantBlock;
+  public String getQuadrantBlockReference() {
+    return quadrantBlockReference;
   }
 
-  public void setQuadrantBlock(String quadrantBlock) {
-    this.quadrantBlock = quadrantBlock;
+  public void setQuadrantBlockReference(String quadrantBlockReference) {
+    this.quadrantBlockReference = quadrantBlockReference;
   }
 
-  public String getSortKey() {
-    return sortKey;
+  public String getQuadrant() {
+    return quadrant;
   }
 
-  public void setSortKey(String sortKey) {
-    this.sortKey = sortKey;
+  public void setQuadrant(String quadrant) {
+    this.quadrant = quadrant;
+  }
+
+  public Integer getBlock() {
+    return block;
+  }
+
+  public void setBlock(Integer block) {
+    this.block = block;
+  }
+
+  public OnshoreOffshore getOnshoreOffshore() {
+    return onshoreOffshore;
+  }
+
+  public void setOnshoreOffshore(
+      OnshoreOffshore onshoreOffshore) {
+    this.onshoreOffshore = onshoreOffshore;
   }
 }

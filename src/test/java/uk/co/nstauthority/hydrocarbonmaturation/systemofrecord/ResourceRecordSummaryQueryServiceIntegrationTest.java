@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTest
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
@@ -45,7 +46,13 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
 
     var quadrantBlock1 = "25/12";
-    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
+    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(
+        generalDetails1,
+        quadrantBlock1,
+        "25",
+        12,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
     var licence1 = createLicence(951, "AL10", generalDetails1);
@@ -60,7 +67,13 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
 
     var quadrantBlock2 = "50/11";
-    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
+    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(
+        generalDetails2,
+        quadrantBlock2,
+        "50",
+        11,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
 
     var licence3 = createLicence(253, "BL10", generalDetails2);
@@ -84,7 +97,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         )
         .containsExactly(
             submissionDetail2.getId(),
-            centreOfInterestQuadrantBlock2.getQuadrantBlock(),
+            centreOfInterestQuadrantBlock2.getQuadrantBlockReference(),
             organisationId2,
             resourceName2,
             ResourceType.PROSPECT,
@@ -136,9 +149,22 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     return SubmissionIntegrationTestUtils.createTrapProperty(submissionDetail, centreOfInterestQuadrantBlock, entityManager);
   }
 
-  private QuadrantAndBlock createQuadAndBlock(GeneralDetail generalDetails, String quadrantBlock) {
+  private QuadrantAndBlock createQuadAndBlock(
+      GeneralDetail generalDetails,
+      String quadrantBlockReference,
+      String quad,
+      Integer block,
+      OnshoreOffshore onshoreOffshore
+  ) {
 
-    return SubmissionIntegrationTestUtils.createQuadAndBlock(generalDetails, quadrantBlock, entityManager);
+    return SubmissionIntegrationTestUtils.createQuadAndBlock(
+        generalDetails,
+        quadrantBlockReference,
+        quad,
+        block,
+        onshoreOffshore,
+        entityManager
+    );
   }
 
   private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail) {

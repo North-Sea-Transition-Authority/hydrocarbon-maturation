@@ -1,57 +1,68 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.fivium.energyportalapi.client.referenceblock.ReferenceBlockApi;
-import uk.co.fivium.energyportalapi.generated.client.ReferenceBlockProjectionRoot;
-import uk.co.fivium.energyportalapi.generated.client.ReferenceBlocksProjectionRoot;
-import uk.co.fivium.energyportalapi.generated.types.ReferenceBlock;
+import uk.co.fivium.energyportalapi.client.referenceblock.fullreferenceblock.FullReferenceBlockApi;
+import uk.co.fivium.energyportalapi.generated.client.FullReferenceBlockProjectionRoot;
+import uk.co.fivium.energyportalapi.generated.client.FullReferenceBlocksProjectionRoot;
+import uk.co.fivium.energyportalapi.generated.types.FullReferenceBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 @Service
 public class ReferenceBlockQueryService {
-  public static final ReferenceBlocksProjectionRoot REFERENCE_BLOCKS_PROJECTION_ROOT =
-      new ReferenceBlocksProjectionRoot().blockRef().sortKey();
-  public static final ReferenceBlockProjectionRoot REFERENCE_BLOCK_PROJECTION_ROOT =
-      new ReferenceBlockProjectionRoot().blockRef().sortKey();
-  private final ReferenceBlockApi referenceBlockApi;
+  public static final FullReferenceBlockProjectionRoot REFERENCE_BLOCK_PROJECTION_ROOT =
+      new FullReferenceBlockProjectionRoot()
+          .blockRef()
+          .quadrantNo()
+          .blockNo()
+          .shoreType().root();
+
+  public static final FullReferenceBlocksProjectionRoot REFERENCE_BLOCKS_PROJECTION_ROOT =
+      new FullReferenceBlocksProjectionRoot()
+          .blockRef()
+          .quadrantNo()
+          .blockNo()
+          .shoreType().root();
+
+  private final FullReferenceBlockApi fullReferenceBlockApi;
   private final EnergyPortalApiWrapper energyPortalApiWrapper;
 
   @Autowired
-  public ReferenceBlockQueryService(ReferenceBlockApi referenceBlockApi, EnergyPortalApiWrapper energyPortalApiWrapper) {
-    this.referenceBlockApi = referenceBlockApi;
+  public ReferenceBlockQueryService(FullReferenceBlockApi fullReferenceBlockApi, EnergyPortalApiWrapper energyPortalApiWrapper) {
+    this.fullReferenceBlockApi = fullReferenceBlockApi;
     this.energyPortalApiWrapper = energyPortalApiWrapper;
   }
 
-  List<ReferenceBlockView> getReferenceBlocksBy(String searchReference) {
+  List<ReferenceBlockView> getReferenceBlocksContaining(String searchReference) {
     return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        referenceBlockApi.searchReferenceBlocks(
+        fullReferenceBlockApi.searchFullReferenceBlocksByReferenceContains(
                 searchReference,
                 REFERENCE_BLOCKS_PROJECTION_ROOT,
                 requestPurpose,
                 logCorrelationId
             ).stream()
-            .sorted(Comparator.comparing(ReferenceBlock::getSortKey))
             .map(this::getReferenceBlockView)
             .toList());
   }
 
   public List<ReferenceBlockView> getReferenceBlocksByRefsIn(List<String> quadBlocksRefs) {
-    return quadBlocksRefs.stream()
-        .map(this::getReferenceBlock)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .sorted(Comparator.comparing(ReferenceBlock::getSortKey))
-        .map(this::getReferenceBlockView)
-        .toList();
+    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
+        fullReferenceBlockApi.searchFullReferenceBlocksByReferences(
+            quadBlocksRefs,
+            REFERENCE_BLOCKS_PROJECTION_ROOT,
+            requestPurpose,
+            logCorrelationId
+        ).stream()
+            .map(this::getReferenceBlockView)
+            .toList());
   }
 
-  private Optional<ReferenceBlock> getReferenceBlock(String blockRef) {
+  public Optional<FullReferenceBlock> getReferenceBlock(String blockRef) {
     return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        referenceBlockApi.findReferenceBlockByBlockRef(
+        fullReferenceBlockApi.findFullReferenceBlockByReference(
             blockRef,
             REFERENCE_BLOCK_PROJECTION_ROOT,
             requestPurpose,
@@ -60,7 +71,12 @@ public class ReferenceBlockQueryService {
     );
   }
 
-  private ReferenceBlockView getReferenceBlockView(ReferenceBlock referenceBlock) {
-    return new ReferenceBlockView(referenceBlock.getBlockRef(), referenceBlock.getSortKey());
+  private ReferenceBlockView getReferenceBlockView(FullReferenceBlock fullReferenceBlock) {
+    return new ReferenceBlockView(
+        fullReferenceBlock.getBlockRef(),
+        fullReferenceBlock.getQuadrantNo(),
+        fullReferenceBlock.getBlockNo(),
+        OnshoreOffshore.fromShoreType(fullReferenceBlock.getShoreType())
+    );
   }
 }

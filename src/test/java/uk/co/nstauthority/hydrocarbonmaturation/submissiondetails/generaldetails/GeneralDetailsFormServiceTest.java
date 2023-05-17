@@ -171,7 +171,8 @@ class GeneralDetailsFormServiceTest {
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
 
     var quadrantBlockRef = "27/10";
-    var quadrantAndBlock = createQuadrantAndBlock(generalDetail, quadrantBlockRef);
+    var referenceBlockView = new ReferenceBlockView(quadrantBlockRef, "27", 10, OnshoreOffshore.OFFSHORE);
+    var quadrantAndBlock = createQuadrantAndBlock(generalDetail, referenceBlockView);
     when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail)).thenReturn(List.of(quadrantAndBlock));
 
     assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
@@ -203,9 +204,10 @@ class GeneralDetailsFormServiceTest {
   @Test
   void getQuadrantAndBlockViews_FormHasQuadBlock_ReturnsQuadrantAndBlockViewList() {
     var qbRef = "27/10";
+    var referenceBlockView = new ReferenceBlockView(qbRef, "27", 10, OnshoreOffshore.OFFSHORE);
     var qbRefList = List.of(qbRef);
     when(referenceBlockQueryService.getReferenceBlocksByRefsIn(qbRefList))
-        .thenReturn(Collections.singletonList(new ReferenceBlockView(qbRef, "005005")));
+        .thenReturn(Collections.singletonList(referenceBlockView));
 
     var form = new GeneralDetailsForm();
     form.setQuadrantBlocks(qbRefList);
@@ -222,10 +224,13 @@ class GeneralDetailsFormServiceTest {
         );
   }
 
-  private QuadrantAndBlock createQuadrantAndBlock(GeneralDetail generalDetail, String quadrantBlockRef) {
+  private QuadrantAndBlock createQuadrantAndBlock(GeneralDetail generalDetail, ReferenceBlockView referenceBlockView) {
     var quadrantAndBlock = new QuadrantAndBlock();
     quadrantAndBlock.setGeneralDetail(generalDetail);
-    quadrantAndBlock.setQuadrantBlock(quadrantBlockRef);
+    quadrantAndBlock.setQuadrantBlockReference(referenceBlockView.quadAndBlockRef());
+    quadrantAndBlock.setQuadrant(referenceBlockView.quadrant());
+    quadrantAndBlock.setBlock(referenceBlockView.blockNo());
+    quadrantAndBlock.setOnshoreOffshore(referenceBlockView.onshoreOffshore());
     return quadrantAndBlock;
   }
 

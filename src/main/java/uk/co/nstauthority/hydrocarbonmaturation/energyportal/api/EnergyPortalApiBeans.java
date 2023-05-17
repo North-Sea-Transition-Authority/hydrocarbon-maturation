@@ -6,7 +6,7 @@ import uk.co.fivium.energyportalapi.client.EnergyPortal;
 import uk.co.fivium.energyportalapi.client.licence.application.LicenceApplicationApi;
 import uk.co.fivium.energyportalapi.client.licence.licence.LicenceApi;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
-import uk.co.fivium.energyportalapi.client.referenceblock.ReferenceBlockApi;
+import uk.co.fivium.energyportalapi.client.referenceblock.fullreferenceblock.FullReferenceBlockApi;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.client.wellbore.WellboreApi;
 
@@ -32,8 +32,8 @@ class EnergyPortalApiBeans {
   }
 
   @Bean
-  ReferenceBlockApi referenceBlockApi(EnergyPortal energyPortal) {
-    return new ReferenceBlockApi(energyPortal);
+  FullReferenceBlockApi fullReferenceBlockApi(EnergyPortal energyPortal) {
+    return new FullReferenceBlockApi(energyPortal);
   }
 
   @Bean

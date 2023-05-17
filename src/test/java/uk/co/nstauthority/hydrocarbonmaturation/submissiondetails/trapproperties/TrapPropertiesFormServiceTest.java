@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
@@ -266,7 +267,7 @@ class TrapPropertiesFormServiceTest {
   void getQuadrantAndBlocks() {
     var generalDetail = new GeneralDetail();
     var quadrantBlock = new QuadrantAndBlock();
-    quadrantBlock.setQuadrantBlock("quad1");
+    quadrantBlock.setQuadrantBlockReference("quad1");
     var blockId = UUID.randomUUID();
     quadrantBlock.setId(blockId);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
@@ -284,28 +285,34 @@ class TrapPropertiesFormServiceTest {
   @Test
   void getQuadrantAndBlocks_assertSorted() {
     var generalDetail = new GeneralDetail();
-    var quadrantBlock = new QuadrantAndBlock();
     var quadrantBlock1 = new QuadrantAndBlock();
     var quadrantBlock2 = new QuadrantAndBlock();
-    quadrantBlock1.setSortKey("0002");
-    quadrantBlock1.setQuadrantBlock("quad1");
-    quadrantBlock2.setQuadrantBlock("quad2");
-    quadrantBlock2.setSortKey("0003");
-    quadrantBlock.setSortKey("0001");
-    quadrantBlock.setQuadrantBlock("quad");
-    var blockId = UUID.randomUUID();
-    quadrantBlock.setId(blockId);
+    var quadrantBlock3 = new QuadrantAndBlock();
+    quadrantBlock1.setQuadrantBlockReference("110/2");
+    quadrantBlock1.setQuadrant("110");
+    quadrantBlock1.setBlock(2);
+    quadrantBlock1.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    quadrantBlock2.setQuadrantBlockReference("NA70");
+    quadrantBlock2.setQuadrant("NA");
+    quadrantBlock2.setBlock(70);
+    quadrantBlock2.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
+    quadrantBlock3.setQuadrantBlockReference("100/3");
+    quadrantBlock3.setQuadrant("100");
+    quadrantBlock3.setBlock(3);
+    quadrantBlock3.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    var quadrantAndBlockId = UUID.randomUUID();
+    quadrantBlock1.setId(quadrantAndBlockId);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
     when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
-        .thenReturn(List.of(quadrantBlock2, quadrantBlock1, quadrantBlock));
+        .thenReturn(List.of(quadrantBlock1, quadrantBlock2, quadrantBlock3));
 
     var quadrantBlocks = trapPropertiesFormService.getQuadrantAndBlocks(submissionDetail);
     assertThat(quadrantBlocks)
         .containsExactly(
-            entry("quad", "quad"),
-            entry("quad1", "quad1"),
-            entry("quad2", "quad2")
+            entry("100/3", "100/3"),
+            entry("110/2", "110/2"),
+            entry("NA70", "NA70")
         );
   }
 

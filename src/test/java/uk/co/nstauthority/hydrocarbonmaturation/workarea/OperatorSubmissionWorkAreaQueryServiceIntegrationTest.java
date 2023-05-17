@@ -92,7 +92,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
 
     var quadBlocks = new QuadrantAndBlock();
     quadBlocks.setGeneralDetail(generalDetails);
-    quadBlocks.setQuadrantBlock("25/12");
+    quadBlocks.setQuadrantBlockReference("25/12");
     entityManager.persist(quadBlocks);
     entityManager.flush();
 

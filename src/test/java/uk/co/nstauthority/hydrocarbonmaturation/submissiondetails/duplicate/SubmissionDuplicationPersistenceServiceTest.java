@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestr
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryOptions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 
@@ -71,7 +72,10 @@ class SubmissionDuplicationPersistenceServiceTest {
 
     assertThat(newQuadBlock.getId()).isNotEqualTo(quadBlock.getId());
     assertThat(newQuadBlock.getGeneralDetail().getId()).isEqualTo(newGeneralDetail.getId());
-    assertThat(newQuadBlock.getQuadrantBlock()).isEqualTo(quadBlock.getQuadrantBlock());
+    assertThat(newQuadBlock.getQuadrantBlockReference()).isEqualTo(quadBlock.getQuadrantBlockReference());
+    assertThat(newQuadBlock.getQuadrant()).isEqualTo(quadBlock.getQuadrant());
+    assertThat(newQuadBlock.getBlock()).isEqualTo(quadBlock.getBlock());
+    assertThat(newQuadBlock.getOnshoreOffshore()).isEqualTo(quadBlock.getOnshoreOffshore());
   }
 
   @Test
@@ -115,7 +119,13 @@ class SubmissionDuplicationPersistenceServiceTest {
   }
 
   private QuadrantAndBlock createQuadBlock(GeneralDetail generalDetail) {
-    return SubmissionIntegrationTestUtils.createQuadAndBlock(generalDetail, "1/1", entityManager);
+    return SubmissionIntegrationTestUtils.createQuadAndBlock(
+        generalDetail,
+        "1/1",
+        "1",
+        1,
+        OnshoreOffshore.OFFSHORE,
+        entityManager);
   }
 
   private DrillStemTestResult createDrillStemTestResult(DrillStemTest drillStemTest) {

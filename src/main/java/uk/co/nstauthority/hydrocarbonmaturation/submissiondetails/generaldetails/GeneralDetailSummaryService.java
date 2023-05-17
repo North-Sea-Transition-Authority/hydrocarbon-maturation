@@ -28,7 +28,10 @@ public class GeneralDetailSummaryService {
   public GeneralDetailSummaryView getGeneralDetailSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
     var generalDetail = generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail);
     return generalDetail.map(detail -> {
-      var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail);
+      var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail)
+              .stream()
+              .sorted(new ReferenceBlockComparator())
+              .toList();
       var licences = licencePersistenceService.getLicencesByGeneralDetail(detail)
           .stream()
           .sorted(new LicenceReferenceComparator())
@@ -85,8 +88,7 @@ public class GeneralDetailSummaryService {
 
   private List<String> getQuadBlocksDisplay(List<QuadrantAndBlock> quadrantAndBlocks) {
     return quadrantAndBlocks.stream()
-        .sorted(Comparator.comparing(QuadrantAndBlock::getSortKey))
-        .map(QuadrantAndBlock::getQuadrantBlock)
+        .map(QuadrantAndBlock::getQuadrantBlockReference)
         .toList();
   }
 

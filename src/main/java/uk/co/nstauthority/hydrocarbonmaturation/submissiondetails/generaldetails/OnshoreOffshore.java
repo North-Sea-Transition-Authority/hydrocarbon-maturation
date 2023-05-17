@@ -1,8 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
 import java.util.Map;
+import uk.co.fivium.energyportalapi.generated.types.ShoreType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 
 public enum OnshoreOffshore implements Displayable {
   OFFSHORE("Offshore", 10),
@@ -33,5 +35,9 @@ public enum OnshoreOffshore implements Displayable {
   @Override
   public String getEnumName() {
     return this.name();
+  }
+
+  public static OnshoreOffshore fromShoreType(ShoreType shoreType) {
+    return EnumUtils.getEnumValue(OnshoreOffshore.class, shoreType.name());
   }
 }

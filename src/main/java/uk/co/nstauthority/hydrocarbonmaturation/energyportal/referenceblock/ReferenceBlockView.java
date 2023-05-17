@@ -1,16 +1,21 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock;
 
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectable;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
-public record ReferenceBlockView(String blockRef,
-                                 String sortKey) implements SearchSelectable {
+public record ReferenceBlockView(
+    String quadAndBlockRef,
+    String quadrant,
+    Integer blockNo,
+    OnshoreOffshore onshoreOffshore
+) implements SearchSelectable {
   @Override
   public String getSelectionId() {
-    return blockRef;
+    return quadAndBlockRef;
   }
 
   @Override
   public String getSelectionText() {
-    return blockRef;
+    return quadAndBlockRef;
   }
 }

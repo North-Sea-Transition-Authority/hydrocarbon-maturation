@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 interface QuadrantAndBlockRepository extends CrudRepository<QuadrantAndBlock, UUID> {
-  List<QuadrantAndBlock> findAllByQuadrantBlockIn(List<String> quadrantBlockList);
+  List<QuadrantAndBlock> findAllByQuadrantBlockReferenceIn(List<String> quadrantBlockList);
 
   List<QuadrantAndBlock> findAllByGeneralDetail(GeneralDetail generalDetail);
 

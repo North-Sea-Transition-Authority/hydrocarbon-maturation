@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,14 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.fivium.energyportalapi.client.referenceblock.ReferenceBlockApi;
+import uk.co.fivium.energyportalapi.client.referenceblock.fullreferenceblock.FullReferenceBlockApi;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 
 @ExtendWith(MockitoExtension.class)
 class ReferenceBlockQueryServiceTest {
   @Mock
-  private ReferenceBlockApi referenceBlockApi;
+  private FullReferenceBlockApi referenceBlockApi;
   private final ServiceConfigurationProperties serviceConfigurationProperties = new ServiceConfigurationProperties(
       "name",
       "mnemonic"
@@ -40,12 +39,12 @@ class ReferenceBlockQueryServiceTest {
   }
 
   @Test
-  void getReferenceBlocksBy() {
+  void getReferenceBlocksContaining() {
     var searchReference = "25/";
 
-    referenceBlockQueryService.getReferenceBlocksBy(searchReference);
+    referenceBlockQueryService.getReferenceBlocksContaining(searchReference);
 
-    verify(referenceBlockApi, times(1)).searchReferenceBlocks(
+    verify(referenceBlockApi, times(1)).searchFullReferenceBlocksByReferenceContains(
         eq(searchReference),
         eq(ReferenceBlockQueryService.REFERENCE_BLOCKS_PROJECTION_ROOT),
         any(),
@@ -59,8 +58,22 @@ class ReferenceBlockQueryServiceTest {
 
     referenceBlockQueryService.getReferenceBlocksByRefsIn(blockRefs);
 
-    verify(referenceBlockApi, times(3)).findReferenceBlockByBlockRef(
-        anyString(),
+    verify(referenceBlockApi, times(1)).searchFullReferenceBlocksByReferences(
+        eq(blockRefs),
+        eq(ReferenceBlockQueryService.REFERENCE_BLOCKS_PROJECTION_ROOT),
+        any(),
+        any()
+    );
+  }
+
+  @Test
+  void getReferenceBlock() {
+    var referenceBlock = "25/10";
+
+    referenceBlockQueryService.getReferenceBlock(referenceBlock);
+
+    verify(referenceBlockApi, times(1)).findFullReferenceBlockByReference(
+        eq(referenceBlock),
         eq(ReferenceBlockQueryService.REFERENCE_BLOCK_PROJECTION_ROOT),
         any(),
         any()

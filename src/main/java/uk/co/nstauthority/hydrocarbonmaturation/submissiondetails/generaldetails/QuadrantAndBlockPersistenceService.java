@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesRepository;
 
 @Service
@@ -33,7 +34,7 @@ public class QuadrantAndBlockPersistenceService {
 
     var quadrantAndBlocks = referenceBlockQueryService.getReferenceBlocksByRefsIn(quadBlocksRefs)
         .stream()
-        .map(view -> createQuadrantAndBlock(generalDetail, view.blockRef(), view.sortKey()))
+        .map(view -> createQuadrantAndBlock(generalDetail, view))
         .toList();
 
     quadrantAndBlockRepository.deleteAllByGeneralDetail(generalDetail);
@@ -42,7 +43,7 @@ public class QuadrantAndBlockPersistenceService {
   }
 
   List<QuadrantAndBlock> getQuadrantBlocksByRefs(List<String> quadrantBlockRefList) {
-    return quadrantAndBlockRepository.findAllByQuadrantBlockIn(quadrantBlockRefList);
+    return quadrantAndBlockRepository.findAllByQuadrantBlockReferenceIn(quadrantBlockRefList);
   }
 
   public List<QuadrantAndBlock> getQuadrantBlocksByGeneralDetail(GeneralDetail generalDetail) {
@@ -67,19 +68,21 @@ public class QuadrantAndBlockPersistenceService {
           if (quadBlock != null) {
             quadrantAndBlocks
                 .stream()
-                .filter(item -> quadBlock.equals(item.getQuadrantBlock()))
+                .filter(item -> quadBlock.equals(item.getQuadrantBlockReference()))
                 .findAny()
-                .ifPresent(block -> trapProperty.setCentreOfInterestQuadrantBlock(block.getQuadrantBlock()));
+                .ifPresent(block -> trapProperty.setCentreOfInterestQuadrantBlock(block.getQuadrantBlockReference()));
             trapPropertyRepository.save(trapProperty);
           }
         });
   }
 
-  private QuadrantAndBlock createQuadrantAndBlock(GeneralDetail generalDetail, String quadBlockRef, String sortKey) {
+  private QuadrantAndBlock createQuadrantAndBlock(GeneralDetail generalDetail, ReferenceBlockView view) {
     var quadrantAndBlock = new QuadrantAndBlock();
     quadrantAndBlock.setGeneralDetail(generalDetail);
-    quadrantAndBlock.setQuadrantBlock(quadBlockRef);
-    quadrantAndBlock.setSortKey(sortKey);
+    quadrantAndBlock.setQuadrantBlockReference(view.quadAndBlockRef());
+    quadrantAndBlock.setQuadrant(view.quadrant());
+    quadrantAndBlock.setBlock(view.blockNo());
+    quadrantAndBlock.setOnshoreOffshore(view.onshoreOffshore());
 
     return quadrantAndBlock;
   }

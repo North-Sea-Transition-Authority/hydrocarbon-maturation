@@ -88,7 +88,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     }
 
     var quadBlockRefs = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail).stream()
-        .map(QuadrantAndBlock::getQuadrantBlock)
+        .map(QuadrantAndBlock::getQuadrantBlockReference)
         .toList();
     form.setQuadrantBlocks(quadBlockRefs);
 
@@ -133,7 +133,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     return referenceBlockQueryService.getReferenceBlocksByRefsIn(form.getQuadrantBlocks()).stream()
         .map(referenceBlock -> {
           var isValid = true;
-          return new QuadrantAndBlockView(referenceBlock.blockRef(), referenceBlock.blockRef(), isValid);
+          return new QuadrantAndBlockView(referenceBlock.quadAndBlockRef(), referenceBlock.quadAndBlockRef(), isValid);
         })
         .toList();
   }

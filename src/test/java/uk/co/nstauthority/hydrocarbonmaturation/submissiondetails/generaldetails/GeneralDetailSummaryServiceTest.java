@@ -89,9 +89,19 @@ class GeneralDetailSummaryServiceTest {
         .thenReturn(Optional.of(generalDetail));
 
     var quadrantBlockRef1 = "1/1";
-    var quadrantAndBlock1 = createQuadrantAndBlock(quadrantBlockRef1);
+    var quadrantAndBlock1 = createQuadrantAndBlock(
+        quadrantBlockRef1,
+        "1",
+        1,
+        OnshoreOffshore.OFFSHORE
+    );
     var quadrantBlockRef2 = "1/2";
-    var quadrantAndBlock2 = createQuadrantAndBlock(quadrantBlockRef2);
+    var quadrantAndBlock2 = createQuadrantAndBlock(
+        quadrantBlockRef2,
+        "1",
+        2,
+        OnshoreOffshore.OFFSHORE
+    );
     when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
         .thenReturn(List.of(quadrantAndBlock1, quadrantAndBlock2));
 
@@ -150,9 +160,19 @@ class GeneralDetailSummaryServiceTest {
         .thenReturn(Optional.of(generalDetail));
 
     var quadrantBlockRef1 = "1/1";
-    var quadrantAndBlock1 = createQuadrantAndBlock(quadrantBlockRef1);
+    var quadrantAndBlock1 = createQuadrantAndBlock(
+        quadrantBlockRef1,
+        "1",
+        1,
+        OnshoreOffshore.OFFSHORE
+    );
     var quadrantBlockRef2 = "1/2";
-    var quadrantAndBlock2 = createQuadrantAndBlock(quadrantBlockRef2);
+    var quadrantAndBlock2 = createQuadrantAndBlock(
+        quadrantBlockRef2,
+        "1",
+        2,
+        OnshoreOffshore.OFFSHORE
+    );
     when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
         .thenReturn(List.of(quadrantAndBlock1, quadrantAndBlock2));
 
@@ -228,11 +248,18 @@ class GeneralDetailSummaryServiceTest {
   }
 
 
-  private QuadrantAndBlock createQuadrantAndBlock(String quadrantBlockRef) {
-    var quadrantAndBlock1 = new QuadrantAndBlock();
-    quadrantAndBlock1.setQuadrantBlock(quadrantBlockRef);
-    quadrantAndBlock1.setSortKey("0010");
-    return quadrantAndBlock1;
+  private QuadrantAndBlock createQuadrantAndBlock(
+      String quadrantBlockRef,
+      String quad,
+      Integer block,
+      OnshoreOffshore onshoreOffshore
+  ) {
+    var quadrantAndBlock = new QuadrantAndBlock();
+    quadrantAndBlock.setQuadrantBlockReference(quadrantBlockRef);
+    quadrantAndBlock.setQuadrant(quad);
+    quadrantAndBlock.setBlock(block);
+    quadrantAndBlock.setOnshoreOffshore(onshoreOffshore);
+    return quadrantAndBlock;
   }
 
   private Licence createLicence(String licenceRef) {

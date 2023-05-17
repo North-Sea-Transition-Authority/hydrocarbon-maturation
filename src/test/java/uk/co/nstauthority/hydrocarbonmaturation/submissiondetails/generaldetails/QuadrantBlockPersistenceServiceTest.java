@@ -50,12 +50,18 @@ class QuadrantBlockPersistenceServiceTest {
     var generalDetail = mock(GeneralDetail.class);
 
     var qbRef1 = "27/40";
+    var referenceBlockView = new ReferenceBlockView(
+        qbRef1,
+        "27",
+        40,
+        OnshoreOffshore.OFFSHORE
+    );
     var quadBlockRefs = List.of(qbRef1);
     var generalDetailsForm = new GeneralDetailsForm();
     generalDetailsForm.setQuadrantBlocks(quadBlockRefs);
 
     when(referenceBlockQueryService.getReferenceBlocksByRefsIn(quadBlockRefs))
-        .thenReturn(List.of(new ReferenceBlockView(qbRef1, "0505")));
+        .thenReturn(List.of(referenceBlockView));
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<QuadrantAndBlock>> argumentCaptor = ArgumentCaptor.forClass(List.class);
@@ -68,12 +74,18 @@ class QuadrantBlockPersistenceServiceTest {
     assertThat(argumentCaptor.getValue())
         .extracting(
             QuadrantAndBlock::getGeneralDetail,
-            QuadrantAndBlock::getQuadrantBlock
+            QuadrantAndBlock::getQuadrantBlockReference,
+            QuadrantAndBlock::getQuadrant,
+            QuadrantAndBlock::getBlock,
+            QuadrantAndBlock::getOnshoreOffshore
         )
         .containsExactly(
             tuple(
                 generalDetail,
-                qbRef1
+                referenceBlockView.quadAndBlockRef(),
+                referenceBlockView.quadrant(),
+                referenceBlockView.blockNo(),
+                referenceBlockView.onshoreOffshore()
             )
         );
   }
@@ -84,7 +96,7 @@ class QuadrantBlockPersistenceServiceTest {
 
     quadrantAndBlockPersistenceService.getQuadrantBlocksByRefs(quadBlockRefs);
 
-    verify(quadrantAndBlockRepository).findAllByQuadrantBlockIn(quadBlockRefs);
+    verify(quadrantAndBlockRepository).findAllByQuadrantBlockReferenceIn(quadBlockRefs);
   }
 
   @Test
@@ -148,7 +160,7 @@ class QuadrantBlockPersistenceServiceTest {
         .thenReturn(Optional.of(trapProperty));
 
     var centreOfInterestQuadBlock = new QuadrantAndBlock();
-    centreOfInterestQuadBlock.setQuadrantBlock("10/15");
+    centreOfInterestQuadBlock.setQuadrantBlockReference("10/15");
 
     quadrantAndBlockPersistenceService.updateTrapProperty(genDetail, List.of(centreOfInterestQuadBlock, new QuadrantAndBlock(), new QuadrantAndBlock()));
     ArgumentCaptor<TrapProperty> argumentCaptor = ArgumentCaptor.forClass(TrapProperty.class);
@@ -158,6 +170,6 @@ class QuadrantBlockPersistenceServiceTest {
     assertThat(argumentCaptor.getValue())
         .extracting(
             TrapProperty::getCentreOfInterestQuadrantBlock)
-        .isEqualTo(centreOfInterestQuadBlock.getQuadrantBlock());
+        .isEqualTo(centreOfInterestQuadBlock.getQuadrantBlockReference());
   }
 }

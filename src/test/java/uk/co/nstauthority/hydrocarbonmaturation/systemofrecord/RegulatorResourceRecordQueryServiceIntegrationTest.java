@@ -40,6 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTest
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
@@ -83,7 +84,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
 
     var quadrantBlock1 = "25/12";
-    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
+    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(
+        generalDetails1,
+        quadrantBlock1,
+        "25",
+        12,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
     var licence1 = createLicence(951, "AL10", generalDetails1);
@@ -97,7 +104,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
 
     var quadrantBlock2 = "50/11";
-    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
+    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(
+        generalDetails2,
+        quadrantBlock2,
+        "50",
+        11,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
 
     var licence3 = createLicence(253, "BL10", generalDetails2);
@@ -123,7 +136,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .containsExactly(
             tuple(
                 submissionDetail2.getId(),
-                centreOfInterestQuadrantBlock2.getQuadrantBlock(),
+                centreOfInterestQuadrantBlock2.getQuadrantBlockReference(),
                 organisationId2,
                 resourceName2,
                 ResourceType.PROSPECT,
@@ -133,7 +146,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ),
             tuple(
                 submissionDetail1.getId(),
-                centreOfInterestQuadrantBlock1.getQuadrantBlock(),
+                centreOfInterestQuadrantBlock1.getQuadrantBlockReference(),
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
@@ -155,7 +168,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
 
     var quadrantBlock1 = "25/12";
-    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
+    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(
+        generalDetails1,
+        quadrantBlock1,
+        "25",
+        12,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
     var licence1 = createLicence(951, "AL10", generalDetails1);
@@ -167,7 +186,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var generalDetails2 = createGeneralDetail(submissionDetail2);
     var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
     var quadrantBlock2 = "50/11";
-    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
+    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(
+        generalDetails2,
+        quadrantBlock2,
+        "50",
+        11,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
 
     var licence3 = createLicence(253, "BL10", generalDetails2);
@@ -193,7 +218,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .containsExactly(
             tuple(
                 submissionDetail2.getId(),
-                centreOfInterestQuadrantBlock2.getQuadrantBlock(),
+                centreOfInterestQuadrantBlock2.getQuadrantBlockReference(),
                 organisationId2,
                 resourceName2,
                 ResourceType.PROSPECT,
@@ -214,7 +239,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var generalDetails1 = createGeneralDetail(submissionDetail1);
     var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
     var quadrantBlock1 = "25/12";
-    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
+    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(
+        generalDetails1,
+        quadrantBlock1,
+        "25",
+        12,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
     var licence1 = createLicence(951, "AL10", generalDetails1);
@@ -227,7 +258,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var generalDetails2 = createGeneralDetail(submissionDetail2);
     var resourceDetail2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
     var quadrantBlock2 = "50/11";
-    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
+    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(
+        generalDetails2,
+        quadrantBlock2,
+        "50",
+        11,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
 
     var licence3 = createLicence(253, "BL10", generalDetails2);
@@ -254,7 +291,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .containsExactly(
             tuple(
                 submissionDetail1.getId(),
-                centreOfInterestQuadrantBlock1.getQuadrantBlock(),
+                centreOfInterestQuadrantBlock1.getQuadrantBlockReference(),
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
@@ -275,7 +312,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var generalDetails1 = createGeneralDetail(submissionDetail1);
     var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
     var quadrantBlock1 = "25/12";
-    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
+    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(
+        generalDetails1,
+        quadrantBlock1,
+        "25",
+        12,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
     var licence1 = createLicence(951, "AL10", generalDetails1);
@@ -288,7 +331,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var generalDetails2 = createGeneralDetail(submissionDetail2);
     var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
     var quadrantBlock2 = "50/11";
-    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(generalDetails2, quadrantBlock2);
+    var centreOfInterestQuadrantBlock2 = createQuadAndBlock(
+        generalDetails2,
+        quadrantBlock2,
+        "50",
+        11,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty2 = createTrapProperty(submissionDetail2, quadrantBlock2);
 
     var licence3 = createLicence(253, "BL10", generalDetails2);
@@ -315,7 +364,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .containsExactly(
             tuple(
                 submissionDetail1.getId(),
-                centreOfInterestQuadrantBlock1.getQuadrantBlock(),
+                centreOfInterestQuadrantBlock1.getQuadrantBlockReference(),
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
@@ -336,7 +385,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
     var generalDetails1 = createGeneralDetail(submissionDetail1);
     var quadrantBlock1 = "25/12";
-    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
+    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(
+        generalDetails1,
+        quadrantBlock1,
+        "25",
+        12,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
     var licence1 = createLicence(951, "AL10", generalDetails1);
@@ -364,7 +419,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .containsExactly(
             tuple(
                 submissionDetail1.getId(),
-                centreOfInterestQuadrantBlock1.getQuadrantBlock(),
+                centreOfInterestQuadrantBlock1.getQuadrantBlockReference(),
                 organisationId1,
                 resourceName1,
                 ResourceType.DISCOVERY,
@@ -385,7 +440,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
     var generalDetails1 = createGeneralDetail(submissionDetail1);
     var quadrantBlock1 = "25/12";
-    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(generalDetails1, quadrantBlock1);
+    var centreOfInterestQuadrantBlock1 = createQuadAndBlock(
+        generalDetails1,
+        quadrantBlock1,
+        "25",
+        12,
+        OnshoreOffshore.OFFSHORE
+    );
     var trapProperty1 = createTrapProperty(submissionDetail1, quadrantBlock1);
 
     var licence1 = createLicence(951, "AL10", generalDetails1);
@@ -413,7 +474,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .containsExactly(
             tuple(
                 submissionDetail1.getId(),
-                centreOfInterestQuadrantBlock1.getQuadrantBlock(),
+                centreOfInterestQuadrantBlock1.getQuadrantBlockReference(),
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
@@ -483,7 +544,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         submissionMatchingFilter, resourceNameForMatchingFilter, 1);
     var quadrantBlockMatchingFilter = "25/12";
     var centreOfInterestQuadrantBlockMatchingFilter =
-        createQuadAndBlock(generalDetailsMatchingFilter, quadrantBlockMatchingFilter);
+        createQuadAndBlock(
+            generalDetailsMatchingFilter,
+            quadrantBlockMatchingFilter,
+            "25",
+            12,
+            OnshoreOffshore.OFFSHORE
+        );
     var trapPropertyWithCentreOfInterestMatchingFilter =
         createTrapProperty(submissionMatchingFilter, quadrantBlockMatchingFilter);
 
@@ -493,7 +560,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(submissionNotMatchingFilter, "NOT_RELEVANT", 1);
     var quadrantBlockNotMatchingFilter = "50/11";
     var centreOfInterestQuadrantBlockNotMatchingFilter =
-        createQuadAndBlock(generalDetailsNotMatchingFilter, quadrantBlockNotMatchingFilter);
+        createQuadAndBlock(
+            generalDetailsNotMatchingFilter,
+            quadrantBlockNotMatchingFilter,
+            "50",
+            11,
+            OnshoreOffshore.OFFSHORE
+        );
     var trapPropertyWithNotMatchingFilterQuadBlock
         = createTrapProperty(submissionNotMatchingFilter, quadrantBlockNotMatchingFilter);
 
@@ -516,7 +589,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .containsExactly(
             tuple(
                 submissionMatchingFilter.getId(),
-                centreOfInterestQuadrantBlockMatchingFilter.getQuadrantBlock(),
+                centreOfInterestQuadrantBlockMatchingFilter.getQuadrantBlockReference(),
                 resourceNameForMatchingFilter,
                 ResourceType.PROSPECT,
                 submissionMatchingFilter.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
@@ -1202,9 +1275,21 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     return SubmissionIntegrationTestUtils.createTrapProperty(submissionDetail, centreOfInterestQuadrantBlock, entityManager);
   }
 
-  private QuadrantAndBlock createQuadAndBlock(GeneralDetail generalDetails, String quadrantBlock) {
+  private QuadrantAndBlock createQuadAndBlock(
+      GeneralDetail generalDetails,
+      String quadrantBlockReference,
+      String quad,
+      Integer block,
+      OnshoreOffshore onshoreOffshore
+      ) {
 
-    return SubmissionIntegrationTestUtils.createQuadAndBlock(generalDetails, quadrantBlock, entityManager);
+    return SubmissionIntegrationTestUtils.createQuadAndBlock(
+        generalDetails,
+        quadrantBlockReference,
+        quad,
+        block,
+        onshoreOffshore,
+        entityManager);
   }
 
   private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail) {
