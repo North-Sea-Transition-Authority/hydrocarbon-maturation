@@ -17,7 +17,8 @@ BEGIN
     FOR discovery_rec IN (
         SELECT sd.id sd_id, prdpw.*, pwm.*
         FROM remi.submission_details sd
-        JOIN remi.resources r ON r.id = sd.resource_id
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON r.id = s.resource_id
         LEFT JOIN remi.padi_res_data_post_well prdpw ON prdpw.resdat_id = sd.legacy_res_data_id
         LEFT JOIN remi.padi_well_mapping pwm ON pwm.padi_resdat_id = sd.legacy_res_data_id
         WHERE r.type = 'DISCOVERY'

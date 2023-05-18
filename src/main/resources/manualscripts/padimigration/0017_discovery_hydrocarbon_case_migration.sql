@@ -14,7 +14,8 @@ BEGIN
     FOR discovery_rec IN (
         SELECT sd.id sd_id
         FROM remi.submission_details sd
-        JOIN remi.resources r ON sd.resource_id = r.id
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON s.resource_id = r.id
         JOIN remi.discovery_well_details dwd ON dwd.submission_detail_id = sd.id
         WHERE r.type = 'DISCOVERY'
     )

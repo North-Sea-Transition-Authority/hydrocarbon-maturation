@@ -12,7 +12,8 @@ BEGIN
     FOR discovery_rec IN (
         SELECT sd.id sd_id, r.type, sd.submission_type, prdd.*
         FROM remi.submission_details sd
-        JOIN remi.resources r ON r.id = sd.resource_id
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON r.id = s.resource_id
         JOIN remi.padi_res_data_disc prdd ON prdd.resdat_id = sd.legacy_res_data_id
         WHERE r.type = 'DISCOVERY'
         AND prdd.resource_id IS NOT NULL

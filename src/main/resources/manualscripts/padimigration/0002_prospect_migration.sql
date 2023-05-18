@@ -5,6 +5,7 @@ DECLARE
     resource_rec RECORD;
     remi_res_id UUID;
     submission_rec RECORD;
+    remi_submission_id UUID;
 
 BEGIN
 
@@ -108,9 +109,13 @@ BEGIN
     )
     LOOP
 
+        INSERT INTO remi.submissions (id, resource_id)
+        VALUES(gen_random_uuid(), submission_rec.remi_resource_id)
+        RETURNING id INTO remi_submission_id;
+
         INSERT INTO remi.submission_details (
             id,
-            resource_id,
+            submission_id,
             created_timestamp,
             created_by_wua_id,
             status,
@@ -123,7 +128,7 @@ BEGIN
             legacy_res_data_id
         ) VALUES (
             gen_random_uuid(),
-            submission_rec.remi_resource_id,
+            remi_submission_id,
             submission_rec.approved_date,
             1,
             'APPROVED',

@@ -11,7 +11,8 @@ BEGIN
         SELECT prdh.*, sd.id sd_id
         FROM remi.padi_res_data_header prdh
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
-        JOIN remi.resources r ON r.id = sd.resource_id
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON r.id = s.resource_id
         WHERE r.type = 'PROSPECT'
         AND sd.submission_type != 'POST_DRILL_DRY_HOLE'
     )
