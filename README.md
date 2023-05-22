@@ -38,9 +38,9 @@ track changes over time.
 - In your IntelliJ run configuration for the Spring app, include `development` in your active profiles
 - The following environment variables are required when using this profile:
 
-| Environment Variable                        | Description                                                                                       |
-|---------------------------------------------|---------------------------------------------------------------------------------------------------|
-| NOTIFY_API_KEY                           | The local dev GOV.UK Notify key                                                    |
+| Environment Variable                     | Description  |
+|------------------------------------------|--------------|
+| NOTIFY_API_KEY                           | [TPM link](https://tpm.fivium.co.uk/index.php/pwd/view/2035) |
 
 ### Production
 - In your IntelliJ run configuration for the Spring app, include `production` in your active profiles
@@ -86,17 +86,50 @@ track changes over time.
 ### 4. Build frontend components
 - `npm install`
 - `npx gulp buildAll`
-- 
+
 ### 5. Generate Jooq classes
-Execute the gradle task `generateJooq`. You will need to re-generate when you change the database.
-(This requires docker to be running on your machine)
+- You will need to stop the local ReMI db container
+- Execute the gradle task `generateJooq`. You will need to re-generate when you change the database.
+- Some errors/warnings are fine as long as the task was _successful_
+- Then restart the db container
 
-### 6. Run the app
-Create a run configuration for the Spring app and start the application.
+### 6. Add the admin user to the team
+- Connect to the remi db and use the following script in a console to add the admin user to the team member roles table as an `ACCESS_MANAGER`
 
-The application will be running on `localhost:8080/remi/<endpoint>`
+```postgresql
+INSERT INTO remi.team_member_roles(uuid, team_id, wua_id, role) VALUES (
+    gen_random_uuid()
+    , (
+     WITH iterable_teams AS (
+       SELECT
+         row_number() OVER () row
+            , t.*
+       FROM remi.teams t
+     ), max_reg_team AS (
+       SELECT MAX(it.row), it.uuid
+       FROM iterable_teams it
+       WHERE it.type = 'REGULATOR'
+       GROUP BY it.uuid
+     )
+     SELECT mrt.uuid
+     FROM max_reg_team mrt
+    )
+    , 53192 -- This is the ReMI NSTA Team Admin user account on the Energy Portal Dev environment
+    , 'ACCESS_MANAGER'
+);
+```
 
-## Development setup
+### 7. Run the app
+- Create a run configuration for the Spring app and start the application.
+- The application will be running on `localhost:8080/remi/<endpoint>`
+- Go to `localhost:8080/remi/work-area` and log in as `administrator@remi.co.uk`
+
+### 8. Add the other NSTA users
+- Go to `Manage Teams` and add the `NSTA` users from the [ReMI Development Users confluence page](https://confluence.fivium.co.uk/display/BESPOKE/ReMI+Development+Users)
+
+### 9. Add the industry team and users
+- Log in as the `industry-manage@remi.co.uk`
+- Manage the industry team and add the `Industry` users from the [ReMI Development Users confluence page](https://confluence.fivium.co.uk/display/BESPOKE/ReMI+Development+Users)
 
 ### Checkstyle
 1. In Intellij install the Checkstyle-IDEA plugin (from third-party repositories)
