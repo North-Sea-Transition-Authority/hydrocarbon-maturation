@@ -11,8 +11,8 @@
   errorItems=errorList
   pageSize=PageSize.FULL_WIDTH
 >
-  <#if newTeamFormUrl?has_content>
-    <@fdsAction.link linkText="Create organisation group team" linkClass="govuk-button" linkUrl=springUrl(newTeamFormUrl)/>
+  <#if newIndustryTeamFormUrl?has_content>
+    <@fdsAction.link linkText="Create industry team" linkClass="govuk-button" linkUrl=springUrl(newIndustryTeamFormUrl)/>
   </#if>
 
   <table class="govuk-table">

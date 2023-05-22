@@ -20,7 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indus
 @AccessibleByServiceUsers
 public class TeamManagementController {
 
-  public static final String NEW_TEAM_FORM_URL =
+  public static final String NEW_INDUSTRY_TEAM_FORM_URL =
       ReverseRouter.route(on(NewIndustryTeamController.class).renderNewIndustryTeamForm(null));
   private final TeamManagementService teamManagementService;
   private final UserDetailService userDetailService;
@@ -45,17 +45,20 @@ public class TeamManagementController {
       );
     }
 
-    if (teams.size() == 1) {
+    var userIsIndustryAccessManagerInRegulatorTeam = teamManagementService.isIndustryAccessManagerInRegulatorTeam(user);
+
+    if (teams.size() == 1 && !userIsIndustryAccessManagerInRegulatorTeam) {
       var team = teams.get(0);
       return ReverseRouter.redirect(TeamManagementUtil.getRenderMemberListRoute(team.teamId(), team.teamType()));
     }
+
     var modelAndView = new ModelAndView("remi/permissionmanagement/teamList")
         .addObject("pageTitle", "Choose team to manage")
         .addObject("allTeams", teams);
 
-    if (teamManagementService.isIndustryAccessManagerInRegulatorTeam(user)) {
+    if (userIsIndustryAccessManagerInRegulatorTeam) {
       modelAndView
-          .addObject("newTeamFormUrl", NEW_TEAM_FORM_URL);
+          .addObject("newIndustryTeamFormUrl", NEW_INDUSTRY_TEAM_FORM_URL);
     }
 
     return modelAndView;

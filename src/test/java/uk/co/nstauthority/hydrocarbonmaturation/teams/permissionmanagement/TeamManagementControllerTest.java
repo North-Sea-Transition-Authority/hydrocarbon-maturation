@@ -58,6 +58,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
     when(teamManagementService.getTeamsThatUserHasAccessTo(user)).thenReturn(List.of(TeamView.fromTeam(team1), TeamView.fromTeam(team2)));
+    when(teamManagementService.isIndustryAccessManagerInRegulatorTeam(user)).thenReturn(false);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()))
@@ -73,6 +74,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.INDUSTRY)
         .build();
     when(teamManagementService.getTeamsThatUserHasAccessTo(user)).thenReturn(List.of(TeamView.fromTeam(team1)));
+    when(teamManagementService.isIndustryAccessManagerInRegulatorTeam(user)).thenReturn(false);
 
     mockMvc
         .perform(get(ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()))
@@ -90,6 +92,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.REGULATOR)
         .build();
     when(teamManagementService.getTeamsThatUserHasAccessTo(user)).thenReturn(List.of(TeamView.fromTeam(team1)));
+    when(teamManagementService.isIndustryAccessManagerInRegulatorTeam(user)).thenReturn(false);
 
     mockMvc
         .perform(get(ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()))
@@ -97,6 +100,22 @@ class TeamManagementControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(RegulatorTeamManagementController.class)
             .renderMemberList(team1.toTeamId()))));
+  }
+
+  @Test
+  void renderTeamListOrRedirect_whenAccessToSingleIndustryTeam_andIsIndustryAccessManagerInRegularTeam_thenOk() throws Exception {
+
+    var user = ServiceUserDetailTestUtil.Builder().build();
+    var team1 = TeamTestUtil.Builder()
+        .withTeamType(TeamType.INDUSTRY)
+        .build();
+    when(teamManagementService.getTeamsThatUserHasAccessTo(user)).thenReturn(List.of(TeamView.fromTeam(team1)));
+    when(teamManagementService.isIndustryAccessManagerInRegulatorTeam(user)).thenReturn(true);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()))
+                .with(user(user)))
+        .andExpect(status().isOk());
   }
 
   @Test

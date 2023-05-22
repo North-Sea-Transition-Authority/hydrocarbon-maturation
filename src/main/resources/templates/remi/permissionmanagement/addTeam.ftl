@@ -6,7 +6,6 @@
 
 <@defaultPage
   htmlTitle=pageTitle
-  pageHeading=pageTitle
   errorItems=errorList
   pageSize=PageSize.FULL_WIDTH
   backLinkUrl=springUrl(backLinkUrl)
@@ -14,12 +13,12 @@
     <@fdsForm.htmlForm actionUrl=springUrl(submitFormUrl)>
         <@fdsSearchSelector.searchSelectorRest path="form.organisationGroupId"
           restUrl=springUrl(organisationGroupSearchRestUrl)
-          labelText="Which organisation group would you like to create a team for?"
+          labelText="Which organisation group would you like to create an industry team for?"
           pageHeading=true
           selectorMinInputLength=2
           preselectedItems={}
           />
-        <@fdsAction.button buttonText="Add organisation group"/>
+        <@fdsAction.button buttonText="Create industry team"/>
     </@fdsForm.htmlForm>
     <@fdsDetails.summaryDetails summaryTitle="The organisation group I want to create a team for is not listed">
       <p class="govuk-body">
