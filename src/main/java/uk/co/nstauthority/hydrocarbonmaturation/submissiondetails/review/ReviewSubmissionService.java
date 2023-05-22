@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
@@ -132,6 +133,7 @@ public class ReviewSubmissionService {
     //can only view submitted or approved submissions on the same resource, or linked resource
     //the submission detail to be viewed also has to be the latest update on submission
     return selectedSubmissionDetail.isApprovedOrSubmittedSubmission()
+        && BooleanUtils.isNotTrue(selectedSubmissionDetail.getSubmission().isWithdrawn())
         && resourceLinkService.isResourceLinkedOrSameResource(
             currentResource, selectedSubmissionDetail.getSubmission().getResource())
         && submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(

@@ -88,6 +88,8 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
         .thenReturn("name");
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
+
     mockMvc.perform(
             get(ReverseRouter.route(on(WithdrawSubmissionController.class)
                 .showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID)))
@@ -120,6 +122,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     var expectedTypeName = "Type name";
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
         .thenReturn(expectedTypeName);
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(WithdrawSubmissionController.class).showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID)))
@@ -160,7 +163,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
         .thenReturn(expectedTypeName);
     when(withdrawSubmissionService.validate(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());
-
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
     mockMvc.perform(
             post(ReverseRouter.route(on(WithdrawSubmissionController.class)
                 .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null)))
@@ -183,6 +186,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
         .thenReturn(ReverseRouter.emptyBindingResult());
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(WithdrawSubmissionController.class)

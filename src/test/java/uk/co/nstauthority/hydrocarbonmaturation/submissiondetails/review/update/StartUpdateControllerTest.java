@@ -73,6 +73,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
     when(submissionUpdatePersistenceService
         .getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
         .thenReturn(Optional.of(submissionUpdate));
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
     mockMvc.perform(
             get(ReverseRouter.route(on(StartUpdateController.class).showStartUpdatePage(SUBMISSION_DETAIL_ID)))
                 .with(user(USER)))
@@ -111,6 +112,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
     when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(
         submissionDetail.getSubmission()))
         .thenReturn(Optional.empty());
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
     mockMvc.perform(
             get(ReverseRouter.route(on(StartUpdateController.class).showStartUpdatePage(SUBMISSION_DETAIL_ID)))
                 .with(user(USER)))
@@ -130,6 +132,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
     when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(
         submissionDetail.getSubmission()))
         .thenReturn(Optional.of(submissionUpdate));
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
     var modelMap  = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(StartUpdateController.class).showStartUpdatePage(SUBMISSION_DETAIL_ID)))
                     .with(user(USER)))
@@ -156,7 +159,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn(updateSubmissionDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
-
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
     mockMvc.perform(
             post(ReverseRouter.route(on(StartUpdateController.class).startUpdate(SUBMISSION_DETAIL_ID)))
                 .with(user(USER))

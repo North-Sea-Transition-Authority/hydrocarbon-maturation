@@ -384,6 +384,18 @@ class ReviewSubmissionServiceTest {
     }
 
     @Test
+    void whenIsSameResourceAndIsWithdrawn_assertFalse() {
+      submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+      submissionDetail.getSubmission().setWithdrawn(true);
+
+      var result = reviewSubmissionService.canViewSelectedSubmissionDetail(
+          submissionDetail, submissionDetail.getSubmission().getResource());
+
+      assertThat(result).isFalse();
+    }
+
+
+    @Test
     void whenIsNotSameResourceOrLinked_assertFalse() {
       submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
       when(resourceLinkService.isResourceLinkedOrSameResource(

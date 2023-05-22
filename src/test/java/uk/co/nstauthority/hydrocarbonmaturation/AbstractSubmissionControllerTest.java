@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.RegulatorRes
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.RegulatorResponsibleTeamInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.ResourceAccessInterceptorFactory;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.ResourceAccessInterceptorRule;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionDetailVersionInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionTypeInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
@@ -34,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
@@ -57,6 +59,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
     RegulatorResponsibleTeamInterceptorRule.class,
     ResourceAccessInterceptorRule.class,
     ResourceAccessInterceptorFactory.class,
+    SubmissionDetailVersionInterceptorRule.class,
     OperatorResourceAccessInterceptorRule.class,
     RegulatorResourceAccessInterceptorRule.class,
     SubmissionTypeInterceptorRule.class,
@@ -80,6 +83,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
 
   @Autowired
   protected OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
+
+  @Autowired
+  protected SubmissionDetailVersionInterceptorRule submissionDetailVersionInterceptorRule;
 
   @Autowired
   protected RegulatorResourceAccessInterceptorRule regulatorTeamMembershipInterceptorRule;
@@ -173,5 +179,25 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(List.of(1));
     when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(false);
+  }
+
+  protected void setUpWhenIsLatestExtantSubmissionVersion_passSecurity(SubmissionDetail submissionDetail) {
+    if (submissionDetail.getVersionNumber() > 1 || submissionDetail.getStatus() != SubmissionDetailStatus.DRAFT) {
+      switch (submissionDetail.getStatus()) {
+        case APPROVED -> when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+            submissionDetail,
+            Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+            .thenReturn(true);
+        case DRAFT -> when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+            submissionDetail,
+            Set.of(SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+            .thenReturn(true);
+        case SUBMITTED -> when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+            submissionDetail,
+            Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED))).thenReturn(true);
+        default -> {
+        }
+      }
+    }
   }
 }

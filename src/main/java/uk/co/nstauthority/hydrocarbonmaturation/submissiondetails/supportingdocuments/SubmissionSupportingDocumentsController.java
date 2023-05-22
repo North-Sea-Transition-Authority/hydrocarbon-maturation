@@ -12,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsLatestExtantSubmissionDetailVersion;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDeleteResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
@@ -23,7 +24,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/supporting-documents")
-@AccessibleByServiceUsers
+@IsFromResponsibleTeam
+@IsLatestExtantSubmissionDetailVersion
 public class SubmissionSupportingDocumentsController {
 
   private final SupportingDocumentService supportingDocumentService;

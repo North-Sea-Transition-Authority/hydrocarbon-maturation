@@ -46,7 +46,6 @@ class SubmissionDetailPersistenceServiceTest {
   private RegulatorTeamService regulatorTeamService;
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
   @BeforeEach

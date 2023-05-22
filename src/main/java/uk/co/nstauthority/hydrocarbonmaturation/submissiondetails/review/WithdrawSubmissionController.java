@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsLatestExtantSubmissionDetailVersion;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
@@ -36,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @RequestMapping("/review/{submissionDetailId}/withdraw-submission")
 @HasSubmissionStatus(statuses = {SubmissionDetailStatus.SUBMITTED})
 @HasPermission(permissions = {RolePermission.EXPLORATION})
+@IsLatestExtantSubmissionDetailVersion
 public class WithdrawSubmissionController {
 
   private final SubmissionDetailService submissionDetailService;

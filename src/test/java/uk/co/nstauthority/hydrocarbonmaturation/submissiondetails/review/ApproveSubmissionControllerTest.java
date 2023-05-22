@@ -73,6 +73,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
   void showApproveConfirmationPage_UserCannotApprove_assertStatusUnauthorized() throws Exception {
     when(submissionApprovalService.canApproveSubmission(submissionDetail)).thenReturn(false);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ApproveSubmissionController.class)
@@ -89,6 +90,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn("name");
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
     mockMvc.perform(
             get(ReverseRouter.route(on(ApproveSubmissionController.class)
                 .showApproveConfirmationPage(SUBMISSION_DETAIL_ID)))
@@ -121,6 +123,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
     var expectedTypeName = "Type name";
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
         .thenReturn(expectedTypeName);
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ApproveSubmissionController.class).showApproveConfirmationPage(
@@ -161,6 +164,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
     var expectedTypeName = "Type name";
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
         .thenReturn(expectedTypeName);
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ApproveSubmissionController.class)
@@ -179,6 +183,8 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Submission cannot be approved by user with ID %s "
           .formatted("1"));
     }).when(submissionApprovalService).approveSubmissionOrThrow(submissionDetail);
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     mockMvc.perform(
@@ -190,6 +196,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void approveSubmission_whenDoesNotHaveRegulatorPermission() throws Exception{
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
 
     mockMvc.perform(
@@ -199,5 +206,23 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .andExpect(status().isForbidden());
     verifyNoInteractions(submissionApprovalService);
 
+  }
+
+  @SecurityTest
+  void approveSubmission_whenIsNotLatestExtantVersion_failSecurity() throws Exception{
+    submissionDetail.setVersionNumber(4);
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
+    when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+        submissionDetail,
+        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED)
+    )).thenReturn(false);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ApproveSubmissionController.class)
+                .approveSubmission(SUBMISSION_DETAIL_ID, null)))
+                .with(user(USER)).with(csrf()))
+        .andExpect(status().isForbidden());
+    verifyNoInteractions(submissionApprovalService);
   }
 }

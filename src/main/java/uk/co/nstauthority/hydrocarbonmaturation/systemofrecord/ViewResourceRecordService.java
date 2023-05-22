@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
@@ -86,6 +87,7 @@ class ViewResourceRecordService {
     //can only view submitted or approved submissions on the same resource, or linked resource
     //the submission detail to be viewed also has to be the latest approved on submission
     return selectedSubmissionDetail.getStatus() == SubmissionDetailStatus.APPROVED
+        && BooleanUtils.isNotTrue(selectedSubmissionDetail.getSubmission().isWithdrawn())
         && resourceLinkService.isResourceLinkedOrSameResource(
             resource, selectedSubmissionDetail.getSubmission().getResource())
         && submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
