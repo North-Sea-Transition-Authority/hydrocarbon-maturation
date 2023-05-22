@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -17,9 +16,6 @@ class SubmissionRecordSummaryQueryResult {
   private final Integer organisationResponsibleId;
   private final ResponsibleTeamType responsibleTeam;
   private final List<Integer> licencesTheResourceIsOn;
-  private final Timestamp createdOn;
-  private final Timestamp submittedOn;
-
 
   SubmissionRecordSummaryQueryResult(UUID submissionDetailId,
                                      String submissionType,
@@ -28,9 +24,7 @@ class SubmissionRecordSummaryQueryResult {
                                      String centreOfInterestQuadBlock,
                                      Integer organisationResponsibleId,
                                      String responsibleTeam,
-                                     List<Integer> licencesTheResourceIsOn,
-                                     Timestamp createdOn,
-                                     Timestamp submittedOn) {
+                                     List<Integer> licencesTheResourceIsOn) {
     this.submissionDetailId = submissionDetailId;
     this.submissionType = SubmissionType.valueOf(submissionType);
     this.resourceType = ResourceType.valueOf(resourceType);
@@ -39,8 +33,6 @@ class SubmissionRecordSummaryQueryResult {
     this.organisationResponsibleId = organisationResponsibleId;
     this.responsibleTeam = ResponsibleTeamType.fromName(responsibleTeam);
     this.licencesTheResourceIsOn = licencesTheResourceIsOn;
-    this.createdOn = createdOn;
-    this.submittedOn = submittedOn;
   }
 
   UUID getSubmissionDetailId() {
@@ -73,13 +65,5 @@ class SubmissionRecordSummaryQueryResult {
 
   List<Integer> getLicencesTheResourceIsOn() {
     return licencesTheResourceIsOn;
-  }
-
-  Timestamp getCreatedOn() {
-    return createdOn;
-  }
-
-  Timestamp getSubmittedOn() {
-    return submittedOn;
   }
 }

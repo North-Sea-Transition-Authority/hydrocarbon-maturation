@@ -44,9 +44,7 @@ class SubmissionRecordSummaryQueryService {
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
-            SUBMISSION_DETAILS.CREATED_TIMESTAMP,
-            SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP
+                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull())
         )
         .from(SUBMISSIONS
             .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))

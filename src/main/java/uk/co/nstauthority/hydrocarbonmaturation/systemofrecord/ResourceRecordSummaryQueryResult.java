@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -15,8 +14,6 @@ class ResourceRecordSummaryQueryResult {
   private final Integer organisationResponsibleId;
   private final ResponsibleTeamType responsibleTeam;
   private final List<Integer> licencesTheResourceIsOn;
-  private final Timestamp createdOn;
-  private final Timestamp approvedOn;
 
   ResourceRecordSummaryQueryResult(UUID submissionDetailId,
                             String resourceType,
@@ -24,9 +21,7 @@ class ResourceRecordSummaryQueryResult {
                             String centreOfInterestQuadBlock,
                             Integer organisationResponsibleId,
                             String responsibleTeam,
-                            List<Integer> licencesTheResourceIsOn,
-                            Timestamp createdOn,
-                            Timestamp approvedOn) {
+                            List<Integer> licencesTheResourceIsOn) {
     this.submissionDetailId = submissionDetailId;
     this.resourceType = ResourceType.valueOf(resourceType);
     this.resourceName = resourceName;
@@ -34,8 +29,6 @@ class ResourceRecordSummaryQueryResult {
     this.organisationResponsibleId = organisationResponsibleId;
     this.responsibleTeam = ResponsibleTeamType.fromName(responsibleTeam);
     this.licencesTheResourceIsOn = licencesTheResourceIsOn;
-    this.createdOn = createdOn;
-    this.approvedOn = approvedOn;
   }
 
   UUID getSubmissionDetailId() {
@@ -64,13 +57,5 @@ class ResourceRecordSummaryQueryResult {
 
   List<Integer> getLicencesTheResourceIsOn() {
     return licencesTheResourceIsOn;
-  }
-
-  Timestamp getCreatedOn() {
-    return createdOn;
-  }
-
-  Timestamp getApprovedOn() {
-    return approvedOn;
   }
 }

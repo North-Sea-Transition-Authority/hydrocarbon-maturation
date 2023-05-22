@@ -1,7 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
@@ -25,8 +23,6 @@ class SubmissionWorkAreaQueryResultTestUtil {
     private String centreOfInterestQuadBlock = "25/5";
     private Integer organisationResponsibleId = 10;
     private List<Integer> licencesTheResourceIsOn = List.of(1,2);
-    private Instant createdTime = Instant.now();
-    private Instant submittedTime = Instant.now();
     private Boolean updateRequested = false;
 
     private Builder() {
@@ -67,28 +63,16 @@ class SubmissionWorkAreaQueryResultTestUtil {
       return this;
     }
 
-    public Builder withCreatedTime(Instant createdTime) {
-      this.createdTime = createdTime;
-      return this;
-    }
-
-    public Builder withSubmittedTime(Instant submittedTime) {
-      this.submittedTime = submittedTime;
-      return this;
-    }
-
     public Builder withUpdateRequested(boolean updateRequested) {
       this.updateRequested = updateRequested;
       return this;
     }
 
     public SubmissionWorkAreaQueryResult build() {
-      var createdTimestamp = Timestamp.from(createdTime);
-      var submittedTimestamp = Timestamp.from(submittedTime);
 
       return new SubmissionWorkAreaQueryResult(submissionDetailId, submissionType, status,
           resourceName, centreOfInterestQuadBlock, organisationResponsibleId,
-          licencesTheResourceIsOn, createdTimestamp, submittedTimestamp, updateRequested
+          licencesTheResourceIsOn, updateRequested
       );
     }
   }

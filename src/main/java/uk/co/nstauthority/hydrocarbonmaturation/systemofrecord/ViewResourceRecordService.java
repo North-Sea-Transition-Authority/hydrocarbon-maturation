@@ -65,8 +65,7 @@ class ViewResourceRecordService {
   private String getResourceNameAndCentreOfInterest(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
     return submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(
         resourceRecordSummaryQueryResult.getResourceName(),
-        resourceRecordSummaryQueryResult.getCentreOfInterestQuadBlock(),
-        resourceRecordSummaryQueryResult.getCreatedOn()
+        resourceRecordSummaryQueryResult.getCentreOfInterestQuadBlock()
     );
   }
 

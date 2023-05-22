@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +59,7 @@ public class SubmissionDetailDisplayService {
   }
 
   public String getResourceNameAndCentreOfInterestBlockDisplay(String resourceName,
-                                                               String centreOfInterestQuadBlock,
-                                                               Timestamp createdOn) {
-    if (resourceName == null) {
-      return SubmissionDetailUtil.getDefaultForNamelessResource(createdOn.toInstant());
-    }
-
+                                                               String centreOfInterestQuadBlock) {
     return resourceName + getCentreOfInterestBlockDisplay(centreOfInterestQuadBlock);
   }
 }

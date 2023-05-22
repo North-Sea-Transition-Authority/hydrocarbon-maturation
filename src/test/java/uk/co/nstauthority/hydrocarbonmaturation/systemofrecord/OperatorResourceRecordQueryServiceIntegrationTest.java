@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -107,16 +106,12 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
       assertThat(results)
           .extracting(
               ResourceRecordQueryResult::getSubmissionDetailId,
-              ResourceRecordQueryResult::getOrganisationResponsibleId,
-              result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-              result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+              ResourceRecordQueryResult::getOrganisationResponsibleId
           )
           .containsExactly(
               tuple(
                   submissionUserIsResponsibleFor.getId(),
-                  organisationUnitIdUserIsInGroupFor,
-                  submissionUserIsResponsibleFor.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                  submissionUserIsResponsibleFor.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                  organisationUnitIdUserIsInGroupFor
               )
           );
     }
@@ -190,16 +185,12 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getOrganisationResponsibleId
         )
         .containsExactly(
             tuple(
                 submissionUserIsResponsibleFor.getId(),
-                organisationUnitIdUserIsInGroupFor,
-                submissionUserIsResponsibleFor.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionUserIsResponsibleFor.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                organisationUnitIdUserIsInGroupFor
             )
         );
   }
@@ -242,15 +233,11 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+            ResourceRecordQueryResult::getOrganisationResponsibleId)
         .containsExactly(
             tuple(
                 submissionUserIsResponsibleFor.getId(),
-                organisationUnitIdUserIsInGroupFor,
-                submissionUserIsResponsibleFor.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionUserIsResponsibleFor.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                organisationUnitIdUserIsInGroupFor
             )
         );
   }

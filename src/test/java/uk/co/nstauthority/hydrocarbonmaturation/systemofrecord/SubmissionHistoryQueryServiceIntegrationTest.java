@@ -56,26 +56,21 @@ class SubmissionHistoryQueryServiceIntegrationTest {
           .extracting(
               SubmissionQuerySearchRecord::getStatus,
               SubmissionQuerySearchRecord::getSubmissionDetailId,
-              SubmissionQuerySearchRecord::getSubmissionType,
-              searchRecord -> {
-                if (searchRecord.getApprovedTimestamp() != null) {
-                  return searchRecord.getApprovedTimestamp().getTime();
-                } else {
-                  return null;
-                }
-              })
+              SubmissionQuerySearchRecord::getSubmissionType)
           .containsExactly(
           tuple(
               SubmissionDetailStatus.APPROVED,
               approvedSubmission.getId(),
-              approvedSubmission.getSubmissionType(),
-              approvedSubmission.getApprovedTimestamp().toEpochMilli()),
+              approvedSubmission.getSubmissionType()),
           tuple(
               SubmissionDetailStatus.SUBMITTED,
               submittedSubmission.getId(),
-              submittedSubmission.getSubmissionType(),
-              null)
+              submittedSubmission.getSubmissionType())
       );
+
+      assertThat(results.get(0))
+          .extracting(SubmissionQuerySearchRecord::getApprovedTimestamp)
+          .isNotNull();
     }
 
     @ParameterizedTest
@@ -286,15 +281,17 @@ class SubmissionHistoryQueryServiceIntegrationTest {
           .extracting(
               SubmissionQuerySearchRecord::getStatus,
               SubmissionQuerySearchRecord::getSubmissionDetailId,
-              SubmissionQuerySearchRecord::getSubmissionType,
-              searchRecord -> searchRecord.getApprovedTimestamp().getTime())
+              SubmissionQuerySearchRecord::getSubmissionType)
           .containsExactly(
               tuple(
                   SubmissionDetailStatus.APPROVED,
                   approvedSubmission.getId(),
-                  approvedSubmission.getSubmissionType(),
-                  approvedSubmission.getApprovedTimestamp().toEpochMilli())
+                  approvedSubmission.getSubmissionType())
           );
+
+      assertThat(results.get(0))
+          .extracting(SubmissionQuerySearchRecord::getApprovedTimestamp)
+          .isNotNull();
     }
 
     @ParameterizedTest

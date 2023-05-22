@@ -55,9 +55,7 @@ class ResourceQueryCommonService {
             RESOURCE_DETAILS.ORGANISATION_ID,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
-            SUBMISSION_DETAILS.CREATED_TIMESTAMP,
-            SUBMISSION_DETAILS.APPROVED_TIMESTAMP)
+                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()))
         .from(RESOURCES
           .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
               select(SD_2.ID)

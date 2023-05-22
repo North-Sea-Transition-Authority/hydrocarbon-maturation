@@ -95,9 +95,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
             SubmissionRecordSummaryQueryResult::getResourceType,
             SubmissionRecordSummaryQueryResult::getResponsibleTeam,
             SubmissionRecordSummaryQueryResult::getLicencesTheResourceIsOn,
-            SubmissionRecordSummaryQueryResult::getSubmissionType,
-            r -> r.getCreatedOn().getTime(),
-            r -> r.getSubmittedOn().getTime()
+            SubmissionRecordSummaryQueryResult::getSubmissionType
         )
         .containsExactly(
             queriedSubmissionDetail.getId(),
@@ -107,9 +105,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
             ResourceType.PROSPECT,
             ResponsibleTeamType.EXPLORATION,
             List.of(licenceToBeQueried.getLicenceId(), licenceToBeQueried2.getLicenceId()),
-            queriedSubmissionDetail.getSubmissionType(),
-            queriedSubmissionDetail.getCreatedTimestamp().toEpochMilli(),
-            queriedSubmissionDetail.getSubmittedTimestamp().toEpochMilli()
+            queriedSubmissionDetail.getSubmissionType()
         );
   }
 
@@ -131,12 +127,10 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
         .isPresent()
         .get()
         .extracting(
-            SubmissionRecordSummaryQueryResult::getSubmissionDetailId,
-            r -> r.getSubmittedOn().getTime()
+            SubmissionRecordSummaryQueryResult::getSubmissionDetailId
         )
-        .containsExactly(
-            latestSubmittedSubmissionDetail.getId(),
-            latestSubmittedSubmissionDetail.getSubmittedTimestamp().toEpochMilli()
+        .isEqualTo(
+            latestSubmittedSubmissionDetail.getId()
         );
   }
 
@@ -160,12 +154,10 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
         .isPresent()
         .get()
         .extracting(
-            SubmissionRecordSummaryQueryResult::getSubmissionDetailId,
-            r -> r.getSubmittedOn().getTime()
+            SubmissionRecordSummaryQueryResult::getSubmissionDetailId
         )
-        .containsExactly(
-            submittedUpdate.getId(),
-            submittedUpdate.getSubmittedTimestamp().toEpochMilli()
+        .isEqualTo(
+            submittedUpdate.getId()
         );
   }
 
@@ -209,12 +201,10 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
           .isPresent()
           .get()
           .extracting(
-              SubmissionRecordSummaryQueryResult::getSubmissionDetailId,
-              r -> r.getSubmittedOn().getTime()
+              SubmissionRecordSummaryQueryResult::getSubmissionDetailId
           )
-          .containsExactly(
-              submittedUpdate.getId(),
-              submittedUpdate.getSubmittedTimestamp().toEpochMilli()
+          .isEqualTo(
+              submittedUpdate.getId()
           );
     }
   }

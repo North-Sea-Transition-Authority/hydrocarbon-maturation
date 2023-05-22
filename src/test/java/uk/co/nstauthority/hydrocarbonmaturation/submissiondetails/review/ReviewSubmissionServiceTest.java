@@ -6,8 +6,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -89,7 +87,6 @@ class ReviewSubmissionServiceTest {
       var responsibleTeamType = ResponsibleTeamType.EXPLORATION;
       var licencesTheResourceIsOn = List.of(2, 3);
       var organisationResponsibleId = 1;
-      var createdOn = Timestamp.from(Instant.now());
 
       var submissionRecord = new SubmissionRecordSummaryQueryResult(
           submissionDetailId,
@@ -99,16 +96,14 @@ class ReviewSubmissionServiceTest {
           centreOfInterestQuadBlock,
           organisationResponsibleId,
           responsibleTeamType.name(),
-          licencesTheResourceIsOn,
-          createdOn,
-          Timestamp.from(Instant.now())
+          licencesTheResourceIsOn
       );
 
       when(submissionRecordSummaryQueryService.getSubmissionRecord(SUBMISSION_ID))
           .thenReturn(Optional.of(submissionRecord));
 
       var resourceNameAndCentreOfInterestBlockDisplay = "RESOURCE_NAME (CENTRE_OF_INTEREST_QUAD_BLOCK)";
-      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterestQuadBlock, createdOn))
+      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterestQuadBlock))
           .thenReturn(resourceNameAndCentreOfInterestBlockDisplay);
 
       var licencesForDisplay = List.of("2", "3");

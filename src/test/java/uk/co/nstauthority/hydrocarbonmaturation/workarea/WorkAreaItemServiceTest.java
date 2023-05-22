@@ -8,10 +8,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -170,14 +166,13 @@ class WorkAreaItemServiceTest {
   }
 
   @Test
-  void getWorkAreaItems_oneItemReturned_whenAllNotProvided() {
-    var createdOn = Instant.now();
+  void getWorkAreaItems_oneItemReturned_whenAllButMandatoryNotProvided() {
+    var providedName = "resource name";
     var submissionWorkAreaQueryResult = SubmissionWorkAreaQueryResultTestUtil.builder()
         .withCentreOfInterestQuadBlock(null)
         .withLicencesTheResourceIsOn(null)
         .withOrganisationResponsibleId(null)
-        .withResourceName(null)
-        .withCreatedTime(createdOn)
+        .withResourceName(providedName)
         .build();
 
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
@@ -200,9 +195,7 @@ class WorkAreaItemServiceTest {
         .containsExactly(
             tuple(
                 WorkAreaItemType.SUBMISSION,
-                "Created on " + LocalDateTime.ofInstant(
-                    createdOn,
-                    ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")),
+                providedName,
                 "Prospect create",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(submissionWorkAreaQueryResult.getSubmissionDetailId())))

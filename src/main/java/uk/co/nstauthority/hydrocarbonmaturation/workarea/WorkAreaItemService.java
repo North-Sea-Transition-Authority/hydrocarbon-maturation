@@ -9,7 +9,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
@@ -54,9 +53,8 @@ class WorkAreaItemService {
   }
 
   private String getHeadingText(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult) {
-    return submissionWorkAreaQueryResult.getResourceName() != null
-        ? submissionWorkAreaQueryResult.getResourceName() + getCentreOfInterestBlockDisplay(submissionWorkAreaQueryResult)
-        : SubmissionDetailUtil.getDefaultForNamelessResource(submissionWorkAreaQueryResult.getCreatedOn().toInstant());
+    return submissionWorkAreaQueryResult.getResourceName() +
+        getCentreOfInterestBlockDisplay(submissionWorkAreaQueryResult);
   }
 
   private String getActionUrl(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult) {

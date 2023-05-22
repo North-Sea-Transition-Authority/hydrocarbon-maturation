@@ -97,16 +97,14 @@ class ViewResourceRecordServiceTest {
           centreOfInterestQuadBlock,
           organisationResponsibleId,
           responsibleTeamType.name(),
-          licencesTheResourceIsOn,
-          createdOn,
-          Timestamp.from(Instant.now())
+          licencesTheResourceIsOn
       );
 
       when(resourceRecordSummaryQueryService.getResourceRecord(RESOURCE_ID))
           .thenReturn(Optional.of(resourceRecordSummaryQueryResult));
 
       var resourceNameAndCentreOfInterestBlockDisplay = "RESOURCE_NAME (CENTRE_OF_INTEREST_QUAD_BLOCK)";
-      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterestQuadBlock, createdOn))
+      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterestQuadBlock))
           .thenReturn(resourceNameAndCentreOfInterestBlockDisplay);
 
       var licencesForDisplay = List.of("2", "3");

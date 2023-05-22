@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.jooq.DSLContext;
@@ -91,9 +90,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
             ResourceRecordSummaryQueryResult::getResourceName,
             ResourceRecordSummaryQueryResult::getResourceType,
             ResourceRecordSummaryQueryResult::getResponsibleTeam,
-            ResourceRecordSummaryQueryResult::getLicencesTheResourceIsOn,
-            r -> r.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            r -> r.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordSummaryQueryResult::getLicencesTheResourceIsOn
         )
         .containsExactly(
             submissionDetail2.getId(),
@@ -102,9 +99,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
             resourceName2,
             ResourceType.PROSPECT,
             ResponsibleTeamType.EXPLORATION,
-            List.of(licence3.getLicenceId(), licence4.getLicenceId()),
-            submissionDetail2.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-            submissionDetail2.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+            List.of(licence3.getLicenceId(), licence4.getLicenceId())
         );
   }
 

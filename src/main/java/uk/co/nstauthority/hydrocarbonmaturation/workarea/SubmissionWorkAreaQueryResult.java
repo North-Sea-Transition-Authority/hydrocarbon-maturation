@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -15,8 +14,6 @@ class SubmissionWorkAreaQueryResult {
   private final Integer organisationResponsibleId;
   private final List<Integer> licencesTheResourceIsOn;
   private final SubmissionDetailStatus status;
-  private final Timestamp createdOn;
-  private final Timestamp submittedOn;
   private final boolean updateRequested;
 
   SubmissionWorkAreaQueryResult(UUID submissionDetailId,
@@ -26,8 +23,6 @@ class SubmissionWorkAreaQueryResult {
                                 String centreOfInterestQuadBlock,
                                 Integer organisationResponsibleId,
                                 List<Integer> licencesTheResourceIsOn,
-                                Timestamp createdOn,
-                                Timestamp submittedOn,
                                 boolean updateRequested) {
     this.submissionDetailId = submissionDetailId;
     this.submissionType = SubmissionType.valueOf(submissionType);
@@ -36,8 +31,6 @@ class SubmissionWorkAreaQueryResult {
     this.organisationResponsibleId = organisationResponsibleId;
     this.licencesTheResourceIsOn = licencesTheResourceIsOn;
     this.status = SubmissionDetailStatus.valueOf(status);
-    this.createdOn = createdOn;
-    this.submittedOn = submittedOn;
     this.updateRequested = updateRequested;
   }
 
@@ -67,14 +60,6 @@ class SubmissionWorkAreaQueryResult {
 
   List<Integer> getLicencesTheResourceIsOn() {
     return licencesTheResourceIsOn;
-  }
-
-  Timestamp getCreatedOn() {
-    return createdOn;
-  }
-
-  Timestamp getSubmittedOn() {
-    return submittedOn;
   }
 
   public boolean isUpdateRequested() {

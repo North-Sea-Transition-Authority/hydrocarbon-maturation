@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.apache.commons.lang3.BooleanUtils;
@@ -103,11 +102,13 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.flush();
 
     var licence = new Licence();
-    licence.setLicenceId(953);
+    var licenceId1 = 953;
+    licence.setLicenceId(licenceId1);
     licence.setLicenceReference("AL10");
     licence.setGeneralDetail(generalDetails);
     var licence2 = new Licence();
-    licence2.setLicenceId(951);
+    var licenceId2 = 951;
+    licence2.setLicenceId(licenceId2);
     licence2.setLicenceReference("AL6");
     licence2.setGeneralDetail(generalDetails);
     entityManager.persist(licence);
@@ -124,21 +125,22 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
-            SubmissionWorkAreaQueryResult::getLicencesTheResourceIsOn,
             SubmissionWorkAreaQueryResult::getStatus,
-            SubmissionWorkAreaQueryResult::isUpdateRequested,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+            SubmissionWorkAreaQueryResult::isUpdateRequested)
         .containsExactly(
             submissionDetail.getId(),
             "25/12",
             46,
             "The resource name",
             SubmissionType.CREATE_PROSPECT,
-            List.of(953, 951),
             SubmissionDetailStatus.SUBMITTED,
-            false,
-            createdTimestamp.truncatedTo(ChronoUnit.MILLIS)
+            false
         );
+
+    assertThat(results.get(0)
+        .getLicencesTheResourceIsOn())
+        .containsExactlyInAnyOrder(
+            licenceId1, licenceId2);
   }
 
   @NotNull

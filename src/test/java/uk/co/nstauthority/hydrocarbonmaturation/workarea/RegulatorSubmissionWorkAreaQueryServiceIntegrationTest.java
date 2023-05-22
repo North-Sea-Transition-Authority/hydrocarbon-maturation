@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils.createSubmissionForIntegrationTest;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import org.jooq.DSLContext;
@@ -122,8 +120,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
-            SubmissionWorkAreaQueryResult::getLicencesTheResourceIsOn,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+            SubmissionWorkAreaQueryResult::getLicencesTheResourceIsOn)
         .containsExactly(
             tuple(
                 draftSubmissionDetail.getId(),
@@ -132,8 +129,8 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
                 null,
                 SubmissionType.CREATE_PROSPECT,
                 SubmissionDetailStatus.DRAFT,
-                null,
-                createdTimestamp.truncatedTo(ChronoUnit.MILLIS))
+                null
+            )
         );
   }
 
@@ -250,55 +247,14 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     // asserts correct ordering of the list, the items are ordered by submittedOn if its present otherwise createdOn
     assertThat(results)
         .extracting(
-            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId)
         .containsExactly(
-            tuple(
                 firstSubmittedSubmissionDetail.getId(),
-                thirdSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS)),
-            tuple(
                 secondSubmittedSubmissionDetail.getId(),
-                thirdSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS)),
-            tuple(
                 thirdSubmittedSubmissionDetail.getId(),
-                firstSubmissionDetailTimestamp.truncatedTo(ChronoUnit.MILLIS)),
-            tuple(
                 firstSubmissionDetail.getId(),
-                firstSubmissionDetailTimestamp.truncatedTo(ChronoUnit.MILLIS)),
-            tuple(
                 secondSubmissionDetail.getId(),
-                secondSubmissionDetailTimestamp.truncatedTo(ChronoUnit.MILLIS)),
-            tuple(
-                thirdSubmissionDetail.getId(),
-                thirdSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS))
-        );
-
-    //asserts the submittedOn timestamps
-    assertThat(results.get(0))
-        .extracting(
-            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
-            result -> result.getSubmittedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
-        .containsExactly(
-            firstSubmittedSubmissionDetail.getId(),
-            firstSubmissionDetailTimestamp.truncatedTo(ChronoUnit.MILLIS)
-        );
-
-    assertThat(results.get(1))
-        .extracting(
-            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
-            result -> result.getSubmittedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
-        .containsExactly(
-            secondSubmittedSubmissionDetail.getId(),
-            secondSubmissionDetailTimestamp.truncatedTo(ChronoUnit.MILLIS)
-        );
-
-    assertThat(results.get(2))
-        .extracting(
-            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
-            result -> result.getSubmittedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
-        .containsExactly(
-            thirdSubmittedSubmissionDetail.getId(),
-            thirdSubmissionDetailTimeStamp.truncatedTo(ChronoUnit.MILLIS)
+                thirdSubmissionDetail.getId()
         );
   }
 
@@ -349,11 +305,13 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.flush();
 
     var licence = new Licence();
-    licence.setLicenceId(953);
+    var licenceId1 = 953;
+    licence.setLicenceId(licenceId1);
     licence.setLicenceReference("AL10");
     licence.setGeneralDetail(generalDetails);
     var licence2 = new Licence();
-    licence2.setLicenceId(951);
+    var licenceId2 = 951;
+    licence2.setLicenceId(licenceId2);
     licence2.setLicenceReference("AL6");
     licence2.setGeneralDetail(generalDetails);
     entityManager.persist(licence);
@@ -370,21 +328,22 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
-            SubmissionWorkAreaQueryResult::getLicencesTheResourceIsOn,
             SubmissionWorkAreaQueryResult::getStatus,
-            SubmissionWorkAreaQueryResult::isUpdateRequested,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+            SubmissionWorkAreaQueryResult::isUpdateRequested)
         .containsExactly(
             submissionDetail.getId(),
             "25/12",
             46,
             "The resource name",
             SubmissionType.CREATE_PROSPECT,
-            List.of(953, 951),
             SubmissionDetailStatus.DRAFT,
-            false,
-            createdTimestamp.truncatedTo(ChronoUnit.MILLIS)
+            false
         );
+
+    assertThat(results.get(0)
+        .getLicencesTheResourceIsOn())
+        .containsExactlyInAnyOrder(
+            licenceId1, licenceId2);
   }
 
   @Test
@@ -449,7 +408,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     initialSubmittedSubmissionDetail.setId(null);
     initialSubmittedSubmissionDetail.setSubmittedByWuaId(5);
     initialSubmittedSubmissionDetail.setCreatedTimestamp(Instant.now());
-    initialSubmittedSubmissionDetail.setVersionNumber(1);
+    initialSubmittedSubmissionDetail.setVersionNumber(VERSION_NUMBER_INITIAL);
     var resource = createResource(ResourceType.PROSPECT);
     var submissionWithDraftUpdate = createSubmissionForIntegrationTest(resource, entityManager);
     initialSubmittedSubmissionDetail.setSubmission(submissionWithDraftUpdate);
@@ -461,7 +420,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     draftSubmissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     draftSubmissionDetail.setId(null);
     draftSubmissionDetail.setSubmittedByWuaId(5);
-    draftSubmissionDetail.setVersionNumber(2);
+    draftSubmissionDetail.setVersionNumber(VERSION_NUMBER_UPDATE);
     draftSubmissionDetail.setCreatedTimestamp(Instant.now());
     draftSubmissionDetail.setSubmission(submissionWithDraftUpdate);
     entityManager.persist(draftSubmissionDetail);
@@ -475,7 +434,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     initialSubmittedSubmissionDetail2.setSubmittedByWuaId(5);
     initialSubmittedSubmissionDetail2.setCreatedTimestamp(Instant.now());
     initialSubmittedSubmissionDetail2.setSubmittedTimestamp(Instant.now());
-    initialSubmittedSubmissionDetail2.setVersionNumber(1);
+    initialSubmittedSubmissionDetail2.setVersionNumber(VERSION_NUMBER_INITIAL);
     var resource2 = createResource(ResourceType.PROSPECT);
     var submissionWithTwoSubmittedDetails = createSubmissionForIntegrationTest(resource2, entityManager);
     initialSubmittedSubmissionDetail2.setSubmission(submissionWithTwoSubmittedDetails);
@@ -487,7 +446,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submittedUpdateSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submittedUpdateSubmissionDetail.setId(null);
     submittedUpdateSubmissionDetail.setSubmittedByWuaId(5);
-    submittedUpdateSubmissionDetail.setVersionNumber(2);
+    submittedUpdateSubmissionDetail.setVersionNumber(VERSION_NUMBER_UPDATE);
     submittedUpdateSubmissionDetail.setCreatedTimestamp(Instant.now());
     submittedUpdateSubmissionDetail.setSubmittedTimestamp(Instant.now());
     submittedUpdateSubmissionDetail.setSubmission(submissionWithTwoSubmittedDetails);
@@ -517,7 +476,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     initialSubmittedSubmissionDetail.setId(null);
     initialSubmittedSubmissionDetail.setSubmittedByWuaId(5);
     initialSubmittedSubmissionDetail.setCreatedTimestamp(Instant.now());
-    initialSubmittedSubmissionDetail.setVersionNumber(1);
+    initialSubmittedSubmissionDetail.setVersionNumber(VERSION_NUMBER_INITIAL);
     var resource = createResource(ResourceType.PROSPECT);
     var submissionWithDraftUpdate = createSubmissionForIntegrationTest(resource, entityManager);
     initialSubmittedSubmissionDetail.setSubmission(submissionWithDraftUpdate);
@@ -529,7 +488,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     deletedDraftUpdate.setStatus(SubmissionDetailStatus.DELETED);
     deletedDraftUpdate.setId(null);
     deletedDraftUpdate.setSubmittedByWuaId(5);
-    deletedDraftUpdate.setVersionNumber(2);
+    deletedDraftUpdate.setVersionNumber(VERSION_NUMBER_UPDATE);
     deletedDraftUpdate.setCreatedTimestamp(Instant.now());
     deletedDraftUpdate.setSubmission(submissionWithDraftUpdate);
     entityManager.persist(deletedDraftUpdate);
@@ -542,7 +501,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     initialSubmittedSubmissionDetail2.setSubmittedByWuaId(5);
     initialSubmittedSubmissionDetail2.setCreatedTimestamp(Instant.now());
     initialSubmittedSubmissionDetail2.setSubmittedTimestamp(Instant.now());
-    initialSubmittedSubmissionDetail2.setVersionNumber(1);
+    initialSubmittedSubmissionDetail2.setVersionNumber(VERSION_NUMBER_INITIAL);
     var resource2 = createResource(ResourceType.PROSPECT);
     var submissionWithTwoSubmittedDetails = createSubmissionForIntegrationTest(resource2, entityManager);
     initialSubmittedSubmissionDetail2.setSubmission(submissionWithTwoSubmittedDetails);
@@ -554,7 +513,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     withdrawnSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     withdrawnSubmissionDetail.setId(null);
     withdrawnSubmissionDetail.setSubmittedByWuaId(5);
-    withdrawnSubmissionDetail.setVersionNumber(2);
+    withdrawnSubmissionDetail.setVersionNumber(VERSION_NUMBER_UPDATE);
     withdrawnSubmissionDetail.setCreatedTimestamp(Instant.now());
     withdrawnSubmissionDetail.setSubmittedTimestamp(Instant.now());
     withdrawnSubmissionDetail.setSubmission(submissionWithTwoSubmittedDetails);

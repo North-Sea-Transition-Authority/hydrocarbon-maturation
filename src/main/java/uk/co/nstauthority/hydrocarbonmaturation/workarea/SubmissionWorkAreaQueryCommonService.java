@@ -44,9 +44,8 @@ class SubmissionWorkAreaQueryCommonService {
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             RESOURCE_DETAILS.ORGANISATION_ID,
             DSL.arrayAgg(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+                .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
-            SUBMISSION_DETAILS.CREATED_TIMESTAMP,
-            SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP,
             //true if update has been requested and not resolved
             field(SUBMISSION_UPDATE.SUBMISSION_ID.eq(SUBMISSION_DETAILS.SUBMISSION_ID)
                 .and(SUBMISSION_UPDATE.RESOLVED.isFalse())))

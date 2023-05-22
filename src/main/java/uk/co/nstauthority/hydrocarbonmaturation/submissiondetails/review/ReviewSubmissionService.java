@@ -166,8 +166,7 @@ public class ReviewSubmissionService {
       SubmissionRecordSummaryQueryResult submissionRecordSummaryQueryResult) {
     return submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(
         submissionRecordSummaryQueryResult.getResourceName(),
-        submissionRecordSummaryQueryResult.getCentreOfInterestQuadBlock(),
-        submissionRecordSummaryQueryResult.getCreatedOn()
+        submissionRecordSummaryQueryResult.getCentreOfInterestQuadBlock()
     );
   }
 

@@ -111,8 +111,7 @@ class SearchResourceRecordsService {
   private String getHeadingText(ResourceRecordQueryResult resourceRecordQueryResult) {
     return submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(
         resourceRecordQueryResult.getResourceName(),
-        resourceRecordQueryResult.getCentreOfInterestQuadBlock(),
-        resourceRecordQueryResult.getCreatedOn()
+        resourceRecordQueryResult.getCentreOfInterestQuadBlock()
     );
   }
 

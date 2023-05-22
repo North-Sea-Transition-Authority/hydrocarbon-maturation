@@ -3,14 +3,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -170,11 +166,11 @@ class SearchResourceRecordsServiceTest {
       when(submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn)).thenReturn(licencesDisplayed);
       if (centreOfInterest != null) {
         when(submissionDetailDisplayService
-            .getResourceNameAndCentreOfInterestBlockDisplay(eq(resourceName), eq(centreOfInterest), any()))
+            .getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterest))
             .thenReturn(resourceName + " (" + centreOfInterest + ")");
       } else {
         when(submissionDetailDisplayService
-            .getResourceNameAndCentreOfInterestBlockDisplay(eq(resourceName), eq(centreOfInterest), any()))
+            .getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterest))
             .thenReturn(resourceName);
       }
       return new ResourceRecordQueryResult(
@@ -184,9 +180,7 @@ class SearchResourceRecordsServiceTest {
           resourceName,
           centreOfInterest,
           organisationResponsibleId,
-          licencesTheResourceIsOn,
-          Timestamp.from(Instant.now().minusSeconds(1)),
-          Timestamp.from(Instant.now())
+          licencesTheResourceIsOn
       );
     }
 

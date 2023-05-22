@@ -129,9 +129,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::getOrganisationResponsibleId,
             ResourceRecordQueryResult::getResourceName,
             ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getLicencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -140,9 +138,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 organisationId2,
                 resourceName2,
                 ResourceType.PROSPECT,
-                List.of(licence3.getLicenceId(), licence4.getLicenceId()),
-                submissionDetail2.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail2.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                List.of(licence3.getLicenceId(), licence4.getLicenceId())
             ),
             tuple(
                 submissionDetail1.getId(),
@@ -150,9 +146,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
-                List.of(licence1.getLicenceId(), licence2.getLicenceId()),
-                submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                List.of(licence1.getLicenceId(), licence2.getLicenceId())
             )
         );
   }
@@ -211,9 +205,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::getOrganisationResponsibleId,
             ResourceRecordQueryResult::getResourceName,
             ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getLicencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -222,9 +214,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 organisationId2,
                 resourceName2,
                 ResourceType.PROSPECT,
-                List.of(licence3.getLicenceId(), licence4.getLicenceId()),
-                submissionDetail2.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail2.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                List.of(licence3.getLicenceId(), licence4.getLicenceId())
             )
         );
   }
@@ -284,9 +274,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::getOrganisationResponsibleId,
             ResourceRecordQueryResult::getResourceName,
             ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getLicencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -295,9 +283,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
-                List.of(licence1.getLicenceId(), licence2.getLicenceId()),
-                submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                List.of(licence1.getLicenceId(), licence2.getLicenceId())
             )
         );
   }
@@ -357,9 +343,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::getOrganisationResponsibleId,
             ResourceRecordQueryResult::getResourceName,
             ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getLicencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -368,9 +352,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
-                List.of(licence1.getLicenceId(), licence2.getLicenceId()),
-                submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                List.of(licence1.getLicenceId(), licence2.getLicenceId())
             )
         );
   }
@@ -412,9 +394,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::getOrganisationResponsibleId,
             ResourceRecordQueryResult::getResourceName,
             ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getLicencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -423,9 +403,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 organisationId1,
                 resourceName1,
                 ResourceType.DISCOVERY,
-                List.of(licence1.getLicenceId(), licence2.getLicenceId()),
-                submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                List.of(licence1.getLicenceId(), licence2.getLicenceId())
             )
         );
   }
@@ -467,9 +445,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::getOrganisationResponsibleId,
             ResourceRecordQueryResult::getResourceName,
             ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getLicencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -478,9 +454,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 organisationId1,
                 resourceName1,
                 ResourceType.PROSPECT,
-                List.of(licence1.getLicenceId(), licence2.getLicenceId()),
-                submissionDetail1.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionDetail1.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                List.of(licence1.getLicenceId(), licence2.getLicenceId())
             )
         );
   }
@@ -513,22 +487,16 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getResourceType
         )
         .containsExactly(
             tuple(
                 prospectSubmission.getId(),
-                ResourceType.PROSPECT,
-                prospectSubmission.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                prospectSubmission.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                ResourceType.PROSPECT
             ),
             tuple(
                 discoverySubmission.getId(),
-                ResourceType.DISCOVERY,
-                discoverySubmission.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                discoverySubmission.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                ResourceType.DISCOVERY
             )
         );
   }
@@ -582,18 +550,14 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::getSubmissionDetailId,
             ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
             ResourceRecordQueryResult::getResourceName,
-            ResourceRecordQueryResult::getResourceType,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getResourceType
         )
         .containsExactly(
             tuple(
                 submissionMatchingFilter.getId(),
                 centreOfInterestQuadrantBlockMatchingFilter.getQuadrantBlockReference(),
                 resourceNameForMatchingFilter,
-                ResourceType.PROSPECT,
-                submissionMatchingFilter.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionMatchingFilter.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                ResourceType.PROSPECT
             )
         );
   }
@@ -626,17 +590,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
             ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getLicencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
                 submissionWithRightLicence.getId(),
                 ResourceType.PROSPECT,
-                List.of(licenceWithNotMatchingId.getLicenceId(), licenceMatchingFilter.getLicenceId()),
-                submissionWithRightLicence.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionWithRightLicence.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                List.of(licenceWithNotMatchingId.getLicenceId(), licenceMatchingFilter.getLicenceId())
             )
         );
   }
@@ -671,15 +631,11 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+            ResourceRecordQueryResult::getResourceType)
         .containsExactly(
             tuple(
                 submissionWithMatchingOpportunityType.getId(),
-                ResourceType.PROSPECT,
-                submissionWithMatchingOpportunityType.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionWithMatchingOpportunityType.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                ResourceType.PROSPECT
             )
         );
   }
@@ -710,21 +666,15 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+            ResourceRecordQueryResult::getResourceType)
         .containsExactly(
             tuple(
                 submissionWithLeadOpportunityType.getId(),
-                ResourceType.PROSPECT,
-                submissionWithLeadOpportunityType.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionWithLeadOpportunityType.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                ResourceType.PROSPECT
             ),
             tuple(
                 submissionWithDiscoveryOpportunityType.getId(),
-                ResourceType.DISCOVERY,
-                submissionWithDiscoveryOpportunityType.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionWithDiscoveryOpportunityType.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                ResourceType.DISCOVERY
             )
         );
   }
@@ -787,16 +737,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getResourceType
         )
         .containsExactly(
             tuple(
                 submissionWithNoLinkedDiscovery.getId(),
-                ResourceType.PROSPECT,
-                submissionWithNoLinkedDiscovery.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionWithNoLinkedDiscovery.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                ResourceType.PROSPECT
             )
         );
   }
@@ -822,16 +768,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getResourceType
         )
         .containsExactly(
             tuple(
                 submissionWithLinkedProspect.getId(),
-                ResourceType.DISCOVERY,
-                submissionWithLinkedProspect.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionWithLinkedProspect.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                ResourceType.DISCOVERY
             )
         );
   }
@@ -934,16 +876,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS)
+            ResourceRecordQueryResult::getResourceType
         )
         .containsExactly(
             tuple(
                 latestSubmission.getId(),
-                ResourceType.PROSPECT,
-                latestSubmission.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                latestSubmission.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                ResourceType.PROSPECT
             )
         );
   }
@@ -999,23 +937,18 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
 
     var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
-    assertThat(results).extracting(
+    assertThat(results)
+        .extracting(
             ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            result -> result.getCreatedOn().toInstant().truncatedTo(ChronoUnit.MILLIS),
-            result -> result.getApprovedOn().toInstant().truncatedTo(ChronoUnit.MILLIS))
+            ResourceRecordQueryResult::getOrganisationResponsibleId)
         .containsExactly(
             tuple(
                 submissionWithNotExtantLicence.getId(),
-                2,
-                submissionWithNotExtantLicence.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionWithNotExtantLicence.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                2
             ),
             tuple(
                 submissionWithoutExtantLicence.getId(),
-                1,
-                submissionWithoutExtantLicence.getCreatedTimestamp().truncatedTo(ChronoUnit.MILLIS),
-                submissionWithoutExtantLicence.getApprovedTimestamp().truncatedTo(ChronoUnit.MILLIS)
+                1
             )
         );
   }
