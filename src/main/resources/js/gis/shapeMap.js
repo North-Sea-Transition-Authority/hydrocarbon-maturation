@@ -38,7 +38,12 @@ export default class ShapeMap {
 
     const map = this.createMap(layers);
 
-    this.fitMapToExtentOfShapeLayer(shapeLayer, map);
+    shapeLayer.getSource().once('change', function(e){
+      if (e.target.getState() === 'ready') {
+        ShapeMap._fitMapToExtentOfLayer(map, shapeLayer);
+      }
+    });
+
   }
 
   getFieldDeterminationBoundariesLayer() {
@@ -129,9 +134,9 @@ export default class ShapeMap {
     });
   }
 
-  fitMapToExtentOfShapeLayer(shapeLayer, map) {
+  static _fitMapToExtentOfLayer(map, layer) {
     try {
-      map.getView().fit(shapeLayer.getExtent(), {
+      map.getView().fit(layer.getSource().getExtent(), {
         padding: [50, 50, 50, 50],
         maxZoom: 15 // Limit the zoom level, so if we only have a few points we don't start massively zoomed in to fit the points
       });
