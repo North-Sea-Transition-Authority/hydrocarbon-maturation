@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamManagementController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamManagementService;
 
 @Controller
 @RequestMapping("/permission-management/regulator")
@@ -33,6 +34,7 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
   private final CustomerConfigurationProperties customerConfigurationProperties;
   private final TeamMemberService teamMemberService;
   private final TeamService teamService;
+  private final TeamManagementService teamManagementService;
 
   @Autowired
   RegulatorTeamManagementController(TeamMemberViewService teamMemberViewService,
@@ -40,7 +42,7 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
                                     UserDetailService userDetailService,
                                     CustomerConfigurationProperties customerConfigurationProperties,
                                     TeamMemberService teamMemberService,
-                                    TeamService teamService) {
+                                    TeamService teamService, TeamManagementService teamManagementService) {
     super(regulatorTeamService);
     this.teamMemberViewService = teamMemberViewService;
     this.regulatorTeamService = regulatorTeamService;
@@ -48,6 +50,7 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
     this.customerConfigurationProperties = customerConfigurationProperties;
     this.teamMemberService = teamMemberService;
     this.teamService = teamService;
+    this.teamManagementService = teamManagementService;
   }
 
   @GetMapping
@@ -77,7 +80,9 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
         .addObject("teamRoles", RegulatorTeamRole.values())
         .addObject("teamMembers", teamMemberViewService.getTeamMemberViewsForTeam(team));
 
-    if (teamService.isUserInMultipleTeams(user)) {
+    var userIsIndustryAccessManagerInRegulatorTeam = teamManagementService.isIndustryAccessManagerInRegulatorTeam(user);
+
+    if (teamService.isUserInMultipleTeams(user) || userIsIndustryAccessManagerInRegulatorTeam) {
       modelAndView
           .addObject("backLinkUrl",
               ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()));
