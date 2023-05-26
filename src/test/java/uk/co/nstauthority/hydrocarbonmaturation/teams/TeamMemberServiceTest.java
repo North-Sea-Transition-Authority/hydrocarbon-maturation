@@ -18,6 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore.OffshoreAreaTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
 @ExtendWith(MockitoExtension.class)
@@ -110,8 +113,6 @@ class TeamMemberServiceTest {
     when(teamMemberRoleRepository.existsByWuaIdAndTeam_UuidAndRoleIn(user.wuaId(), teamId.uuid(), roles))
         .thenReturn(false);
 
-    var result = teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, roles);
-
     assertFalse(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, roles));
   }
 
@@ -158,7 +159,7 @@ class TeamMemberServiceTest {
   }
 
   @Test
-  void getTeamMember_whenMemberIsInTeam_thenGetTeamMember() {
+  void getTeamMember_whenMemberIsInRegulatorTeam_thenGetTeamMember() {
     var team = new Team(UUID.randomUUID());
     team.setTeamType(TeamType.REGULATOR);
 
@@ -186,6 +187,102 @@ class TeamMemberServiceTest {
 
     assertThat(result.get().roles()).containsExactly(
         RegulatorTeamRole.VIEWER
+    );
+  }
+
+  @Test
+  void getTeamMember_whenMemberIsInIndustryTeam_thenGetTeamMember() {
+    var team = new Team(UUID.randomUUID());
+    team.setTeamType(TeamType.INDUSTRY);
+
+    var wuaId = new WebUserAccountId(123);
+    var role = TeamMemberRoleTestUtil.Builder()
+        .withRole(IndustryTeamRole.VIEWER.name())
+        .withWebUserAccountId(wuaId.id())
+        .build();
+
+    var teamView = new TeamView(team.toTeamId(), team.getTeamType(), team.getDisplayName());
+
+    when(teamMemberRoleRepository.findAllByTeamAndWuaId(team, wuaId.id()))
+        .thenReturn(List.of(role));
+
+    var result = teamMemberService.getTeamMember(team, wuaId);
+
+    assertTrue(result.isPresent());
+    assertThat(result.get()).extracting(
+        TeamMember::teamView,
+        TeamMember::wuaId
+    ).containsExactly(
+        teamView,
+        wuaId
+    );
+
+    assertThat(result.get().roles()).containsExactly(
+        IndustryTeamRole.VIEWER
+    );
+  }
+
+  @Test
+  void getTeamMember_whenMemberIsInOffshoreAreaTeam_thenGetTeamMember() {
+    var team = new Team(UUID.randomUUID());
+    team.setTeamType(TeamType.OFFSHORE_AREA);
+
+    var wuaId = new WebUserAccountId(123);
+    var role = TeamMemberRoleTestUtil.Builder()
+        .withRole(OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER.name())
+        .withWebUserAccountId(wuaId.id())
+        .build();
+
+    var teamView = new TeamView(team.toTeamId(), team.getTeamType(), team.getDisplayName());
+
+    when(teamMemberRoleRepository.findAllByTeamAndWuaId(team, wuaId.id()))
+        .thenReturn(List.of(role));
+
+    var result = teamMemberService.getTeamMember(team, wuaId);
+
+    assertTrue(result.isPresent());
+    assertThat(result.get()).extracting(
+        TeamMember::teamView,
+        TeamMember::wuaId
+    ).containsExactly(
+        teamView,
+        wuaId
+    );
+
+    assertThat(result.get().roles()).containsExactly(
+        OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER
+    );
+  }
+
+  @Test
+  void getTeamMember_whenMemberIsInOnshoreAreaTeam_thenGetTeamMember() {
+    var team = new Team(UUID.randomUUID());
+    team.setTeamType(TeamType.ONSHORE_AREA);
+
+    var wuaId = new WebUserAccountId(123);
+    var role = TeamMemberRoleTestUtil.Builder()
+        .withRole(OnshoreAreaTeamRole.ONSHORE_AREA_TEAM_MEMBER.name())
+        .withWebUserAccountId(wuaId.id())
+        .build();
+
+    var teamView = new TeamView(team.toTeamId(), team.getTeamType(), team.getDisplayName());
+
+    when(teamMemberRoleRepository.findAllByTeamAndWuaId(team, wuaId.id()))
+        .thenReturn(List.of(role));
+
+    var result = teamMemberService.getTeamMember(team, wuaId);
+
+    assertTrue(result.isPresent());
+    assertThat(result.get()).extracting(
+        TeamMember::teamView,
+        TeamMember::wuaId
+    ).containsExactly(
+        teamView,
+        wuaId
+    );
+
+    assertThat(result.get().roles()).containsExactly(
+        OnshoreAreaTeamRole.ONSHORE_AREA_TEAM_MEMBER
     );
   }
 

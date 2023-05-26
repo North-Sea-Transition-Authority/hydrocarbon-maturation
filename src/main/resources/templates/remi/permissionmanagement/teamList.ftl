@@ -11,28 +11,20 @@
   errorItems=errorList
   pageSize=PageSize.FULL_WIDTH
 >
-  <#if newIndustryTeamFormUrl?has_content>
-    <@fdsAction.link linkText="Create industry team" linkClass="govuk-button" linkUrl=springUrl(newIndustryTeamFormUrl)/>
-  </#if>
-
-  <table class="govuk-table">
-    <thead class="govuk-table__head">
-    <tr class="govuk-table__row">
-      <th scope="col" class="govuk-table__header">Team</th>
-      <th scope="col" class="govuk-table__header">Team type</th>
-      <th scope="col" class="govuk-table__header">Actions</th>
-    </tr>
-    </thead>
-    <tbody class="govuk-table__body">
-      <#list allTeams as team>
-        <tr class="govuk-table__row">
-          <td class="govuk-table__cell">${team.displayName()}</td>
-          <td class="govuk-table__cell">${team.teamType().getDisplayText()}</td>
-          <td class="govuk-table__cell">
-            <@fdsAction.link linkText="Manage" linkUrl=springUrl(team.manageUrl())/>
-          </td>
-        </tr>
-      </#list>
-    </tbody>
-  </table>
+    <#list teamGroupMap as teamType,teams>
+      <h2 class="govuk-heading-l">${teamType.getDisplayText()}</h2>
+      <#if teamType == "INDUSTRY" && newIndustryTeamFormUrl?has_content>
+          <@fdsAction.link linkText="Create organisation group team" linkClass="govuk-button" linkUrl=springUrl(newIndustryTeamFormUrl)/>
+      </#if>
+      <div class="govuk-!-margin-bottom-6">
+          <@fdsLinkList.linkList>
+              <#list teams as team>
+                  <@fdsLinkList.linkListItem
+                    linkName=team.displayName()
+                    linkUrl=team.manageUrl()
+                  />
+              </#list>
+          </@fdsLinkList.linkList>
+      </div>
+    </#list>
 </@defaultPage>

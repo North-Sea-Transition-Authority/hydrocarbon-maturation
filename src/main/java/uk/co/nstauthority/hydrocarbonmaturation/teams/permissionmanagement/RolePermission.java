@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement;
 
 public enum RolePermission {
 
+  GRANT_ONSHORE_AREA_ROLES,
+  GRANT_OFFSHORE_AREA_ROLES,
   GRANT_REGULATOR_ROLES,
   REGULATOR_MANAGE_ALL_ORGANISATIONS,
   INDUSTRY_MANAGE_ORGANISATION,

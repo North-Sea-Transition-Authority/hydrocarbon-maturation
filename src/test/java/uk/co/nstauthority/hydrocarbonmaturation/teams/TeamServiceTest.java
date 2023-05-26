@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -163,5 +164,27 @@ class TeamServiceTest {
     var result = teamService.getRegulatorTeams();
 
     assertThat(result).isEqualTo(listOfTeams);
+  }
+
+  @Test
+  void getAllTeamsOfType_assertReturn() {
+    var regulatorTeam = new Team();
+    regulatorTeam.setTeamType(TeamType.REGULATOR);
+    var industryTeam = new Team();
+    industryTeam.setTeamType(TeamType.INDUSTRY);
+    var areaTeam = new Team();
+    areaTeam.setTeamType(TeamType.OFFSHORE_AREA);
+
+    List<Team> listOfTeams = List.of(
+        regulatorTeam,
+        industryTeam,
+        areaTeam
+    );
+    when(teamRepository.findAll()).thenReturn(listOfTeams);
+    var result = teamService.getAllTeamOfTypes(Set.of(TeamType.REGULATOR, TeamType.INDUSTRY));
+
+    assertThat(result)
+        .extracting(Team::getTeamType)
+        .containsExactlyInAnyOrder(TeamType.REGULATOR, TeamType.INDUSTRY);
   }
 }

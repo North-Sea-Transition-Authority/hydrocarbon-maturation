@@ -1,13 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement;
 
 import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -16,28 +16,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 public class TeamManagementService {
   private final RegulatorTeamService regulatorTeamService;
   private final TeamService teamService;
-  private final TeamMemberService teamMemberService;
 
   @Autowired
-  TeamManagementService(RegulatorTeamService regulatorTeamService, TeamService teamService, TeamMemberService teamMemberService) {
+  TeamManagementService(RegulatorTeamService regulatorTeamService, TeamService teamService) {
     this.regulatorTeamService = regulatorTeamService;
     this.teamService = teamService;
-    this.teamMemberService = teamMemberService;
   }
 
   public boolean isIndustryAccessManagerInRegulatorTeam(ServiceUserDetail user) {
     return regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER);
   }
 
-  public boolean isMemberOfTeamOrIndustryAccessManager(TeamId teamId, ServiceUserDetail user) {
-
-    return teamMemberService.isMemberOfTeam(teamId, user)
-        || isIndustryAccessManagerInRegulatorTeam(user);
-  }
-
   List<TeamView> getTeamsThatUserHasAccessTo(ServiceUserDetail user) {
     if (isIndustryAccessManagerInRegulatorTeam(user)) {
-      return teamsToTeamViews(teamService.getAllTeams());
+      return teamsToTeamViews(teamService.getAllTeamOfTypes(Set.of(TeamType.REGULATOR, TeamType.INDUSTRY)));
     }
 
     return teamsToTeamViews(teamService.getTeamsThatUserBelongsTo(user));

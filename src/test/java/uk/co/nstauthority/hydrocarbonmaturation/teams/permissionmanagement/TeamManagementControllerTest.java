@@ -2,13 +2,16 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -20,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamManagementController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.NewIndustryTeamController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamManagementController;
 
 @ContextConfiguration(classes = TeamManagementController.class)
@@ -48,7 +52,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamListOrRedirect_whenAccessToIndustryTeam_thenOK() throws Exception {
+  void renderTeamListOrRedirect_whenAccessToIndustryTeam_thenOK_assertProperties() throws Exception {
 
     var user = ServiceUserDetailTestUtil.Builder().build();
     var team1 = TeamTestUtil.Builder()
@@ -57,13 +61,18 @@ class TeamManagementControllerTest extends AbstractControllerTest {
     var team2 = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
         .build();
-    when(teamManagementService.getTeamsThatUserHasAccessTo(user)).thenReturn(List.of(TeamView.fromTeam(team1), TeamView.fromTeam(team2)));
+    var teamViewList = List.of(TeamView.fromTeam(team1), TeamView.fromTeam(team2));
+
+    when(teamManagementService.getTeamsThatUserHasAccessTo(user)).thenReturn(teamViewList);
     when(teamManagementService.isIndustryAccessManagerInRegulatorTeam(user)).thenReturn(false);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()))
                 .with(user(user)))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(view().name("remi/permissionmanagement/teamList"))
+        .andExpect(model().attribute("pageTitle", "Choose team to manage"))
+        .andExpect(model().attribute("teamGroupMap", Map.of(TeamType.INDUSTRY, teamViewList)));
   }
 
   @Test
@@ -115,7 +124,12 @@ class TeamManagementControllerTest extends AbstractControllerTest {
     mockMvc.perform(
             get(ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()))
                 .with(user(user)))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(view().name("remi/permissionmanagement/teamList"))
+        .andExpect(model().attribute("pageTitle", "Choose team to manage"))
+        .andExpect(model().attribute("teamGroupMap", Map.of(TeamType.INDUSTRY, List.of(TeamView.fromTeam(team1)))))
+        .andExpect(model().attribute("newIndustryTeamFormUrl",
+            ReverseRouter.route(on(NewIndustryTeamController.class).renderNewIndustryTeamForm(null))));
   }
 
   @Test

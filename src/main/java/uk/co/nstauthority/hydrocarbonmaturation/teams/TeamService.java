@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
@@ -63,7 +64,10 @@ public class TeamService {
         .toList();
   }
 
-  public List<Team> getAllTeams() {
-    return teamRepository.findAll();
+  public List<Team> getAllTeamOfTypes(Set<TeamType> teamTypes) {
+    return teamRepository.findAll()
+        .stream()
+        .filter(team -> teamTypes.contains(team.getTeamType()))
+        .toList();
   }
 }

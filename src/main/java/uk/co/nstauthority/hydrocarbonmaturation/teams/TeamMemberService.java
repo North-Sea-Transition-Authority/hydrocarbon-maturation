@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore.OffshoreAreaTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
@@ -82,6 +84,8 @@ public class TeamMemberService {
         .map(teamMemberRole -> switch (team.getTeamType()) {
           case REGULATOR -> RegulatorTeamRole.valueOf(teamMemberRole.getRole());
           case INDUSTRY -> IndustryTeamRole.valueOf(teamMemberRole.getRole());
+          case OFFSHORE_AREA -> OffshoreAreaTeamRole.valueOf(teamMemberRole.getRole());
+          case ONSHORE_AREA -> OnshoreAreaTeamRole.valueOf(teamMemberRole.getRole());
         })
         .collect(Collectors.toSet());
   }

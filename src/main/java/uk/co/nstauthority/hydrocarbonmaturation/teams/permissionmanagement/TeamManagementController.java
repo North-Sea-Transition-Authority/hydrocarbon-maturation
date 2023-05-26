@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.NewIndustryTeamController;
 
 
@@ -37,6 +40,7 @@ public class TeamManagementController {
     var user = userDetailService.getUserDetail();
 
     var teams = teamManagementService.getTeamsThatUserHasAccessTo(user);
+    var teamMap = new TreeMap<>(teams.stream().collect(Collectors.groupingBy(TeamView::teamType)));
 
     if (teams.isEmpty()) {
       throw new ResponseStatusException(
@@ -54,7 +58,7 @@ public class TeamManagementController {
 
     var modelAndView = new ModelAndView("remi/permissionmanagement/teamList")
         .addObject("pageTitle", "Choose team to manage")
-        .addObject("allTeams", teams);
+        .addObject("teamGroupMap", teamMap);
 
     if (userIsIndustryAccessManagerInRegulatorTeam) {
       modelAndView
