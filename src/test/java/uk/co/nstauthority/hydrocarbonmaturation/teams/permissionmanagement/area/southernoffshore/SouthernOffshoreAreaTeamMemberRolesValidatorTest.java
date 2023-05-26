@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -13,23 +13,23 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
-class OffshoreAreaTeamMemberRolesValidatorTest {
+class SouthernOffshoreAreaTeamMemberRolesValidatorTest {
 
-  private static OffshoreAreaTeamMemberRolesValidator offshoreAreaTeamMemberRolesValidator;
+  private static SouthernOffshoreAreaTeamMemberRolesValidator southernOffshoreAreaTeamMemberRolesValidator;
 
   @BeforeAll
   static void setup() {
-    offshoreAreaTeamMemberRolesValidator = new OffshoreAreaTeamMemberRolesValidator();
+    southernOffshoreAreaTeamMemberRolesValidator = new SouthernOffshoreAreaTeamMemberRolesValidator();
   }
 
   @Test
   void supports_whenSupported_thenTrue() {
-    assertTrue(offshoreAreaTeamMemberRolesValidator.supports(TeamMemberRolesForm.class));
+    assertTrue(southernOffshoreAreaTeamMemberRolesValidator.supports(TeamMemberRolesForm.class));
   }
 
   @Test
   void supports_whenNotSupported_thenFalse() {
-    assertFalse(offshoreAreaTeamMemberRolesValidator.supports(OffshoreAreaTeamMemberRolesValidatorTest.NonSupportedClass.class));
+    assertFalse(southernOffshoreAreaTeamMemberRolesValidator.supports(NonSupportedClass.class));
   }
 
   @Test
@@ -44,8 +44,8 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
 
     assertThat(resultingErrorCodes).containsExactly(
         entry(
-            OffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
-            Set.of(OffshoreAreaTeamMemberRolesValidator.ROLES_REQUIRED_CODE)
+            SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
+            Set.of(SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_REQUIRED_CODE)
         )
     );
 
@@ -53,8 +53,8 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
 
     assertThat(resultingErrorMessages).containsExactly(
         entry(
-            OffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
-            Set.of(OffshoreAreaTeamMemberRolesValidator.ROLES_REQUIRED_ERROR_MESSAGE)
+            SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
+            Set.of(SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_REQUIRED_ERROR_MESSAGE)
         )
     );
   }
@@ -71,8 +71,8 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
 
     assertThat(resultingErrorCodes).containsExactly(
         entry(
-            OffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
-            Set.of(OffshoreAreaTeamMemberRolesValidator.ROLES_REQUIRED_CODE)
+            SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
+            Set.of(SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_REQUIRED_CODE)
         )
     );
 
@@ -80,8 +80,8 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
 
     assertThat(resultingErrorMessages).containsExactly(
         entry(
-            OffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
-            Set.of(OffshoreAreaTeamMemberRolesValidator.ROLES_REQUIRED_ERROR_MESSAGE)
+            SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
+            Set.of(SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_REQUIRED_ERROR_MESSAGE)
         )
     );
   }
@@ -98,8 +98,8 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
 
     assertThat(resultingErrorCodes).containsExactly(
         entry(
-            OffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
-            Set.of(OffshoreAreaTeamMemberRolesValidator.ROLE_INVALID_CODE)
+            SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
+            Set.of(SouthernOffshoreAreaTeamMemberRolesValidator.ROLE_INVALID_CODE)
         )
     );
 
@@ -107,8 +107,8 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
 
     assertThat(resultingErrorMessages).containsExactly(
         entry(
-            OffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
-            Set.of(OffshoreAreaTeamMemberRolesValidator.ROLES_INVALID_ERROR_MESSAGE)
+            SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
+            Set.of(SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_INVALID_ERROR_MESSAGE)
         )
     );
   }
@@ -117,7 +117,7 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
   void validate_whenSomeRolesNotInEnum_thenError() {
 
     var form = new TeamMemberRolesForm();
-    form.setRoles(Set.of("NOT_FROM_ENUM", OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM.name()));
+    form.setRoles(Set.of("NOT_FROM_ENUM", SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_MANAGE_TEAM.name()));
 
     var bindingResult = validateTeamMemberRolesForm(form);
 
@@ -125,8 +125,8 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
 
     assertThat(resultingErrorCodes).containsExactly(
         entry(
-            OffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
-            Set.of(OffshoreAreaTeamMemberRolesValidator.ROLE_INVALID_CODE)
+            SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
+            Set.of(SouthernOffshoreAreaTeamMemberRolesValidator.ROLE_INVALID_CODE)
         )
     );
 
@@ -134,8 +134,8 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
 
     assertThat(resultingErrorMessages).containsExactly(
         entry(
-            OffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
-            Set.of(OffshoreAreaTeamMemberRolesValidator.ROLES_INVALID_ERROR_MESSAGE)
+            SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_FIELD_NAME,
+            Set.of(SouthernOffshoreAreaTeamMemberRolesValidator.ROLES_INVALID_ERROR_MESSAGE)
         )
     );
   }
@@ -144,7 +144,7 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
   void validate_whenValidRolesSelected_thenNoError() {
 
     var form = new TeamMemberRolesForm();
-    form.setRoles(Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM.name()));
+    form.setRoles(Set.of(SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_MANAGE_TEAM.name()));
 
     var bindingResult = validateTeamMemberRolesForm(form);
 
@@ -159,7 +159,7 @@ class OffshoreAreaTeamMemberRolesValidatorTest {
 
   private BindingResult validateTeamMemberRolesForm(TeamMemberRolesForm teamMemberRolesForm) {
     var bindingResult = new BeanPropertyBindingResult(teamMemberRolesForm, "form");
-    offshoreAreaTeamMemberRolesValidator.validate(teamMemberRolesForm, bindingResult);
+    southernOffshoreAreaTeamMemberRolesValidator.validate(teamMemberRolesForm, bindingResult);
     return bindingResult;
   }
 

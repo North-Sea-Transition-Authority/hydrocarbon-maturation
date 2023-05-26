@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore;
 
 import com.google.common.collect.Sets;
 import java.util.Collection;
@@ -17,7 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamM
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
 
 @Service
-public class OffshoreAreaTeamMemberEditRolesValidator implements SmartValidator {
+public class SouthernOffshoreAreaTeamMemberEditRolesValidator implements SmartValidator {
 
   public static final String ROLES_FIELD_NAME = "roles";
 
@@ -35,7 +35,7 @@ public class OffshoreAreaTeamMemberEditRolesValidator implements SmartValidator 
   private final TeamMemberRemovalService teamMemberRemovalService;
 
   @Autowired
-  public OffshoreAreaTeamMemberEditRolesValidator(TeamMemberRemovalService teamMemberRemovalService) {
+  public SouthernOffshoreAreaTeamMemberEditRolesValidator(TeamMemberRemovalService teamMemberRemovalService) {
     this.teamMemberRemovalService = teamMemberRemovalService;
   }
 
@@ -57,7 +57,7 @@ public class OffshoreAreaTeamMemberEditRolesValidator implements SmartValidator 
 
     var validRolesFromForm = formRoles
         .stream()
-        .map(OffshoreAreaTeamRole::getRoleFromString)
+        .map(SouthernOffshoreAreaTeamRole::getRoleFromString)
         .flatMap(Optional::stream)
         .toList();
     if (formRoles.size() != validRolesFromForm.size()) {
@@ -89,9 +89,10 @@ public class OffshoreAreaTeamMemberEditRolesValidator implements SmartValidator 
   }
 
   private boolean canUpdateTeamMemberWithNewRoles(Team team, TeamMember teamMember,
-                                                  Collection<OffshoreAreaTeamRole> newRoles) {
+                                                  Collection<SouthernOffshoreAreaTeamRole> newRoles) {
     var changingPermissions = Sets.difference(teamMember.roles(), Set.copyOf(newRoles));
-    var isRemovingAccessManagerRole = changingPermissions.contains(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM);
+    var isRemovingAccessManagerRole = changingPermissions
+        .contains(SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_MANAGE_TEAM);
 
     return !isRemovingAccessManagerRole || teamMemberRemovalService.canRemoveTeamMember(team, teamMember);
   }

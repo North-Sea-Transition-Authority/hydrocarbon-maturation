@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,14 +28,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaRemoveMemberControllerHelperService;
 
-@ContextConfiguration(classes = OffshoreAreaRemoveMemberController.class)
-class OffshoreAreaRemoveMemberControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = NorthernOffshoreAreaRemoveMemberController.class)
+class NorthernOffshoreAreaRemoveMemberControllerTest extends AbstractControllerTest {
 
   @MockBean
   private AreaRemoveMemberControllerHelperService areaRemoveMemberControllerHelperService;
 
   @MockBean
-  private OffshoreAreaTeamService offshoreAreaTeamService;
+  private NorthernOffshoreAreaTeamService northernOffshoreAreaTeamService;
 
   private Team areaTeam;
   private TeamView teamView;
@@ -47,7 +47,7 @@ class OffshoreAreaRemoveMemberControllerTest extends AbstractControllerTest {
   void setUp() {
 
     areaTeam = TeamTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.NORTHERN_OFFSHORE_AREA)
         .build();
 
     teamView = TeamTestUtil.createTeamView(areaTeam);
@@ -62,10 +62,10 @@ class OffshoreAreaRemoveMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderRemoveMember_whenNotAccessManager_thenForbidden() throws Exception {
 
-    Set<TeamRole> userRoles = Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER);
+    Set<TeamRole> userRoles = Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER);
 
     var teamMember = TeamMemberTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.NORTHERN_OFFSHORE_AREA)
         .withTeamId(teamView.teamId())
         .withWebUserAccountId(nonAccessManager.wuaId())
         .withRoles(userRoles)
@@ -73,7 +73,7 @@ class OffshoreAreaRemoveMemberControllerTest extends AbstractControllerTest {
 
     when(teamMemberService.getUserAsTeamMembers(nonAccessManager)).thenReturn(List.of(teamMember));
 
-    mockMvc.perform(get(ReverseRouter.route(on(OffshoreAreaRemoveMemberController.class)
+    mockMvc.perform(get(ReverseRouter.route(on(NorthernOffshoreAreaRemoveMemberController.class)
         .renderRemoveMember(areaTeam.toTeamId(), teamMember.wuaId())))
         .with(user(nonAccessManager))
     ).andExpect(status().isForbidden());
@@ -82,13 +82,13 @@ class OffshoreAreaRemoveMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderRemoveMember_whenAccessManager_thenOk() throws Exception {
 
-    Set<TeamRole> userRoles = Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM);
+    Set<TeamRole> userRoles = Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM);
 
-    when(offshoreAreaTeamService.getTeam(teamView.teamId()))
+    when(northernOffshoreAreaTeamService.getTeam(teamView.teamId()))
         .thenReturn(Optional.of(areaTeam));
 
     var teamMember = TeamMemberTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.NORTHERN_OFFSHORE_AREA)
         .withTeamId(teamView.teamId())
         .withWebUserAccountId(accessManager.wuaId())
         .withRoles(userRoles)
@@ -100,12 +100,12 @@ class OffshoreAreaRemoveMemberControllerTest extends AbstractControllerTest {
     var modelAndViewOk = new ModelAndView();
     modelAndViewOk.setStatus(HttpStatus.OK);
     when(areaRemoveMemberControllerHelperService.renderRemoveMember(areaTeam, teamMember.wuaId(),
-        ReverseRouter.redirect(on(OffshoreAreaTeamManagementController.class).renderMemberList(areaTeam.toTeamId())),
-        ReverseRouter.route(on(OffshoreAreaTeamManagementController.class).renderMemberList(areaTeam.toTeamId())),
-        ReverseRouter.route(on(OffshoreAreaRemoveMemberController.class).removeMember(areaTeam.toTeamId(), teamMember.wuaId(), null))))
+        ReverseRouter.redirect(on(NorthernOffshoreAreaTeamManagementController.class).renderMemberList(areaTeam.toTeamId())),
+        ReverseRouter.route(on(NorthernOffshoreAreaTeamManagementController.class).renderMemberList(areaTeam.toTeamId())),
+        ReverseRouter.route(on(NorthernOffshoreAreaRemoveMemberController.class).removeMember(areaTeam.toTeamId(), teamMember.wuaId(), null))))
         .thenReturn(modelAndViewOk);
 
-    mockMvc.perform(get(ReverseRouter.route(on(OffshoreAreaRemoveMemberController.class)
+    mockMvc.perform(get(ReverseRouter.route(on(NorthernOffshoreAreaRemoveMemberController.class)
             .renderRemoveMember(teamView.teamId(), teamMember.wuaId())))
             .with(user(accessManager)))
         .andExpect(status().isOk());

@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -38,13 +38,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.AddTe
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaAddMemberControllerHelperService;
 
 @ContextConfiguration(classes = {
-    OffshoreAreaAddMemberController.class,
+    SouthernOffshoreAreaAddMemberController.class,
     AddTeamMemberValidator.class
 })
-class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
+class SouthernOffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
 
   @MockBean
-  private OffshoreAreaTeamService offshoreAreaTeamService;
+  private SouthernOffshoreAreaTeamService southernOffshoreAreaTeamService;
 
   @MockBean
   private EnergyPortalUserService energyPortalUserService;
@@ -64,12 +64,12 @@ class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
     var user = ServiceUserDetailTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
         .build();
 
     var teamMember = TeamMemberTestUtil.Builder()
         .withTeamId(team.toTeamId())
-        .withRole(OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER)
+        .withRole(SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)
         .build();
     var teamId = team.toTeamId();
 
@@ -77,7 +77,7 @@ class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
     when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(OffshoreAreaAddMemberController.class).renderAddTeamMember(teamId)))
+            get(ReverseRouter.route(on(SouthernOffshoreAreaAddMemberController.class).renderAddTeamMember(teamId)))
                 .with(user(user)))
         .andExpect(status().isForbidden());
   }
@@ -88,21 +88,21 @@ class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
     var user = ServiceUserDetailTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
         .build();
 
     var teamMember = TeamMemberTestUtil.Builder()
         .withTeamId(team.toTeamId())
-        .withRole(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM)
+        .withRole(SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_MANAGE_TEAM)
         .build();
     var teamId = team.toTeamId();
 
     when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
     when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
-    when(offshoreAreaTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
+    when(southernOffshoreAreaTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(OffshoreAreaAddMemberController.class).renderAddTeamMember(teamId)))
+            get(ReverseRouter.route(on(SouthernOffshoreAreaAddMemberController.class).renderAddTeamMember(teamId)))
                 .with(user(user)))
         .andExpect(status().isOk());
   }
@@ -114,17 +114,17 @@ class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
     var teamId = new TeamId(UUID.randomUUID());
 
     var teamMember = TeamMemberTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
-        .withRole(OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER)
+        .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
+        .withRole(SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)
         .build();
 
     when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
     when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(false);
     when(permissionService.hasPermission(user, Set.of())).thenReturn(true);
-    when(offshoreAreaTeamService.getTeam(teamId)).thenReturn(Optional.empty());
+    when(southernOffshoreAreaTeamService.getTeam(teamId)).thenReturn(Optional.empty());
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(OffshoreAreaAddMemberController.class).renderAddTeamMember(teamId)))
+            get(ReverseRouter.route(on(SouthernOffshoreAreaAddMemberController.class).renderAddTeamMember(teamId)))
                 .with(user(user)))
         .andExpect(status().isForbidden());
   }
@@ -138,17 +138,17 @@ class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.REGULATOR)
         .build();
     var teamMember = TeamMemberTestUtil.Builder()
-        .withRole(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM)
+        .withRole(SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_MANAGE_TEAM)
         .build();
 
     var teamId = team.toTeamId();
 
     when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
     when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
-    when(offshoreAreaTeamService.getTeam(teamId)).thenReturn(Optional.empty());
+    when(southernOffshoreAreaTeamService.getTeam(teamId)).thenReturn(Optional.empty());
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(OffshoreAreaAddMemberController.class).renderAddTeamMember(teamId)))
+            get(ReverseRouter.route(on(SouthernOffshoreAreaAddMemberController.class).renderAddTeamMember(teamId)))
                 .with(user(user)))
         .andExpect(status().isForbidden());
   }
@@ -162,17 +162,17 @@ class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.REGULATOR)
         .build();
     var teamMember = TeamMemberTestUtil.Builder()
-        .withRole(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM)
+        .withRole(SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_MANAGE_TEAM)
         .build();
 
     var teamId = team.toTeamId();
 
     when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
     when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
-    when(offshoreAreaTeamService.getTeam(teamId)).thenReturn(Optional.empty());
+    when(southernOffshoreAreaTeamService.getTeam(teamId)).thenReturn(Optional.empty());
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(OffshoreAreaAddMemberController.class)
+            post(ReverseRouter.route(on(SouthernOffshoreAreaAddMemberController.class)
                 .addMemberToTeamSubmission(teamId, null, null)))
                 .with(csrf())
                 .with(user(user)))
@@ -185,12 +185,12 @@ class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
     var user = ServiceUserDetailTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
         .build();
 
     var teamMember = TeamMemberTestUtil.Builder()
         .withTeamId(team.toTeamId())
-        .withRole(OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER)
+        .withRole(SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)
         .build();
     var teamId = team.toTeamId();
 
@@ -198,7 +198,7 @@ class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
     when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(OffshoreAreaAddMemberController.class)
+            post(ReverseRouter.route(on(SouthernOffshoreAreaAddMemberController.class)
                 .addMemberToTeamSubmission(teamId, null, null)))
                 .with(csrf())
                 .with(user(user)))
@@ -211,18 +211,18 @@ class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
     var user = ServiceUserDetailTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
         .build();
     var teamMember = TeamMemberTestUtil.Builder()
         .withTeamId(team.toTeamId())
-        .withRole(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM)
+        .withRole(SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_MANAGE_TEAM)
         .build();
 
     var teamId = team.toTeamId();
 
     when(teamMemberService.getUserAsTeamMembers(user)).thenReturn(List.of(teamMember));
     when(teamMemberService.isMemberOfTeam(teamId, user)).thenReturn(true);
-    when(offshoreAreaTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
+    when(southernOffshoreAreaTeamService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     var userToAdd = EnergyPortalUserDtoTestUtil.Builder().build();
     when(energyPortalUserService.findUserByUsername(any()))
@@ -234,15 +234,15 @@ class OffshoreAreaAddMemberControllerTest extends AbstractControllerTest {
         any(BindingResult.class),
         any(AddTeamMemberForm.class),
         eq(team),
-        eq(ReverseRouter.redirect(on(OffshoreAreaAddRolesController.class)
+        eq(ReverseRouter.redirect(on(SouthernOffshoreAreaAddRolesController.class)
             .renderAddTeamMemberRoles(teamId, new WebUserAccountId(userToAdd.webUserAccountId())))),
-        eq(ReverseRouter.route(on(OffshoreAreaAddMemberController.class)
+        eq(ReverseRouter.route(on(SouthernOffshoreAreaAddMemberController.class)
             .addMemberToTeamSubmission(teamId, new AddTeamMemberForm(), ReverseRouter.emptyBindingResult()))),
-        eq(ReverseRouter.route(on(OffshoreAreaTeamManagementController.class).renderMemberList(teamId)))))
+        eq(ReverseRouter.route(on(SouthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId)))))
         .thenReturn(modelAndViewOk);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(OffshoreAreaAddMemberController.class)
+            post(ReverseRouter.route(on(SouthernOffshoreAreaAddMemberController.class)
                 .addMemberToTeamSubmission(teamId, null, null)))
                 .with(csrf())
                 .with(user(user))

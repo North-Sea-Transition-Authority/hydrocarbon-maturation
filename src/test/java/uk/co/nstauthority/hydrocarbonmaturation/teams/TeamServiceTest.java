@@ -173,7 +173,7 @@ class TeamServiceTest {
     var industryTeam = new Team();
     industryTeam.setTeamType(TeamType.INDUSTRY);
     var areaTeam = new Team();
-    areaTeam.setTeamType(TeamType.OFFSHORE_AREA);
+    areaTeam.setTeamType(TeamType.NORTHERN_OFFSHORE_AREA);
 
     List<Team> listOfTeams = List.of(
         regulatorTeam,

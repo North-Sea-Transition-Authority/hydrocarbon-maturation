@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore;
 
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -7,7 +7,7 @@ import org.springframework.validation.Validator;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
 
 @Service
-public class OffshoreAreaTeamMemberRolesValidator implements Validator {
+public class NorthernOffshoreAreaTeamMemberRolesValidator implements Validator {
 
   static final String ROLES_FIELD_NAME = "roles";
 
@@ -34,7 +34,7 @@ public class OffshoreAreaTeamMemberRolesValidator implements Validator {
       // ensure all values posted are valid entries in the enum
       var validRolesFromForm = selectedRolesFromForm
           .stream()
-          .filter(role -> OffshoreAreaTeamRole.getRoleFromString(role).isPresent())
+          .filter(role -> NorthernOffshoreAreaTeamRole.getRoleFromString(role).isPresent())
           .count();
 
       if (selectedRolesFromForm.size() != validRolesFromForm) {

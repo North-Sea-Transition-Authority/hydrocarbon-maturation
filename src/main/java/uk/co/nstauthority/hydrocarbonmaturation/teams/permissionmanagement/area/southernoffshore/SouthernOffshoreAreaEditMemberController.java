@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -26,30 +26,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamM
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaEditMemberControllerHelperService;
 
 @Controller
-@RequestMapping("/permission-management/offshore-area/{teamId}/edit/{wuaId}")
+@RequestMapping("/permission-management/southern-offshore-area/{teamId}/edit/{wuaId}")
 @HasTeamPermission(
-    anyTeamPermissionOf = RolePermission.GRANT_OFFSHORE_AREA_ROLES
+    anyTeamPermissionOf = RolePermission.GRANT_SOUTHERN_OFFSHORE_AREA_ROLES
 )
-public class OffshoreAreaEditMemberController extends AbstractOffshoreAreaPermissionManagement {
+public class SouthernOffshoreAreaEditMemberController extends AbstractSouthernOffshoreAreaPermissionManagement {
 
   private final TeamMemberRoleService teamMemberRoleService;
   private final ControllerHelperService controllerHelperService;
-  private final OffshoreAreaTeamMemberEditRolesValidator offshoreAreaTeamMemberEditRolesValidator;
+  private final SouthernOffshoreAreaTeamMemberEditRolesValidator southernOffshoreAreaTeamMemberEditRolesValidator;
   private final AreaEditMemberControllerHelperService areaEditMemberControllerHelperService;
 
   private static final Map<String, String> ROLE_MAP = DisplayableEnumOptionUtil
-      .getDisplayableOptionsWithDescription(OffshoreAreaTeamRole.class);
+      .getDisplayableOptionsWithDescription(SouthernOffshoreAreaTeamRole.class);
 
   @Autowired
-  public OffshoreAreaEditMemberController(OffshoreAreaTeamService offshoreAreaTeamService,
-                                          TeamMemberRoleService teamMemberRoleService,
-                                          ControllerHelperService controllerHelperService,
-                                          OffshoreAreaTeamMemberEditRolesValidator areaTeamMemberRolesValidator,
-                                          AreaEditMemberControllerHelperService areaEditMemberControllerHelperService) {
-    super(offshoreAreaTeamService);
+  public SouthernOffshoreAreaEditMemberController(SouthernOffshoreAreaTeamService southernOffshoreAreaTeamService,
+                                                  TeamMemberRoleService teamMemberRoleService,
+                                                  ControllerHelperService controllerHelperService,
+                                                  SouthernOffshoreAreaTeamMemberEditRolesValidator areaTeamMemberRolesValidator,
+                                                  AreaEditMemberControllerHelperService areaEditMemberControllerHelperService) {
+    super(southernOffshoreAreaTeamService);
     this.teamMemberRoleService = teamMemberRoleService;
     this.controllerHelperService = controllerHelperService;
-    this.offshoreAreaTeamMemberEditRolesValidator = areaTeamMemberRolesValidator;
+    this.southernOffshoreAreaTeamMemberEditRolesValidator = areaTeamMemberRolesValidator;
     this.areaEditMemberControllerHelperService = areaEditMemberControllerHelperService;
   }
 
@@ -60,7 +60,8 @@ public class OffshoreAreaEditMemberController extends AbstractOffshoreAreaPermis
     var team = getAreaTeam(teamId);
 
     return areaEditMemberControllerHelperService.renderEditMember(team, wuaId, ROLE_MAP,
-        ReverseRouter.route(on(OffshoreAreaTeamManagementController.class).renderMemberList(teamId)));
+        ReverseRouter.route(on(
+            SouthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId)));
   }
 
   @PostMapping
@@ -74,7 +75,7 @@ public class OffshoreAreaEditMemberController extends AbstractOffshoreAreaPermis
     var teamMember = areaEditMemberControllerHelperService.getTeamMemberOrThrow(team, wuaId);
     var userView = areaEditMemberControllerHelperService.getTeamMemberViewOrThrow(teamMember);
 
-    offshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult,
+    southernOffshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult,
         new TeamMemberEditRolesValidatorHints(team, teamMember));
 
     return controllerHelperService.checkErrorsAndRedirect(
@@ -82,7 +83,8 @@ public class OffshoreAreaEditMemberController extends AbstractOffshoreAreaPermis
         getEditModelAndView(teamId, userView, form),
         () -> {
           teamMemberRoleService.updateUserTeamRoles(team, teamMember.wuaId(), form.getRoles());
-          return ReverseRouter.redirect(on(OffshoreAreaTeamManagementController.class).renderMemberList(teamId));
+          return ReverseRouter.redirect(on(
+              SouthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId));
         });
   }
 
@@ -92,7 +94,7 @@ public class OffshoreAreaEditMemberController extends AbstractOffshoreAreaPermis
         .addObject("pageTitle", userView.getDisplayName())
         .addObject("roles", ROLE_MAP)
         .addObject("backLinkUrl",
-            ReverseRouter.route(on(OffshoreAreaTeamManagementController.class).renderMemberList(teamId))
+            ReverseRouter.route(on(SouthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId))
         );
   }
 }

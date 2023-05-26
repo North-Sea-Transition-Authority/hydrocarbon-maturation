@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
-class OffshoreAreaTeamServiceTest {
+class SouthernOffshoreAreaTeamServiceTest {
 
   @Mock
   private TeamService teamService;
@@ -31,20 +31,20 @@ class OffshoreAreaTeamServiceTest {
 
   @InjectMocks
   @SpyBean
-  private OffshoreAreaTeamService offshoreAreaTeamService;
+  private SouthernOffshoreAreaTeamService southernOffshoreAreaTeamService;
 
   @Test
   void getTeam_whenMatch_thenReturnTeam() {
 
     var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
         .build();
 
     var teamId = team.toTeamId();
 
-    when(teamService.getTeam(teamId, TeamType.OFFSHORE_AREA)).thenReturn(Optional.of(team));
+    when(teamService.getTeam(teamId, TeamType.SOUTHERN_OFFSHORE_AREA)).thenReturn(Optional.of(team));
 
-    assertThat(offshoreAreaTeamService.getTeam(teamId)).contains(team);
+    assertThat(southernOffshoreAreaTeamService.getTeam(teamId)).contains(team);
     verify(teamService, times(1)).getTeam(teamId, team.getTeamType());
   }
 
@@ -52,14 +52,14 @@ class OffshoreAreaTeamServiceTest {
   void getTeam_whenNoMatch_thenEmptyOptional() {
 
     var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
         .build();
 
     var teamId = team.toTeamId();
 
-    when(teamService.getTeam(teamId, TeamType.OFFSHORE_AREA)).thenReturn(Optional.empty());
+    when(teamService.getTeam(teamId, TeamType.SOUTHERN_OFFSHORE_AREA)).thenReturn(Optional.empty());
 
-    assertThat(offshoreAreaTeamService.getTeam(teamId)).isEmpty();
+    assertThat(southernOffshoreAreaTeamService.getTeam(teamId)).isEmpty();
     verify(teamService, times(1)).getTeam(teamId, team.getTeamType());
   }
 
@@ -68,18 +68,18 @@ class OffshoreAreaTeamServiceTest {
   void addUserTeamRoles_verifyRepositoryInteractions() {
 
     var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
         .build();
     var userToAdd = EnergyPortalUserDtoTestUtil.Builder().build();
     var areaTeamRoles = Set.of(
-        OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM
+        SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_MANAGE_TEAM
     );
 
-    offshoreAreaTeamService.addUserTeamRoles(team, userToAdd, areaTeamRoles);
+    southernOffshoreAreaTeamService.addUserTeamRoles(team, userToAdd, areaTeamRoles);
 
     var rolesAsStrings = areaTeamRoles
         .stream()
-        .map(OffshoreAreaTeamRole::name)
+        .map(SouthernOffshoreAreaTeamRole::name)
         .collect(Collectors.toSet());
 
     verify(teamMemberRoleService, times(1)).addUserTeamRoles(team, userToAdd, rolesAsStrings);

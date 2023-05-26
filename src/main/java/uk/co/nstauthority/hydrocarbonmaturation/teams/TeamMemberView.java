@@ -6,10 +6,12 @@ import java.util.Set;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore.OffshoreAreaEditMemberController;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore.OffshoreAreaRemoveMemberController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaEditMemberController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaRemoveMemberController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaEditMemberController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaRemoveMemberController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore.SouthernOffshoreAreaEditMemberController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore.SouthernOffshoreAreaRemoveMemberController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryEditMemberController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryRemoveMemberController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorEditMemberController;
@@ -29,7 +31,9 @@ public record TeamMemberView(WebUserAccountId wuaId, TeamView teamView, String t
           .renderRemoveMember(teamView.teamId(), wuaId));
       case INDUSTRY -> ReverseRouter.route(on(IndustryRemoveMemberController.class)
           .renderRemoveMember(teamView.teamId(), wuaId));
-      case OFFSHORE_AREA -> ReverseRouter.route(on(OffshoreAreaRemoveMemberController.class)
+      case NORTHERN_OFFSHORE_AREA -> ReverseRouter.route(on(NorthernOffshoreAreaRemoveMemberController.class)
+          .renderRemoveMember(teamView.teamId(), wuaId));
+      case SOUTHERN_OFFSHORE_AREA -> ReverseRouter.route(on(SouthernOffshoreAreaRemoveMemberController.class)
           .renderRemoveMember(teamView.teamId(), wuaId));
       case ONSHORE_AREA -> ReverseRouter.route(on(OnshoreAreaRemoveMemberController.class)
           .renderRemoveMember(teamView.teamId(), wuaId));
@@ -42,7 +46,9 @@ public record TeamMemberView(WebUserAccountId wuaId, TeamView teamView, String t
           .renderEditMember(teamView.teamId(), wuaId));
       case INDUSTRY -> ReverseRouter.route(on(IndustryEditMemberController.class)
           .renderEditMember(teamView.teamId(), wuaId));
-      case OFFSHORE_AREA -> ReverseRouter.route(on(OffshoreAreaEditMemberController.class)
+      case NORTHERN_OFFSHORE_AREA -> ReverseRouter.route(on(NorthernOffshoreAreaEditMemberController.class)
+          .renderEditMember(teamView.teamId(), wuaId));
+      case SOUTHERN_OFFSHORE_AREA -> ReverseRouter.route(on(SouthernOffshoreAreaEditMemberController.class)
           .renderEditMember(teamView.teamId(), wuaId));
       case ONSHORE_AREA -> ReverseRouter.route(on(OnshoreAreaEditMemberController.class)
           .renderEditMember(teamView.teamId(), wuaId));

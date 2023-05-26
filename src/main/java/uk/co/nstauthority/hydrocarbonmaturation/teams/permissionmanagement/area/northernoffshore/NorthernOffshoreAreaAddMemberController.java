@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -22,22 +22,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaAddMemberControllerHelperService;
 
 @Controller
-@RequestMapping("/permission-management/offshore-area/{teamId}/add-member")
+@RequestMapping("/permission-management/northern-offshore-area/{teamId}/add-member")
 @HasTeamPermission(
-    anyTeamPermissionOf = RolePermission.GRANT_OFFSHORE_AREA_ROLES
+    anyTeamPermissionOf = RolePermission.GRANT_NORTHERN_OFFSHORE_AREA_ROLES
 )
-public class OffshoreAreaAddMemberController extends AbstractOffshoreAreaPermissionManagement {
+public class NorthernOffshoreAreaAddMemberController extends AbstractNorthernOffshoreAreaPermissionManagement {
 
   private final AddTeamMemberValidator addTeamMemberValidator;
   private final EnergyPortalUserService energyPortalUserService;
   private final AreaAddMemberControllerHelperService areaAddMemberControllerHelperService;
 
   @Autowired
-  public OffshoreAreaAddMemberController(OffshoreAreaTeamService offshoreAreaTeamService,
-                                         AddTeamMemberValidator addTeamMemberValidator,
-                                         EnergyPortalUserService energyPortalUserService,
-                                         AreaAddMemberControllerHelperService areaAddMemberControllerHelperService) {
-    super(offshoreAreaTeamService);
+  public NorthernOffshoreAreaAddMemberController(NorthernOffshoreAreaTeamService northernOffshoreAreaTeamService,
+                                                 AddTeamMemberValidator addTeamMemberValidator,
+                                                 EnergyPortalUserService energyPortalUserService,
+                                                 AreaAddMemberControllerHelperService areaAddMemberControllerHelperService) {
+    super(northernOffshoreAreaTeamService);
     this.addTeamMemberValidator = addTeamMemberValidator;
     this.energyPortalUserService = energyPortalUserService;
     this.areaAddMemberControllerHelperService = areaAddMemberControllerHelperService;
@@ -46,9 +46,9 @@ public class OffshoreAreaAddMemberController extends AbstractOffshoreAreaPermiss
   @GetMapping
   ModelAndView renderAddTeamMember(@PathVariable("teamId") TeamId teamId) {
     var form = new AddTeamMemberForm();
-    var submitUrl = ReverseRouter.route(on(OffshoreAreaAddMemberController.class)
+    var submitUrl = ReverseRouter.route(on(NorthernOffshoreAreaAddMemberController.class)
         .addMemberToTeamSubmission(teamId, form, ReverseRouter.emptyBindingResult()));
-    var backLinkUrl = ReverseRouter.route(on(OffshoreAreaTeamManagementController.class).renderMemberList(teamId));
+    var backLinkUrl = ReverseRouter.route(on(NorthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId));
 
     return areaAddMemberControllerHelperService.getAddTeamMemberModelAndView(form, submitUrl, backLinkUrl, getAreaTeam(teamId));
   }
@@ -60,11 +60,11 @@ public class OffshoreAreaAddMemberController extends AbstractOffshoreAreaPermiss
     addTeamMemberValidator.validate(form, bindingResult);
 
     var userToAdd = energyPortalUserService.findUserByUsername(form.getUsername()).get(0);
-    var successfulRedirect = ReverseRouter.redirect(on(OffshoreAreaAddRolesController.class)
+    var successfulRedirect = ReverseRouter.redirect(on(NorthernOffshoreAreaAddRolesController.class)
         .renderAddTeamMemberRoles(teamId, new WebUserAccountId(userToAdd.webUserAccountId())));
-    var submitUrl = ReverseRouter.route(on(OffshoreAreaAddMemberController.class)
+    var submitUrl = ReverseRouter.route(on(NorthernOffshoreAreaAddMemberController.class)
         .addMemberToTeamSubmission(teamId, form, ReverseRouter.emptyBindingResult()));
-    var backLinkUrl = ReverseRouter.route(on(OffshoreAreaTeamManagementController.class).renderMemberList(teamId));
+    var backLinkUrl = ReverseRouter.route(on(NorthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId));
 
     return areaAddMemberControllerHelperService.addMemberToTeamSubmission(
         bindingResult, form, getAreaTeam(teamId),

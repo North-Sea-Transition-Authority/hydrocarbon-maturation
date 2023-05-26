@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore;
 
 import java.util.Optional;
 import java.util.Set;
@@ -13,30 +13,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Service
-public class OffshoreAreaTeamService {
+public class NorthernOffshoreAreaTeamService {
 
   private final TeamService teamService;
   private final TeamMemberRoleService teamMemberRoleService;
 
   @Autowired
-  public OffshoreAreaTeamService(TeamService teamService, TeamMemberRoleService teamMemberRoleService) {
+  public NorthernOffshoreAreaTeamService(TeamService teamService, TeamMemberRoleService teamMemberRoleService) {
     this.teamService = teamService;
     this.teamMemberRoleService = teamMemberRoleService;
   }
 
   Optional<Team> getTeam(TeamId teamId) {
-    return teamService.getTeam(teamId, TeamType.OFFSHORE_AREA);
+    return teamService.getTeam(teamId, TeamType.NORTHERN_OFFSHORE_AREA);
   }
 
-  public void addUserTeamRoles(Team team, EnergyPortalUserDto userToAdd, Set<OffshoreAreaTeamRole> roles) {
+  public void addUserTeamRoles(Team team, EnergyPortalUserDto userToAdd, Set<NorthernOffshoreAreaTeamRole> roles) {
     var rolesAsStrings = getRolesAsStrings(roles);
 
     teamMemberRoleService.addUserTeamRoles(team, userToAdd, rolesAsStrings);
   }
 
-  private Set<String> getRolesAsStrings(Set<OffshoreAreaTeamRole> offshoreAreaTeamRoles) {
-    return offshoreAreaTeamRoles.stream()
-        .map(OffshoreAreaTeamRole::name)
+  private Set<String> getRolesAsStrings(Set<NorthernOffshoreAreaTeamRole> northernOffshoreAreaTeamRoles) {
+    return northernOffshoreAreaTeamRoles.stream()
+        .map(NorthernOffshoreAreaTeamRole::name)
         .collect(Collectors.toSet());
   }
 }

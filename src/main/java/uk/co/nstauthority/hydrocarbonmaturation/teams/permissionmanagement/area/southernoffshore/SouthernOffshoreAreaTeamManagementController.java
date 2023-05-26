@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -9,23 +9,29 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsMemberOfTeam;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamManagementControllerHelperService;
 
 @Controller
-@RequestMapping("/permission-management/offshore-area")
-@IsMemberOfTeam
-public class OffshoreAreaTeamManagementController extends AbstractOffshoreAreaPermissionManagement {
+@RequestMapping("/permission-management/southern-offshore-area")
+@HasTeamPermission(
+    anyTeamPermissionOf = {
+        RolePermission.GRANT_SOUTHERN_OFFSHORE_AREA_ROLES,
+        RolePermission.VIEW_SYSTEM_OF_RECORD
+    }
+)
+public class SouthernOffshoreAreaTeamManagementController extends AbstractSouthernOffshoreAreaPermissionManagement {
 
   private final AreaTeamManagementControllerHelperService areaTeamManagementControllerHelperService;
 
   @Autowired
-  OffshoreAreaTeamManagementController(OffshoreAreaTeamService offshoreAreaTeamService,
-                                       AreaTeamManagementControllerHelperService areaTeamManagementControllerHelperService) {
-    super(offshoreAreaTeamService);
+  SouthernOffshoreAreaTeamManagementController(SouthernOffshoreAreaTeamService southernOffshoreAreaTeamService,
+                                               AreaTeamManagementControllerHelperService
+                                                   areaTeamManagementControllerHelperService) {
+    super(southernOffshoreAreaTeamService);
     this.areaTeamManagementControllerHelperService = areaTeamManagementControllerHelperService;
   }
 
@@ -35,8 +41,8 @@ public class OffshoreAreaTeamManagementController extends AbstractOffshoreAreaPe
     var team = getAreaTeam(teamId);
 
     return areaTeamManagementControllerHelperService.renderMemberList(team,
-        Set.of(RolePermission.GRANT_OFFSHORE_AREA_ROLES),
-        ReverseRouter.route(on(OffshoreAreaAddMemberController.class).renderAddTeamMember(teamId)),
-        OffshoreAreaTeamRole.values());
+        Set.of(RolePermission.GRANT_SOUTHERN_OFFSHORE_AREA_ROLES),
+        ReverseRouter.route(on(SouthernOffshoreAreaAddMemberController.class).renderAddTeamMember(teamId)),
+        SouthernOffshoreAreaTeamRole.values());
   }
 }

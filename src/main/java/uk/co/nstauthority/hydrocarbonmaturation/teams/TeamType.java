@@ -5,7 +5,10 @@ public enum TeamType {
   REGULATOR("Regulator", "Team for managing regulator users", 10),
   INDUSTRY("Industry", "Teams for managing industry users", 20),
   ONSHORE_AREA("Onshore area", "Teams for managing onshore area users", 30),
-  OFFSHORE_AREA("Offshore area", "Teams for managing offshore area users", 40);
+  NORTHERN_OFFSHORE_AREA("Northern North Sea and West of Shetland",
+      "Teams for managing northern offshore area users", 40),
+  SOUTHERN_OFFSHORE_AREA("Central North Sea, Southern North Sea and East Irish Sea",
+      "Teams for managing southern offshore area users", 40);
 
   private final String displayText;
   private final String hintText;

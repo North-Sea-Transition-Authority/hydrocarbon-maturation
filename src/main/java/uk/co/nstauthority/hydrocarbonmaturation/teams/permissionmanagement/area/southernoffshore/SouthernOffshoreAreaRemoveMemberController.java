@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -18,18 +18,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaRemoveMemberControllerHelperService;
 
 @Controller
-@RequestMapping("/permission-management/offshore-area/{teamId}/remove/{wuaId}")
+@RequestMapping("/permission-management/southern-offshore-area/{teamId}/remove/{wuaId}")
 @HasTeamPermission(
-    anyTeamPermissionOf = RolePermission.GRANT_OFFSHORE_AREA_ROLES
+    anyTeamPermissionOf = RolePermission.GRANT_SOUTHERN_OFFSHORE_AREA_ROLES
 )
-public class OffshoreAreaRemoveMemberController extends AbstractOffshoreAreaPermissionManagement {
+public class SouthernOffshoreAreaRemoveMemberController extends AbstractSouthernOffshoreAreaPermissionManagement {
 
   private final AreaRemoveMemberControllerHelperService areaRemoveMemberControllerHelperService;
 
   @Autowired
-  public OffshoreAreaRemoveMemberController(AreaRemoveMemberControllerHelperService areaRemoveMemberControllerHelperService,
-                                            OffshoreAreaTeamService offshoreAreaTeamService) {
-    super(offshoreAreaTeamService);
+  public SouthernOffshoreAreaRemoveMemberController(AreaRemoveMemberControllerHelperService
+                                                          areaRemoveMemberControllerHelperService,
+                                                    SouthernOffshoreAreaTeamService southernOffshoreAreaTeamService) {
+    super(southernOffshoreAreaTeamService);
     this.areaRemoveMemberControllerHelperService = areaRemoveMemberControllerHelperService;
   }
 
@@ -39,9 +40,9 @@ public class OffshoreAreaRemoveMemberController extends AbstractOffshoreAreaPerm
     var team = getAreaTeam(teamId);
 
     return areaRemoveMemberControllerHelperService.renderRemoveMember(team, wuaId,
-        ReverseRouter.redirect(on(OffshoreAreaTeamManagementController.class).renderMemberList(teamId)),
-        ReverseRouter.route(on(OffshoreAreaTeamManagementController.class).renderMemberList(teamId)),
-        ReverseRouter.route(on(OffshoreAreaRemoveMemberController.class).removeMember(teamId, wuaId, null)));
+        ReverseRouter.redirect(on(SouthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId)),
+        ReverseRouter.route(on(SouthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId)),
+        ReverseRouter.route(on(SouthernOffshoreAreaRemoveMemberController.class).removeMember(teamId, wuaId, null)));
   }
 
   @PostMapping
@@ -52,6 +53,6 @@ public class OffshoreAreaRemoveMemberController extends AbstractOffshoreAreaPerm
 
     return areaRemoveMemberControllerHelperService.removeMember(team, wuaId,
         renderRemoveMember(teamId, wuaId), redirectAttributes,
-        ReverseRouter.redirect(on(OffshoreAreaTeamManagementController.class).renderMemberList(teamId)));
+        ReverseRouter.redirect(on(SouthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId)));
   }
 }

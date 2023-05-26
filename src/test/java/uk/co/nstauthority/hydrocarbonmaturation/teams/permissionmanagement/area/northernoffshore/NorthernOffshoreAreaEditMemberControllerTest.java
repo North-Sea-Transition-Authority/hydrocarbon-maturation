@@ -1,7 +1,11 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
@@ -20,28 +24,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaEditMemberControllerHelperService;
 
-@ContextConfiguration(classes = OffshoreAreaEditMemberController.class)
-class OffshoreAreaEditMemberControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = NorthernOffshoreAreaEditMemberController.class)
+class NorthernOffshoreAreaEditMemberControllerTest extends AbstractControllerTest {
 
   @MockBean
-  private OffshoreAreaTeamService offshoreAreaTeamService;
+  private NorthernOffshoreAreaTeamService northernOffshoreAreaTeamService;
 
   @MockBean
   private TeamMemberRoleService teamMemberRoleService;
 
   @MockBean
-  private OffshoreAreaTeamMemberEditRolesValidator offshoreAreaTeamMemberEditRolesValidator;
+  private NorthernOffshoreAreaTeamMemberEditRolesValidator northernOffshoreAreaTeamMemberEditRolesValidator;
 
   @MockBean
   private AreaEditMemberControllerHelperService areaEditMemberControllerHelperService;
@@ -51,13 +57,14 @@ class OffshoreAreaEditMemberControllerTest extends AbstractControllerTest {
   private ServiceUserDetail accessManager;
   private ServiceUserDetail nonAccessManager;
 
-  private static final Map<String, String> ROLE_MAP = DisplayableEnumOptionUtil.getDisplayableOptionsWithDescription(OffshoreAreaTeamRole.class);
+  private static final Map<String, String> ROLE_MAP = DisplayableEnumOptionUtil.getDisplayableOptionsWithDescription(
+      NorthernOffshoreAreaTeamRole.class);
 
 
   @BeforeEach
   void setUp() {
     areaTeam = TeamTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.NORTHERN_OFFSHORE_AREA)
         .build();
     teamView = TeamTestUtil.createTeamView(areaTeam);
     accessManager = ServiceUserDetailTestUtil.Builder()
@@ -71,17 +78,17 @@ class OffshoreAreaEditMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderEditMember_whenAccessManager_thenOk() throws Exception {
 
-    Set<TeamRole> userRoles = Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM);
+    Set<TeamRole> userRoles = Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM);
 
     when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamView.teamId(), accessManager,
-        Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM.name()))
+        Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM.name()))
     ).thenReturn(true);
 
-    when(offshoreAreaTeamService.getTeam(teamView.teamId()))
+    when(northernOffshoreAreaTeamService.getTeam(teamView.teamId()))
         .thenReturn(Optional.of(areaTeam));
 
     var teamMember = TeamMemberTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.NORTHERN_OFFSHORE_AREA)
         .withTeamId(teamView.teamId())
         .withWebUserAccountId(accessManager.wuaId())
         .withRoles(userRoles)
@@ -93,10 +100,10 @@ class OffshoreAreaEditMemberControllerTest extends AbstractControllerTest {
     var modelAndViewOk = new ModelAndView();
     modelAndViewOk.setStatus(HttpStatus.OK);
     when(areaEditMemberControllerHelperService.renderEditMember(areaTeam, teamMember.wuaId(), ROLE_MAP,
-        ReverseRouter.route(on(OffshoreAreaTeamManagementController.class).renderMemberList(teamView.teamId()))))
+        ReverseRouter.route(on(NorthernOffshoreAreaTeamManagementController.class).renderMemberList(teamView.teamId()))))
         .thenReturn(modelAndViewOk);
 
-    mockMvc.perform(get(ReverseRouter.route(on(OffshoreAreaEditMemberController.class)
+    mockMvc.perform(get(ReverseRouter.route(on(NorthernOffshoreAreaEditMemberController.class)
             .renderEditMember(teamView.teamId(), teamMember.wuaId())))
             .with(user(accessManager)))
         .andExpect(status().isOk());
@@ -105,16 +112,16 @@ class OffshoreAreaEditMemberControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void renderEditMember_whenNotAccessManager_andForbidden() throws Exception {
-    Set<TeamRole> userRoles = Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER);
+    Set<TeamRole> userRoles = Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER);
 
-    when(offshoreAreaTeamService.getTeam(teamView.teamId()))
+    when(northernOffshoreAreaTeamService.getTeam(teamView.teamId()))
         .thenReturn(Optional.of(areaTeam));
 
-    when(offshoreAreaTeamService.getTeam(teamView.teamId()))
+    when(northernOffshoreAreaTeamService.getTeam(teamView.teamId()))
         .thenReturn(Optional.of(areaTeam));
 
     var teamMember = TeamMemberTestUtil.Builder()
-        .withTeamType(TeamType.OFFSHORE_AREA)
+        .withTeamType(TeamType.NORTHERN_OFFSHORE_AREA)
         .withTeamId(teamView.teamId())
         .withWebUserAccountId(nonAccessManager.wuaId())
         .withRoles(userRoles)
@@ -123,9 +130,50 @@ class OffshoreAreaEditMemberControllerTest extends AbstractControllerTest {
     when(teamMemberService.getUserAsTeamMembers(accessManager)).thenReturn(List.of(teamMember));
     when(teamMemberService.isMemberOfTeam(teamView.teamId(), nonAccessManager)).thenReturn(true);
 
-    mockMvc.perform(get(ReverseRouter.route(on(OffshoreAreaEditMemberController.class)
+    mockMvc.perform(get(ReverseRouter.route(on(NorthernOffshoreAreaEditMemberController.class)
             .renderEditMember(teamView.teamId(), teamMember.wuaId())))
             .with(user(nonAccessManager)))
         .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void editMember_whenValid_verifyCalls() throws Exception {
+
+    Set<TeamRole> userRoles = Set.of(
+        NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM
+    );
+
+    when(northernOffshoreAreaTeamService.getTeam(teamView.teamId()))
+        .thenReturn(Optional.of(areaTeam));
+
+    var teamMember = TeamMemberTestUtil.Builder()
+        .withTeamType(TeamType.NORTHERN_OFFSHORE_AREA)
+        .withTeamId(teamView.teamId())
+        .withWebUserAccountId(accessManager.wuaId())
+        .withRoles(userRoles)
+        .build();
+
+    when(teamMemberService.getUserAsTeamMembers(accessManager)).thenReturn(List.of(teamMember));
+    when(teamMemberService.isMemberOfTeam(teamView.teamId(), accessManager)).thenReturn(true);
+
+    when(areaEditMemberControllerHelperService.getTeamMemberOrThrow(areaTeam, teamMember.wuaId())).thenReturn(teamMember);
+
+    var teamMemberView = TeamMemberViewTestUtil.Builder()
+        .withRoles(userRoles)
+        .withWebUserAccountId(teamMember.wuaId())
+        .build();
+    when(areaEditMemberControllerHelperService.getTeamMemberViewOrThrow(teamMember)).thenReturn(teamMemberView);
+
+    mockMvc.perform(post(ReverseRouter.route(on(NorthernOffshoreAreaEditMemberController.class)
+            .editMember(teamView.teamId(), new WebUserAccountId(accessManager.wuaId()), null, null)))
+            .with(csrf())
+            .with(user(accessManager))
+            .param("roles", NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM.name()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(
+            ReverseRouter.route(on(NorthernOffshoreAreaTeamManagementController.class).renderMemberList(teamView.teamId()))));
+
+    verify(teamMemberRoleService).updateUserTeamRoles(areaTeam, teamMember.wuaId(),
+        Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM.name()));
   }
 }

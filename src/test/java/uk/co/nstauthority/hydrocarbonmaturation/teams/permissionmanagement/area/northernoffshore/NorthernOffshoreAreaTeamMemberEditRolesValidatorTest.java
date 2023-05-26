@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore;
+package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -26,30 +26,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamM
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberRolesForm;
 
 @ExtendWith(MockitoExtension.class)
-class OffshoreAreaTeamMemberEditRolesValidatorTest {
+class NorthernOffshoreAreaTeamMemberEditRolesValidatorTest {
 
   @Mock
   private TeamMemberRemovalService teamMemberRemovalService;
 
   @InjectMocks
-  private OffshoreAreaTeamMemberEditRolesValidator offshoreAreaTeamMemberEditRolesValidator;
+  private NorthernOffshoreAreaTeamMemberEditRolesValidator northernOffshoreAreaTeamMemberEditRolesValidator;
 
   @Test
   void validate_whenValid_thenNoErrors() {
     var form = new TeamMemberRolesForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    form.setRoles(Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER.name()));
+    form.setRoles(Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER.name()));
 
     var team = new Team(UUID.randomUUID());
     var teamView = TeamTestUtil.createTeamView(team);
     var teamMember = new TeamMember(new WebUserAccountId(123L), teamView,
-        Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM));
+        Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM));
 
     when(teamMemberRemovalService.canRemoveTeamMember(team, teamMember)).thenReturn(true);
 
     var dto = new TeamMemberEditRolesValidatorHints(team, teamMember);
-    offshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult, dto);
+    northernOffshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult, dto);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -62,10 +62,10 @@ class OffshoreAreaTeamMemberEditRolesValidatorTest {
     var team = new Team(UUID.randomUUID());
     var teamView = TeamTestUtil.createTeamView(team);
     var teamMember = new TeamMember(new WebUserAccountId(123L), teamView,
-        Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM));
+        Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM));
 
     var dto = new TeamMemberEditRolesValidatorHints(team, teamMember);
-    offshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult, dto);
+    northernOffshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult, dto);
 
     assertTrue(bindingResult.hasErrors());
     assertThat(bindingResult.getFieldErrors()).extracting(
@@ -74,9 +74,9 @@ class OffshoreAreaTeamMemberEditRolesValidatorTest {
         DefaultMessageSourceResolvable::getDefaultMessage
     ).containsExactly(
         Tuple.tuple(
-            OffshoreAreaTeamMemberEditRolesValidator.ROLES_FIELD_NAME,
-            OffshoreAreaTeamMemberEditRolesValidator.ROLES_FIELD_REQUIRED_ERROR_CODE,
-            OffshoreAreaTeamMemberEditRolesValidator.ROLES_FIELD_REQUIRED_ERROR_MESSAGE
+            NorthernOffshoreAreaTeamMemberEditRolesValidator.ROLES_FIELD_NAME,
+            NorthernOffshoreAreaTeamMemberEditRolesValidator.ROLES_FIELD_REQUIRED_ERROR_CODE,
+            NorthernOffshoreAreaTeamMemberEditRolesValidator.ROLES_FIELD_REQUIRED_ERROR_MESSAGE
         )
     );
   }
@@ -86,17 +86,17 @@ class OffshoreAreaTeamMemberEditRolesValidatorTest {
     var form = new TeamMemberRolesForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    form.setRoles(Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER.name()));
+    form.setRoles(Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER.name()));
 
     var team = new Team(UUID.randomUUID());
     var teamView = TeamTestUtil.createTeamView(team);
     var teamMember = new TeamMember(new WebUserAccountId(123L), teamView,
-        Set.of(OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM));
+        Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM));
 
     when(teamMemberRemovalService.canRemoveTeamMember(team, teamMember)).thenReturn(false);
 
     var dto = new TeamMemberEditRolesValidatorHints(team, teamMember);
-    offshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult, dto);
+    northernOffshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult, dto);
 
     assertTrue(bindingResult.hasErrors());
     assertThat(bindingResult.getFieldErrors()).extracting(
@@ -105,21 +105,22 @@ class OffshoreAreaTeamMemberEditRolesValidatorTest {
         DefaultMessageSourceResolvable::getDefaultMessage
     ).containsExactly(
         Tuple.tuple(
-            OffshoreAreaTeamMemberEditRolesValidator.ROLES_FIELD_NAME,
-            OffshoreAreaTeamMemberEditRolesValidator.ROLES_NO_ACCESS_MANAGER_ERROR_CODE,
-            OffshoreAreaTeamMemberEditRolesValidator.ROLES_NO_ACCESS_MANAGER_ERROR_MESSAGE
+            NorthernOffshoreAreaTeamMemberEditRolesValidator.ROLES_FIELD_NAME,
+            NorthernOffshoreAreaTeamMemberEditRolesValidator.ROLES_NO_ACCESS_MANAGER_ERROR_CODE,
+            NorthernOffshoreAreaTeamMemberEditRolesValidator.ROLES_NO_ACCESS_MANAGER_ERROR_MESSAGE
         )
     );
   }
 
   @Test
   void supports_whenCorrectClass_thenSupports() {
-    assertTrue(offshoreAreaTeamMemberEditRolesValidator.supports(TeamMemberRolesForm.class));
+    assertTrue(northernOffshoreAreaTeamMemberEditRolesValidator.supports(TeamMemberRolesForm.class));
   }
 
   @Test
   void supports_whenIncorrectClass_thenDoesNotSupport() {
-    assertFalse(offshoreAreaTeamMemberEditRolesValidator.supports(OffshoreAreaTeamMemberEditRolesValidatorTest.UnsupportedClass.class));
+    assertFalse(
+        northernOffshoreAreaTeamMemberEditRolesValidator.supports(NorthernOffshoreAreaTeamMemberEditRolesValidatorTest.UnsupportedClass.class));
   }
 
   @Test
@@ -127,7 +128,7 @@ class OffshoreAreaTeamMemberEditRolesValidatorTest {
     var form = new TeamMemberRolesForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     assertThrows(IllegalCallerException.class, () ->
-        offshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult)
+        northernOffshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult)
     );
   }
 

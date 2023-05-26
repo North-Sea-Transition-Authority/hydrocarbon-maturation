@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore.OffshoreAreaTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
@@ -225,11 +225,11 @@ class TeamMemberServiceTest {
   @Test
   void getTeamMember_whenMemberIsInOffshoreAreaTeam_thenGetTeamMember() {
     var team = new Team(UUID.randomUUID());
-    team.setTeamType(TeamType.OFFSHORE_AREA);
+    team.setTeamType(TeamType.NORTHERN_OFFSHORE_AREA);
 
     var wuaId = new WebUserAccountId(123);
     var role = TeamMemberRoleTestUtil.Builder()
-        .withRole(OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER.name())
+        .withRole(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER.name())
         .withWebUserAccountId(wuaId.id())
         .build();
 
@@ -250,7 +250,7 @@ class TeamMemberServiceTest {
     );
 
     assertThat(result.get().roles()).containsExactly(
-        OffshoreAreaTeamRole.OFFSHORE_AREA_TEAM_MEMBER
+        NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER
     );
   }
 

@@ -27,7 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.offshore.OffshoreAreaTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaTeamRole;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,7 +54,7 @@ class AreaTeamManagementControllerHelperServiceTest {
   private final TeamMemberView teamMemberView = new TeamMemberView(wuaId, teamView, "title", "a", "b", "email", "0", Set.of());
   private final String addTeamMemberUrl = "addTeamMemberUrl";
   private final ServiceUserDetail user = ServiceUserDetailTestUtil.Builder().build();
-  private final TeamRole[] teamRoles = {OffshoreAreaTeamRole.OFFSHORE_AREA_MANAGE_TEAM, OnshoreAreaTeamRole.ONSHORE_AREA_MANAGE_TEAM};
+  private final TeamRole[] teamRoles = {NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM, OnshoreAreaTeamRole.ONSHORE_AREA_MANAGE_TEAM};
 
   @Test
   void renderMemberList_inOneTeam_notAccessManagerPermission() {
