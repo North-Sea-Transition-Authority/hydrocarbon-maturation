@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
@@ -19,7 +20,8 @@ public class OnshoreAreaTeamService {
   private final TeamMemberRoleService teamMemberRoleService;
 
   @Autowired
-  public OnshoreAreaTeamService(TeamService teamService, TeamMemberRoleService teamMemberRoleService) {
+  public OnshoreAreaTeamService(TeamService teamService,
+                                TeamMemberRoleService teamMemberRoleService) {
     this.teamService = teamService;
     this.teamMemberRoleService = teamMemberRoleService;
   }
@@ -32,6 +34,16 @@ public class OnshoreAreaTeamService {
     var rolesAsStrings = getRolesAsStrings(roles);
 
     teamMemberRoleService.addUserTeamRoles(team, userToAdd, rolesAsStrings);
+  }
+
+  public boolean isOnshoreAreaUser(ServiceUserDetail user) {
+    return getOnshoreAreaTeamForUser(user).isPresent();
+  }
+
+  private Optional<Team> getOnshoreAreaTeamForUser(ServiceUserDetail user) {
+    return teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.ONSHORE_AREA)
+        .stream()
+        .findFirst();
   }
 
   private Set<String> getRolesAsStrings(Set<OnshoreAreaTeamRole> onshoreAreaTeamRoles) {

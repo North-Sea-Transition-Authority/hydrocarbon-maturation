@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil.toListOfStrings;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -14,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -52,6 +53,9 @@ class ViewResourceRecordServiceTest {
   private LicenceQueryService licenceQueryService;
   @Mock
   private SubmissionDetailService submissionDetailService;
+  @Mock
+  private AreaTeamService areaTeamService;
+
   @InjectMocks
   private ViewResourceRecordService underTest;
 
@@ -88,7 +92,6 @@ class ViewResourceRecordServiceTest {
       var responsibleTeamType = ResponsibleTeamType.EXPLORATION;
       var licencesTheResourceIsOn = List.of(2, 3);
       var organisationResponsibleId = 1;
-      var createdOn = Timestamp.from(Instant.now());
 
       var resourceRecordSummaryQueryResult = new ResourceRecordSummaryQueryResult(
           submissionDetailId,
@@ -147,9 +150,15 @@ class ViewResourceRecordServiceTest {
         UUID.randomUUID(), ORGANISATION_UNIT_ID);
     private final ServiceUserDetail USER_DETAIL = ServiceUserDetailTestUtil.Builder().build();
 
-    @Test
-    void AndUserIsRegulator_ThenTrue() {
-      when(regulatorTeamService.isRegulatorUser(USER_DETAIL)).thenReturn(true);
+    @ParameterizedTest
+    @CsvSource(value = { "true, true",
+                         "true, false",
+                         "false, true"})
+    void AndUserIsRegulatorOrAreaTeamUser_ThenTrue(boolean isRegulatorUser, boolean isAreaUser) {
+      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
+      if (!isRegulatorUser) {
+        when(areaTeamService.isAreaUser(USER)).thenReturn(isAreaUser);
+      }
 
       var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
 
@@ -157,11 +166,12 @@ class ViewResourceRecordServiceTest {
     }
 
     @Nested
-    class AndUserIsNotRegulator {
+    class AndUserIsNotRegulatorOrAreaTeamUser {
       private static final LicenceView LICENCE_VIEW = new LicenceView("licenceRef", 2, LicenceStatus.EXTANT);
       @BeforeEach
       void setup() {
         when(regulatorTeamService.isRegulatorUser(USER_DETAIL)).thenReturn(false);
+        when(areaTeamService.isAreaUser(USER_DETAIL)).thenReturn(false);
       }
 
       @Test

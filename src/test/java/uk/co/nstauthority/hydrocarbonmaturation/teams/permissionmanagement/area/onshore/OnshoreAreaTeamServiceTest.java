@@ -5,6 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,7 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
@@ -83,5 +86,23 @@ class OnshoreAreaTeamServiceTest {
         .collect(Collectors.toSet());
 
     verify(teamMemberRoleService, times(1)).addUserTeamRoles(team, userToAdd, rolesAsStrings);
+  }
+
+  @Test
+  void isOnshoreAreaUser_inAnOnshoreAreaTeam() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.ONSHORE_AREA)).thenReturn(List.of(new Team()));
+
+    assertThat(onshoreAreaTeamService.isOnshoreAreaUser(user)).isTrue();
+  }
+
+  @Test
+  void isOnshoreAreaUser_notInAnOnshoreAreaTeam() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.ONSHORE_AREA)).thenReturn(List.of());
+
+    assertThat(onshoreAreaTeamService.isOnshoreAreaUser(user)).isFalse();
   }
 }

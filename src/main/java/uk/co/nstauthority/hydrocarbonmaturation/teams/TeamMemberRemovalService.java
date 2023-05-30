@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore.SouthernOffshoreAreaTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
@@ -19,6 +20,7 @@ public class TeamMemberRemovalService {
       RegulatorTeamRole.ACCESS_MANAGER,
       IndustryTeamRole.ACCESS_MANAGER,
       NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM,
+      SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_MANAGE_TEAM,
       OnshoreAreaTeamRole.ONSHORE_AREA_MANAGE_TEAM
   );
 

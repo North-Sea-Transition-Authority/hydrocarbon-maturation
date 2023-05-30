@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -30,6 +31,7 @@ class ViewResourceRecordService {
   private final LicenceQueryService licenceQueryService;
   private final ResourceLinkService resourceLinkService;
   private final SubmissionDetailService submissionDetailService;
+  private final AreaTeamService areaTeamService;
 
   @Autowired
   ViewResourceRecordService(ResourceRecordSummaryQueryService resourceRecordSummaryQueryService,
@@ -38,7 +40,8 @@ class ViewResourceRecordService {
                             IndustryTeamMemberService industryTeamMemberService,
                             LicenceQueryService licenceQueryService,
                             ResourceLinkService resourceLinkService,
-                            SubmissionDetailService submissionDetailService) {
+                            SubmissionDetailService submissionDetailService,
+                            AreaTeamService areaTeamService) {
     this.resourceRecordSummaryQueryService = resourceRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.regulatorTeamService = regulatorTeamService;
@@ -46,6 +49,7 @@ class ViewResourceRecordService {
     this.licenceQueryService = licenceQueryService;
     this.resourceLinkService = resourceLinkService;
     this.submissionDetailService = submissionDetailService;
+    this.areaTeamService = areaTeamService;
   }
 
   ResourceRecordSummaryView getResourceRecordOrThrow(UUID resourceId) {
@@ -96,8 +100,9 @@ class ViewResourceRecordService {
 
   public boolean canViewResource(ResourceRecordSummaryView resourceRecord, ServiceUserDetail user) {
     var isRegulatorUser = regulatorTeamService.isRegulatorUser(user);
+    var isAreaTeamUser = areaTeamService.isAreaUser(user);
 
-    if (isRegulatorUser) {
+    if (isRegulatorUser || isAreaTeamUser) {
       return true;
     }
 
