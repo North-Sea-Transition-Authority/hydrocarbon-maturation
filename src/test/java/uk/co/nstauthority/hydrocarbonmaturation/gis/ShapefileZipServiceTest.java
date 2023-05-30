@@ -29,7 +29,7 @@ class ShapefileZipServiceTest {
 
       var files = List.of("file1.shp", "file1.shx", "file1.prj", "file1.dbf");
       var shapefileZipContents = new ShapefileZipContents("shapefile_name",
-          files, null, null, null);
+          files, null, null, null, null);
 
       var result = underTest.hasRequiredFiles(shapefileZipContents);
 
@@ -40,7 +40,7 @@ class ShapefileZipServiceTest {
     void missingShx() {
       var files = List.of("file1.shp", "file1.prj", "file1.dbf");
       var shapefileZipContents = new ShapefileZipContents("shapefile_name",
-          files, null, null, null);
+          files, null, null, null, null);
 
       var hasRequiredFiles = underTest.hasRequiredFiles(shapefileZipContents);
 
@@ -51,7 +51,7 @@ class ShapefileZipServiceTest {
     void missingShp() {
       var files = List.of("file1.shx", "file1.prj", "file1.dbf");
       var shapefileZipContents = new ShapefileZipContents("shapefile_name",
-          files, null, null, null);
+          files, null, null, null, null);
 
       var result = underTest.hasRequiredFiles(shapefileZipContents);
 
@@ -62,7 +62,7 @@ class ShapefileZipServiceTest {
     void missingPrj() {
       var files = List.of("file1.shp", "file1.shx", "file1.dbf");
       var shapefileZipContents = new ShapefileZipContents("shapefile_name",
-          files, null, null, null);
+          files, null, null, null, null);
 
       var result = underTest.hasRequiredFiles(shapefileZipContents);
 
@@ -73,7 +73,7 @@ class ShapefileZipServiceTest {
     void missingDbf() {
       var files = List.of("file1.shp", "file1.shx", "file1.prj");
       var shapefileZipContents = new ShapefileZipContents("shapefile_name",
-          files, null, null, null);
+          files, null, null, null, null);
 
       var result = underTest.hasRequiredFiles(shapefileZipContents);
 

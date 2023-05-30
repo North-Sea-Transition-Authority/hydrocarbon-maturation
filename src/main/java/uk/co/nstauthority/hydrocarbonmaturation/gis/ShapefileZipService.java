@@ -14,11 +14,14 @@ import org.springframework.stereotype.Service;
 class ShapefileZipService {
   private final ShapefileImportService shapefileImportService;
   private final SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService;
+  private final ShapefileAttributesService shapefileAttributesService;
 
   public ShapefileZipService(ShapefileImportService shapefileImportService,
-                             SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService) {
+                             SupportedCoordinateReferenceSystemService supportedCoordinateReferenceSystemService,
+                             ShapefileAttributesService shapefileAttributesService) {
     this.shapefileImportService = shapefileImportService;
     this.supportedCoordinateReferenceSystemService = supportedCoordinateReferenceSystemService;
+    this.shapefileAttributesService = shapefileAttributesService;
   }
 
   public ShapefileZipContents getShapefileZipContents(InputStream shapefileZipInputStream, String filename) {
@@ -36,19 +39,21 @@ class ShapefileZipService {
     return shapefileZip;
   }
 
-  private BiConsumer<ShapefileZipContents.ShapefileZipBuilder, ZipEntry> getFileHandler(ZipInputStream zis) {
+  private BiConsumer<ShapefileZipContents.Builder, ZipEntry> getFileHandler(ZipInputStream zis) {
     return (shapefileZipBuilder, zipEntry) -> {
       if (zipEntry.getName().endsWith(ShapefileExtension.SHP.getExtension())) {
         handleShapefile(zis, zipEntry, shapefileZipBuilder);
       } else if (zipEntry.getName().endsWith(ShapefileExtension.PRJ.getExtension())) {
         handleShapefileProject(zis, shapefileZipBuilder);
+      } else if (zipEntry.getName().endsWith(ShapefileExtension.DBF.getExtension())) {
+        handleShapefileDataAttributes(zis, shapefileZipBuilder);
       }
     };
   }
 
   private void handleShapefile(ZipInputStream zis,
                                ZipEntry zipEntry,
-                               ShapefileZipContents.ShapefileZipBuilder shapefileZipBuilder) {
+                               ShapefileZipContents.Builder shapefileZipBuilder) {
     try {
       var shapefileStream = new ByteArrayInputStream(zis.readAllBytes());
       var geometries = shapefileImportService.importShapefileAsGeometryList(shapefileStream);
@@ -60,7 +65,7 @@ class ShapefileZipService {
     }
   }
 
-  private void handleShapefileProject(ZipInputStream zis, ShapefileZipContents.ShapefileZipBuilder shapefileZipBuilder) {
+  private void handleShapefileProject(ZipInputStream zis, ShapefileZipContents.Builder shapefileZipBuilder) {
     try {
       var wkt = supportedCoordinateReferenceSystemService.importShapefileProjectAsWkt(zis);
       var thresholds = supportedCoordinateReferenceSystemService.getSpatialReferenceFromWkt(wkt);
@@ -70,6 +75,13 @@ class ShapefileZipService {
     } catch (IOException e) {
       throw new IllegalArgumentException("Could not import shapefile project", e);
     }
+  }
+
+  private void handleShapefileDataAttributes(ZipInputStream zis,
+                                             ShapefileZipContents.Builder shapefileZipBuilder) {
+
+    var shapefileAttributes = shapefileAttributesService.getAttributesFromShapefileDbase(zis);
+    shapefileZipBuilder.withAttributes(shapefileAttributes);
   }
 
   boolean hasRequiredFiles(ShapefileZipContents shapefileZipContents) {

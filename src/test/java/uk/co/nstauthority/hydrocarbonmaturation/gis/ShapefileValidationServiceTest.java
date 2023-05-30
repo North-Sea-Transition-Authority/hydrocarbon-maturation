@@ -55,7 +55,8 @@ class ShapefileValidationServiceTest {
           List.of(FILENAME),
           spatialReferenceFromWkt,
           SupportedCoordinateReferenceSystem.ED50,
-          List.of(geometry)
+          List.of(geometry),
+          new ShapefileAttributes(List.of("headers"), List.of(List.of("rows")))
       );
 
       SHAPEFILE_ZIP_CONTENTS_NO_CRS = new ShapefileZipContents(
@@ -63,7 +64,8 @@ class ShapefileValidationServiceTest {
           List.of(FILENAME),
           spatialReferenceFromWkt,
           null,
-          List.of(geometry)
+          List.of(geometry),
+          new ShapefileAttributes(List.of("headers"), List.of(List.of("rows")))
       );
     }
 

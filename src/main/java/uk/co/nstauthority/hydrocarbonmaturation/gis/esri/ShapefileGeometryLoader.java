@@ -134,7 +134,7 @@ public class ShapefileGeometryLoader {
     /*
       Byte 24 File length - Integer Big
       */
-    final var fileLength = inputStream.readInt();
+    final var fileLength = inputStream.read16BitWordAsInt();
 
     /*
       Byte 28 Version 1000 Integer Little
@@ -199,7 +199,7 @@ public class ShapefileGeometryLoader {
     var recordId = inputStream.readInt();
     LOGGER.debug("Record ID: {}", recordId);
 
-    var recordSizeBytes = (inputStream.readInt() * 2);
+    var recordSizeBytes = inputStream.read16BitWordAsInt();
     LOGGER.debug("Record {} size {}", recordId, recordSizeBytes);
 
     // Record header is always 8 bytes long

@@ -10,15 +10,14 @@ import org.springframework.stereotype.Service;
 @Service
 class ShapefileAttributesService {
 
-  public ShapefileAttributes getAttributesFromShapefileDbase(InputStream inputStream) {
+  ShapefileAttributes getAttributesFromShapefileDbase(InputStream inputStream) {
 
-    try (var reader = new DBFReader(inputStream)) {
+    var reader = new DBFReader(inputStream);
 
-      var headers = getHeaders(reader);
-      var rows = getRows(reader);
+    var headers = getHeaders(reader);
+    var rows = getRows(reader);
 
-      return new ShapefileAttributes(headers, rows);
-    }
+    return new ShapefileAttributes(headers, rows);
   }
 
   private static List<String> getHeaders(DBFReader reader) {

@@ -97,8 +97,9 @@ class ShapefileValidationServiceIntegrationTest {
   @Test
   void validateWktHasSupportedCoordinateReferenceSystem_HasSupportedCrs() throws IOException {
     var supportedCoordinateReferenceSystem = getSupportedCoordinateReferenceSystem(ShapefileTestUtils.SHAPEFILE_PROJECT_RESOURCE_LOCATION);
+    var shapefileZipContents = ShapefileZipContents.builder().withCoordinateReferenceSystem(supportedCoordinateReferenceSystem).build();
 
-    var result = shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(supportedCoordinateReferenceSystem);
+    var result = shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(shapefileZipContents);
 
     assertThat(result).isTrue();
   }
@@ -106,8 +107,9 @@ class ShapefileValidationServiceIntegrationTest {
   @Test
   void validateWktHasSupportedCoordinateReferenceSystem_ProjectionDefinition_HasSupportedCrs() throws IOException {
     var supportedCoordinateReferenceSystem = getSupportedCoordinateReferenceSystem(ShapefileTestUtils.PROJCS_SHAPEFILE_PROJECT_RESOURCE_LOCATION);
+    var shapefileZipContents = ShapefileZipContents.builder().withCoordinateReferenceSystem(supportedCoordinateReferenceSystem).build();
 
-    var result = shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(supportedCoordinateReferenceSystem);
+    var result = shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(shapefileZipContents);
 
     assertThat(result).isTrue();
   }
@@ -115,8 +117,9 @@ class ShapefileValidationServiceIntegrationTest {
   @Test
   void validateWktHasSupportedCoordinateReferenceSystem_DoesNotHaveSupportedCrs() throws IOException {
     var supportedCoordinateReferenceSystem = getSupportedCoordinateReferenceSystem(ShapefileTestUtils.UNSUPPORTED_SHAPEFILE_PROJECT_RESOURCE_LOCATION);
+    var shapefileZipContents = ShapefileZipContents.builder().withCoordinateReferenceSystem(supportedCoordinateReferenceSystem).build();
 
-    var result = shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(supportedCoordinateReferenceSystem);
+    var result = shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(shapefileZipContents);
 
     assertThat(result).isFalse();
   }
@@ -142,7 +145,7 @@ class ShapefileValidationServiceIntegrationTest {
 
   private boolean validateShapefileProjectInZip(String shapefileZipResourceLocation) throws IOException {
     var shapefileZip = getShapefileZipContents(shapefileZipResourceLocation);
-    return shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(shapefileZip.coordinateReferenceSystem());
+    return shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(shapefileZip);
   }
 
   private ShapefileZipContents getShapefileZipContents(String shapefileZipResourceLocation) throws IOException {

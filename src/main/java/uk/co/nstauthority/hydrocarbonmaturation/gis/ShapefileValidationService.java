@@ -48,8 +48,8 @@ public class ShapefileValidationService implements FileUploadCustomValidator {
     return geometry.getType() == expectType;
   }
 
-  boolean validateHasSupportedCoordinateReferenceSystem(SupportedCoordinateReferenceSystem coordinateReferenceSystem) {
-    return coordinateReferenceSystem != null;
+  boolean validateHasSupportedCoordinateReferenceSystem(ShapefileZipContents shapefileZip) {
+    return shapefileZip.coordinateReferenceSystem() != null;
   }
 
   @Override
@@ -57,21 +57,18 @@ public class ShapefileValidationService implements FileUploadCustomValidator {
     var errors = new ArrayList<String>();
 
     var shapefileZip = shapefileZipService.getShapefileZipContents(inputStream, filename);
-    var shapefileZipHasRequiredFiles = shapefileZipService.hasRequiredFiles(shapefileZip);
-    if (!shapefileZipHasRequiredFiles) {
+    if (!shapefileZipService.hasRequiredFiles(shapefileZip)) {
       errors.add(SHAPEFILE_DOES_NOT_CONTAIN_REQUIRED_FILES);
+    }
+
+    if (!validateHasSupportedCoordinateReferenceSystem(shapefileZip)) {
+      errors.add(SHAPEFILE_CONTAINS_UNSUPPORTED_COORDINATE_REFERENCE_SYSTEM);
     }
 
     var shapefileGeometriesAreValid = areShapefileGeometriesValid(shapefileZip);
 
     if (!shapefileGeometriesAreValid) {
       errors.add(SHAPEFILE_CONTAINS_INVALID_GEOMETRIES);
-    }
-
-    var wktHasSupportedCoordinateReferenceSystem = validateHasSupportedCoordinateReferenceSystem(
-        shapefileZip.coordinateReferenceSystem());
-    if (!wktHasSupportedCoordinateReferenceSystem) {
-      errors.add(SHAPEFILE_CONTAINS_UNSUPPORTED_COORDINATE_REFERENCE_SYSTEM);
     }
 
     return errors;

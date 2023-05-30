@@ -9,49 +9,56 @@ public record ShapefileZipContents(
     List<String> filenames,
     SpatialReference thresholds,
     SupportedCoordinateReferenceSystem coordinateReferenceSystem,
-    List<Geometry> geometries) {
+    List<Geometry> geometries,
+    ShapefileAttributes attributes) {
 
-  public static ShapefileZipBuilder builder() {
-    return new ShapefileZipBuilder();
+  public static Builder builder() {
+    return new Builder();
   }
 
-  public static final class ShapefileZipBuilder {
+  public static final class Builder {
     private String shapefileName;
+    private List<String> filenames;
     private SpatialReference thresholds;
     private SupportedCoordinateReferenceSystem coordinateReferenceSystem;
     private List<Geometry> geometries;
-    private List<String> filenames;
+    private ShapefileAttributes attributes;
 
-    private ShapefileZipBuilder() {
+    private Builder() {
     }
 
-    public ShapefileZipBuilder withShapefileName(String shapefileName) {
+    public Builder withShapefileName(String shapefileName) {
       this.shapefileName = shapefileName;
       return this;
     }
 
-    public ShapefileZipBuilder withThresholds(SpatialReference thresholds) {
+    public Builder withThresholds(SpatialReference thresholds) {
       this.thresholds = thresholds;
       return this;
     }
 
-    public ShapefileZipBuilder withCoordinateReferenceSystem(SupportedCoordinateReferenceSystem coordinateReferenceSystem) {
+    public Builder withCoordinateReferenceSystem(SupportedCoordinateReferenceSystem coordinateReferenceSystem) {
       this.coordinateReferenceSystem = coordinateReferenceSystem;
       return this;
     }
 
-    public ShapefileZipBuilder withGeometries(List<Geometry> geometries) {
+    public Builder withGeometries(List<Geometry> geometries) {
       this.geometries = geometries;
       return this;
     }
 
-    public ShapefileZipBuilder withFilenames(List<String> filenames) {
+    public Builder withFilenames(List<String> filenames) {
       this.filenames = filenames;
       return this;
     }
 
+    public Builder withAttributes(ShapefileAttributes attributes) {
+      this.attributes = attributes;
+      return this;
+    }
+
     public ShapefileZipContents build() {
-      return new ShapefileZipContents(shapefileName, filenames, thresholds, coordinateReferenceSystem, geometries);
+      return new ShapefileZipContents(shapefileName, filenames, thresholds, coordinateReferenceSystem, geometries, attributes);
     }
   }
 }

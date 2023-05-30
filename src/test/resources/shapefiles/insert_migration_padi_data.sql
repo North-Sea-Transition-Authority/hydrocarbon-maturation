@@ -1,0 +1,11 @@
+INSERT INTO remi.padi_res_data_header (polygon_id) VALUES
+('PID0007075'),
+('PID0007226'),
+('PID0002045'),
+('PID0001465'),
+('PID0011673'),
+('PID0011672'),
+('PID0007589'),
+('PID0007587'),
+('PID0007586'),
+('PID0007588');

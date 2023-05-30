@@ -26,7 +26,7 @@ class ShapefileGeometryLoaderTest {
               ShapefileGeometryLoader.ShapefileHeader::geometryType
           )
           .containsExactly(
-              694,
+              1388,
               Geometry.Type.Polygon
           );
 

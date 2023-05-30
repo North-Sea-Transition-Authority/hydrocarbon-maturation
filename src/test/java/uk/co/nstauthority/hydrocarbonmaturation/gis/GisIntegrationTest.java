@@ -72,8 +72,6 @@ class GisIntegrationTest {
         );
   }
 
-
-
   private ShapefileZipContents getShapefileZipContents(String shapefileZipResourceLocation) throws IOException {
     try (var shapefileZipStream = ShapefileTestUtils.getFileInputStream(shapefileZipResourceLocation)) {
       return shapefileZipService.getShapefileZipContents(shapefileZipStream, "test");

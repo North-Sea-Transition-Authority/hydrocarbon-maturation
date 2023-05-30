@@ -9,14 +9,14 @@ import java.util.zip.ZipInputStream;
 
 public class ShapefileZipUtils {
   private static final double THRESHOLD_ENTRIES = 10000;
-  private static final double THRESHOLD_RATIO = 10;
+  private static final double THRESHOLD_RATIO = 100;
 
   private ShapefileZipUtils() {
   }
 
   static ShapefileZipContents getShapefileZipContents(ZipInputStream zis,
                                                       String filename,
-                                                      BiConsumer<ShapefileZipContents.ShapefileZipBuilder, ZipEntry> fileHandler)
+                                                      BiConsumer<ShapefileZipContents.Builder, ZipEntry> fileHandler)
       throws IOException {
     var shapefileZipBuilder = ShapefileZipContents.builder();
     List<String> files = new ArrayList<>();

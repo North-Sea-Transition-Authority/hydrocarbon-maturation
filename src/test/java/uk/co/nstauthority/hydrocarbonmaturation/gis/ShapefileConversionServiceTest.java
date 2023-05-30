@@ -40,8 +40,14 @@ class ShapefileConversionServiceTest {
     @Mock
     private InputStream inputStream;
     private final String FILENAME = "FILENAME";
-    private final ShapefileZipContents SHAPEFILE_ZIP_CONTENTS = new ShapefileZipContents("shapefile_name",
-        List.of("filenames"), mock(SpatialReference.class), SupportedCoordinateReferenceSystem.ETRS89, List.of(mock(Geometry.class)));
+    private final ShapefileZipContents SHAPEFILE_ZIP_CONTENTS = new ShapefileZipContents(
+        "shapefile_name",
+        List.of("filenames"),
+        mock(SpatialReference.class),
+        SupportedCoordinateReferenceSystem.ETRS89,
+        List.of(mock(Geometry.class)),
+        new ShapefileAttributes(List.of("headers"), List.of(List.of("rows")))
+    );
 
 
     @BeforeEach

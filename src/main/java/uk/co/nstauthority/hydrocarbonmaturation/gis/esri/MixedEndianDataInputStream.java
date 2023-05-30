@@ -51,4 +51,8 @@ class MixedEndianDataInputStream extends DataInputStream {
     return Double.longBitsToDouble(readLittleEndianLong());
   }
 
+  int read16BitWordAsInt() throws IOException {
+    return readInt() * 2;
+  }
+
 }
