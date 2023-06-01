@@ -18,10 +18,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
@@ -37,6 +40,9 @@ class OnshoreAreaTeamServiceTest {
 
   @Mock
   private TeamMemberService teamMemberService;
+
+  @Mock
+  private EnergyPortalUserService energyPortalUserService;
 
   @InjectMocks
   @SpyBean
@@ -143,5 +149,54 @@ class OnshoreAreaTeamServiceTest {
     assertThat(onshoreAreaTeamService.isOnshoreTeamMember(user)).isFalse();
   }
 
+  @Test
+  void getOnShoreAreaTeamEnergyPortalUsers_assertReturnTeamMemberUsers() {
+    var onshoreTeamMemberUserWuaId1 = 1L;
+    var onshoreTeamMemberUserWuaId2 = 2L;
+    var onshoreTeamMemberUserWuaId3 = 3L;
+    var nonOnshoreTeamMemberUserWuaId = 4L;
 
+    var onshoreTeamMemberUser1 = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(onshoreTeamMemberUserWuaId1)
+        .build();
+    var onshoreTeamMemberUser2 = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(onshoreTeamMemberUserWuaId2)
+        .build();
+    var onshoreTeamMemberUser3 = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(onshoreTeamMemberUserWuaId3)
+        .build();
+    var onshoreTeamMemberList = List.of(
+        TeamMemberTestUtil.Builder().withWebUserAccountId(onshoreTeamMemberUserWuaId1)
+            .withRole(OnshoreAreaTeamRole.ONSHORE_AREA_TEAM_MEMBER)
+            .build(),
+        TeamMemberTestUtil.Builder().withWebUserAccountId(onshoreTeamMemberUserWuaId2)
+            .withRole(OnshoreAreaTeamRole.ONSHORE_AREA_TEAM_MEMBER)
+            .build(),
+        TeamMemberTestUtil.Builder().withWebUserAccountId(onshoreTeamMemberUserWuaId3)
+            .withRole(OnshoreAreaTeamRole.ONSHORE_AREA_TEAM_MEMBER)
+            .build(),
+        TeamMemberTestUtil.Builder().withWebUserAccountId(nonOnshoreTeamMemberUserWuaId)
+            .withRole(OnshoreAreaTeamRole.ONSHORE_AREA_MANAGE_TEAM)
+            .build()
+    );
+
+    var onshoreAreaTeam = TeamTestUtil.Builder().build();
+    onshoreAreaTeam.setTeamType(TeamType.ONSHORE_AREA);
+
+    when(teamService.getAllTeamOfTypes(Set.of(TeamType.ONSHORE_AREA))).thenReturn(List.of(onshoreAreaTeam));
+    when(teamMemberService.getTeamMembers(onshoreAreaTeam)).thenReturn(onshoreTeamMemberList);
+    when(energyPortalUserService.findByWuaIds(
+        List.of(
+            WebUserAccountId.valueOf(String.valueOf(onshoreTeamMemberUserWuaId1)),
+            WebUserAccountId.valueOf(String.valueOf(onshoreTeamMemberUserWuaId2)),
+            WebUserAccountId.valueOf(String.valueOf(onshoreTeamMemberUserWuaId3)))))
+        .thenReturn(List.of(onshoreTeamMemberUser1, onshoreTeamMemberUser2, onshoreTeamMemberUser3));
+
+    assertThat(onshoreAreaTeamService.getOnShoreAreaTeamEnergyPortalUsers())
+        .containsExactly(
+            onshoreTeamMemberUser1,
+            onshoreTeamMemberUser2,
+            onshoreTeamMemberUser3
+        );
+  }
 }

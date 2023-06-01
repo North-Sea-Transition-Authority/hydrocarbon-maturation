@@ -22,7 +22,7 @@
 <#-- @ftlvariable name="submissionUpdateReason" type="String"-->
 <#-- @ftlvariable name="updateRequested" type="boolean"-->
 <#-- @ftlvariable name="isIndustrySubmitter" type="boolean"-->
-<#-- @ftlvariable name="isRegulator" type="boolean"-->
+<#-- @ftlvariable name="isInResponsibleTeam" type="boolean"-->
 <#-- @ftlvariable name="regulatorManagedInformationSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
 <#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
 
@@ -54,7 +54,7 @@
       </#assign>
       <@fdsNotificationBanner.notificationBannerInfo bannerTitleText="An update has been requested on this submission">
         <@fdsNotificationBanner.notificationBannerContent
-          headingText="Update your submission to provide the information requested."
+          headingText="This submission requires an update to the information provided."
           moreContent=submissionUpdateDetails/>
       </@fdsNotificationBanner.notificationBannerInfo>
     </#if>
@@ -91,7 +91,7 @@
  </@fdsForm.htmlForm>
 
   <h2 class="govuk-heading-l">${submissionType.getTypeName()}</h2>
-  <#if isRegulator>
+  <#if isInResponsibleTeam>
     <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
       regulatorManagedInformationValues=regulatorManagedInformationSummaryView
       resourceGroupsValues=resourceGroupsSummaryView/>

@@ -71,7 +71,9 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
   @SecurityTest
   void showWithdrawConfirmationPage_UserCannotWithdraw_assertStatusUnauthorized() throws Exception {
     when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail)).thenReturn(false);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(WithdrawSubmissionController.class)
@@ -83,7 +85,9 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
   @SecurityTest
   void showWithdrawConfirmationPage_UserCanWithdraw_assertStatusAuthorized() throws Exception {
     when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail)).thenReturn(true);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn("name");
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
@@ -115,7 +119,9 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
   @SuppressWarnings("unchecked")
   void showWithdrawConfirmationPageModelAndView_assertModelProperties() throws Exception {
     when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail)).thenReturn(true);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     var expectedName = "Res name 123";
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(expectedName);
@@ -181,7 +187,9 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Submission cannot be withdrawn by user with ID %s "
           .formatted(USER.wuaId().toString()));
     }).when(withdrawSubmissionService).withdrawSubmissionOrThrow(eq(submissionDetail), any());
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(withdrawSubmissionService.validate(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
@@ -197,7 +205,9 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
 
   @SecurityTest
   void withdrawSubmission_whenDoesNotHaveRegulatorPermission() throws Exception{
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(WithdrawSubmissionController.class)

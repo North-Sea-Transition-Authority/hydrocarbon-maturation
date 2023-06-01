@@ -18,10 +18,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
@@ -37,6 +40,9 @@ class NorthernOffshoreAreaTeamServiceTest {
 
   @Mock
   private TeamMemberService teamMemberService;
+
+  @Mock
+  private EnergyPortalUserService energyPortalUserService;
 
   @InjectMocks
   @SpyBean
@@ -142,5 +148,58 @@ class NorthernOffshoreAreaTeamServiceTest {
 
     when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.NORTHERN_OFFSHORE_AREA)).thenReturn(List.of());
     assertThat(northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(user)).isFalse();
+  }
+
+  @Test
+  void getNorthernOffshoreAreaTeamEnergyPortalUsers_assertReturnTeamMemberUsers() {
+    var northernOffshoreTeamMemberUserWuaId1 = 1L;
+    var northernOffshoreTeamMemberUserWuaId2 = 2L;
+    var northernOffshoreTeamMemberUserWuaId3 = 3L;
+    var nonNorthernOffshoreTeamMemberUserWuaId = 4L;
+
+    var northernOffshoreTeamMemberUser1 = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(northernOffshoreTeamMemberUserWuaId1)
+        .build();
+    var northernOffshoreTeamMemberUser2 = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(northernOffshoreTeamMemberUserWuaId2)
+        .build();
+    var northernOffshoreTeamMemberUser3 = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(northernOffshoreTeamMemberUserWuaId3)
+        .build();
+    var northernOffshoreTeamMemberList = List.of(
+        TeamMemberTestUtil.Builder().withWebUserAccountId(northernOffshoreTeamMemberUserWuaId1)
+            .withRole(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER)
+            .build(),
+        TeamMemberTestUtil.Builder().withWebUserAccountId(northernOffshoreTeamMemberUserWuaId2)
+            .withRole(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER)
+            .build(),
+        TeamMemberTestUtil.Builder().withWebUserAccountId(northernOffshoreTeamMemberUserWuaId3)
+            .withRole(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER)
+            .build(),
+        TeamMemberTestUtil.Builder().withWebUserAccountId(nonNorthernOffshoreTeamMemberUserWuaId)
+            .withRole(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM)
+            .build()
+    );
+
+    var northernOffshoreAreaTeam = TeamTestUtil.Builder().build();
+    northernOffshoreAreaTeam.setTeamType(TeamType.NORTHERN_OFFSHORE_AREA);
+
+    when(teamService.getAllTeamOfTypes(Set.of(TeamType.NORTHERN_OFFSHORE_AREA)))
+        .thenReturn(List.of(northernOffshoreAreaTeam));
+    when(teamMemberService.getTeamMembers(northernOffshoreAreaTeam)).thenReturn(northernOffshoreTeamMemberList);
+    when(energyPortalUserService.findByWuaIds(
+        List.of(
+            WebUserAccountId.valueOf(String.valueOf(northernOffshoreTeamMemberUserWuaId1)),
+            WebUserAccountId.valueOf(String.valueOf(northernOffshoreTeamMemberUserWuaId2)),
+            WebUserAccountId.valueOf(String.valueOf(northernOffshoreTeamMemberUserWuaId3)))))
+        .thenReturn(List.of(northernOffshoreTeamMemberUser1, northernOffshoreTeamMemberUser2,
+            northernOffshoreTeamMemberUser3));
+
+    assertThat(northernOffshoreAreaTeamService.getNorthernOffShoreAreaTeamEnergyPortalUsers())
+        .containsExactly(
+            northernOffshoreTeamMemberUser1,
+            northernOffshoreTeamMemberUser2,
+            northernOffshoreTeamMemberUser3
+        );
   }
 }

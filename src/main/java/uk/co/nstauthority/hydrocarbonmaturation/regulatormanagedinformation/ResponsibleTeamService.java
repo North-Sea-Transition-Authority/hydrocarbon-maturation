@@ -1,7 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamService;
@@ -40,7 +43,40 @@ public class ResponsibleTeamService {
     };
   }
 
+  public List<EnergyPortalUserDto> getResponsibleTeamUsers(ResponsibleTeamType responsibleTeamType) {
+    return switch (responsibleTeamType) {
+      case EXPLORATION -> regulatorTeamService.getExplorationTeamEnergyPortalUsers();
+      case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND -> northernOffshoreAreaTeamService
+          .getNorthernOffShoreAreaTeamEnergyPortalUsers();
+      case CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA -> southernOffshoreAreaTeamService
+          .getSouthernOffShoreAreaTeamEnergyPortalUsers();
+      case ONSHORE -> onshoreAreaTeamService.getOnShoreAreaTeamEnergyPortalUsers();
+    };
+  }
+
   public boolean canUpdateResponsibleTeam(Resource resource) {
     return resource.getType() == ResourceType.DISCOVERY;
+  }
+
+  public List<ResponsibleTeamType> getResponsibleTeamTypesForUser(ServiceUserDetail userDetail) {
+    var responsibleTeamTypeList = new ArrayList<ResponsibleTeamType>();
+
+    if (regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION)) {
+      responsibleTeamTypeList.add(ResponsibleTeamType.EXPLORATION);
+    }
+
+    if (northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(userDetail)) {
+      responsibleTeamTypeList.add(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+    }
+
+    if (southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(userDetail)) {
+      responsibleTeamTypeList.add(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
+    }
+
+    if (onshoreAreaTeamService.isOnshoreTeamMember(userDetail)) {
+      responsibleTeamTypeList.add(ResponsibleTeamType.ONSHORE);
+    }
+
+    return responsibleTeamTypeList;
   }
 }

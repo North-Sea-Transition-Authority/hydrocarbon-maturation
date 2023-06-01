@@ -7,40 +7,38 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Service
 class WithdrawSubmissionService {
 
   private final SubmissionPersistenceService submissionPersistenceService;
-  private final RegulatorTeamService regulatorTeamService;
   private final UserDetailService userDetailService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionEmailService submissionEmailService;
   private final WithdrawSubmissionFormValidator withdrawSubmissionFormValidator;
   private final SubmissionUpdateService submissionUpdateService;
+  private final ResponsibleTeamService responsibleTeamService;
 
   @Autowired
   public WithdrawSubmissionService(SubmissionPersistenceService submissionPersistenceService,
-                                   RegulatorTeamService regulatorTeamService,
                                    UserDetailService userDetailService,
                                    RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                                    SubmissionEmailService submissionEmailService,
                                    WithdrawSubmissionFormValidator withdrawSubmissionFormValidator,
-                                   SubmissionUpdateService submissionUpdateService) {
+                                   SubmissionUpdateService submissionUpdateService,
+                                   ResponsibleTeamService responsibleTeamService) {
     this.submissionPersistenceService = submissionPersistenceService;
-    this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionEmailService = submissionEmailService;
     this.withdrawSubmissionFormValidator = withdrawSubmissionFormValidator;
     this.submissionUpdateService = submissionUpdateService;
+    this.responsibleTeamService = responsibleTeamService;
   }
 
   BindingResult validate(BindingResult bindingResult, WithdrawSubmissionForm form) {
@@ -66,9 +64,8 @@ class WithdrawSubmissionService {
     }
     var responsibleTeam = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
-    return responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION
-        && regulatorTeamService.isRegulatorTeamRole(
-        userDetailService.getUserDetail(), RegulatorTeamRole.EXPLORATION)
+    return responsibleTeamService
+        .isInResponsibleTeam(userDetailService.getUserDetail(), responsibleTeam.getResponsibleTeamType())
         && !submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission());
   }
 }

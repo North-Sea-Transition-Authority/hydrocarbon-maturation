@@ -24,15 +24,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.RequestUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.StartUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySearchSelectorModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionSearchSelectorForm;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Controller
 @RequestMapping("/review/resource/{resourceId}")
@@ -44,10 +45,10 @@ public class ReviewSubmissionController {
   private final SubmissionDetailService submissionDetailService;
   private final UserDetailService userDetailService;
   private final SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
-  private final RegulatorTeamService regulatorTeamService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   private final ResourceService resourceService;
   private final ResourceGroupSummaryService resourceGroupSummaryService;
+  private final ResponsibleTeamService responsibleTeamService;
 
   @Autowired
   public ReviewSubmissionController(ReviewSubmissionService reviewSubmissionService,
@@ -55,19 +56,19 @@ public class ReviewSubmissionController {
                                     SubmissionDetailService submissionDetailService,
                                     SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService,
                                     UserDetailService userDetailService,
-                                    RegulatorTeamService regulatorTeamService,
                                     RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
                                     ResourceService resourceService,
-                                    ResourceGroupSummaryService resourceGroupSummaryService) {
+                                    ResourceGroupSummaryService resourceGroupSummaryService,
+                                    ResponsibleTeamService responsibleTeamService) {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
     this.userDetailService = userDetailService;
     this.submissionHistorySearchSelectorModelService = submissionHistorySearchSelectorModelService;
-    this.regulatorTeamService = regulatorTeamService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
     this.resourceService = resourceService;
     this.resourceGroupSummaryService = resourceGroupSummaryService;
+    this.responsibleTeamService = responsibleTeamService;
   }
 
   @GetMapping
@@ -147,11 +148,12 @@ public class ReviewSubmissionController {
 
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
 
-    var isRegulator = regulatorTeamService.isRegulatorUser(userDetail);
+    var isInResponsibleTeam = responsibleTeamService
+        .isInResponsibleTeam(userDetail, submissionRecord.responsibleTeamType());
     var optionalSubmissionDetailUpdate = reviewSubmissionService.getUpdateSubmissionDetailBySubmission(
         submissionDetail.getSubmission());
-    if (isRegulator) {
-      addRegulatorProperties(modelAndView, resourceId, submissionDetail);
+    if (isInResponsibleTeam) {
+      addResponsibleTeamProperties(modelAndView, resourceId, submissionDetail);
     }
 
     var isIndustrySubmitter = reviewSubmissionService
@@ -181,15 +183,15 @@ public class ReviewSubmissionController {
         .addObject("form", form)
         .addObject("submissionRecord", submissionRecord)
         .addObject("submissionType", submissionDetail.getSubmissionType())
-        .addObject("canReview", reviewSubmissionService.canReviewSubmission(
-            submissionRecord, userDetail, submissionDetail))
+        .addObject("canReview", submissionDetail.getStatus() == SubmissionDetailStatus.SUBMITTED
+            && isInResponsibleTeam)
         .addObject("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName())
-        .addObject("isRegulator", isRegulator)
+        .addObject("isInResponsibleTeam", isInResponsibleTeam)
         .addObject("isIndustrySubmitter", isIndustrySubmitter);
   }
 
-  private ModelAndView addRegulatorProperties(ModelAndView modelAndView, UUID resourceId,
-                                              SubmissionDetail selectedSubmissionDetail) {
+  private ModelAndView addResponsibleTeamProperties(ModelAndView modelAndView, UUID resourceId,
+                                                    SubmissionDetail selectedSubmissionDetail) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
             .formatted(resourceId)));

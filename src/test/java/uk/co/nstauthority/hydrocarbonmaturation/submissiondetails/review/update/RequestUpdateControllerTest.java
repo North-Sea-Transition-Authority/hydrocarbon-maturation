@@ -89,7 +89,9 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void showRequestUpdateConfirmationPage_UserCanRequest_assertStatusAuthorized() throws Exception {
     when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail)).thenReturn(true);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
@@ -119,7 +121,9 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
   @Test
   @SuppressWarnings("unchecked")
   void showRequestUpdateConfirmationPage_assertModelProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail))
         .thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
@@ -179,7 +183,9 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void requestUpdate_canNotRequest() throws Exception{
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(submissionUpdateService.validate(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
@@ -195,7 +201,9 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void requestUpdate_whenDoesNotHaveRegulatorPermission() throws Exception{
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(RequestUpdateController.class)

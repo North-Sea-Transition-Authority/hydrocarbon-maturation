@@ -5,6 +5,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
@@ -14,16 +17,31 @@ public class SubmissionUpdateService {
 
   private final RequestUpdateFormValidator requestUpdateFormValidator;
   private final SubmissionUpdatePersistenceService submissionUpdatePersistenceService;
+  private final ResponsibleTeamService responsibleTeamService;
+  private final UserDetailService userDetailService;
+  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Autowired
   SubmissionUpdateService(RequestUpdateFormValidator requestUpdateFormValidator,
-                          SubmissionUpdatePersistenceService submissionUpdatePersistenceService) {
+                          SubmissionUpdatePersistenceService submissionUpdatePersistenceService,
+                          ResponsibleTeamService responsibleTeamService, UserDetailService userDetailService,
+                          RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
     this.requestUpdateFormValidator = requestUpdateFormValidator;
     this.submissionUpdatePersistenceService = submissionUpdatePersistenceService;
+    this.responsibleTeamService = responsibleTeamService;
+    this.userDetailService = userDetailService;
+    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
   }
 
   public boolean canRequestUpdateOnSubmission(SubmissionDetail submissionDetail) {
     if (submissionDetail.getStatus() != SubmissionDetailStatus.SUBMITTED) {
+      return false;
+    }
+
+    var regulatorManagedInformation = regulatorManagedInformationPersistenceService
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
+    if (!responsibleTeamService
+        .isInResponsibleTeam(userDetailService.getUserDetail(), regulatorManagedInformation.getResponsibleTeamType())) {
       return false;
     }
 

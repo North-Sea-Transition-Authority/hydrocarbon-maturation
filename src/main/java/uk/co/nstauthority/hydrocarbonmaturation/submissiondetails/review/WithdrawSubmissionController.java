@@ -36,7 +36,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @Controller
 @RequestMapping("/review/{submissionDetailId}/withdraw-submission")
 @HasSubmissionStatus(statuses = {SubmissionDetailStatus.SUBMITTED})
-@HasPermission(permissions = {RolePermission.EXPLORATION})
+@HasPermission(permissions = {
+    RolePermission.EXPLORATION,
+    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
 @IsLatestExtantSubmissionDetailVersion
 public class WithdrawSubmissionController {
 

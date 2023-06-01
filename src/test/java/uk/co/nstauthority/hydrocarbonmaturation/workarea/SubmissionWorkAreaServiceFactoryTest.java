@@ -6,12 +6,15 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,13 +23,15 @@ class SubmissionWorkAreaServiceFactoryTest {
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @Mock
-  private RegulatorSubmissionWorkAreaQueryService regulatorSubmissionWorkAreaQueryService;
+  private ResponsibleTeamSubmissionWorkAreaQueryService responsibleTeamSubmissionWorkAreaQueryService;
   @Mock
   private OperatorSubmissionWorkAreaQueryService operatorSubmissionWorkAreaQueryService;
   @Mock
   private UserDetailService userDetailService;
   @Mock
   private RegulatorTeamService regulatorTeamService;
+  @Mock
+  private AreaTeamService areaTeamService;
   @InjectMocks
   private SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory;
 
@@ -35,17 +40,25 @@ class SubmissionWorkAreaServiceFactoryTest {
     when(userDetailService.getUserDetail()).thenReturn(USER);
   }
 
-  @Test
-  void getQueryServiceStrategy_whenUserIsRegulator_assertRegulatorServiceProvided() {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+  @ParameterizedTest
+  @CsvSource(value = { "true, true",
+                       "true, false",
+                       "false, true"})
+  void getQueryServiceStrategy_whenUserIsRegulator_assertRegulatorServiceProvided(
+      boolean isRegulatorUser, boolean isAreaUser) {
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
+    if (!isRegulatorUser) {
+      when(areaTeamService.isAreaUser(USER)).thenReturn(isAreaUser);
+    }
 
     assertThat(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
-        .isEqualTo(regulatorSubmissionWorkAreaQueryService);
+        .isEqualTo(responsibleTeamSubmissionWorkAreaQueryService);
   }
 
   @Test
   void getQueryServiceStrategy_whenUserIsNotRegulator_assertOperatorServiceProvided() {
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+    when(areaTeamService.isAreaUser(USER)).thenReturn(false);
 
     assertThat(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
         .isEqualTo(operatorSubmissionWorkAreaQueryService);

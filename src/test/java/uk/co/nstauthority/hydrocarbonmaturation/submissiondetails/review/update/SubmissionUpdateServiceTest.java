@@ -21,6 +21,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -33,6 +40,13 @@ class SubmissionUpdateServiceTest {
   private RequestUpdateFormValidator requestUpdateFormValidator;
   @Mock
   private SubmissionUpdatePersistenceService submissionUpdatePersistenceService;
+  @Mock
+  private ResponsibleTeamService responsibleTeamService;
+  @Mock
+  private UserDetailService userDetailService;
+  @Mock
+  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
+
   @InjectMocks
   private SubmissionUpdateService underTest;
 
@@ -56,6 +70,11 @@ class SubmissionUpdateServiceTest {
 
     private SubmissionDetail submissionDetail;
     private SubmissionUpdate submissionUpdate;
+    private static final RegulatorManagedInformation regulatorManagedInformation = new RegulatorManagedInformation();
+    static {
+      regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    }
+    private static final ServiceUserDetail userDetail = ServiceUserDetailTestUtil.Builder().build();
 
     @BeforeEach
     void setup() {
@@ -67,6 +86,14 @@ class SubmissionUpdateServiceTest {
     @Test
     void AndSubmissionUpdateResolvedAndSubmitted_assertTrue() {
       submissionUpdate.setResolved(true);
+
+      when(regulatorManagedInformationPersistenceService
+          .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+          .thenReturn(regulatorManagedInformation);
+      when(userDetailService.getUserDetail()).thenReturn(userDetail);
+      when(responsibleTeamService.isInResponsibleTeam(userDetail, regulatorManagedInformation.getResponsibleTeamType()))
+          .thenReturn(true);
+
       when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
           .thenReturn(Optional.of(submissionUpdate));
 
@@ -78,6 +105,14 @@ class SubmissionUpdateServiceTest {
     @Test
     void AndSubmissionUpdateNotResolvedAndSubmitted_assertTrue() {
       submissionUpdate.setResolved(false);
+
+      when(regulatorManagedInformationPersistenceService
+          .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+          .thenReturn(regulatorManagedInformation);
+      when(userDetailService.getUserDetail()).thenReturn(userDetail);
+      when(responsibleTeamService.isInResponsibleTeam(userDetail, regulatorManagedInformation.getResponsibleTeamType()))
+          .thenReturn(true);
+
       when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
           .thenReturn(Optional.of(submissionUpdate));
 
@@ -89,8 +124,32 @@ class SubmissionUpdateServiceTest {
     @Test
     void AndSubmissionUpdateNullResolvedAndSubmitted_assertTrue() {
       submissionUpdate.setResolved(null);
+
+      when(regulatorManagedInformationPersistenceService
+          .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+          .thenReturn(regulatorManagedInformation);
+      when(userDetailService.getUserDetail()).thenReturn(userDetail);
+      when(responsibleTeamService.isInResponsibleTeam(userDetail, regulatorManagedInformation.getResponsibleTeamType()))
+          .thenReturn(true);
+
       when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
           .thenReturn(Optional.of(submissionUpdate));
+
+      var result = underTest.canRequestUpdateOnSubmission(submissionDetail);
+
+      assertThat(result).isFalse();
+    }
+
+    @Test
+    void AndSubmissionUpdateResolvedAndSubmitted_andNotInResponsibleTeam_assertFalse() {
+      submissionUpdate.setResolved(true);
+
+      when(regulatorManagedInformationPersistenceService
+          .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+          .thenReturn(regulatorManagedInformation);
+      when(userDetailService.getUserDetail()).thenReturn(userDetail);
+      when(responsibleTeamService.isInResponsibleTeam(userDetail, regulatorManagedInformation.getResponsibleTeamType()))
+          .thenReturn(false);
 
       var result = underTest.canRequestUpdateOnSubmission(submissionDetail);
 
@@ -110,6 +169,13 @@ class SubmissionUpdateServiceTest {
 
     @Test
     void AndNotFoundUpdateAndSubmittedStatus_assertTrue() {
+      when(regulatorManagedInformationPersistenceService
+          .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+          .thenReturn(regulatorManagedInformation);
+      when(userDetailService.getUserDetail()).thenReturn(userDetail);
+      when(responsibleTeamService.isInResponsibleTeam(userDetail, regulatorManagedInformation.getResponsibleTeamType()))
+          .thenReturn(true);
+
       when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
           .thenReturn(Optional.empty());
 

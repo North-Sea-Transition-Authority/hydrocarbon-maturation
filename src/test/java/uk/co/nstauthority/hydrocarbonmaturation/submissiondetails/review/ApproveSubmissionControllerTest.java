@@ -72,7 +72,9 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void showApproveConfirmationPage_UserCannotApprove_assertStatusUnauthorized() throws Exception {
     when(submissionApprovalService.canApproveSubmission(submissionDetail)).thenReturn(false);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 
     mockMvc.perform(
@@ -85,7 +87,9 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void showApproveConfirmationPage_UserCanApprove_assertStatusAuthorized() throws Exception {
     when(submissionApprovalService.canApproveSubmission(submissionDetail)).thenReturn(true);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn("name");
     when(submissionDetailService.getSubmissionTypeName(submissionDetail))
@@ -116,7 +120,9 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
   @Test
   void showApproveConfirmationPageModelAndView_assertModelProperties() throws Exception {
     when(submissionApprovalService.canApproveSubmission(submissionDetail)).thenReturn(true);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     var expectedName = "Res name 123";
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(expectedName);
@@ -157,7 +163,9 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void approveSubmission_canApprove_verifyMethodCall() throws Exception{
     when(submissionApprovalService.canApproveSubmission(submissionDetail)).thenReturn(true);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     var expectedName = "Res name 123";
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(expectedName);
@@ -185,7 +193,9 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
     }).when(submissionApprovalService).approveSubmissionOrThrow(submissionDetail);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(ApproveSubmissionController.class)
@@ -197,7 +207,9 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void approveSubmission_whenDoesNotHaveRegulatorPermission() throws Exception{
     setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(ApproveSubmissionController.class)
@@ -212,7 +224,9 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
   void approveSubmission_whenIsNotLatestExtantVersion_failSecurity() throws Exception{
     submissionDetail.setVersionNumber(4);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(false);
     when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
         submissionDetail,
         Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED)

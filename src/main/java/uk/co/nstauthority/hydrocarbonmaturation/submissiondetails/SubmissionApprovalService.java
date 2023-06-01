@@ -6,9 +6,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Service
@@ -20,19 +20,25 @@ public class SubmissionApprovalService {
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionEmailService submissionEmailService;
   private final SubmissionUpdateService submissionUpdateService;
+  private final ResponsibleTeamService responsibleTeamService;
+  private final AreaTeamService areaTeamService;
 
   public SubmissionApprovalService(SubmissionDetailPersistenceService submissionDetailPersistenceService,
                                    RegulatorTeamService regulatorTeamService,
                                    UserDetailService userDetailService,
                                    RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                                    SubmissionEmailService submissionEmailService,
-                                   SubmissionUpdateService submissionUpdateService) {
+                                   SubmissionUpdateService submissionUpdateService,
+                                   ResponsibleTeamService responsibleTeamService,
+                                   AreaTeamService areaTeamService) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionEmailService = submissionEmailService;
     this.submissionUpdateService = submissionUpdateService;
+    this.responsibleTeamService = responsibleTeamService;
+    this.areaTeamService = areaTeamService;
   }
 
   @Transactional
@@ -63,16 +69,15 @@ public class SubmissionApprovalService {
   }
 
   public boolean canApproveSubmission(SubmissionDetail submissionDetail) {
-    var responsibleTeam = regulatorManagedInformationPersistenceService
+    var regulatorManagedInformation = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
-    return responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION
-        && regulatorTeamService.isRegulatorTeamRole(
-            userDetailService.getUserDetail(), RegulatorTeamRole.EXPLORATION)
+    return responsibleTeamService
+        .isInResponsibleTeam(userDetailService.getUserDetail(), regulatorManagedInformation.getResponsibleTeamType())
         && !submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission());
   }
 
   private boolean canAutoApproveSubmission() {
     var userDetail = userDetailService.getUserDetail();
-    return regulatorTeamService.isRegulatorUser(userDetail);
+    return regulatorTeamService.isRegulatorUser(userDetail) || areaTeamService.isAreaUser(userDetail);
   }
 }

@@ -3,29 +3,35 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Component
 class SubmissionWorkAreaServiceFactory {
 
-  private final RegulatorSubmissionWorkAreaQueryService regulatorSubmissionWorkAreaQueryService;
+  private final ResponsibleTeamSubmissionWorkAreaQueryService responsibleTeamSubmissionWorkAreaQueryService;
   private final OperatorSubmissionWorkAreaQueryService operatorSubmissionWorkAreaQueryService;
   private final UserDetailService userDetailService;
   private final RegulatorTeamService regulatorTeamService;
+  private final AreaTeamService areaTeamService;
 
   @Autowired
-  SubmissionWorkAreaServiceFactory(RegulatorSubmissionWorkAreaQueryService regulatorSubmissionWorkAreaQueryService,
+  SubmissionWorkAreaServiceFactory(ResponsibleTeamSubmissionWorkAreaQueryService
+                                       responsibleTeamSubmissionWorkAreaQueryService,
                                    OperatorSubmissionWorkAreaQueryService operatorSubmissionWorkAreaQueryService,
-                                   UserDetailService userDetailService, RegulatorTeamService regulatorTeamService) {
-    this.regulatorSubmissionWorkAreaQueryService = regulatorSubmissionWorkAreaQueryService;
+                                   UserDetailService userDetailService, RegulatorTeamService regulatorTeamService,
+                                   AreaTeamService areaTeamService) {
+    this.responsibleTeamSubmissionWorkAreaQueryService = responsibleTeamSubmissionWorkAreaQueryService;
     this.operatorSubmissionWorkAreaQueryService = operatorSubmissionWorkAreaQueryService;
     this.userDetailService = userDetailService;
     this.regulatorTeamService = regulatorTeamService;
+    this.areaTeamService = areaTeamService;
   }
 
   SubmissionWorkAreaQueryStrategy getWorkAreaServiceStrategy() {
-    if (regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail())) {
-      return regulatorSubmissionWorkAreaQueryService;
+    var user = userDetailService.getUserDetail();
+    if (regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user)) {
+      return responsibleTeamSubmissionWorkAreaQueryService;
     } else {
       return operatorSubmissionWorkAreaQueryService;
     }

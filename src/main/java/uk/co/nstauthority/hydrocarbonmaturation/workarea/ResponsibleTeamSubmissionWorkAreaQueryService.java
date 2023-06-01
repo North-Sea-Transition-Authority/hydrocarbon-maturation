@@ -10,48 +10,50 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Service
-class RegulatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryStrategy {
+class ResponsibleTeamSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryStrategy {
 
   private final UserDetailService userDetailService;
   private final SubmissionWorkAreaQueryCommonService submissionWorkAreaQueryCommonService;
-  private final RegulatorTeamService regulatorTeamService;
+  private final ResponsibleTeamService responsibleTeamService;
 
   @Autowired
-  RegulatorSubmissionWorkAreaQueryService(UserDetailService userDetailService,
-                                          SubmissionWorkAreaQueryCommonService submissionWorkAreaQueryCommonService,
-                                          RegulatorTeamService regulatorTeamService) {
+  ResponsibleTeamSubmissionWorkAreaQueryService(UserDetailService userDetailService,
+                                                SubmissionWorkAreaQueryCommonService submissionWorkAreaQueryCommonService,
+                                                ResponsibleTeamService responsibleTeamService) {
     this.userDetailService = userDetailService;
     this.submissionWorkAreaQueryCommonService = submissionWorkAreaQueryCommonService;
-    this.regulatorTeamService = regulatorTeamService;
+    this.responsibleTeamService = responsibleTeamService;
   }
 
   @Override
   public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems() {
     var user = userDetailService.getUserDetail();
-    return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getRegulatorConditions(user));
+    return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getConditions(user));
   }
 
-  private List<Condition> getRegulatorConditions(ServiceUserDetail user) {
-    var submissionTeamMembershipCondition = getSubmissionsForResponsibleTeam(user);
+  private List<Condition> getConditions(ServiceUserDetail user) {
+    var submissionTeamMembershipCondition = getConditionForResponsibleTeam(user);
     var workAreaVisibleSubmissionStatuses = submissionWorkAreaQueryCommonService.getVisibleSubmissions();
 
     return List.of(submissionTeamMembershipCondition, workAreaVisibleSubmissionStatuses);
   }
 
-  private Condition getSubmissionsForResponsibleTeam(ServiceUserDetail user) {
-    if (regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION)) {
+  private Condition getConditionForResponsibleTeam(ServiceUserDetail user) {
+    var responsibleTeamTypeList = responsibleTeamService.getResponsibleTeamTypesForUser(user)
+        .stream().map(Enum::name).toList();
+
+    if (!responsibleTeamTypeList.isEmpty()) {
       return REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM
-          .eq(ResponsibleTeamType.EXPLORATION.name())
+          .in(responsibleTeamTypeList)
           .and(SUBMISSION_DETAILS.SUBMITTER_TYPE.eq(SubmitterType.REGULATOR.name())
               .or(SUBMISSION_DETAILS.STATUS.eq(SubmissionDetailStatus.SUBMITTED.name())));
     }
+
     return falseCondition();
   }
 }

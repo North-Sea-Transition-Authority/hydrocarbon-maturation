@@ -2,7 +2,7 @@
 
 <#macro updateDetails submissionUpdateReason>
   <@fdsDetails.summaryDetails
-    summaryTitle="What information have I been asked to update?">
+    summaryTitle="What information requires an update?">
     <p class="govuk-body govuk-body__preserve-whitespace">${submissionUpdateReason}</p>
   </@fdsDetails.summaryDetails>
 </#macro>

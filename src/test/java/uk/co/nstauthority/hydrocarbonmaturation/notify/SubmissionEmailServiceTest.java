@@ -41,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -57,7 +58,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewS
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionEmailServiceTest {
@@ -103,7 +103,7 @@ class SubmissionEmailServiceTest {
   private OrganisationUnitQueryService organisationUnitQueryService;
 
   @Mock
-  private RegulatorTeamService regulatorTeamService;
+  private ResponsibleTeamService responsibleTeamService;
 
   @Mock
   private SubmissionDetailService submissionDetailService;
@@ -269,7 +269,7 @@ class SubmissionEmailServiceTest {
 
       var expectedName = "resource name (25/5)";
 
-      when(regulatorTeamService.getExplorationTeamEnergyPortalUsers())
+      when(responsibleTeamService.getResponsibleTeamUsers(ResponsibleTeamType.EXPLORATION))
           .thenReturn(List.of(recipient1, recipient2, recipient3));
       when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
           .thenReturn(expectedName);
@@ -304,7 +304,7 @@ class SubmissionEmailServiceTest {
       var expectedLicencesString = "A2, A6:";
       var expectedLicencesStringWithoutColon = "A2, A6";
 
-      when(regulatorTeamService.getExplorationTeamEnergyPortalUsers())
+      when(responsibleTeamService.getResponsibleTeamUsers(ResponsibleTeamType.EXPLORATION))
           .thenReturn(List.of(recipient1));
       when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
           .thenReturn(expectedName);
@@ -366,7 +366,7 @@ class SubmissionEmailServiceTest {
       var expectedLicencesString = "A2:";
       var expectedLicencesStringWithoutColon = "A2";
 
-      when(regulatorTeamService.getExplorationTeamEnergyPortalUsers())
+      when(responsibleTeamService.getResponsibleTeamUsers(ResponsibleTeamType.EXPLORATION))
           .thenReturn(List.of(recipient1));
       when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
           .thenReturn(expectedName);
@@ -435,7 +435,7 @@ class SubmissionEmailServiceTest {
       when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
           SUBMISSION_DETAIL.getSubmission().getResource()))
           .thenReturn(regulatorManagedInformation);
-      when(regulatorTeamService.getExplorationTeamEnergyPortalUsers())
+      when(responsibleTeamService.getResponsibleTeamUsers(ResponsibleTeamType.EXPLORATION))
           .thenReturn(List.of());
 
       submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);

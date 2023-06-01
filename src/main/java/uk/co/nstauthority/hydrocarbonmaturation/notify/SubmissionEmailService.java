@@ -14,7 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUs
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.utils.RemiAbsoluteUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -27,7 +27,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Service
 public class SubmissionEmailService {
@@ -49,12 +48,12 @@ public class SubmissionEmailService {
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final LicencePersistenceService licencePersistenceService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
-  private final RegulatorTeamService regulatorTeamService;
   private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final IndustryTeamService industryTeamService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final SubmissionDetailService submissionDetailService;
+  private final ResponsibleTeamService responsibleTeamService;
 
   SubmissionEmailService(NotifyEmailService notifyEmailService,
                          EnergyPortalUserService energyPortalUserService,
@@ -62,19 +61,19 @@ public class SubmissionEmailService {
                          GeneralDetailsPersistenceService generalDetailsPersistenceService,
                          LicencePersistenceService licencePersistenceService,
                          RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
-                         RegulatorTeamService regulatorTeamService,
                          ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties,
                          ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                          IndustryTeamService industryTeamService,
                          OrganisationUnitQueryService organisationUnitQueryService,
-                         SubmissionDetailService submissionDetailService) {
+                         SubmissionDetailService submissionDetailService,
+                         ResponsibleTeamService responsibleTeamService) {
     this.notifyEmailService = notifyEmailService;
     this.energyPortalUserService = energyPortalUserService;
     this.submissionResourceService = submissionResourceService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.licencePersistenceService = licencePersistenceService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
-    this.regulatorTeamService = regulatorTeamService;
+    this.responsibleTeamService = responsibleTeamService;
     this.serviceBrandingConfigurationProperties = serviceBrandingConfigurationProperties;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.industryTeamService = industryTeamService;
@@ -123,23 +122,23 @@ public class SubmissionEmailService {
     var responsibleTeam = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
 
-    if (responsibleTeam.getResponsibleTeamType() == ResponsibleTeamType.EXPLORATION) {
-      var explorationTeamUsers = regulatorTeamService.getExplorationTeamEnergyPortalUsers();
-      if (explorationTeamUsers.isEmpty()) {
-        LOGGER.warn("Could not find responsible team email recipients for submission %s submitted notification email"
-            .formatted(submissionDetail.getId()));
-        return;
-      }
-      var emailTemplate = getSubmittedSubmissionConfirmationTemplate(submissionDetail);
-      var emailProperties = new EmailProperties(emailTemplate);
-      var personalisations = emailProperties.getEmailPersonalisations();
-      var licencesString = getDisplayableLicences(submissionDetail);
-      personalisations.put(LICENCES_WITHOUT_LEADING_COLON, licencesString);
-      personalisations.put(REVIEW_PAGE_URL,
-          RemiAbsoluteUrlUtil.getReviewSubmissionPageUrl(submissionDetail));
-      addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);
-      sendEmailToRecipients(emailProperties, regulatorTeamService.getExplorationTeamEnergyPortalUsers());
+    var responsibleTeamUsers = responsibleTeamService
+        .getResponsibleTeamUsers(responsibleTeam.getResponsibleTeamType());
+
+    if (responsibleTeamUsers.isEmpty()) {
+      LOGGER.warn("Could not find responsible team email recipients for submission %s submitted notification email"
+          .formatted(submissionDetail.getId()));
+      return;
     }
+    var emailTemplate = getSubmittedSubmissionConfirmationTemplate(submissionDetail);
+    var emailProperties = new EmailProperties(emailTemplate);
+    var personalisations = emailProperties.getEmailPersonalisations();
+    var licencesString = getDisplayableLicences(submissionDetail);
+    personalisations.put(LICENCES_WITHOUT_LEADING_COLON, licencesString);
+    personalisations.put(REVIEW_PAGE_URL,
+        RemiAbsoluteUrlUtil.getReviewSubmissionPageUrl(submissionDetail));
+    addCommonSubmissionPersonalisations(personalisations, submissionDetail, licencesString);
+    sendEmailToRecipients(emailProperties, responsibleTeamUsers);
   }
 
   public void sendReturnedForUpdateEmails(SubmissionDetail submissionDetail) {

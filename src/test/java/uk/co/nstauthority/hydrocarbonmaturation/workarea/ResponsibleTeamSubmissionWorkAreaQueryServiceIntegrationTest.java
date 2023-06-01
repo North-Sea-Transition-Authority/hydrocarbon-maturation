@@ -36,11 +36,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore.SouthernOffshoreAreaTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
 @Transactional
 @IntegrationTest
-class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
+class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
 
   private static final Integer VERSION_NUMBER_INITIAL = 1;
   private static final Integer VERSION_NUMBER_UPDATE = 2;
@@ -49,7 +52,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
   private DSLContext dslContext;
 
   @Autowired
-  private RegulatorSubmissionWorkAreaQueryService regulatorSubmissionWorkAreaQueryService;
+  private ResponsibleTeamSubmissionWorkAreaQueryService responsibleTeamSubmissionWorkAreaQueryService;
 
   @Autowired
   private EntityManager entityManager;
@@ -61,9 +64,10 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @EnumSource(value = RegulatorTeamRole.class, mode = EnumSource.Mode.EXCLUDE, names={"EXPLORATION"})
-  void getSubmissions_whenNotExplorationTeamRole_assertNothingReturned(RegulatorTeamRole regulatorTeamRole) {
+  void getSubmissions_whenExplorationResponsibleTeam_andNotExplorationTeamRole_assertNothingReturned(
+      RegulatorTeamRole regulatorTeamRole) {
     Set<TeamRole> userRoles = Set.of(regulatorTeamRole);
-    setUpRegulatorTest(userRoles);
+    setUpUserTest(userRoles, TeamType.REGULATOR);
 
     var resource = createResource(ResourceType.PROSPECT);
     createResponsibleTeam(resource, ResponsibleTeamType.EXPLORATION);
@@ -81,7 +85,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(submittedGeneralDetails);
     entityManager.flush();
 
-    var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
     assertThat(results).isEmpty();
   }
@@ -91,7 +95,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenExplorationTeamRole_whenOneNotViewableAndOneDraft_assertOnlyDraftSubmissionReturned(
       SubmissionDetailStatus nonViewableStatus) {
     Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
-    setUpRegulatorTest(userRoles);
+    setUpUserTest(userRoles, TeamType.REGULATOR);
 
     var resource = createResource(ResourceType.PROSPECT);
     var createdTimestamp = Instant.now();
@@ -110,7 +114,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(submittedGeneralDetails);
     entityManager.flush();
 
-    var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
     assertThat(results)
         .extracting(
@@ -138,7 +142,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
   @EnumSource(value = ResponsibleTeamType.class, mode = EnumSource.Mode.EXCLUDE, names={"EXPLORATION"})
   void getSubmissions_whenResourceResponsibleTeamNotExploration_assertNothingReturned(ResponsibleTeamType responsibleTeamType) {
     Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
-    setUpRegulatorTest(userRoles);
+    setUpUserTest(userRoles, TeamType.REGULATOR);
 
     var resource = createResource(ResourceType.PROSPECT);
     createSubmissionDetail(resource);
@@ -159,15 +163,149 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(submittedResourceDetail);
     entityManager.flush();
 
-    var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
     assertThat(results).isEmpty();
   }
 
   @Test
+  void getSubmissions_whenResourceNorthernOffshoreResponsibleTeam_assertReturned() {
+    Set<TeamRole> userRoles = Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER);
+    setUpUserTest(userRoles, TeamType.NORTHERN_OFFSHORE_AREA);
+
+    var resource = createResource(ResourceType.PROSPECT);
+    createSubmissionDetail(resource);
+
+    createResponsibleTeam(resource, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+
+    var submittedSubmissionDetail = createSubmissionDetail(SubmissionDetailStatus.SUBMITTED, resource);
+
+    var submittedGeneralDetails = new GeneralDetail();
+    var submittedResourceDetail = new ResourceDetail();
+
+    submittedResourceDetail.setResourceName("Resource name");
+    submittedResourceDetail.setSubmissionDetail(submittedSubmissionDetail);
+    submittedGeneralDetails.setSubmissionDetail(submittedSubmissionDetail);
+
+    entityManager.persist(submittedGeneralDetails);
+    entityManager.flush();
+    entityManager.persist(submittedResourceDetail);
+    entityManager.flush();
+
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+
+    assertThat(results).isNotEmpty();
+  }
+
+  @Test
+  void getSubmissions_whenResourceSouthernOffshoreResponsibleTeam_assertReturned() {
+    Set<TeamRole> userRoles = Set.of(SouthernOffshoreAreaTeamRole.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER);
+    setUpUserTest(userRoles, TeamType.SOUTHERN_OFFSHORE_AREA);
+
+    var resource = createResource(ResourceType.PROSPECT);
+    createSubmissionDetail(resource);
+
+    createResponsibleTeam(resource, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
+
+    var submittedSubmissionDetail = createSubmissionDetail(SubmissionDetailStatus.SUBMITTED, resource);
+
+    var submittedGeneralDetails = new GeneralDetail();
+    var submittedResourceDetail = new ResourceDetail();
+
+    submittedResourceDetail.setResourceName("Resource name");
+    submittedResourceDetail.setSubmissionDetail(submittedSubmissionDetail);
+    submittedGeneralDetails.setSubmissionDetail(submittedSubmissionDetail);
+
+    entityManager.persist(submittedGeneralDetails);
+    entityManager.flush();
+    entityManager.persist(submittedResourceDetail);
+    entityManager.flush();
+
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+
+    assertThat(results).isNotEmpty();
+  }
+
+  @Test
+  void getSubmissions_whenResourceOnshoreResponsibleTeam_assertReturned() {
+    Set<TeamRole> userRoles = Set.of(OnshoreAreaTeamRole.ONSHORE_AREA_TEAM_MEMBER);
+    setUpUserTest(userRoles, TeamType.ONSHORE_AREA);
+
+    var resource = createResource(ResourceType.PROSPECT);
+
+    createResponsibleTeam(resource, ResponsibleTeamType.ONSHORE);
+
+    var submittedSubmissionDetail = createSubmissionDetail(SubmissionDetailStatus.SUBMITTED, resource);
+
+    var submittedResourceDetail = new ResourceDetail();
+
+    submittedResourceDetail.setResourceName("Resource name");
+    submittedResourceDetail.setSubmissionDetail(submittedSubmissionDetail);
+
+    entityManager.persist(submittedResourceDetail);
+    entityManager.flush();
+
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+
+    assertThat(results).isNotEmpty();
+  }
+
+  @Test
+  void getSubmissions_multipleResponsibleTeams_assertValues() {
+    Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
+    setUpUserTest(userRoles, TeamType.REGULATOR);
+    userRoles = Set.of(OnshoreAreaTeamRole.ONSHORE_AREA_TEAM_MEMBER);
+    setUpUserTest(userRoles, TeamType.ONSHORE_AREA);
+
+    var explorationSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    explorationSubmissionDetail.setId(null);
+    var explorationSubmissionDetailTimestamp = Instant.ofEpochMilli(LAST_SUBMISSION_DETAIL_EPOCH_TIME*3);
+    explorationSubmissionDetail.setCreatedTimestamp(explorationSubmissionDetailTimestamp);
+    var resource = createResource(ResourceType.PROSPECT);
+    createResponsibleTeam(resource, ResponsibleTeamType.EXPLORATION);
+    var submission = createSubmissionForIntegrationTest(resource, entityManager);
+    explorationSubmissionDetail.setSubmission(submission);
+    entityManager.persist(explorationSubmissionDetail);
+    entityManager.flush();
+
+    var onshoreSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    onshoreSubmissionDetail.setId(null);
+    var onshoreSubmissionDetailTimestamp = Instant.ofEpochMilli(LAST_SUBMISSION_DETAIL_EPOCH_TIME*2);
+    onshoreSubmissionDetail.setCreatedTimestamp(onshoreSubmissionDetailTimestamp);
+    var resource2 = createResource(ResourceType.PROSPECT);
+    createResponsibleTeam(resource2, ResponsibleTeamType.ONSHORE);
+    var submission2 = createSubmissionForIntegrationTest(resource2, entityManager);
+    onshoreSubmissionDetail.setSubmission(submission2);
+    entityManager.persist(onshoreSubmissionDetail);
+    entityManager.flush();
+
+    var offshoreSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    offshoreSubmissionDetail.setId(null);
+    var offshoreSubmissionDetailTimestamp = Instant.ofEpochMilli(LAST_SUBMISSION_DETAIL_EPOCH_TIME*3);
+    offshoreSubmissionDetail.setCreatedTimestamp(offshoreSubmissionDetailTimestamp);
+    var resource3 = createResource(ResourceType.PROSPECT);
+    createResponsibleTeam(resource3, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+    var submission3 = createSubmissionForIntegrationTest(resource3, entityManager);
+    offshoreSubmissionDetail.setSubmission(submission3);
+    entityManager.persist(offshoreSubmissionDetail);
+    entityManager.flush();
+
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+
+    // asserts correct ordering of the list, the items are ordered by submittedOn if its present otherwise createdOn
+    assertThat(results)
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId)
+        .containsExactly(
+            explorationSubmissionDetail.getId(),
+            onshoreSubmissionDetail.getId()
+        );
+  }
+
+  @Test
   void getSubmissions_assertCorrectOrderingAndValues() {
     Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
-    setUpRegulatorTest(userRoles);
+    setUpUserTest(userRoles, TeamType.REGULATOR);
 
     var secondSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     secondSubmissionDetail.setId(null);
@@ -242,7 +380,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(thirdSubmittedSubmissionDetail);
     entityManager.flush();
 
-    var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
     // asserts correct ordering of the list, the items are ordered by submittedOn if its present otherwise createdOn
     assertThat(results)
@@ -261,7 +399,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
   @Test
   void getSubmissions_whenOneFullSubmission_assertAllValues() {
     Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
-    setUpRegulatorTest(userRoles);
+    setUpUserTest(userRoles, TeamType.REGULATOR);
 
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
@@ -319,7 +457,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(licence2);
     entityManager.flush();
 
-    var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
     assertThat(results.get(0))
         .extracting(
@@ -349,7 +487,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
   @Test
   void getSubmissions_whenOneUpdateUnresolvedAndOneResolved_assertUpdateRequestedAndOrder() {
     Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
-    setUpRegulatorTest(userRoles);
+    setUpUserTest(userRoles, TeamType.REGULATOR);
 
     var updateRequestedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     updateRequestedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -363,8 +501,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     createResponsibleTeam(resource, ResponsibleTeamType.EXPLORATION);
     entityManager.persist(updateRequestedSubmissionDetail);
     entityManager.flush();
-    var submissionUpdateUnresolved = SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(
-        submissionUpdateRequested, false, entityManager);
+    SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(submissionUpdateRequested, false, entityManager);
 
     var updateResolvedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     updateResolvedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -378,10 +515,9 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     createResponsibleTeam(resource2, ResponsibleTeamType.EXPLORATION);
     entityManager.persist(updateResolvedSubmissionDetail);
     entityManager.flush();
-    var submissionUpdateResolved = SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(
-        submissionResolved, true, entityManager);
+    SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(submissionResolved, true, entityManager);
 
-    var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
     // asserts correct ordering of the list, the items are ordered by submittedOn if its present otherwise createdOn
     assertThat(results)
@@ -401,7 +537,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
   @Test
   void getSubmissions_whenOneHasUpdateInProgressAndOneHasSubmittedUpdate_assertCorrectSubmissionsReturned() {
     Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
-    setUpRegulatorTest(userRoles);
+    setUpUserTest(userRoles, TeamType.REGULATOR);
 
     var initialSubmittedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     initialSubmittedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -454,7 +590,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.flush();
     SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(submissionWithTwoSubmittedDetails, true, entityManager);
 
-    var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
     assertThat(results)
         .extracting(
@@ -469,7 +605,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
   @Test
   void getSubmissions_whenOneHasDeletedDraftUpdateAndOneHasDraftUpdate_assertSubmittedSubmissionsReturned() {
     Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
-    setUpRegulatorTest(userRoles);
+    setUpUserTest(userRoles, TeamType.REGULATOR);
 
     var initialSubmittedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     initialSubmittedSubmissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -522,7 +658,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.flush();
     SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(submissionWithTwoSubmittedDetails, true, entityManager);
 
-    var results = regulatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
 
     assertThat(results)
         .extracting(
@@ -585,7 +721,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
     return submissionDetail;
   }
 
-  private void setUpRegulatorTest(Set<TeamRole> userRoles) {
+  private void setUpUserTest(Set<TeamRole> userRoles, TeamType teamType) {
     // Setup user
     var user = ServiceUserDetailTestUtil.Builder()
         .withWuaId(1000L)
@@ -598,7 +734,7 @@ class RegulatorSubmissionWorkAreaQueryServiceIntegrationTest {
 
     // Stub regulator team
     var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.REGULATOR)
+        .withTeamType(teamType)
         .withId(null)
         .build();
 
