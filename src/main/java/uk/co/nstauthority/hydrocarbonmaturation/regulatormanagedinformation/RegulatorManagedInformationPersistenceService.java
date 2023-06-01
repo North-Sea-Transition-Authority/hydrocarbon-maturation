@@ -39,6 +39,7 @@ public class RegulatorManagedInformationPersistenceService {
         .orElse(new RegulatorManagedInformation());
     regulatorManagedInformation.setResource(resource);
     regulatorManagedInformation.setGeographicalArea(regulatorManagedInformationForm.getGeographicalArea());
+    regulatorManagedInformation.setResponsibleTeamType(regulatorManagedInformationForm.getResponsibleTeamType());
 
     resourceSupportingDocumentService.updateResourceSupportingDocumentFileDescriptions(
         regulatorManagedInformationForm.getRelinquishmentReport());

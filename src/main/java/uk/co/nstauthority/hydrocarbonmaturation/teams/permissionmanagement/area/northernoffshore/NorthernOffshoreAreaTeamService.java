@@ -10,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUs
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
@@ -18,12 +19,14 @@ public class NorthernOffshoreAreaTeamService {
 
   private final TeamService teamService;
   private final TeamMemberRoleService teamMemberRoleService;
+  private final TeamMemberService teamMemberService;
 
   @Autowired
   public NorthernOffshoreAreaTeamService(TeamService teamService,
-                                 TeamMemberRoleService teamMemberRoleService) {
+                                 TeamMemberRoleService teamMemberRoleService, TeamMemberService teamMemberService) {
     this.teamService = teamService;
     this.teamMemberRoleService = teamMemberRoleService;
+    this.teamMemberService = teamMemberService;
   }
 
   Optional<Team> getTeam(TeamId teamId) {
@@ -38,6 +41,15 @@ public class NorthernOffshoreAreaTeamService {
 
   public boolean isNorthernOffshoreAreaUser(ServiceUserDetail user) {
     return getNorthernOffshoreAreaTeamForUser(user).isPresent();
+  }
+
+  public boolean isNorthernOffshoreTeamMember(ServiceUserDetail user) {
+    return getNorthernOffshoreAreaTeamForUser(user)
+        .map(team -> teamMemberService.isMemberOfTeamWithAnyRoleOf(
+            team.toTeamId(),
+            user,
+            Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER.name())))
+        .orElse(false);
   }
 
   private Optional<Team> getNorthernOffshoreAreaTeamForUser(ServiceUserDetail user) {

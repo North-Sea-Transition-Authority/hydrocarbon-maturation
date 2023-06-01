@@ -57,6 +57,7 @@ class RegulatorManagedInformationFormService {
 
     form.setGeographicalArea(regulatorManagedInformation.getGeographicalArea());
     form.setRelinquishmentReport(relinquishmentReportUploads);
+    form.setResponsibleTeamType(regulatorManagedInformation.getResponsibleTeamType());
 
     return form;
   }

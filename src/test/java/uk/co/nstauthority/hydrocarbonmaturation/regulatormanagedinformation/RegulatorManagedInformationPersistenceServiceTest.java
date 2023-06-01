@@ -61,7 +61,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
 
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
 
-    regulatorManagedInformationPersistenceService.saveResponsibleTeamByResource(resource, ResponsibleTeamType.CENTRAL_NORTH_SEA);
+    regulatorManagedInformationPersistenceService
+        .saveResponsibleTeamByResource(resource, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
 
@@ -73,7 +74,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getGeographicalArea)
         .containsExactly(
             resource,
-            ResponsibleTeamType.CENTRAL_NORTH_SEA,
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             null);
   }
 
@@ -110,9 +111,10 @@ class RegulatorManagedInformationPersistenceServiceTest {
   void saveRegulatorManagedInformation_retrievedRegulatorManagedInformation_verifySaved() {
     var resource = mock(Resource.class);
     var regulatorManagedInformation = new RegulatorManagedInformation();
-    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EAST_IRISH_SEA);
+    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
+    form.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
@@ -131,7 +133,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getGeographicalArea)
         .containsExactly(
             resource,
-            ResponsibleTeamType.EAST_IRISH_SEA,
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             GeographicalArea.CENTRAL_NORTH_SEA);
   }
 

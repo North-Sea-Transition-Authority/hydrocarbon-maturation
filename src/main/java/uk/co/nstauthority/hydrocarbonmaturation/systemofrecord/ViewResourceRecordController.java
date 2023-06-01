@@ -23,10 +23,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}")
@@ -37,10 +37,10 @@ public class ViewResourceRecordController {
   private final SubmissionDetailService submissionDetailService;
   private final UserDetailService userDetailService;
   private final SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
-  private final RegulatorTeamService regulatorTeamService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   private final ResourceGroupSummaryService resourceGroupSummaryService;
   private final ResourceService resourceService;
+  private final ResponsibleTeamService responsibleTeamService;
 
   @Autowired
   public ViewResourceRecordController(ViewResourceRecordService viewResourceRecordService,
@@ -48,19 +48,19 @@ public class ViewResourceRecordController {
                                       SubmissionDetailService submissionDetailService,
                                       UserDetailService userDetailService,
                                       SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService,
-                                      RegulatorTeamService regulatorTeamService,
                                       RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
                                       ResourceGroupSummaryService resourceGroupSummaryService,
-                                      ResourceService resourceService) {
+                                      ResourceService resourceService,
+                                      ResponsibleTeamService responsibleTeamService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
     this.userDetailService = userDetailService;
     this.submissionHistorySearchSelectorModelService = submissionHistorySearchSelectorModelService;
-    this.regulatorTeamService = regulatorTeamService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
     this.resourceGroupSummaryService = resourceGroupSummaryService;
     this.resourceService = resourceService;
+    this.responsibleTeamService = responsibleTeamService;
   }
 
   @GetMapping
@@ -128,14 +128,10 @@ public class ViewResourceRecordController {
     SystemOfRecordBreadcrumbUtil.addSearchSystemOfRecordToModelAndView(
         modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
 
-    var isRegulator = regulatorTeamService.isRegulatorUser(userDetail);
-
-    if (isRegulator) {
+    var isInResponsibleTeam = responsibleTeamService
+        .isInResponsibleTeam(userDetail, resourceRecord.responsibleTeam());
+    if (isInResponsibleTeam) {
       modelAndView
-          .addObject("regulatorManagedInformationSummaryView",
-              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
-          .addObject("resourceGroupsSummaryView",
-              resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(RegulatorManagedInformationController.class)
                   .getRegulatorManagedInformationPage(resourceId,
@@ -148,15 +144,23 @@ public class ViewResourceRecordController {
     modelAndView = submissionHistorySearchSelectorModelService
         .addViewSorSubmissionSearchSelectorItemsToModelAndView(
             modelAndView, resourceId);
+
+    var canViewRegulatorManagementInfo = viewResourceRecordService.isRegulatorOrAreaTeamUser(userDetail);
+    if (canViewRegulatorManagementInfo) {
+      modelAndView
+          .addObject("resourceGroupsSummaryView",
+              resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
+          .addObject("regulatorManagedInformationSummaryView",
+              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource));
+    }
+
     return modelAndView
         .addObject("form", form)
         .addObject("resourceRecord", resourceRecord)
         .addObject("submissionType", submissionDetailSelected.getSubmissionType())
         .addObject("resourceType", submissionDetailSelected
             .getSubmission().getResource().getType().getDisplayName())
-        .addObject("isRegulatorInResponsibleTeam",
-            isRegulator && viewResourceRecordService.isInResponsibleRegulatorTeam(userDetail))
-        .addObject("isRegulator", isRegulator
-        );
+        .addObject("canManageRegulatorManagementInfo", isInResponsibleTeam)
+        .addObject("canViewRegulatorManagementInfo", canViewRegulatorManagementInfo);
   }
 }

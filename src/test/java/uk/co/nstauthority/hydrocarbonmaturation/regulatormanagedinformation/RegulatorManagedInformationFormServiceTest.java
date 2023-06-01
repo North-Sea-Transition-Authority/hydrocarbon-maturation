@@ -57,10 +57,10 @@ class RegulatorManagedInformationFormServiceTest {
     var result = regulatorManagedInformationFormService.getRegulatorManagedInformationForm(resource);
 
     assertThat(result)
-        .hasOnlyFields("geographicalArea", "relinquishmentReport")
         .extracting(RegulatorManagedInformationForm::getGeographicalArea,
-            RegulatorManagedInformationForm::getRelinquishmentReport)
-        .containsExactly(geographicalArea, relinquishmentReportForms);
+            RegulatorManagedInformationForm::getRelinquishmentReport,
+            RegulatorManagedInformationForm::getResponsibleTeamType)
+        .containsExactly(geographicalArea, relinquishmentReportForms, regulatorManagedInformation.getResponsibleTeamType());
   }
 
   @Test

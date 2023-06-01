@@ -36,7 +36,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 
 @Controller
 @RequestMapping("/{resourceId}/regulator-managed-information{submissionDetailId}")
-@HasPermission(permissions = RolePermission.EXPLORATION)
+@HasPermission(permissions = {
+    RolePermission.EXPLORATION,
+    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
 public class RegulatorManagedInformationController {
   private static final String PAGE_NAME = "Regulator managed information";
   private final RegulatorManagedInformationFormService regulatorManagedInformationFormService;
@@ -46,6 +50,7 @@ public class RegulatorManagedInformationController {
   private final SubmissionResourceService submissionResourceService;
   private final ResourceService resourceService;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
+  private final ResponsibleTeamService responsibleTeamService;
 
   @Autowired
   public RegulatorManagedInformationController(
@@ -55,7 +60,8 @@ public class RegulatorManagedInformationController {
       SubmissionDetailService submissionDetailService,
       SubmissionResourceService submissionResourceService,
       ResourceService resourceService,
-      ResourceSupportingDocumentService resourceSupportingDocumentService) {
+      ResourceSupportingDocumentService resourceSupportingDocumentService,
+      ResponsibleTeamService responsibleTeamService) {
     this.regulatorManagedInformationFormService = regulatorManagedInformationFormService;
     this.controllerHelperService = controllerHelperService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
@@ -63,6 +69,7 @@ public class RegulatorManagedInformationController {
     this.submissionResourceService = submissionResourceService;
     this.resourceService = resourceService;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
+    this.responsibleTeamService = responsibleTeamService;
   }
 
   @GetMapping
@@ -135,7 +142,7 @@ public class RegulatorManagedInformationController {
                                                                   List<UploadedFileView> relinquishmentReportUploads) {
     var modelAndView = new ModelAndView("remi/review/regulatorManagedInformation")
         .addObject("form", form)
-        .addObject("geographicalArea", DisplayableEnumOptionUtil
+        .addObject("geographicalAreas", DisplayableEnumOptionUtil
             .getDisplayableOptions(GeographicalArea.class));
     modelAndView
         .addObject("isResourceBeingRelinquished", isResourceBeingRelinquished);
@@ -145,6 +152,15 @@ public class RegulatorManagedInformationController {
               resource.getId(),
               ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
           .addObject("relinquishmentReportUploads", relinquishmentReportUploads);
+    }
+
+    var canUpdateResponsibleTeam = responsibleTeamService.canUpdateResponsibleTeam(resource);
+    modelAndView
+        .addObject("canUpdateResponsibleTeam", canUpdateResponsibleTeam);
+    if (canUpdateResponsibleTeam) {
+      modelAndView
+          .addObject("responsibleTeamTypes", DisplayableEnumOptionUtil
+              .getDisplayableOptions(ResponsibleTeamType.class));
     }
     addBreadcrumbsAndCancelUrl(modelAndView, resource, submissionDetailId);
 

@@ -8,6 +8,7 @@ public class RegulatorManagedInformationForm {
 
   private GeographicalArea geographicalArea;
   private List<FileUploadForm> relinquishmentReport = new ArrayList<>();
+  private ResponsibleTeamType responsibleTeamType;
 
   public GeographicalArea getGeographicalArea() {
     return geographicalArea;
@@ -25,5 +26,14 @@ public class RegulatorManagedInformationForm {
   public void setRelinquishmentReport(
       List<FileUploadForm> relinquishmentReport) {
     this.relinquishmentReport = relinquishmentReport;
+  }
+
+  public ResponsibleTeamType getResponsibleTeamType() {
+    return responsibleTeamType;
+  }
+
+  public void setResponsibleTeamType(
+      ResponsibleTeamType responsibleTeamType) {
+    this.responsibleTeamType = responsibleTeamType;
   }
 }

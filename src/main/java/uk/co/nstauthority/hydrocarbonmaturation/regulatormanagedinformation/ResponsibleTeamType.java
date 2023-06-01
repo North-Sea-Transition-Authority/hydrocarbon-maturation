@@ -8,13 +8,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 public enum ResponsibleTeamType implements Displayable {
-  EXPLORATION("Exploration", RolePermission.EXPLORATION),
-  NORTHERN_NORTH_SEA("Northern North Sea"),
-  CENTRAL_NORTH_SEA("Central North Sea"),
-  SOUTHERN_NORTH_SEA("Southern North Sea"),
-  WEST_OF_SHETLAND("West Of Shetland"),
-  EAST_IRISH_SEA("East Irish Sea"),
-  ONSHORE("Onshore");
+  EXPLORATION("Exploration team", RolePermission.EXPLORATION),
+  NORTHERN_NORTH_SEA_WEST_OF_SHETLAND("Northern North Sea and West of Shetland team",
+      RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+  CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA("Central North Sea, Southern North Sea and East Irish Sea team",
+      RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+  ONSHORE("Onshore team", RolePermission.ONSHORE_AREA_TEAM_MEMBER);
 
   private final String displayName;
   private final Set<RolePermission> rolePermissions;

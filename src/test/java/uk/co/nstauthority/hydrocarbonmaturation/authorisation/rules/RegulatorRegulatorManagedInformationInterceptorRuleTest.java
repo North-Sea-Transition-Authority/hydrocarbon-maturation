@@ -96,7 +96,7 @@ class RegulatorRegulatorManagedInformationInterceptorRuleTest {
     var user = ServiceUserDetailTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var responsibleTeam = new RegulatorManagedInformation();
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.SOUTHERN_NORTH_SEA);
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
         submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);

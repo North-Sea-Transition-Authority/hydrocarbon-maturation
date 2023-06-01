@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import java.util.List;
 import java.util.UUID;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 
 public record ResourceRecordSummaryView(
     UUID submissionDetailId,
@@ -10,6 +11,6 @@ public record ResourceRecordSummaryView(
     String organisationResponsible,
     List<Integer> licenceIds,
     List<String> licences,
-    String responsibleTeam
+    ResponsibleTeamType responsibleTeam
 ) {
 }

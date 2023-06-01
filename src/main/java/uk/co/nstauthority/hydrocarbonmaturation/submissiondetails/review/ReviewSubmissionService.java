@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
@@ -36,6 +37,7 @@ public class ReviewSubmissionService {
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final SubmissionUpdateService submissionUpdateService;
   private final ResourceLinkService resourceLinkService;
+  private final ResponsibleTeamService responsibleTeamService;
 
   @Autowired
   ReviewSubmissionService(SubmissionRecordSummaryQueryService submissionRecordSummaryQueryService,
@@ -45,7 +47,8 @@ public class ReviewSubmissionService {
                           SubmissionDetailService submissionDetailService,
                           ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                           SubmissionUpdateService submissionUpdateService,
-                          ResourceLinkService resourceLinkService) {
+                          ResourceLinkService resourceLinkService,
+                          ResponsibleTeamService responsibleTeamService) {
     this.submissionRecordSummaryQueryService = submissionRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.regulatorTeamService = regulatorTeamService;
@@ -54,6 +57,7 @@ public class ReviewSubmissionService {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionUpdateService = submissionUpdateService;
     this.resourceLinkService = resourceLinkService;
+    this.responsibleTeamService = responsibleTeamService;
   }
 
   public SubmissionRecordSummaryView getSubmissionRecordOrThrow(UUID resourceId) {
@@ -81,8 +85,7 @@ public class ReviewSubmissionService {
       return false;
     }
 
-    if (ResponsibleTeamType.EXPLORATION.equals(submissionRecord.responsibleTeamType())
-        && regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION)) {
+    if (responsibleTeamService.isInResponsibleTeam(user, submissionRecord.responsibleTeamType())) {
       return true;
     }
 

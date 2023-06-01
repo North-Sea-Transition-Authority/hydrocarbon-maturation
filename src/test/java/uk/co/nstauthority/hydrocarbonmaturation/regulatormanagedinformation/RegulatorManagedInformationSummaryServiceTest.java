@@ -41,7 +41,7 @@ class RegulatorManagedInformationSummaryServiceTest {
   @InjectMocks
   private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
 
-  private Resource resource = new Resource();
+  private final Resource resource = new Resource();
 
   @ParameterizedTest
   @EnumSource(GeographicalArea.class)
@@ -49,7 +49,7 @@ class RegulatorManagedInformationSummaryServiceTest {
       GeographicalArea geographicalArea) {
     var regulatorManagedInfo = new RegulatorManagedInformation();
     regulatorManagedInfo.setGeographicalArea(geographicalArea);
-    regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.WEST_OF_SHETLAND);
+    regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
     regulatorManagedInfo.setResource(resource);
 
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource))
@@ -69,7 +69,7 @@ class RegulatorManagedInformationSummaryServiceTest {
         .containsExactly(
             geographicalArea.getDisplayName(),
             false,
-            ResponsibleTeamType.WEST_OF_SHETLAND.getDisplayName(),
+            ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
             Collections.emptyMap()
         );
     verifyNoInteractions(fileUploadService);

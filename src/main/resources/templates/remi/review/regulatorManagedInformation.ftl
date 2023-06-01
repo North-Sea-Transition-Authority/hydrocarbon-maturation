@@ -5,9 +5,11 @@
 <#assign pageTitle = "Regulator managed information" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="cancelurl" type="String" -->
-<#-- @ftlvariable name="geographicalArea" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="geographicalAreas" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="canUpdateResponsibleTeam" type="boolean"-->
+<#-- @ftlvariable name="responsibleTeamTypes" type="java.util.Map<String, String>" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -18,12 +20,22 @@
   <@fdsForm.htmlForm>
     <@fdsRadio.radioGroup path="form.geographicalArea" labelText="Geographical area">
       <#assign firstItem=true/>
-      <#list geographicalArea as key, value>
+      <#list geographicalAreas as key, value>
         <@fdsRadio.radioItem path="form.geographicalArea" itemMap={key : value} isFirstItem=firstItem>
           <#assign firstItem=false/>
         </@fdsRadio.radioItem>
       </#list>
     </@fdsRadio.radioGroup>
+    <#if canUpdateResponsibleTeam>
+      <@fdsRadio.radioGroup path="form.responsibleTeamType" labelText="Responsible team">
+          <#assign firstItem=true/>
+          <#list responsibleTeamTypes as key, value>
+              <@fdsRadio.radioItem path="form.responsibleTeamType" itemMap={key : value} isFirstItem=firstItem>
+                  <#assign firstItem=false/>
+              </@fdsRadio.radioItem>
+          </#list>
+      </@fdsRadio.radioGroup>
+    </#if>
     <#if isResourceBeingRelinquished>
       <@fdsFieldset.fieldset
         legendHeading="Relinquishment report"

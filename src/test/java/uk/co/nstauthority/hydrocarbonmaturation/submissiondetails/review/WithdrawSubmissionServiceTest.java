@@ -84,7 +84,7 @@ class WithdrawSubmissionServiceTest {
   @Test
   void withdrawSubmission_verifyNoMethodCalls_whenCannotwithdraw() {
     var responsibleTeam = new RegulatorManagedInformation();
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA);
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
 
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
         submissionDetail.getSubmission().getResource()))

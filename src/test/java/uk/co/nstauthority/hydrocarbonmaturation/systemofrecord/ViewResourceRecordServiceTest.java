@@ -32,7 +32,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,24 +58,20 @@ class ViewResourceRecordServiceTest {
   @InjectMocks
   private ViewResourceRecordService underTest;
 
-  @Test
-  void isInResponsibleRegulatorTeam_assertTrue() {
-    when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION))
-        .thenReturn(true);
+  @ParameterizedTest
+  @CsvSource(value = { "false, false",
+                       "false, true",
+                       "true, false",
+                       "true, true"})
+  void isRegulatorOrAreaTeamUser_assertTrue(boolean isRegulatorTeamRole, boolean isAreaTeamUser) {
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorTeamRole);
+    if (!isRegulatorTeamRole) {
+      when(areaTeamService.isAreaUser(USER)).thenReturn(isAreaTeamUser);
+    }
 
-    var result = underTest.isInResponsibleRegulatorTeam(USER);
+    var result = underTest.isRegulatorOrAreaTeamUser(USER);
 
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  void isInResponsibleRegulatorTeam_assertFalse() {
-    when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION))
-        .thenReturn(false);
-
-    var result = underTest.isInResponsibleRegulatorTeam(USER);
-
-    assertThat(result).isFalse();
+    assertThat(result).isEqualTo(isRegulatorTeamRole || isAreaTeamUser);
   }
 
   @Nested
@@ -137,7 +132,7 @@ class ViewResourceRecordServiceTest {
               organisationResponsibleDisplay,
               licencesTheResourceIsOn,
               licencesForDisplay,
-              responsibleTeamType.getDisplayName()
+              responsibleTeamType
           );
     }
   }

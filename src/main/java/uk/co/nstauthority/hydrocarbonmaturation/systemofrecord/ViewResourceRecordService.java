@@ -11,13 +11,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
@@ -83,8 +83,8 @@ class ViewResourceRecordService {
         resourceRecordSummaryQueryResult.getOrganisationResponsibleId());
   }
 
-  private static String getResponsibleTeam(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
-    return resourceRecordSummaryQueryResult.getResponsibleTeam().getDisplayName();
+  private static ResponsibleTeamType getResponsibleTeam(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
+    return resourceRecordSummaryQueryResult.getResponsibleTeam();
   }
 
   public boolean canViewSubmissionDetail(SubmissionDetail selectedSubmissionDetail, Resource resource) {
@@ -99,10 +99,7 @@ class ViewResourceRecordService {
   }
 
   public boolean canViewResource(ResourceRecordSummaryView resourceRecord, ServiceUserDetail user) {
-    var isRegulatorUser = regulatorTeamService.isRegulatorUser(user);
-    var isAreaTeamUser = areaTeamService.isAreaUser(user);
-
-    if (isRegulatorUser || isAreaTeamUser) {
+    if (isRegulatorOrAreaTeamUser(user)) {
       return true;
     }
 
@@ -114,8 +111,8 @@ class ViewResourceRecordService {
     return memberOfOrganisationUnit && resourceIsAssociatedWithAnExtantLicence;
   }
 
-  public boolean isInResponsibleRegulatorTeam(ServiceUserDetail userDetail) {
-    return regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION);
+  public boolean isRegulatorOrAreaTeamUser(ServiceUserDetail user) {
+    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
   }
 
   private boolean isResourceIsAssociatedWithAnExtantLicence(ResourceRecordSummaryView resourceRecord) {

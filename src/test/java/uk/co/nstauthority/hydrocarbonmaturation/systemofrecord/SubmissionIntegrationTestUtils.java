@@ -26,7 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 public class SubmissionIntegrationTestUtils {
 
   public static ResourceRecordSummaryView emptyResourceRecordSummaryView(UUID submissionDetailId, int responsibleOrganisationId) {
-    return new ResourceRecordSummaryView(submissionDetailId, "", responsibleOrganisationId, "", List.of(), List.of(), "");
+    return new ResourceRecordSummaryView(submissionDetailId, "", responsibleOrganisationId, "", List.of(), List.of(), null);
   }
 
   public static SubmissionRecordSummaryView emptySubmissionRecordSummaryView(UUID submissionDetailId,

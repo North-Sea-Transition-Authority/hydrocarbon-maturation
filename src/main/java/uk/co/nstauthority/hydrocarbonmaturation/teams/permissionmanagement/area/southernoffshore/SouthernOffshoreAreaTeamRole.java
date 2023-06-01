@@ -18,7 +18,7 @@ public enum SouthernOffshoreAreaTeamRole implements TeamRole {
       "Southern offshore area team member",
       "Manage discoveries and fields allocated to the southern offshore area team",
       20,
-      EnumSet.of(RolePermission.VIEW_SYSTEM_OF_RECORD)
+      EnumSet.of(RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.VIEW_SYSTEM_OF_RECORD)
   );
 
   private final String screenDisplayText;

@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
@@ -69,10 +70,13 @@ class ReviewSubmissionServiceTest {
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
+  @Mock
+  private ResponsibleTeamService responsibleTeamService;
+
   @InjectMocks
   private ReviewSubmissionService reviewSubmissionService;
 
-  private SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
   @Nested
   class WhenGettingSubmissionRecordOrThrow {
@@ -159,7 +163,7 @@ class ReviewSubmissionServiceTest {
       submissionDetail.setStatus(status);
 
       if (status == SubmissionDetailStatus.SUBMITTED || status == SubmissionDetailStatus.APPROVED) {
-        when(regulatorTeamService.isRegulatorTeamRole(USER_DETAIL, RegulatorTeamRole.EXPLORATION))
+        when(responsibleTeamService.isInResponsibleTeam(USER_DETAIL, SUBMISSION_RECORD.responsibleTeamType()))
             .thenReturn(true);
         var result = reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD, USER_DETAIL, submissionDetail);
 
@@ -172,8 +176,8 @@ class ReviewSubmissionServiceTest {
     }
 
     @Test
-    void AndUserIsExploration_ThenTrue() {
-      when(regulatorTeamService.isRegulatorTeamRole(USER_DETAIL, RegulatorTeamRole.EXPLORATION))
+    void AndUserIsInResponsibleTeam_ThenTrue() {
+      when(responsibleTeamService.isInResponsibleTeam(USER_DETAIL, SUBMISSION_RECORD.responsibleTeamType()))
           .thenReturn(true);
 
       var result = reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD, USER_DETAIL, submissionDetail);
@@ -182,11 +186,11 @@ class ReviewSubmissionServiceTest {
     }
 
     @Nested
-    class AndUserIsNotRegulator {
+    class AndUserIsNotInResponsibleTeam {
 
       @BeforeEach
       void setup() {
-        when(regulatorTeamService.isRegulatorTeamRole(USER_DETAIL, RegulatorTeamRole.EXPLORATION))
+        when(responsibleTeamService.isInResponsibleTeam(USER_DETAIL, SUBMISSION_RECORD.responsibleTeamType()))
             .thenReturn(false);
       }
 
@@ -266,7 +270,7 @@ class ReviewSubmissionServiceTest {
   @Nested
   class WhenCheckingCanReviewSubmission {
 
-    private SubmissionRecordSummaryView explorationResponsibleTeamSubmissionRecord =
+    private final SubmissionRecordSummaryView explorationResponsibleTeamSubmissionRecord =
         createSubmissionRecordWithResponsibleTeam(ResponsibleTeamType.EXPLORATION);
     private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 

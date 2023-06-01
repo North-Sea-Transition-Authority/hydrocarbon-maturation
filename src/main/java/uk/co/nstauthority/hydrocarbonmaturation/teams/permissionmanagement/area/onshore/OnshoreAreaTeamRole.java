@@ -18,7 +18,7 @@ public enum OnshoreAreaTeamRole implements TeamRole {
       "Onshore area team member",
       "Manage discoveries and fields allocated to the onshore area team",
       20,
-      EnumSet.of(RolePermission.VIEW_SYSTEM_OF_RECORD)
+      EnumSet.of(RolePermission.ONSHORE_AREA_TEAM_MEMBER, RolePermission.VIEW_SYSTEM_OF_RECORD)
   );
 
   private final String screenDisplayText;

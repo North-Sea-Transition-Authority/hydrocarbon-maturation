@@ -34,12 +34,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
@@ -62,6 +64,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private ResourceService resourceService;
   @MockBean
   private ResourceGroupSummaryService resourceGroupSummaryService;
+  @MockBean
+  private ResponsibleTeamService responsibleTeamService;
 
   @Mock
   private Resource resource;
@@ -166,7 +170,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     SUBMISSION_DETAIL.setApprovedTimestamp(Instant.now());
     mockModelAndViewCreation(SUBMISSION_DETAIL);
 
-    when(viewResourceRecordService.isInResponsibleRegulatorTeam(USER))
+    when(responsibleTeamService.isInResponsibleTeam(USER, RESOURCE_RECORD_VIEW.responsibleTeam()))
+        .thenReturn(false);
+    when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(false);
     var resource = new Resource();
     resource.setId(RESOURCE_ID);
@@ -184,8 +190,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .contains(
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
-            entry("isRegulatorInResponsibleTeam", false),
-            entry("isRegulator", false)
+            entry("canManageRegulatorManagementInfo", false),
+            entry("canViewRegulatorManagementInfo", false)
         ).doesNotContainKeys("regulatorManagedInformationSummaryView", "resourceGroupsSummaryView");
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -200,9 +206,11 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @SuppressWarnings("unchecked")
   void showResourceRecordModelAndView_whenIsRegulator_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
     when(viewResourceRecordService.canViewResource(RESOURCE_RECORD_VIEW, USER)).thenReturn(true);
-    when(viewResourceRecordService.isInResponsibleRegulatorTeam(USER))
-        .thenReturn(false);
+    when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
+        .thenReturn(true);
     when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(true);
+    when(responsibleTeamService.isInResponsibleTeam(USER, RESOURCE_RECORD_VIEW.responsibleTeam()))
         .thenReturn(true);
     var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
     when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
@@ -231,14 +239,17 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceType", SUBMISSION_DETAIL.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
-            entry("isRegulatorInResponsibleTeam", false),
+            entry("canManageRegulatorManagementInfo", true),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(RESOURCE_ID, null))),
+            entry("resourceGroupUrl",
+                ReverseRouter.route(on(ResourceGroupController.class)
+                    .getResourceGroupPage(RESOURCE_ID, null))),
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
             entry("resourceGroupsSummaryView", resourceGroupSummary),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
-            entry("isRegulator", true)
+            entry("canViewRegulatorManagementInfo", true)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -295,6 +306,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(resourceService.getResourceById(RESOURCE_ID))
         .thenReturn(Optional.empty());
     when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(true);
+    when(responsibleTeamService.isInResponsibleTeam(USER, RESOURCE_RECORD_VIEW.responsibleTeam()))
         .thenReturn(true);
     when(submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(any(), any()))
         .thenReturn(new ModelAndView());

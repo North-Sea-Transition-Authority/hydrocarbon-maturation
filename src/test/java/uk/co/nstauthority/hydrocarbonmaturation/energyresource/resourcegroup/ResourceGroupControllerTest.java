@@ -133,7 +133,9 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
   void getResourceGroupPage_assertStatusOk() throws Exception {
     when(manageResourceGroupsService.getRelatedResourcesFormFromResource(resource))
         .thenReturn(new RelatedResourcesForm());
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     mockMvc.perform(
             get(ReverseRouter.route(on(ResourceGroupController.class)
@@ -143,8 +145,10 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @SecurityTest
-  void getResourceGroupPage_andUserIsNotExploration_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+  void getResourceGroupPage_andUserIsNotResponsibleTeamUser_assertForbidden() throws Exception {
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(ResourceGroupController.class)
@@ -154,8 +158,10 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @SecurityTest
-  void saveResourceGroupPage_andUserIsNotExploration_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
+  void saveResourceGroupPage_andUserIsNotResponsibleTeamUser_assertForbidden() throws Exception {
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
     mockMvc.perform(
             post(ReverseRouter.route(on(ResourceGroupController.class)

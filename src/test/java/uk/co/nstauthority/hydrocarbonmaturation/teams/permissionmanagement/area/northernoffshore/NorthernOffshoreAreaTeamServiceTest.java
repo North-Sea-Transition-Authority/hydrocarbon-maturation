@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,10 +16,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
@@ -32,9 +35,14 @@ class NorthernOffshoreAreaTeamServiceTest {
   @Mock
   private TeamMemberRoleService teamMemberRoleService;
 
+  @Mock
+  private TeamMemberService teamMemberService;
+
   @InjectMocks
   @SpyBean
   private NorthernOffshoreAreaTeamService northernOffshoreAreaTeamService;
+
+  private final ServiceUserDetail user = ServiceUserDetailTestUtil.Builder().build();
 
   @Test
   void getTeam_whenMatch_thenReturnTeam() {
@@ -90,7 +98,6 @@ class NorthernOffshoreAreaTeamServiceTest {
 
   @Test
   void isNorthernOffshoreAreaUser_inAnOffshoreAreaTeam() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
 
     when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.NORTHERN_OFFSHORE_AREA)).thenReturn(
         List.of(new Team()));
@@ -100,10 +107,40 @@ class NorthernOffshoreAreaTeamServiceTest {
 
   @Test
   void isNorthernOffshoreAreaUser_notInAnOffshoreAreaTeam() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
 
     when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.NORTHERN_OFFSHORE_AREA)).thenReturn(List.of());
 
     assertThat(northernOffshoreAreaTeamService.isNorthernOffshoreAreaUser(user)).isFalse();
+  }
+
+  @Test
+  void isNorthernOffshoreareaTeamMember_inTeam_andHasRole() {
+
+    var team = new Team(UUID.randomUUID());
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.NORTHERN_OFFSHORE_AREA)).thenReturn(List.of(team));
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(team.toTeamId(), user,
+        Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER.name())))
+        .thenReturn(true);
+
+    assertThat(northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(user)).isTrue();
+  }
+
+  @Test
+  void isNorthernOffshoreareaTeamMember_inTeam_andNotInRole() {
+
+    var team = new Team(UUID.randomUUID());
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.NORTHERN_OFFSHORE_AREA)).thenReturn(List.of(team));
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(team.toTeamId(), user,
+        Set.of(NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER.name())))
+        .thenReturn(false);
+
+    assertThat(northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(user)).isFalse();
+  }
+
+  @Test
+  void isNorthernOffshoreareaTeamMember_notInTeam() {
+
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.NORTHERN_OFFSHORE_AREA)).thenReturn(List.of());
+    assertThat(northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(user)).isFalse();
   }
 }
