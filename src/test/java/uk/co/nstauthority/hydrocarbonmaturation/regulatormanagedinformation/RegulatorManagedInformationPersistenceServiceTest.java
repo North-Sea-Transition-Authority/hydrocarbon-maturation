@@ -30,6 +30,9 @@ class RegulatorManagedInformationPersistenceServiceTest {
   @Mock
   private ResourceSupportingDocumentService resourceSupportingDocumentService;
 
+  @Mock
+  private ResponsibleTeamService responsibleTeamService;
+
   @InjectMocks
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
@@ -89,6 +92,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.empty());
+    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
 
@@ -119,6 +124,40 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInformation));
+    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+
+    regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
+        form, resource);
+
+    verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
+    verify(resourceSupportingDocumentService, times(1))
+        .updateResourceSupportingDocumentFileDescriptions(form.getRelinquishmentReport());
+    assertThat(argCaptor.getValue())
+        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
+        .extracting(
+            RegulatorManagedInformation::getResource,
+            RegulatorManagedInformation::getResponsibleTeamType,
+            RegulatorManagedInformation::getGeographicalArea)
+        .containsExactly(
+            resource,
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+            GeographicalArea.CENTRAL_NORTH_SEA);
+  }
+
+  @Test
+  void saveRegulatorManagedInformation_cantUpdateResponsibleTeamType_verifyResponsibleTeamTypeNotSaved() {
+    var resource = mock(Resource.class);
+    var regulatorManagedInformation = new RegulatorManagedInformation();
+    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
+    var form = new RegulatorManagedInformationForm();
+    form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
+    form.setResponsibleTeamType(null);
+
+    var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
+    when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
+        .thenReturn(Optional.of(regulatorManagedInformation));
+    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(false);
+
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
 

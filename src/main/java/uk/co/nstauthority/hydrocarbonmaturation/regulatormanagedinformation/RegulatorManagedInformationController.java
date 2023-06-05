@@ -119,7 +119,9 @@ public class RegulatorManagedInformationController {
           HttpStatus.FORBIDDEN, "Did not find an approved or submitted submission for resource %s "
           .formatted(resource.getId().toString()));
     }
-    bindingResult = regulatorManagedInformationFormService.validate(form, bindingResult, isResourceBeingRelinquished);
+    var isResponsibleTeamBeingUpdated = responsibleTeamService.canUpdateResponsibleTeam(resource);
+    bindingResult = regulatorManagedInformationFormService
+        .validate(form, bindingResult, isResourceBeingRelinquished, isResponsibleTeamBeingUpdated);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getRegulatorManagedInformationModelAndView(

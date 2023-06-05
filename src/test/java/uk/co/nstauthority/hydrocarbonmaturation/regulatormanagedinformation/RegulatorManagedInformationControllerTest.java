@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -274,7 +273,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(true);
     when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
         .thenReturn(fileUploadTemplate);
-    when(regulatorManagedInformationFormService.validate(any(), any(), eq(true)))
+    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationFormService.validate(any(), any(), eq(true), eq(true)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));
@@ -364,11 +364,11 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
         submissionDetail.getSubmission().getResource()))
         .thenReturn(false);
-    when(regulatorManagedInformationFormService.validate(any(), any(), anyBoolean()))
+    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(false);
+    when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(false)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(RegulatorManagedInformationController.class)
@@ -386,7 +386,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getSubmissionDetail(SUBMISSION_DETAIL_ID))
         .thenReturn(Optional.empty());
-    when(regulatorManagedInformationFormService.validate(any(), any(), anyBoolean()))
+    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(false);
+    when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(false)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));
@@ -405,7 +406,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
         .thenReturn(Optional.empty());
-    when(regulatorManagedInformationFormService.validate(any(), any(), anyBoolean()))
+    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(false);
+    when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(false)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));

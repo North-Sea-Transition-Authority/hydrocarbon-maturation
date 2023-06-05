@@ -39,9 +39,11 @@ class RegulatorManagedInformationFormService {
   }
 
   public BindingResult validate(
-      RegulatorManagedInformationForm form, BindingResult bindingResult, boolean isResourceBeingRelinquished) {
+      RegulatorManagedInformationForm form, BindingResult bindingResult, boolean isResourceBeingRelinquished,
+      boolean isResponsibleTeamBeingUpdated) {
     regulatorManagedInformationFormValidator.validate(
-        form, bindingResult, new RegulatorManagedInformationFormValidatorHints(isResourceBeingRelinquished));
+        form, bindingResult, new RegulatorManagedInformationFormValidatorHints(isResourceBeingRelinquished,
+            isResponsibleTeamBeingUpdated));
     return bindingResult;
   }
 

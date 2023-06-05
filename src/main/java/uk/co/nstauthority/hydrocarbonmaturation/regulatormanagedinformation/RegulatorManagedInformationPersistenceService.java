@@ -13,13 +13,16 @@ public class RegulatorManagedInformationPersistenceService {
 
   private final RegulatorManagedInformationRepository regulatorManagedInformationRepository;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
+  private final ResponsibleTeamService responsibleTeamService;
 
   @Autowired
   public RegulatorManagedInformationPersistenceService(
       RegulatorManagedInformationRepository regulatorManagedInformationRepository,
-      ResourceSupportingDocumentService resourceSupportingDocumentService) {
+      ResourceSupportingDocumentService resourceSupportingDocumentService,
+      ResponsibleTeamService responsibleTeamService) {
     this.regulatorManagedInformationRepository = regulatorManagedInformationRepository;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
+    this.responsibleTeamService = responsibleTeamService;
   }
 
   @Transactional
@@ -39,7 +42,10 @@ public class RegulatorManagedInformationPersistenceService {
         .orElse(new RegulatorManagedInformation());
     regulatorManagedInformation.setResource(resource);
     regulatorManagedInformation.setGeographicalArea(regulatorManagedInformationForm.getGeographicalArea());
-    regulatorManagedInformation.setResponsibleTeamType(regulatorManagedInformationForm.getResponsibleTeamType());
+
+    if (responsibleTeamService.canUpdateResponsibleTeam(resource)) {
+      regulatorManagedInformation.setResponsibleTeamType(regulatorManagedInformationForm.getResponsibleTeamType());
+    }
 
     resourceSupportingDocumentService.updateResourceSupportingDocumentFileDescriptions(
         regulatorManagedInformationForm.getRelinquishmentReport());

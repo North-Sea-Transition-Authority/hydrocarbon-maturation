@@ -29,6 +29,11 @@ class RegulatorManagedInformationFormValidator implements SmartValidator {
     ValidationUtils.rejectIfEmpty(errors, "geographicalArea", "geographicalArea.required",
         "Select a geographical area");
 
+    if (validatorHints.isResponsibleTeamBeingUpdated()) {
+      ValidationUtils.rejectIfEmpty(errors, "responsibleTeamType", "responsibleTeamType.required",
+          "Select a responsible team");
+    }
+
     if (validatorHints.isResourceBeingRelinquished()) {
       var relinquishmentReport = form.getRelinquishmentReport();
       FileValidationUtil.validator()

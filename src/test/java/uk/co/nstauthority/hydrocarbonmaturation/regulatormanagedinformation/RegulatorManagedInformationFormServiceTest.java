@@ -83,33 +83,35 @@ class RegulatorManagedInformationFormServiceTest {
   }
 
   @Test
-  void validate_whenResourceBeingRelinquished_assertReturn() {
+  void validate_validatorHintsTrueFalse_assertReturn() {
     var bindingResult = ReverseRouter.emptyBindingResult();
     var form = new RegulatorManagedInformationForm();
     var hintsCaptor = ArgumentCaptor.forClass(RegulatorManagedInformationFormValidatorHints.class);
-    var result = regulatorManagedInformationFormService.validate(form, bindingResult, true);
+    var result = regulatorManagedInformationFormService.validate(form, bindingResult,true, false);
 
     verify(regulatorManagedInformationFormValidator).validate(eq(form), eq(bindingResult), hintsCaptor.capture());
     assertThat(result).isEqualTo(bindingResult);
 
     assertThat(hintsCaptor.getValue())
-        .extracting(RegulatorManagedInformationFormValidatorHints::isResourceBeingRelinquished)
-        .isEqualTo(true);
+        .extracting(RegulatorManagedInformationFormValidatorHints::isResourceBeingRelinquished,
+            RegulatorManagedInformationFormValidatorHints::isResponsibleTeamBeingUpdated)
+        .containsExactly(true, false);
   }
 
   @Test
-  void validate_whenResourceNotBeingRelinquished_assertReturn() {
+  void validate_validatorHintsFalseTrue_assertReturn() {
     var bindingResult = ReverseRouter.emptyBindingResult();
     var form = new RegulatorManagedInformationForm();
     var hintsCaptor = ArgumentCaptor.forClass(RegulatorManagedInformationFormValidatorHints.class);
-    var result = regulatorManagedInformationFormService.validate(form, bindingResult, false);
+    var result = regulatorManagedInformationFormService.validate(form, bindingResult, false, true);
 
     verify(regulatorManagedInformationFormValidator).validate(eq(form), eq(bindingResult), hintsCaptor.capture());
     assertThat(result).isEqualTo(bindingResult);
 
     assertThat(hintsCaptor.getValue())
-        .extracting(RegulatorManagedInformationFormValidatorHints::isResourceBeingRelinquished)
-        .isEqualTo(false);
+        .extracting(RegulatorManagedInformationFormValidatorHints::isResourceBeingRelinquished,
+            RegulatorManagedInformationFormValidatorHints::isResponsibleTeamBeingUpdated)
+        .containsExactly(false, true);
   }
 
   @Test

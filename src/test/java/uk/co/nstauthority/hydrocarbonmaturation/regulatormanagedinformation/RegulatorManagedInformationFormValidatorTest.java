@@ -40,12 +40,24 @@ class RegulatorManagedInformationFormValidatorTest {
   }
 
   @Test
-  void validate_whenValidForm_notRelinquishment_assertNoErrors() {
+  void validate_whenValidForm_notRelinquishmentNotResponsibleTeamUpdate_assertNoErrors() {
+    var form = getValidForm();
+    form.setResponsibleTeamType(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    regulatorManagedInformationFormValidator.validate(form, bindingResult,
+        new RegulatorManagedInformationFormValidatorHints(false, false));
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  void validate_whenValidForm_notRelinquishmentResponsibleTeamUpdate_assertNoErrors() {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(false));
+        new RegulatorManagedInformationFormValidatorHints(false, true));
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -56,7 +68,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(false));
+        new RegulatorManagedInformationFormValidatorHints(false, false));
 
     assertThat(bindingResult.hasErrors()).isTrue();
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -78,7 +90,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(true));
+        new RegulatorManagedInformationFormValidatorHints(true, false));
 
     assertThat(bindingResult.hasErrors()).isTrue();
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -100,7 +112,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     form.setRelinquishmentReport(List.of(new FileUploadForm(), new FileUploadForm()));
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(true));
+        new RegulatorManagedInformationFormValidatorHints(true, false));
 
     assertThat(bindingResult.hasErrors()).isTrue();
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -122,7 +134,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     form.setRelinquishmentReport(List.of(new FileUploadForm()));
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(true));
+        new RegulatorManagedInformationFormValidatorHints(true, false));
 
     assertThat(bindingResult.hasErrors()).isTrue();
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -137,6 +149,29 @@ class RegulatorManagedInformationFormValidatorTest {
         .containsExactly(
             entry("relinquishmentReport[0].uploadedFileDescription",
                 Set.of("Enter a description of this file"))
+        );
+  }
+
+  @Test
+  void validate_whenInValidForm_notRelinquishmentResponsibleTeamUpdateNoResponsibleTeam_assertErrors() {
+    var form = getValidForm();
+    form.setResponsibleTeamType(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    regulatorManagedInformationFormValidator.validate(form, bindingResult,
+        new RegulatorManagedInformationFormValidatorHints(false, true));
+
+    assertThat(bindingResult.hasErrors()).isTrue();
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+
+    assertThat(errors)
+        .containsExactly(
+            entry("responsibleTeamType", Set.of("responsibleTeamType.required"))
+        );
+    assertThat(errorMessages)
+        .containsExactly(
+            entry("responsibleTeamType", Set.of("Select a responsible team"))
         );
   }
 
@@ -159,6 +194,7 @@ class RegulatorManagedInformationFormValidatorTest {
     relinquishmentReportUpload.setUploadedFileInstant(Instant.now());
     form.setGeographicalArea(GeographicalArea.ONSHORE);
     form.setRelinquishmentReport(List.of(relinquishmentReportUpload));
+    form.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
     return form;
   }
 }
