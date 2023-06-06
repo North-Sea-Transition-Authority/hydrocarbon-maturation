@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
@@ -25,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportin
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -33,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewS
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchResourceRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
 @RequestMapping("/{resourceId}/regulator-managed-information{submissionDetailId}")
@@ -105,7 +108,8 @@ public class RegulatorManagedInformationController {
                                                       @PathVariable(value = "submissionDetailId", required = false)
                                                       UUID submissionDetailId,
                                                       @ModelAttribute("form") RegulatorManagedInformationForm form,
-                                                      BindingResult bindingResult) {
+                                                      BindingResult bindingResult,
+                                                      RedirectAttributes redirectAttributes) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() ->
             new RemiEntityNotFoundException("Could not find resource with id %s"
@@ -127,9 +131,22 @@ public class RegulatorManagedInformationController {
         getRegulatorManagedInformationModelAndView(
             form, resource, submissionDetailId, isResourceBeingRelinquished, relinquishmentReportUploads),
         () -> {
+          var originalResponsibleTeamType = regulatorManagedInformationPersistenceService
+              .getRegulatorManagedInformationByResourceOrThrow(resource).getResponsibleTeamType();
           regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(form, resource);
           if (submissionDetailId != null) {
-            return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(resourceId));
+            var responsibleTeamTypeNotUpdated = form.getResponsibleTeamType() == originalResponsibleTeamType;
+            if (responsibleTeamTypeNotUpdated) {
+              return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(resourceId));
+            } else {
+              var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail.get());
+
+              NotificationBannerUtil.addSuccessNotification(redirectAttributes,
+                  "Success",
+                  "The regulator managed information has been updated for the resource %s".formatted(resourceName));
+
+              return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
+            }
           } else {
             return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resourceId));
           }
