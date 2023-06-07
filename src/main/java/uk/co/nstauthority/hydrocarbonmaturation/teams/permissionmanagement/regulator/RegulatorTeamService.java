@@ -67,6 +67,10 @@ public class RegulatorTeamService {
         .orElse(false);
   }
 
+  public boolean isExploration(ServiceUserDetail userDetail) {
+    return isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION);
+  }
+
   public List<EnergyPortalUserDto> getExplorationTeamEnergyPortalUsers() {
     var explorationTeamMemberWuaIds = getRegulatorTeamMembersWithRole(RegulatorTeamRole.EXPLORATION)
         .stream()

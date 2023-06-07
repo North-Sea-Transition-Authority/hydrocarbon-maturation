@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectPurposeController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Controller
@@ -21,7 +21,7 @@ public class StartPostDrillDryHoleSubmissionController {
   public ModelAndView getStartPostDrillDryHolePage() {
     return new ModelAndView("remi/prospect/startPostDrillDryHoleProspect")
         .addObject("actionUrl", ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).startPostDrillDryHole()))
-        .addObject("backLinkUrl", ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()));
+        .addObject("backLinkUrl", ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm()));
   }
 
   @PostMapping

@@ -50,7 +50,9 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
 
   @SecurityTest
   void getStartDiscoveryPage_assertModelProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
     var form = new StartDiscoveryForm();
@@ -85,7 +87,9 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     when(startDiscoveryService.validateDiscoveryFromProspect(any(), any())).thenReturn(bindingResult);
     when(startDiscoveryService.createNewDiscoveryFromProspect(form)).thenReturn(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
     mockMvc.perform(
@@ -105,7 +109,9 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
     when(startDiscoveryService.validateDiscoveryFromProspect(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     var modelAndView = mockMvc.perform(
             post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
@@ -136,7 +142,9 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
 
   @SecurityTest
   void startDiscovery_whenNoPermission_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
     mockMvc.perform(
             post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
@@ -147,7 +155,9 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
 
   @SecurityTest
   void getStartDiscoveryPage_whenNoPermission_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(PostDrillDiscoveryController.class)

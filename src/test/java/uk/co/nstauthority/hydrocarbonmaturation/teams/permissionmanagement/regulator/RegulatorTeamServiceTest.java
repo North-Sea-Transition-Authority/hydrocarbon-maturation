@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
@@ -32,6 +33,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorTeamServiceTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @Mock
   private TeamService teamService;
@@ -50,22 +53,22 @@ class RegulatorTeamServiceTest {
 
   @Test
   void getRegulatorTeamForUser_whenUserBelongsToRegulatorTeam_thenReturnRegulatorTeam() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+
     var team = new Team();
-    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.REGULATOR))
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
         .thenReturn(List.of(team));
 
-    var result = regulatorTeamService.getRegulatorTeamForUser(user);
+    var result = regulatorTeamService.getRegulatorTeamForUser(USER);
 
     assertThat(result).contains(team);
   }
 
   @Test
   void getRegulatorTeamForUser_whenUserDoesNotBelongToRegulatorTeam_thenReturnEmpty() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
-    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.REGULATOR)).thenReturn(List.of());
 
-    var result = regulatorTeamService.getRegulatorTeamForUser(user);
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR)).thenReturn(List.of());
+
+    var result = regulatorTeamService.getRegulatorTeamForUser(USER);
 
     assertThat(result).isEmpty();
   }
@@ -100,76 +103,70 @@ class RegulatorTeamServiceTest {
   void isAccessManager_whenAccessManager_thenTrue() {
 
     var teamId = new TeamId(UUID.randomUUID());
-    var user = ServiceUserDetailTestUtil.Builder().build();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, USER, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(true);
-    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.REGULATOR))
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
         .thenReturn(List.of(TeamTestUtil.Builder().withId(teamId.uuid()).build()));
-    assertTrue(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.ACCESS_MANAGER));
+    assertTrue(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.ACCESS_MANAGER));
   }
 
   @Test
   void isAccessManager_whenAccessManager_thenFalse() {
 
     var teamId = new TeamId(UUID.randomUUID());
-    var user = ServiceUserDetailTestUtil.Builder().build();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, USER, Set.of(RegulatorTeamRole.ACCESS_MANAGER.name())))
         .thenReturn(false);
-    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.REGULATOR))
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
         .thenReturn(List.of(TeamTestUtil.Builder().withId(teamId.uuid()).build()));
-    assertFalse(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.ACCESS_MANAGER));
+    assertFalse(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.ACCESS_MANAGER));
   }
 
   @Test
   void isIndustryAccessManager_whenIndustryAccessManager_thenTrue() {
 
     var teamId = new TeamId(UUID.randomUUID());
-    var user = ServiceUserDetailTestUtil.Builder().build();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER.name())))
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, USER, Set.of(RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER.name())))
         .thenReturn(true);
-    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.REGULATOR))
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
         .thenReturn(List.of(TeamTestUtil.Builder().withId(teamId.uuid()).build()));
-    assertTrue(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER));
+    assertTrue(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER));
   }
 
   @Test
   void isIndustryAccessManager_whenIndustryAccessManager_thenFalse() {
     var teamId = new TeamId(UUID.randomUUID());
-    var user = ServiceUserDetailTestUtil.Builder().build();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER.name())))
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, USER, Set.of(RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER.name())))
         .thenReturn(false);
-    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.REGULATOR))
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
         .thenReturn(List.of(TeamTestUtil.Builder().withId(teamId.uuid()).build()));
-    assertFalse(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER));
+    assertFalse(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER));
   }
 
   @Test
   void isExplorationUser_whenExploration_thenTrue() {
 
     var teamId = new TeamId(UUID.randomUUID());
-    var user = ServiceUserDetailTestUtil.Builder().build();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.EXPLORATION.name())))
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, USER, Set.of(RegulatorTeamRole.EXPLORATION.name())))
         .thenReturn(true);
-    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.REGULATOR))
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
         .thenReturn(List.of(TeamTestUtil.Builder().withId(teamId.uuid()).build()));
-    assertTrue(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION));
+    assertTrue(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION));
   }
 
   @Test
   void isIndustryAccessManager_whenNotExploration_thenFalse() {
     var teamId = new TeamId(UUID.randomUUID());
-    var user = ServiceUserDetailTestUtil.Builder().build();
 
-    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER.name())))
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, USER, Set.of(RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER.name())))
         .thenReturn(false);
-    when(teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.REGULATOR))
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
         .thenReturn(List.of(TeamTestUtil.Builder().withId(teamId.uuid()).build()));
-    assertFalse(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER));
+    assertFalse(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER));
   }
 
   @Test
@@ -271,5 +268,36 @@ class RegulatorTeamServiceTest {
             explorationUser2,
             explorationUser3
         );
+  }
+
+  @Test
+  void isExploration_inTeam_andHasRole() {
+
+    var team = new Team(UUID.randomUUID());
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR)).thenReturn(List.of(team));
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(team.toTeamId(), USER,
+        Set.of(RegulatorTeamRole.EXPLORATION.name())))
+        .thenReturn(true);
+
+    assertThat(regulatorTeamService.isExploration(USER)).isTrue();
+  }
+
+  @Test
+  void isExploration_inTeam_andNotInRole() {
+
+    var team = new Team(UUID.randomUUID());
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR)).thenReturn(List.of(team));
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(team.toTeamId(), USER,
+        Set.of(RegulatorTeamRole.EXPLORATION.name())))
+        .thenReturn(false);
+
+    assertThat(regulatorTeamService.isExploration(USER)).isFalse();
+  }
+
+  @Test
+  void isExploration_notInTeam() {
+
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR)).thenReturn(List.of());
+    assertThat(regulatorTeamService.isExploration(USER)).isFalse();
   }
 }

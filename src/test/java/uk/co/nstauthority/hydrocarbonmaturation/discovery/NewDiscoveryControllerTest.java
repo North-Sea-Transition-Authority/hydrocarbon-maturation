@@ -56,7 +56,9 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
   @Test
   void getNewDiscoveryPage_assertModelProperties() throws Exception {
     var form = new ResourceDetailsForm();
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     when(regulatorTeamService.isRegulatorUser(any())).thenReturn(true);
     var modelAndView = mockMvc.perform(
@@ -93,7 +95,9 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
     when(startDiscoveryService.validateNewDiscovery(any(), any())).thenReturn(bindingResult);
     when(startDiscoveryService.createNewDiscovery(form)).thenReturn(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     mockMvc.perform(
             post(ReverseRouter.route(on(NewDiscoveryController.class).createDiscovery(null, null)))
@@ -112,7 +116,9 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
     when(startDiscoveryService.validateNewDiscovery(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     when(regulatorTeamService.isRegulatorUser(any())).thenReturn(true);
 
@@ -150,7 +156,9 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void createDiscovery_hasNoPermission_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
 
     mockMvc.perform(
@@ -162,7 +170,9 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getNewDiscoveryPage_hasNoPermission_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
 
     mockMvc.perform(

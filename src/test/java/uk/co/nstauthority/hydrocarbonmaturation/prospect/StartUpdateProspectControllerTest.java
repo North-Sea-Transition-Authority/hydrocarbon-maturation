@@ -17,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = StartUpdateProspectController.class)
@@ -41,7 +40,7 @@ class StartUpdateProspectControllerTest extends AbstractSubmissionControllerTest
             "backLinkUrl")
         .containsExactly(
             ReverseRouter.route(on(StartUpdateProspectController.class).updateProspect()),
-            ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()));
+            ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm()));
   }
 
   @SecurityTest

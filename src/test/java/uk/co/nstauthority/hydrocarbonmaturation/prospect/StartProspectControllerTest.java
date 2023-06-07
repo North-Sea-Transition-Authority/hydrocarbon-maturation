@@ -18,7 +18,6 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
@@ -67,7 +66,7 @@ class StartProspectControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelAndView).isNotNull();
     var model = modelAndView.getModel();
     assertEquals(ReverseRouter.route(on(StartProspectController.class).startProspect()), model.get("actionUrl"));
-    assertEquals(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()), model.get("backLinkUrl"));
+    assertEquals(ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm()), model.get("backLinkUrl"));
   }
 
   @SecurityTest

@@ -1,24 +1,22 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.RelinquishmentForm;
+import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.DiscoveryRelinquishmentForm;
+import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.ProspectRelinquishmentForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -26,7 +24,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Service
 public class SubmissionCreateService {
@@ -39,10 +39,12 @@ public class SubmissionCreateService {
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
-  private final PermissionService permissionService;
   private final UserDetailService userDetailService;
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
   private final SubmissionPersistenceService submissionPersistenceService;
+  private final RegulatorTeamService regulatorTeamService;
+  private final AreaTeamService areaTeamService;
+  private final IndustryTeamService industryTeamService;
 
   @Autowired
   public SubmissionCreateService(ResourceService resourceService,
@@ -53,10 +55,11 @@ public class SubmissionCreateService {
                                  RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                                  ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                  OpportunityDetailsPersistenceService opportunityDetailsPersistenceService,
-                                 PermissionService permissionService,
                                  UserDetailService userDetailService,
                                  SubmissionDetailPersistenceService submissionDetailPersistenceService,
-                                 SubmissionPersistenceService submissionPersistenceService) {
+                                 SubmissionPersistenceService submissionPersistenceService,
+                                 RegulatorTeamService regulatorTeamService, AreaTeamService areaTeamService,
+                                 IndustryTeamService industryTeamService) {
     this.resourceService = resourceService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
@@ -65,10 +68,12 @@ public class SubmissionCreateService {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
-    this.permissionService = permissionService;
     this.userDetailService = userDetailService;
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.submissionPersistenceService = submissionPersistenceService;
+    this.regulatorTeamService = regulatorTeamService;
+    this.areaTeamService = areaTeamService;
+    this.industryTeamService = industryTeamService;
   }
 
   @Transactional
@@ -173,20 +178,16 @@ public class SubmissionCreateService {
   }
 
   @Transactional
-  public SubmissionDetail createRelinquishment(RelinquishmentForm form) {
-    String generalDetailId;
-    SubmissionType relinquishmentType;
-    switch (form.getChosenResourceType()) {
-      case PROSPECT -> {
-        generalDetailId = form.getProspectSelectedOption();
-        relinquishmentType = SubmissionType.RELINQUISHMENT_PROSPECT;
-      }
-      case DISCOVERY -> {
-        generalDetailId = form.getDiscoverySelectedOption();
-        relinquishmentType = SubmissionType.RELINQUISHMENT_DISCOVERY;
-      }
-      default -> throw new ActionNotAllowedException("You must create a relinquishment off of a discovery or prospect.");
-    }
+  public SubmissionDetail createProspectRelinquishment(ProspectRelinquishmentForm form) {
+    return createRelinquishment(form.getProspectSelectedOption(), SubmissionType.RELINQUISHMENT_PROSPECT);
+  }
+
+  @Transactional
+  public SubmissionDetail createDiscoveryRelinquishment(DiscoveryRelinquishmentForm form) {
+    return createRelinquishment(form.getDiscoverySelectedOption(), SubmissionType.RELINQUISHMENT_DISCOVERY);
+  }
+
+  private SubmissionDetail createRelinquishment(String generalDetailId, SubmissionType relinquishmentType) {
     var oldSubmissionDetail = submissionDetailService
         .getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(generalDetailId));
     var resource = oldSubmissionDetail.getSubmission().getResource();
@@ -215,18 +216,25 @@ public class SubmissionCreateService {
     return updateSubmissionDetail;
   }
 
-  public Map<String, String> getSubmissionTypeOptionsForUser() {
+  public Map<String, String> getResourceTypeOptionsForUser() {
     var userDetail = userDetailService.getUserDetail();
-    var submissionTypeOptions = SubmissionType.getSubmissionTypes();
+    var resourceTypeOptions = ResourceType.getResourceTypes();
 
-    //this ensures only one relinquishment option appears in the startSubmissionController
-    submissionTypeOptions
-        .remove(SubmissionType.RELINQUISHMENT_DISCOVERY.name());
-    if (!permissionService.hasPermission(
-        userDetail, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT))) {
-      submissionTypeOptions
-          .remove(SubmissionType.RELINQUISHMENT_PROSPECT.name());
+    // TODO HM-526: When fields are added change this to be based on data dictionary,
+    //  'What type of resources do you want to submit information for?'
+    resourceTypeOptions.remove(ResourceType.FIELD.name());
+
+    var isNotIndustrySubmitter = !industryTeamService.isSubmitter(userDetail);
+    var isNotExplorationTeam = !regulatorTeamService.isExploration(userDetail);
+    if (isNotIndustrySubmitter && isNotExplorationTeam) {
+      resourceTypeOptions.remove(ResourceType.PROSPECT.name());
     }
-    return submissionTypeOptions;
+
+    var isNotAreaTeamMember = !areaTeamService.isAreaTeamMember(userDetail);
+    if (isNotIndustrySubmitter && isNotExplorationTeam && isNotAreaTeamMember) {
+      resourceTypeOptions.remove(ResourceType.DISCOVERY.name());
+    }
+
+    return resourceTypeOptions;
   }
 }

@@ -26,7 +26,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 
 @Controller
 @RequestMapping("/discovery/create")
-@HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
+@HasPermission(permissions = {
+    RolePermission.EXPLORATION,
+    RolePermission.INDUSTRY_SUBMIT,
+    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
 public class NewDiscoveryController {
 
   private final ControllerHelperService controllerHelperService;

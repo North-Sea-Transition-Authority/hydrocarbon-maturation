@@ -19,7 +19,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = StartPostDrillDryHoleSubmissionController.class)
@@ -60,7 +59,7 @@ class StartPostDrillDryHoleSubmissionControllerTest extends AbstractSubmissionCo
     assertThat(modelAndView).isNotNull();
     var model = modelAndView.getModel();
     assertEquals(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).startPostDrillDryHole()), model.get("actionUrl"));
-    assertEquals(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()), model.get("backLinkUrl"));
+    assertEquals(ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm()), model.get("backLinkUrl"));
   }
 
   @SecurityTest

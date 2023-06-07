@@ -28,4 +28,10 @@ public class AreaTeamService {
         || southernOffshoreAreaTeamService.isSouthernOffshoreAreaUser(userDetail)
         || onshoreAreaTeamService.isOnshoreAreaUser(userDetail);
   }
+
+  public boolean isAreaTeamMember(ServiceUserDetail userDetail) {
+    return northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(userDetail)
+        || southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(userDetail)
+        || onshoreAreaTeamService.isOnshoreTeamMember(userDetail);
+  }
 }

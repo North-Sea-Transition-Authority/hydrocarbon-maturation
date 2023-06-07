@@ -10,70 +10,60 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryController;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryPurposeController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
-import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.StartRelinquishmentSubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectPurposeController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
 @RequestMapping("/start-submission")
-@HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
+@HasPermission(permissions = {
+    RolePermission.EXPLORATION,
+    RolePermission.INDUSTRY_SUBMIT,
+    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.ONSHORE_AREA_TEAM_MEMBER
+})
 public class StartSubmissionController {
 
-  private final SubmissionTypeSelectService submissionTypeSelectService;
+  private final ResourceTypeSelectService resourceTypeSelectService;
   private final ControllerHelperService controllerHelperService;
   private final SubmissionCreateService submissionCreateService;
 
   @Autowired
-  public StartSubmissionController(SubmissionTypeSelectService submissionTypeSelectService,
+  public StartSubmissionController(ResourceTypeSelectService resourceTypeSelectService,
                                    ControllerHelperService controllerHelperService,
-                                   UserDetailService userDetailService,
                                    SubmissionCreateService submissionCreateService) {
-    this.submissionTypeSelectService = submissionTypeSelectService;
+    this.resourceTypeSelectService = resourceTypeSelectService;
     this.controllerHelperService = controllerHelperService;
     this.submissionCreateService = submissionCreateService;
   }
 
   @GetMapping
-  public ModelAndView getSubmissionPurpose() {
-    return getSubmissionTypeModelAndViewForUser(new SubmissionTypeSelectForm());
+  public ModelAndView getSubmissionType() {
+    return getSubmissionTypeModelAndViewForUser(new ResourceTypeSelectForm());
   }
 
   @PostMapping
-  public ModelAndView startSubmission(@ModelAttribute("form") SubmissionTypeSelectForm form, BindingResult bindingResult) {
-    bindingResult = submissionTypeSelectService.validate(form, bindingResult);
+  public ModelAndView startSubmission(@ModelAttribute("form") ResourceTypeSelectForm form, BindingResult bindingResult) {
+    bindingResult = resourceTypeSelectService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getSubmissionTypeModelAndViewForUser(form),
-        () -> switch (form.getSubmissionType()) {
-          case CREATE_PROSPECT -> ReverseRouter.redirect(on(StartProspectController.class).getStartPage());
-          case PROSPECT_UPDATE -> ReverseRouter.redirect(on(StartUpdateProspectController.class).getStartUpdatePage());
-          case POST_DRILL_DRY_HOLE ->
-              ReverseRouter.redirect(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage());
-          case CREATE_DISCOVERY_FROM_PROSPECT ->
-              ReverseRouter.redirect(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage());
-          case CREATE_DISCOVERY ->
-              ReverseRouter.redirect(on(StartDiscoveryController.class).startDiscovery());
-          case UPDATE_DISCOVERY ->
-              ReverseRouter.redirect(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage());
-          case RELINQUISHMENT_PROSPECT, RELINQUISHMENT_DISCOVERY ->
-              ReverseRouter.redirect(on(StartRelinquishmentSubmissionController.class).getStartRelinquishmentPage());
+        () -> switch (form.getResourceType()) {
+          case PROSPECT -> ReverseRouter.redirect(on(ProspectPurposeController.class).getProspectPurposeForm());
+          case DISCOVERY -> ReverseRouter.redirect(on(DiscoveryPurposeController.class).getDiscoveryPurposeForm());
+          case FIELD -> ReverseRouter.redirect(on(StartSubmissionController.class).getSubmissionType());
         });
   }
 
-  ModelAndView getSubmissionTypeModelAndViewForUser(SubmissionTypeSelectForm submissionTypeSelectForm) {
+  ModelAndView getSubmissionTypeModelAndViewForUser(ResourceTypeSelectForm resourceTypeSelectForm) {
     return new ModelAndView("remi/submissiondetails/startSubmission")
-        .addObject("submissionType", submissionCreateService.getSubmissionTypeOptionsForUser())
-        .addObject("form", submissionTypeSelectForm)
+        .addObject("resourceTypes", submissionCreateService.getResourceTypeOptionsForUser())
+        .addObject("form", resourceTypeSelectForm)
         .addObject("actionUrl", ReverseRouter.route(on(StartSubmissionController.class).startSubmission(null, null)))
         .addObject("backLinkUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
   }

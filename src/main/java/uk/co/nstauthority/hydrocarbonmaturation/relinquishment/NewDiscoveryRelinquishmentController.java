@@ -22,51 +22,52 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Controller
-@RequestMapping("relinquishment/new")
-@HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
-public class NewRelinquishmentController {
+@RequestMapping("relinquishment/discovery/new")
+@HasPermission(permissions = {
+    RolePermission.EXPLORATION,
+    RolePermission.INDUSTRY_SUBMIT,
+    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+public class NewDiscoveryRelinquishmentController {
 
   private final ControllerHelperService controllerHelperService;
-  private final RelinquishmentService relinquishmentService;
+  private final DiscoveryRelinquishmentService discoveryRelinquishmentService;
 
   @Autowired
-  public NewRelinquishmentController(ControllerHelperService controllerHelperService,
-                                     RelinquishmentService relinquishmentService) {
+  public NewDiscoveryRelinquishmentController(ControllerHelperService controllerHelperService,
+                                              DiscoveryRelinquishmentService discoveryRelinquishmentService) {
     this.controllerHelperService = controllerHelperService;
-    this.relinquishmentService = relinquishmentService;
+    this.discoveryRelinquishmentService = discoveryRelinquishmentService;
   }
 
   @GetMapping
-  public ModelAndView getNewRelinquishmentPage() {
-    return getNewRelinquishmentPageModelAndView(new RelinquishmentForm());
+  public ModelAndView getNewDiscoveryRelinquishmentPage() {
+    return getNewRelinquishmentPageModelAndView(new DiscoveryRelinquishmentForm());
   }
 
   @PostMapping
-  public ModelAndView createNewRelinquishmentSubmission(@Valid @ModelAttribute("form") RelinquishmentForm form,
-                                                        BindingResult bindingResult) {
-    bindingResult = relinquishmentService.validate(form, bindingResult);
+  public ModelAndView createNewDiscoveryRelinquishmentSubmission(@Valid @ModelAttribute("form") DiscoveryRelinquishmentForm form,
+                                                                 BindingResult bindingResult) {
+    bindingResult = discoveryRelinquishmentService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getNewRelinquishmentPageModelAndView(form),
         () -> {
-          var submissionDetail = relinquishmentService.createRelinquishment(form);
+          var submissionDetail = discoveryRelinquishmentService.createDiscoveryRelinquishment(form);
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
         });
   }
 
-  private ModelAndView getNewRelinquishmentPageModelAndView(RelinquishmentForm form) {
-    return new ModelAndView("remi/relinquishment/newRelinquishment")
+  private ModelAndView getNewRelinquishmentPageModelAndView(DiscoveryRelinquishmentForm form) {
+    return new ModelAndView("remi/relinquishment/newDiscoveryRelinquishment")
         .addObject("form", form)
-        .addObject("prospectApiEndpoint",
-            SearchSelectorService.route(on(ResourceRestController.class)
-                .searchProspects(null, SubmissionType.RELINQUISHMENT_PROSPECT)))
-        .addObject("discoveryApiEndpoint",
-            SearchSelectorService.route(on(ResourceRestController.class)
-                .searchDiscoveries(null, SubmissionType.RELINQUISHMENT_DISCOVERY)))
+        .addObject("discoveryApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
+            .searchProspects(null, SubmissionType.RELINQUISHMENT_DISCOVERY)))
         .addObject("backLinkUrl",
             ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
-                .getStartRelinquishmentPage()))
+                .getStartDiscoveryRelinquishmentPage()))
         .addObject("actionUrl",
-            ReverseRouter.route(on(NewRelinquishmentController.class)
-                .createNewRelinquishmentSubmission(null, null)));
+            ReverseRouter.route(on(NewDiscoveryRelinquishmentController.class)
+                .createNewDiscoveryRelinquishmentSubmission(null, null)));
   }
 }

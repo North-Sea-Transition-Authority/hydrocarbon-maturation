@@ -3,9 +3,13 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Sets;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,16 +38,8 @@ class AreaTeamServiceTest {
   private AreaTeamService areaTeamService;
 
   @ParameterizedTest
-  @CsvSource(value = { "true, true, true",
-                       "true, true, false",
-                       "true, false, true",
-                       "true, false, false",
-                       "false, true, true",
-                       "false, true, false",
-                       "false, false, true",
-                       "false, false, false"})
-  void getQueryServiceStrategy_whenUserIsInRegulatorOrAreaTeam_assertRegulatorServiceProvided(
-      boolean isNorthernOffshoreAreaUser, boolean isSouthernOffshoreAreaUser, boolean isOnshoreAreaUser) {
+  @MethodSource("calculateIsAreaUserOrTeamMemberConditionArguments")
+  void isAreaUser(boolean isNorthernOffshoreAreaUser, boolean isSouthernOffshoreAreaUser, boolean isOnshoreAreaUser) {
     when(northernOffshoreAreaTeamService.isNorthernOffshoreAreaUser(USER)).thenReturn(isNorthernOffshoreAreaUser);
     if (!isNorthernOffshoreAreaUser) {
       when(southernOffshoreAreaTeamService.isSouthernOffshoreAreaUser(USER)).thenReturn(isSouthernOffshoreAreaUser);
@@ -54,5 +50,26 @@ class AreaTeamServiceTest {
 
     assertThat(areaTeamService.isAreaUser(USER))
         .isEqualTo(isNorthernOffshoreAreaUser || isSouthernOffshoreAreaUser || isOnshoreAreaUser);
+  }
+
+  @ParameterizedTest
+  @MethodSource("calculateIsAreaUserOrTeamMemberConditionArguments")
+  void isAreaTeamMember(boolean isNorthernOffshoreTeamMember, boolean isSouthernOffshoreTeamMember,
+                        boolean isOnshoreTeamMember) {
+    when(northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(USER)).thenReturn(isNorthernOffshoreTeamMember);
+    if (!isNorthernOffshoreTeamMember) {
+      when(southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(USER)).thenReturn(isSouthernOffshoreTeamMember);
+    }
+    if (!isNorthernOffshoreTeamMember && !isSouthernOffshoreTeamMember) {
+      when(onshoreAreaTeamService.isOnshoreTeamMember(USER)).thenReturn(isOnshoreTeamMember);
+    }
+
+    assertThat(areaTeamService.isAreaTeamMember(USER))
+        .isEqualTo(isNorthernOffshoreTeamMember || isSouthernOffshoreTeamMember || isOnshoreTeamMember);
+  }
+
+  private static Stream<Arguments> calculateIsAreaUserOrTeamMemberConditionArguments() {
+    return Sets.cartesianProduct(Set.of(true, false), Set.of(true, false), Set.of(true, false)).stream()
+        .map(booleans -> Arguments.of(booleans.get(0), booleans.get(1), booleans.get(2)));
   }
 }

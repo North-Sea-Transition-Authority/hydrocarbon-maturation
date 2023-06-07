@@ -17,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = StartPostDrillDiscoveryController.class)
@@ -26,7 +25,9 @@ class StartPostDrillDiscoveryControllerTest extends AbstractSubmissionController
 
   @SecurityTest
   void getStartPostDrillDiscoveryPage() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
     var modelAndView = mockMvc.perform(
@@ -38,17 +39,15 @@ class StartPostDrillDiscoveryControllerTest extends AbstractSubmissionController
 
     assert modelAndView != null;
     assertThat(modelAndView.getModel())
-        .extracting(
-            "actionUrl",
-            "backLinkUrl")
-        .containsExactly(
-            ReverseRouter.route(on(StartPostDrillDiscoveryController.class).startPostDrillDiscovery()),
-            ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()));
+        .extracting("actionUrl")
+        .isEqualTo(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).startPostDrillDiscovery()));
   }
 
   @SecurityTest
   void startPostDrillDiscovery() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     mockMvc.perform(
             post(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).startPostDrillDiscovery()))
@@ -60,10 +59,12 @@ class StartPostDrillDiscoveryControllerTest extends AbstractSubmissionController
 
   @SecurityTest
   void getStartPostDrillDiscoveryPage_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
 
-    var modelAndView = mockMvc.perform(
+    mockMvc.perform(
             get(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage()))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
@@ -71,7 +72,9 @@ class StartPostDrillDiscoveryControllerTest extends AbstractSubmissionController
 
   @SecurityTest
   void startPostDrillDiscovery_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
     mockMvc.perform(
             post(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).startPostDrillDiscovery()))

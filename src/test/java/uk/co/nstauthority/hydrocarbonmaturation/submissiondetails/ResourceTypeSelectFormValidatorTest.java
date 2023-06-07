@@ -10,53 +10,54 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
-class SubmissionTypeSelectFormValidatorTest {
+class ResourceTypeSelectFormValidatorTest {
 
-  private SubmissionTypeSelectFormValidator submissionTypeSelectFormValidator;
+  private ResourceTypeSelectFormValidator resourceTypeSelectFormValidator;
 
   @BeforeEach
   void setup() {
-    submissionTypeSelectFormValidator = new SubmissionTypeSelectFormValidator();
+    resourceTypeSelectFormValidator = new ResourceTypeSelectFormValidator();
   }
 
   @Test
-  void supports_whenSubmissionTypeSelectFormClass_thenTrue() {
-    var supportedClass = SubmissionTypeSelectForm.class;
-    assertTrue(submissionTypeSelectFormValidator.supports(supportedClass));
+  void supports_whenResourceTypeSelectFormClass_thenTrue() {
+    var supportedClass = ResourceTypeSelectForm.class;
+    assertTrue(resourceTypeSelectFormValidator.supports(supportedClass));
   }
 
   @Test
-  void supports_whenNotSubmissionTypeSelectFormClass_thenFalse() {
+  void supports_whenNotResourceTypeSelectFormClass_thenFalse() {
     var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(submissionTypeSelectFormValidator.supports(nonSupportedClass));
+    assertFalse(resourceTypeSelectFormValidator.supports(nonSupportedClass));
   }
 
   @Test
   void validate_whenValidForm_thenNoValidationErrors() {
-    var form = new SubmissionTypeSelectForm();
-    form.setSubmissionType(SubmissionType.CREATE_PROSPECT);
-    var bindingResult = validateSubmissionTypeSelectForm(form);
+    var form = new ResourceTypeSelectForm();
+    form.setResourceType(ResourceType.PROSPECT);
+    var bindingResult = validateResourceTypeSelectForm(form);
 
     assertFalse(bindingResult.hasErrors());
   }
 
   @Test
   void validate_whenInValidForm_thenValidationErrors() {
-    var form = new SubmissionTypeSelectForm();
-    var bindingResult = validateSubmissionTypeSelectForm(form);
+    var form = new ResourceTypeSelectForm();
+    var bindingResult = validateResourceTypeSelectForm(form);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors).containsExactly(
-        entry("submissionType", Set.of("submissionType.required"))
+        entry("resourceType", Set.of("resourceType.required"))
     );
   }
 
-  private BindingResult validateSubmissionTypeSelectForm(SubmissionTypeSelectForm form) {
+  private BindingResult validateResourceTypeSelectForm(ResourceTypeSelectForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    submissionTypeSelectFormValidator.validate(form, bindingResult);
+    resourceTypeSelectFormValidator.validate(form, bindingResult);
 
     return bindingResult;
   }

@@ -11,8 +11,8 @@
   backLinkUrl=springUrl(backLinkUrl)>
     <@fdsStartPage.startPage startActionText="Start now" startActionUrl=actionUrl>
       <p class="govuk-body">
-        Use this service to advise of a prospect or discovery being relinquished.
-        You should provide the latest information available for the prospect or discovery as part of your submission.
+        Use this service to advise of a ${resourceType.getDisplayName()?lower_case} being relinquished.
+        You should provide the latest information available for the ${resourceType.getDisplayName()?lower_case} as part of your submission.
       </p>
     </@fdsStartPage.startPage>
 </@defaultPage>

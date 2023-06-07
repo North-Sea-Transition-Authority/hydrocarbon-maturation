@@ -11,23 +11,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 @ExtendWith(MockitoExtension.class)
-class SubmissionTypeSelectServiceTest {
+class ResourceTypeSelectServiceTest {
 
-  private static SubmissionTypeSelectFormValidator submissionTypeSelectFormValidator;
-  private static SubmissionTypeSelectService submissionTypeSelectService;
+  private static ResourceTypeSelectFormValidator resourceTypeSelectFormValidator;
+  private static ResourceTypeSelectService resourceTypeSelectService;
 
   @BeforeAll
   static void setup() {
-    submissionTypeSelectFormValidator = mock(SubmissionTypeSelectFormValidator.class);
-    submissionTypeSelectService = new SubmissionTypeSelectService(submissionTypeSelectFormValidator);
+    resourceTypeSelectFormValidator = mock(ResourceTypeSelectFormValidator.class);
+    resourceTypeSelectService = new ResourceTypeSelectService(resourceTypeSelectFormValidator);
   }
 
   @Test
   void validate_verifyMethodCall() {
-    var form = new SubmissionTypeSelectForm();
+    var form = new ResourceTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    submissionTypeSelectService.validate(form, bindingResult);
-    verify(submissionTypeSelectFormValidator, times(1)).validate(form, bindingResult);
+    resourceTypeSelectService.validate(form, bindingResult);
+    verify(resourceTypeSelectFormValidator, times(1)).validate(form, bindingResult);
   }
 }

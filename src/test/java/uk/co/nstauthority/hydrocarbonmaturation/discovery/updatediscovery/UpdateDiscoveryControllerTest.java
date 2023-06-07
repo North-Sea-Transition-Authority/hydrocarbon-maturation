@@ -47,7 +47,9 @@ class UpdateDiscoveryControllerTest extends AbstractSubmissionControllerTest {
   @Test
   void getUpdateDiscoveryPage_assertModelProperties() throws Exception {
     var form = new UpdateDiscoveryForm();
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     var modelAndView = mockMvc.perform(
             get(ReverseRouter.route(on(UpdateDiscoveryController.class).getUpdateDiscoveryPage(null)))
@@ -79,7 +81,9 @@ class UpdateDiscoveryControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
     when(updateDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
     when(updateDiscoveryService.createUpdateDiscovery(form)).thenReturn(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     mockMvc.perform(
             post(ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)))
@@ -100,7 +104,9 @@ class UpdateDiscoveryControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
     when(updateDiscoveryService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     var modelAndView = mockMvc.perform(
             post(ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)))
@@ -132,7 +138,9 @@ class UpdateDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void createUpdateDiscovery_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
     mockMvc.perform(
             post(ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(null, null)))
@@ -143,7 +151,9 @@ class UpdateDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getUpdateDiscoveryPage_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(UpdateDiscoveryController.class).getUpdateDiscoveryPage(null)))

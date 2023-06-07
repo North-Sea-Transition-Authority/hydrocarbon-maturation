@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryPurposeController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = StartUpdateDiscoverySubmissionController.class)
@@ -25,7 +25,9 @@ class StartUpdateDiscoverySubmissionControllerTest extends AbstractSubmissionCon
 
   @SecurityTest
   void getStartUpdateDiscoveryPage_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
 
     mockMvc.perform(
@@ -36,7 +38,9 @@ class StartUpdateDiscoverySubmissionControllerTest extends AbstractSubmissionCon
 
   @SecurityTest
   void startUpdateDiscovery_whenPermission_assertRedirection() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
     mockMvc.perform(
@@ -49,7 +53,9 @@ class StartUpdateDiscoverySubmissionControllerTest extends AbstractSubmissionCon
 
   @SecurityTest
   void startUpdateDiscovery_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
 
     mockMvc.perform(
@@ -61,7 +67,9 @@ class StartUpdateDiscoverySubmissionControllerTest extends AbstractSubmissionCon
 
   @Test
   void getStartUpdateDiscoveryPage_assertModelProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
     var modelAndView = mockMvc.perform(
@@ -73,6 +81,6 @@ class StartUpdateDiscoverySubmissionControllerTest extends AbstractSubmissionCon
     assertThat(modelAndView).isNotNull();
     var model = modelAndView.getModel();
     assertEquals(ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).startUpdateDiscovery()), model.get("actionUrl"));
-    assertEquals(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()), model.get("backLinkUrl"));
+    assertEquals(ReverseRouter.route(on(DiscoveryPurposeController.class).getDiscoveryPurposeForm()), model.get("backLinkUrl"));
   }
 }

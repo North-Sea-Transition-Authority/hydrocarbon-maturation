@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -13,32 +12,37 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.RelinquishmentForm;
+import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.DiscoveryRelinquishmentForm;
+import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.ProspectRelinquishmentForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -47,14 +51,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionCreateServiceTest {
 
   private static final ResourceDetailsForm RESOURCE_DETAILS_FORM = new ResourceDetailsForm();
+  private final static ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @Mock
   private ResourceService resourceService;
@@ -84,13 +89,19 @@ class SubmissionCreateServiceTest {
   private UserDetailService userDetailService;
 
   @Mock
-  private PermissionService permissionService;
-
-  @Mock
   private OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
 
   @Mock
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;
+
+  @Mock
+  private RegulatorTeamService regulatorTeamService;
+
+  @Mock
+  private AreaTeamService areaTeamService;
+
+  @Mock
+  private IndustryTeamService industryTeamService;
 
   @InjectMocks
   private SubmissionCreateService submissionCreateService;
@@ -264,54 +275,9 @@ class SubmissionCreateServiceTest {
   }
 
   @Test
-  void getSubmissionTypeOptionsForUser_whenExplorationTeam_assertAllSubmissionTypes() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
-    var teamMember = TeamMemberTestUtil
-        .Builder()
-        .withRole(RegulatorTeamRole.EXPLORATION)
-        .build();
-    when(userDetailService.getUserDetail()).thenReturn(user);
-    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
-
-    var result = submissionCreateService.getSubmissionTypeOptionsForUser();
-
-    assertThat(result)
-        .extracting(Map::keySet)
-        .isEqualTo(
-            Set.of("CREATE_PROSPECT", "PROSPECT_UPDATE",
-                "POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY_FROM_PROSPECT",
-                "CREATE_DISCOVERY", "UPDATE_DISCOVERY",  "RELINQUISHMENT_PROSPECT")
-        );
-  }
-
-  @Test
-  void getSubmissionTypeOptionsForUser_whenNotExplorationTeam_assertAllSubmissionTypes() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
-    var teamMember = TeamMemberTestUtil
-        .Builder()
-        .withRole(null)
-        .build();
-    when(userDetailService.getUserDetail()).thenReturn(user);
-    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
-
-    var result = submissionCreateService.getSubmissionTypeOptionsForUser();
-
-    assertThat(result)
-        .extracting(Map::keySet)
-        .isEqualTo(
-            Set.of("CREATE_PROSPECT", "PROSPECT_UPDATE",
-                "POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY_FROM_PROSPECT",
-                "CREATE_DISCOVERY", "UPDATE_DISCOVERY")
-        );
-  }
-
-  @Test
-  void createRelinquishment_whenProspect_verifyMethodCalls() {
-    var relinquishmentForm = new RelinquishmentForm();
-    relinquishmentForm.setChosenResourceType(ResourceType.PROSPECT);
-    relinquishmentForm.setProspectSelectedOption(UUID.randomUUID().toString());
+  void createProspectRelinquishment_verifyMethodCalls() {
+    var prospectRelinquishmentForm = new ProspectRelinquishmentForm();
+    prospectRelinquishmentForm.setProspectSelectedOption(UUID.randomUUID().toString());
     var submissionDetail = new SubmissionDetail();
     var submission = SubmissionTestUtils.createSubmission(new Resource());
     submissionDetail.setSubmission(submission);
@@ -319,10 +285,10 @@ class SubmissionCreateServiceTest {
     when(submissionPersistenceService.createSubmission(submissionDetail.getSubmission().getResource()))
         .thenReturn(newSubmission);
     when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(
-        UUID.fromString(relinquishmentForm.getProspectSelectedOption())))
+        UUID.fromString(prospectRelinquishmentForm.getProspectSelectedOption())))
         .thenReturn(submissionDetail);
 
-    var newSubmissionDetail = submissionCreateService.createRelinquishment(relinquishmentForm);
+    var newSubmissionDetail = submissionCreateService.createProspectRelinquishment(prospectRelinquishmentForm);
 
     verify(submissionDetailPersistenceService)
         .createInitialSubmissionDetail(
@@ -337,10 +303,9 @@ class SubmissionCreateServiceTest {
   }
 
   @Test
-  void createRelinquishment_whenDiscovery_verifyMethodCalls() {
-    var relinquishmentForm = new RelinquishmentForm();
-    relinquishmentForm.setChosenResourceType(ResourceType.DISCOVERY);
-    relinquishmentForm.setDiscoverySelectedOption(UUID.randomUUID().toString());
+  void createDiscoveryRelinquishment_verifyMethodCalls() {
+    var discoveryRelinquishmentForm = new DiscoveryRelinquishmentForm();
+    discoveryRelinquishmentForm.setDiscoverySelectedOption(UUID.randomUUID().toString());
     var submissionDetail = new SubmissionDetail();
     var submission = SubmissionTestUtils.createSubmission(new Resource());
     submissionDetail.setSubmission(submission);
@@ -348,10 +313,10 @@ class SubmissionCreateServiceTest {
     when(submissionPersistenceService.createSubmission(submissionDetail.getSubmission().getResource()))
         .thenReturn(newSubmission);
     when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(
-        UUID.fromString(relinquishmentForm.getDiscoverySelectedOption())))
+        UUID.fromString(discoveryRelinquishmentForm.getDiscoverySelectedOption())))
         .thenReturn(submissionDetail);
 
-    var newSubmissionDetail = submissionCreateService.createRelinquishment(relinquishmentForm);
+    var newSubmissionDetail = submissionCreateService.createDiscoveryRelinquishment(discoveryRelinquishmentForm);
 
     verify(submissionDetailPersistenceService)
         .createInitialSubmissionDetail(
@@ -363,15 +328,6 @@ class SubmissionCreateServiceTest {
         .setRelinquishmentInformationSource(newSubmissionDetail);
     verify(submissionPersistenceService, times(1))
         .createSubmission(submissionDetail.getSubmission().getResource());
-  }
-
-  @Test
-  void createRelinquishment_whenNotDiscoveryOrProspect_assertThrow() {
-    var relinquishmentForm = new RelinquishmentForm();
-    relinquishmentForm.setChosenResourceType(ResourceType.FIELD);
-    assertThatThrownBy(() -> submissionCreateService.createRelinquishment(relinquishmentForm))
-        .isExactlyInstanceOf(ActionNotAllowedException.class)
-        .hasMessage("You must create a relinquishment off of a discovery or prospect.");
   }
 
   @Test
@@ -387,5 +343,34 @@ class SubmissionCreateServiceTest {
 
     verify(submissionDetailDuplicationService, times(1))
         .duplicateSubmissionDetailSections(oldSubmissionDetail, updateSubmissionDetail);
+  }
+
+  @ParameterizedTest
+  @MethodSource("calculateGetResourceTypeOptionsForUserConditionArguments")
+  void getResourceTypeOptionsForUser(boolean isSubmitter, boolean isExploration, boolean isAreaTeamMember) {
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+
+    when(industryTeamService.isSubmitter(USER)).thenReturn(isSubmitter);
+    if (!isSubmitter) {
+      when(regulatorTeamService.isExploration(USER)).thenReturn(isExploration);
+    }
+    if (!isSubmitter && !isExploration) {
+      when(areaTeamService.isAreaTeamMember(USER)).thenReturn(isAreaTeamMember);
+    }
+
+    var resourceTypeOptions = new java.util.HashMap<String, String>(Map.of());
+    if (isSubmitter || isExploration) {
+      resourceTypeOptions.put(ResourceType.PROSPECT.name(), ResourceType.PROSPECT.getDisplayName());
+    }
+    if (isSubmitter || isExploration || isAreaTeamMember) {
+      resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getDisplayName());
+    }
+
+    assertThat(submissionCreateService.getResourceTypeOptionsForUser()).isEqualTo(resourceTypeOptions);
+  }
+
+  private static Stream<Arguments> calculateGetResourceTypeOptionsForUserConditionArguments() {
+    return Sets.cartesianProduct(Set.of(true, false), Set.of(true, false), Set.of(true, false)).stream()
+        .map(booleans -> Arguments.of(booleans.get(0), booleans.get(1), booleans.get(2)));
   }
 }

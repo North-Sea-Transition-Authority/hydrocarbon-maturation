@@ -49,6 +49,15 @@ public class IndustryTeamService {
     return teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.SUBMITTER.name()));
   }
 
+  public boolean isSubmitter(ServiceUserDetail user) {
+    return getIndustryTeamForUser(user)
+        .map(team -> teamMemberService.isMemberOfTeamWithAnyRoleOf(
+            team.toTeamId(),
+            user,
+            Set.of(IndustryTeamRole.SUBMITTER.name())))
+        .orElse(false);
+  }
+
   Optional<Team> getTeam(TeamId teamId) {
     return teamService.getTeam(teamId, TeamType.INDUSTRY);
   }
@@ -167,5 +176,11 @@ public class IndustryTeamService {
     return industryTeamRoles.stream()
         .map(IndustryTeamRole::name)
         .collect(Collectors.toSet());
+  }
+
+  private Optional<Team> getIndustryTeamForUser(ServiceUserDetail user) {
+    return teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.INDUSTRY)
+        .stream()
+        .findFirst();
   }
 }

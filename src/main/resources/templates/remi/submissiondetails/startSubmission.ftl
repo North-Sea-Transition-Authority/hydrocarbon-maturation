@@ -1,7 +1,7 @@
 <#include '../layout/layout.ftl'>
 
-<#assign pageTitle = "What is the purpose of this submission?" />
-<#-- @ftlvariable name="submissionType" type="java.util.Map<String, String>" -->
+<#assign pageTitle = "What type of resource do you want to submit information for?" />
+<#-- @ftlvariable name="resourceTypes" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
@@ -17,8 +17,8 @@ backLinkUrl=springUrl(backLinkUrl)>
     actionUrl=springUrl(actionUrl)>
 
       <@fdsRadio.radio
-      path="form.submissionType"
-      radioItems=submissionType
+      path="form.resourceType"
+      radioItems=resourceTypes
       labelText=pageTitle
       fieldsetHeadingSize="h1"
       fieldsetHeadingClass="govuk-fieldset__legend--xl"/>

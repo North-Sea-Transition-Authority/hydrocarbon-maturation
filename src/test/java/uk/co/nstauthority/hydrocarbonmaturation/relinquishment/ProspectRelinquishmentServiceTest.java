@@ -15,43 +15,43 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCrea
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @ExtendWith(MockitoExtension.class)
-class RelinquishmentServiceTest {
+class ProspectRelinquishmentServiceTest {
 
   @Mock
   private SubmissionCreateService submissionCreateService;
 
   @Mock
-  private RelinquishmentFormValidator relinquishmentFormValidator;
+  private ProspectRelinquishmentFormValidator relinquishmentFormValidator;
 
   @InjectMocks
-  private RelinquishmentService relinquishmentService;
+  private ProspectRelinquishmentService prospectRelinquishmentService;
 
   @Test
-  void createRelinquishment_verifyMethodCall() {
-    var form = new RelinquishmentForm();
+  void createProspectRelinquishment_verifyMethodCall() {
+    var form = new ProspectRelinquishmentForm();
 
-    relinquishmentService.createRelinquishment(form);
+    prospectRelinquishmentService.createProspectRelinquishment(form);
 
-    verify(submissionCreateService).createRelinquishment(form);
+    verify(submissionCreateService).createProspectRelinquishment(form);
   }
 
   @Test
-  void createRelinquishment_assertReturn() {
-    var form = new RelinquishmentForm();
+  void createProspectRelinquishment_assertReturn() {
+    var form = new ProspectRelinquishmentForm();
     var submissionDetail = mock(SubmissionDetail.class);
-    when(relinquishmentService.createRelinquishment(form))
+    when(prospectRelinquishmentService.createProspectRelinquishment(form))
         .thenReturn(submissionDetail);
 
-    var result = relinquishmentService.createRelinquishment(form);
+    var result = prospectRelinquishmentService.createProspectRelinquishment(form);
 
     assertThat(result).isEqualTo(submissionDetail);
   }
 
   @Test
   void validate_verifyMethodCall() {
-    var form = new RelinquishmentForm();
+    var form = new ProspectRelinquishmentForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    relinquishmentService.validate(form, bindingResult);
+    prospectRelinquishmentService.validate(form, bindingResult);
 
     verify(relinquishmentFormValidator).validate(form, bindingResult);
   }

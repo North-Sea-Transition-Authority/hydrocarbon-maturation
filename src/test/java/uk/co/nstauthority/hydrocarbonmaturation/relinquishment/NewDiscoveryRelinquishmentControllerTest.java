@@ -32,11 +32,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 
-@ContextConfiguration(classes = NewRelinquishmentController.class)
-class NewRelinquishmentControllerTest extends AbstractSubmissionControllerTest {
+@ContextConfiguration(classes = NewDiscoveryRelinquishmentController.class)
+class NewDiscoveryRelinquishmentControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
-  private RelinquishmentService relinquishmentService;
+  private DiscoveryRelinquishmentService discoveryRelinquishmentService;
 
   private UUID submissionDetailId;
 
@@ -47,11 +47,14 @@ class NewRelinquishmentControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getRelinquishmentPage_assertModelProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+
         .thenReturn(true);
 
     var modelAndView = mockMvc.perform(
-            get(ReverseRouter.route(on(NewRelinquishmentController.class).getNewRelinquishmentPage()))
+            get(ReverseRouter.route(on(NewDiscoveryRelinquishmentController.class).getNewDiscoveryRelinquishmentPage()))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView();
@@ -61,28 +64,31 @@ class NewRelinquishmentControllerTest extends AbstractSubmissionControllerTest {
         .extracting(
             "backLinkUrl",
             "actionUrl",
-            "prospectApiEndpoint")
+            "discoveryApiEndpoint")
         .containsExactly(
-            ReverseRouter.route(on(StartRelinquishmentSubmissionController.class).getStartRelinquishmentPage()),
-            ReverseRouter.route(on(NewRelinquishmentController.class)
-                .createNewRelinquishmentSubmission(null, null)),
+            ReverseRouter.route(on(StartRelinquishmentSubmissionController.class).getStartDiscoveryRelinquishmentPage()),
+            ReverseRouter.route(on(NewDiscoveryRelinquishmentController.class)
+                .createNewDiscoveryRelinquishmentSubmission(null, null)),
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchProspects(null, SubmissionType.RELINQUISHMENT_PROSPECT)));
+                .searchProspects(null, SubmissionType.RELINQUISHMENT_DISCOVERY)));
   }
 
   @SecurityTest
   void createNewRelinquishmentSubmission_asValidForm_assertRedirect() throws Exception {
-    var form = new RelinquishmentForm();
+    var form = new DiscoveryRelinquishmentForm();
 
-    var bindingResult = new BeanPropertyBindingResult(RelinquishmentForm.class, "form");
-    when(relinquishmentService.validate(any(), any())).thenReturn(bindingResult);
-    when(relinquishmentService.createRelinquishment(form)).thenReturn(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    var bindingResult = new BeanPropertyBindingResult(ProspectRelinquishmentForm.class, "form");
+    when(discoveryRelinquishmentService.validate(any(), any())).thenReturn(bindingResult);
+    when(discoveryRelinquishmentService.createDiscoveryRelinquishment(form)).thenReturn(submissionDetail);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(NewRelinquishmentController.class)
-                .createNewRelinquishmentSubmission(null, null)))
+            post(ReverseRouter.route(on(NewDiscoveryRelinquishmentController.class)
+                .createNewDiscoveryRelinquishmentSubmission(null, null)))
                 .flashAttr("form", form)
                 .with(user(USER))
                 .with(csrf()))
@@ -93,17 +99,20 @@ class NewRelinquishmentControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void createNewRelinquishmentSubmission_asInvalidForm_assertIsOk() throws Exception {
-    var form = new RelinquishmentForm();
+    var form = new DiscoveryRelinquishmentForm();
 
-    var bindingResult = new BeanPropertyBindingResult(RelinquishmentForm.class, "form");
+    var bindingResult = new BeanPropertyBindingResult(ProspectRelinquishmentForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
-    when(relinquishmentService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(discoveryRelinquishmentService.validate(any(), any())).thenReturn(bindingResult);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+
         .thenReturn(true);
 
     var modelAndView = mockMvc.perform(
-            post(ReverseRouter.route(on(NewRelinquishmentController.class)
-                .createNewRelinquishmentSubmission(null, null)))
+            post(ReverseRouter.route(on(NewDiscoveryRelinquishmentController.class)
+                .createNewDiscoveryRelinquishmentSubmission(null, null)))
                 .flashAttr("form", form)
                 .with(user(USER))
                 .with(csrf()))
@@ -117,17 +126,17 @@ class NewRelinquishmentControllerTest extends AbstractSubmissionControllerTest {
             "backLinkUrl",
             "actionUrl",
             "form",
-            "prospectApiEndpoint")
+            "discoveryApiEndpoint")
         .containsExactly(
-            ReverseRouter.route(on(StartRelinquishmentSubmissionController.class).getStartRelinquishmentPage()),
-            ReverseRouter.route(on(NewRelinquishmentController.class)
-                .createNewRelinquishmentSubmission(null, null)),
+            ReverseRouter.route(on(StartRelinquishmentSubmissionController.class).getStartDiscoveryRelinquishmentPage()),
+            ReverseRouter.route(on(NewDiscoveryRelinquishmentController.class)
+                .createNewDiscoveryRelinquishmentSubmission(null, null)),
             form,
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchProspects(null, SubmissionType.RELINQUISHMENT_PROSPECT))
+                .searchProspects(null, SubmissionType.RELINQUISHMENT_DISCOVERY))
         );
 
-    verify(relinquishmentService, times(1)).validate(any(), any());
-    verify(relinquishmentService, never()).createRelinquishment(any());
+    verify(discoveryRelinquishmentService, times(1)).validate(any(), any());
+    verify(discoveryRelinquishmentService, never()).createDiscoveryRelinquishment(any());
   }
 }

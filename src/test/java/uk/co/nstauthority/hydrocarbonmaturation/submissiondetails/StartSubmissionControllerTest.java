@@ -17,16 +17,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryController;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryPurposeController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.StartProspectController;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
-import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.StartRelinquishmentSubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectPurposeController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
@@ -34,163 +30,96 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 class StartSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
-  SubmissionTypeSelectService submissionTypeSelectService;
+  ResourceTypeSelectService resourceTypeSelectService;
 
   @MockBean
   SubmissionCreateService submissionCreateService;
 
   @SecurityTest
-  void startSubmission_whenValidFormAndCreateProspect_assertRedirection() throws Exception {
-    var form = new SubmissionTypeSelectForm();
+  void startSubmission_whenValidFormAndProspect_assertRedirection() throws Exception {
+    var form = new ResourceTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(resourceTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
             .with(user(USER))
             .with(csrf())
-            .param("submissionType", SubmissionType.CREATE_PROSPECT.name()))
+            .param("resourceType", ResourceType.PROSPECT.name()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(StartProspectController.class).getStartPage())));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm())));
   }
 
   @SecurityTest
-  void startSubmission_whenValidFormAndCreateProspect_whenNoPermission_assertForbidden() throws Exception {
-    var form = new SubmissionTypeSelectForm();
+  void startSubmission_whenValidFormAndProspect_whenNoPermission_assertForbidden() throws Exception {
+    var form = new ResourceTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(resourceTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
                 .with(user(USER))
                 .with(csrf())
-                .param("submissionType", SubmissionType.CREATE_PROSPECT.name()))
+                .param("resourceType", ResourceType.PROSPECT.name()))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
-  void startSubmission_whenValidFormAndUpdateProspect_assertRedirection() throws Exception {
-    var form = new SubmissionTypeSelectForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
-
-    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
-            .with(user(USER))
-            .with(csrf())
-            .param("submissionType", SubmissionType.PROSPECT_UPDATE.name()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage())));
-  }
-
-  @SecurityTest
-  void startSubmission_whenValidFormAndDiscoveryFromProspect_assertRedirection() throws Exception {
-    var form = new SubmissionTypeSelectForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
-    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
-            .with(user(USER))
-            .with(csrf())
-            .param("submissionType", SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT.name()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage())));
-  }
-
-  @Test
   void startSubmission_whenValidFormAndDiscovery_assertRedirection() throws Exception {
-    var form = new SubmissionTypeSelectForm();
+    var form = new ResourceTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(resourceTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
-    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
-            .with(user(USER))
-            .with(csrf())
-            .param("submissionType", SubmissionType.CREATE_DISCOVERY.name()))
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
+                .with(user(USER))
+                .with(csrf())
+                .param("resourceType", ResourceType.DISCOVERY.name()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(StartDiscoveryController.class).startDiscovery())));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(DiscoveryPurposeController.class).getDiscoveryPurposeForm())));
   }
 
-  @SecurityTest
-  void startSubmission_whenValidFormAndUpdateDiscovery_assertRedirection() throws Exception {
-    var form = new SubmissionTypeSelectForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
-    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
-            .with(user(USER))
-            .with(csrf())
-            .param("submissionType", SubmissionType.UPDATE_DISCOVERY.name()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(
-            ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage())));
-  }
-
-  @SecurityTest
-  void startSubmission_whenValidFormAndProspectRelinquishment_assertRedirection() throws Exception {
-    var form = new SubmissionTypeSelectForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
-    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
-            .with(user(USER))
-            .with(csrf())
-            .param("submissionType", SubmissionType.RELINQUISHMENT_PROSPECT.name()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(
-            ReverseRouter.route(on(StartRelinquishmentSubmissionController.class).getStartRelinquishmentPage())));
-  }
-
-  @SecurityTest
-  void startSubmission_whenInValidForm_assertStatusOk() throws Exception {
-    var form = new SubmissionTypeSelectForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-
-    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
-    mockMvc.perform(post(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(form, null)))
-            .with(user(USER))
-            .with(csrf()))
-        .andExpect(status().isOk());
-  }
 
   @SecurityTest
   void getSubmissionPurpose_whenNoPermission_assertForbidden() throws Exception {
-    when(submissionCreateService.getSubmissionTypeOptionsForUser())
-        .thenReturn(SubmissionType.getSubmissionTypes());
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(submissionCreateService.getResourceTypeOptionsForUser()).thenReturn(ResourceType.getResourceTypes());
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
     mockMvc.perform(
-            get(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()))
+            get(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType()))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @Test
   void getSubmissionPurpose_assertModelProperties() throws Exception {
-    when(submissionCreateService.getSubmissionTypeOptionsForUser())
-        .thenReturn(SubmissionType.getSubmissionTypes());
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    var resourceTypes = ResourceType.getResourceTypes();
+    resourceTypes.remove(ResourceType.FIELD.name());
+
+    when(submissionCreateService.getResourceTypeOptionsForUser()).thenReturn(resourceTypes);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     var modelAndView = mockMvc.perform(
-        get(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()))
+        get(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType()))
             .with(user(USER)))
         .andReturn()
         .getModelAndView();
@@ -198,8 +127,8 @@ class StartSubmissionControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelAndView).isNotNull();
     var model = modelAndView.getModel();
 
-    assertEquals(SubmissionType.getSubmissionTypes(), model.get("submissionType"));
-    assertEquals(SubmissionTypeSelectForm.class, model.get("form").getClass());
+    assertEquals(resourceTypes, model.get("resourceTypes"));
+    assertEquals(ResourceTypeSelectForm.class, model.get("form").getClass());
     assertEquals(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(null, null)), model.get("actionUrl"));
     assertEquals(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), model.get("backLinkUrl"));
   }

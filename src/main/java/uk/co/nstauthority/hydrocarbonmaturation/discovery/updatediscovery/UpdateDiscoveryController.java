@@ -21,7 +21,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 
 @Controller
 @RequestMapping("/prospect/update-discovery")
-@HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
+@HasPermission(permissions = {
+    RolePermission.EXPLORATION,
+    RolePermission.INDUSTRY_SUBMIT,
+    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
 public class UpdateDiscoveryController {
 
   private final UpdateDiscoveryService updateDiscoveryService;

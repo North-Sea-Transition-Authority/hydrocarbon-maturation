@@ -39,7 +39,8 @@ public class WorkAreaController {
   public ModelAndView getWorkArea() {
     var user = userDetailService.getUserDetail();
     return new ModelAndView("remi/workarea/workArea")
-        .addObject("startSubmissionUrl", ReverseRouter.route(on(StartSubmissionController.class).getSubmissionPurpose()))
+        .addObject("startSubmissionUrl",
+            ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType()))
         .addObject("pageTitle", WORK_AREA_TITLE)
         .addObject("workAreaItems", workAreaItemService.getWorkAreaItems())
         .addObject("canCreateSubmissions",
