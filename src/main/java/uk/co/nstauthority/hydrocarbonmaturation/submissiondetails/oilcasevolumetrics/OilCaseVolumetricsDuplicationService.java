@@ -32,7 +32,7 @@ class OilCaseVolumetricsDuplicationService implements SubmissionSectionDuplicati
 
     probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
             ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR,
-            ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
             ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION,
             ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
         ))

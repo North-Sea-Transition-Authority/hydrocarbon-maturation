@@ -19,6 +19,16 @@ public class GasCaseVolumetricsPersistenceService {
 
   @Transactional
   public void saveGasCaseVolumetrics(GasCaseVolumetricsForm gasCaseVolumetricsForm, SubmissionDetail submissionDetail) {
+    if (gasCaseVolumetricsForm.getGasFormationVolumeFactor().getProbabilityDistributionType() != null) {
+      var gasFormationVolumeFactorProspectDiscovery =
+          ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY;
+      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+          gasFormationVolumeFactorProspectDiscovery,
+          gasCaseVolumetricsForm.getGasFormationVolumeFactor(),
+          submissionDetail
+      );
+    }
+
     if (gasCaseVolumetricsForm.getGasHydrocarbonSaturation().getProbabilityDistributionType() != null) {
       var gasHydrocarbonSaturation =
           ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION;

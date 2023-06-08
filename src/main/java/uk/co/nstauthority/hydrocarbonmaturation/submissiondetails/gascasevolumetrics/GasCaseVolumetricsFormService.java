@@ -60,6 +60,11 @@ public class GasCaseVolumetricsFormService implements SubmissionFormService {
         ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD
     ));
 
+    form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail,
+        ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY
+    ));
+
     return form;
   }
 }

@@ -45,9 +45,9 @@ public class OilCaseVolumetricsFormService implements SubmissionFormService {
         ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION
     ));
 
-    form.setFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+    form.setOilFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
-        ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY
+        ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY
     ));
 
     form.setOilRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(

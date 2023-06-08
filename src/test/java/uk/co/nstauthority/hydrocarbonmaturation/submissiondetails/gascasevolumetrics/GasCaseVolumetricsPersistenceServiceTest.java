@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -32,12 +34,19 @@ class GasCaseVolumetricsPersistenceServiceTest {
   @Test
   void saveGasCaseVolumetrics_whenGivenAForm_verifyCreatedEntity() {
     var form = new GasCaseVolumetricsForm();
+    form.setGasFormationVolumeFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setGasHydrocarbonSaturation(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setGasExpansionFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setCondensateGasRatioLifeOfField(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setGasRecoveryFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
 
     gasCaseVolumetricsPersistenceService.saveGasCaseVolumetrics(form, submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistribution(
+            ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
+            form.getGasFormationVolumeFactor(),
+            submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistribution(
@@ -62,5 +71,14 @@ class GasCaseVolumetricsPersistenceServiceTest {
             ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             form.getCondensateGasRatioLifeOfField(),
             submissionDetail);
+  }
+
+  @Test
+  void saveGasCaseVolumetrics_whenGivenEmptyForm_verifyNothingSaved() {
+    var form = new GasCaseVolumetricsForm();
+
+    gasCaseVolumetricsPersistenceService.saveGasCaseVolumetrics(form, submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, never()).saveProbabilityDistribution(any(), any(), any());
   }
 }

@@ -12,7 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 @Service
 public class GasCaseVolumetricsSummaryService {
 
-  private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
+  private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
   @Autowired
   public GasCaseVolumetricsSummaryService(ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
@@ -45,6 +45,12 @@ public class GasCaseVolumetricsSummaryService {
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
             submissionDetail);
     listOfSummaryViews.add(gasRecoveryFactor);
+
+    var gasFormationVolumeFactor =
+        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
+            submissionDetail);
+    listOfSummaryViews.add(gasFormationVolumeFactor);
 
     return new ProbabilityDistributionsFormSummaryView(listOfSummaryViews);
   }

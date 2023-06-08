@@ -7,7 +7,7 @@ public class OilCaseVolumetricsForm implements SubmissionForm {
 
   private ProbabilityDistributionForm oilHydrocarbonSaturation = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm associatedGasOilRatioLifeOfField = new ProbabilityDistributionForm();
-  private ProbabilityDistributionForm formationVolumeFactor = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm oilFormationVolumeFactor = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm oilRecoveryFactor = new ProbabilityDistributionForm();
 
   public ProbabilityDistributionForm getOilHydrocarbonSaturation() {
@@ -28,13 +28,13 @@ public class OilCaseVolumetricsForm implements SubmissionForm {
     this.associatedGasOilRatioLifeOfField = associatedGasOilRatioLifeOfField;
   }
 
-  public ProbabilityDistributionForm getFormationVolumeFactor() {
-    return formationVolumeFactor;
+  public ProbabilityDistributionForm getOilFormationVolumeFactor() {
+    return oilFormationVolumeFactor;
   }
 
-  public void setFormationVolumeFactor(
-      ProbabilityDistributionForm formationVolumeFactor) {
-    this.formationVolumeFactor = formationVolumeFactor;
+  public void setOilFormationVolumeFactor(
+      ProbabilityDistributionForm oilFormationVolumeFactor) {
+    this.oilFormationVolumeFactor = oilFormationVolumeFactor;
   }
 
   public ProbabilityDistributionForm getOilRecoveryFactor() {

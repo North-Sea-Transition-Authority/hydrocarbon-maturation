@@ -48,6 +48,14 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
         errors,
         "gasRecoveryFactor",
         "Gas recovery factor distribution used");
+
+    var gasFormationVolumeFactor = gasCaseVolumetricsForm.getGasFormationVolumeFactor();
+    ProbabilityDistributionValidationUtil.validatePartial(
+        gasFormationVolumeFactor,
+        errors,
+        "gasFormationVolumeFactor",
+        "Gas formation volume factor (Bg)"
+    );
   }
 
   @Override
@@ -99,5 +107,17 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
         errors,
         "gasRecoveryFactor",
         "Gas recovery factor distribution used");
+
+    ValidationUtils.rejectIfEmpty(errors, "gasFormationVolumeFactor.probabilityDistributionType",
+        "gasFormationVolumeFactor.probabilityDistributionType.required",
+        "Select gas formation volume factor (Bg)");
+
+    var gasFormationVolumeFactor = gasCaseVolumetricsForm.getGasFormationVolumeFactor();
+    ProbabilityDistributionValidationUtil.validateFull(
+        gasFormationVolumeFactor,
+        errors,
+        "gasFormationVolumeFactor",
+        "Gas formation volume factor (Bg)"
+    );
   }
 }

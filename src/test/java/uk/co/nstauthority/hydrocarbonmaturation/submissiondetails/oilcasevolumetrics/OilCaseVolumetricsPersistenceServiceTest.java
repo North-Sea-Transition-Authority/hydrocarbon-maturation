@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -33,7 +35,7 @@ class OilCaseVolumetricsPersistenceServiceTest {
   void saveOilCaseVolumetrics_whenGivenAForm_verifyCreatedEntity() {
     var form = new OilCaseVolumetricsForm();
     form.setOilHydrocarbonSaturation(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
-    form.setFormationVolumeFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
+    form.setOilFormationVolumeFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setOilRecoveryFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setAssociatedGasOilRatioLifeOfField(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
 
@@ -59,8 +61,17 @@ class OilCaseVolumetricsPersistenceServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistribution(
-            ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
-            form.getFormationVolumeFactor(),
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
+            form.getOilFormationVolumeFactor(),
             submissionDetail);
+  }
+
+  @Test
+  void saveOilCaseVolumetrics_whenGivenEmptyForm_verifyNothingSaved() {
+    var form = new OilCaseVolumetricsForm();
+
+    oilCaseVolumetricsPersistenceService.saveOilCaseVolumetrics(form, submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, never()).saveProbabilityDistribution(any(), any(), any());
   }
 }

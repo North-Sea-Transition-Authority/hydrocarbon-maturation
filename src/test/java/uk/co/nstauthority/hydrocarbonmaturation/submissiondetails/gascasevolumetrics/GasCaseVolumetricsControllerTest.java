@@ -178,6 +178,8 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
     assertThat(modelMap)
         .contains(
             entry("form", form),
+            entry("gasFormationVolumeFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY)),
             entry("gasHydrocarbonSaturationTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION)),
             entry("condensateGasRatioLifeOfFieldTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
@@ -186,6 +188,7 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
             ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR)),
             entry("gasRecoveryFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR)),
+            entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
             entry("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError()),

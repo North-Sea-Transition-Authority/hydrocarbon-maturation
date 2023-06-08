@@ -19,12 +19,12 @@ public class OilCaseVolumetricsFormValidator extends PartialFullFormValidator {
   public void validatePartial(SubmissionForm form, Errors errors) {
     var oilCaseVolumetricsForm = (OilCaseVolumetricsForm) form;
 
-    var formationVolumeFactor = oilCaseVolumetricsForm.getFormationVolumeFactor();
+    var oilFormationVolumeFactor = oilCaseVolumetricsForm.getOilFormationVolumeFactor();
     ProbabilityDistributionValidationUtil.validatePartial(
-        formationVolumeFactor,
+        oilFormationVolumeFactor,
         errors,
-        "formationVolumeFactor",
-        "Formation volume factor distribution used"
+        "oilFormationVolumeFactor",
+        "Oil formation volume factor (Bo)"
     );
 
     var oilHydrocarbonSaturation = oilCaseVolumetricsForm.getOilHydrocarbonSaturation();
@@ -56,16 +56,16 @@ public class OilCaseVolumetricsFormValidator extends PartialFullFormValidator {
   public void validateFull(SubmissionForm form, Errors errors) {
     var oilCaseVolumetricsForm = (OilCaseVolumetricsForm) form;
 
-    ValidationUtils.rejectIfEmpty(errors, "formationVolumeFactor.probabilityDistributionType",
-        "formationVolumeFactor.probabilityDistributionType.required",
-        "Select formation volume factor distribution used");
+    ValidationUtils.rejectIfEmpty(errors, "oilFormationVolumeFactor.probabilityDistributionType",
+        "oilFormationVolumeFactor.probabilityDistributionType.required",
+        "Select oil formation volume factor (Bo)");
 
-    var formationVolumeFactor = oilCaseVolumetricsForm.getFormationVolumeFactor();
+    var oilFormationVolumeFactor = oilCaseVolumetricsForm.getOilFormationVolumeFactor();
     ProbabilityDistributionValidationUtil.validateFull(
-        formationVolumeFactor,
+        oilFormationVolumeFactor,
         errors,
-        "formationVolumeFactor",
-        "Formation volume factor distribution used"
+        "oilFormationVolumeFactor",
+        "Oil formation volume factor distribution used"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "oilHydrocarbonSaturation.probabilityDistributionType",

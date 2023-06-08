@@ -68,8 +68,8 @@ class OilCaseVolumetricsFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
-            entry("formationVolumeFactor.probabilityDistributionType",
-                Set.of("formationVolumeFactor.probabilityDistributionType.required")),
+            entry("oilFormationVolumeFactor.probabilityDistributionType",
+                Set.of("oilFormationVolumeFactor.probabilityDistributionType.required")),
             entry("oilHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("oilHydrocarbonSaturation.probabilityDistributionType.required")),
             entry("associatedGasOilRatioLifeOfField.probabilityDistributionType",
@@ -95,8 +95,8 @@ class OilCaseVolumetricsFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
-            entry("formationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
-                Set.of("formationVolumeFactor." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("oilFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
+                Set.of("oilFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error.error")),
             entry("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
@@ -121,8 +121,8 @@ class OilCaseVolumetricsFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .contains(
-            entry("formationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
-                Set.of("formationVolumeFactor." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("oilFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
+                Set.of("oilFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error.error")),
             entry("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
@@ -140,7 +140,7 @@ class OilCaseVolumetricsFormValidatorTest {
         ProbabilityDistributionTestUtil.getFormWithExceedance(
             probabilityDistributionType,
             ProbabilityDistributionTestUtil.getInvalidProbabilityOfExceedanceForm());
-    form.setFormationVolumeFactor(probabilityDistributionForm);
+    form.setOilFormationVolumeFactor(probabilityDistributionForm);
     form.setOilRecoveryFactor(probabilityDistributionForm);
     form.setAssociatedGasOilRatioLifeOfField(probabilityDistributionForm);
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
@@ -154,7 +154,7 @@ class OilCaseVolumetricsFormValidatorTest {
         ProbabilityDistributionTestUtil.getFormWithExceedance(
             probabilityDistributionType,
             new ProbabilityOfExceedanceForm());
-    form.setFormationVolumeFactor(probabilityDistributionForm);
+    form.setOilFormationVolumeFactor(probabilityDistributionForm);
     form.setOilRecoveryFactor(probabilityDistributionForm);
     form.setAssociatedGasOilRatioLifeOfField(probabilityDistributionForm);
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
@@ -167,7 +167,7 @@ class OilCaseVolumetricsFormValidatorTest {
     form.setOilHydrocarbonSaturation(probDistributionForm);
     form.setOilRecoveryFactor(probDistributionForm);
     form.setAssociatedGasOilRatioLifeOfField(probDistributionForm);
-    form.setFormationVolumeFactor(probDistributionForm);
+    form.setOilFormationVolumeFactor(probDistributionForm);
     return form;
   }
 

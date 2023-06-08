@@ -183,7 +183,7 @@ class OilCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
             entry("associatedGasOilRatioLifeOfFieldTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD)),
             entry("formationVolumeFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY)),
+                ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY)),
             entry("oilRecoveryFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR)),
             entry("oilHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),

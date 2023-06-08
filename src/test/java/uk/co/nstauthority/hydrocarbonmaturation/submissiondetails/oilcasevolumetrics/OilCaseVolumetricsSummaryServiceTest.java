@@ -26,7 +26,7 @@ class OilCaseVolumetricsSummaryServiceTest {
   @InjectMocks
   private OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
 
-  private SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
   @Test
   void getOilCaseVolumetricsSummaryView_emptySummaries() {

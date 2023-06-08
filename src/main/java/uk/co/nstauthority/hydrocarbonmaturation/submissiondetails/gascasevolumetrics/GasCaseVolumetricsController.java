@@ -85,6 +85,9 @@ public class GasCaseVolumetricsController {
   private ModelAndView getGasCaseVolumetricsModelAndView(GasCaseVolumetricsForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/gasCaseVolumetrics")
         .addObject("form", form)
+        .addObject("gasFormationVolumeFactorTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
         .addObject("gasHydrocarbonSaturationTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION))
@@ -97,6 +100,7 @@ public class GasCaseVolumetricsController {
         .addObject("gasRecoveryFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR))
+        .addObject("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError())
         .addObject("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError())
@@ -111,6 +115,11 @@ public class GasCaseVolumetricsController {
     var modelAndView = getGasCaseVolumetricsModelAndView(form, submissionDetail);
 
     return modelAndView
+        .addObject("gasFormationVolumeFactorError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "gasFormationVolumeFactor",
+                form.getGasFormationVolumeFactor()))
         .addObject("gasHydrocarbonSaturationError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,

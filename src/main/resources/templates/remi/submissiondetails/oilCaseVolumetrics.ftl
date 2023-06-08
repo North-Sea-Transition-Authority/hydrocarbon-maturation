@@ -23,8 +23,8 @@
 
   <@fdsForm.htmlForm>
     <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.formationVolumeFactor"
-      labelText="Formation volume factor distribution used"
+      probabilityDistributionPath="form.oilFormationVolumeFactor"
+      labelText="Oil formation volume factor (Bo)"
       template=formationVolumeFactorTemplate
       error=formationVolumeFactorError/>
 

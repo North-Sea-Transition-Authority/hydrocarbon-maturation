@@ -26,7 +26,7 @@ class GasCaseVolumetricsSummaryServiceTest {
   @InjectMocks
   private GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
 
-  private SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
   @Test
   void getGasCaseVolumetricsSummaryView_emptySummaries() {
@@ -44,6 +44,7 @@ class GasCaseVolumetricsSummaryServiceTest {
             ProbabilityDistributionsFormSummaryView::probabilityDistributionSummaryViews)
         .isEqualTo(
             List.of(
+                emptySummary,
                 emptySummary,
                 emptySummary,
                 emptySummary,
@@ -71,6 +72,7 @@ class GasCaseVolumetricsSummaryServiceTest {
             ProbabilityDistributionsFormSummaryView::probabilityDistributionSummaryViews)
         .isEqualTo(
             List.of(
+                testSummary,
                 testSummary,
                 testSummary,
                 testSummary,

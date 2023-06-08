@@ -12,7 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 @Service
 public class OilCaseVolumetricsSummaryService {
 
-  private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
+  private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
   @Autowired
   public OilCaseVolumetricsSummaryService(ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
@@ -22,11 +22,11 @@ public class OilCaseVolumetricsSummaryService {
   public ProbabilityDistributionsFormSummaryView getOilCaseVolumetricsSummaryView(SubmissionDetail submissionDetail) {
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
 
-    var formationVolumeFactor =
+    var oilFormationVolumeFactor =
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
             submissionDetail);
-    listOfSummaryViews.add(formationVolumeFactor);
+    listOfSummaryViews.add(oilFormationVolumeFactor);
 
     var oilHydrocarbonSaturation =
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
