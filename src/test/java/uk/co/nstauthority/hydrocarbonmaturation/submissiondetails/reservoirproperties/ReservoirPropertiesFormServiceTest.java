@@ -192,7 +192,7 @@ class ReservoirPropertiesFormServiceTest {
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_DISCOVERY", "UPDATE_DISCOVERY"})
-  void reservoirPropertiesEntityToForm_whenCreateDiscovery_thenVerifyDIscoveryDistributionEntityToForm(
+  void reservoirPropertiesEntityToForm_whenCreateOrUpdateDiscovery_thenVerifyDiscoveryDistributionEntityToForm(
       SubmissionType submissionType) {
     var reservoirProperty = getReservoirProperty(submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
@@ -205,20 +205,56 @@ class ReservoirPropertiesFormServiceTest {
     when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(any()))
         .thenReturn(true);
 
-    reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail);
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
 
-    verify(probabilityDistributionFormService, times(1))
-        .probabilityDistributionEntityToForm(submissionDetail,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT);
-    verify(probabilityDistributionFormService, times(1))
-        .probabilityDistributionEntityToForm(submissionDetail,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT);
-    verify(probabilityDistributionFormService, times(1))
-        .probabilityDistributionEntityToForm(submissionDetail,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
-    verify(probabilityDistributionFormService, times(1))
-        .probabilityDistributionEntityToForm(submissionDetail,
-            ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        eq(submissionDetail), any())).thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(submissionDetail,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(submissionDetail,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(submissionDetail,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(submissionDetail,
+            ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY))
+        .thenReturn(probabilityDistributionForm);
+
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail))
+        .extracting(
+            ReservoirPropertiesForm::getDepthToOilWaterContact,
+            ReservoirPropertiesForm::getDepthToGasOilContact,
+            ReservoirPropertiesForm::getDepthToGasWaterContact,
+            ReservoirPropertiesForm::getAverageNetPayThickness
+        )
+        .containsExactly(
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm
+        );
+  }
+
+  @Test
+  void reservoirPropertiesEntityToForm_whenPostDrillDryHole_thenVerifyDryWellDistributionEntityToForm() {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        eq(submissionDetail), any())).thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(submissionDetail,
+            ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL))
+        .thenReturn(probabilityDistributionForm);
+
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getAverageNetPayThickness())
+        .isEqualTo(probabilityDistributionForm);
   }
 
   @Test

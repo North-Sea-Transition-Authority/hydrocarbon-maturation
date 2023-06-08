@@ -223,11 +223,17 @@ public class ReservoirPropertiesController {
                   .getProbabilityDistributionTemplateForInstance(
                       ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT))
           .addObject("averageNetPayThicknessError", ProbabilityDistributionTypeError.emptyError());
-    } else if (submissionDetail.isDryWellOrDiscoverySubmission()) {
+    } else if (submissionDetail.isDryWellSubmission()) {
+      modelAndView.addObject("averageNetReservoirThicknessTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL))
+          .addObject("averageNetReservoirThicknessError", ProbabilityDistributionTypeError.emptyError());
+    } else if (submissionDetail.isDiscoverySubmission()) {
       modelAndView.addObject("averageNetPayThicknessOptionalTemplate",
-          probabilityDistributionTemplateService
-              .getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY))
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY))
           .addObject("averageNetPayThicknessOptionalError", ProbabilityDistributionTypeError.emptyError());
     }
   }
@@ -263,6 +269,7 @@ public class ReservoirPropertiesController {
                 "netPorosity",
                 form.getNetPorosity()));
 
+    var averageNetPayThicknessFormName = "averageNetPayThickness";
     if (submissionDetail.isProspectSubmission()) {
       modelAndView
           .addObject("depthToHydrocarbonContactError",
@@ -273,13 +280,19 @@ public class ReservoirPropertiesController {
           .addObject("averageNetPayThicknessError",
           probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
               bindingResult,
-              "averageNetPayThickness",
+              averageNetPayThicknessFormName,
               form.getAverageNetPayThickness()));
-    } else if (submissionDetail.isDryWellOrDiscoverySubmission()) {
+    } else if (submissionDetail.isDryWellSubmission()) {
+      modelAndView.addObject("averageNetReservoirThicknessError",
+          probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              averageNetPayThicknessFormName,
+              form.getAverageNetPayThickness()));
+    } else if (submissionDetail.isDiscoverySubmission()) {
       modelAndView.addObject("averageNetPayThicknessOptionalError",
           probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
               bindingResult,
-              "averageNetPayThickness",
+              averageNetPayThicknessFormName,
               form.getAverageNetPayThickness()
           ));
     }

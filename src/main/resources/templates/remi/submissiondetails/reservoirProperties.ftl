@@ -92,7 +92,13 @@
         labelText="Average net pay thickness distribution used"
         template=averageNetPayThicknessTemplate
         error=averageNetPayThicknessError/>
-    <#elseif dryHoleSubmission || discoverySubmission>
+    <#elseif dryHoleSubmission>
+      <@probabilityDistribution.probabilityDistributionTemplate
+        probabilityDistributionPath="form.averageNetPayThickness"
+        labelText="Average net reservoir thickness distribution used"
+        template=averageNetReservoirThicknessTemplate
+        error=averageNetReservoirThicknessError/>
+    <#elseif discoverySubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionPath="form.averageNetPayThickness"
         labelText="Average net pay thickness distribution used"
@@ -118,7 +124,7 @@
         template=percentOfGrvOilBearingTemplate
         error=percentOfGrvOilBearingError/>
     </#if>
-      
+
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.netToGross"
       labelText="Net-to-gross distribution used"

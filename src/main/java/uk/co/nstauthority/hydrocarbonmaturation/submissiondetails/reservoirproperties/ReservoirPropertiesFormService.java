@@ -91,11 +91,11 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
 
   ReservoirPropertiesForm getReservoirPropertiesForm(SubmissionDetail submissionDetail) {
     return reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)
-        .map(this::reservoirPropertyToEntity)
+        .map(this::reservoirPropertyEntityToForm)
         .orElse(new ReservoirPropertiesForm());
   }
 
-  private ReservoirPropertiesForm reservoirPropertyToEntity(ReservoirProperty reservoirProperty) {
+  private ReservoirPropertiesForm reservoirPropertyEntityToForm(ReservoirProperty reservoirProperty) {
     var form = new ReservoirPropertiesForm();
 
     setFormation(reservoirProperty, form);
@@ -120,13 +120,21 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
     if (submissionDetail.isDryWellOrDiscoverySubmission()) {
       form.setReservoirConnectivity(reservoirProperty.getReservoirConnectivity());
       form.setReservoirFacies(reservoirProperty.getReservoirFacies());
+    }
+
+    if (submissionDetail.isDryWellSubmission()) {
       form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           submissionDetail,
-          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL
       ));
     }
 
     if (submissionDetail.isDiscoverySubmission()) {
+      form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY
+      ));
+
       var discoveryWellDetail = discoveryWellDetailsPersistenceService
           .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
           .orElse(new DiscoveryWellDetail());

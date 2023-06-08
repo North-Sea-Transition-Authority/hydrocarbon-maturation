@@ -34,10 +34,15 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.M_TVT,
       "Average net pay thickness"
   ),
-  AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY(
+  AVERAGE_NET_PAY_THICKNESS_DISCOVERY(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.M_TVT,
       "Average net pay thickness"
+  ),
+  AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL(
+      List.of(CONSTANT),
+      ProbabilityOfExceedanceUnits.M_TVT,
+      "Average net reservoir thickness"
   ),
 
   GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY(

@@ -55,14 +55,14 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
     if (newSubmissionDetail.isDryWellSubmission()
         && oldSubmissionDetail.hasSameSubmissionType(newSubmissionDetail)) {
       applicableInstances.remove(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
-      applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
+      applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL);
       applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
     }
 
     if (newSubmissionDetail.isDiscoverySubmission()
         && newSubmissionDetail.getSubmissionType() != SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
       applicableInstances.remove(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
-      applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
+      applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
       applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT);
       applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
       applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT);
@@ -74,7 +74,7 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
           //since the question is mandatory for dry hole submissions the not calculated option is not copied forward
           //unless its an update submission, then all information for dry wells is copied forward
           if (probabilityDistribution.getInstance() == ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT
-              && newSubmissionDetail.isDryWellOrDiscoverySubmission()) {
+              && newSubmissionDetail.isDiscoverySubmission()) {
             if (probabilityDistribution.getDistributionType() == ProbabilityDistributionType.NOT_CALCULATED) {
               return;
             }
@@ -82,7 +82,7 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
                 submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
                     newSubmissionDetail, probabilityDistribution, ProbabilityDistribution.class);
             newProbabilityDistribution.setInstance(
-                ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY);
+                ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
           } else {
             submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
                 probabilityDistribution,

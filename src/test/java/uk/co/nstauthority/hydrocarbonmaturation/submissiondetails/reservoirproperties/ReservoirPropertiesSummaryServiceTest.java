@@ -417,12 +417,18 @@ class ReservoirPropertiesSummaryServiceTest {
   }
 
   private void whenGetProbabilityDistributionSummaryCalled(boolean addPercentOfGrvOilBearing) {
-    if (submissionDetail.isDryWellOrDiscoverySubmission()) {
+    if (submissionDetail.isDryWellSubmission()) {
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY,
+              ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
               submissionDetail
           )).thenReturn(averageNetPayThickness);
+    } else if (submissionDetail.isDiscoverySubmission()) {
+        when(probabilityDistributionSummaryService
+            .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+                ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY,
+                submissionDetail
+            )).thenReturn(averageNetPayThickness);
     } else {
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(

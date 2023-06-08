@@ -46,8 +46,10 @@ class ReservoirPropertiesPersistenceService {
 
     if (form.getAverageNetPayThickness().getProbabilityDistributionType() != null) {
       ProbabilityDistributionFieldInstance averageNetPayInstance;
-      if (submissionDetail.isDryWellOrDiscoverySubmission()) {
-        averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY;
+      if (submissionDetail.isDryWellSubmission()) {
+        averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL;
+      } else if (submissionDetail.isDiscoverySubmission()) {
+        averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY;
       } else {
         averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT;
       }

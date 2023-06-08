@@ -47,10 +47,16 @@ public class ReservoirPropertiesSummaryService {
                                                                                 ReservoirProperty reservoirProperty) {
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
     ProbabilityDistributionSummaryView averageNetPayThickness;
-    if (submissionDetail.isDryWellOrDiscoverySubmission()) {
+    if (submissionDetail.isDryWellSubmission()) {
       averageNetPayThickness = probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY,
+              ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
+              submissionDetail
+          );
+    } else if (submissionDetail.isDiscoverySubmission()) {
+      averageNetPayThickness = probabilityDistributionSummaryService
+          .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+              ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY,
               submissionDetail
           );
     } else {

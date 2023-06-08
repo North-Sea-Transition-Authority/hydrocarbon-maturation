@@ -51,12 +51,22 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
   public void validatePartial(SubmissionForm form, Errors errors) {
     var reservoirForm = ((ReservoirPropertiesForm) form);
 
-    ProbabilityDistributionValidationUtil.validatePartial(
-        reservoirForm.getAverageNetPayThickness(),
-        errors,
-        "averageNetPayThickness",
-        "Average net pay thickness distribution used"
-    );
+    var averageNetPayThicknessFormField = "averageNetPayThickness";
+    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+      ProbabilityDistributionValidationUtil.validatePartial(
+          reservoirForm.getAverageNetPayThickness(),
+          errors,
+          averageNetPayThicknessFormField,
+          "Average net reservoir thickness distribution used"
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validatePartial(
+          reservoirForm.getAverageNetPayThickness(),
+          errors,
+          averageNetPayThicknessFormField,
+          "Average net pay thickness distribution used"
+      );
+    }
 
     ProbabilityDistributionValidationUtil.validatePartial(
         reservoirForm.getGrossReservoirThickness(),
@@ -140,16 +150,30 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
 
     var reservoirForm = ((ReservoirPropertiesForm) form);
 
-    ValidationUtils.rejectIfEmpty(errors, "averageNetPayThickness.probabilityDistributionType",
-        "averageNetPayThickness.probabilityDistributionType.required",
-        "Select the average net pay thickness distribution used");
+    var averageNetPayThicknessFormField = "averageNetPayThickness";
+    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+      ValidationUtils.rejectIfEmpty(errors, "averageNetPayThickness.probabilityDistributionType",
+          "averageNetPayThickness.probabilityDistributionType.required",
+          "Select the average net reservoir thickness distribution used");
 
-    ProbabilityDistributionValidationUtil.validateFull(
-        reservoirForm.getAverageNetPayThickness(),
-        errors,
-        "averageNetPayThickness",
-        "Average net pay thickness distribution used"
-    );
+      ProbabilityDistributionValidationUtil.validateFull(
+          reservoirForm.getAverageNetPayThickness(),
+          errors,
+          averageNetPayThicknessFormField,
+          "Average net reservoir thickness distribution used"
+      );
+    } else {
+      ValidationUtils.rejectIfEmpty(errors, "averageNetPayThickness.probabilityDistributionType",
+          "averageNetPayThickness.probabilityDistributionType.required",
+          "Select the average net reservoir thickness distribution used");
+
+      ProbabilityDistributionValidationUtil.validateFull(
+          reservoirForm.getAverageNetPayThickness(),
+          errors,
+          averageNetPayThicknessFormField,
+          "Average net pay thickness distribution used"
+      );
+    }
 
     ValidationUtils.rejectIfEmpty(errors, "grossReservoirThickness.probabilityDistributionType",
         "grossReservoirThickness.probabilityDistributionType.required",
