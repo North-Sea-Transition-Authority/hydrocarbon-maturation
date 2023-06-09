@@ -20,7 +20,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
@@ -39,6 +40,7 @@ public class SourceAndSealController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final SourceAndSealPersistenceService sourceAndSealPersistenceService;
+  private final AgeSeriesSearchService ageSeriesSearchService;
 
   public static final String PAGE_NAME = "Source and seal";
 
@@ -46,12 +48,14 @@ public class SourceAndSealController {
   public SourceAndSealController(SourceAndSealFormService sourceAndSealFormService,
                                  FormationSearchService formationSearchService, ControllerHelperService controllerHelperService,
                                  SubmissionDetailService submissionDetailService,
-                                 SourceAndSealPersistenceService sourceAndSealPersistenceService) {
+                                 SourceAndSealPersistenceService sourceAndSealPersistenceService,
+                                 AgeSeriesSearchService ageSeriesSearchService) {
     this.sourceAndSealFormService = sourceAndSealFormService;
     this.formationSearchService = formationSearchService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.sourceAndSealPersistenceService = sourceAndSealPersistenceService;
+    this.ageSeriesSearchService = ageSeriesSearchService;
   }
 
   @GetMapping
@@ -80,13 +84,17 @@ public class SourceAndSealController {
   private ModelAndView getSourceAndSealModelAndView(SourceAndSealForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/sourceAndSeal")
         .addObject("form", form)
-        .addObject("ageSeries", AgeSeries.getAgeSeriesOptions())
         .addObject("groupNames", GroupName.getGroupNames())
         .addObject("formationRestEndpoint",
             SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
         )
         .addObject("preSelectedSourceFormation", formationSearchService.getPreSelectedFormation(form.getSourceFormationName()))
         .addObject("preSelectedTopSealFormation", formationSearchService.getPreSelectedFormation(form.getTopSealFormationName()))
+        .addObject("ageSeriesRestEndpoint",
+            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesListWithManualEntry(null))
+        )
+        .addObject("preSelectedSourceAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getSourceAgeStage()))
+        .addObject("preSelectedTopSealAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getTopSealAgeStage()))
         .addObject("topSealLithologyOptions", TopSealLithology.getTopSealLithologyOptions());
 
     return TaskListBreadcrumbUtil

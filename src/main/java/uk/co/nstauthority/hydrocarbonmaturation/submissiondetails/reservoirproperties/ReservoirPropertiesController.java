@@ -24,7 +24,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
@@ -53,6 +54,7 @@ public class ReservoirPropertiesController {
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
   private final FormationSearchService formationSearchService;
   private final ReservoirSubUnitSearchService reservoirSubUnitSearchService;
+  private final AgeSeriesSearchService ageSeriesSearchService;
 
   @Autowired
   public ReservoirPropertiesController(ControllerHelperService controllerHelperService,
@@ -63,7 +65,8 @@ public class ReservoirPropertiesController {
                                        DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
                                        HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
                                        FormationSearchService formationSearchService,
-                                       ReservoirSubUnitSearchService reservoirSubUnitSearchService) {
+                                       ReservoirSubUnitSearchService reservoirSubUnitSearchService,
+                                       AgeSeriesSearchService ageSeriesSearchService) {
     this.controllerHelperService = controllerHelperService;
     this.reservoirPropertiesFormService = reservoirPropertiesFormService;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
@@ -73,6 +76,7 @@ public class ReservoirPropertiesController {
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
     this.formationSearchService = formationSearchService;
     this.reservoirSubUnitSearchService = reservoirSubUnitSearchService;
+    this.ageSeriesSearchService = ageSeriesSearchService;
   }
 
   @GetMapping
@@ -103,7 +107,6 @@ public class ReservoirPropertiesController {
   private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/reservoirProperties")
         .addObject("form", form)
-        .addObject("ageSeries", AgeSeries.getAgeSeriesOptions())
         .addObject("groupNames", GroupName.getGroupNames())
         .addObject("lithologyOptions", ReservoirLithology.getReservoirLithologyOptions())
         .addObject("formationRestEndpoint",
@@ -114,6 +117,10 @@ public class ReservoirPropertiesController {
             SearchSelectorService.route(on(ReservoirSubUnitRestController.class).getSubUnitListWithManualEntry(null))
         )
         .addObject("preSelectedSubUnit", reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit()))
+        .addObject("ageSeriesRestEndpoint",
+            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesListWithManualEntry(null))
+        )
+        .addObject("preSelectedAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries()))
         .addObject("discoverySubmission", submissionDetail.isDiscoverySubmission())
         .addObject("prospectSubmission", submissionDetail.isProspectSubmission())
         .addObject("dryHoleSubmission", submissionDetail.isDryWellSubmission());

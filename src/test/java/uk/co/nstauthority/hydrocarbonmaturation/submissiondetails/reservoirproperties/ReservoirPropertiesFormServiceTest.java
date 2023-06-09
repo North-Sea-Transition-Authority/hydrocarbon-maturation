@@ -28,7 +28,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelld
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -157,7 +156,7 @@ class ReservoirPropertiesFormServiceTest {
             form -> form.getAverageNetPayThickness().getNormal().getComments()
         )
         .containsExactly(
-            reservoirProperty.getAgeStage(),
+            reservoirProperty.getAgeStage().name(),
             reservoirProperty.getGroupName(),
             reservoirProperty.getLithology(),
             reservoirProperty.getLithologyOther(),
@@ -261,6 +260,7 @@ class ReservoirPropertiesFormServiceTest {
   void reservoirPropertiesEntityToForm_existingEntity_withFormationEnum_thenPopulatedForm() {
     var reservoirProperty = getReservoirProperty(submissionDetail);
     reservoirProperty.setFormationName(Formation.ASGARD);
+    reservoirProperty.setFormationNameManual(null);
     when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     assertThat(
@@ -272,6 +272,7 @@ class ReservoirPropertiesFormServiceTest {
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withManualFormation_thenPopulatedForm() {
     var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setFormationName(null);
     reservoirProperty.setFormationNameManual("manual formation name");
     when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
@@ -283,13 +284,24 @@ class ReservoirPropertiesFormServiceTest {
             reservoirProperty.getFormationNameManual()
         )
     );
+  }
 
+  @Test
+  void reservoirPropertiesEntityToForm_existingEntity_withNullFormationAndNullManual_thenNullFormation() {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setFormationName(null);
+    reservoirProperty.setFormationNameManual(null);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getFormationName())
+        .isNull();
   }
 
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withSubUnitEnum_thenPopulatedForm() {
     var reservoirProperty = getReservoirProperty(submissionDetail);
     reservoirProperty.setSubUnit(ReservoirSubUnit.T10);
+    reservoirProperty.setSubUnitManual(null);
     when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     assertThat(
@@ -300,6 +312,7 @@ class ReservoirPropertiesFormServiceTest {
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withManualSubUnit_thenPopulatedForm() {
     var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setSubUnit(null);
     reservoirProperty.setSubUnitManual("manual sub unit");
     when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
@@ -310,18 +323,71 @@ class ReservoirPropertiesFormServiceTest {
             reservoirProperty.getSubUnitManual()
         )
     );
+  }
 
+  @Test
+  void reservoirPropertiesEntityToForm_existingEntity_withNullSubUnitAndNullManual_thenNullSubUnit() {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setSubUnit(null);
+    reservoirProperty.setSubUnitManual(null);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getSubUnit())
+        .isNull();
+  }
+
+  @Test
+  void reservoirPropertiesEntityToForm_existingEntity_withAgeStageEnum_thenPopulatedForm() {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    reservoirProperty.setAgeStageManual(null);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    assertThat(
+        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)
+            .getAgeStageOrSeries()
+    ).isEqualTo(AgeSeries.LOWER_CARBONIFEROUS.name());
+  }
+
+  @Test
+  void reservoirPropertiesEntityToForm_existingEntity_withManualAgeStage_thenPopulatedForm() {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setAgeStage(null);
+    reservoirProperty.setAgeStageManual("manual age stage");
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    assertThat(
+        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)
+            .getAgeStageOrSeries()
+    ).isEqualTo(
+        SearchSelectorService.getValueWithManualEntryPrefix(
+            reservoirProperty.getAgeStageManual()
+        )
+    );
+  }
+
+  @Test
+  void reservoirPropertiesEntityToForm_existingEntity_withNullAgeStageAndNullManual_thenNullAgeStage() {
+    var reservoirProperty = getReservoirProperty(submissionDetail);
+    reservoirProperty.setAgeStage(null);
+    reservoirProperty.setAgeStageManual(null);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getAgeStageOrSeries())
+        .isNull();
   }
 
   private ReservoirProperty getReservoirProperty(SubmissionDetail submissionDetail) {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setSubmissionDetail(submissionDetail);
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
-    reservoirProperty.setGroupName(GroupName.BRENT);
     reservoirProperty.setLithology(ReservoirLithology.OTHER);
     reservoirProperty.setLithologyOther("other lithology");
     reservoirProperty.setReservoirConnectivity("connectivity");
     reservoirProperty.setReservoirFacies("facies");
+    reservoirProperty.setFormationName(Formation.ASGARD);
+    reservoirProperty.setSubUnit(ReservoirSubUnit.T10);
+    reservoirProperty.setAgeStage(AgeSeries.LOWER_DEVONIAN);
+
     return reservoirProperty;
   }
 }

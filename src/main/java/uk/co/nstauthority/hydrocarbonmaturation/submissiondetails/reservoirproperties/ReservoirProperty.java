@@ -42,6 +42,8 @@ class ReservoirProperty implements SubmissionDetailChildEntity {
   @Enumerated(EnumType.STRING)
   private AgeSeries ageStage;
 
+  private String ageStageManual;
+
   @Enumerated(EnumType.STRING)
   private GroupName groupName;
 
@@ -108,6 +110,14 @@ class ReservoirProperty implements SubmissionDetailChildEntity {
 
   public void setAgeStage(AgeSeries ageStage) {
     this.ageStage = ageStage;
+  }
+
+  public String getAgeStageManual() {
+    return ageStageManual;
+  }
+
+  public void setAgeStageManual(String ageStageManual) {
+    this.ageStageManual = ageStageManual;
   }
 
   public GroupName getGroupName() {

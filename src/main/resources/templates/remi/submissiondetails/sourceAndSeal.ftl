@@ -14,7 +14,12 @@
 
   <@fdsForm.htmlForm>
     <@fdsFieldset.fieldset legendHeading="Source">
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.sourceAgeStage" options=ageSeries labelText="Age stage or series"/>
+        <@fdsSearchSelector.searchSelectorRest
+          path="form.sourceAgeStage"
+          restUrl=springUrl(ageSeriesRestEndpoint)
+          labelText="Age stage or series"
+          preselectedItems=preSelectedSourceAgeStage!{}
+        />
         <@fdsSearchSelector.searchSelectorEnhanced path="form.sourceGroupName" options=groupNames labelText="Group name"/>
         <@fdsSearchSelector.searchSelectorRest
           path="form.sourceFormationName"
@@ -26,7 +31,12 @@
     </@fdsFieldset.fieldset>
 
     <@fdsFieldset.fieldset legendHeading="Top seal">
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.topSealAgeStage" options=ageSeries labelText="Age stage or series"/>
+        <@fdsSearchSelector.searchSelectorRest
+          path="form.topSealAgeStage"
+          restUrl=springUrl(ageSeriesRestEndpoint)
+          labelText="Age stage or series"
+          preselectedItems=preSelectedTopSealAgeStage!{}
+        />
         <@fdsSearchSelector.searchSelectorEnhanced path="form.topSealGroupName" options=groupNames labelText="Group name"/>
         <@fdsSearchSelector.searchSelectorRest
           path="form.topSealFormationName"

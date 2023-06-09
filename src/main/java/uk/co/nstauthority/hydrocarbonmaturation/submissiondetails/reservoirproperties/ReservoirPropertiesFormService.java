@@ -100,7 +100,8 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
 
     setFormation(reservoirProperty, form);
     setSubUnit(reservoirProperty, form);
-    form.setAgeStageOrSeries(reservoirProperty.getAgeStage());
+    setAgeStage(reservoirProperty, form);
+
     form.setGroupName(reservoirProperty.getGroupName());
     form.setLithology(reservoirProperty.getLithology());
     form.setLithologyOther(reservoirProperty.getLithologyOther());
@@ -214,6 +215,16 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
     } else if (reservoirProperty.getSubUnitManual() != null) {
       form.setSubUnit(
           SearchSelectorService.getValueWithManualEntryPrefix(reservoirProperty.getSubUnitManual())
+      );
+    }
+  }
+
+  private void setAgeStage(ReservoirProperty reservoirProperty, ReservoirPropertiesForm form) {
+    if (reservoirProperty.getAgeStage() != null) {
+      form.setAgeStageOrSeries(reservoirProperty.getAgeStage().name());
+    } else if (reservoirProperty.getAgeStageManual() != null) {
+      form.setAgeStageOrSeries(
+          SearchSelectorService.getValueWithManualEntryPrefix(reservoirProperty.getAgeStageManual())
       );
     }
   }

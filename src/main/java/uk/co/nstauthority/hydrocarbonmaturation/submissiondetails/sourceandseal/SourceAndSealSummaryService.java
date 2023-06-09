@@ -4,6 +4,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 
 @Service
@@ -23,22 +24,20 @@ public class SourceAndSealSummaryService {
 
   private SourceAndSealSummaryView createSummaryViewFromSourceAndSeal(SourceAndSeal sourceAndSeal) {
 
-    var sourceAgeStage = sourceAndSeal.getSourceAgeStage() != null ? sourceAndSeal.getSourceAgeStage().getDisplayName() : "";
     var sourceGroupName = sourceAndSeal.getSourceGroupName() != null ? sourceAndSeal.getSourceGroupName().getDisplayName() : "";
     var sourceLithology = ObjectUtils.defaultIfNull(sourceAndSeal.getSourceLithology(), "");
 
-    var sealAgeStage = sourceAndSeal.getTopSealAgeStage() != null ? sourceAndSeal.getTopSealAgeStage().getDisplayName() : "";
     var sealGroupName = sourceAndSeal.getTopSealGroupName() != null
         ? sourceAndSeal.getTopSealGroupName().getDisplayName()
         : "";
 
     return new SourceAndSealSummaryView(
         getFormationName(sourceAndSeal.getSourceFormationName(), sourceAndSeal.getSourceFormationNameManual()),
-        sourceAgeStage,
+        getAgeStage(sourceAndSeal.getSourceAgeStage(), sourceAndSeal.getSourceAgeStageManual()),
         sourceGroupName,
         sourceLithology,
         getFormationName(sourceAndSeal.getTopSealFormationName(), sourceAndSeal.getTopSealFormationNameManual()),
-        sealAgeStage,
+        getAgeStage(sourceAndSeal.getTopSealAgeStage(), sourceAndSeal.getTopSealAgeStageManual()),
         sealGroupName,
         getTopSealLithologyDisplay(sourceAndSeal.getTopSealLithology(), sourceAndSeal.getTopSealLithologyOther())
     );
@@ -52,6 +51,15 @@ public class SourceAndSealSummaryService {
       formationName = manualFormation;
     }
     return formationName;
+  }
+
+  private String getAgeStage(AgeSeries ageSeries, String manualAgeSeries) {
+    if (ageSeries != null) {
+      return ageSeries.getDisplayName();
+    } else if (manualAgeSeries != null) {
+      return manualAgeSeries;
+    }
+    return "";
   }
 
   private String getTopSealLithologyDisplay(TopSealLithology topSealLithology, String otherLithology) {

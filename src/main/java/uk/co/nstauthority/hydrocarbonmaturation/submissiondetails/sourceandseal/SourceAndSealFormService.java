@@ -47,7 +47,14 @@ class SourceAndSealFormService implements SubmissionFormService {
       );
     }
 
-    form.setSourceAgeStage(sourceAndSeal.getSourceAgeStage());
+    if (sourceAndSeal.getSourceAgeStage() != null) {
+      form.setSourceAgeStage(sourceAndSeal.getSourceAgeStage().name());
+    } else if (sourceAndSeal.getSourceAgeStageManual() != null) {
+      form.setSourceAgeStage(
+          SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getSourceAgeStageManual())
+      );
+    }
+
     form.setSourceGroupName(sourceAndSeal.getSourceGroupName());
     form.setSourceLithology(sourceAndSeal.getSourceLithology());
 
@@ -59,7 +66,14 @@ class SourceAndSealFormService implements SubmissionFormService {
       );
     }
 
-    form.setTopSealAgeStage(sourceAndSeal.getTopSealAgeStage());
+    if (sourceAndSeal.getTopSealAgeStage() != null) {
+      form.setTopSealAgeStage(sourceAndSeal.getTopSealAgeStage().name());
+    } else if (sourceAndSeal.getTopSealAgeStageManual() != null) {
+      form.setTopSealAgeStage(
+          SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getTopSealAgeStageManual())
+      );
+    }
+
     form.setTopSealGroupName(sourceAndSeal.getTopSealGroupName());
     form.setTopSealLithology(sourceAndSeal.getTopSealLithology());
     form.setTopSealLithologyOther(sourceAndSeal.getTopSealLithologyOther());

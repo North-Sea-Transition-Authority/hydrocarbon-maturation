@@ -93,7 +93,7 @@ public class ReservoirPropertiesSummaryService {
         submissionDetail.getSubmissionType(),
         getFormationDisplay(reservoirProperty),
         getSubUnitDisplay(reservoirProperty),
-        reservoirProperty.getAgeStage() != null ? reservoirProperty.getAgeStage().getDisplayName() : "",
+        getAgeStage(reservoirProperty),
         reservoirProperty.getGroupName() != null ? reservoirProperty.getGroupName().getDisplayName() : "",
         getLithologyDisplay(reservoirProperty),
         Objects.requireNonNullElse(reservoirProperty.getReservoirFacies(), ""),
@@ -121,6 +121,15 @@ public class ReservoirPropertiesSummaryService {
       subUnit = reservoirProperty.getSubUnitManual();
     }
     return subUnit;
+  }
+
+  private String getAgeStage(ReservoirProperty reservoirProperty) {
+    if (reservoirProperty.getAgeStage() != null) {
+      return reservoirProperty.getAgeStage().getDisplayName();
+    } else if (reservoirProperty.getAgeStageManual() != null) {
+      return reservoirProperty.getAgeStageManual();
+    }
+    return "";
   }
 
   private String getLithologyDisplay(ReservoirProperty reservoirProperty) {

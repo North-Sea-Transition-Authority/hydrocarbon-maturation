@@ -10,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 
 @Service
@@ -32,7 +33,8 @@ class ReservoirPropertiesPersistenceService {
 
     setFormation(form, reservoirProperty);
     setSubUnit(form, reservoirProperty);
-    reservoirProperty.setAgeStage(form.getAgeStageOrSeries());
+    setAgeStage(form, reservoirProperty);
+
     reservoirProperty.setGroupName(form.getGroupName());
     reservoirProperty.setLithology(form.getLithology());
     reservoirProperty.setLithologyOther(
@@ -156,6 +158,21 @@ class ReservoirPropertiesPersistenceService {
     } else {
       reservoirProperty.setSubUnit(null);
       reservoirProperty.setSubUnitManual(null);
+    }
+  }
+
+  private void setAgeStage(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
+    if (!Objects.isNull(form.getAgeStageOrSeries())) {
+      if (SearchSelectorService.isManualEntry(form.getAgeStageOrSeries())) {
+        reservoirProperty.setAgeStageManual(SearchSelectorService.removePrefix(form.getAgeStageOrSeries()));
+        reservoirProperty.setAgeStage(null);
+      } else {
+        reservoirProperty.setAgeStage(EnumUtils.getEnumValue(AgeSeries.class, form.getAgeStageOrSeries()));
+        reservoirProperty.setAgeStageManual(null);
+      }
+    } else {
+      reservoirProperty.setAgeStage(null);
+      reservoirProperty.setAgeStageManual(null);
     }
   }
 

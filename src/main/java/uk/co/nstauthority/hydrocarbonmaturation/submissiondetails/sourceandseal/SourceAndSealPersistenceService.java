@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 
 @Service
@@ -26,6 +27,29 @@ class SourceAndSealPersistenceService {
     var sourceAndSeal = getSourceAndSeal(submissionDetail).orElse(new SourceAndSeal());
     sourceAndSeal.setSubmissionDetail(submissionDetail);
 
+    setSourceFormationName(form, sourceAndSeal);
+    setSourceAgeStage(form, sourceAndSeal);
+
+    sourceAndSeal.setSourceGroupName(form.getSourceGroupName());
+    sourceAndSeal.setSourceLithology(form.getSourceLithology());
+
+    setTopSealFormationName(form, sourceAndSeal);
+    setTopSealAgeStage(form, sourceAndSeal);
+
+    sourceAndSeal.setTopSealGroupName(form.getTopSealGroupName());
+    sourceAndSeal.setTopSealLithology(form.getTopSealLithology());
+    sourceAndSeal.setTopSealLithologyOther(
+        form.getTopSealLithology() == TopSealLithology.OTHER ? form.getTopSealLithologyOther() : null
+    );
+
+    sourceAndSealRepository.save(sourceAndSeal);
+  }
+
+  Optional<SourceAndSeal> getSourceAndSeal(SubmissionDetail submissionDetail) {
+    return sourceAndSealRepository.findBySubmissionDetail(submissionDetail);
+  }
+
+  private void setSourceFormationName(SourceAndSealForm form, SourceAndSeal sourceAndSeal) {
     if (!Objects.isNull(form.getSourceFormationName())) {
       if (SearchSelectorService.isManualEntry(form.getSourceFormationName())) {
         sourceAndSeal.setSourceFormationNameManual(SearchSelectorService.removePrefix(form.getSourceFormationName()));
@@ -38,11 +62,24 @@ class SourceAndSealPersistenceService {
       sourceAndSeal.setSourceFormationName(null);
       sourceAndSeal.setSourceFormationNameManual(null);
     }
+  }
 
-    sourceAndSeal.setSourceAgeStage(form.getSourceAgeStage());
-    sourceAndSeal.setSourceGroupName(form.getSourceGroupName());
-    sourceAndSeal.setSourceLithology(form.getSourceLithology());
+  private void setSourceAgeStage(SourceAndSealForm form, SourceAndSeal sourceAndSeal) {
+    if (!Objects.isNull(form.getSourceAgeStage())) {
+      if (SearchSelectorService.isManualEntry(form.getSourceAgeStage())) {
+        sourceAndSeal.setSourceAgeStageManual(SearchSelectorService.removePrefix(form.getSourceAgeStage()));
+        sourceAndSeal.setSourceAgeStage(null);
+      } else {
+        sourceAndSeal.setSourceAgeStage(EnumUtils.getEnumValue(AgeSeries.class, form.getSourceAgeStage()));
+        sourceAndSeal.setSourceAgeStageManual(null);
+      }
+    } else {
+      sourceAndSeal.setSourceFormationName(null);
+      sourceAndSeal.setSourceAgeStageManual(null);
+    }
+  }
 
+  private void setTopSealFormationName(SourceAndSealForm form, SourceAndSeal sourceAndSeal) {
     if (!Objects.isNull(form.getTopSealFormationName())) {
       if (SearchSelectorService.isManualEntry(form.getTopSealFormationName())) {
         sourceAndSeal.setTopSealFormationNameManual(SearchSelectorService.removePrefix(form.getTopSealFormationName()));
@@ -55,18 +92,20 @@ class SourceAndSealPersistenceService {
       sourceAndSeal.setTopSealFormationName(null);
       sourceAndSeal.setTopSealFormationNameManual(null);
     }
-
-    sourceAndSeal.setTopSealAgeStage(form.getTopSealAgeStage());
-    sourceAndSeal.setTopSealGroupName(form.getTopSealGroupName());
-    sourceAndSeal.setTopSealLithology(form.getTopSealLithology());
-    sourceAndSeal.setTopSealLithologyOther(
-        form.getTopSealLithology() == TopSealLithology.OTHER ? form.getTopSealLithologyOther() : null
-    );
-
-    sourceAndSealRepository.save(sourceAndSeal);
   }
 
-  Optional<SourceAndSeal> getSourceAndSeal(SubmissionDetail submissionDetail) {
-    return sourceAndSealRepository.findBySubmissionDetail(submissionDetail);
+  private void setTopSealAgeStage(SourceAndSealForm form, SourceAndSeal sourceAndSeal) {
+    if (!Objects.isNull(form.getTopSealAgeStage())) {
+      if (SearchSelectorService.isManualEntry(form.getTopSealAgeStage())) {
+        sourceAndSeal.setTopSealAgeStageManual(SearchSelectorService.removePrefix(form.getTopSealAgeStage()));
+        sourceAndSeal.setTopSealAgeStage(null);
+      } else {
+        sourceAndSeal.setTopSealAgeStage(EnumUtils.getEnumValue(AgeSeries.class, form.getTopSealAgeStage()));
+        sourceAndSeal.setTopSealAgeStageManual(null);
+      }
+    } else {
+      sourceAndSeal.setTopSealAgeStage(null);
+      sourceAndSeal.setTopSealAgeStageManual(null);
+    }
   }
 }

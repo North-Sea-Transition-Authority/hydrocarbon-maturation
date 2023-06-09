@@ -94,36 +94,38 @@ class SourceAndSealFormServiceTest {
 
     assertThat(sourceAndSealFormService.getSourceAndSealForm(submissionDetail))
         .extracting(
-            SourceAndSealForm::getSourceAgeStage,
             SourceAndSealForm::getSourceLithology,
-            SourceAndSealForm::getTopSealAgeStage,
             SourceAndSealForm::getTopSealLithology,
             SourceAndSealForm::getTopSealLithologyOther
         )
         .containsExactly(
-            sourceAndSeal.getSourceAgeStage(),
             sourceAndSeal.getSourceLithology(),
-            sourceAndSeal.getTopSealAgeStage(),
             sourceAndSeal.getTopSealLithology(),
             sourceAndSeal.getTopSealLithologyOther()
         );
   }
 
   @Test
-  void sourceAndSealEntityToForm_existingEntity_withFormationEnum_thenPopulatedForm() {
+  void sourceAndSealEntityToForm_existingEntity_withFormationAndAgeStageEnum_thenPopulatedForm() {
     var sourceAndSeal = getSourceAndSeal(submissionDetail);
     sourceAndSeal.setSourceFormationName(Formation.ASGARD);
     sourceAndSeal.setTopSealFormationName(Formation.AUK);
+    sourceAndSeal.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    sourceAndSeal.setTopSealAgeStage(AgeSeries.LOWER_DEVONIAN);
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail)).thenReturn(Optional.of(sourceAndSeal));
 
     assertThat(sourceAndSealFormService.getSourceAndSealForm(submissionDetail))
         .extracting(
             SourceAndSealForm::getSourceFormationName,
-            SourceAndSealForm::getTopSealFormationName
+            SourceAndSealForm::getTopSealFormationName,
+            SourceAndSealForm::getSourceAgeStage,
+            SourceAndSealForm::getTopSealAgeStage
         )
         .containsExactly(
             sourceAndSeal.getSourceFormationName().name(),
-            sourceAndSeal.getTopSealFormationName().name()
+            sourceAndSeal.getTopSealFormationName().name(),
+            sourceAndSeal.getSourceAgeStage().name(),
+            sourceAndSeal.getTopSealAgeStage().name()
         );
   }
 
@@ -132,24 +134,28 @@ class SourceAndSealFormServiceTest {
     var sourceAndSeal = getSourceAndSeal(submissionDetail);
     sourceAndSeal.setSourceFormationNameManual("manual source formation");
     sourceAndSeal.setTopSealFormationNameManual("manual seal formation");
+    sourceAndSeal.setSourceAgeStageManual("manual source age stage");
+    sourceAndSeal.setTopSealAgeStageManual("manual top seal age stage");
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail)).thenReturn(Optional.of(sourceAndSeal));
 
     assertThat(sourceAndSealFormService.getSourceAndSealForm(submissionDetail))
         .extracting(
             SourceAndSealForm::getSourceFormationName,
-            SourceAndSealForm::getTopSealFormationName
+            SourceAndSealForm::getTopSealFormationName,
+            SourceAndSealForm::getSourceAgeStage,
+            SourceAndSealForm::getTopSealAgeStage
         )
         .containsExactly(
             SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getSourceFormationNameManual()),
-            SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getTopSealFormationNameManual())
+            SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getTopSealFormationNameManual()),
+            SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getSourceAgeStageManual()),
+            SearchSelectorService.getValueWithManualEntryPrefix(sourceAndSeal.getTopSealAgeStageManual())
         );
   }
 
   private SourceAndSeal getSourceAndSeal(SubmissionDetail submissionDetail) {
     var sourceAndSeal = new SourceAndSeal();
     sourceAndSeal.setSubmissionDetail(submissionDetail);
-    sourceAndSeal.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
-    sourceAndSeal.setTopSealAgeStage(AgeSeries.LOWER_CRETACEOUS);
     sourceAndSeal.setSourceGroupName(GroupName.DUNLIN);
     sourceAndSeal.setTopSealGroupName(GroupName.CLAIR);
     sourceAndSeal.setTopSealLithology(TopSealLithology.OTHER);

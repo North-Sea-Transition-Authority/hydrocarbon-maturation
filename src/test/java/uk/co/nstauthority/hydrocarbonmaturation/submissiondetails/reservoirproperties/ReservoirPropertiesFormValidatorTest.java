@@ -447,7 +447,7 @@ class ReservoirPropertiesFormValidatorTest {
   private ReservoirPropertiesForm getValidForm() {
     var form = new ReservoirPropertiesForm();
     form.setFormationName("source formation name");
-    form.setAgeStageOrSeries(AgeSeries.LOWER_CARBONIFEROUS);
+    form.setAgeStageOrSeries(AgeSeries.LOWER_CARBONIFEROUS.name());
     form.setGroupName(GroupName.BRENT);
     form.setLithology(ReservoirLithology.OTHER);
     form.setLithologyOther("other lithology");

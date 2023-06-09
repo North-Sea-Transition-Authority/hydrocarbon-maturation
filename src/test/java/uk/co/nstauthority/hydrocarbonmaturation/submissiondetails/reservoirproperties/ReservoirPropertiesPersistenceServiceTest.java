@@ -70,7 +70,6 @@ class ReservoirPropertiesPersistenceServiceTest {
     assertThat(savedReservoirProperty)
         .extracting(
             ReservoirProperty::getSubmissionDetail,
-            ReservoirProperty::getAgeStage,
             ReservoirProperty::getGroupName,
             ReservoirProperty::getLithology,
             ReservoirProperty::getLithologyOther,
@@ -79,7 +78,6 @@ class ReservoirPropertiesPersistenceServiceTest {
         )
         .containsExactly(
             submissionDetail,
-            form.getAgeStageOrSeries(),
             form.getGroupName(),
             form.getLithology(),
             form.getLithologyOther(),
@@ -110,7 +108,6 @@ class ReservoirPropertiesPersistenceServiceTest {
     assertThat(savedReservoirProperty)
         .extracting(
             ReservoirProperty::getSubmissionDetail,
-            ReservoirProperty::getAgeStage,
             ReservoirProperty::getGroupName,
             ReservoirProperty::getLithology,
             ReservoirProperty::getLithologyOther,
@@ -119,7 +116,6 @@ class ReservoirPropertiesPersistenceServiceTest {
         )
         .containsExactly(
             submissionDetail,
-            form.getAgeStageOrSeries(),
             form.getGroupName(),
             form.getLithology(),
             form.getLithologyOther(),
@@ -173,7 +169,6 @@ class ReservoirPropertiesPersistenceServiceTest {
     assertThat(savedReservoirProperty)
         .extracting(
             ReservoirProperty::getSubmissionDetail,
-            ReservoirProperty::getAgeStage,
             ReservoirProperty::getGroupName,
             ReservoirProperty::getLithology,
             ReservoirProperty::getLithologyOther,
@@ -182,7 +177,6 @@ class ReservoirPropertiesPersistenceServiceTest {
         )
         .containsExactly(
             submissionDetail,
-            form.getAgeStageOrSeries(),
             form.getGroupName(),
             form.getLithology(),
             form.getLithologyOther(),
@@ -354,9 +348,74 @@ class ReservoirPropertiesPersistenceServiceTest {
         );
   }
 
+  @Test
+  void saveReservoirProperties_whenGivenAForm_NoAgeStageProvided_verifyCreatedEntity() {
+    var form = new ReservoirPropertiesForm();
+    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    var savedReservoirProperty = reservoirArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getAgeStage,
+            ReservoirProperty::getAgeStageManual
+        )
+        .containsExactly(
+            null,
+            null
+        );
+  }
+
+  @Test
+  void saveReservoirProperties_whenGivenAForm_ageStageEnumProvided_verifyCreatedEntity() {
+    var form = new ReservoirPropertiesForm();
+    form.setAgeStageOrSeries(AgeSeries.MIDDLE_JURASSIC.name());
+    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    var savedReservoirProperty = reservoirArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getAgeStage,
+            ReservoirProperty::getAgeStageManual
+        )
+        .containsExactly(
+            AgeSeries.MIDDLE_JURASSIC,
+            null
+        );
+  }
+
+  @Test
+  void saveReservoirProperties_whenGivenAForm_manualAgeStageProvided_verifyCreatedEntity() {
+    var form = new ReservoirPropertiesForm();
+    var ageStage = "age stage";
+    form.setAgeStageOrSeries(SearchSelectorService.getValueWithManualEntryPrefix(ageStage));
+    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    var savedReservoirProperty = reservoirArgumentCaptor.getValue();
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getAgeStage,
+            ReservoirProperty::getAgeStageManual
+        )
+        .containsExactly(
+            null,
+            ageStage
+        );
+  }
+
   private ReservoirPropertiesForm getValidForm() {
     var form = new ReservoirPropertiesForm();
-    form.setAgeStageOrSeries(AgeSeries.LOWER_DEVONIAN);
     form.setGroupName(GroupName.CLAIR);
     form.setLithology(ReservoirLithology.OTHER);
     form.setLithologyOther("lithology other");

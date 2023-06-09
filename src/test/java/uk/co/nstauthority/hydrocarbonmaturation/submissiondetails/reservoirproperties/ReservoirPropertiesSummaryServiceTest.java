@@ -85,14 +85,12 @@ class ReservoirPropertiesSummaryServiceTest {
 
     assertThat(reservoirPropertiesSummaryView)
         .extracting(
-            ReservoirPropertiesSummaryView::ageStageOrSeries,
             ReservoirPropertiesSummaryView::lithology,
             ReservoirPropertiesSummaryView::reservoirFacies,
             ReservoirPropertiesSummaryView::reservoirConnectivity,
             ReservoirPropertiesSummaryView::probabilityDistributionSummaryViews,
             ReservoirPropertiesSummaryView::listOfDepthToContactDistributions)
         .containsExactly(
-            "",
             "",
             "",
             "",
@@ -112,7 +110,6 @@ class ReservoirPropertiesSummaryServiceTest {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setLithology(ReservoirLithology.CARBONATE);
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
     reservoirProperty.setGroupName(GroupName.CLAIR);
 
     whenGetProbabilityDistributionSummaryCalled(true);
@@ -130,7 +127,6 @@ class ReservoirPropertiesSummaryServiceTest {
     assertThat(reservoirPropertiesSummaryView)
         .extracting(
             ReservoirPropertiesSummaryView::submissionType,
-            ReservoirPropertiesSummaryView::ageStageOrSeries,
             ReservoirPropertiesSummaryView::groupName,
             ReservoirPropertiesSummaryView::lithology,
             ReservoirPropertiesSummaryView::reservoirFacies,
@@ -139,7 +135,6 @@ class ReservoirPropertiesSummaryServiceTest {
             ReservoirPropertiesSummaryView::listOfDepthToContactDistributions)
         .containsExactly(
             SubmissionType.CREATE_PROSPECT,
-            AgeSeries.LOWER_CARBONIFEROUS.getDisplayName(),
             GroupName.CLAIR.getDisplayName(),
             ReservoirLithology.CARBONATE.getDisplayName(),
             "",
@@ -161,7 +156,6 @@ class ReservoirPropertiesSummaryServiceTest {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setLithology(ReservoirLithology.CHALK);
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_CRETACEOUS);
     reservoirProperty.setGroupName(GroupName.BRUCE);
     reservoirProperty.setReservoirFacies("facies");
     reservoirProperty.setReservoirConnectivity("connectivity");
@@ -176,7 +170,6 @@ class ReservoirPropertiesSummaryServiceTest {
     assertThat(reservoirPropertiesSummaryView)
         .extracting(
             ReservoirPropertiesSummaryView::submissionType,
-            ReservoirPropertiesSummaryView::ageStageOrSeries,
             ReservoirPropertiesSummaryView::groupName,
             ReservoirPropertiesSummaryView::lithology,
             ReservoirPropertiesSummaryView::reservoirFacies,
@@ -185,7 +178,6 @@ class ReservoirPropertiesSummaryServiceTest {
             ReservoirPropertiesSummaryView::listOfDepthToContactDistributions)
         .containsExactly(
             SubmissionType.CREATE_PROSPECT,
-            AgeSeries.LOWER_CRETACEOUS.getDisplayName(),
             GroupName.BRUCE.getDisplayName(),
             ReservoirLithology.CHALK.getDisplayName(),
             "facies",
@@ -222,7 +214,6 @@ class ReservoirPropertiesSummaryServiceTest {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
 
     var reservoirProperty = new ReservoirProperty();
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_DEVONIAN);
     reservoirProperty.setGroupName(GroupName.COAL_MEASURES);
     reservoirProperty.setLithology(ReservoirLithology.CARBONATE);
     reservoirProperty.setReservoirFacies("facies");
@@ -239,7 +230,6 @@ class ReservoirPropertiesSummaryServiceTest {
     assertThat(reservoirPropertiesSummaryView)
         .extracting(
             ReservoirPropertiesSummaryView::submissionType,
-            ReservoirPropertiesSummaryView::ageStageOrSeries,
             ReservoirPropertiesSummaryView::groupName,
             ReservoirPropertiesSummaryView::lithology,
             ReservoirPropertiesSummaryView::reservoirFacies,
@@ -248,7 +238,6 @@ class ReservoirPropertiesSummaryServiceTest {
             ReservoirPropertiesSummaryView::listOfDepthToContactDistributions)
         .containsExactly(
             SubmissionType.POST_DRILL_DRY_HOLE,
-            AgeSeries.LOWER_DEVONIAN.getDisplayName(),
             GroupName.COAL_MEASURES.getDisplayName(),
             ReservoirLithology.CARBONATE.getDisplayName(),
             "facies",
@@ -271,7 +260,6 @@ class ReservoirPropertiesSummaryServiceTest {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
 
     var reservoirProperty = new ReservoirProperty();
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_JURASSIC);
     reservoirProperty.setGroupName(GroupName.DUNLIN);
     reservoirProperty.setLithology(ReservoirLithology.CHALK);
     reservoirProperty.setReservoirFacies("facies");
@@ -308,7 +296,6 @@ class ReservoirPropertiesSummaryServiceTest {
     assertThat(reservoirPropertiesSummaryView)
         .extracting(
             ReservoirPropertiesSummaryView::submissionType,
-            ReservoirPropertiesSummaryView::ageStageOrSeries,
             ReservoirPropertiesSummaryView::groupName,
             ReservoirPropertiesSummaryView::lithology,
             ReservoirPropertiesSummaryView::reservoirFacies,
@@ -317,7 +304,6 @@ class ReservoirPropertiesSummaryServiceTest {
             ReservoirPropertiesSummaryView::listOfDepthToContactDistributions)
         .containsExactly(
             SubmissionType.CREATE_DISCOVERY,
-            AgeSeries.LOWER_JURASSIC.getDisplayName(),
             GroupName.DUNLIN.getDisplayName(),
             ReservoirLithology.CHALK.getDisplayName(),
             "facies",
@@ -357,6 +343,19 @@ class ReservoirPropertiesSummaryServiceTest {
   }
 
   @Test
+  void getReservoirPropertySummaryFromSubmissionDetail_nullFormationView() {
+    var reservoirProperty = new ReservoirProperty();
+
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+        .thenReturn(Optional.of(reservoirProperty));
+
+    var summaryView = reservoirPropertiesSummaryService
+        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(summaryView.formationName()).isEmpty();
+  }
+
+  @Test
   void getReservoirPropertySummaryFromSubmissionDetail_subUnitEnumView() {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setSubUnit(ReservoirSubUnit.T10);
@@ -383,6 +382,61 @@ class ReservoirPropertiesSummaryServiceTest {
         .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
 
     assertThat(summaryView.subUnit()).isEqualTo(subUnit);
+  }
+
+  @Test
+  void getReservoirPropertySummaryFromSubmissionDetail_nullSubUnitView() {
+    var reservoirProperty = new ReservoirProperty();
+
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+        .thenReturn(Optional.of(reservoirProperty));
+
+    var summaryView = reservoirPropertiesSummaryService
+        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(summaryView.subUnit()).isEmpty();
+  }
+
+  @Test
+  void getReservoirPropertySummaryFromSubmissionDetail_ageStageEnumView() {
+    var reservoirProperty = new ReservoirProperty();
+    reservoirProperty.setAgeStage(AgeSeries.LOWER_DEVONIAN);
+
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+        .thenReturn(Optional.of(reservoirProperty));
+
+    var summaryView = reservoirPropertiesSummaryService
+        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(summaryView.ageStageOrSeries()).isEqualTo(AgeSeries.LOWER_DEVONIAN.getDisplayName());
+  }
+
+  @Test
+  void getReservoirPropertySummaryFromSubmissionDetail_manualAgeStageView() {
+    var ageStage = "manual age stage";
+    var reservoirProperty = new ReservoirProperty();
+    reservoirProperty.setAgeStageManual(ageStage);
+
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+        .thenReturn(Optional.of(reservoirProperty));
+
+    var summaryView = reservoirPropertiesSummaryService
+        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(summaryView.ageStageOrSeries()).isEqualTo(ageStage);
+  }
+
+  @Test
+  void getReservoirPropertySummaryFromSubmissionDetail_nullAgeStageView() {
+    var reservoirProperty = new ReservoirProperty();
+
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+        .thenReturn(Optional.of(reservoirProperty));
+
+    var summaryView = reservoirPropertiesSummaryService
+        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(summaryView.ageStageOrSeries()).isEmpty();
   }
 
   private List<ProbabilityDistributionSummaryView> whenDepthToProbabilityDistributionSummaryCalled(HydrocarbonsDiscovered hydrocarbonsDiscovered) {

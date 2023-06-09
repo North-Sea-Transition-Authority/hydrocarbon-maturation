@@ -38,13 +38,9 @@ class SourceAndSealSummaryServiceTest {
 
     assertThat(summaryView)
         .extracting(
-            SourceAndSealSummaryView::sourceAgeStage,
             SourceAndSealSummaryView::sourceLithology,
-            SourceAndSealSummaryView::sealAgeStage,
             SourceAndSealSummaryView::sealLithology)
         .containsExactly(
-            "",
-            "",
             "",
             ""
         );
@@ -84,9 +80,11 @@ class SourceAndSealSummaryServiceTest {
   }
 
   @Test
-  void getSourceAndSealSummaryFromSubmissionDetail_formationEnumView() {
+  void getSourceAndSealSummaryFromSubmissionDetail_formationAndAgeStageEnumView() {
     sourceAndSeal.setSourceFormationName(Formation.ASGARD);
     sourceAndSeal.setTopSealFormationName(Formation.AUK);
+    sourceAndSeal.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    sourceAndSeal.setTopSealAgeStage(AgeSeries.PLIOCENE);
 
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
         .thenReturn(Optional.of(sourceAndSeal));
@@ -97,11 +95,15 @@ class SourceAndSealSummaryServiceTest {
     assertThat(summaryView)
         .extracting(
             SourceAndSealSummaryView::sourceFormationName,
-            SourceAndSealSummaryView::sealFormationName
+            SourceAndSealSummaryView::sealFormationName,
+            SourceAndSealSummaryView::sourceAgeStage,
+            SourceAndSealSummaryView::sealAgeStage
         )
         .containsExactly(
             Formation.ASGARD.getDisplayName(),
-            Formation.AUK.getDisplayName()
+            Formation.AUK.getDisplayName(),
+            AgeSeries.LOWER_CARBONIFEROUS.getDisplayName(),
+            AgeSeries.PLIOCENE.getDisplayName()
         );
   }
 
@@ -109,8 +111,12 @@ class SourceAndSealSummaryServiceTest {
   void getSourceAndSealSummaryFromSubmissionDetail_manualFormationView() {
     var sourceFormation = "manual source formation";
     var sealFormation = "manual seal formation";
+    var sourceAgeStage = "manual source age stage";
+    var sealAgeStage = "manual seal age stage";
     sourceAndSeal.setSourceFormationNameManual(sourceFormation);
     sourceAndSeal.setTopSealFormationNameManual(sealFormation);
+    sourceAndSeal.setSourceAgeStageManual(sourceAgeStage);
+    sourceAndSeal.setTopSealAgeStageManual(sealAgeStage);
 
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
         .thenReturn(Optional.of(sourceAndSeal));
@@ -121,11 +127,15 @@ class SourceAndSealSummaryServiceTest {
     assertThat(summaryView)
         .extracting(
             SourceAndSealSummaryView::sourceFormationName,
-            SourceAndSealSummaryView::sealFormationName
+            SourceAndSealSummaryView::sealFormationName,
+            SourceAndSealSummaryView::sourceAgeStage,
+            SourceAndSealSummaryView::sealAgeStage
         )
         .containsExactly(
             sourceFormation,
-            sealFormation
+            sealFormation,
+            sourceAgeStage,
+            sealAgeStage
         );
   }
 

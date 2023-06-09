@@ -37,6 +37,8 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
   @Enumerated(EnumType.STRING)
   private AgeSeries sourceAgeStage;
 
+  private String sourceAgeStageManual;
+
   @Enumerated(EnumType.STRING)
   private GroupName sourceGroupName;
 
@@ -49,6 +51,8 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
 
   @Enumerated(EnumType.STRING)
   private AgeSeries topSealAgeStage;
+
+  private String topSealAgeStageManual;
 
   @Enumerated(EnumType.STRING)
   private GroupName topSealGroupName;
@@ -100,6 +104,14 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
     this.sourceAgeStage = sourceAgeStage;
   }
 
+  public String getSourceAgeStageManual() {
+    return sourceAgeStageManual;
+  }
+
+  public void setSourceAgeStageManual(String sourceAgeStageManual) {
+    this.sourceAgeStageManual = sourceAgeStageManual;
+  }
+
   public GroupName getSourceGroupName() {
     return sourceGroupName;
   }
@@ -141,6 +153,14 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
   public void setTopSealAgeStage(
       AgeSeries topSealAgeStage) {
     this.topSealAgeStage = topSealAgeStage;
+  }
+
+  public String getTopSealAgeStageManual() {
+    return topSealAgeStageManual;
+  }
+
+  public void setTopSealAgeStageManual(String topSealAgeStageManual) {
+    this.topSealAgeStageManual = topSealAgeStageManual;
   }
 
   public GroupName getTopSealGroupName() {

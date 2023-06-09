@@ -114,8 +114,8 @@ class SourceAndSealFormValidatorTest {
     var form = new SourceAndSealForm();
     form.setSourceFormationName("source formation name");
     form.setTopSealFormationName("top seal formation name");
-    form.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
-    form.setTopSealAgeStage(AgeSeries.LOWER_CRETACEOUS);
+    form.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS.name());
+    form.setTopSealAgeStage(AgeSeries.LOWER_CRETACEOUS.name());
     form.setSourceGroupName(GroupName.BRENT);
     form.setTopSealGroupName(GroupName.CLAIR);
     form.setTopSealLithology(TopSealLithology.CEMENTED_SANDSTONE);

@@ -39,9 +39,7 @@ class SourceAndSealPersistenceServiceTest {
   @Test
   void saveSourceAndSealDetails_whenGivenAForm_verifyCreatedEntity() {
     var form = new SourceAndSealForm();
-    form.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
     form.setSourceGroupName(GroupName.BRENT);
-    form.setTopSealAgeStage(AgeSeries.LOWER_CRETACEOUS);
     form.setTopSealGroupName(GroupName.CLAIR);
     form.setTopSealLithology(TopSealLithology.OTHER);
     form.setTopSealLithologyOther("other");
@@ -54,17 +52,13 @@ class SourceAndSealPersistenceServiceTest {
 
     assertThat(savedSourceAndSeal)
         .extracting(
-            SourceAndSeal::getSourceAgeStage,
             SourceAndSeal::getSourceGroupName,
-            SourceAndSeal::getTopSealAgeStage,
             SourceAndSeal::getTopSealGroupName,
             SourceAndSeal::getTopSealLithology,
             SourceAndSeal::getTopSealLithologyOther
         )
         .containsExactly(
-            form.getSourceAgeStage(),
             form.getSourceGroupName(),
-            form.getTopSealAgeStage(),
             form.getTopSealGroupName(),
             form.getTopSealLithology(),
             form.getTopSealLithologyOther()
@@ -97,10 +91,12 @@ class SourceAndSealPersistenceServiceTest {
   }
 
   @Test
-  void saveSourceAndSealDetails_whenGivenAForm_formationEnumProvided_verifyCreatedEntity() {
+  void saveSourceAndSealDetails_whenGivenAForm_formationAndAgeStageEnumProvided_verifyCreatedEntity() {
     var form = new SourceAndSealForm();
     form.setSourceFormationName(Formation.ASGARD.name());
     form.setTopSealFormationName(Formation.AUK.name());
+    form.setSourceAgeStage(AgeSeries.UPPER_PALEOCENE.name());
+    form.setTopSealAgeStage(AgeSeries.LOWER_DEVONIAN.name());
     var sourceAndSealArgumentCaptor = ArgumentCaptor.forClass(SourceAndSeal.class);
 
     sourceAndSealPersistenceService.saveSourceAndSealDetails(form, submissionDetail);
@@ -113,12 +109,20 @@ class SourceAndSealPersistenceServiceTest {
             SourceAndSeal::getSourceFormationName,
             SourceAndSeal::getSourceFormationNameManual,
             SourceAndSeal::getTopSealFormationName,
-            SourceAndSeal::getTopSealFormationNameManual
+            SourceAndSeal::getTopSealFormationNameManual,
+            SourceAndSeal::getSourceAgeStage,
+            SourceAndSeal::getSourceAgeStageManual,
+            SourceAndSeal::getTopSealAgeStage,
+            SourceAndSeal::getTopSealAgeStageManual
         )
         .containsExactly(
             Formation.ASGARD,
             null,
             Formation.AUK,
+            null,
+            AgeSeries.UPPER_PALEOCENE,
+            null,
+            AgeSeries.LOWER_DEVONIAN,
             null
         );
   }
@@ -128,8 +132,12 @@ class SourceAndSealPersistenceServiceTest {
     var form = new SourceAndSealForm();
     var sourceFormation = "source formation";
     var sealFormation = "seal formation";
+    var sourceAgeStage = "source age stage";
+    var topSealAgeStage = "top seal age stage";
     form.setSourceFormationName(SearchSelectorService.getValueWithManualEntryPrefix(sourceFormation));
     form.setTopSealFormationName(SearchSelectorService.getValueWithManualEntryPrefix(sealFormation));
+    form.setSourceAgeStage(SearchSelectorService.getValueWithManualEntryPrefix(sourceAgeStage));
+    form.setTopSealAgeStage(SearchSelectorService.getValueWithManualEntryPrefix(topSealAgeStage));
     var sourceAndSealArgumentCaptor = ArgumentCaptor.forClass(SourceAndSeal.class);
 
     sourceAndSealPersistenceService.saveSourceAndSealDetails(form, submissionDetail);
@@ -142,13 +150,21 @@ class SourceAndSealPersistenceServiceTest {
             SourceAndSeal::getSourceFormationName,
             SourceAndSeal::getSourceFormationNameManual,
             SourceAndSeal::getTopSealFormationName,
-            SourceAndSeal::getTopSealFormationNameManual
+            SourceAndSeal::getTopSealFormationNameManual,
+            SourceAndSeal::getSourceAgeStage,
+            SourceAndSeal::getSourceAgeStageManual,
+            SourceAndSeal::getTopSealAgeStage,
+            SourceAndSeal::getTopSealAgeStageManual
         )
         .containsExactly(
             null,
             sourceFormation,
             null,
-            sealFormation
+            sealFormation,
+            null,
+            sourceAgeStage,
+            null,
+            topSealAgeStage
         );
   }
 

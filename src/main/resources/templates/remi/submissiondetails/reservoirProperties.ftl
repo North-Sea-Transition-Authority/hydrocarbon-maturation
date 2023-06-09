@@ -35,7 +35,12 @@
     <@grid.gridRow>
       <@grid.twoThirdsColumn>
         <@fdsFieldset.fieldset>
-            <@fdsSearchSelector.searchSelectorEnhanced path="form.ageStageOrSeries" options=ageSeries labelText="Age stage or series"/>
+            <@fdsSearchSelector.searchSelectorRest
+              path="form.ageStageOrSeries"
+              restUrl=springUrl(ageSeriesRestEndpoint)
+              labelText="Age stage or series"
+              preselectedItems=preSelectedAgeStage!{}
+            />
             <@fdsSearchSelector.searchSelectorEnhanced path="form.groupName" options=groupNames labelText="Group name"/>
             <@fdsSearchSelector.searchSelectorRest
               path="form.formationName"

@@ -35,6 +35,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
@@ -54,6 +56,9 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private FormationSearchService formationSearchService;
+
+  @MockBean
+  private AgeSeriesSearchService ageSeriesSearchService;
 
   private SourceAndSealForm form;
   private BindingResult bindingResult;
@@ -146,10 +151,17 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getSourceAndSealModelAndView_assertModelProperties() throws Exception {
+    form.setSourceAgeStage(AgeSeries.PLIOCENE.name());
+    form.setTopSealAgeStage(AgeSeries.UPPER_MIOCENE.name());
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(form);
     Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
     when(formationSearchService.getPreSelectedFormation(form.getSourceFormationName())).thenReturn(preSelectedFormation);
+    Map<String, String> preSelectedSourceAgeStage = Map.of("SOURCE_AGE_STAGE", "source age stage");
+    when(ageSeriesSearchService.getPreSelectedAgeSeries(form.getSourceAgeStage())).thenReturn(preSelectedSourceAgeStage);
+    Map<String, String> preSelectedTopSealAgeStage = Map.of("TOP_SEAL_AGE_STAGE", "top seal age stage");
+    when(ageSeriesSearchService.getPreSelectedAgeSeries(form.getTopSealAgeStage())).thenReturn(preSelectedTopSealAgeStage);
+
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
@@ -171,13 +183,17 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(modelMap)
         .containsEntry("form", form)
-        .containsEntry("ageSeries", AgeSeries.getAgeSeriesOptions())
         .containsEntry("groupNames", GroupName.getGroupNames())
         .containsEntry("formationRestEndpoint",
             SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
         )
         .containsEntry("preSelectedSourceFormation", preSelectedFormation)
         .containsEntry("preSelectedTopSealFormation", preSelectedFormation)
+        .containsEntry("ageSeriesRestEndpoint",
+            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesListWithManualEntry(null))
+        )
+        .containsEntry("preSelectedSourceAgeStage", preSelectedSourceAgeStage)
+        .containsEntry("preSelectedTopSealAgeStage", preSelectedTopSealAgeStage)
         .containsEntry("topSealLithologyOptions", TopSealLithology.getTopSealLithologyOptions());
   }
 }
