@@ -51,9 +51,9 @@ public class OutlineForMaximumCaseVerifyController {
   }
 
   @GetMapping
-  public ModelAndView getOutlineForMaximumCaseVerify(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                                     @ModelAttribute("form") OutlineForMaximumCaseVerifyForm form) {
+  public ModelAndView getOutlineForMaximumCaseVerify(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var form = outlineForMaximumCaseVerifyFormService.getOutlineForMaximumCaseVerifyForm(submissionDetail);
     return getOutlineForMaximumCaseModelAndView(form, submissionDetail);
   }
 
@@ -69,6 +69,8 @@ public class OutlineForMaximumCaseVerifyController {
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getOutlineForMaximumCaseModelAndView(form, submissionDetail),
         () -> {
+          outlineForMaximumCasePersistenceService.saveOutlineForMaximumCaseVerifyForm(submissionDetail, form);
+
           if (outlineForMaximumCaseVerifyFormService.getShapeIsCorrect(form)) {
             return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
           }

@@ -105,6 +105,19 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
     verify(outlineForMaximumCasePersistenceService, never()).saveOutlineForMaximumCaseUploadDescriptions(any());
   }
 
+  @Test
+  void getOutlineForMaximumCasePage_userHasVerifiedShapefile_assertRedirection() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
+    when(outlineForMaximumCasePersistenceService.hasVerifiedShapefile(submissionDetail)).thenReturn(true);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetailId, form)))
+                .with(user(USER)))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId))));
+  }
+
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOutlineForMaximumCasePage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
@@ -116,7 +129,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId, null))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId))));
 
   }
 

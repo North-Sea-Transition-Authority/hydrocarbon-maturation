@@ -14,12 +14,15 @@ public class OutlineForMaximumCasePersistenceService {
 
   private final SupportingDocumentService supportingDocumentService;
   private final ShapefileConversionService shapefileConversionService;
+  private final OutlineForMaximumCaseRepository outlineForMaximumCaseRepository;
 
   @Autowired
   OutlineForMaximumCasePersistenceService(SupportingDocumentService supportingDocumentService,
-                                          ShapefileConversionService shapefileConversionService) {
+                                          ShapefileConversionService shapefileConversionService,
+                                          OutlineForMaximumCaseRepository outlineForMaximumCaseRepository) {
     this.supportingDocumentService = supportingDocumentService;
     this.shapefileConversionService = shapefileConversionService;
+    this.outlineForMaximumCaseRepository = outlineForMaximumCaseRepository;
   }
 
   @Transactional
@@ -28,15 +31,33 @@ public class OutlineForMaximumCasePersistenceService {
   }
 
   @Transactional
+  public void saveOutlineForMaximumCaseVerifyForm(SubmissionDetail submissionDetail, OutlineForMaximumCaseVerifyForm form) {
+    var outlineForMaximumCase = outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail)
+        .orElseGet(OutlineForMaximumCase::new);
+
+    outlineForMaximumCase.setSubmissionDetail(submissionDetail);
+    outlineForMaximumCase.setHasVerifiedShapefile(form.getShapeIsCorrect());
+
+    outlineForMaximumCaseRepository.save(outlineForMaximumCase);
+  }
+
+  @Transactional
   public void deleteOutlineForMaximumCase(SubmissionDetail submissionDetail) {
     var uploadedShapefileZip = getUploadedShapefileZip(submissionDetail);
     supportingDocumentService.deleteFile(submissionDetail, uploadedShapefileZip.getUploadedFile().getId());
+    outlineForMaximumCaseRepository.deleteBySubmissionDetail(submissionDetail);
   }
 
   String getGeoJsonForOutlineForMaximumCase(SubmissionDetail submissionDetail) {
     var uploadedShapefileZip = getUploadedShapefileZip(submissionDetail);
 
     return shapefileConversionService.convertShapefileToGeoJson(uploadedShapefileZip);
+  }
+
+  boolean hasVerifiedShapefile(SubmissionDetail submissionDetail) {
+    return outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail)
+        .filter(OutlineForMaximumCase::isHasVerifiedShapefile)
+        .isPresent();
   }
 
   private SupportingDocument getUploadedShapefileZip(SubmissionDetail submissionDetail) {

@@ -13,11 +13,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Service
 class OutlineForMaximumCaseVerifyFormService implements SubmissionFormService {
   private final OutlineForMaximumCaseVerifyFormValidator outlineForMaximumCaseVerifyFormValidator;
+  private final OutlineForMaximumCaseRepository outlineForMaximumCaseRepository;
 
   @Autowired
   public OutlineForMaximumCaseVerifyFormService(
-      OutlineForMaximumCaseVerifyFormValidator outlineForMaximumCaseVerifyFormValidator) {
+      OutlineForMaximumCaseVerifyFormValidator outlineForMaximumCaseVerifyFormValidator,
+      OutlineForMaximumCaseRepository outlineForMaximumCaseRepository) {
     this.outlineForMaximumCaseVerifyFormValidator = outlineForMaximumCaseVerifyFormValidator;
+    this.outlineForMaximumCaseRepository = outlineForMaximumCaseRepository;
   }
 
   @Override
@@ -26,6 +29,16 @@ class OutlineForMaximumCaseVerifyFormService implements SubmissionFormService {
     outlineForMaximumCaseVerifyFormValidator
         .validate(form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
+  }
+
+  OutlineForMaximumCaseVerifyForm getOutlineForMaximumCaseVerifyForm(SubmissionDetail submissionDetail) {
+    return outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail)
+        .map(outlineForMaximumCase -> {
+          var form = new OutlineForMaximumCaseVerifyForm();
+          form.setShapeIsCorrect(outlineForMaximumCase.isHasVerifiedShapefile());
+          return form;
+        })
+        .orElseGet(OutlineForMaximumCaseVerifyForm::new);
   }
 
   boolean getShapeIsCorrect(OutlineForMaximumCaseVerifyForm form) {

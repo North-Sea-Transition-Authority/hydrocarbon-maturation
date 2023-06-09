@@ -55,6 +55,12 @@ public class OutlineForMaximumCaseUploadController {
   public ModelAndView getOutlineForMaximumCaseUpload(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                      @ModelAttribute("form") OutlineForMaximumCaseUploadForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+
+    if (outlineForMaximumCasePersistenceService.hasVerifiedShapefile(submissionDetail)) {
+      return ReverseRouter.redirect(on(OutlineForMaximumCaseVerifyController.class)
+          .getOutlineForMaximumCaseVerify(submissionDetailId));
+    }
+
     var outlineForMaximumCaseForm = outlineForMaximumCaseFormService.getOutlineForMaximumCaseForm(submissionDetail);
     return getOutlineForMaximumCaseModelAndView(outlineForMaximumCaseForm, submissionDetail);
   }
@@ -71,7 +77,7 @@ public class OutlineForMaximumCaseUploadController {
         () -> {
           outlineForMaximumCasePersistenceService.saveOutlineForMaximumCaseUploadDescriptions(form);
           return ReverseRouter.redirect(on(OutlineForMaximumCaseVerifyController.class)
-              .getOutlineForMaximumCaseVerify(submissionDetailId, null));
+              .getOutlineForMaximumCaseVerify(submissionDetailId));
         });
   }
 

@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,9 +30,11 @@ class OutlineForMaximumCasePersistenceServiceTest {
   private SupportingDocumentService supportingDocumentService;
   @Mock
   private ShapefileConversionService shapefileConversionService;
+  @Mock
+  private OutlineForMaximumCaseRepository outlineForMaximumCaseRepository;
   @InjectMocks
   private OutlineForMaximumCasePersistenceService underTest;
-  private SupportingDocumentType type = SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
+  private final SupportingDocumentType type = SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
 
   @Nested
   class WhenSavingOutlineForMaximumCaseUploadDescriptions {
@@ -76,6 +80,7 @@ class OutlineForMaximumCasePersistenceServiceTest {
       underTest.deleteOutlineForMaximumCase(submissionDetail);
 
       verify(supportingDocumentService).deleteFile(submissionDetail, UPLOADED_FILE_ID);
+      verify(outlineForMaximumCaseRepository).deleteBySubmissionDetail(submissionDetail);
     }
   }
 
@@ -97,6 +102,82 @@ class OutlineForMaximumCasePersistenceServiceTest {
       underTest.getGeoJsonForOutlineForMaximumCase(submissionDetail);
 
       verify(shapefileConversionService).convertShapefileToGeoJson(supportingDocument);
+    }
+  }
+
+  @Nested
+  class WhenSavingOutlineForMaximumCaseVerifyForm {
+    @Mock
+    private OutlineForMaximumCase outlineForMaximumCase;
+    @Mock
+    private SubmissionDetail submissionDetail;
+
+    private OutlineForMaximumCaseVerifyForm form;
+
+    @BeforeEach
+    void setUp() {
+      form = new OutlineForMaximumCaseVerifyForm();
+      form.setShapeIsCorrect(false);
+    }
+
+    @Test
+    void recordDoesNotExist_hasVerifiedShapefile() {
+      when(outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.empty());
+      form.setShapeIsCorrect(true);
+
+      var argumentCaptor = ArgumentCaptor.forClass(OutlineForMaximumCase.class);
+      underTest.saveOutlineForMaximumCaseVerifyForm(submissionDetail, form);
+
+      verify(outlineForMaximumCaseRepository).save(argumentCaptor.capture());
+      assertThat(argumentCaptor.getValue().isHasVerifiedShapefile()).isTrue();
+    }
+
+    @Test
+    void recordDoesNotExist_hasNotVerifiedShapefile() {
+      when(outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.empty());
+
+      var argumentCaptor = ArgumentCaptor.forClass(OutlineForMaximumCase.class);
+      underTest.saveOutlineForMaximumCaseVerifyForm(submissionDetail, form);
+
+      verify(outlineForMaximumCaseRepository).save(argumentCaptor.capture());
+      assertThat(argumentCaptor.getValue().isHasVerifiedShapefile()).isFalse();
+    }
+
+    @Test
+    void recordExists() {
+      when(outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(outlineForMaximumCase));
+      underTest.saveOutlineForMaximumCaseVerifyForm(submissionDetail, form);
+      verify(outlineForMaximumCaseRepository).save(outlineForMaximumCase);
+    }
+  }
+
+  @Nested
+  class WhenCheckingIfHasVerifiedShapefile {
+    @Mock
+    private SubmissionDetail submissionDetail;
+    private OutlineForMaximumCase outlineForMaximumCase;
+
+    @BeforeEach
+    void setUp() {
+      outlineForMaximumCase = new OutlineForMaximumCase();
+      when(outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(outlineForMaximumCase));
+    }
+    @Test
+    void hasVerifiedShapefile() {
+      outlineForMaximumCase.setHasVerifiedShapefile(true);
+
+      var result = underTest.hasVerifiedShapefile(submissionDetail);
+
+      assertThat(result).isTrue();
+    }
+
+    @Test
+    void hasNotVerifiedShapefile() {
+      outlineForMaximumCase.setHasVerifiedShapefile(false);
+
+      var result = underTest.hasVerifiedShapefile(submissionDetail);
+
+      assertThat(result).isFalse();
     }
   }
 }

@@ -71,9 +71,10 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
   @SecurityTest
   void getOutlineForMaximumCasePage_assertStatusOk() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    when(outlineForMaximumCaseVerifyFormService.getOutlineForMaximumCaseVerifyForm(submissionDetail)).thenReturn(form);
 
     mockMvc.perform(
-        get(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId, form)))
+        get(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -82,7 +83,7 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
   void getOutlineForMaximumCasePage_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(
-            get(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId, form)))
+            get(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -151,9 +152,10 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
 
   @Test
   void getOutlineForMaximumCaseModelAndView_assertModelProperties() throws Exception {
-
+    when(outlineForMaximumCaseVerifyFormService.getOutlineForMaximumCaseVerifyForm(submissionDetail)).thenReturn(form);
+    
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-        get(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId, form)))
+        get(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
