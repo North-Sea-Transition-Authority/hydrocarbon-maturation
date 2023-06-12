@@ -13,6 +13,7 @@
 <#import '../../summarylistcards/mixedCaseVolumetricsSummaryCard.ftl' as mixedCaseVolumetricsSummary>
 <#import '../../summarylistcards/mixedCaseOutputsSummaryCard.ftl' as mixedCaseOutputsSummary>
 <#import '../../summarylistcards/opportunityDetailsSummaryCard.ftl' as opportunityDetailsSummary>
+<#import '../../summarylistcards/outlineForMaximumCaseSummaryCard.ftl' as outlineForMaximumCaseSummary>
 <#import '../../summarylistcards/resourceDetailsSummaryCard.ftl' as resourceDetailSummary>
 <#import '../../summarylistcards/regulatorManagedInformationSummaryCard.ftl' as regulatorManagedInformationSummary>
 
@@ -22,6 +23,7 @@
 <#macro prospectSubmissionSummary
   generalDetailsSummaryView
   opportunityDetailsSummaryView
+  outlineForMaximumCaseSummaryView
   trapPropertiesSummaryView
   sourceAndSealSummaryView
   hydrocarbonCaseSummaryView
@@ -43,6 +45,7 @@
           <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
         </@fdsAccordion.accordionSection>
         <@fdsAccordion.accordionSection sectionHeading="Opportunity" summaryText="Opportunity details, trap properties, source and seal, hydrocarbon case, chance of success">
+            <@outlineForMaximumCaseSummary.outlineForMaximumCaseSummaryCard outlineForMaximumCaseValues=outlineForMaximumCaseSummaryView />
             <@opportunityDetailsSummary.opportunityDetailsSummaryCard opportunityDetailsValues=opportunityDetailsSummaryView/>
             <@trapPropertiesSummary.trapPropertiesSummaryCard trapPropertiesValues=trapPropertiesSummaryView/>
             <@sourceAndSealSummary.sourceAndSealCard sourceAndSealValues=sourceAndSealSummaryView/>

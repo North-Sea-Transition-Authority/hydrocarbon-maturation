@@ -27,7 +27,7 @@ class OutlineForMaximumCaseUploadFormService implements SubmissionFormService {
     this.supportingDocumentService = supportingDocumentService;
   }
 
-  OutlineForMaximumCaseUploadForm getOutlineForMaximumCaseForm(SubmissionDetail submissionDetail) {
+  OutlineForMaximumCaseUploadForm getOutlineForMaximumCaseUploadForm(SubmissionDetail submissionDetail) {
     var outlineForMaximumCaseFileUploads = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail, SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE);
 

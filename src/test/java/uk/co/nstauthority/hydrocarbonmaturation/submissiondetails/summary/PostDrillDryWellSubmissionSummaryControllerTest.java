@@ -36,6 +36,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
@@ -69,6 +70,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
   private OpportunityDetailsSummaryView opportunityDetailsSummaryView;
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
   private ResourceDetailSummaryView resourceDetailSummaryView;
+  private OutlineForMaximumCaseSummaryView outlineForMaximumCaseSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -90,6 +92,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         new ArrayList<>());
     sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
+    outlineForMaximumCaseSummaryView = OutlineForMaximumCaseSummaryView.empty();
     trapPropertiesSummaryView = TrapPropertiesSummaryView.empty();
     resourceDetailSummaryView = ResourceDetailSummaryView.empty("Prospect");
   }
@@ -212,6 +215,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         .addObject("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView)
         .addObject("permeabilitySummaryView", permeabilityDetailSummaryView)
         .addObject("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
+        .addObject("outlineForMaximumCaseSummaryView", outlineForMaximumCaseSummaryView)
         .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
         .addObject("resourceDetailSummaryView", resourceDetailSummaryView)

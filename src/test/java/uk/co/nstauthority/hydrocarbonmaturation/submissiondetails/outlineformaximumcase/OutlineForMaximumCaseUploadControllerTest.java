@@ -75,7 +75,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
   @SecurityTest
   void getOutlineForMaximumCasePage_assertStatusOk() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
+    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploadForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
 
     mockMvc.perform(
         get(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetailId, form)))
@@ -108,7 +108,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
   @Test
   void getOutlineForMaximumCasePage_userHasVerifiedShapefile_assertRedirection() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
+    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploadForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
     when(outlineForMaximumCasePersistenceService.hasVerifiedShapefile(submissionDetail)).thenReturn(true);
 
     mockMvc.perform(
@@ -152,7 +152,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
 
   @Test
   void getOutlineForMaximumCaseModelAndView_assertModelProperties() throws Exception {
-    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
+    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploadForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetailId, form)))

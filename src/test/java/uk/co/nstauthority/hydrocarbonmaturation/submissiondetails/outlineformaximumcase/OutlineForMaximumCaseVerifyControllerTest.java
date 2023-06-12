@@ -35,7 +35,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -52,13 +51,15 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
   OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
 
   @MockBean
-  SupportingDocumentService supportingDocumentService;
+  OutlineForMaximumCaseMapService outlineForMaximumCaseMapService;
 
   @Autowired
   private ApplicationContext applicationContext;
   private OutlineForMaximumCaseVerifyForm form;
   private BindingResult bindingResult;
   private UUID submissionDetailId;
+  private String mapAttributions;
+  private String mapGeoJsonDataRoute;
 
   @BeforeEach
   void setUp() {
@@ -66,6 +67,13 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
     bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetailId = submissionDetail.getId();
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+
+    mapAttributions = "Contains information provided by the %s"
+        .formatted(applicationContext.getBean(CustomerConfigurationProperties.class).mnemonic());
+    mapGeoJsonDataRoute = ReverseRouter.route(on(OutlineForMaximumCaseRestController.class)
+        .getGeoJsonForOutlineForMaximumCase(submissionDetailId));
+    when(outlineForMaximumCaseMapService.getMapAttributions()).thenReturn(mapAttributions);
+    when(outlineForMaximumCaseMapService.getMapGeoJsonDataRoute(submissionDetail)).thenReturn(mapGeoJsonDataRoute);
   }
 
   @SecurityTest
@@ -170,9 +178,8 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
             ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
                 .getOutlineForMaximumCaseUpload(submissionDetailId, null))),
         entry("geoJsonDataUrl",
-            ReverseRouter.route(on(OutlineForMaximumCaseRestController.class)
-                .getGeoJsonForOutlineForMaximumCase(submissionDetailId))),
-        entry("dataMapAttributions", "Contains information provided by the %s".formatted(applicationContext.getBean(CustomerConfigurationProperties.class).mnemonic()))
+            mapGeoJsonDataRoute),
+        entry("dataMapAttributions", mapAttributions)
     );
   }
 }

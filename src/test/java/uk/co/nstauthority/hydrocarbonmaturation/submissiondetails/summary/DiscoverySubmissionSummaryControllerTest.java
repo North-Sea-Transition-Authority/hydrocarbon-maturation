@@ -44,6 +44,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutpu
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
@@ -86,6 +87,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   private DiscoveryWellDetailsSummaryView discoveryWellDetailsSummaryView;
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
   private ResourceDetailSummaryView resourceDetailSummaryView;
+  private OutlineForMaximumCaseSummaryView outlineForMaximumCaseSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -103,6 +105,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
     probabilityDistributionsFormSummaryView = new ProbabilityDistributionsFormSummaryView(List.of());
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
+    outlineForMaximumCaseSummaryView = OutlineForMaximumCaseSummaryView.empty();
     discoveryWellDetailsSummaryView = DiscoveryWellDetailsSummaryView.empty();
     sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     trapPropertiesSummaryView = TrapPropertiesSummaryView.empty();
@@ -254,6 +257,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .addObject("mixedCaseVolumetricsSummaryView", probabilityDistributionsFormSummaryView)
         .addObject("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView)
         .addObject("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
+        .addObject("outlineForMaximumCaseSummaryView", outlineForMaximumCaseSummaryView)
         .addObject("discoveryWellDetailsSummaryView", discoveryWellDetailsSummaryView)
         .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)

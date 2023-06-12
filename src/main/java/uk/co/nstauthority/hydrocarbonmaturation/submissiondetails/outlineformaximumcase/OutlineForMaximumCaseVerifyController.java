@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -34,20 +33,19 @@ public class OutlineForMaximumCaseVerifyController {
   private final SubmissionDetailService submissionDetailService;
   private final OutlineForMaximumCaseVerifyFormService outlineForMaximumCaseVerifyFormService;
   private final OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
-
-  private final CustomerConfigurationProperties customerConfigurationProperties;
+  private final OutlineForMaximumCaseMapService outlineForMaximumCaseMapService;
 
   @Autowired
   public OutlineForMaximumCaseVerifyController(ControllerHelperService controllerHelperService,
                                                SubmissionDetailService submissionDetailService,
                                                OutlineForMaximumCaseVerifyFormService outlineForMaximumCaseVerifyFormService,
                                                OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService,
-                                               CustomerConfigurationProperties customerConfigurationProperties) {
+                                               OutlineForMaximumCaseMapService outlineForMaximumCaseMapService) {
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.outlineForMaximumCaseVerifyFormService = outlineForMaximumCaseVerifyFormService;
     this.outlineForMaximumCasePersistenceService = outlineForMaximumCasePersistenceService;
-    this.customerConfigurationProperties = customerConfigurationProperties;
+    this.outlineForMaximumCaseMapService = outlineForMaximumCaseMapService;
   }
 
   @GetMapping
@@ -92,9 +90,7 @@ public class OutlineForMaximumCaseVerifyController {
                 .getTaskList(submissionDetail.getId())))
         .addObject("backLinkUrl", ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
             .getOutlineForMaximumCaseUpload(submissionDetail.getId(), null)))
-        .addObject("geoJsonDataUrl", ReverseRouter.route(on(OutlineForMaximumCaseRestController.class)
-            .getGeoJsonForOutlineForMaximumCase(submissionDetail.getId())))
-        .addObject("dataMapAttributions", "Contains information provided by the %s"
-            .formatted(customerConfigurationProperties.mnemonic()));
+        .addObject("geoJsonDataUrl", outlineForMaximumCaseMapService.getMapGeoJsonDataRoute(submissionDetail))
+        .addObject("dataMapAttributions", outlineForMaximumCaseMapService.getMapAttributions());
   }
 }

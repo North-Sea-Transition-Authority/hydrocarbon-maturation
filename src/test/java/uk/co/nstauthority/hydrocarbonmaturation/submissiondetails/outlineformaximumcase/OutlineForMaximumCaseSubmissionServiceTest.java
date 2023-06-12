@@ -21,7 +21,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 class OutlineForMaximumCaseSubmissionServiceTest {
 
   @Mock
-  private OutlineForMaximumCaseUploadFormService outlineForMaximumCaseFormService;
+  private OutlineForMaximumCaseUploadFormService outlineForMaximumCaseUploadFormService;
+  @Mock
+  private OutlineForMaximumCaseVerifyFormService outlineForMaximumCaseVerifyFormService;
 
   @InjectMocks
   private OutlineForMaximumCaseSubmissionService outlineForMaximumCaseSubmissionService;
@@ -29,12 +31,18 @@ class OutlineForMaximumCaseSubmissionServiceTest {
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var form = new OutlineForMaximumCaseUploadForm();
+    var uploadForm = new OutlineForMaximumCaseUploadForm();
+    var verifyForm = new OutlineForMaximumCaseVerifyForm();
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
-    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseForm(submissionDetail)).thenReturn(form);
+    when(outlineForMaximumCaseUploadFormService.getOutlineForMaximumCaseUploadForm(submissionDetail)).thenReturn(uploadForm);
 
-    when(outlineForMaximumCaseFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
+    when(outlineForMaximumCaseUploadFormService.validate(eq(uploadForm), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
+        .thenReturn(emptyBindingResult);
+
+    when(outlineForMaximumCaseVerifyFormService.getOutlineForMaximumCaseVerifyForm(submissionDetail)).thenReturn(verifyForm);
+
+    when(outlineForMaximumCaseVerifyFormService.validate(eq(verifyForm), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
     assertTrue(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail));
@@ -48,9 +56,9 @@ class OutlineForMaximumCaseSubmissionServiceTest {
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseForm(submissionDetail)).thenReturn(form);
+    when(outlineForMaximumCaseUploadFormService.getOutlineForMaximumCaseUploadForm(submissionDetail)).thenReturn(form);
 
-    when(outlineForMaximumCaseFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
+    when(outlineForMaximumCaseUploadFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail));

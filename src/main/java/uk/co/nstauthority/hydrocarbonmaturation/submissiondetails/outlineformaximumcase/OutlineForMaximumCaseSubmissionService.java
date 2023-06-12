@@ -11,18 +11,36 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Service
 public class OutlineForMaximumCaseSubmissionService implements SectionSubmissionService {
 
-  private final OutlineForMaximumCaseUploadFormService outlineForMaximumCaseFormService;
+  private final OutlineForMaximumCaseUploadFormService outlineForMaximumCaseUploadFormService;
+  private final OutlineForMaximumCaseVerifyFormService outlineForMaximumCaseVerifyFormService;
 
   @Autowired
-  public OutlineForMaximumCaseSubmissionService(OutlineForMaximumCaseUploadFormService outlineForMaximumCaseFormService) {
-    this.outlineForMaximumCaseFormService = outlineForMaximumCaseFormService;
+  public OutlineForMaximumCaseSubmissionService(OutlineForMaximumCaseUploadFormService outlineForMaximumCaseUploadFormService,
+                                                OutlineForMaximumCaseVerifyFormService outlineForMaximumCaseVerifyFormService) {
+    this.outlineForMaximumCaseUploadFormService = outlineForMaximumCaseUploadFormService;
+    this.outlineForMaximumCaseVerifyFormService = outlineForMaximumCaseVerifyFormService;
   }
 
   @Override
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    var form = outlineForMaximumCaseFormService.getOutlineForMaximumCaseForm(submissionDetail);
-    BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = outlineForMaximumCaseFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    return uploadFormDoesNotHaveErrors(submissionDetail) && verifyFormDoesNotHaveErrors(submissionDetail);
+  }
+
+  private boolean uploadFormDoesNotHaveErrors(SubmissionDetail submissionDetail) {
+    var uploadForm = outlineForMaximumCaseUploadFormService.getOutlineForMaximumCaseUploadForm(submissionDetail);
+    BindingResult bindingResult = new BeanPropertyBindingResult(uploadForm, "form");
+    bindingResult = outlineForMaximumCaseUploadFormService
+        .validate(uploadForm, bindingResult, ValidationType.FULL, submissionDetail);
+
+    return !bindingResult.hasErrors();
+  }
+
+  private boolean verifyFormDoesNotHaveErrors(SubmissionDetail submissionDetail) {
+    var verifyForm = outlineForMaximumCaseVerifyFormService.getOutlineForMaximumCaseVerifyForm(submissionDetail);
+    BindingResult bindingResult = new BeanPropertyBindingResult(verifyForm, "form");
+    bindingResult = outlineForMaximumCaseVerifyFormService
+        .validate(verifyForm, bindingResult, ValidationType.FULL, submissionDetail);
+
     return !bindingResult.hasErrors();
   }
 }

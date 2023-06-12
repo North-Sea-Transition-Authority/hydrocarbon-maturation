@@ -21,6 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryService;
@@ -47,6 +49,7 @@ class ProspectSummaryService {
   private final GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
   private final OpportunityDetailsSummaryService opportunityDetailsSummaryService;
   private final ResourceDetailSummaryService resourceDetailSummaryService;
+  private final OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService;
 
   @Autowired
   public ProspectSummaryService(GeneralDetailSummaryService generalDetailSummaryService,
@@ -62,7 +65,8 @@ class ProspectSummaryService {
                                 MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService,
                                 MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService,
                                 OpportunityDetailsSummaryService opportunityDetailsSummaryService,
-                                ResourceDetailSummaryService resourceDetailSummaryService) {
+                                ResourceDetailSummaryService resourceDetailSummaryService,
+                                OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService) {
     this.generalDetailSummaryService = generalDetailSummaryService;
     this.sourceAndSealSummaryService = sourceAndSealSummaryService;
     this.chanceOfSuccessSummaryService = chanceOfSuccessSummaryService;
@@ -77,6 +81,7 @@ class ProspectSummaryService {
     this.trapPropertiesSummaryService = trapPropertiesSummaryService;
     this.opportunityDetailsSummaryService = opportunityDetailsSummaryService;
     this.resourceDetailSummaryService = resourceDetailSummaryService;
+    this.outlineForMaximumCaseSummaryService = outlineForMaximumCaseSummaryService;
   }
 
   public ResourceDetailSummaryView getResourceDetailSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -141,5 +146,10 @@ class ProspectSummaryService {
   public OpportunityDetailsSummaryView getOpportunityDetailsSummaryViewFromSubmissionDetail(
       SubmissionDetail submissionDetail) {
     return opportunityDetailsSummaryService.getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public OutlineForMaximumCaseSummaryView getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
+    return outlineForMaximumCaseSummaryService.getOutlineForMaximumCaseSummaryFromSubmissionDetail(submissionDetail);
   }
 }

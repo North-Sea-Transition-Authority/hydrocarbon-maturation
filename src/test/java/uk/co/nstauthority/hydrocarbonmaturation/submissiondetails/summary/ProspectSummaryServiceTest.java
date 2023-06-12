@@ -3,9 +3,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
@@ -67,28 +68,13 @@ class ProspectSummaryServiceTest {
   private OpportunityDetailsSummaryService opportunityDetailsSummaryService;
 
   @Mock
+  private OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService;
+
+  @Mock
   private ResourceDetailSummaryService resourceDetailSummaryService;
 
+  @InjectMocks
   private ProspectSummaryService prospectSummaryService;
-
-  @BeforeEach
-  void setUp() {
-    prospectSummaryService = new ProspectSummaryService(
-        generalDetailSummaryService,
-        sourceAndSealSummaryService,
-        chanceOfSuccessSummaryService,
-        hydrocarbonCaseSummaryService,
-        reservoirPropertiesSummaryService,
-        trapPropertiesSummaryService,
-        oilCaseVolumetricsSummaryService,
-        oilCaseOutputsSummaryService,
-        gasCaseVolumetricsSummaryService,
-        gasCaseOutputsSummaryService,
-        mixedCaseVolumetricsSummaryService,
-        mixedCaseOutputsSummaryService,
-        opportunityDetailsSummaryService,
-        resourceDetailSummaryService);
-  }
 
   @Test
   void getGeneralDetailSummaryViewFromSubmissionDetail_verifyMethodCall() {
@@ -247,6 +233,7 @@ class ProspectSummaryServiceTest {
         mixedCaseVolumetricsSummaryService,
         mixedCaseOutputsSummaryService,
         opportunityDetailsSummaryService,
-        resourceDetailSummaryService);
+        resourceDetailSummaryService,
+        outlineForMaximumCaseSummaryService);
   }
 }

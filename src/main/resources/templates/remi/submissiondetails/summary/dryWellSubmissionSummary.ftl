@@ -15,6 +15,7 @@
 <#-- @ftlvariable name="reservoirPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView" -->
 <#-- @ftlvariable name="permeabilitySummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView" -->
 <#-- @ftlvariable name="opportunityDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView" -->
+<#-- @ftlvariable name="outlineForMaximumCaseSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView" -->
 <#-- @ftlvariable name="sourceAndSealSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView" -->
 <#-- @ftlvariable name="trapPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView" -->
 <#-- @ftlvariable name="resourceDetailSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView" -->
@@ -46,6 +47,7 @@
           reservoirPropertiesSummaryView=reservoirPropertiesSummaryView
           permeabilitySummaryView=permeabilitySummaryView
           opportunityDetailsSummaryView=opportunityDetailsSummaryView
+          outlineForMaximumCaseSummaryView=outlineForMaximumCaseSummaryView
           sourceAndSealSummaryView=sourceAndSealSummaryView
           trapPropertiesSummaryView=trapPropertiesSummaryView
           resourceDetailSummaryView=resourceDetailSummaryView/>

@@ -71,6 +71,8 @@ public class SubmissionSummaryModelService {
             prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",
             prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("outlineForMaximumCaseSummaryView",
+            prospectSummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("resourceDetailSummaryView",
             prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail));
 
@@ -105,6 +107,8 @@ public class SubmissionSummaryModelService {
             postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",
             prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("outlineForMaximumCaseSummaryView",
+            prospectSummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("sourceAndSealSummaryView",
             prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("trapPropertiesSummaryView",
@@ -146,6 +150,8 @@ public class SubmissionSummaryModelService {
             discoverySummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",
             prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("outlineForMaximumCaseSummaryView",
+            prospectSummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("discoveryWellDetailsSummaryView",
             discoverySummaryService.getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("sourceAndSealSummaryView",

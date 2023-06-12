@@ -43,6 +43,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncas
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
@@ -80,6 +81,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
   private MixedCaseOutputsSummaryView mixedCaseOutputsSummaryView;
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
   private OpportunityDetailsSummaryView opportunityDetailsSummaryView;
+  private OutlineForMaximumCaseSummaryView outlineForMaximumCaseSummaryView;
   private GasCaseOutputsSummaryView gasCaseOutputsSummaryView;
   private ResourceDetailSummaryView resourceDetailSummaryView;
 
@@ -125,6 +127,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
     mixedCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty();
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
+    outlineForMaximumCaseSummaryView = OutlineForMaximumCaseSummaryView.empty();
   }
 
   @SecurityTest
@@ -268,6 +271,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
         .addObject("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView)
         .addObject("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView)
         .addObject("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
+        .addObject("outlineForMaximumCaseSummaryView", outlineForMaximumCaseSummaryView)
         .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
         .addObject("submittable", true)
         .addObject("gasCase", true)

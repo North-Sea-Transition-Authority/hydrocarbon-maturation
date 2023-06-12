@@ -61,7 +61,7 @@ public class OutlineForMaximumCaseUploadController {
           .getOutlineForMaximumCaseVerify(submissionDetailId));
     }
 
-    var outlineForMaximumCaseForm = outlineForMaximumCaseFormService.getOutlineForMaximumCaseForm(submissionDetail);
+    var outlineForMaximumCaseForm = outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploadForm(submissionDetail);
     return getOutlineForMaximumCaseModelAndView(outlineForMaximumCaseForm, submissionDetail);
   }
 

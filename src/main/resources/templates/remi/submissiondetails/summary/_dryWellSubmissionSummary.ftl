@@ -5,6 +5,7 @@
 <#import '../../summarylistcards/reservoirPropertiesSummaryCard.ftl' as reservoirPropertiesSummary>
 <#import '../../summarylistcards/generaldetailsSummaryCard.ftl' as generalDetailsSummary>
 <#import '../../summarylistcards/opportunityDetailsSummaryCard.ftl' as opportunityDetailsSummary>
+<#import '../../summarylistcards/outlineForMaximumCaseSummaryCard.ftl' as outlineForMaximumCaseSummary>
 <#import '../../summarylistcards/sourceAndSealSummaryCard.ftl' as sourceAndSealSummary>
 <#import '../../summarylistcards/trapPropertiesSummaryCard.ftl' as trapPropertiesSummary>
 <#import '../../summarylistcards/resourceDetailsSummaryCard.ftl' as resourceDetailSummary>
@@ -17,6 +18,7 @@
   reservoirPropertiesSummaryView
   permeabilitySummaryView
   opportunityDetailsSummaryView
+  outlineForMaximumCaseSummaryView
   sourceAndSealSummaryView
   trapPropertiesSummaryView
   resourceDetailSummaryView>
@@ -26,6 +28,7 @@
           <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
         </@fdsAccordion.accordionSection>
         <@fdsAccordion.accordionSection sectionHeading="Opportunity" summaryText="Opportunity details, trap properties, source and seal">
+          <@outlineForMaximumCaseSummary.outlineForMaximumCaseSummaryCard outlineForMaximumCaseValues=outlineForMaximumCaseSummaryView />
           <@opportunityDetailsSummary.opportunityDetailsSummaryCard opportunityDetailsValues=opportunityDetailsSummaryView/>
           <@trapPropertiesSummary.trapPropertiesSummaryCard trapPropertiesValues=trapPropertiesSummaryView/>
           <@sourceAndSealSummary.sourceAndSealCard sourceAndSealValues=sourceAndSealSummaryView/>

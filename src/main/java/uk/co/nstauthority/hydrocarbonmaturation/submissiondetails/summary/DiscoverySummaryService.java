@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
@@ -62,7 +63,8 @@ class DiscoverySummaryService {
                           OilCaseOutputsSummaryService oilCaseOutputsSummaryService,
                           GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService,
                           GasCaseOutputsSummaryService gasCaseOutputsSummaryService,
-                          DiscoveryWellDetailsSummaryService discoveryWellDetailsSummaryService) {
+                          DiscoveryWellDetailsSummaryService discoveryWellDetailsSummaryService,
+                          OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService) {
     this.gasFluidPropertySummaryService = gasFluidPropertySummaryService;
     this.oilFluidPropertySummaryService = oilFluidPropertySummaryService;
     this.generalFluidPropertySummaryService = generalFluidPropertySummaryService;

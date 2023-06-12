@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -30,6 +31,7 @@ class PostDrillDryWellSummaryServiceTest {
   @Mock
   private GeneralDetailSummaryService generalDetailSummaryService;
 
+  @InjectMocks
   private PostDrillDryWellSummaryService postDrillDryWellSummaryService;
 
   private SubmissionDetail submissionDetail;
@@ -37,12 +39,6 @@ class PostDrillDryWellSummaryServiceTest {
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
-
-    postDrillDryWellSummaryService = new PostDrillDryWellSummaryService(
-        dryWellDetailsSummaryService,
-        permeabilitySummaryService,
-        generalDetailSummaryService,
-        reservoirPropertiesSummaryService);
   }
 
   @Test

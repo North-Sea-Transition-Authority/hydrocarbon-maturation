@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
@@ -219,6 +220,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
         new ArrayList<>());
     var sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     var opportunityDetailsView = OpportunityDetailsSummaryView.empty();
+    var outlineForMaximumCaseSummaryView = OutlineForMaximumCaseSummaryView.empty();
     var trapPropertiesSummaryView = TrapPropertiesSummaryView.empty();
     var resourceDetailSummaryView = ResourceDetailSummaryView.empty("resourceType");
     var modelAndView = new ModelAndView(VIEW_NAME)
@@ -227,6 +229,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .addObject("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView)
         .addObject("permeabilitySummaryView", permeabilityDetailSummaryView)
         .addObject("opportunityDetailsSummaryView", opportunityDetailsView)
+        .addObject("outlineForMaximumCaseSummaryView", outlineForMaximumCaseSummaryView)
         .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
         .addObject("resourceDetailSummaryView", resourceDetailSummaryView)

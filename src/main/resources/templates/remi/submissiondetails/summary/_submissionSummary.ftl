@@ -9,6 +9,7 @@
       <@prospectSubmissionSummary.prospectSubmissionSummary
         generalDetailsSummaryView=generalDetailsSummaryView
         opportunityDetailsSummaryView=opportunityDetailsSummaryView
+        outlineForMaximumCaseSummaryView=outlineForMaximumCaseSummaryView
         trapPropertiesSummaryView=trapPropertiesSummaryView
         sourceAndSealSummaryView=sourceAndSealSummaryView
         hydrocarbonCaseSummaryView=hydrocarbonCaseSummaryView
@@ -32,6 +33,7 @@
         reservoirPropertiesSummaryView=reservoirPropertiesSummaryView
         permeabilitySummaryView=permeabilitySummaryView
         opportunityDetailsSummaryView=opportunityDetailsSummaryView
+        outlineForMaximumCaseSummaryView=outlineForMaximumCaseSummaryView
         sourceAndSealSummaryView=sourceAndSealSummaryView
         trapPropertiesSummaryView=trapPropertiesSummaryView
         resourceDetailSummaryView=resourceDetailSummaryView/>
@@ -57,6 +59,7 @@
         mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
         drillStemTestSummaryView=drillStemTestSummaryView
         opportunityDetailsSummaryView=opportunityDetailsSummaryView
+        outlineForMaximumCaseSummaryView=outlineForMaximumCaseSummaryView
         discoveryWellDetailsSummaryView=discoveryWellDetailsSummaryView
         sourceAndSealSummaryView=sourceAndSealSummaryView
         trapPropertiesSummaryView=trapPropertiesSummaryView

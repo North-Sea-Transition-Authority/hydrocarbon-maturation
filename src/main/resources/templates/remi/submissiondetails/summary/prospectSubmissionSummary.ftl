@@ -13,6 +13,7 @@
 <#-- @ftlvariable name="submittable" type="Boolean" -->
 <#-- @ftlvariable name="generalDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView" -->
 <#-- @ftlvariable name="opportunityDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView" -->
+<#-- @ftlvariable name="outlineForMaximumCaseSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView" -->
 <#-- @ftlvariable name="trapPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView" -->
 <#-- @ftlvariable name="sourceAndSealSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView" -->
 <#-- @ftlvariable name="hydrocarbonCaseSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView" -->
@@ -53,6 +54,7 @@
         <@prospectSubmissionSummary.prospectSubmissionSummary
           generalDetailsSummaryView=generalDetailsSummaryView
           opportunityDetailsSummaryView=opportunityDetailsSummaryView
+          outlineForMaximumCaseSummaryView=outlineForMaximumCaseSummaryView
           trapPropertiesSummaryView=trapPropertiesSummaryView
           sourceAndSealSummaryView=sourceAndSealSummaryView
           hydrocarbonCaseSummaryView=hydrocarbonCaseSummaryView
