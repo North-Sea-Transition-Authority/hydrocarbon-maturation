@@ -6,10 +6,11 @@ import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @Repository
-interface SubmissionDetailRepository extends CrudRepository<SubmissionDetail, UUID> {
+public interface SubmissionDetailRepository extends CrudRepository<SubmissionDetail, UUID> {
 
   List<SubmissionDetail> findSubmissionDetailsBySubmissionInOrderByVersionNumberDesc(List<Submission> submissions);
 
@@ -29,6 +30,10 @@ interface SubmissionDetailRepository extends CrudRepository<SubmissionDetail, UU
 
   Optional<SubmissionDetail> findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
       Submission submission, Set<SubmissionDetailStatus> statuses);
+
+  boolean existsSubmissionDetailByCorrectionTrueAndStatusInAndSubmission_Resource(
+      Set<SubmissionDetailStatus> statuses, Resource resource
+  );
 
   Optional<SubmissionDetail> findByLegacyResDataId(Integer legacyResDataId);
 }

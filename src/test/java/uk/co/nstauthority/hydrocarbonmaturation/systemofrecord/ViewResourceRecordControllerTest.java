@@ -46,6 +46,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionService;
 
 @ContextConfiguration(classes = ViewResourceRecordController.class)
 class ViewResourceRecordControllerTest extends AbstractControllerTest {
@@ -66,6 +67,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private ResourceGroupSummaryService resourceGroupSummaryService;
   @MockBean
   private ResponsibleTeamService responsibleTeamService;
+  @MockBean
+  private CorrectionService correctionService;
 
   @Mock
   private Resource resource;
@@ -152,7 +155,13 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
             entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
-            entry("submissionType", otherSubmissionOnResource.getSubmissionType())
+            entry("submissionType", otherSubmissionOnResource.getSubmissionType()),
+            entry("canStartCorrection",
+                correctionService.canStartCorrection(
+                    resource,
+                    responsibleTeamService.isInResponsibleTeam(USER, RESOURCE_RECORD_VIEW.responsibleTeam())
+                )
+            )
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -191,7 +200,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceRecord", RESOURCE_RECORD_VIEW),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
             entry("canManageRegulatorManagementInfo", false),
-            entry("canViewRegulatorManagementInfo", false)
+            entry("canViewRegulatorManagementInfo", false),
+            entry("canStartCorrection", correctionService.canStartCorrection(resource, false))
         ).doesNotContainKeys("regulatorManagedInformationSummaryView", "resourceGroupsSummaryView");
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -249,7 +259,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
             entry("resourceGroupsSummaryView", resourceGroupSummary),
             entry("submissionType", SUBMISSION_DETAIL.getSubmissionType()),
-            entry("canViewRegulatorManagementInfo", true)
+            entry("canViewRegulatorManagementInfo", true),
+            entry("canStartCorrection", correctionService.canStartCorrection(resource, true))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

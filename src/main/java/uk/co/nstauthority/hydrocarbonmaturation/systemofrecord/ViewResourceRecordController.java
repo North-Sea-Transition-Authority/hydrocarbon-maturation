@@ -27,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionService;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}")
@@ -41,6 +42,7 @@ public class ViewResourceRecordController {
   private final ResourceGroupSummaryService resourceGroupSummaryService;
   private final ResourceService resourceService;
   private final ResponsibleTeamService responsibleTeamService;
+  private final CorrectionService correctionService;
 
   @Autowired
   public ViewResourceRecordController(ViewResourceRecordService viewResourceRecordService,
@@ -51,7 +53,8 @@ public class ViewResourceRecordController {
                                       RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
                                       ResourceGroupSummaryService resourceGroupSummaryService,
                                       ResourceService resourceService,
-                                      ResponsibleTeamService responsibleTeamService) {
+                                      ResponsibleTeamService responsibleTeamService,
+                                      CorrectionService correctionService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -61,6 +64,7 @@ public class ViewResourceRecordController {
     this.resourceGroupSummaryService = resourceGroupSummaryService;
     this.resourceService = resourceService;
     this.responsibleTeamService = responsibleTeamService;
+    this.correctionService = correctionService;
   }
 
   @GetMapping
@@ -161,6 +165,7 @@ public class ViewResourceRecordController {
         .addObject("resourceType", submissionDetailSelected
             .getSubmission().getResource().getType().getDisplayName())
         .addObject("canManageRegulatorManagementInfo", isInResponsibleTeam)
-        .addObject("canViewRegulatorManagementInfo", canViewRegulatorManagementInfo);
+        .addObject("canViewRegulatorManagementInfo", canViewRegulatorManagementInfo)
+        .addObject("canStartCorrection", correctionService.canStartCorrection(resource, isInResponsibleTeam));
   }
 }

@@ -50,6 +50,12 @@ public class SubmissionDetail {
   @Enumerated(EnumType.STRING)
   private SubmitterType submitterType;
 
+  private Boolean correction;
+
+  private Integer correctionByWuaId;
+
+  private Instant correctionTimestamp;
+
   private Integer legacyResDataId;
 
   public UUID getId() {
@@ -138,6 +144,30 @@ public class SubmissionDetail {
 
   public void setSubmitterType(SubmitterType submitterType) {
     this.submitterType = submitterType;
+  }
+
+  public Boolean isCorrection() {
+    return correction;
+  }
+
+  public void setCorrection(Boolean correction) {
+    this.correction = correction;
+  }
+
+  public Integer getCorrectionByWuaId() {
+    return correctionByWuaId;
+  }
+
+  public void setCorrectionByWuaId(Integer correctionByWuaId) {
+    this.correctionByWuaId = correctionByWuaId;
+  }
+
+  public Instant getCorrectionTimestamp() {
+    return correctionTimestamp;
+  }
+
+  public void setCorrectionTimestamp(Instant correctionTimestamp) {
+    this.correctionTimestamp = correctionTimestamp;
   }
 
   public boolean isProspectSubmission() {

@@ -5,7 +5,7 @@ import VectorLayer from "ol/layer/Vector";
 import OSM from 'ol/source/OSM';
 import VectorSource from "ol/source/Vector";
 import View from 'ol/View';
-import {Fill, Style, Stroke, Text} from 'ol/style';
+import {Fill, Stroke, Style, Text} from 'ol/style';
 
 export default class ShapeMap {
 
