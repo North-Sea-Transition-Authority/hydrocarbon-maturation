@@ -18,10 +18,40 @@ export default class ShapeMap {
     this.showLicenceBlocksLayer = this.module.getAttribute("data-show-licence-blocks-layer") === 'true';
     this.showFieldBlobsLayer = this.module.getAttribute("data-show-field-blobs-layer") === 'true';
 
-    this.fieldDeterminationBoundariesStyle = ShapeMap._getStyle('rgba(0, 0, 0, 0)', 'red', 0.5);
-    this.quadBlockStyle = ShapeMap._getStyle('rgba(0, 0, 0, 0)', 'rgba(200, 200, 200, 0.7)', 0.5);
-    this.licenseBlockStyle = ShapeMap._getStyle('rgba(255, 253, 208, 0.5)', 'blue', 0.5);
-    this.fieldBlobStyle = ShapeMap._getStyle('rgba(255, 0, 0, 0.5)', 'rgba(0, 0, 0, 0)', 0);
+    let fieldDeterminationBoundariesFillColor = 'rgba(0, 0, 0, 0)';
+    let fieldDeterminationBoundariesStrokeColor = '#be303d';
+    let quadBlockFillColor = 'rgba(0, 0, 0, 0)';
+    let quadBlockStrokeColor = 'rgba(0, 46, 109, 0.8)';
+    let licenseBlockFillColor = 'rgba(255, 253, 208, 0.8)';
+    let licenseBlockStrokeColor = '#0073e6';
+    let fieldBlobFillColor = '#cb5964';
+    let fieldBlobStrokeColor = 'rgba(0, 0, 0, 0)';
+
+    this.fieldDeterminationBoundariesStyle = ShapeMap._getStyle(fieldDeterminationBoundariesFillColor, fieldDeterminationBoundariesStrokeColor, 0.5);
+    this.quadBlockStyle = ShapeMap._getStyle(quadBlockFillColor, quadBlockStrokeColor, 0.5);
+    this.licenseBlockStyle = ShapeMap._getStyle(licenseBlockFillColor, licenseBlockStrokeColor, 0.5);
+    this.fieldBlobStyle = ShapeMap._getStyle(fieldBlobFillColor, fieldBlobStrokeColor, 0);
+
+    this.module.getElementsByClassName("shape-map__legend-box").forEach(box => {
+      switch (box.id) {
+        case "quad-blocks-legend":
+          box.style.backgroundColor = quadBlockFillColor;
+          box.style.borderColor = quadBlockStrokeColor;
+          break;
+        case "license-blocks-legend":
+          box.style.backgroundColor = licenseBlockFillColor;
+          box.style.borderColor = licenseBlockStrokeColor;
+          break;
+        case "fields-legend":
+          box.style.backgroundColor = fieldBlobFillColor;
+          box.style.borderColor = fieldBlobStrokeColor;
+          break;
+        case "field-determination-boundaries-legend":
+          box.style.backgroundColor = fieldDeterminationBoundariesFillColor;
+          box.style.borderColor = fieldDeterminationBoundariesStrokeColor;
+          break;
+      }
+    })
 
     this.fieldDeterminationBoundariesUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Offshore_FieldDets_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
     this.quadBlockUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_ReferenceBlocks_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
@@ -69,7 +99,7 @@ export default class ShapeMap {
       'License Blocks',
       ShapeMap._getVectorSource(this.licenseBlockUrl, this.mapAttributions),
       this.licenseBlockStyle ,
-      'LICNO'
+      'BLOCKREF'
     );
   }
 
@@ -88,16 +118,16 @@ export default class ShapeMap {
     const backgroundLayer = this.getBackgroundLayer();
     layers.push(backgroundLayer);
 
-    if (this.showFieldDeterminationBoundariesLayer) {
-      layers.push(this.getFieldDeterminationBoundariesLayer());
-    }
-
     if (this.showQuadBlocksLayer) {
       layers.push(this.getQuadBlocksLayer());
     }
 
     if (this.showLicenceBlocksLayer) {
       layers.push(this.getLicenceBlocksLayer());
+    }
+
+    if (this.showFieldDeterminationBoundariesLayer) {
+      layers.push(this.getFieldDeterminationBoundariesLayer());
     }
 
     if (this.showFieldBlobsLayer) {
