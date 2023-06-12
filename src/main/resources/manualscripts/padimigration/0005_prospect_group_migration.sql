@@ -73,5 +73,9 @@ BEGIN
 
         END LOOP;
 
+        UPDATE remi.resource_group_links
+        SET preferred_view = FALSE
+        WHERE preferred_view IS NULL;
+
 END;
 $$;

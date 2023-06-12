@@ -618,3 +618,13 @@ CREATE TABLE remi.padi_well_mapping (
     well_registration_no TEXT,
     well_id              INTEGER
 );
+
+CREATE TABLE remi.padi_quad_block_mapping (
+    padi_resource_id     TEXT,
+    padi_block_polygon   TEXT,
+    padi_block_centroid  TEXT,
+    play_fairway         TEXT,
+    block_polygon_match  TEXT,
+    block_centroid_match TEXT,
+    shore_type           TEXT
+);

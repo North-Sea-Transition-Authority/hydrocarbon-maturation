@@ -15,7 +15,12 @@ BEGIN
             sd.id,
             prdh.name_alternative,
             CASE
-                WHEN prdh.play_fairway = 'Onshore' THEN 'ONSHORE'
+                WHEN (
+                    SELECT pqbm.shore_type
+                    FROM  remi.padi_quad_block_mapping pqbm
+                    WHERE pqbm.padi_resource_id = prdh.resource_id
+                    GROUP BY pqbm.shore_type
+                ) = 'ONSHORE' THEN 'ONSHORE'
                 ELSE 'OFFSHORE' -- raised https://ogajira2.atlassian.net/browse/HM-430 to determine onshore / offshore strategy
             END onshore_offshore,
             (
