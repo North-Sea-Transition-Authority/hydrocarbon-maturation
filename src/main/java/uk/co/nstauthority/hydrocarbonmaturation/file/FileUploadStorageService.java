@@ -6,11 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ClientService;
 
 @Service
-class FileUploadStorageService {
+public class FileUploadStorageService {
   private static final Logger LOGGER = LoggerFactory.getLogger(FileUploadStorageService.class);
 
   private final S3ClientService s3ClientService;
@@ -20,15 +19,7 @@ class FileUploadStorageService {
     this.s3ClientService = s3ClientService;
   }
 
-  void uploadFile(MultipartFile multipartFile, UploadedFile uploadedFile) {
-    try {
-      uploadFile(multipartFile.getInputStream(), uploadedFile);
-    } catch (Exception e) {
-      throw new FileUploadException(multipartFile, e);
-    }
-  }
-
-  void uploadFile(InputStream inputStream, UploadedFile uploadedFile) {
+  public void uploadFile(InputStream inputStream, UploadedFile uploadedFile) {
     var objectMetadata = new ObjectMetadata();
     objectMetadata.setContentLength(uploadedFile.getFileSizeBytes());
     objectMetadata.setContentType(uploadedFile.getFileContentType());

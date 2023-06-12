@@ -29,4 +29,6 @@ interface SubmissionDetailRepository extends CrudRepository<SubmissionDetail, UU
 
   Optional<SubmissionDetail> findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
       Submission submission, Set<SubmissionDetailStatus> statuses);
+
+  Optional<SubmissionDetail> findByLegacyResDataId(Integer legacyResDataId);
 }

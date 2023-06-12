@@ -50,6 +50,8 @@ public class SubmissionDetail {
   @Enumerated(EnumType.STRING)
   private SubmitterType submitterType;
 
+  private Integer legacyResDataId;
+
   public UUID getId() {
     return id;
   }
@@ -220,5 +222,13 @@ public class SubmissionDetail {
 
   public void setSubmission(Submission submission) {
     this.submission = submission;
+  }
+
+  public Integer getLegacyResDataId() {
+    return legacyResDataId;
+  }
+
+  public void setLegacyResDataId(Integer legacyResDataId) {
+    this.legacyResDataId = legacyResDataId;
   }
 }

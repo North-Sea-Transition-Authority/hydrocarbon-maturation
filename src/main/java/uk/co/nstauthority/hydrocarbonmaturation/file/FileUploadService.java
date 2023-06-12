@@ -6,7 +6,6 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FileUploadService {
@@ -16,14 +15,11 @@ public class FileUploadService {
 
   @Autowired
   public FileUploadService(FileUploadStorageService fileUploadStorageService,
-                           UploadedFilePersistenceService uploadedFilePersistenceService, FileUploadConfig fileUploadConfig) {
+                           UploadedFilePersistenceService uploadedFilePersistenceService,
+                           FileUploadConfig fileUploadConfig) {
     this.fileUploadStorageService = fileUploadStorageService;
     this.uploadedFilePersistenceService = uploadedFilePersistenceService;
     this.fileUploadConfig = fileUploadConfig;
-  }
-
-  public void uploadFile(MultipartFile multipartFile, UploadedFile uploadedFile) {
-    fileUploadStorageService.uploadFile(multipartFile, uploadedFile);
   }
 
   public void uploadFile(InputStream inputStream, UploadedFile uploadedFile) {

@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
@@ -59,9 +60,11 @@ public class ResourceSupportingDocumentService {
 
     resourceSupportingDocumentRepository.save(resourceSupportingDocument);
 
+    var fileInputStream = FileUploadUtils.getFileUploadInputStreamOrThrow(multipartFile);
+
     // Persist uploaded file and ResourceSupporting document records first,
     // so if it fails, we don't upload. If upload fails, we will roll back
-    fileUploadService.uploadFile(multipartFile, uploadedFile);
+    fileUploadService.uploadFile(fileInputStream, uploadedFile);
 
     return FileUploadResult.valid(uploadedFile.getId().toString(), filename, multipartFile);
   }

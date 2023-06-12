@@ -40,6 +40,10 @@ public class SubmissionDetailService {
     return submissionDetailRepository.findById(id);
   }
 
+  public Optional<SubmissionDetail> getSubmissionDetailByLegacyResDataId(Integer legacyResDataId) {
+    return submissionDetailRepository.findByLegacyResDataId(legacyResDataId);
+  }
+
   public Optional<SubmissionDetail> getLatestApprovedProspectSubmissionForResource(Resource resource) {
     // Finds the latest prospect update or create update submission that is approved.
     return submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(

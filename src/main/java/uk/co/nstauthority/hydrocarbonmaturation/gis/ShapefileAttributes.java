@@ -13,4 +13,9 @@ record ShapefileAttributes(List<String> headers, List<List<String>> rows) {
 
     return Optional.of(index);
   }
+
+  Integer getHeaderIndexOrThrow(String headerName) {
+    return getHeaderIndex(headerName)
+        .orElseThrow(() -> new IllegalArgumentException("Shapefile attributes does not contain %s header".formatted(headerName)));
+  }
 }

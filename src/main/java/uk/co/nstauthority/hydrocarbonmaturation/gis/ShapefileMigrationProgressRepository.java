@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.Query;
@@ -14,11 +15,32 @@ interface ShapefileMigrationProgressRepository extends CrudRepository<ShapefileM
   @Query(
       value =
           """
-          SELECT COUNT(prdh.polygon_id) = 1
+          SELECT COUNT(prdh.polygon_id) >= 1
           FROM remi.padi_res_data_header prdh
           WHERE prdh.polygon_id = :polygonId
           """,
       nativeQuery = true
   )
   boolean padiResDataHeaderExistsByPolygonId(String polygonId);
+
+  @Query(
+      value =
+          """
+          SELECT prdh.resdat_id
+          FROM remi.padi_res_data_header prdh
+          WHERE prdh.polygon_id = :polygonId
+          """,
+      nativeQuery = true
+  )
+  List<Integer> findResDatIdFromPadiResDataHeaderByPolygonId(String polygonId);
+
+  @Query(
+      value =
+          """
+          SELECT prdh.resdat_id
+          FROM remi.padi_res_data_header prdh
+          """,
+      nativeQuery = true
+  )
+  List<Integer> findAllResDatIdFromPadiResDataHeader();
 }

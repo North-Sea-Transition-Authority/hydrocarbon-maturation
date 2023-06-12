@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.UUID;
@@ -7,6 +9,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 public class FileUploadUtils {
 
@@ -53,6 +56,14 @@ public class FileUploadUtils {
     return fileUploadForms.stream()
         .map(FileUploadForm::getUploadedFileId)
         .toList();
+  }
+
+  public static InputStream getFileUploadInputStreamOrThrow(MultipartFile multipartFile) {
+    try {
+      return multipartFile.getInputStream();
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Could not open file upload %s".formatted(multipartFile.getOriginalFilename()), e);
+    }
   }
 
   private static String formatSize(long size, long divider, String unitName) {

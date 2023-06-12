@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -24,7 +26,15 @@ class ShapefileZipService {
     this.shapefileAttributesService = shapefileAttributesService;
   }
 
-  public ShapefileZipContents getShapefileZipContents(InputStream shapefileZipInputStream, String filename) {
+  ShapefileZipContents getShapefileZipContents(File file) {
+    try (var fileInputStream = new FileInputStream(file)) {
+      return getShapefileZipContents(fileInputStream, file.getName());
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Shapefile zip file could not be opened: " + file.getAbsolutePath(), e);
+    }
+  }
+
+  ShapefileZipContents getShapefileZipContents(InputStream shapefileZipInputStream, String filename) {
     ShapefileZipContents shapefileZip;
     try (var zis = new ZipInputStream(shapefileZipInputStream)) {
 

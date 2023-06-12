@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdoc
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
@@ -70,8 +72,16 @@ public class SupportingDocumentService {
       );
     }
 
-    var uploadedFile = fileUploadService.createUploadedFile(
-        supportingDocumentType.getVirtualFolder(), fileSize, filename, contentType);
+    var fileInputStream = FileUploadUtils.getFileUploadInputStreamOrThrow(multipartFile);
+    var uploadedFile = uploadedFile(submissionDetail, supportingDocumentType, fileSize, filename, contentType, fileInputStream);
+
+    return FileUploadResult.valid(uploadedFile.getId().toString(), filename, multipartFile);
+  }
+
+  public UploadedFile uploadedFile(SubmissionDetail submissionDetail, SupportingDocumentType supportingDocumentType,
+                            long fileSize, String filename, String contentType, InputStream inputStream) {
+    var uploadedFile =
+        fileUploadService.createUploadedFile(supportingDocumentType.getVirtualFolder(), fileSize, filename, contentType);
 
     var supportingDocument = new SupportingDocument();
     supportingDocument.setSubmissionDetail(submissionDetail);
@@ -82,9 +92,10 @@ public class SupportingDocumentService {
 
     // Persist uploaded file and supporting document records first,
     // so if it fails, we don't upload. If upload fails, we will roll back
-    fileUploadService.uploadFile(multipartFile, uploadedFile);
+    fileUploadService.uploadFile(inputStream, uploadedFile);
 
-    return FileUploadResult.valid(uploadedFile.getId().toString(), filename, multipartFile);
+
+    return uploadedFile;
   }
 
   private List<String> validateWithCustomValidator(SupportingDocumentType supportingDocumentType, MultipartFile multipartFile) {

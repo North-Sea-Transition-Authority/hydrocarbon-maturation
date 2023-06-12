@@ -1,0 +1,1 @@
+TRUNCATE TABLE remi.shapefile_migration_progress;
