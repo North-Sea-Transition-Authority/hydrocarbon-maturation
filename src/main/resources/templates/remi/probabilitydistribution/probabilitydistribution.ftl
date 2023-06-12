@@ -132,38 +132,41 @@
     labelText
     template
     error>
-    <#assign probabilityDistributionTypePathString = probabilityDistributionPath+".probabilityDistributionType"/>
-    <@fdsRadio.radioGroup path=probabilityDistributionTypePathString labelText=labelText hiddenContent=true>
-        <#assign firstItem=true/>
-        <#list template.probabilityDistributionTypeWithInputsList as inputs>
-            <@fdsRadio.radioItem
-                path=probabilityDistributionTypePathString
-                itemMap={inputs.probabilityDistributionType.name() : inputs.probabilityDistributionType.displayName}
-                isFirstItem=firstItem>
-                <#if inputs.probabilityDistributionType.name() != 'NOT_CALCULATED'>
-                    <@probabilityDistributionSingle
-                        probabilityDistributionTypePath=probabilityDistributionTypePathString
-                        formId=probabilityDistributionPath?replace("form.", "")
-                        labelText="Probability of exceedance (${template.units})"
-                        error=error
-                        inputs=inputs/>
-                    <@fdsTextarea.textarea
-                        path=probabilityDistributionPath+"."+inputs.probabilityDistributionType.path+".comments"
-                        labelText="Comments"
-                        rows="3"
-                        optionalLabel=true
-                        inputClass="govuk-!-width-two-thirds"
-                        nestingPath=probabilityDistributionTypePathString/>
-                </#if>
-            </@fdsRadio.radioItem>
-        </#list>
-    </@fdsRadio.radioGroup>
 
+    <#if template.probabilityDistributionTypeWithInputsList?size == 1>
+        <@probabilityDistributionSingularTemplate probabilityDistributionPath=probabilityDistributionPath labelText=labelText template=template error=error/>
+    <#else>
+        <#assign probabilityDistributionTypePathString = probabilityDistributionPath+".probabilityDistributionType"/>
+        <@fdsRadio.radioGroup path=probabilityDistributionTypePathString labelText=labelText hiddenContent=true>
+            <#assign firstItem=true/>
+            <#list template.probabilityDistributionTypeWithInputsList as inputs>
+                <@fdsRadio.radioItem
+                    path=probabilityDistributionTypePathString
+                    itemMap={inputs.probabilityDistributionType.name() : inputs.probabilityDistributionType.displayName}
+                    isFirstItem=firstItem>
+                    <#if inputs.probabilityDistributionType.name() != 'NOT_CALCULATED'>
+                        <@probabilityDistributionSingle
+                            probabilityDistributionTypePath=probabilityDistributionTypePathString
+                            formId=probabilityDistributionPath?replace("form.", "")
+                            labelText="Probability of exceedance (${template.units})"
+                            error=error
+                            inputs=inputs/>
+                        <@fdsTextarea.textarea
+                            path=probabilityDistributionPath+"."+inputs.probabilityDistributionType.path+".comments"
+                            labelText="Comments"
+                            rows="3"
+                            optionalLabel=true
+                            inputClass="govuk-!-width-two-thirds"
+                            nestingPath=probabilityDistributionTypePathString/>
+                    </#if>
+                </@fdsRadio.radioItem>
+            </#list>
+        </@fdsRadio.radioGroup>
+    </#if>
 </#macro>
 
 
-
-<#macro probabilityDistributionCustomTemplate
+<#macro probabilityDistributionSingularTemplate
     probabilityDistributionPath
     labelText
     template

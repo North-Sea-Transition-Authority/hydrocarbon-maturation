@@ -151,21 +151,21 @@
     </#if>
     <#if discoverySubmission>
       <#if oilCase || mixedCase>
-        <@probabilityDistribution.probabilityDistributionCustomTemplate
+        <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.depthToOilWaterContact"
           labelText="Depth to oil water contact"
           template=depthToOilWaterContactTemplate
           error=depthToOilWaterContactError/>
       </#if>
       <#if gasCase || mixedCase>
-        <@probabilityDistribution.probabilityDistributionCustomTemplate
+        <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.depthToGasWaterContact"
           labelText="Depth to gas water contact"
           template=depthToGasWaterContactTemplate
           error=depthToGasWaterContactError/>
       </#if>
       <#if mixedCase>
-        <@probabilityDistribution.probabilityDistributionCustomTemplate
+        <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.depthToGasOilContact"
           labelText="Depth to gas oil contact"
           template=depthToGasOilContactTemplate

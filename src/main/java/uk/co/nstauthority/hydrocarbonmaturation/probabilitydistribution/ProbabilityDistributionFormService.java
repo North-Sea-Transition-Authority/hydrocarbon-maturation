@@ -46,6 +46,10 @@ public class ProbabilityDistributionFormService {
   }
 
   private ProbabilityDistributionForm createProbabilityDistributionForm(ProbabilityDistributionFieldInstance instance) {
+    if (instance.getPresetTypes().size() == 1) {
+      var preset = instance.getPresetTypes().get(0);
+      return createProbabilityDistributionForm(instance, preset);
+    }
     return createProbabilityDistributionForm(instance, null);
   }
 

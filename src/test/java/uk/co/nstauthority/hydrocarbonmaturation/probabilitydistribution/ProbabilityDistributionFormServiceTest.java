@@ -77,4 +77,18 @@ class ProbabilityDistributionFormServiceTest {
 
     assertThat(form.getProbabilityDistributionType()).isEqualTo(ProbabilityDistributionType.CUSTOM);
   }
+
+  @Test
+  void probabilityDistributionEntityToForm_HasOnePresetTypeAndInstanceIsPreset_IsOnePresetType() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var instance = ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL;
+
+    when(probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance))
+        .thenReturn(Optional.empty());
+
+    var form = probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, instance);
+
+    assertThat(form.getProbabilityDistributionType()).isEqualTo(instance.getPresetTypes().get(0));
+  }
 }

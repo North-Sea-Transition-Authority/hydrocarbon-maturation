@@ -22,13 +22,13 @@
   breadcrumbsMap=breadcrumbsMap>
 
   <@fdsForm.htmlForm>
-    <@probabilityDistribution.probabilityDistributionCustomTemplate
+    <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.oilInPlace"
       labelText="Oil in place"
       template=oilInPlaceTemplate
       error=oilInPlaceError/>
 
-    <@probabilityDistribution.probabilityDistributionCustomTemplate
+    <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.oilRecoverableResources"
       labelText="Oil recoverable resources"
       template=oilRecoverableResourcesTemplate
@@ -39,7 +39,7 @@
       labelText="Do you expect to find associated gas recoverable resources?"
       hiddenContent=true>
       <@fdsRadio.radioYes path="form.hasAssociatedGasRecoverableResources">
-        <@probabilityDistribution.probabilityDistributionCustomTemplate
+        <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.associatedGasRecoverableResources"
           labelText="Associated gas recoverable resources"
           template=associatedGasRecoverableResourcesTemplate
@@ -48,7 +48,7 @@
       <@fdsRadio.radioNo path="form.hasAssociatedGasRecoverableResources"/>
     </@fdsRadio.radioGroup>
 
-    <@probabilityDistribution.probabilityDistributionCustomTemplate
+    <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.oilEquivalentRecoverableResources"
       labelText="Oil equivalent recoverable resources"
       template=oilEquivalentRecoverableResourcesTemplate
