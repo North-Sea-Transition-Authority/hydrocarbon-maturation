@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="dataMapAttributions" type="String" -->
 
 <#macro shapeMapSummary geoJsonDataUrl dataMapAttributions>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Shapefile map">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Shapefile map" rowClass="govuk-summary-list__row--align-key-top">
       <@maps.shapeMap
         geoJsonDataUrl=geoJsonDataUrl
         dataMapAttributions=dataMapAttributions
