@@ -22,7 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
-class ViewResourceRecordService {
+public class ViewResourceRecordService {
 
   private final ResourceRecordSummaryQueryService resourceRecordSummaryQueryService;
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
@@ -52,7 +52,7 @@ class ViewResourceRecordService {
     this.areaTeamService = areaTeamService;
   }
 
-  ResourceRecordSummaryView getResourceRecordOrThrow(UUID resourceId) {
+  public ResourceRecordSummaryView getResourceRecordOrThrow(UUID resourceId) {
     return resourceRecordSummaryQueryService.getResourceRecord(resourceId)
         .map(resourceRecordSummaryQueryResult -> new ResourceRecordSummaryView(
                 resourceRecordSummaryQueryResult.getSubmissionDetailId(),
