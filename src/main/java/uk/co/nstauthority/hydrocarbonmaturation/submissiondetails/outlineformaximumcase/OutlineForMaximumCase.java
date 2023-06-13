@@ -9,10 +9,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
 @Entity
 @Table(name = "outline_for_maximum_case")
-public class OutlineForMaximumCase {
+public class OutlineForMaximumCase implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -41,7 +42,7 @@ public class OutlineForMaximumCase {
     this.submissionDetail = submissionDetail;
   }
 
-  public Boolean isHasVerifiedShapefile() {
+  public Boolean getHasVerifiedShapefile() {
     return hasVerifiedShapefile;
   }
 

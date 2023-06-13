@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,7 @@ public class OutlineForMaximumCasePersistenceService {
 
   @Transactional
   public void saveOutlineForMaximumCaseVerifyForm(SubmissionDetail submissionDetail, OutlineForMaximumCaseVerifyForm form) {
-    var outlineForMaximumCase = outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail)
+    var outlineForMaximumCase = getOutlineForMaximumCaseBySubmissionDetail(submissionDetail)
         .orElseGet(OutlineForMaximumCase::new);
 
     outlineForMaximumCase.setSubmissionDetail(submissionDetail);
@@ -55,9 +56,13 @@ public class OutlineForMaximumCasePersistenceService {
   }
 
   boolean hasVerifiedShapefile(SubmissionDetail submissionDetail) {
-    return outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail)
-        .filter(OutlineForMaximumCase::isHasVerifiedShapefile)
+    return getOutlineForMaximumCaseBySubmissionDetail(submissionDetail)
+        .filter(OutlineForMaximumCase::getHasVerifiedShapefile)
         .isPresent();
+  }
+
+  Optional<OutlineForMaximumCase> getOutlineForMaximumCaseBySubmissionDetail(SubmissionDetail submissionDetail) {
+    return outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail);
   }
 
   private SupportingDocument getUploadedShapefileZip(SubmissionDetail submissionDetail) {

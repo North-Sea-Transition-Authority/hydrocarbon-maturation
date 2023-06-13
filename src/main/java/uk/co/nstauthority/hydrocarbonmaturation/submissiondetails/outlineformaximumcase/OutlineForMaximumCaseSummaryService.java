@@ -5,7 +5,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -19,17 +18,14 @@ public class OutlineForMaximumCaseSummaryService {
 
   private final OutlineForMaximumCaseMapService outlineForMaximumCaseMapService;
   private final SupportingDocumentService supportingDocumentService;
-  private final FileUploadService fileUploadService;
   private final OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
 
   @Autowired
   public OutlineForMaximumCaseSummaryService(OutlineForMaximumCaseMapService outlineForMaximumCaseMapService,
                                              SupportingDocumentService supportingDocumentService,
-                                             FileUploadService fileUploadService,
                                              OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService) {
     this.outlineForMaximumCaseMapService = outlineForMaximumCaseMapService;
     this.supportingDocumentService = supportingDocumentService;
-    this.fileUploadService = fileUploadService;
     this.outlineForMaximumCasePersistenceService = outlineForMaximumCasePersistenceService;
   }
 

@@ -35,7 +35,7 @@ class OutlineForMaximumCaseVerifyFormService implements SubmissionFormService {
     return outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail)
         .map(outlineForMaximumCase -> {
           var form = new OutlineForMaximumCaseVerifyForm();
-          form.setShapeIsCorrect(outlineForMaximumCase.isHasVerifiedShapefile());
+          form.setShapeIsCorrect(outlineForMaximumCase.getHasVerifiedShapefile());
           return form;
         })
         .orElseGet(OutlineForMaximumCaseVerifyForm::new);

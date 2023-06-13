@@ -129,7 +129,7 @@ class OutlineForMaximumCasePersistenceServiceTest {
       underTest.saveOutlineForMaximumCaseVerifyForm(submissionDetail, form);
 
       verify(outlineForMaximumCaseRepository).save(argumentCaptor.capture());
-      assertThat(argumentCaptor.getValue().isHasVerifiedShapefile()).isTrue();
+      assertThat(argumentCaptor.getValue().getHasVerifiedShapefile()).isTrue();
     }
 
     @Test
@@ -140,7 +140,7 @@ class OutlineForMaximumCasePersistenceServiceTest {
       underTest.saveOutlineForMaximumCaseVerifyForm(submissionDetail, form);
 
       verify(outlineForMaximumCaseRepository).save(argumentCaptor.capture());
-      assertThat(argumentCaptor.getValue().isHasVerifiedShapefile()).isFalse();
+      assertThat(argumentCaptor.getValue().getHasVerifiedShapefile()).isFalse();
     }
 
     @Test
