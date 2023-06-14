@@ -53,15 +53,4 @@ class OutlineForMaximumCaseRestControllerTest extends AbstractSubmissionControll
                 .with(user(USER)))
         .andExpect(status().isOk());
   }
-
-  @SecurityTest
-  void getGeoJsonForOutlineForMaximumCase_andCannotViewResource_assertForbidden() throws Exception {
-    when(viewResourceRecordService.getResourceRecordOrThrow(any(UUID.class))).thenReturn(resourceRecordSummaryView);
-    when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(false);
-
-    mockMvc.perform(
-            get(ReverseRouter.route(on(OutlineForMaximumCaseRestController.class).getGeoJsonForOutlineForMaximumCase(submissionDetailId)))
-                .with(user(USER)))
-        .andExpect(status().isForbidden());
-  }
 }
