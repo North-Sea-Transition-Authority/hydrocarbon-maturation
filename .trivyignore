@@ -28,6 +28,7 @@ CVE-2022-41946
 
 # Spring web
 CVE-2016-1000027
+CVE-2023-20860
 
 # curl
 CVE-2023-23914
@@ -47,9 +48,17 @@ CVE-2023-28867
 
 # JSON
 CVE-2022-45688
+CVE-2022-45689
+CVE-2022-45690
 
 # Spring boot actuator autoconfigure
 CVE-2023-20873
 
 # Govuk notify transient vulnerability
 GHSA-jgvc-jfgh-rjvv
+
+# Guava
+CVE-2023-2976
+
+# Tomcat
+CVE-2023-28708
