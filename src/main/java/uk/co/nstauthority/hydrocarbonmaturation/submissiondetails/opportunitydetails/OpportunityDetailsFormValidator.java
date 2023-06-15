@@ -41,8 +41,9 @@ class OpportunityDetailsFormValidator extends PartialFullFormValidator {
     var opportunityDetailsForm = (OpportunityDetailsForm) form;
 
     var mapOfOpportunity = opportunityDetailsForm.getMapOfOpportunity();
+    var mapName = submissionDetail.isDiscoverySubmission() ? "map of discovery" : "map of opportunity";
     FileValidationUtil.validator()
-        .withMaximumNumberOfFiles(1, "Upload at most one map of opportunity")
+        .withMaximumNumberOfFiles(1, "Upload at most one %s".formatted(mapName))
         .isPartiallyValidated()
         .validate(errors, mapOfOpportunity, "mapOfOpportunity");
 
@@ -76,9 +77,10 @@ class OpportunityDetailsFormValidator extends PartialFullFormValidator {
         "Enter the key evaluation work being carried out for this opportunity");
 
     var mapOfOpportunity = opportunityDetailsForm.getMapOfOpportunity();
+    var mapName = submissionDetail.isDiscoverySubmission() ? "map of discovery" : "map of opportunity";
     FileValidationUtil.validator()
-        .withMaximumNumberOfFiles(1, "Upload at most one map of opportunity")
-        .withMinimumNumberOfFiles(1, "Upload a map of opportunity")
+        .withMaximumNumberOfFiles(1, "Upload at most one %s".formatted(mapName))
+        .withMinimumNumberOfFiles(1, "Upload a %s".formatted(mapName))
         .validate(errors, mapOfOpportunity, "mapOfOpportunity");
 
     var representativeSeismicSection = opportunityDetailsForm.getRepresentativeSeismicSection();

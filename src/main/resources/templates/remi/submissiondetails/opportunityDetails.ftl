@@ -37,7 +37,7 @@
 
       <@fdsTextarea.textarea path="form.keyWorkRequiredForFurtherMaturation" labelText="Key work required for further maturation" optionalLabel=true/>
 
-      <@fdsFieldset.fieldset legendHeading="Map of opportunity" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--m">
+      <@fdsFieldset.fieldset legendHeading=mapName legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--m">
         <@fdsFileUpload.fileUpload
           id="mapOfOpportunity"
           path="form.mapOfOpportunity"

@@ -3,7 +3,7 @@
 
 <#-- @ftlvariable name="opportunityDetailsValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView" -->
 
-<#macro opportunityDetailsSummaryCard opportunityDetailsValues>
+<#macro opportunityDetailsSummaryCard opportunityDetailsValues mapName>
   <@fdsSummaryList.summaryListCard headingText="Opportunity details" summaryListId="opportunitydetails">
     <@fdsSummaryList.summaryListRowNoAction keyText="Opportunity type">
         ${opportunityDetailsValues.opportunityType()}
@@ -24,7 +24,7 @@
     </@fdsSummaryList.summaryListRowNoAction>
     <@fileUploadSummary.fileUploadSummary
       filesUploaded=opportunityDetailsValues.mapOfOpportunity()
-      fieldName="Map of opportunity"/>
+      fieldName=mapName/>
     <@fileUploadSummary.fileUploadSummary
       filesUploaded=opportunityDetailsValues.representativeSeismicSection()
       fieldName="Representative seismic section"/>

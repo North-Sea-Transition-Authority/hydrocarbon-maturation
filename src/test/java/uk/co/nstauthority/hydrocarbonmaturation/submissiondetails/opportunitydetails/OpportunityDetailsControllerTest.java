@@ -33,6 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -151,7 +152,7 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
   }
 
   @Test
-  void getOpportunityDetailsModelAndView_assertModelProperties() throws Exception {
+  void getOpportunityDetailsModelAndViewForProsopect_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
@@ -168,9 +169,34 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
     assertEquals(OpportunityDetailsForm.class, modelMap.get("form").getClass());
     assertThat(modelMap).contains(
         entry("opportunityTypes", OpportunityType.getSelectableOpportunityTypes()),
-        entry("pageTitle", OpportunityDetailsController.PAGE_NAME)
+        entry("pageTitle", OpportunityDetailsController.PAGE_NAME),
+        entry("mapName", "Map of opportunity")
     )
     .containsKeys("breadcrumbsMap", "mapOfOpportunityTemplate");
   }
 
+  @Test
+  void getOpportunityDetailsModelAndViewForDiscovery_assertModelProperties() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
+    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
+        .thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
+        .thenReturn(fileUploadTemplate);
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertEquals(OpportunityDetailsForm.class, modelMap.get("form").getClass());
+    assertThat(modelMap).contains(
+            entry("opportunityTypes", OpportunityType.getSelectableOpportunityTypes()),
+            entry("pageTitle", OpportunityDetailsController.PAGE_NAME),
+            entry("mapName", "Map of discovery")
+        )
+        .containsKeys("breadcrumbsMap", "mapOfOpportunityTemplate");
+  }
 }

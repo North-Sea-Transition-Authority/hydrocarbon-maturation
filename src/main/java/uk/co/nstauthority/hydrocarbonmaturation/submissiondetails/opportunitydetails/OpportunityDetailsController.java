@@ -109,7 +109,8 @@ public class OpportunityDetailsController {
             submissionDetail.getId(),
             SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION
         ))
-        .addObject("representativeSeismicSectionUploads", representativeSeismicSectionUploads);
+        .addObject("representativeSeismicSectionUploads", representativeSeismicSectionUploads)
+        .addObject("mapName", submissionDetail.isDiscoverySubmission() ? "Map of discovery" : "Map of opportunity");
 
     return TaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

@@ -147,7 +147,7 @@ class OpportunityDetailsFormValidatorTest {
 
   @ParameterizedTest
   @EnumSource(ValidationType.class)
-  void validate_whenTooManyFilesUploaded_thenValidationErrors(ValidationType validationType) {
+  void validate_whenTooManyFilesUploadedForProspect_thenValidationErrors(ValidationType validationType) {
     var form = getValidOpportunityDetailsForm();
     var formFileUploadForm = new FileUploadForm();
     formFileUploadForm.setUploadedFileId(UUID.randomUUID());
@@ -174,6 +174,40 @@ class OpportunityDetailsFormValidatorTest {
         .containsExactly(
             entry("mapOfOpportunity",
                 Set.of("Upload at most one map of opportunity")),
+            entry("geologicalCrossSection",
+                Set.of("Upload at most one geological cross section"))
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validate_whenTooManyFilesUploadedForDiscovery_thenValidationErrors(ValidationType validationType) {
+    var form = getValidOpportunityDetailsForm();
+    var formFileUploadForm = new FileUploadForm();
+    formFileUploadForm.setUploadedFileId(UUID.randomUUID());
+    formFileUploadForm.setUploadedFileDescription("description");
+    form.setMapOfOpportunity(List.of(formFileUploadForm, formFileUploadForm));
+    form.setGeologicalCrossSection(List.of(formFileUploadForm, formFileUploadForm));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    opportunityDetailsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail()));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("mapOfOpportunity",
+                Set.of("mapOfOpportunity.limitExceeded")),
+            entry("geologicalCrossSection",
+                Set.of("geologicalCrossSection.limitExceeded"))
+        );
+    assertThat(extractedErrorMessages)
+        .containsExactly(
+            entry("mapOfOpportunity",
+                Set.of("Upload at most one map of discovery")),
             entry("geologicalCrossSection",
                 Set.of("Upload at most one geological cross section"))
         );
