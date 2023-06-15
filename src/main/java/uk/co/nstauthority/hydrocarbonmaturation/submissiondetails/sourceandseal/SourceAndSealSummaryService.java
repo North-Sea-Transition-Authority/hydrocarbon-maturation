@@ -25,7 +25,6 @@ public class SourceAndSealSummaryService {
   private SourceAndSealSummaryView createSummaryViewFromSourceAndSeal(SourceAndSeal sourceAndSeal) {
 
     var sourceGroupName = sourceAndSeal.getSourceGroupName() != null ? sourceAndSeal.getSourceGroupName().getDisplayName() : "";
-    var sourceLithology = ObjectUtils.defaultIfNull(sourceAndSeal.getSourceLithology(), "");
 
     var sealGroupName = sourceAndSeal.getTopSealGroupName() != null
         ? sourceAndSeal.getTopSealGroupName().getDisplayName()
@@ -35,7 +34,7 @@ public class SourceAndSealSummaryService {
         getFormationName(sourceAndSeal.getSourceFormationName(), sourceAndSeal.getSourceFormationNameManual()),
         getAgeStage(sourceAndSeal.getSourceAgeStage(), sourceAndSeal.getSourceAgeStageManual()),
         sourceGroupName,
-        sourceLithology,
+        getSourceLithologyDisplay(sourceAndSeal.getSourceLithology(), sourceAndSeal.getSourceLithologyOther()),
         getFormationName(sourceAndSeal.getTopSealFormationName(), sourceAndSeal.getTopSealFormationNameManual()),
         getAgeStage(sourceAndSeal.getTopSealAgeStage(), sourceAndSeal.getTopSealAgeStageManual()),
         sealGroupName,
@@ -66,5 +65,11 @@ public class SourceAndSealSummaryService {
     var sealLithology = topSealLithology != null ? topSealLithology.getDisplayName() : "";
     var sealLithologyOther = ObjectUtils.defaultIfNull(otherLithology, "");
     return topSealLithology == TopSealLithology.OTHER ? sealLithologyOther : sealLithology;
+  }
+
+  private String getSourceLithologyDisplay(SourceLithology sourceLithology, String otherLithology) {
+    var sourceLithologyName = sourceLithology != null ? sourceLithology.getDisplayName() : "";
+    var sourceLithologyOther = ObjectUtils.defaultIfNull(otherLithology, "");
+    return sourceLithology == SourceLithology.OTHER ? sourceLithologyOther : sourceLithologyName;
   }
 }

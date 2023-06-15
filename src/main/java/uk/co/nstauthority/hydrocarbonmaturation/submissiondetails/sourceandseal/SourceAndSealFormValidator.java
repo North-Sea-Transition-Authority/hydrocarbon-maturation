@@ -31,6 +31,14 @@ class SourceAndSealFormValidator extends PartialFullFormValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sourceGroupName", "sourceGroupName.required",
         "Enter a source group name");
 
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sourceLithology", "sourceLithology.required",
+        "Enter a source lithology");
+
+    if (sourceAndSealForm.getSourceLithology() == SourceLithology.OTHER) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sourceLithologyOther", "sourceLithologyOther.required",
+          "Enter other source lithology");
+    }
+
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "topSealFormationName", "topSealFormationName.required",
         "Enter a top seal formation name");
 

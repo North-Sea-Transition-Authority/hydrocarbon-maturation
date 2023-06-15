@@ -42,7 +42,10 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
   @Enumerated(EnumType.STRING)
   private GroupName sourceGroupName;
 
-  private String sourceLithology;
+  @Enumerated(EnumType.STRING)
+  private SourceLithology sourceLithology;
+
+  private String sourceLithologyOther;
 
   @Enumerated(EnumType.STRING)
   private Formation topSealFormationName;
@@ -121,12 +124,20 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
     this.sourceGroupName = groupName;
   }
 
-  public String getSourceLithology() {
+  public SourceLithology getSourceLithology() {
     return sourceLithology;
   }
 
-  public void setSourceLithology(String sourceLithology) {
+  public void setSourceLithology(SourceLithology sourceLithology) {
     this.sourceLithology = sourceLithology;
+  }
+
+  public String getSourceLithologyOther() {
+    return sourceLithologyOther;
+  }
+
+  public void setSourceLithologyOther(String sourceLithologyOther) {
+    this.sourceLithologyOther = sourceLithologyOther;
   }
 
   public Formation getTopSealFormationName() {

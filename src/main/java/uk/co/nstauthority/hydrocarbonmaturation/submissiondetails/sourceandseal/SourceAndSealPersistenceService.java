@@ -32,6 +32,9 @@ class SourceAndSealPersistenceService {
 
     sourceAndSeal.setSourceGroupName(form.getSourceGroupName());
     sourceAndSeal.setSourceLithology(form.getSourceLithology());
+    sourceAndSeal.setSourceLithologyOther(
+        form.getSourceLithology() == SourceLithology.OTHER ? form.getSourceLithologyOther() : null
+    );
 
     setTopSealFormationName(form, sourceAndSeal);
     setTopSealAgeStage(form, sourceAndSeal);

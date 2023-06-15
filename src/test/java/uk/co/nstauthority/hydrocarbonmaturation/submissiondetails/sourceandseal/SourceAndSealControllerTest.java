@@ -194,6 +194,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
         )
         .containsEntry("preSelectedSourceAgeStage", preSelectedSourceAgeStage)
         .containsEntry("preSelectedTopSealAgeStage", preSelectedTopSealAgeStage)
-        .containsEntry("topSealLithologyOptions", TopSealLithology.getTopSealLithologyOptions());
+        .containsEntry("topSealLithologyOptions", TopSealLithology.getTopSealLithologyOptions())
+        .containsEntry("sourceLithologyOptions", SourceLithology.getSourceLithologyOptions());
   }
 }

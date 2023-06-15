@@ -65,6 +65,7 @@ class SourceAndSealFormValidatorTest {
             entry("sourceFormationName", Set.of("sourceFormationName.required")),
             entry("sourceAgeStage", Set.of("sourceAgeStage.required")),
             entry("sourceGroupName", Set.of("sourceGroupName.required")),
+            entry("sourceLithology", Set.of("sourceLithology.required")),
             entry("topSealFormationName", Set.of("topSealFormationName.required")),
             entry("topSealAgeStage", Set.of("topSealAgeStage.required")),
             entry("topSealGroupName", Set.of("topSealGroupName.required")),
@@ -75,12 +76,14 @@ class SourceAndSealFormValidatorTest {
   @Test
   void validate_whenOtherLithologyNotProvided_thenValidationErrors() {
     var form = getPopulatedSourceAndSealForm();
+    form.setSourceLithology(SourceLithology.OTHER);
     form.setTopSealLithology(TopSealLithology.OTHER);
     var bindingResult = validateSourceAndSealForm_fullValidation(form);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
+            entry("sourceLithologyOther", Set.of("sourceLithologyOther.required")),
             entry("topSealLithologyOther", Set.of("topSealLithologyOther.required"))
         );
   }
@@ -115,6 +118,7 @@ class SourceAndSealFormValidatorTest {
     form.setSourceFormationName("source formation name");
     form.setTopSealFormationName("top seal formation name");
     form.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS.name());
+    form.setSourceLithology(SourceLithology.CLAYSTONE);
     form.setTopSealAgeStage(AgeSeries.LOWER_CRETACEOUS.name());
     form.setSourceGroupName(GroupName.BRENT);
     form.setTopSealGroupName(GroupName.CLAIR);

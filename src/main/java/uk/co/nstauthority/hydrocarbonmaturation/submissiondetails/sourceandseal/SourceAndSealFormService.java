@@ -57,6 +57,7 @@ class SourceAndSealFormService implements SubmissionFormService {
 
     form.setSourceGroupName(sourceAndSeal.getSourceGroupName());
     form.setSourceLithology(sourceAndSeal.getSourceLithology());
+    form.setSourceLithologyOther(sourceAndSeal.getSourceLithologyOther());
 
     if (sourceAndSeal.getTopSealFormationName() != null) {
       form.setTopSealFormationName(sourceAndSeal.getTopSealFormationName().name());

@@ -50,7 +50,7 @@ class SourceAndSealSummaryServiceTest {
   void getSourceAndSealSummaryFromSubmissionDetail_view() {
     sourceAndSeal.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
     sourceAndSeal.setSourceGroupName(GroupName.BRENT);
-    sourceAndSeal.setSourceLithology("source lithology");
+    sourceAndSeal.setSourceLithology(SourceLithology.CLAYSTONE);
     sourceAndSeal.setTopSealAgeStage(AgeSeries.LOWER_DEVONIAN);
     sourceAndSeal.setTopSealGroupName(GroupName.BRUCE);
     sourceAndSeal.setTopSealLithology(TopSealLithology.CEMENTED_SANDSTONE);
@@ -72,7 +72,7 @@ class SourceAndSealSummaryServiceTest {
         .containsExactly(
             AgeSeries.LOWER_CARBONIFEROUS.getDisplayName(),
             GroupName.BRENT.getDisplayName(),
-            "source lithology",
+            SourceLithology.CLAYSTONE.getDisplayName(),
             AgeSeries.LOWER_DEVONIAN.getDisplayName(),
             GroupName.BRUCE.getDisplayName(),
             TopSealLithology.CEMENTED_SANDSTONE.getDisplayName()
@@ -140,7 +140,7 @@ class SourceAndSealSummaryServiceTest {
   }
 
   @Test
-  void getSourceAndSealSummaryFromSubmissionDetail_otherSeaLithologyView() {
+  void getSourceAndSealSummaryFromSubmissionDetail_otherSealLithologyView() {
     var otherSealLithology = "other";
     sourceAndSeal.setTopSealLithology(TopSealLithology.OTHER);
     sourceAndSeal.setTopSealLithologyOther(otherSealLithology);
@@ -152,5 +152,20 @@ class SourceAndSealSummaryServiceTest {
         .getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
 
     assertThat(summaryView.sealLithology()).isEqualTo(otherSealLithology);
+  }
+
+  @Test
+  void getSourceAndSealSummaryFromSubmissionDetail_otherSourceLithologyView() {
+    var otherSourceLithology = "other";
+    sourceAndSeal.setSourceLithology(SourceLithology.OTHER);
+    sourceAndSeal.setSourceLithologyOther(otherSourceLithology);
+
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
+        .thenReturn(Optional.of(sourceAndSeal));
+
+    var summaryView = sourceAndSealSummaryService
+        .getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(summaryView.sourceLithology()).isEqualTo(otherSourceLithology);
   }
 }

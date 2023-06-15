@@ -8,7 +8,8 @@ class SourceAndSealForm implements SubmissionForm {
   private String sourceFormationName;
   private String sourceAgeStage;
   private GroupName sourceGroupName;
-  private String sourceLithology;
+  private SourceLithology sourceLithology;
+  private String sourceLithologyOther;
   private String topSealFormationName;
   private String topSealAgeStage;
   private GroupName topSealGroupName;
@@ -41,12 +42,20 @@ class SourceAndSealForm implements SubmissionForm {
     this.sourceGroupName = sourceGroupName;
   }
 
-  public String getSourceLithology() {
+  public SourceLithology getSourceLithology() {
     return sourceLithology;
   }
 
-  public void setSourceLithology(String sourceLithology) {
+  public void setSourceLithology(SourceLithology sourceLithology) {
     this.sourceLithology = sourceLithology;
+  }
+
+  public String getSourceLithologyOther() {
+    return sourceLithologyOther;
+  }
+
+  public void setSourceLithologyOther(String sourceLithologyOther) {
+    this.sourceLithologyOther = sourceLithologyOther;
   }
 
   public String getTopSealFormationName() {

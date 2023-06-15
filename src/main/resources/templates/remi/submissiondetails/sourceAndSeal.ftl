@@ -27,7 +27,21 @@
           labelText="Formation name"
           preselectedItems=preSelectedSourceFormation!{}
         />
-      <@fdsTextInput.textInput path="form.sourceLithology" labelText="Lithology" optionalLabel=true/>
+      <@fdsRadio.radioGroup path="form.sourceLithology" labelText="Lithology" hiddenContent=true>
+          <#assign firstItem=true/>
+          <#list sourceLithologyOptions as key, value>
+              <@fdsRadio.radioItem path="form.sourceLithology" itemMap={key : value} isFirstItem=firstItem>
+                  <#if key == "OTHER">
+                      <@fdsTextInput.textInput
+                        path="form.sourceLithologyOther"
+                        labelText="Provide the other lithology"
+                        nestingPath="form.sourceLithology"
+                      />
+                  </#if>
+                  <#assign firstItem=false/>
+              </@fdsRadio.radioItem>
+          </#list>
+      </@fdsRadio.radioGroup>
     </@fdsFieldset.fieldset>
 
     <@fdsFieldset.fieldset legendHeading="Top seal">

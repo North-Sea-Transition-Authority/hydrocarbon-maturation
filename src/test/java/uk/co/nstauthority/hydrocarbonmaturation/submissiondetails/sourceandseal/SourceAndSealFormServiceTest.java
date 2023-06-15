@@ -95,11 +95,13 @@ class SourceAndSealFormServiceTest {
     assertThat(sourceAndSealFormService.getSourceAndSealForm(submissionDetail))
         .extracting(
             SourceAndSealForm::getSourceLithology,
+            SourceAndSealForm::getSourceLithologyOther,
             SourceAndSealForm::getTopSealLithology,
             SourceAndSealForm::getTopSealLithologyOther
         )
         .containsExactly(
             sourceAndSeal.getSourceLithology(),
+            sourceAndSeal.getSourceLithologyOther(),
             sourceAndSeal.getTopSealLithology(),
             sourceAndSeal.getTopSealLithologyOther()
         );
@@ -157,9 +159,11 @@ class SourceAndSealFormServiceTest {
     var sourceAndSeal = new SourceAndSeal();
     sourceAndSeal.setSubmissionDetail(submissionDetail);
     sourceAndSeal.setSourceGroupName(GroupName.DUNLIN);
+    sourceAndSeal.setSourceLithology(SourceLithology.OTHER);
+    sourceAndSeal.setSourceLithologyOther("other source lithology");
     sourceAndSeal.setTopSealGroupName(GroupName.CLAIR);
     sourceAndSeal.setTopSealLithology(TopSealLithology.OTHER);
-    sourceAndSeal.setTopSealLithologyOther("other");
+    sourceAndSeal.setTopSealLithologyOther("other top seal lithology");
 
     return sourceAndSeal;
   }

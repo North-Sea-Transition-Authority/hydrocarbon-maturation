@@ -40,9 +40,11 @@ class SourceAndSealPersistenceServiceTest {
   void saveSourceAndSealDetails_whenGivenAForm_verifyCreatedEntity() {
     var form = new SourceAndSealForm();
     form.setSourceGroupName(GroupName.BRENT);
+    form.setSourceLithology(SourceLithology.OTHER);
+    form.setSourceLithologyOther("other source lithology");
     form.setTopSealGroupName(GroupName.CLAIR);
     form.setTopSealLithology(TopSealLithology.OTHER);
-    form.setTopSealLithologyOther("other");
+    form.setTopSealLithologyOther("other top seal lithology");
     var sourceAndSealArgumentCaptor = ArgumentCaptor.forClass(SourceAndSeal.class);
 
     sourceAndSealPersistenceService.saveSourceAndSealDetails(form, submissionDetail);

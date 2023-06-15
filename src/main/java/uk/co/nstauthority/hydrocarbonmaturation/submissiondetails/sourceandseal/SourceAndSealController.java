@@ -95,7 +95,8 @@ public class SourceAndSealController {
         )
         .addObject("preSelectedSourceAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getSourceAgeStage()))
         .addObject("preSelectedTopSealAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getTopSealAgeStage()))
-        .addObject("topSealLithologyOptions", TopSealLithology.getTopSealLithologyOptions());
+        .addObject("topSealLithologyOptions", TopSealLithology.getTopSealLithologyOptions())
+        .addObject("sourceLithologyOptions", SourceLithology.getSourceLithologyOptions());
 
     return TaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
