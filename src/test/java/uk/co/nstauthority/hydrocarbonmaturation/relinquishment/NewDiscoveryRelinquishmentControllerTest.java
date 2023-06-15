@@ -70,7 +70,7 @@ class NewDiscoveryRelinquishmentControllerTest extends AbstractSubmissionControl
             ReverseRouter.route(on(NewDiscoveryRelinquishmentController.class)
                 .createNewDiscoveryRelinquishmentSubmission(null, null)),
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchProspects(null, SubmissionType.RELINQUISHMENT_DISCOVERY)));
+                .searchDiscoveries(null, SubmissionType.RELINQUISHMENT_DISCOVERY)));
   }
 
   @SecurityTest
@@ -133,7 +133,7 @@ class NewDiscoveryRelinquishmentControllerTest extends AbstractSubmissionControl
                 .createNewDiscoveryRelinquishmentSubmission(null, null)),
             form,
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchProspects(null, SubmissionType.RELINQUISHMENT_DISCOVERY))
+                .searchDiscoveries(null, SubmissionType.RELINQUISHMENT_DISCOVERY))
         );
 
     verify(discoveryRelinquishmentService, times(1)).validate(any(), any());

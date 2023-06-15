@@ -62,7 +62,7 @@ public class NewDiscoveryRelinquishmentController {
     return new ModelAndView("remi/relinquishment/newDiscoveryRelinquishment")
         .addObject("form", form)
         .addObject("discoveryApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-            .searchProspects(null, SubmissionType.RELINQUISHMENT_DISCOVERY)))
+            .searchDiscoveries(null, SubmissionType.RELINQUISHMENT_DISCOVERY)))
         .addObject("backLinkUrl",
             ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
                 .getStartDiscoveryRelinquishmentPage()))
