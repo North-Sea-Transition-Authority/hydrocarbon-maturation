@@ -40,17 +40,19 @@ class MixedCaseOutputsDuplicationService implements SubmissionSectionDuplication
                 MixedCaseOutput.class)
         );
 
-    probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE,
-            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES,
-            ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES,
-            ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE,
-            ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES,
-            ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES,
-            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES
-        ))
-        .forEach(probabilityDistribution ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
-                ProbabilityDistribution.class));
+    if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
+              ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES
+          ))
+          .forEach(probabilityDistribution ->
+              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
+                  ProbabilityDistribution.class));
+    }
   }
 }

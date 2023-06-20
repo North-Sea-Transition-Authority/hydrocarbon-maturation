@@ -171,9 +171,7 @@ public class SubmissionDetail {
   }
 
   public boolean isProspectSubmission() {
-    return submissionType == SubmissionType.CREATE_PROSPECT
-        || submissionType == SubmissionType.PROSPECT_UPDATE
-        || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT;
+    return SubmissionDetailUtil.isProspectSubmission(submissionType);
   }
 
   public boolean isDryWellOrDiscoverySubmission() {
@@ -182,10 +180,7 @@ public class SubmissionDetail {
   }
 
   public boolean isDiscoverySubmission() {
-    return submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
-        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY;
+    return SubmissionDetailUtil.isDiscoverySubmission(submissionType);
   }
 
   public boolean isApprovedOrSubmittedSubmission() {
@@ -240,6 +235,10 @@ public class SubmissionDetail {
 
   public boolean hasSameSubmissionType(SubmissionDetail otherSubmissionDetail) {
     return submissionType == otherSubmissionDetail.getSubmissionType();
+  }
+
+  public boolean hasSameResourceType(SubmissionDetail otherSubmissionDetail) {
+    return submission.getResource().getType() == otherSubmissionDetail.getSubmission().getResource().getType();
   }
 
   public boolean isUpdateSubmission() {

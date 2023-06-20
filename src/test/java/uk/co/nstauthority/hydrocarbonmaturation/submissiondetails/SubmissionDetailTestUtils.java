@@ -69,4 +69,12 @@ public class SubmissionDetailTestUtils {
     var submissionDetailId = UUID.randomUUID();
     return createSubmissionDetail(submissionType, submissionDetailId);
   }
+
+  public static SubmissionDetail createSubmissionDetailWithResourceAndSubmissionType(SubmissionType submissionType) {
+    var resourceType = submissionType.getResourceTypes().stream().findFirst().orElse(null);
+
+    var resource = ResourceTestUtils.buildResource(resourceType);
+
+    return createSubmissionDetail(submissionType, resource);
+  }
 }

@@ -30,18 +30,20 @@ class MixedCaseVolumetricsDuplicationService implements SubmissionSectionDuplica
       return;
     }
 
-    probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-            ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
-            ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION,
-            ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION,
-            ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
-            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
-            ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
-            ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
-            ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR
-        ))
-        .forEach(probabilityDistribution ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
-                ProbabilityDistribution.class));
+    if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
+              ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
+              ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION,
+              ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION,
+              ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+              ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
+              ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+              ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
+              ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR
+          ))
+          .forEach(probabilityDistribution ->
+              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
+                  ProbabilityDistribution.class));
+    }
   }
 }

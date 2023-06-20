@@ -50,13 +50,15 @@ class TrapPropertiesDuplicationService implements SubmissionSectionDuplicationSe
         SupportingDocument.class
     ));
 
-    probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY
-        ))
-        .forEach(probabilityDistribution ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
-                ProbabilityDistribution.class));
+    if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
+              ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA,
+              ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY,
+              ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY
+          ))
+          .forEach(probabilityDistribution ->
+              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
+                  ProbabilityDistribution.class));
+    }
   }
 }

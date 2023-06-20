@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +23,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
@@ -32,7 +36,7 @@ class TrapPropertiesDuplicationServiceTest {
   private TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
   @Mock
-  private  ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+  private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Mock
   private SupportingDocumentService supportingDocumentService;
@@ -43,10 +47,11 @@ class TrapPropertiesDuplicationServiceTest {
   @InjectMocks
   private TrapPropertiesDuplicationService trapPropertiesDuplicationService;
 
-  @Test
-  void duplicateSubmissionSection_TrapPropertyExists_DoesDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class)
+  void duplicateSubmissionSection_TrapPropertyExists_DoesDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
     var trapProperty = mock(TrapProperty.class);
     when(trapPropertiesPersistenceService.getTrapProperty(oldSubmissionDetail))
@@ -58,10 +63,11 @@ class TrapPropertiesDuplicationServiceTest {
         TrapProperty.class);
   }
 
-  @Test
-  void duplicateSubmissionSection_TrapPropertyDoesNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class)
+  void duplicateSubmissionSection_TrapPropertyDoesNotExist_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
     when(trapPropertiesPersistenceService.getTrapProperty(oldSubmissionDetail))
         .thenReturn(Optional.empty());
@@ -72,10 +78,11 @@ class TrapPropertiesDuplicationServiceTest {
         .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(TrapProperty.class), eq(TrapProperty.class));
   }
 
-  @Test
-  void duplicateSubmissionSection_SupportingDocumentsExist_DoesDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class)
+  void duplicateSubmissionSection_SupportingDocumentsExist_DoesDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
     var supportingDocument1 = mock(SupportingDocument.class);
     var supportingDocument2 = mock(SupportingDocument.class);
@@ -91,10 +98,11 @@ class TrapPropertiesDuplicationServiceTest {
         SupportingDocument.class);
   }
 
-  @Test
-  void duplicateSubmissionSection_SupportingDocumentsDoNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class)
+  void duplicateSubmissionSection_SupportingDocumentsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
     when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail,
         Set.of(SupportingDocumentType.PROSPECT_DEPTH_MAP)
@@ -106,10 +114,11 @@ class TrapPropertiesDuplicationServiceTest {
         .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(SupportingDocument.class), eq(SupportingDocument.class));
   }
 
-  @Test
-  void duplicateSubmissionSection_ProbabilityDistributionsExist_DoesDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class)
+  void duplicateSubmissionSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
@@ -124,13 +133,25 @@ class TrapPropertiesDuplicationServiceTest {
         ProbabilityDistribution.class);
   }
 
-  @Test
-  void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class)
+  void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(Collections.emptyList());
+
+    trapPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
+  @Test
+  void duplicateSubmissionSection_SubmissionDetailIsDiscoveryFromProspect_DoesNotDuplicate() {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
 
     trapPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 

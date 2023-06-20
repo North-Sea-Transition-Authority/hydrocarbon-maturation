@@ -39,14 +39,16 @@ class OilCaseOutputsDuplicationService implements SubmissionSectionDuplicationSe
                 OilCaseOutput.class)
         );
 
-    probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE,
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES,
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES,
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES
-        ))
-        .forEach(probabilityDistribution ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
-                ProbabilityDistribution.class));
+    if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
+              ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE,
+              ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES,
+              ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES,
+              ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES
+          ))
+          .forEach(probabilityDistribution ->
+              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
+                  ProbabilityDistribution.class));
+    }
   }
 }

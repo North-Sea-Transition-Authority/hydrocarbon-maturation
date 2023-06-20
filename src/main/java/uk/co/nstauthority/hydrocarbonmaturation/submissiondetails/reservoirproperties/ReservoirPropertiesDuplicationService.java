@@ -10,7 +10,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
 
@@ -39,55 +38,56 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
         );
 
     var applicableInstances = new HashSet<>(Set.of(
-        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT
+        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY
     ));
 
-    if (!newSubmissionDetail.isProspectSubmission()) {
-      applicableInstances.remove(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT);
+    if (newSubmissionDetail.isProspectSubmission()) {
+      applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
+      applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT);
     }
 
     if (newSubmissionDetail.isDryWellSubmission()
         && oldSubmissionDetail.hasSameSubmissionType(newSubmissionDetail)) {
-      applicableInstances.remove(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
       applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL);
       applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
     }
 
-    if (newSubmissionDetail.isDiscoverySubmission()
-        && newSubmissionDetail.getSubmissionType() != SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
-      applicableInstances.remove(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
+    if (newSubmissionDetail.isDiscoverySubmission()) {
       applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
       applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT);
       applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
       applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT);
     }
 
-    probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, applicableInstances)
-        .forEach(probabilityDistribution -> {
-          //this ensures the correct probability field instance is saved, for the new submission type,
-          //since the question is mandatory for dry hole submissions the not calculated option is not copied forward
-          //unless its an update submission, then all information for dry wells is copied forward
-          if (probabilityDistribution.getInstance() == ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT
-              && newSubmissionDetail.isDiscoverySubmission()) {
-            if (probabilityDistribution.getDistributionType() == ProbabilityDistributionType.NOT_CALCULATED) {
-              return;
+    if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(
+              oldSubmissionDetail,
+              applicableInstances
+          )
+          .forEach(probabilityDistribution -> {
+            //this ensures the correct probability field instance is saved, for the new submission type,
+            //since the question is mandatory for dry hole submissions the not calculated option is not copied forward
+            //unless its an update submission, then all information for dry wells is copied forward
+            if (probabilityDistribution.getInstance() == ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT
+                && newSubmissionDetail.isDiscoverySubmission()) {
+              if (probabilityDistribution.getDistributionType() == ProbabilityDistributionType.NOT_CALCULATED) {
+                return;
+              }
+              var newProbabilityDistribution =
+                  submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                      newSubmissionDetail, probabilityDistribution, ProbabilityDistribution.class);
+              newProbabilityDistribution.setInstance(
+                  ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
+            } else {
+              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
+                  probabilityDistribution,
+                  ProbabilityDistribution.class);
             }
-            var newProbabilityDistribution =
-                submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
-                    newSubmissionDetail, probabilityDistribution, ProbabilityDistribution.class);
-            newProbabilityDistribution.setInstance(
-                ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
-          } else {
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
-                probabilityDistribution,
-                ProbabilityDistribution.class);
-          }
-        });
+          });
+    }
   }
 }

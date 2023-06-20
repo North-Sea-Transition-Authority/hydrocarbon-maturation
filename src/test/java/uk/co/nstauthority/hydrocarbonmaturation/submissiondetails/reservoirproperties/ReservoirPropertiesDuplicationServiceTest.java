@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 
@@ -77,10 +78,8 @@ class ReservoirPropertiesDuplicationServiceTest {
       names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"},
       mode = EnumSource.Mode.INCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsExist_ProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = new SubmissionDetail();
-    oldSubmissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
-    var newSubmissionDetail = new SubmissionDetail();
-    newSubmissionDetail.setSubmissionType(submissionType);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
@@ -98,13 +97,11 @@ class ReservoirPropertiesDuplicationServiceTest {
   @ParameterizedTest
   @EnumSource(
       value = SubmissionType.class,
-      names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT", "CREATE_DISCOVERY", "CREATE_PROSPECT"},
+      names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT", "CREATE_DISCOVERY", "CREATE_PROSPECT", "CREATE_DISCOVERY_FROM_PROSPECT"},
       mode = EnumSource.Mode.EXCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsExist_NonProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = new SubmissionDetail();
-    oldSubmissionDetail.setSubmissionType(submissionType);
-    var newSubmissionDetail = new SubmissionDetail();
-    newSubmissionDetail.setSubmissionType(submissionType);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
@@ -113,10 +110,10 @@ class ReservoirPropertiesDuplicationServiceTest {
       whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
           .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
     } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
-      whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(oldSubmissionDetail)
+      whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(oldSubmissionDetail)
           .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
     } else {
-      whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
+      whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(oldSubmissionDetail)
           .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
     }
 
@@ -129,24 +126,16 @@ class ReservoirPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class,
-      names = {"PROSPECT_UPDATE",
-          "RELINQUISHMENT_PROSPECT"},
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"},
       mode = EnumSource.Mode.INCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_ProspectUpdate_DoesNotDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = new SubmissionDetail();
-    newSubmissionDetail.setSubmissionType(submissionType);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    if (submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
-      whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
-          .thenReturn(List.of());
-    } else {
-      whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(oldSubmissionDetail)
-          .thenReturn(List.of());
-    }
+    whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(oldSubmissionDetail)
+        .thenReturn(List.of());
 
     reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -156,23 +145,30 @@ class ReservoirPropertiesDuplicationServiceTest {
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {
-      "PROSPECT_UPDATE",
-      "RELINQUISHMENT_PROSPECT",
-      "CREATE_PROSPECT",
-      "CREATE_DISCOVERY"}, mode = EnumSource.Mode.EXCLUDE)
-  void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_NonProspectUpdate_DoesNotDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = new SubmissionDetail();
-    newSubmissionDetail.setSubmissionType(submissionType);
+      "POST_DRILL_DRY_HOLE"}, mode = EnumSource.Mode.INCLUDE)
+  void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_DryWellAndSameType_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    if (submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
-      whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
+    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(oldSubmissionDetail)
+        .thenReturn(List.of());
+
+    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {
+      "UPDATE_DISCOVERY",
+      "RELINQUISHMENT_DISCOVERY"})
+  void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_Discovery_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
           .thenReturn(List.of());
-    } else {
-      whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
-          .thenReturn(List.of());
-    }
 
     reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -182,14 +178,12 @@ class ReservoirPropertiesDuplicationServiceTest {
 
   @Test
   void duplicateSubmissionSection_averageNetPayExists_Discovery_duplicates() {
-    var oldSubmissionDetail = new SubmissionDetail();
-    oldSubmissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
-    var newSubmissionDetail = new SubmissionDetail();
-    newSubmissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.UPDATE_DISCOVERY);
     var averageNetPayProbDistribution = new ProbabilityDistribution();
     averageNetPayProbDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
     averageNetPayProbDistribution.setDistributionType(ProbabilityDistributionType.CONSTANT);
-    whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
+    whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
         .thenReturn(List.of(averageNetPayProbDistribution));
     var mockNetPayThickness = mock(ProbabilityDistribution.class);
     when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
@@ -198,22 +192,18 @@ class ReservoirPropertiesDuplicationServiceTest {
 
     reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(mockNetPayThickness, times(1))
-        .setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
     verify(submissionDuplicationPersistenceService, times(1))
         .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   @Test
   void duplicateSubmissionSection_averageNetPayExists_PostDrill_DoesNotSetAverageNetPayThickness() {
-    var oldSubmissionDetail = new SubmissionDetail();
-    oldSubmissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
-    var newSubmissionDetail = new SubmissionDetail();
-    newSubmissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.PROSPECT_UPDATE);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     var averageNetPayProbDistribution = new ProbabilityDistribution();
     averageNetPayProbDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
     averageNetPayProbDistribution.setDistributionType(ProbabilityDistributionType.CONSTANT);
-    whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(oldSubmissionDetail)
+    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(oldSubmissionDetail)
         .thenReturn(List.of(averageNetPayProbDistribution));
     var mockNetPayThickness = mock(ProbabilityDistribution.class);
     when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
@@ -229,12 +219,10 @@ class ReservoirPropertiesDuplicationServiceTest {
 
   @Test
   void duplicateSubmissionSection_PostDrill_update_Duplicates() {
-    var oldSubmissionDetail =  new SubmissionDetail();
-    oldSubmissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
-    var newSubmissionDetail = new SubmissionDetail();
-    newSubmissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     var averageNetPayProbDistribution = new ProbabilityDistribution();
-    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(oldSubmissionDetail)
+    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(oldSubmissionDetail)
         .thenReturn(List.of(averageNetPayProbDistribution));
 
     reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
@@ -245,9 +233,8 @@ class ReservoirPropertiesDuplicationServiceTest {
 
   @Test
   void duplicateSubmissionSection_averageNetPayExistsNotCalculated_Discovery_notDuplicates() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = new SubmissionDetail();
-    newSubmissionDetail.setSubmissionType(SubmissionType.UPDATE_DISCOVERY);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.UPDATE_DISCOVERY);
     var averageNetPayProbDistribution = new ProbabilityDistribution();
     averageNetPayProbDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
     averageNetPayProbDistribution.setDistributionType(ProbabilityDistributionType.NOT_CALCULATED);
@@ -271,17 +258,6 @@ class ReservoirPropertiesDuplicationServiceTest {
     )));
   }
 
-  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForNonProspectUpdate(SubmissionDetail oldSubmissionDetail) {
-    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
-        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
-        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
-        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY
-    )));
-  }
-
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(SubmissionDetail oldSubmissionDetail) {
     return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY,
@@ -296,7 +272,17 @@ class ReservoirPropertiesDuplicationServiceTest {
     )));
   }
 
-  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(
+  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(SubmissionDetail oldSubmissionDetail) {
+    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY
+    )));
+  }
+
+  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(
       SubmissionDetail oldSubmissionDetails) {
     return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetails, Set.of(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
