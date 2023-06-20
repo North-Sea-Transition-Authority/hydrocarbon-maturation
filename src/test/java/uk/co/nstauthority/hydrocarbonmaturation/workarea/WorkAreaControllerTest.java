@@ -51,7 +51,12 @@ class WorkAreaControllerTest extends AbstractControllerTest {
   void getWorkArea_whenHasPermission_assertCanCreateSubmissionsTrue() throws Exception {
     List<WorkAreaItem> workAreaItems = List.of();
     when(workAreaItemService.getWorkAreaItems()).thenReturn(workAreaItems);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(
+            RolePermission.EXPLORATION,
+            RolePermission.INDUSTRY_SUBMIT,
+            RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+            RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+            RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
@@ -65,7 +70,12 @@ class WorkAreaControllerTest extends AbstractControllerTest {
   void getWorkArea_whenDoesNotHavePermission_assertCanCreateSubmissionsFalse() throws Exception {
     List<WorkAreaItem> workAreaItems = List.of();
     when(workAreaItemService.getWorkAreaItems()).thenReturn(workAreaItems);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.EXPLORATION,
+        RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))

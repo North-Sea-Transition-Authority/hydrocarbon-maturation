@@ -39,9 +39,7 @@ class StartDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getStartPage_assertStatusOk() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
     mockMvc.perform(
             get(ReverseRouter.route(on(StartDiscoveryController.class).getStartPage()))
@@ -51,9 +49,7 @@ class StartDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getStartPage_assertModelProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
     mockMvc.perform(
             get(ReverseRouter.route(on(StartDiscoveryController.class).getStartPage()))
@@ -69,9 +65,7 @@ class StartDiscoveryControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void startDiscovery() throws Exception {
     when(startDiscoveryService.createNewDiscovery(any())).thenReturn(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
     mockMvc.perform(
@@ -86,9 +80,7 @@ class StartDiscoveryControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void startDiscovery_whenNoPermission() throws Exception {
     when(startDiscoveryService.createNewDiscovery(any())).thenReturn(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(false);
 
     mockMvc.perform(
@@ -100,9 +92,7 @@ class StartDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getStartPage_whenNoPermission() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(StartDiscoveryController.class).getStartPage()))

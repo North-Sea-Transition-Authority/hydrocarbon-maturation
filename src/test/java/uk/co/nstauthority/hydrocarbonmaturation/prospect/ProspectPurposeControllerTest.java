@@ -28,23 +28,28 @@ import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpd
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.StartRelinquishmentSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = ProspectPurposeController.class)
 class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
-  ProspectPurposeTypeSelectService prospectPurposeTypeSelectService;
+  SubmissionTypeSelectService submissionTypeSelectService;
 
   @MockBean
   SubmissionCreateService submissionCreateService;
 
   @SecurityTest
   void startProspectSubmission_whenValidFormCreateProspect_assertRedirection() throws Exception {
-    var form = new ProspectPurposeTypeSelectForm();
+    var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
 
-    when(prospectPurposeTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
@@ -52,17 +57,17 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
         post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
             .with(user(USER))
             .with(csrf())
-            .param("purposeType", ProspectPurposeType.CREATE_PROSPECT.name()))
+            .param("submissionType", SubmissionType.CREATE_PROSPECT.name()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartProspectController.class).getStartPage())));
   }
 
   @SecurityTest
   void startProspectSubmission_whenValidForm_whenNoPermission_assertForbidden() throws Exception {
-    var form = new ProspectPurposeTypeSelectForm();
+    var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    when(prospectPurposeTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(false);
 
@@ -70,16 +75,18 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
             post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
                 .with(user(USER))
                 .with(csrf())
-                .param("purposeType", ProspectPurposeType.CREATE_PROSPECT.name()))
+                .param("submissionType", SubmissionType.CREATE_PROSPECT.name()))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
   void startProspectSubmission_whenValidFormProspectUpdate_assertRedirection() throws Exception {
-    var form = new ProspectPurposeTypeSelectForm();
+    var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
 
-    when(prospectPurposeTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
@@ -87,17 +94,19 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
             post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
                 .with(user(USER))
                 .with(csrf())
-                .param("purposeType", ProspectPurposeType.PROSPECT_UPDATE.name()))
+                .param("submissionType", SubmissionType.PROSPECT_UPDATE.name()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage())));
   }
 
   @SecurityTest
   void startProspectSubmission_whenValidFormPostDrillDryHole_assertRedirection() throws Exception {
-    var form = new ProspectPurposeTypeSelectForm();
+    var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
 
-    when(prospectPurposeTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
@@ -105,7 +114,7 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
             post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
                 .with(user(USER))
                 .with(csrf())
-                .param("purposeType", ProspectPurposeType.POST_DRILL_DRY_HOLE.name()))
+                .param("submissionType", SubmissionType.POST_DRILL_DRY_HOLE.name()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class)
             .getStartPostDrillDryHolePage())));
@@ -113,10 +122,12 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void startProspectSubmission_whenValidFormCreateDiscoveryFromProspect_assertRedirection() throws Exception {
-    var form = new ProspectPurposeTypeSelectForm();
+    var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
 
-    when(prospectPurposeTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
@@ -124,7 +135,7 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
             post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
                 .with(user(USER))
                 .with(csrf())
-                .param("purposeType", ProspectPurposeType.CREATE_DISCOVERY_FROM_PROSPECT.name()))
+                .param("submissionType", SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT.name()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartPostDrillDiscoveryController.class)
             .getStartPostDrillDiscoveryPage())));
@@ -132,10 +143,12 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void startProspectSubmission_whenValidFormRelinquishmentProspect_assertRedirection() throws Exception {
-    var form = new ProspectPurposeTypeSelectForm();
+    var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
 
-    when(prospectPurposeTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
 
@@ -143,10 +156,29 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
             post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
                 .with(user(USER))
                 .with(csrf())
-                .param("purposeType", ProspectPurposeType.RELINQUISHMENT_PROSPECT.name()))
+                .param("submissionType", SubmissionType.RELINQUISHMENT_PROSPECT.name()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
             .getStartProspectRelinquishmentPage())));
+  }
+
+  @SecurityTest
+  void startProspectSubmission_whenValidFormCreateDiscovery_assertForbidden() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
+                .with(user(USER))
+                .with(csrf())
+                .param("submissionType", SubmissionType.CREATE_DISCOVERY.name()))
+        .andExpect(status().isForbidden());
   }
 
 
@@ -163,8 +195,12 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getSubmissionPurpose_assertModelProperties() throws Exception {
+    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
+
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm()))
             .with(user(USER)))
@@ -174,8 +210,8 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelAndView).isNotNull();
     var model = modelAndView.getModel();
 
-    assertEquals(DisplayableEnumOptionUtil.getDisplayableOptions(ProspectPurposeType.class), model.get("purposeTypes"));
-    assertEquals(ProspectPurposeTypeSelectForm.class, model.get("form").getClass());
+    assertEquals(submissionTypeOptions, model.get("submissionTypes"));
+    assertEquals(SubmissionTypeSelectForm.class, model.get("form").getClass());
     assertEquals(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(null, null)),
         model.get("actionUrl"));
     assertEquals(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType()), model.get("backLinkUrl"));

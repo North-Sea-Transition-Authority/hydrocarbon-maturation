@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.prospect;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -6,16 +6,16 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 
 @Service
-public class ProspectPurposeTypeSelectFormValidator implements SmartValidator {
+public class SubmissionTypeSelectFormValidator implements SmartValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return ProspectPurposeTypeSelectForm.class.equals(clazz);
+    return SubmissionTypeSelectForm.class.equals(clazz);
   }
 
   @Override
   public void validate(Object target, Errors errors) {
-    ValidationUtils.rejectIfEmpty(errors, "purposeType", "purposeType.required", "Select a purpose for your submission");
+    ValidationUtils.rejectIfEmpty(errors, "submissionType", "submissionType.required", "Select a purpose for your submission");
   }
 
   @Override

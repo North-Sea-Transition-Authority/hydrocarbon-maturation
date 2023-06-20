@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.discovery;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -12,31 +12,31 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
-class DiscoveryPurposeTypeSelectFormValidatorTest {
+class SubmissionTypeSelectFormValidatorTest {
 
-  private DiscoveryPurposeTypeSelectFormValidator discoveryPurposeTypeSelectFormValidator;
+  private SubmissionTypeSelectFormValidator submissionTypeSelectFormValidator;
 
   @BeforeEach
   void setup() {
-    discoveryPurposeTypeSelectFormValidator = new DiscoveryPurposeTypeSelectFormValidator();
+    submissionTypeSelectFormValidator = new SubmissionTypeSelectFormValidator();
   }
 
   @Test
   void supports_whenProspectPurposeTypeSelectFormClass_thenTrue() {
-    var supportedClass = DiscoveryPurposeTypeSelectForm.class;
-    assertTrue(discoveryPurposeTypeSelectFormValidator.supports(supportedClass));
+    var supportedClass = SubmissionTypeSelectForm.class;
+    assertTrue(submissionTypeSelectFormValidator.supports(supportedClass));
   }
 
   @Test
   void supports_whenNotProspectPurposeTypeSelectFormClass_thenFalse() {
     var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(discoveryPurposeTypeSelectFormValidator.supports(nonSupportedClass));
+    assertFalse(submissionTypeSelectFormValidator.supports(nonSupportedClass));
   }
 
   @Test
   void validate_whenValidForm_thenNoValidationErrors() {
-    var form = new DiscoveryPurposeTypeSelectForm();
-    form.setPurposeType(DiscoveryPurposeType.CREATE_DISCOVERY);
+    var form = new SubmissionTypeSelectForm();
+    form.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     var bindingResult = validateDiscoveryPurposeTypeSelectForm(form);
 
     assertFalse(bindingResult.hasErrors());
@@ -44,19 +44,19 @@ class DiscoveryPurposeTypeSelectFormValidatorTest {
 
   @Test
   void validate_whenInValidForm_thenValidationErrors() {
-    var form = new DiscoveryPurposeTypeSelectForm();
+    var form = new SubmissionTypeSelectForm();
     var bindingResult = validateDiscoveryPurposeTypeSelectForm(form);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors).containsExactly(
-        entry("purposeType", Set.of("purposeType.required"))
+        entry("submissionType", Set.of("submissionType.required"))
     );
   }
 
-  private BindingResult validateDiscoveryPurposeTypeSelectForm(DiscoveryPurposeTypeSelectForm form) {
+  private BindingResult validateDiscoveryPurposeTypeSelectForm(SubmissionTypeSelectForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    discoveryPurposeTypeSelectFormValidator.validate(form, bindingResult);
+    submissionTypeSelectFormValidator.validate(form, bindingResult);
 
     return bindingResult;
   }

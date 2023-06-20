@@ -1,32 +1,52 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 public enum SubmissionType implements Displayable {
-  CREATE_PROSPECT("Prospect create", "Create a new prospect", Set.of(ResourceType.PROSPECT), 10),
-  PROSPECT_UPDATE("Prospect update", "Update an existing prospect", Set.of(ResourceType.PROSPECT), 20),
-  POST_DRILL_DRY_HOLE("Post-drill dry hole submission", "Advise of a post-drill dry hole", Set.of(ResourceType.PROSPECT), 30),
+  CREATE_PROSPECT("Prospect create", "Create a new prospect", Set.of(ResourceType.PROSPECT),
+      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT), 10),
+  PROSPECT_UPDATE("Prospect update", "Update an existing prospect", Set.of(ResourceType.PROSPECT),
+      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT), 20),
+  POST_DRILL_DRY_HOLE("Post-drill dry hole submission", "Advise of a post-drill dry hole", Set.of(ResourceType.PROSPECT),
+      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT), 30),
   CREATE_DISCOVERY_FROM_PROSPECT("Post-drill discovery", "Advise of a post-drill discovery",
-      Set.of(ResourceType.PROSPECT, ResourceType.DISCOVERY), 40),
+      Set.of(ResourceType.PROSPECT, ResourceType.DISCOVERY), Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT),
+      40),
   CREATE_DISCOVERY("Post-drill discovery", "Create a discovery not related to a drill on a prospect",
-      Set.of(ResourceType.DISCOVERY), 50),
-  UPDATE_DISCOVERY("Post-drill discovery update", "Update an existing discovery", Set.of(ResourceType.DISCOVERY), 60),
-  RELINQUISHMENT_PROSPECT("Relinquishment", "Advise of a relinquishment", Set.of(ResourceType.PROSPECT), 70),
-  RELINQUISHMENT_DISCOVERY("Relinquishment", "Advise of a relinquishment", Set.of(ResourceType.DISCOVERY), 80);
+      Set.of(ResourceType.DISCOVERY), Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT), 50),
+  UPDATE_DISCOVERY("Post-drill discovery update", "Update an existing discovery", Set.of(ResourceType.DISCOVERY),
+      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
+          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER), 60),
+  RELINQUISHMENT_PROSPECT("Relinquishment", "Advise of a relinquishment", Set.of(ResourceType.PROSPECT),
+      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT), 70),
+  RELINQUISHMENT_DISCOVERY("Relinquishment", "Advise of a relinquishment", Set.of(ResourceType.DISCOVERY),
+      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
+          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER), 80);
 
   private final String typeName;
   private final String displayName;
   private final Set<ResourceType> resourceTypes;
+  private final Set<RolePermission> permissions;
   private final int displayOrder;
 
-  SubmissionType(String typeName, String displayName, Set<ResourceType> resourceTypes,
+  SubmissionType(String typeName, String displayName, Set<ResourceType> resourceTypes, Set<RolePermission> permissions,
                  int displayOrder) {
     this.typeName = typeName;
     this.displayName = displayName;
     this.resourceTypes = resourceTypes;
+    this.permissions = permissions;
     this.displayOrder = displayOrder;
+  }
+
+  static List<SubmissionType> getSubmissionTypesForResourceType(ResourceType resourceType) {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> submissionType.resourceTypes.contains(resourceType))
+        .toList();
   }
 
   public String getTypeName() {
@@ -50,5 +70,9 @@ public enum SubmissionType implements Displayable {
 
   public Set<ResourceType> getResourceTypes() {
     return resourceTypes;
+  }
+
+  public Set<RolePermission> getPermissions() {
+    return permissions;
   }
 }
