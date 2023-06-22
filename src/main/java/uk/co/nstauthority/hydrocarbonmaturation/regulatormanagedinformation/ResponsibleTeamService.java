@@ -5,8 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore.SouthernOffshoreAreaTeamService;
@@ -20,15 +19,25 @@ public class ResponsibleTeamService {
   private final NorthernOffshoreAreaTeamService northernOffshoreAreaTeamService;
   private final SouthernOffshoreAreaTeamService southernOffshoreAreaTeamService;
   private final OnshoreAreaTeamService onshoreAreaTeamService;
+  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   public ResponsibleTeamService(RegulatorTeamService regulatorTeamService,
                                 NorthernOffshoreAreaTeamService northernOffshoreAreaTeamService,
                                 SouthernOffshoreAreaTeamService southernOffshoreAreaTeamService,
-                                OnshoreAreaTeamService onshoreAreaTeamService) {
+                                OnshoreAreaTeamService onshoreAreaTeamService,
+                                RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
     this.regulatorTeamService = regulatorTeamService;
     this.northernOffshoreAreaTeamService = northernOffshoreAreaTeamService;
     this.southernOffshoreAreaTeamService = southernOffshoreAreaTeamService;
     this.onshoreAreaTeamService = onshoreAreaTeamService;
+    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
+  }
+
+  public boolean isInResponsibleTeam(ServiceUserDetail userDetail, SubmissionDetail submissionDetail) {
+    var regulatorManagedInformation = regulatorManagedInformationPersistenceService
+        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
+
+    return isInResponsibleTeam(userDetail, regulatorManagedInformation.getResponsibleTeamType());
   }
 
   public boolean isInResponsibleTeam(ServiceUserDetail userDetail, ResponsibleTeamType responsibleTeamType) {
@@ -52,10 +61,6 @@ public class ResponsibleTeamService {
           .getSouthernOffShoreAreaTeamEnergyPortalUsers();
       case ONSHORE -> onshoreAreaTeamService.getOnShoreAreaTeamEnergyPortalUsers();
     };
-  }
-
-  public boolean canUpdateResponsibleTeam(Resource resource) {
-    return resource.getType() == ResourceType.DISCOVERY;
   }
 
   public List<ResponsibleTeamType> getResponsibleTeamTypesForUser(ServiceUserDetail userDetail) {

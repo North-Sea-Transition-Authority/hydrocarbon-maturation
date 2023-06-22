@@ -1,12 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -16,12 +14,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorSubmissionSearchSelectorServiceTest {
@@ -35,31 +33,40 @@ class RegulatorSubmissionSearchSelectorServiceTest {
   private UserDetailService userDetailService;
 
   @Mock
-  private PermissionService permissionService;
+  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
+
+  @Mock
+  private ResponsibleTeamService responsibleTeamService;
 
   @InjectMocks
   private RegulatorSubmissionSearchSelectorService regulatorSubmissionSearchSelectorService;
 
-  @BeforeEach
-  void setUp() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
-  }
-
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
-  void getResourceDetailsForSubmissions_whenExploration_assertReturn(SubmissionType submissionType) {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
-        .thenReturn(true);
-    var submissionDetail1 = mock(SubmissionDetail.class);
-    var submissionDetail2 = mock(SubmissionDetail.class);
+  void getResourceDetailsForSubmissions_whenInResponsibleTeam_assertReturn(SubmissionType submissionType) {
+    when(userDetailService.getUserDetail()).thenReturn(USER);
 
-    var resourceDetail1 = mock(ResourceDetail.class);
-    var resourceDetail2 = mock(ResourceDetail.class);
+    var submissionDetail1 = new SubmissionDetail();
+    var submissionDetail2 = new SubmissionDetail();
+    submissionDetail1.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    submissionDetail2.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+
+    var resourceDetail1 = new ResourceDetail();
+    var resourceDetail2 = new ResourceDetail();
+    resourceDetail1.setSubmissionDetail(submissionDetail1);
+    resourceDetail2.setSubmissionDetail(submissionDetail2);
 
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail1))
         .thenReturn(resourceDetail1);
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail2))
         .thenReturn(resourceDetail2);
+
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail1))
+        .thenReturn(true);
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail2))
+        .thenReturn(true);
+
+
     assertThat(regulatorSubmissionSearchSelectorService
         .getResourceDetailsForSubmissions(Stream.of(submissionDetail1, submissionDetail2),
             submissionType)
@@ -69,18 +76,38 @@ class RegulatorSubmissionSearchSelectorServiceTest {
 
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
-  void getResourceDetailsForSubmissions_whenNotExploration_assertEmpty(SubmissionType submissionType) {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
-        .thenReturn(false);
-    var submissionDetail1 = mock(SubmissionDetail.class);
-    var resourceDetail1 = mock(ResourceDetail.class);
+  void getResourceDetailsForSubmissions_whenNotInResponsibleTeam_assertEmpty(SubmissionType submissionType) {
+    when(userDetailService.getUserDetail()).thenReturn(USER);
 
-    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail1))
-        .thenReturn(resourceDetail1);
+    var submissionDetail = new SubmissionDetail();
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
+        .thenReturn(false);
+
     assertThat(regulatorSubmissionSearchSelectorService
-        .getResourceDetailsForSubmissions(Stream.of(submissionDetail1),
-            submissionType)
+        .getResourceDetailsForSubmissions(Stream.of(submissionDetail), submissionType)
         .toList())
         .isEmpty();
+  }
+
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
+  void getResourceDetailsForSubmissions_whenProspect_assertReturnedAndNoResponsibleTeamCheck(SubmissionType submissionType) {
+    var submissionDetail = new SubmissionDetail();
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setSubmissionDetail(submissionDetail);
+
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail))
+        .thenReturn(resourceDetail);
+
+    assertThat(regulatorSubmissionSearchSelectorService
+        .getResourceDetailsForSubmissions(Stream.of(submissionDetail), submissionType)
+        .toList())
+        .containsExactly(resourceDetail);
+
+    verifyNoInteractions(regulatorManagedInformationPersistenceService);
+    verifyNoInteractions(responsibleTeamService);
   }
 }

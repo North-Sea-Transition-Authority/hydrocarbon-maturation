@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,10 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -45,8 +41,6 @@ class SubmissionApprovalServiceTest {
   private SubmissionEmailService submissionEmailService;
   @Mock
   private SubmissionUpdateService submissionUpdateService;
-  @Mock
-  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @Mock
   private ResponsibleTeamService responsibleTeamService;
   @Mock
@@ -126,14 +120,8 @@ class SubmissionApprovalServiceTest {
 
     @Test
     void approveSubmission_verifyMethodCalls_whenCanApprove() {
-      var regulatorManagedInformation = new RegulatorManagedInformation();
-      regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
       when(userDetailService.getUserDetail()).thenReturn(USER);
-      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-          submissionDetail.getSubmission().getResource()))
-          .thenReturn(regulatorManagedInformation);
-      when(responsibleTeamService
-          .isInResponsibleTeam(userDetailService.getUserDetail(), regulatorManagedInformation.getResponsibleTeamType()))
+      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
           .thenReturn(true);
       underTest.approveSubmissionOrThrow(submissionDetail);
       verify(submissionDetailPersistenceService).approveSubmission(submissionDetail);
@@ -142,11 +130,6 @@ class SubmissionApprovalServiceTest {
 
     @Test
     void approveSubmission_verifyNoMethodCalls_whenCannotApprove() {
-      var regulatorManagedInformation = new RegulatorManagedInformation();
-      regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
-      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-          submissionDetail.getSubmission().getResource()))
-          .thenReturn(regulatorManagedInformation);
       when(userDetailService.getUserWuaId()).thenReturn(1);
       assertThatThrownBy(() -> underTest.approveSubmissionOrThrow(submissionDetail))
           .isExactlyInstanceOf(ActionNotAllowedException.class)
@@ -159,13 +142,7 @@ class SubmissionApprovalServiceTest {
     @Test
     void canApproveSubmission_whenRegulator_inResponsibleTeam() {
       when(userDetailService.getUserDetail()).thenReturn(USER);
-      var regulatorManagedInformation = new RegulatorManagedInformation();
-      regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-          submissionDetail.getSubmission().getResource()))
-          .thenReturn(regulatorManagedInformation);
-      when(responsibleTeamService
-          .isInResponsibleTeam(userDetailService.getUserDetail(), regulatorManagedInformation.getResponsibleTeamType()))
+      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
           .thenReturn(true);
 
       assertThat(underTest.canApproveSubmission(submissionDetail)).isTrue();
@@ -174,13 +151,7 @@ class SubmissionApprovalServiceTest {
     @Test
     void canApproveSubmission_whenRegulator_notInResponsibleTeam() {
       when(userDetailService.getUserDetail()).thenReturn(USER);
-      var regulatorManagedInformation = new RegulatorManagedInformation();
-      regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-          submissionDetail.getSubmission().getResource()))
-          .thenReturn(regulatorManagedInformation);
-      when(responsibleTeamService
-          .isInResponsibleTeam(userDetailService.getUserDetail(), regulatorManagedInformation.getResponsibleTeamType()))
+      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
           .thenReturn(false);
 
       assertThat(underTest.canApproveSubmission(submissionDetail)).isFalse();
@@ -189,29 +160,10 @@ class SubmissionApprovalServiceTest {
     @Test
     void canApproveSubmission_whenRegulator_inResponsibleTeam_hasUnresolvedUpdate_assertFalse() {
       when(userDetailService.getUserDetail()).thenReturn(USER);
-
-      var regulatorManagedInformation = new RegulatorManagedInformation();
-      regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-
-      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
-          .thenReturn(regulatorManagedInformation);
-      when(responsibleTeamService
-          .isInResponsibleTeam(userDetailService.getUserDetail(), regulatorManagedInformation.getResponsibleTeamType()))
+      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
           .thenReturn(true);
       when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
           .thenReturn(true);
-      assertThat(underTest.canApproveSubmission(submissionDetail)).isFalse();
-    }
-
-    @ParameterizedTest
-    @EnumSource(value = ResponsibleTeamType.class, names = "EXPLORATION", mode = EnumSource.Mode.EXCLUDE)
-    void canApproveSubmission_whenRegulator_responsibleTeamNotExploration(ResponsibleTeamType responsibleTeamType) {
-      var regulatorManagedInformation = new RegulatorManagedInformation();
-      regulatorManagedInformation.setResponsibleTeamType(responsibleTeamType);
-      when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-          submissionDetail.getSubmission().getResource()))
-          .thenReturn(regulatorManagedInformation);
-
       assertThat(underTest.canApproveSubmission(submissionDetail)).isFalse();
     }
   }

@@ -20,10 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -41,8 +38,6 @@ class WithdrawSubmissionServiceTest {
   private UserDetailService userDetailService;
   @Mock
   private SubmissionEmailService submissionEmailService;
-  @Mock
-  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @Mock
   private WithdrawSubmissionFormValidator withdrawSubmissionFormValidator;
   @Mock
@@ -62,15 +57,8 @@ class WithdrawSubmissionServiceTest {
 
   @Test
   void withdrawSubmission_verifyMethodCalls_whenCanWithdraw() {
-    var regulatorManagedInformation = new RegulatorManagedInformation();
-    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-
     when(userDetailService.getUserDetail()).thenReturn(USER);
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-        submissionDetail.getSubmission().getResource()))
-        .thenReturn(regulatorManagedInformation);
-    when(responsibleTeamService
-        .isInResponsibleTeam(userDetailService.getUserDetail(), regulatorManagedInformation.getResponsibleTeamType()))
+    when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
         .thenReturn(true);
     when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(false);
@@ -84,12 +72,6 @@ class WithdrawSubmissionServiceTest {
 
   @Test
   void withdrawSubmission_verifyNoMethodCalls_whenCannotwithdraw() {
-    var responsibleTeam = new RegulatorManagedInformation();
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
-
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-        submissionDetail.getSubmission().getResource()))
-        .thenReturn(responsibleTeam);
     when(userDetailService.getUserWuaId()).thenReturn(1);
     var form = new WithdrawSubmissionForm();
 
@@ -105,14 +87,7 @@ class WithdrawSubmissionServiceTest {
   @Test
   void canWithdrawSubmission_whenRegulator_inResponsibleTeam() {
     when(userDetailService.getUserDetail()).thenReturn(USER);
-
-    var responsibleTeam = new RegulatorManagedInformation();
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
-        .thenReturn(responsibleTeam);
-    when(responsibleTeamService
-        .isInResponsibleTeam(userDetailService.getUserDetail(), responsibleTeam.getResponsibleTeamType()))
+    when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
         .thenReturn(true);
     when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(false);
@@ -122,14 +97,7 @@ class WithdrawSubmissionServiceTest {
   @Test
   void canWithdrawSubmission_whenRegulator_inResponsibleTeam_hasUnresolvedUpdate_assertFalse() {
     when(userDetailService.getUserDetail()).thenReturn(USER);
-
-    var responsibleTeam = new RegulatorManagedInformation();
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
-        .thenReturn(responsibleTeam);
-    when(responsibleTeamService
-        .isInResponsibleTeam(userDetailService.getUserDetail(), responsibleTeam.getResponsibleTeamType()))
+    when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
         .thenReturn(true);
     when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(true);
@@ -147,29 +115,8 @@ class WithdrawSubmissionServiceTest {
   @Test
   void canWithdrawSubmission_whenRegulator_notInResponsibleTeam() {
     when(userDetailService.getUserDetail()).thenReturn(USER);
-
-    var responsibleTeam = new RegulatorManagedInformation();
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-        submissionDetail.getSubmission().getResource()))
-        .thenReturn(responsibleTeam);
-    when(responsibleTeamService
-        .isInResponsibleTeam(userDetailService.getUserDetail(), responsibleTeam.getResponsibleTeamType()))
+    when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
         .thenReturn(false);
-
-    assertThat(underTest.canWithdrawSubmission(submissionDetail)).isFalse();
-  }
-
-  @ParameterizedTest
-  @EnumSource(value = ResponsibleTeamType.class, names = "EXPLORATION", mode = EnumSource.Mode.EXCLUDE)
-  void canWithdrawSubmission_whenRegulator_responsibleTeamNotExploration(ResponsibleTeamType responsibleTeamType) {
-    var responsibleTeam = new RegulatorManagedInformation();
-    responsibleTeam.setResponsibleTeamType(responsibleTeamType);
-
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
-        submissionDetail.getSubmission().getResource()))
-        .thenReturn(responsibleTeam);
 
     assertThat(underTest.canWithdrawSubmission(submissionDetail)).isFalse();
   }

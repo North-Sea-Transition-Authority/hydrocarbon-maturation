@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
@@ -29,9 +30,6 @@ class RegulatorManagedInformationPersistenceServiceTest {
 
   @Mock
   private ResourceSupportingDocumentService resourceSupportingDocumentService;
-
-  @Mock
-  private ResponsibleTeamService responsibleTeamService;
 
   @InjectMocks
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
@@ -83,7 +81,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
 
   @Test
   void saveRegulatorManagedInformation_newRegulatorManagedInformation_verifySaved() {
-    var resource = mock(Resource.class);
+    var resource = new Resource();
+    resource.setType(ResourceType.DISCOVERY);
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.ONSHORE);
     var fileUploadForm = new FileUploadForm();
@@ -92,7 +91,6 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.empty());
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
@@ -114,7 +112,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
 
   @Test
   void saveRegulatorManagedInformation_retrievedRegulatorManagedInformation_verifySaved() {
-    var resource = mock(Resource.class);
+    var resource = new Resource();
+    resource.setType(ResourceType.DISCOVERY);
     var regulatorManagedInformation = new RegulatorManagedInformation();
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
     var form = new RegulatorManagedInformationForm();
@@ -124,7 +123,6 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInformation));
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
@@ -146,7 +144,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
 
   @Test
   void saveRegulatorManagedInformation_cantUpdateResponsibleTeamType_verifyResponsibleTeamTypeNotSaved() {
-    var resource = mock(Resource.class);
+    var resource = new Resource();
+    resource.setType(ResourceType.PROSPECT); // Can only update responsible team of discoveries
     var regulatorManagedInformation = new RegulatorManagedInformation();
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
     var form = new RegulatorManagedInformationForm();
@@ -156,7 +155,6 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInformation));
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(false);
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);

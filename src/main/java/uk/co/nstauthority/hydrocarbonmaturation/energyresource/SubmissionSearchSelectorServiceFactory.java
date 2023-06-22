@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Component
@@ -12,19 +13,23 @@ class SubmissionSearchSelectorServiceFactory {
   private final OperatorSubmissionSearchSelectorService operatorSubmissionSearchSelectorService;
   private final UserDetailService userDetailService;
   private final RegulatorTeamService regulatorTeamService;
+  private final AreaTeamService areaTeamService;
 
   @Autowired
   SubmissionSearchSelectorServiceFactory(RegulatorSubmissionSearchSelectorService regulatorSubmissionSearchSelectorService,
                                          OperatorSubmissionSearchSelectorService operatorSubmissionSearchSelectorService,
-                                         UserDetailService userDetailService, RegulatorTeamService regulatorTeamService) {
+                                         UserDetailService userDetailService, RegulatorTeamService regulatorTeamService,
+                                         AreaTeamService areaTeamService) {
     this.regulatorSubmissionSearchSelectorService = regulatorSubmissionSearchSelectorService;
     this.operatorSubmissionSearchSelectorService = operatorSubmissionSearchSelectorService;
     this.userDetailService = userDetailService;
     this.regulatorTeamService = regulatorTeamService;
+    this.areaTeamService = areaTeamService;
   }
 
   SubmissionSearchSelectorStrategy getSubmissionSearchSelectorStrategy() {
-    if (regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail())) {
+    var user = userDetailService.getUserDetail();
+    if (regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user)) {
       return regulatorSubmissionSearchSelectorService;
     } else {
       return operatorSubmissionSearchSelectorService;

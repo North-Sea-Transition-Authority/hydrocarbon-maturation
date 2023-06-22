@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
@@ -17,7 +16,6 @@ public class SubmissionApprovalService {
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
   private final RegulatorTeamService regulatorTeamService;
   private final UserDetailService userDetailService;
-  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionEmailService submissionEmailService;
   private final SubmissionUpdateService submissionUpdateService;
   private final ResponsibleTeamService responsibleTeamService;
@@ -26,7 +24,6 @@ public class SubmissionApprovalService {
   public SubmissionApprovalService(SubmissionDetailPersistenceService submissionDetailPersistenceService,
                                    RegulatorTeamService regulatorTeamService,
                                    UserDetailService userDetailService,
-                                   RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                                    SubmissionEmailService submissionEmailService,
                                    SubmissionUpdateService submissionUpdateService,
                                    ResponsibleTeamService responsibleTeamService,
@@ -34,7 +31,6 @@ public class SubmissionApprovalService {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
-    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionEmailService = submissionEmailService;
     this.submissionUpdateService = submissionUpdateService;
     this.responsibleTeamService = responsibleTeamService;
@@ -69,10 +65,8 @@ public class SubmissionApprovalService {
   }
 
   public boolean canApproveSubmission(SubmissionDetail submissionDetail) {
-    var regulatorManagedInformation = regulatorManagedInformationPersistenceService
-        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
     return responsibleTeamService
-        .isInResponsibleTeam(userDetailService.getUserDetail(), regulatorManagedInformation.getResponsibleTeamType())
+        .isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail)
         && !submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission());
   }
 

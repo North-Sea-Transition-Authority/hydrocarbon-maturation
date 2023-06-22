@@ -6,7 +6,6 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -18,7 +17,6 @@ class WithdrawSubmissionService {
 
   private final SubmissionPersistenceService submissionPersistenceService;
   private final UserDetailService userDetailService;
-  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionEmailService submissionEmailService;
   private final WithdrawSubmissionFormValidator withdrawSubmissionFormValidator;
   private final SubmissionUpdateService submissionUpdateService;
@@ -27,14 +25,12 @@ class WithdrawSubmissionService {
   @Autowired
   public WithdrawSubmissionService(SubmissionPersistenceService submissionPersistenceService,
                                    UserDetailService userDetailService,
-                                   RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                                    SubmissionEmailService submissionEmailService,
                                    WithdrawSubmissionFormValidator withdrawSubmissionFormValidator,
                                    SubmissionUpdateService submissionUpdateService,
                                    ResponsibleTeamService responsibleTeamService) {
     this.submissionPersistenceService = submissionPersistenceService;
     this.userDetailService = userDetailService;
-    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionEmailService = submissionEmailService;
     this.withdrawSubmissionFormValidator = withdrawSubmissionFormValidator;
     this.submissionUpdateService = submissionUpdateService;
@@ -62,10 +58,9 @@ class WithdrawSubmissionService {
     if (submissionDetail.getStatus() != SubmissionDetailStatus.SUBMITTED) {
       return false;
     }
-    var responsibleTeam = regulatorManagedInformationPersistenceService
-        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
+
     return responsibleTeamService
-        .isInResponsibleTeam(userDetailService.getUserDetail(), responsibleTeam.getResponsibleTeamType())
+        .isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail)
         && !submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission());
   }
 }

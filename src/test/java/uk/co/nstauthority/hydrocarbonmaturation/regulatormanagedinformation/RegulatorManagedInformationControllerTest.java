@@ -64,9 +64,6 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
   @MockBean
   private ResourceSupportingDocumentService resourceSupportingDocumentService;
 
-  @MockBean
-  private ResponsibleTeamService responsibleTeamService;
-
   private RegulatorManagedInformationForm form;
   private BindingResult bindingResult;
   private UUID resourceId;
@@ -174,7 +171,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(submissionDetail));
     when(regulatorManagedInformationFormService.getRegulatorManagedInformationForm(prospectResource))
         .thenReturn(form);
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(false);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(resourceId, null)))
@@ -226,7 +223,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(submissionDetail));
     when(regulatorManagedInformationFormService.getRegulatorManagedInformationForm(discoveryResource))
         .thenReturn(form);
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(resourceId, null)))
@@ -273,12 +270,12 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(true);
     when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
         .thenReturn(fileUploadTemplate);
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(true), eq(true)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
         .thenReturn(new RegulatorManagedInformation());
 
@@ -327,7 +324,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(form);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
         .thenReturn(Optional.of(submissionDetail));
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(false);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
 
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -366,7 +363,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
         submissionDetail.getSubmission().getResource()))
         .thenReturn(false);
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(false);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(false)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
@@ -394,7 +391,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
         submissionDetail.getSubmission().getResource()))
         .thenReturn(false);
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(true)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
@@ -422,7 +419,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
         submissionDetail.getSubmission().getResource()))
         .thenReturn(false);
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(true)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
@@ -430,7 +427,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     var resourceName = "The Resource (25/5)";
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(resourceName);
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
         .thenReturn(new RegulatorManagedInformation());
 
@@ -454,7 +451,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getSubmissionDetail(SUBMISSION_DETAIL_ID))
         .thenReturn(Optional.empty());
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(false);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(false)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
@@ -474,7 +471,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
         .thenReturn(Optional.empty());
-    when(responsibleTeamService.canUpdateResponsibleTeam(resource)).thenReturn(false);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(false)))
         .thenReturn(bindingResult);
     when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))

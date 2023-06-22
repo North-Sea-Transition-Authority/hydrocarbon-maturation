@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -19,18 +18,15 @@ public class SubmissionUpdateService {
   private final SubmissionUpdatePersistenceService submissionUpdatePersistenceService;
   private final ResponsibleTeamService responsibleTeamService;
   private final UserDetailService userDetailService;
-  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Autowired
   SubmissionUpdateService(RequestUpdateFormValidator requestUpdateFormValidator,
                           SubmissionUpdatePersistenceService submissionUpdatePersistenceService,
-                          ResponsibleTeamService responsibleTeamService, UserDetailService userDetailService,
-                          RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
+                          ResponsibleTeamService responsibleTeamService, UserDetailService userDetailService) {
     this.requestUpdateFormValidator = requestUpdateFormValidator;
     this.submissionUpdatePersistenceService = submissionUpdatePersistenceService;
     this.responsibleTeamService = responsibleTeamService;
     this.userDetailService = userDetailService;
-    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
   }
 
   public boolean canRequestUpdateOnSubmission(SubmissionDetail submissionDetail) {
@@ -38,10 +34,7 @@ public class SubmissionUpdateService {
       return false;
     }
 
-    var regulatorManagedInformation = regulatorManagedInformationPersistenceService
-        .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
-    if (!responsibleTeamService
-        .isInResponsibleTeam(userDetailService.getUserDetail(), regulatorManagedInformation.getResponsibleTeamType())) {
+    if (!responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail)) {
       return false;
     }
 

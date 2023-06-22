@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 
@@ -13,16 +14,13 @@ public class RegulatorManagedInformationPersistenceService {
 
   private final RegulatorManagedInformationRepository regulatorManagedInformationRepository;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
-  private final ResponsibleTeamService responsibleTeamService;
 
   @Autowired
   public RegulatorManagedInformationPersistenceService(
       RegulatorManagedInformationRepository regulatorManagedInformationRepository,
-      ResourceSupportingDocumentService resourceSupportingDocumentService,
-      ResponsibleTeamService responsibleTeamService) {
+      ResourceSupportingDocumentService resourceSupportingDocumentService) {
     this.regulatorManagedInformationRepository = regulatorManagedInformationRepository;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
-    this.responsibleTeamService = responsibleTeamService;
   }
 
   @Transactional
@@ -43,7 +41,7 @@ public class RegulatorManagedInformationPersistenceService {
     regulatorManagedInformation.setResource(resource);
     regulatorManagedInformation.setGeographicalArea(regulatorManagedInformationForm.getGeographicalArea());
 
-    if (responsibleTeamService.canUpdateResponsibleTeam(resource)) {
+    if (canUpdateResponsibleTeam(resource)) {
       regulatorManagedInformation.setResponsibleTeamType(regulatorManagedInformationForm.getResponsibleTeamType());
     }
 
@@ -61,5 +59,9 @@ public class RegulatorManagedInformationPersistenceService {
 
   public Optional<RegulatorManagedInformation> getRegulatorManagedInformationByResource(Resource resource) {
     return regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource);
+  }
+
+  public boolean canUpdateResponsibleTeam(Resource resource) {
+    return resource.getType() == ResourceType.DISCOVERY;
   }
 }

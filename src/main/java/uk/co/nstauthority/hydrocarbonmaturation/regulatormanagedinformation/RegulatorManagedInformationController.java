@@ -53,7 +53,6 @@ public class RegulatorManagedInformationController {
   private final SubmissionResourceService submissionResourceService;
   private final ResourceService resourceService;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
-  private final ResponsibleTeamService responsibleTeamService;
 
   @Autowired
   public RegulatorManagedInformationController(
@@ -63,8 +62,7 @@ public class RegulatorManagedInformationController {
       SubmissionDetailService submissionDetailService,
       SubmissionResourceService submissionResourceService,
       ResourceService resourceService,
-      ResourceSupportingDocumentService resourceSupportingDocumentService,
-      ResponsibleTeamService responsibleTeamService) {
+      ResourceSupportingDocumentService resourceSupportingDocumentService) {
     this.regulatorManagedInformationFormService = regulatorManagedInformationFormService;
     this.controllerHelperService = controllerHelperService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
@@ -72,7 +70,6 @@ public class RegulatorManagedInformationController {
     this.submissionResourceService = submissionResourceService;
     this.resourceService = resourceService;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
-    this.responsibleTeamService = responsibleTeamService;
   }
 
   @GetMapping
@@ -123,7 +120,7 @@ public class RegulatorManagedInformationController {
           HttpStatus.FORBIDDEN, "Did not find an approved or submitted submission for resource %s "
           .formatted(resource.getId().toString()));
     }
-    var isResponsibleTeamBeingUpdated = responsibleTeamService.canUpdateResponsibleTeam(resource);
+    var isResponsibleTeamBeingUpdated = regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource);
     bindingResult = regulatorManagedInformationFormService
         .validate(form, bindingResult, isResourceBeingRelinquished, isResponsibleTeamBeingUpdated);
     return controllerHelperService.checkErrorsAndRedirect(
@@ -173,7 +170,7 @@ public class RegulatorManagedInformationController {
           .addObject("relinquishmentReportUploads", relinquishmentReportUploads);
     }
 
-    var canUpdateResponsibleTeam = responsibleTeamService.canUpdateResponsibleTeam(resource);
+    var canUpdateResponsibleTeam = regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource);
     modelAndView
         .addObject("canUpdateResponsibleTeam", canUpdateResponsibleTeam);
     if (canUpdateResponsibleTeam) {
