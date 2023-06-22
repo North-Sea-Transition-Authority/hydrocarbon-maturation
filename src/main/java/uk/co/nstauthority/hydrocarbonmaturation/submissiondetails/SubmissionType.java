@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -46,6 +47,7 @@ public enum SubmissionType implements Displayable {
   static List<SubmissionType> getSubmissionTypesForResourceType(ResourceType resourceType) {
     return Arrays.stream(SubmissionType.values())
         .filter(submissionType -> submissionType.resourceTypes.contains(resourceType))
+        .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
         .toList();
   }
 

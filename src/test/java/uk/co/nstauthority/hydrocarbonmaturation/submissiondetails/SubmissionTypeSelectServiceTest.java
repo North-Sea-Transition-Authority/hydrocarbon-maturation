@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +20,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionTypeSelectServiceTest {
@@ -51,17 +54,44 @@ class SubmissionTypeSelectServiceTest {
   }
 
   @Test
-  void getSubmissionTypeOptions_allPermissions() {
+  void getSubmissionTypeOptions_discovery_allPermissions() {
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
 
+    var expectedMap = Stream.of(
+        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
+        SubmissionType.CREATE_DISCOVERY,
+        SubmissionType.UPDATE_DISCOVERY,
+        SubmissionType.RELINQUISHMENT_DISCOVERY)
+        .collect(StreamUtil.toLinkedHashMap(
+            Displayable::getEnumName,
+            Displayable::getDisplayName
+        ));
     assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY))
-        .containsOnlyKeys(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT.name(), SubmissionType.CREATE_DISCOVERY.name(),
-            SubmissionType.UPDATE_DISCOVERY.name(), SubmissionType.RELINQUISHMENT_DISCOVERY.name());
+        .isEqualTo(expectedMap);
   }
 
   @Test
-  void getDiscoveryPurposeTypeOptions_onlyAreaTeamPermissions() {
+  void getSubmissionTypeOptions_prospect_allPermissions() {
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
+
+    var expectedMap = Stream.of(
+            SubmissionType.CREATE_PROSPECT,
+            SubmissionType.PROSPECT_UPDATE,
+            SubmissionType.POST_DRILL_DRY_HOLE,
+            SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
+            SubmissionType.RELINQUISHMENT_PROSPECT)
+        .collect(StreamUtil.toLinkedHashMap(
+            Displayable::getEnumName,
+            Displayable::getDisplayName
+        ));
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT))
+        .isEqualTo(expectedMap);
+  }
+
+  @Test
+  void getSubmissionTypeOptions_discovery_onlyAreaTeamPermissions() {
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(false);
@@ -70,7 +100,14 @@ class SubmissionTypeSelectServiceTest {
         RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
+    var expectedMap = Stream.of(
+            SubmissionType.UPDATE_DISCOVERY,
+            SubmissionType.RELINQUISHMENT_DISCOVERY)
+        .collect(StreamUtil.toLinkedHashMap(
+            Displayable::getEnumName,
+            Displayable::getDisplayName
+        ));
     assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY))
-        .containsOnlyKeys(SubmissionType.UPDATE_DISCOVERY.name(), SubmissionType.RELINQUISHMENT_DISCOVERY.name());
+        .isEqualTo(expectedMap);
   }
 }
