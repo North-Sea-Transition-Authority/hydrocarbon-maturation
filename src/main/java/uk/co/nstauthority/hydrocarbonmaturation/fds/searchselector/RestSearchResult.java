@@ -8,6 +8,9 @@ import java.util.List;
 public class RestSearchResult {
   List<RestSearchItem> results;
 
+  private RestSearchResult() {
+  }
+
   public RestSearchResult(List<RestSearchItem> results) {
     this.results = results;
   }

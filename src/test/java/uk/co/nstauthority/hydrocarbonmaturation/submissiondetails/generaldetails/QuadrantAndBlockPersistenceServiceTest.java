@@ -28,7 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
 
 @ExtendWith(MockitoExtension.class)
-class QuadrantBlockPersistenceServiceTest {
+class QuadrantAndBlockPersistenceServiceTest {
   @Mock
   private QuadrantAndBlockRepository quadrantAndBlockRepository;
   @Mock
@@ -88,6 +88,16 @@ class QuadrantBlockPersistenceServiceTest {
                 referenceBlockView.onshoreOffshore()
             )
         );
+  }
+
+  @Test
+  void removeCurrentQuadrantAndBlocks_VerifyCalls() {
+    var generalDetail = mock(GeneralDetail.class);
+
+    quadrantAndBlockPersistenceService.removeCurrentQuadsAndBlocks(generalDetail);
+
+    var orderVerifier  = inOrder(quadrantAndBlockRepository);
+    orderVerifier.verify(quadrantAndBlockRepository).deleteAllByGeneralDetail(generalDetail);
   }
 
   @Test

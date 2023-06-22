@@ -42,6 +42,12 @@ public class QuadrantAndBlockPersistenceService {
     quadrantAndBlockRepository.saveAll(quadrantAndBlocks);
   }
 
+  @Transactional
+  public void removeCurrentQuadsAndBlocks(GeneralDetail generalDetail) {
+    quadrantAndBlockRepository.deleteAllByGeneralDetail(generalDetail);
+    updateTrapProperty(generalDetail, List.of());
+  }
+
   List<QuadrantAndBlock> getQuadrantBlocksByRefs(List<String> quadrantBlockRefList) {
     return quadrantAndBlockRepository.findAllByQuadrantBlockReferenceIn(quadrantBlockRefList);
   }

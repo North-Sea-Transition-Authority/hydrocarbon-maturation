@@ -116,8 +116,7 @@ public class SearchResourceRecordsController {
         .addObject("responsibleOrganisation", searchResourceRecordsService.getPreSelectedOrganisationUnit(form))
         .addObject("centreOfInterestBlock", searchResourceRecordsService.getPreSelectedQuadAndBlock(form))
         .addObject("quadrantBlocksApiEndpoint",
-            SearchSelectorService.route(on(ReferenceBlockRestController.class)
-                .searchQuadrantBlocks(null)))
+            SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null)))
         .addObject("opportunityTypes", searchResourceRecordsService.getOpportunityTypes())
         .addObject("resourceTypes", searchResourceRecordsService.getResourceTypes())
         .addObject("maxResultsReturned", searchResourceRecordsService.maxResultsReturned(resourceRecordSearchResults))

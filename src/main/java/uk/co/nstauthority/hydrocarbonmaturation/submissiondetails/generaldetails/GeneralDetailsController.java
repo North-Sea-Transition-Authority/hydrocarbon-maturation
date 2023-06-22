@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -37,6 +38,7 @@ public class GeneralDetailsController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   public static final String PAGE_NAME = "General details";
 
@@ -44,11 +46,13 @@ public class GeneralDetailsController {
   public GeneralDetailsController(GeneralDetailsFormService generalDetailsFormService,
                                   ControllerHelperService controllerHelperService,
                                   SubmissionDetailService submissionDetailService,
-                                  GeneralDetailsPersistenceService generalDetailsPersistenceService) {
+                                  GeneralDetailsPersistenceService generalDetailsPersistenceService,
+                                  ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
     this.generalDetailsFormService = generalDetailsFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
   }
 
   @GetMapping
@@ -76,7 +80,6 @@ public class GeneralDetailsController {
 
   private ModelAndView getGeneralDetailsModelAndView(GeneralDetailsForm form, SubmissionDetail submissionDetail) {
     var modelAndView =  new ModelAndView("remi/submissiondetails/generalDetails")
-        .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("licenceApplicationEndpoint",
             SearchSelectorService.route(on(LicenceApplicationRestController.class)
                 .searchLicenceApplicationsWithManualEntry(null)))
@@ -88,8 +91,7 @@ public class GeneralDetailsController {
             generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication()))
         .addObject("resourceType",
             submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase())
-        .addObject("quadrantBlocksApiEndpoint",
-            SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null)))
+        .addObject("quadrantBlocksApiEndpoint", getQuadrantBlocksApiEndpoint(submissionDetail))
         .addObject("alreadyAddedQuadrantBlocks", generalDetailsFormService.getQuadrantAndBlockViews(form))
         .addObject("form", form)
         .addObject("licenceEndpoint",
@@ -99,7 +101,7 @@ public class GeneralDetailsController {
         .addObject("hasLicencesOnEarlierSubmission", generalDetailsFormService
             .hasLicencesOnEarlierSubmission(submissionDetail));
 
-    // Relinquishment information source is automatically set to relinquishment 
+    // Relinquishment information source is automatically set to relinquishment
     if (!submissionDetail.isRelinquishment()) {
       if (submissionDetail.isProspectSubmission()) {
         modelAndView.addObject("informationSources", InformationSource.getInformationSource());
@@ -110,5 +112,12 @@ public class GeneralDetailsController {
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
+  }
+
+  private String getQuadrantBlocksApiEndpoint(SubmissionDetail submissionDetail) {
+    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
+    return resourceDetail.getOnshoreOffshore() == OnshoreOffshore.ONSHORE
+        ? SearchSelectorService.route(on(ReferenceBlockRestController.class).searchOnshoreQuadrantBlocks(null))
+        : SearchSelectorService.route(on(ReferenceBlockRestController.class).searchOffshoreQuadrantBlocks(null));
   }
 }

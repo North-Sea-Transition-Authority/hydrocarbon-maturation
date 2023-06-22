@@ -3,7 +3,6 @@
 <#assign pageTitle = "General details" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
-<#-- @ftlvariable name="onshoreOffshore" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="quadrantBlocksApiEndpoint" type="String" -->
 <#-- @ftlvariable name="alreadyAddedQuadrantBlocks" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.addtolist.AddToListItem>" -->
 <#-- @ftlvariable name="informationSources" type="java.util.Map<String, String>" -->

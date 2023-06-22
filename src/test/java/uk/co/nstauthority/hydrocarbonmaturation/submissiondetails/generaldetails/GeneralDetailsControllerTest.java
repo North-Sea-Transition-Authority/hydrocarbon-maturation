@@ -40,6 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -64,6 +65,9 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getGeneralDetails_whenResponsibleOrganisation_assertStatusOk() throws Exception {
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(new GeneralDetailsForm());
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
@@ -108,6 +112,9 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGeneralDetailsPage_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
     when(generalDetailsFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
@@ -127,6 +134,9 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGeneralDetailsPage_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
@@ -145,11 +155,13 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @Test
-  void getGeneralDetailsModelAndView_prospectSubmission_assertModelProperties() throws Exception {
+  void getGeneralDetailsModelAndView_offshoreProspectSubmission_assertModelProperties() throws Exception {
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
-    var preselectedOrganisation = Map.of("25", "Shell Gas");
 
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
     when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(preselectedLicenceApplication);
@@ -168,13 +180,12 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(modelMap)
         .contains(
-            entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
             entry("informationSources", InformationSource.getInformationSource()),
             entry("licenceApplication", preselectedLicenceApplication),
             entry("licenceApplicationEndpoint",
                 SearchSelectorService.route(on(LicenceApplicationRestController.class).searchLicenceApplicationsWithManualEntry(null))),
             entry("quadrantBlocksApiEndpoint",
-                SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null))),
+                SearchSelectorService.route(on(ReferenceBlockRestController.class).searchOffshoreQuadrantBlocks(null))),
             entry("resourceType", ResourceType.PROSPECT.name().toLowerCase()),
             entry("prospectSubmission", true),
             entry("discoverySubmission", false),
@@ -193,13 +204,16 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @Test
-  void getGeneralDetailsModelAndView_discoverySubmission_assertModelProperties() throws Exception {
+  void getGeneralDetailsModelAndView_onshoreDiscoverySubmission_assertModelProperties() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     var discovery = new Resource();
     discovery.setType(ResourceType.DISCOVERY);
     var submission = new Submission();
     submission.setResource(discovery);
     submissionDetail.setSubmission(submission);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
@@ -228,7 +242,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
                 SearchSelectorService.route(
                     on(LicenceApplicationRestController.class).searchLicenceApplicationsWithManualEntry(null))),
             entry("quadrantBlocksApiEndpoint",
-                SearchSelectorService.route(on(ReferenceBlockRestController.class).searchQuadrantBlocks(null))),
+                SearchSelectorService.route(on(ReferenceBlockRestController.class).searchOnshoreQuadrantBlocks(null))),
             entry("resourceType", ResourceType.DISCOVERY.name().toLowerCase()),
             entry("prospectSubmission", false),
             entry("discoverySubmission", true),
@@ -254,6 +268,9 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
       mode = EnumSource.Mode.INCLUDE)
   void getGeneralDetailsModelAndView_relinquishmentSubmission_assertRelinquishmentTrue(SubmissionType submissionType) throws Exception {
     submissionDetail.setSubmissionType(submissionType);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new GeneralDetailsForm();
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
