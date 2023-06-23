@@ -27,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionSelectionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionService;
 
 @Controller
@@ -37,7 +38,7 @@ public class ViewResourceRecordController {
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionDetailService submissionDetailService;
   private final UserDetailService userDetailService;
-  private final SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
+  private final SubmissionHistoryQueryService submissionHistoryQueryService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   private final ResourceGroupSummaryService resourceGroupSummaryService;
   private final ResourceService resourceService;
@@ -49,7 +50,7 @@ public class ViewResourceRecordController {
                                       SubmissionSummaryModelService submissionSummaryModelService,
                                       SubmissionDetailService submissionDetailService,
                                       UserDetailService userDetailService,
-                                      SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService,
+                                      SubmissionHistoryQueryService submissionHistoryQueryService,
                                       RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
                                       ResourceGroupSummaryService resourceGroupSummaryService,
                                       ResourceService resourceService,
@@ -59,7 +60,7 @@ public class ViewResourceRecordController {
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
     this.userDetailService = userDetailService;
-    this.submissionHistorySearchSelectorModelService = submissionHistorySearchSelectorModelService;
+    this.submissionHistoryQueryService = submissionHistoryQueryService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
     this.resourceGroupSummaryService = resourceGroupSummaryService;
     this.resourceService = resourceService;
@@ -145,9 +146,15 @@ public class ViewResourceRecordController {
                   .getResourceGroupPage(resourceId, null)));
     }
 
-    modelAndView = submissionHistorySearchSelectorModelService
-        .addViewSorSubmissionSearchSelectorItemsToModelAndView(
-            modelAndView, resourceId);
+    var querySearchResults = submissionHistoryQueryService.getApprovedSubmissionsOnResource(
+        resourceId
+    );
+    modelAndView.addObject("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
+        querySearchResults
+    ));
+    modelAndView.addObject("submissionSelectedUrl",
+        ReverseRouter.route(on(ViewResourceRecordController.class).viewSubmission(resourceId, null))
+    );
 
     var canViewRegulatorManagementInfo = viewResourceRecordService.isRegulatorOrAreaTeamUser(userDetail);
     if (canViewRegulatorManagementInfo) {
@@ -158,6 +165,11 @@ public class ViewResourceRecordController {
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource));
     }
 
+    if (correctionService.canStartCorrection(resource)) {
+      modelAndView.addObject("correctionUrl",
+          ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId)));
+    }
+
     return modelAndView
         .addObject("form", form)
         .addObject("resourceRecord", resourceRecord)
@@ -165,7 +177,6 @@ public class ViewResourceRecordController {
         .addObject("resourceType", submissionDetailSelected
             .getSubmission().getResource().getType().getDisplayName())
         .addObject("canManageRegulatorManagementInfo", isInResponsibleTeam)
-        .addObject("canViewRegulatorManagementInfo", canViewRegulatorManagementInfo)
-        .addObject("canStartCorrection", correctionService.canStartCorrection(resource, isInResponsibleTeam));
+        .addObject("canViewRegulatorManagementInfo", canViewRegulatorManagementInfo);
   }
 }

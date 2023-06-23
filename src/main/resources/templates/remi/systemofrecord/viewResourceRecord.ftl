@@ -9,7 +9,6 @@
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="canManageRegulatorManagementInfo" type="boolean"-->
 <#-- @ftlvariable name="canViewRegulatorManagementInfo" type="boolean"-->
-<#-- @ftlvariable name="canStartCorrection" type="boolean"-->
 <#-- @ftlvariable name="regulatorManagedInformationUrl" type="String"-->
 <#-- @ftlvariable name="submissionSelectedUrl" type="String"-->
 <#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
@@ -49,11 +48,11 @@
         linkText="Manage resource group"
         linkClass="govuk-button govuk-button--secondary"
         linkUrl=springUrl(resourceGroupUrl)/>
-        <#if canStartCorrection>
+        <#if correctionUrl?has_content>
             <@fdsAction.link
             linkText="Corrections"
             linkClass="govuk-button govuk-button--secondary"
-            linkUrl='#'/>
+            linkUrl=springUrl(correctionUrl)/>
         </#if>
     </@fdsAction.buttonGroup>
   </#if>

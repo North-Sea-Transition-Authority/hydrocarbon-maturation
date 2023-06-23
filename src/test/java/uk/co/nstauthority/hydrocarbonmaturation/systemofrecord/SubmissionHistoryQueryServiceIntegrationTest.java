@@ -54,9 +54,9 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       assertThat(results)
           .extracting(
-              SubmissionQuerySearchRecord::getStatus,
-              SubmissionQuerySearchRecord::getSubmissionDetailId,
-              SubmissionQuerySearchRecord::getSubmissionType)
+              SubmissionQuerySearchRecord::status,
+              SubmissionQuerySearchRecord::submissionDetailId,
+              SubmissionQuerySearchRecord::submissionType)
           .containsExactly(
           tuple(
               SubmissionDetailStatus.APPROVED,
@@ -69,7 +69,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       );
 
       assertThat(results.get(0))
-          .extracting(SubmissionQuerySearchRecord::getApprovedTimestamp)
+          .extracting(SubmissionQuerySearchRecord::submissionDetailId)
           .isNotNull();
     }
 
@@ -142,8 +142,8 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       if (linkedResources) {
         assertThat(results)
             .extracting(
-                SubmissionQuerySearchRecord::getStatus,
-                SubmissionQuerySearchRecord::getSubmissionDetailId)
+                SubmissionQuerySearchRecord::status,
+                SubmissionQuerySearchRecord::submissionDetailId)
             .containsExactly(
                 tuple(
                     SubmissionDetailStatus.SUBMITTED,
@@ -163,8 +163,8 @@ class SubmissionHistoryQueryServiceIntegrationTest {
         //if no link between discovery and prospect, only discovery submissions returned
         assertThat(results)
             .extracting(
-                SubmissionQuerySearchRecord::getStatus,
-                SubmissionQuerySearchRecord::getSubmissionDetailId)
+                SubmissionQuerySearchRecord::status,
+                SubmissionQuerySearchRecord::submissionDetailId)
             .containsExactly(
                 tuple(
                     SubmissionDetailStatus.SUBMITTED,
@@ -204,8 +204,8 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       if (withdrawn == null) {
         assertThat(results)
             .extracting(
-                SubmissionQuerySearchRecord::getStatus,
-                SubmissionQuerySearchRecord::getSubmissionDetailId)
+                SubmissionQuerySearchRecord::status,
+                SubmissionQuerySearchRecord::submissionDetailId)
             .containsExactly(
                 tuple(
                     SubmissionDetailStatus.SUBMITTED,
@@ -218,8 +218,8 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       } else {
         assertThat(results)
             .extracting(
-                SubmissionQuerySearchRecord::getStatus,
-                SubmissionQuerySearchRecord::getSubmissionDetailId)
+                SubmissionQuerySearchRecord::status,
+                SubmissionQuerySearchRecord::submissionDetailId)
             .containsExactly(
                 tuple(
                     SubmissionDetailStatus.APPROVED,
@@ -279,9 +279,9 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       assertThat(results)
           .extracting(
-              SubmissionQuerySearchRecord::getStatus,
-              SubmissionQuerySearchRecord::getSubmissionDetailId,
-              SubmissionQuerySearchRecord::getSubmissionType)
+              SubmissionQuerySearchRecord::status,
+              SubmissionQuerySearchRecord::submissionDetailId,
+              SubmissionQuerySearchRecord::submissionType)
           .containsExactly(
               tuple(
                   SubmissionDetailStatus.APPROVED,
@@ -290,7 +290,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
           );
 
       assertThat(results.get(0))
-          .extracting(SubmissionQuerySearchRecord::getApprovedTimestamp)
+          .extracting(SubmissionQuerySearchRecord::approvedTimestamp)
           .isNotNull();
     }
 
@@ -336,8 +336,8 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       if (linkedResources) {
         assertThat(results)
             .extracting(
-                SubmissionQuerySearchRecord::getStatus,
-                SubmissionQuerySearchRecord::getSubmissionDetailId)
+                SubmissionQuerySearchRecord::status,
+                SubmissionQuerySearchRecord::submissionDetailId)
             .containsExactly(
                 tuple(
                     SubmissionDetailStatus.APPROVED,
@@ -356,8 +356,8 @@ class SubmissionHistoryQueryServiceIntegrationTest {
         //if no link between discovery and prospect, only discovery submissions returned
         assertThat(results)
             .extracting(
-                SubmissionQuerySearchRecord::getStatus,
-                SubmissionQuerySearchRecord::getSubmissionDetailId)
+                SubmissionQuerySearchRecord::status,
+                SubmissionQuerySearchRecord::submissionDetailId)
             .containsExactly(
                 tuple(
                     SubmissionDetailStatus.APPROVED,
@@ -411,8 +411,8 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       assertThat(results)
           .extracting(
-              SubmissionQuerySearchRecord::getStatus,
-              SubmissionQuerySearchRecord::getSubmissionDetailId)
+              SubmissionQuerySearchRecord::status,
+              SubmissionQuerySearchRecord::submissionDetailId)
           .containsExactly(
               tuple(
                   SubmissionDetailStatus.SUBMITTED,

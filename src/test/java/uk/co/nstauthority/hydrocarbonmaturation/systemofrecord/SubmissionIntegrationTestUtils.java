@@ -39,12 +39,12 @@ public class SubmissionIntegrationTestUtils {
 
   public static SubmissionQuerySearchRecord getSubmissionQuerySearchRecord(SubmissionDetail submissionDetail) {
     return new SubmissionQuerySearchRecord(
-        submissionDetail.getStatus().name(),
+        submissionDetail.getStatus(),
         submissionDetail.getApprovedTimestamp() != null
             ? Timestamp.from(submissionDetail.getApprovedTimestamp())
             : null,
         submissionDetail.getId(),
-        submissionDetail.getSubmissionType().name()
+        submissionDetail.getSubmissionType()
     );
   }
 

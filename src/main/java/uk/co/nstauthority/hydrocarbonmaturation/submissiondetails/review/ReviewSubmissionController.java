@@ -32,7 +32,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.StartUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
-import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySearchSelectorModelService;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySelectorUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionSearchSelectorForm;
 
 @Controller
@@ -44,7 +45,7 @@ public class ReviewSubmissionController {
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionDetailService submissionDetailService;
   private final UserDetailService userDetailService;
-  private final SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService;
+  private final SubmissionHistoryQueryService submissionHistoryQueryService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   private final ResourceService resourceService;
   private final ResourceGroupSummaryService resourceGroupSummaryService;
@@ -54,8 +55,8 @@ public class ReviewSubmissionController {
   public ReviewSubmissionController(ReviewSubmissionService reviewSubmissionService,
                                     SubmissionSummaryModelService submissionSummaryModelService,
                                     SubmissionDetailService submissionDetailService,
-                                    SubmissionHistorySearchSelectorModelService submissionHistorySearchSelectorModelService,
                                     UserDetailService userDetailService,
+                                    SubmissionHistoryQueryService submissionHistoryQueryService,
                                     RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
                                     ResourceService resourceService,
                                     ResourceGroupSummaryService resourceGroupSummaryService,
@@ -64,7 +65,7 @@ public class ReviewSubmissionController {
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
     this.userDetailService = userDetailService;
-    this.submissionHistorySearchSelectorModelService = submissionHistorySearchSelectorModelService;
+    this.submissionHistoryQueryService = submissionHistoryQueryService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
     this.resourceService = resourceService;
     this.resourceGroupSummaryService = resourceGroupSummaryService;
@@ -139,8 +140,15 @@ public class ReviewSubmissionController {
         "remi/review/reviewSubmission"
     );
 
-    submissionHistorySearchSelectorModelService
-        .addReviewSubmissionSearchSelectorItemsToModelAndView(modelAndView, resourceId);
+    var querySearchResults = submissionHistoryQueryService.getApprovedAndSubmittedSubmissionsOnResource(
+        resourceId
+    );
+    modelAndView.addObject("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
+        querySearchResults
+    ));
+    modelAndView.addObject("submissionSelectedUrl",
+        ReverseRouter.route(on(ReviewSubmissionController.class).viewSubmission(resourceId, null))
+    );
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(submissionRecord.resourceNameAndCentreOfInterest())
         .addWorkAreaBreadcrumb()

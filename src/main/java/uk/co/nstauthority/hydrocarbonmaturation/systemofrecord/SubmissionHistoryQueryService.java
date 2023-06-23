@@ -16,7 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submission
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Service
-class SubmissionHistoryQueryService {
+public class SubmissionHistoryQueryService {
   private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
   private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
   private final DSLContext context;
@@ -26,7 +26,7 @@ class SubmissionHistoryQueryService {
     this.context = context;
   }
 
-  List<SubmissionQuerySearchRecord> getApprovedAndSubmittedSubmissionsOnResource(UUID resourceId) {
+  public List<SubmissionQuerySearchRecord> getApprovedAndSubmittedSubmissionsOnResource(UUID resourceId) {
     return getSubmissionsOnResourceQueryResults(
         List.of(
             getResourceIdAndNotWithdrawnCondition(resourceId),
@@ -36,7 +36,7 @@ class SubmissionHistoryQueryService {
     );
   }
 
-  List<SubmissionQuerySearchRecord> getApprovedSubmissionsOnResource(UUID resourceId) {
+  public List<SubmissionQuerySearchRecord> getApprovedSubmissionsOnResource(UUID resourceId) {
     return getSubmissionsOnResourceQueryResults(
         List.of(
             getResourceIdAndNotWithdrawnCondition(resourceId),
