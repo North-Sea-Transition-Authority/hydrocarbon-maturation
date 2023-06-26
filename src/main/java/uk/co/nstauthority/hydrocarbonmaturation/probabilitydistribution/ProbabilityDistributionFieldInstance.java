@@ -43,6 +43,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.KM2,
       "Productive area"
   ),
+
   // Reservoir properties
   AVERAGE_NET_PAY_THICKNESS_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
@@ -59,7 +60,6 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.M_TVT,
       "Average net reservoir thickness"
   ),
-
   GROSS_RESERVOIR_THICKNESS_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.M_TVT,
@@ -130,6 +130,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.FT_TVDSS,
       "Depth to gas-oil contact"
   ),
+
   // Gas case volumetrics
   GAS_HYDROCARBON_SATURATION_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
@@ -156,6 +157,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT,
       "Gas recovery factor"
   ),
+
   // Oil case volumetrics
   OIL_RECOVERY_FACTOR_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
@@ -202,6 +204,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.RB_STB,
       "Gas formation volume factor (Bg)"
   ),
+
   // Mixed case volumetrics
   MIXED_FORMATION_VOLUME_FACTOR_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
@@ -263,81 +266,159 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT,
       "Oil recovery factor"
   ),
+
   // Oil case outputs
-  OIL_OUTPUTS_OIL_IN_PLACE(
-      ResourceOutputsPreDrillBehaviour.class,
+  OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Oil in place"
   ),
-  OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Oil in place"
+  ),
+  OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Oil recoverable resources"
   ),
-  OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Oil recoverable resources"
+  ),
+  OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Associated-gas recoverable resources"
   ),
-  OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Associated-gas recoverable resources"
+  ),
+  OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   ),
+  OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
+  ),
+
   // Gas case outputs
-  GAS_OUTPUTS_GAS_IN_PLACE(
-      ResourceOutputsPreDrillBehaviour.class,
+  GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Gas in place"
   ),
-  GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas in place"
+  ),
+  GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Gas recoverable resources"
   ),
-  GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas recoverable resources"
+  ),
+  GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Associated condensate recoverable resources"
   ),
-  GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Associated condensate recoverable resources"
+  ),
+  GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   ),
+  GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
+  ),
+
   // Mixed case outputs
-  MIXED_CASE_OIL_IN_PLACE(
-      ResourceOutputsPreDrillBehaviour.class,
+  MIXED_CASE_OIL_IN_PLACE_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Oil in place"
   ),
-  MIXED_CASE_OIL_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  MIXED_CASE_OIL_IN_PLACE_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Oil in place"
+  ),
+  MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Oil recoverable resources"
   ),
-  MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Oil recoverable resources"
+  ),
+  MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Associated gas recoverable resources"
   ),
-  MIXED_CASE_GAS_IN_PLACE(
-      ResourceOutputsPreDrillBehaviour.class,
+  MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Associated gas recoverable resources"
+  ),
+  MIXED_CASE_GAS_IN_PLACE_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Gas in place"
   ),
-  MIXED_CASE_GAS_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  MIXED_CASE_GAS_IN_PLACE_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas in place"
+  ),
+  MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Gas recoverable resources"
   ),
-  MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas recoverable resources"
+  ),
+  MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Associated condensate recoverable resources"
   ),
-  MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES(
-      ResourceOutputsPreDrillBehaviour.class,
+  MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Associated condensate recoverable resources"
+  ),
+  MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
+  ),
+  MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   )

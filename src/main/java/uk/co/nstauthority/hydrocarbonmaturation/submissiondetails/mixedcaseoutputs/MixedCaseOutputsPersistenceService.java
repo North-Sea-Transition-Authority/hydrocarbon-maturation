@@ -5,6 +5,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -38,30 +39,37 @@ class MixedCaseOutputsPersistenceService {
   }
 
   private void saveProbabilityDistributionFields(MixedCaseOutputsForm mixedCaseOutputsForm, SubmissionDetail submissionDetail) {
-    if (mixedCaseOutputsForm.getOilInPlace().getProbabilityDistributionType() != null) {
-      var oilInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE;
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          oilInPlace,
-          mixedCaseOutputsForm.getOilInPlace(),
-          submissionDetail
-      );
-    }
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
 
-    if (mixedCaseOutputsForm.getOilEquivalentRecoverableResources().getProbabilityDistributionType() != null) {
-      var oilEquivalentRecoverableResources =
-          ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          oilEquivalentRecoverableResources,
-          mixedCaseOutputsForm.getOilEquivalentRecoverableResources(),
-          submissionDetail
-      );
+    var oilInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      oilInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        oilInPlace,
+        mixedCaseOutputsForm.getOilInPlace(),
+        submissionDetail
+    );
+
+    var oilEquivalentRecoverableResources =
+        ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      oilEquivalentRecoverableResources =
+          ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY;
+    }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        oilEquivalentRecoverableResources,
+        mixedCaseOutputsForm.getOilEquivalentRecoverableResources(),
+        submissionDetail
+    );
 
     var associatedGasRecoverableResources =
-        ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES;
-
-    if (hasAssociatedGasRecoverableResources(mixedCaseOutputsForm)
-        && mixedCaseOutputsForm.getAssociatedGasRecoverableResources().getProbabilityDistributionType() != null) {
+        ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      associatedGasRecoverableResources =
+          ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY;
+    }
+    if (hasAssociatedGasRecoverableResources(mixedCaseOutputsForm)) {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           associatedGasRecoverableResources,
           mixedCaseOutputsForm.getAssociatedGasRecoverableResources(),
@@ -73,44 +81,49 @@ class MixedCaseOutputsPersistenceService {
           submissionDetail);
     }
 
-    if (mixedCaseOutputsForm.getGasInPlace().getProbabilityDistributionType() != null) {
-      var gasInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE;
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          gasInPlace,
-          mixedCaseOutputsForm.getGasInPlace(),
-          submissionDetail
-      );
+    var gasInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      gasInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        gasInPlace,
+        mixedCaseOutputsForm.getGasInPlace(),
+        submissionDetail
+    );
 
-    if (mixedCaseOutputsForm.getGasRecoverableResources().getProbabilityDistributionType() != null) {
-      var gasRecoverableResources =
-          ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          gasRecoverableResources,
-          mixedCaseOutputsForm.getGasRecoverableResources(),
-          submissionDetail
-      );
+    var gasRecoverableResources =
+        ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      gasRecoverableResources = ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        gasRecoverableResources,
+        mixedCaseOutputsForm.getGasRecoverableResources(),
+        submissionDetail
+    );
 
-    if (mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType() != null) {
-      var associatedCondensateRecoverableResources =
-          ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          associatedCondensateRecoverableResources,
-          mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
-          submissionDetail
-      );
+    var associatedCondensateRecoverableResources =
+        ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      associatedCondensateRecoverableResources =
+          ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        associatedCondensateRecoverableResources,
+        mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
+        submissionDetail
+    );
 
-    if (mixedCaseOutputsForm.getOilRecoverableResources().getProbabilityDistributionType() != null) {
-      var oilRecoverableResources =
-          ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          oilRecoverableResources,
-          mixedCaseOutputsForm.getOilRecoverableResources(),
-          submissionDetail
-      );
+    var oilRecoverableResources =
+        ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      oilRecoverableResources = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        oilRecoverableResources,
+        mixedCaseOutputsForm.getOilRecoverableResources(),
+        submissionDetail
+    );
   }
 
   public Optional<MixedCaseOutput> getMixedCaseOutput(SubmissionDetail submissionDetail) {

@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutp
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
@@ -29,7 +30,7 @@ public class MixedCaseOutputsSummaryService {
   }
 
   private MixedCaseOutputsSummaryView createSummaryViewFromMixedCaseOutput(MixedCaseOutput mixedCaseOutput) {
-    var summaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
+    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
     var submissionDetail = mixedCaseOutput.getSubmissionDetail();
     var hasAssociatedGasRecoverableResources = BooleanUtil.yesNoFromBoolean(
         mixedCaseOutput.getHasAssociatedGasRecoverableResources(), "");
@@ -37,56 +38,53 @@ public class MixedCaseOutputsSummaryService {
         ? mixedCaseOutput.getRiskedOilEquivalentRecoverableMean().toString()
         : "";
 
-    var oilInPlace =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE,
-            submissionDetail);
-    summaryViews.add(oilInPlace);
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT);
 
-    var oilRecoverableResources =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES,
-            submissionDetail);
-    summaryViews.add(oilRecoverableResources);
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT);
 
-    if (mixedCaseOutput.getHasAssociatedGasRecoverableResources() == null
-        || mixedCaseOutput.getHasAssociatedGasRecoverableResources()) {
-      var associatedCondensateRecoverableResources =
-          probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES,
-              submissionDetail);
-      summaryViews.add(associatedCondensateRecoverableResources);
+      if (mixedCaseOutput.getHasAssociatedGasRecoverableResources() == null
+          || mixedCaseOutput.getHasAssociatedGasRecoverableResources()) {
+        listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT);
+      }
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT);
+
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_DISCOVERY);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
+
+      if (mixedCaseOutput.getHasAssociatedGasRecoverableResources() == null
+          || mixedCaseOutput.getHasAssociatedGasRecoverableResources()) {
+        listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+      }
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_DISCOVERY);
+
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
     }
 
-    var gasInPlace =
+    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
+    listOfInstances.forEach(instance -> listOfSummaryViews.add(
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE,
-            submissionDetail);
-    summaryViews.add(gasInPlace);
-
-
-    var gasRecoverableResources =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES,
-            submissionDetail);
-    summaryViews.add(gasRecoverableResources);
-
-    var associatedCondensateRecoverableResources =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES,
-            submissionDetail);
-    summaryViews.add(associatedCondensateRecoverableResources);
-
-    var oilEquivalentRecoverableResources =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES,
-            submissionDetail);
-    summaryViews.add(oilEquivalentRecoverableResources);
-
+            instance, submissionDetail)));
     return new MixedCaseOutputsSummaryView(
         hasAssociatedGasRecoverableResources,
         riskedOilEquivalentRecoverableMean,
-        summaryViews
+        listOfSummaryViews
     );
   }
 }

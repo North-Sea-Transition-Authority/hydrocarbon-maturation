@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -30,13 +31,11 @@ class OilCaseOutputsSummaryServiceTest {
   @InjectMocks
   private OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
 
-  private SubmissionDetail submissionDetail;
-  private OilCaseOutput oilCaseOutput;
+  private final SubmissionDetail submissionDetail= SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final OilCaseOutput oilCaseOutput = new OilCaseOutput();
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    oilCaseOutput = new OilCaseOutput();
     oilCaseOutput.setSubmissionDetail(submissionDetail);
   }
 
@@ -71,7 +70,7 @@ class OilCaseOutputsSummaryServiceTest {
   }
 
   @Test
-  void getOilCaseOutputSummaryFromSubmissionDetail_whenPresent_notEmptySummary() {
+  void getOilCaseOutputSummaryFromSubmissionDetail_whenPresent_notEmptySummary_whenProspect() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
         "20", "20", "20",
@@ -81,7 +80,77 @@ class OilCaseOutputsSummaryServiceTest {
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
         .thenReturn(Optional.of(oilCaseOutput));
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT,
+            submissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT,
+            submissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+            submissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT,
+            submissionDetail))
+        .thenReturn(testSummary);
+
+    oilCaseOutput.setHasAssociatedGasRecoverableResources(true);
+    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
+
+    var view = oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+    assertThat(view)
+        .extracting(
+            OilCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
+            OilCaseOutputsSummaryView::riskedOilEquivalentRecoverableMean,
+            OilCaseOutputsSummaryView::probabilityDistributionSummaryViews)
+        .containsExactly(
+            "Yes",
+            oilCaseOutput.getRiskedOilEquivalentRecoverableMean().toString(),
+            List.of(
+                testSummary,
+                testSummary,
+                testSummary,
+                testSummary)
+        );
+  }
+
+  @Test
+  void getOilCaseOutputSummaryFromSubmissionDetail_whenPresent_notEmptySummary_whenDiscovery() {
+    var testSummary = new ProbabilityDistributionSummaryView(
+        "test", "type", "20",
+        "20", "20", "20",
+        "20", "20", "20",
+        "20", "", "20", "unit", "comments");
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    oilCaseOutput.setSubmissionDetail(discoverySubmissionDetail);
+
+    when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
+        .thenReturn(Optional.of(oilCaseOutput));
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
+            discoverySubmissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
+            discoverySubmissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+            discoverySubmissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY,
+            discoverySubmissionDetail))
         .thenReturn(testSummary);
 
     oilCaseOutput.setHasAssociatedGasRecoverableResources(true);

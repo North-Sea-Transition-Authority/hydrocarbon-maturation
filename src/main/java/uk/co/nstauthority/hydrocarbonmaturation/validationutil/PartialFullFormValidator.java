@@ -13,10 +13,13 @@ public abstract class PartialFullFormValidator implements SmartValidator, Submis
     var validationType = SubmissionFormValidationUtils
         .extractValidatorHints(validationHints)
         .getValidationType();
+    var submissionDetail = SubmissionFormValidationUtils
+        .extractValidatorHints(validationHints)
+        .getSubmissionDetail();
 
     switch (validationType) {
-      case FULL -> validateFull(form, errors);
-      case PARTIAL -> validatePartial(form, errors);
+      case FULL -> validateFullWithSubmissionDetail(form, submissionDetail, errors);
+      case PARTIAL -> validatePartialWithSubmissionDetail(form, submissionDetail, errors);
       default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
     }
   }

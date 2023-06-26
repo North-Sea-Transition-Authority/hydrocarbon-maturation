@@ -12,7 +12,7 @@ public class ProbabilityDistributionTestUtil {
     var probabilityDistributionForm = new ProbabilityDistributionForm();
 
     var instance = Objects.equals(probabilityDistributionType, ProbabilityDistributionType.CUSTOM)
-        ? ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE
+        ? ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT
         : ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT;
 
     probabilityDistributionForm.setProbabilityDistributionType(probabilityDistributionType);

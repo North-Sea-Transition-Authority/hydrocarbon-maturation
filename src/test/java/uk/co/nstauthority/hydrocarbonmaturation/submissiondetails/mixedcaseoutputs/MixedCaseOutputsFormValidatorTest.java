@@ -50,7 +50,7 @@ class MixedCaseOutputsFormValidatorTest {
 
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
-  void validate_whenValidForm_thenNoValidationErrors(ValidationType validationType) {
+  void validate_whenValidForm_whenProspect_thenNoValidationErrors(ValidationType validationType) {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     mixedCaseOutputsFormValidator.validate(
@@ -58,13 +58,52 @@ class MixedCaseOutputsFormValidatorTest {
     assertFalse(bindingResult.hasErrors());
   }
 
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_whenValidForm_whenDiscovery_thenNoValidationErrors(ValidationType validationType) {
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var form = getValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    mixedCaseOutputsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(validationType, discoverySubmissionDetail));
+    assertFalse(bindingResult.hasErrors());
+  }
+
   @Test
-  void validate_whenInvalidForm_thenValidationErrors() {
+  void validate_whenInvalidForm_whenProspect_thenValidationErrors() {
     var probabilityDistributionType = ProbabilityDistributionType.CUSTOM;
     var form = getFormWithInvalidDistributions();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     mixedCaseOutputsFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("oilInPlace." + probabilityDistributionType.getPath() + ".error",
+                Set.of("oilInPlace." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error",
+                Set.of("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
+                Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("gasInPlace." + probabilityDistributionType.getPath() + ".error",
+                Set.of("gasInPlace." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error",
+                Set.of("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error",
+                Set.of("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("riskedOilEquivalentRecoverableMean.decimalInputValue", Set.of("riskedOilEquivalentRecoverableMean.decimalInputValue.notNumeric"))
+        );
+  }
+
+  @Test
+  void validate_whenInvalidForm_whenDiscovery_thenValidationErrors() {
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var probabilityDistributionType = ProbabilityDistributionType.CUSTOM;
+    var form = getFormWithInvalidDistributions();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    mixedCaseOutputsFormValidator.validate(
+        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, discoverySubmissionDetail));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
