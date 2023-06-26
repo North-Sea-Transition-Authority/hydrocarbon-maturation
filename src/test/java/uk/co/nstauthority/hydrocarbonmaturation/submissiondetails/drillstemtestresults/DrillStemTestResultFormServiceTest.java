@@ -34,7 +34,7 @@ class DrillStemTestResultFormServiceTest {
   @BeforeEach
   void setUp() {
     drillStemTest = new DrillStemTest();
-    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
     drillStemTest.setId(UUID.randomUUID());
     drillStemTest.setSubmissionDetail(submissionDetail);
   }

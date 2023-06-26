@@ -329,7 +329,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(firstSubmissionDetail);
     entityManager.flush();
 
-    var thirdSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var thirdSubmissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
     var secondResource = createResource(ResourceType.DISCOVERY);
     var secondResponsibleTeam = new RegulatorManagedInformation();
     secondResponsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);

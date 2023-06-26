@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -36,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproper
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
@@ -79,7 +79,7 @@ class SubmissionSummaryModelServiceTest {
   private GasFluidPropertySummaryView gasFluidPropertySummaryView;
   private OilFluidPropertySummaryView oilFluidPropertySummaryView;
   private GeneralFluidPropertySummaryView generalFluidPropertySummaryView;
-  private RegulatorManagedInformationSummaryView regulatorManagedInformationSummaryView;
+  private ResourceDetailSummaryView resourceDetailSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -122,7 +122,8 @@ class SubmissionSummaryModelServiceTest {
     gasFluidPropertySummaryView =  GasFluidPropertySummaryView.empty();
     oilFluidPropertySummaryView =  OilFluidPropertySummaryView.empty();
     generalFluidPropertySummaryView = GeneralFluidPropertySummaryView.empty();
-    regulatorManagedInformationSummaryView = RegulatorManagedInformationSummaryView.empty(false);
+    resourceDetailSummaryView = new ResourceDetailSummaryView(
+        "", "", false, "", "Offshore", "resourceType");
   }
 
   @ParameterizedTest
@@ -132,6 +133,9 @@ class SubmissionSummaryModelServiceTest {
 
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     var viewName = "view-name";
+
+    when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(resourceDetailSummaryView);
 
     submissionSummaryModelServiceSpy.createSummaryForSubmissionTypeToModelAndView(submissionDetail, viewName);
 
@@ -172,6 +176,9 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(trapPropertiesSummaryView);
     when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(opportunityDetailsSummaryView);
+    when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(resourceDetailSummaryView);
+
     var modelAndView =
         submissionSummaryModelService.createProspectSubmissionSummaryModelAndView(submissionDetail, "view-name");
 
@@ -207,6 +214,9 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(trapPropertiesSummaryView);
     when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(opportunityDetailsSummaryView);
+    when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(resourceDetailSummaryView);
+
     var modelAndView =
         submissionSummaryModelService.createPostDrillDryWellSubmissionSummaryModelAndView(submissionDetail, "view-name");
 
@@ -247,6 +257,9 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(trapPropertiesSummaryView);
     when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(opportunityDetailsSummaryView);
+    when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(resourceDetailSummaryView);
+
     var modelAndView =
         submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(submissionDetail, "view-name");
 
@@ -265,20 +278,49 @@ class SubmissionSummaryModelServiceTest {
   }
 
   @Test
-  void checkCommonAttributes_whenSubmissionUpdatePresent() {
+  void checkCommonAttributes_whenSubmissionUpdatePresent_whenOffshore() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setVersionNumber(2);
     var submissionUpdate = new SubmissionUpdate();
     submissionUpdate.setReason(SUBMISSION_UPDATE_REASON);
     when(submissionUpdateService.getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(submissionUpdate));
+    when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(resourceDetailSummaryView);
+
     var modelAndView =
         submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name");
     assertThat(modelAndView.getModelMap())
         .contains(
             entry("accordionId", submissionDetail.getId()),
             entry("submissionUpdateReason", submissionUpdate.getReason()),
-            entry("isSubmissionUpdate", true)
+            entry("isSubmissionUpdate", true),
+            entry("resourceDetailSummaryView", resourceDetailSummaryView)
+        );
+  }
+
+  @Test
+  void checkCommonAttributes_whenSubmissionUpdatePresent_whenOnshore() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.setVersionNumber(2);
+    var submissionUpdate = new SubmissionUpdate();
+    submissionUpdate.setReason(SUBMISSION_UPDATE_REASON);
+    var onshoreResourceDetailSummaryView = new ResourceDetailSummaryView(
+        "", "", false, "", "Onshore", "resourceType");
+
+    when(submissionUpdateService.getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(submissionUpdate));
+    when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(onshoreResourceDetailSummaryView);
+
+    var modelAndView =
+        submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name");
+    assertThat(modelAndView.getModelMap())
+        .contains(
+            entry("accordionId", submissionDetail.getId()),
+            entry("submissionUpdateReason", submissionUpdate.getReason()),
+            entry("isSubmissionUpdate", true),
+            entry("resourceDetailSummaryView", onshoreResourceDetailSummaryView)
         );
   }
 
@@ -288,6 +330,9 @@ class SubmissionSummaryModelServiceTest {
 
     when(submissionUpdateService.getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());
+    when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(resourceDetailSummaryView);
+
     var modelAndView =
         submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name");
     assertThat(modelAndView.getModelMap())

@@ -233,7 +233,8 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
         .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
-        .addObject("accordionId", submissionDetail.getId());
+        .addObject("accordionId", submissionDetail.getId())
+        .addObject("isOffshore", true);
 
     doReturn(modelAndView).when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(submissionDetail, VIEW_NAME);
   }

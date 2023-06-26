@@ -212,7 +212,7 @@ class ResourceGroupQueryServiceTest {
 
   @Nested
   class WhenFilteringOutCurrentDiscovery {
-    private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
 
     @BeforeEach
     void setUp() {

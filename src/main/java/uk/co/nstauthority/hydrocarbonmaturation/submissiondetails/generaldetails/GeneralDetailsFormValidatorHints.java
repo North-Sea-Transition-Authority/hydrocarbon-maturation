@@ -8,23 +8,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 class GeneralDetailsFormValidatorHints extends SubmissionFormValidatorHints {
 
   private final GeneralDetail latestApprovedGeneralDetail;
-  private final boolean isLicencePresent;
+  private final LicensePresent licensePresent;
+  private final OnshoreOffshore onshoreOffshore;
 
   public GeneralDetailsFormValidatorHints(
       ValidationType validationType,
       SubmissionDetail submissionDetail,
       @Nullable GeneralDetail latestApprovedGeneralDetail,
-      boolean isLicencePresent) {
+      LicensePresent licensePresent,
+      OnshoreOffshore onshoreOffshore) {
     super(validationType, submissionDetail);
     this.latestApprovedGeneralDetail = latestApprovedGeneralDetail;
-    this.isLicencePresent = isLicencePresent;
+    this.licensePresent = licensePresent;
+    this.onshoreOffshore = onshoreOffshore;
   }
 
   public GeneralDetail getLatestApprovedGeneralDetail() {
     return latestApprovedGeneralDetail;
   }
 
-  public boolean getLicencePresent() {
-    return isLicencePresent;
+  public LicensePresent getLicencePresent() {
+    return licensePresent;
+  }
+
+  public OnshoreOffshore getOffshore() {
+    return onshoreOffshore;
   }
 }

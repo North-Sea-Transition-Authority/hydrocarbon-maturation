@@ -122,7 +122,7 @@ class DrillStemTestResultPersistenceServiceTest {
 
   @Test
   void getDrillStemTestBySubmissionDetailOrThrow() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
 
     var drillStemTest = mock(DrillStemTest.class);
 
@@ -135,7 +135,7 @@ class DrillStemTestResultPersistenceServiceTest {
 
   @Test
   void getDrillStemTestBySubmissionDetailOrThrow_verifyThrown() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
 
     when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());

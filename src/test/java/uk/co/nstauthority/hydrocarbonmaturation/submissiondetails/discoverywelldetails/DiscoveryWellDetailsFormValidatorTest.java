@@ -35,7 +35,7 @@ class DiscoveryWellDetailsFormValidatorTest {
   @BeforeEach
   void setUp() {
     discoveryWellDetailsFormValidator = new DiscoveryWellDetailsFormValidator();
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
   }
 
   @Test

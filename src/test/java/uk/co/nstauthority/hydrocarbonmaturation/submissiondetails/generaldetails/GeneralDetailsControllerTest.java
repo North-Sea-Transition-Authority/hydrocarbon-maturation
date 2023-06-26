@@ -128,7 +128,8 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
     verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any());
-    verify(generalDetailsPersistenceService, times(1)).saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail));
+    verify(generalDetailsPersistenceService, times(1))
+        .saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail), eq(resourceDetail.getOnshoreOffshore()));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
@@ -151,7 +152,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
         .andExpect(status().isOk());
 
     verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any());
-    verify(generalDetailsPersistenceService, never()).saveGeneralDetails(any(), any());
+    verify(generalDetailsPersistenceService, never()).saveGeneralDetails(any(), any(), any());
   }
 
   @Test
@@ -190,7 +191,8 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("prospectSubmission", true),
             entry("discoverySubmission", false),
             entry("relinquishmentSubmission", false),
-            entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList)
+            entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList),
+            entry("isOffshore", true)
         );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 
@@ -247,7 +249,8 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("prospectSubmission", false),
             entry("discoverySubmission", true),
             entry("relinquishmentSubmission", false),
-            entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList)
+            entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList),
+            entry("isOffshore", false)
         );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 

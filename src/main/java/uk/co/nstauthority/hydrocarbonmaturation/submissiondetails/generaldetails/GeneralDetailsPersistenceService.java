@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,11 +34,13 @@ public class GeneralDetailsPersistenceService {
   }
 
   @Transactional
-  public void saveGeneralDetails(GeneralDetailsForm form, SubmissionDetail submissionDetail) {
+  public void saveGeneralDetails(GeneralDetailsForm form, SubmissionDetail submissionDetail, OnshoreOffshore onshoreOffshore) {
     var generalDetail = getGeneralDetailBySubmissionDetail(submissionDetail).orElse(new GeneralDetail());
 
     generalDetail.setSubmissionDetail(submissionDetail);
-    generalDetail.setResourceLocatedInUkcs(form.getResourceLocatedInUkcs());
+
+    setResourceLocated(generalDetail, form, onshoreOffshore);
+
     if (!submissionDetail.isRelinquishment()) {
       generalDetail.setInformationSource(form.getInformationSource());
     } else {
@@ -47,13 +50,6 @@ public class GeneralDetailsPersistenceService {
 
     var licenceApplication = form.getLicenceApplication();
     setLicenceApplication(generalDetail, licenceApplication, form.getInformationSource());
-
-    if (form.getResourceLocatedInUkcs() !=  null && !form.getResourceLocatedInUkcs()) {
-      var decimalPercentage = form.getPercentageLocatedInUkcs().createBigDecimalOrNull();
-      generalDetail.setPercentageLocatedInUkcs(decimalPercentage);
-    } else {
-      generalDetail.setPercentageLocatedInUkcs(null);
-    }
 
     if (form.getInformationSource() == InformationSource.OTHER) {
       generalDetail.setOtherInformationSource(form.getOtherSourceOfInformation());
@@ -135,6 +131,29 @@ public class GeneralDetailsPersistenceService {
         generalDetail.setLicenceApplicationId(licenceApplicationId);
         var licenceApplicationRef = licenceApplicationQueryService.getLicenceApplicationRef(licenceApplicationId);
         generalDetail.setLicenceApplicationReference(licenceApplicationRef);
+      }
+    }
+  }
+
+  private void setResourceLocated(GeneralDetail generalDetail, GeneralDetailsForm form, OnshoreOffshore onshoreOffshore) {
+    generalDetail.setResourceLocatedInUkcs(null);
+    generalDetail.setPercentageLocatedInUkcs(null);
+    generalDetail.setResourceLocatedInEngland(null);
+    generalDetail.setPercentageLocatedInEngland(null);
+
+    if (onshoreOffshore == OnshoreOffshore.OFFSHORE) {
+      generalDetail.setResourceLocatedInUkcs(form.getResourceLocatedInUkcs());
+
+      if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
+        var decimalPercentage = form.getPercentageLocatedInUkcs().createBigDecimalOrNull();
+        generalDetail.setPercentageLocatedInUkcs(decimalPercentage);
+      }
+    } else if (onshoreOffshore == OnshoreOffshore.ONSHORE) {
+      generalDetail.setResourceLocatedInEngland(form.getResourceLocatedInEngland());
+
+      if (BooleanUtils.isFalse(form.getResourceLocatedInEngland())) {
+        var decimalPercentage = form.getPercentageLocatedInEngland().createBigDecimalOrNull();
+        generalDetail.setPercentageLocatedInEngland(decimalPercentage);
       }
     }
   }

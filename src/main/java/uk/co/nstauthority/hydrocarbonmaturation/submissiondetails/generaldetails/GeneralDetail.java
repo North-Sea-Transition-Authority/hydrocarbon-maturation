@@ -30,8 +30,10 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
   private SubmissionDetail submissionDetail;
 
   private Boolean resourceLocatedInUkcs;
+  private Boolean resourceLocatedInEngland;
 
   private BigDecimal percentageLocatedInUkcs;
+  private BigDecimal percentageLocatedInEngland;
 
   @Enumerated(EnumType.STRING)
   private InformationSource informationSource;
@@ -73,12 +75,28 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
     this.resourceLocatedInUkcs = resourceLocatedInUkcs;
   }
 
+  public Boolean getResourceLocatedInEngland() {
+    return resourceLocatedInEngland;
+  }
+
+  public void setResourceLocatedInEngland(Boolean resourceLocatedInEngland) {
+    this.resourceLocatedInEngland = resourceLocatedInEngland;
+  }
+
   public BigDecimal getPercentageLocatedInUkcs() {
     return percentageLocatedInUkcs;
   }
 
   public void setPercentageLocatedInUkcs(BigDecimal percentageLocatedInUkcs) {
     this.percentageLocatedInUkcs = percentageLocatedInUkcs;
+  }
+
+  public BigDecimal getPercentageLocatedInEngland() {
+    return percentageLocatedInEngland;
+  }
+
+  public void setPercentageLocatedInEngland(BigDecimal percentageLocatedInEngland) {
+    this.percentageLocatedInEngland = percentageLocatedInEngland;
   }
 
   public InformationSource getInformationSource() {

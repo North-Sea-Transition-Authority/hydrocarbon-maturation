@@ -229,7 +229,7 @@ class SubmissionDetailServiceTest {
   void getExtantSubmissionDetailsForResource_oneNotExtant_assertReturn() {
     var resource = mock(Resource.class);
     var submissionDetail1 = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
-    var submissionDetail2 = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var submissionDetail2 = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
     var submissionDetailNotExtant = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
     var listOfSubmissions = List.of(
         submissionDetail1.getSubmission(), submissionDetail2.getSubmission(), submissionDetailNotExtant.getSubmission());

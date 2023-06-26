@@ -72,7 +72,7 @@ class DrillStemTestDuplicationServiceTest {
 
   @Test
   void duplicateSubmissionSection_DiscoveryUpdate_DrillStemTestDoesNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
     var newSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
 
 

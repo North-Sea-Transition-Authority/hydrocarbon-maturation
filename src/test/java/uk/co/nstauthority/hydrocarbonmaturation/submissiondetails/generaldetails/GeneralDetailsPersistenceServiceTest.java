@@ -18,6 +18,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -58,14 +59,14 @@ class GeneralDetailsPersistenceServiceTest {
   }
 
   @Test
-  void saveGeneralDetails_whenGivenAForm_verifyCreatedEntity() {
+  void saveGeneralDetails_whenGivenAnOffshoreForm_andLocatedInUkcs_verifyCreatedEntity() {
     var form = new GeneralDetailsForm();
     form.setResourceLocatedInUkcs(true);
     form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
-    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
 
     verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
     var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
@@ -74,12 +75,114 @@ class GeneralDetailsPersistenceServiceTest {
         .extracting(
             GeneralDetail::getResourceLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
+            GeneralDetail::getResourceLocatedInEngland,
+            GeneralDetail::getPercentageLocatedInEngland,
             GeneralDetail::getInformationSource,
             GeneralDetail::getOtherInformationSource
         )
         .containsExactly(
             form.getResourceLocatedInUkcs(),
             form.getPercentageLocatedInUkcs(),
+            form.getResourceLocatedInEngland(),
+            form.getPercentageLocatedInEngland(),
+            form.getInformationSource(),
+            form.getOtherSourceOfInformation()
+        );
+  }
+
+  @Test
+  void saveGeneralDetails_whenGivenAnOffshoreForm_andNotLocatedInUkcs_verifyCreatedEntity() {
+    var form = new GeneralDetailsForm();
+    form.setResourceLocatedInUkcs(false);
+    form.setPercentageLocatedInUkcs(new DecimalInput("42"));
+    form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
+
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .extracting(
+            GeneralDetail::getResourceLocatedInUkcs,
+            GeneralDetail::getPercentageLocatedInUkcs,
+            GeneralDetail::getResourceLocatedInEngland,
+            GeneralDetail::getPercentageLocatedInEngland,
+            GeneralDetail::getInformationSource,
+            GeneralDetail::getOtherInformationSource
+        )
+        .containsExactly(
+            form.getResourceLocatedInUkcs(),
+            form.getPercentageLocatedInUkcs().asBigDecimal().get(),
+            form.getResourceLocatedInEngland(),
+            form.getPercentageLocatedInEngland(),
+            form.getInformationSource(),
+            form.getOtherSourceOfInformation()
+        );
+  }
+
+  @Test
+  void saveGeneralDetails_whenGivenAnOnshoreForm_andLocatedInEngland_verifyCreatedEntity() {
+    var form = new GeneralDetailsForm();
+    form.setResourceLocatedInEngland(true);
+    form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
+
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.ONSHORE);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .extracting(
+            GeneralDetail::getResourceLocatedInUkcs,
+            GeneralDetail::getPercentageLocatedInUkcs,
+            GeneralDetail::getResourceLocatedInEngland,
+            GeneralDetail::getPercentageLocatedInEngland,
+            GeneralDetail::getInformationSource,
+            GeneralDetail::getOtherInformationSource
+        )
+        .containsExactly(
+            form.getResourceLocatedInUkcs(),
+            form.getPercentageLocatedInUkcs(),
+            form.getResourceLocatedInEngland(),
+            form.getPercentageLocatedInEngland(),
+            form.getInformationSource(),
+            form.getOtherSourceOfInformation()
+        );
+  }
+
+  @Test
+  void saveGeneralDetails_whenGivenAnOnshoreForm_andNotLocatedInEngland_verifyCreatedEntity() {
+    var form = new GeneralDetailsForm();
+    form.setResourceLocatedInEngland(false);
+    form.setPercentageLocatedInEngland(new DecimalInput("42"));
+    form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
+
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.ONSHORE);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .extracting(
+            GeneralDetail::getResourceLocatedInUkcs,
+            GeneralDetail::getPercentageLocatedInUkcs,
+            GeneralDetail::getResourceLocatedInEngland,
+            GeneralDetail::getPercentageLocatedInEngland,
+            GeneralDetail::getInformationSource,
+            GeneralDetail::getOtherInformationSource
+        )
+        .containsExactly(
+            form.getResourceLocatedInUkcs(),
+            form.getPercentageLocatedInUkcs(),
+            form.getResourceLocatedInEngland(),
+            form.getPercentageLocatedInEngland().asBigDecimal().get(),
             form.getInformationSource(),
             form.getOtherSourceOfInformation()
         );
@@ -90,7 +193,7 @@ class GeneralDetailsPersistenceServiceTest {
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
     var form = new GeneralDetailsForm();
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
-    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
     verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
     var savedGeneralDetail = generalDetailsArgumentCaptor.getValue();
     assertThat(savedGeneralDetail.getInformationSource()).isEqualTo(InformationSource.RELINQUISHMENT);
@@ -108,7 +211,7 @@ class GeneralDetailsPersistenceServiceTest {
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
-    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
 
     verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
     var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
@@ -133,7 +236,7 @@ class GeneralDetailsPersistenceServiceTest {
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
-    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
 
     verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
     var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
@@ -155,7 +258,7 @@ class GeneralDetailsPersistenceServiceTest {
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
-    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
 
     verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
     var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
@@ -178,7 +281,7 @@ class GeneralDetailsPersistenceServiceTest {
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
-    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
 
     verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
     var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
@@ -201,7 +304,7 @@ class GeneralDetailsPersistenceServiceTest {
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
-    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
 
     verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
     var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
@@ -232,7 +335,7 @@ class GeneralDetailsPersistenceServiceTest {
     submissionDetail.setSubmissionType(submissionType);
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
-    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
 
     verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
     var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
@@ -252,7 +355,7 @@ class GeneralDetailsPersistenceServiceTest {
     submissionDetail.setSubmissionType(submissionType);
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
-    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
 
     verify(generalDetailsRepository, times(1))
         .save(generalDetailsArgumentCaptor.capture());

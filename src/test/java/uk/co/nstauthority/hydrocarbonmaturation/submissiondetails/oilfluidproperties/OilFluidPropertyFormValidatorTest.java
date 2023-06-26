@@ -28,7 +28,7 @@ class OilFluidPropertyFormValidatorTest {
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
     oilFluidPropertyFormValidator = new OilFluidPropertyFormValidator();
   }
 

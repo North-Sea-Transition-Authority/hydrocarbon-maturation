@@ -69,7 +69,7 @@ class GeneralDetailsFormValidatorTest {
     form.setInformationSource(InformationSource.OTHER);
     form.setOtherSourceOfInformation("Other information");
 
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.FULL);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -80,15 +80,15 @@ class GeneralDetailsFormValidatorTest {
     form.setInformationSource(InformationSource.LICENCE_APPLICATION);
     form.setLicenceApplication("F33/1234");
 
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.FULL);
 
     assertFalse(bindingResult.hasErrors());
   }
 
   @Test
-  void validate_whenInvalidForm_thenValidationErrors() {
+  void validate_whenOffshoreInvalidForm_thenValidationErrors() {
     var form = new GeneralDetailsForm();
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
@@ -100,10 +100,24 @@ class GeneralDetailsFormValidatorTest {
   }
 
   @Test
+  void validate_whenOnshoreInvalidForm_thenValidationErrors() {
+    var form = new GeneralDetailsForm();
+    var bindingResult = validateOnshoreGeneralDetailsForm(form, ValidationType.FULL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("resourceOnALicence", Set.of("resourceOnALicence.required")),
+            entry("resourceLocatedInEngland", Set.of("resourceLocatedInEngland.required")),
+            entry("informationSource", Set.of("informationSource.required")),
+            entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
+        );
+  }
+
+  @Test
   void validate_whenInvalidForm_andRelinquishment() {
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
     var form = new GeneralDetailsForm();
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
@@ -120,7 +134,7 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setInformationSource(InformationSource.OTHER);
 
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -134,7 +148,7 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setInformationSource(InformationSource.LICENCE_APPLICATION);
 
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -148,7 +162,7 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setQuadrantBlocks(Collections.emptyList());
     form.setLicences(List.of());
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -167,7 +181,7 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setPercentageLocatedInUkcs(new DecimalInput(decimalInputValue));
 
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.FULL);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -192,7 +206,7 @@ class GeneralDetailsFormValidatorTest {
     form.setResourceLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
 
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.PARTIAL);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.PARTIAL);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -202,12 +216,26 @@ class GeneralDetailsFormValidatorTest {
     var form = new GeneralDetailsForm();
     form.setResourceLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("abc"));
-    var bindingResult = validateGeneralDetailsForm(form, ValidationType.PARTIAL);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.PARTIAL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
             entry("percentageLocatedInUkcs.decimalInputValue", Set.of("percentageLocatedInUkcs.decimalInputValue.notNumeric"))
+        );
+  }
+
+  @Test
+  void partialValidation_resourceLocatedInEngland_invalidPercentage() {
+    var form = new GeneralDetailsForm();
+    form.setResourceLocatedInEngland(false);
+    form.setPercentageLocatedInEngland(new DecimalInput("abc"));
+    var bindingResult = validateOnshoreGeneralDetailsForm(form, ValidationType.PARTIAL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("percentageLocatedInEngland.decimalInputValue", Set.of("percentageLocatedInEngland.decimalInputValue.notNumeric"))
         );
   }
 
@@ -223,7 +251,7 @@ class GeneralDetailsFormValidatorTest {
             new LicenceView("Licence2", 2, LicenceStatus.SURRENDERED)));
 
 
-    var bindingResult = validateGeneralDetailsForm(form, validationType);
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, validationType);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -247,7 +275,7 @@ class GeneralDetailsFormValidatorTest {
         form,
         bindingResult,
         new GeneralDetailsFormValidatorHints(validationType, submissionDetail, generalDetail,
-            true));
+            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -271,7 +299,7 @@ class GeneralDetailsFormValidatorTest {
         form,
         bindingResult,
         new GeneralDetailsFormValidatorHints(validationType, submissionDetail, generalDetail,
-            true));
+            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     assertThat(extractedErrors)
@@ -293,11 +321,12 @@ class GeneralDetailsFormValidatorTest {
     form.setRelinquishmentDay(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
+    GeneralDetail nullGeneralDetail = null;
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, null,
-            true));
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, nullGeneralDetail,
+            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     assertThat(extractedErrors)
@@ -320,11 +349,12 @@ class GeneralDetailsFormValidatorTest {
     form.setRelinquishmentMonth(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
+    GeneralDetail nullGeneralDetail = null;
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(ValidationType.PARTIAL, submissionDetail, null,
-            true));
+        new GeneralDetailsFormValidatorHints(ValidationType.PARTIAL, submissionDetail, nullGeneralDetail,
+            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .isEmpty();
@@ -339,11 +369,12 @@ class GeneralDetailsFormValidatorTest {
     form.setRelinquishmentMonth("13");
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_DISCOVERY);
+    GeneralDetail nullGeneralDetail = null;
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, null,
-            true));
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, nullGeneralDetail,
+            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     assertThat(extractedErrors)
@@ -374,7 +405,7 @@ class GeneralDetailsFormValidatorTest {
         form,
         bindingResult,
         new GeneralDetailsFormValidatorHints(ValidationType.FULL, submissionDetail, generalDetail,
-            false));
+            LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.OFFSHORE));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     assertThat(extractedErrors)
@@ -401,7 +432,7 @@ class GeneralDetailsFormValidatorTest {
         form,
         bindingResult,
         new GeneralDetailsFormValidatorHints(ValidationType.FULL, submissionDetail, generalDetail,
-            true));
+            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     assertThat(extractedErrors)
@@ -423,14 +454,27 @@ class GeneralDetailsFormValidatorTest {
         .isExactlyInstanceOf(ActionNotAllowedException.class);
   }
 
-  private BindingResult validateGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
+  private BindingResult validateOffshoreGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
+    GeneralDetail nullGeneralDetail = null;
     generalDetailsFormValidator.validate(
         form,
         bindingResult,
         new GeneralDetailsFormValidatorHints(validationType, submissionDetail,
-            null, false));
+            nullGeneralDetail, LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.OFFSHORE));
+    return bindingResult;
+  }
+
+  private BindingResult validateOnshoreGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    GeneralDetail nullGeneralDetail = null;
+    generalDetailsFormValidator.validate(
+        form,
+        bindingResult,
+        new GeneralDetailsFormValidatorHints(validationType, submissionDetail,
+            nullGeneralDetail, LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.ONSHORE));
     return bindingResult;
   }
 

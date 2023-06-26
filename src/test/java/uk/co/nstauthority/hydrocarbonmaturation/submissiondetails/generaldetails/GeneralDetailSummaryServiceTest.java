@@ -60,7 +60,9 @@ class GeneralDetailSummaryServiceTest {
         .extracting(
             GeneralDetailSummaryView::informationSource,
             GeneralDetailSummaryView::percentageLocatedInUkcs,
+            GeneralDetailSummaryView::percentageLocatedInEngland,
             GeneralDetailSummaryView::resourceLocatedInUkcs,
+            GeneralDetailSummaryView::resourceLocatedInEngland,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
@@ -70,6 +72,8 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::relinquishmentDate
         )
         .containsExactly(
+            "",
+            "",
             "",
             "",
             "",
@@ -119,6 +123,8 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setLicenceApplicationReference("licence application ref");
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(2.5));
     generalDetail.setResourceLocatedInUkcs(false);
+    generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(4.2));
+    generalDetail.setResourceLocatedInEngland(false);
     generalDetail.setResourceOnALicence(true);
 
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
@@ -128,6 +134,8 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::informationSource,
             GeneralDetailSummaryView::percentageLocatedInUkcs,
             GeneralDetailSummaryView::resourceLocatedInUkcs,
+            GeneralDetailSummaryView::percentageLocatedInEngland,
+            GeneralDetailSummaryView::resourceLocatedInEngland,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
@@ -140,6 +148,8 @@ class GeneralDetailSummaryServiceTest {
         .containsExactly(
             generalDetail.getInformationSource().getDisplayName(),
             generalDetail.getPercentageLocatedInUkcs().toString() + "%",
+            "No",
+            generalDetail.getPercentageLocatedInEngland().toString() + "%",
             "No",
             true,
             generalDetail.getLicenceApplicationReference(),
@@ -191,6 +201,8 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setLicenceApplicationReference("licence application ref");
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(2.5));
     generalDetail.setResourceLocatedInUkcs(false);
+    generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(4.2));
+    generalDetail.setResourceLocatedInEngland(false);
     generalDetail.setResourceOnALicence(true);
     generalDetail.setRelinquishmentDate(LocalDate.of(2012, 6, 12));
 
@@ -201,6 +213,8 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::informationSource,
             GeneralDetailSummaryView::percentageLocatedInUkcs,
             GeneralDetailSummaryView::resourceLocatedInUkcs,
+            GeneralDetailSummaryView::percentageLocatedInEngland,
+            GeneralDetailSummaryView::resourceLocatedInEngland,
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
@@ -213,6 +227,8 @@ class GeneralDetailSummaryServiceTest {
         .containsExactly(
             generalDetail.getInformationSource().getDisplayName(),
             generalDetail.getPercentageLocatedInUkcs().toString() + "%",
+            "No",
+            generalDetail.getPercentageLocatedInEngland().toString() + "%",
             "No",
             true,
             generalDetail.getLicenceApplicationReference(),

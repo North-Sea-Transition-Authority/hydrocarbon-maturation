@@ -278,7 +278,8 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
         .addObject("oilCase", true)
         .addObject("isSubmissionUpdate", false)
         .addObject("mixedCase", true)
-        .addObject("accordionId", submissionDetail.getId());
+        .addObject("accordionId", submissionDetail.getId())
+        .addObject("isOffshore", true);
     when(submissionSummaryModelService.createProspectSubmissionSummaryModelAndView(
         submissionDetail,
         VIEW_NAME

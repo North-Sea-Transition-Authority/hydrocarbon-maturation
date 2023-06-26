@@ -10,4 +10,8 @@ public record ResourceDetailSummaryView(String resourceName,
     return new ResourceDetailSummaryView(
         "", "", false, "", "", resourceType);
   }
+
+  public boolean isOffshore() {
+    return "Offshore".equals(onshoreOffshore);
+  }
 }

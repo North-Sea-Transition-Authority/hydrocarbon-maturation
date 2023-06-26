@@ -33,7 +33,7 @@ class WellDetailsFormServiceTest {
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
     wellDetailsFormService = new WellDetailsFormService(searchSelectorService, wellQueryService);
   }
 

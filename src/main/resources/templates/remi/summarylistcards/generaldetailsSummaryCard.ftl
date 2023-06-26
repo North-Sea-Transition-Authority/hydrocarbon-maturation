@@ -1,7 +1,7 @@
 <#include '../layout/layout.ftl'>
 <#-- @ftlvariable name="generalDetailValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView" -->
 
-<#macro generalDetailCard generalDetailValues>
+<#macro generalDetailCard generalDetailValues isOffshore>
   <@fdsSummaryList.summaryListCard headingText="General details" summaryListId="generaldetails">
     <#if generalDetailValues.submissionType() != "RELINQUISHMENT_PROSPECT"
       && generalDetailValues.submissionType() != "RELINQUISHMENT_DISCOVERY" >
@@ -16,13 +16,24 @@
         </@fdsSummaryList.summaryListRowNoAction>
       </#if>
     </#if>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Wholly located within UKCS">
-      ${generalDetailValues.resourceLocatedInUkcs()}
-    </@fdsSummaryList.summaryListRowNoAction>
-    <#if generalDetailValues.resourceLocatedInUkcs() == "No">
-      <@fdsSummaryList.summaryListRowNoAction keyText="Percentage located in UKCS">
-        ${generalDetailValues.percentageLocatedInUkcs()}
+    <#if isOffshore>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Wholly located within UKCS">
+        ${generalDetailValues.resourceLocatedInUkcs()}
       </@fdsSummaryList.summaryListRowNoAction>
+      <#if generalDetailValues.resourceLocatedInUkcs() == "No">
+        <@fdsSummaryList.summaryListRowNoAction keyText="Percentage located in UKCS">
+          ${generalDetailValues.percentageLocatedInUkcs()}
+        </@fdsSummaryList.summaryListRowNoAction>
+      </#if>
+    <#else>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Wholly located within England">
+        ${generalDetailValues.resourceLocatedInEngland()}
+      </@fdsSummaryList.summaryListRowNoAction>
+      <#if generalDetailValues.resourceLocatedInEngland() == "No">
+        <@fdsSummaryList.summaryListRowNoAction keyText="Percentage located in England">
+          ${generalDetailValues.percentageLocatedInEngland()}
+        </@fdsSummaryList.summaryListRowNoAction>
+      </#if>
     </#if>
     <#if generalDetailValues.submissionType() != "POST_DRILL_DRY_HOLE">
       <@fdsSummaryList.summaryListRowNoAction keyText="Information source">

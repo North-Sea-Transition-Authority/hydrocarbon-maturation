@@ -8,7 +8,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 class GeneralDetailsForm implements SubmissionForm {
 
   private Boolean resourceLocatedInUkcs;
+  private Boolean resourceLocatedInEngland;
   private DecimalInput percentageLocatedInUkcs;
+  private DecimalInput percentageLocatedInEngland;
 
   private List<String> quadrantBlocks = new ArrayList<>();
   private List<String> licences = new ArrayList<>();
@@ -31,12 +33,29 @@ class GeneralDetailsForm implements SubmissionForm {
     this.resourceLocatedInUkcs = resourceLocatedInUkcs;
   }
 
+  public Boolean getResourceLocatedInEngland() {
+    return resourceLocatedInEngland;
+  }
+
+  public void setResourceLocatedInEngland(Boolean resourceLocatedInEngland) {
+    this.resourceLocatedInEngland = resourceLocatedInEngland;
+  }
+
   public DecimalInput getPercentageLocatedInUkcs() {
     return percentageLocatedInUkcs;
   }
 
   public void setPercentageLocatedInUkcs(DecimalInput percentageLocatedInUkcs) {
     this.percentageLocatedInUkcs = percentageLocatedInUkcs;
+  }
+
+  public DecimalInput getPercentageLocatedInEngland() {
+    return percentageLocatedInEngland;
+  }
+
+  public void setPercentageLocatedInEngland(
+      DecimalInput percentageLocatedInEngland) {
+    this.percentageLocatedInEngland = percentageLocatedInEngland;
   }
 
   public List<String> getQuadrantBlocks() {

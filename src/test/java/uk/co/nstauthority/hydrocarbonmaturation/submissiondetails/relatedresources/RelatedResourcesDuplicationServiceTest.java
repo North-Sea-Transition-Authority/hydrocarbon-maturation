@@ -45,7 +45,7 @@ class RelatedResourcesDuplicationServiceTest {
 
   @Test
   void duplicateSubmissionSection_RelatedResourceDoesNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
     var newSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
 
     when(relatedResourcePersistenceService.getRelatedResource(oldSubmissionDetail))
@@ -60,7 +60,7 @@ class RelatedResourcesDuplicationServiceTest {
   @Test
   void duplicateSubmissionSection_differentResourceTypes_DoesNotDuplicate() {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var newSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var newSubmissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
 
     when(relatedResourcePersistenceService.getRelatedResource(oldSubmissionDetail))
         .thenReturn(Optional.empty());

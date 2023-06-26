@@ -72,9 +72,7 @@ public class SubmissionSummaryModelService {
         .addObject("opportunityDetailsSummaryView",
             prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("outlineForMaximumCaseSummaryView",
-            prospectSummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("resourceDetailSummaryView",
-            prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail));
+            prospectSummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail));
 
     hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail)
         .ifPresentOrElse(hydrocarbonCaseDetail ->
@@ -157,9 +155,7 @@ public class SubmissionSummaryModelService {
         .addObject("sourceAndSealSummaryView",
             prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("trapPropertiesSummaryView",
-            prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("resourceDetailSummaryView",
-            prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail));
+            prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail));
 
     addCommonAttributes(submissionDetail, modelAndView);
     return addHydrocarbonsDiscoveredToModelAndView(submissionDetail, modelAndView);
@@ -192,5 +188,8 @@ public class SubmissionSummaryModelService {
         modelAndView
             .addObject("submissionUpdateReason", submissionUpdate.getReason()));
     modelAndView.addObject("isSubmissionUpdate", submissionUpdateOpt.isPresent());
+
+    var resourceDetailSummaryView = prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail);
+    modelAndView.addObject("resourceDetailSummaryView", resourceDetailSummaryView);
   }
 }

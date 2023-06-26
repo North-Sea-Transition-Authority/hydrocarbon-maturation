@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
@@ -20,6 +22,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
@@ -43,6 +48,14 @@ class TaskListEnforceUniqueValuesTest {
   @Autowired
   private TeamMemberRoleService teamMemberRoleService;
 
+  @MockBean
+  private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+
+  private final ResourceDetail resourceDetail = new ResourceDetail();
+  {
+    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+  }
+
   private SubmissionDetail submissionDetail;
 
   @BeforeEach
@@ -54,6 +67,8 @@ class TaskListEnforceUniqueValuesTest {
   @EnumSource(SubmissionType.class)
   void verifyUniqueSectionNamesAndOrders(SubmissionType submissionType) {
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
 
     var taskListSectionItemsList = taskListSectionServices.stream()
         .map(taskListSectionService -> taskListSectionService.getSection(submissionDetail))
@@ -109,6 +124,8 @@ class TaskListEnforceUniqueValuesTest {
   @EnumSource(SubmissionType.class)
   void verifyUniqueTaskListItems(SubmissionType submissionType) {
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
 
     var sectionItemMap = taskListSectionServices.stream()
         .map(taskListSectionService -> taskListSectionService.getSection(submissionDetail))

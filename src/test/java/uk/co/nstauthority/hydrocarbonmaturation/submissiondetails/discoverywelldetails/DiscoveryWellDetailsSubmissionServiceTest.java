@@ -30,7 +30,7 @@ class DiscoveryWellDetailsSubmissionServiceTest {
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
   }
 
   @Test

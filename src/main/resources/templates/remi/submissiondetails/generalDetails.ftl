@@ -58,18 +58,11 @@ breadcrumbsMap=breadcrumbsMap>
         </@fdsRadio.radioGroup>
       </#if>
 
-      <@fdsRadio.radioGroup path="form.resourceLocatedInUkcs" labelText="Is the ${resourceType} wholly located within UKCS?" hiddenContent=true>
-          <@fdsRadio.radioYes path="form.resourceLocatedInUkcs"/>
-          <@fdsRadio.radioNo path="form.resourceLocatedInUkcs">
-              <@fdsTextInput.textInput path="form.percentageLocatedInUkcs.decimalInputValue"
-                labelText="What percentage of the hydrocarbon volume is located within the UKCS?"
-                suffix="%"
-                suffixScreenReaderPrompt="percent"
-                hintText="Must be between 0.1 and 100"
-                inputClass="govuk-!-width-one-third"
-                nestingPath="form.resourceLocatedInUkcs"/>
-          </@fdsRadio.radioNo>
-      </@fdsRadio.radioGroup>
+      <#if isOffshore>
+        <@resourceLocatedInRegion formId="resourceLocatedInUkcs" percentageFormId="percentageLocatedInUkcs" regionName="the UKCS"/>
+      <#else>
+        <@resourceLocatedInRegion formId="resourceLocatedInEngland" percentageFormId="percentageLocatedInEngland" regionName="England"/>
+      </#if>
 
       <#if (discoverySubmission || prospectSubmission) && !relinquishmentSubmission>
         <@fdsRadio.radioGroup path="form.informationSource" labelText="Source of information" hiddenContent=true>
@@ -122,3 +115,18 @@ breadcrumbsMap=breadcrumbsMap>
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>
+
+<#macro resourceLocatedInRegion formId percentageFormId regionName>
+    <@fdsRadio.radioGroup path="form.${formId}" labelText="Is the ${resourceType} wholly located within ${regionName}?" hiddenContent=true>
+        <@fdsRadio.radioYes path="form.${formId}"/>
+        <@fdsRadio.radioNo path="form.${formId}">
+            <@fdsTextInput.textInput path="form.${percentageFormId}.decimalInputValue"
+            labelText="What percentage of the hydrocarbon volume is located within ${regionName}?"
+            suffix="%"
+            suffixScreenReaderPrompt="percent"
+            hintText="Must be between 0.1 and 100"
+            inputClass="govuk-!-width-one-third"
+            nestingPath="form.${formId}"/>
+        </@fdsRadio.radioNo>
+    </@fdsRadio.radioGroup>
+</#macro>

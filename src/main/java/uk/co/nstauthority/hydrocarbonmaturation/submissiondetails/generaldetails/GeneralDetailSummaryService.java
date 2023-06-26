@@ -58,7 +58,9 @@ public class GeneralDetailSummaryService {
         BooleanUtil.yesNoFromBoolean(detail.getResourceOnALicence(), ""),
         getIsResourceOnALicenceBoolean(detail),
         BooleanUtil.yesNoFromBoolean(detail.getResourceLocatedInUkcs(), ""),
+        BooleanUtil.yesNoFromBoolean(detail.getResourceLocatedInEngland(), ""),
         getPercentageLocatedInUkcs(detail),
+        getPercentageLocatedInEngland(detail),
         getInformationSourceDisplay(detail),
         isLicenceApplicationInfoSource,
         licenceApplication,
@@ -115,6 +117,12 @@ public class GeneralDetailSummaryService {
   private String getPercentageLocatedInUkcs(GeneralDetail detail) {
     return detail.getPercentageLocatedInUkcs() != null && !detail.getResourceLocatedInUkcs()
         ? detail.getPercentageLocatedInUkcs().toString() + "%"
+        : "";
+  }
+
+  private String getPercentageLocatedInEngland(GeneralDetail detail) {
+    return detail.getPercentageLocatedInEngland() != null && !detail.getResourceLocatedInEngland()
+        ? detail.getPercentageLocatedInEngland().toString() + "%"
         : "";
   }
 }

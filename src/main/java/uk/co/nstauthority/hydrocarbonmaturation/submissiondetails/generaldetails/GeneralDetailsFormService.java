@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -32,6 +34,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   private final LicenceQueryService licenceQueryService;
   private final LicencePersistenceService licencePersistenceService;
   private final SubmissionDetailService submissionDetailService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @Autowired
   public GeneralDetailsFormService(GeneralDetailsFormValidator generalDetailsFormValidator,
@@ -41,7 +44,8 @@ public class GeneralDetailsFormService implements SubmissionFormService {
                                    ReferenceBlockQueryService referenceBlockQueryService,
                                    LicenceQueryService licenceQueryService,
                                    LicencePersistenceService licencePersistenceService,
-                                   SubmissionDetailService submissionDetailService) {
+                                   SubmissionDetailService submissionDetailService,
+                                   ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
     this.generalDetailsFormValidator = generalDetailsFormValidator;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.licenceApplicationQueryService = licenceApplicationQueryService;
@@ -50,6 +54,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     this.licenceQueryService = licenceQueryService;
     this.licencePersistenceService = licencePersistenceService;
     this.submissionDetailService = submissionDetailService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
   }
 
   GeneralDetailsForm getGeneralDetailsForm(SubmissionDetail submissionDetail) {
@@ -61,6 +66,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   private GeneralDetailsForm generalDetailEntityToForm(GeneralDetail generalDetail) {
     var form = new GeneralDetailsForm();
     form.setResourceLocatedInUkcs(generalDetail.getResourceLocatedInUkcs());
+    form.setResourceLocatedInEngland(generalDetail.getResourceLocatedInEngland());
     form.setResourceOnALicence(generalDetail.getResourceOnALicence());
 
     var licenceApplicationId = generalDetail.getLicenceApplicationId();
@@ -80,11 +86,16 @@ public class GeneralDetailsFormService implements SubmissionFormService {
       form.setOtherSourceOfInformation(generalDetail.getOtherInformationSource());
     }
 
-    if (generalDetail.getResourceLocatedInUkcs() != null && !generalDetail.getResourceLocatedInUkcs()) {
+    if (BooleanUtils.isFalse(generalDetail.getResourceLocatedInUkcs())) {
 
       var decimalPercentage = generalDetail.getPercentageLocatedInUkcs() == null
           ? new DecimalInput() : new DecimalInput(generalDetail.getPercentageLocatedInUkcs().toString());
       form.setPercentageLocatedInUkcs(decimalPercentage);
+    } else if (BooleanUtils.isFalse(generalDetail.getResourceLocatedInEngland())) {
+
+      var decimalPercentage = generalDetail.getPercentageLocatedInEngland() == null
+          ? new DecimalInput() : new DecimalInput(generalDetail.getPercentageLocatedInEngland().toString());
+      form.setPercentageLocatedInEngland(decimalPercentage);
     }
 
     var quadBlockRefs = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail).stream()
@@ -164,24 +175,29 @@ public class GeneralDetailsFormService implements SubmissionFormService {
 
   private GeneralDetailsFormValidatorHints getValidationHints(SubmissionDetail submissionDetail,
                                                               ValidationType validationType) {
+    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
+
     if (submissionDetail.isFirstSubmission()) {
       return new GeneralDetailsFormValidatorHints(
           validationType,
           submissionDetail,
           null,
-          false);
+          LicensePresent.LICENSE_NOT_PRESENT,
+          resourceDetail.getOnshoreOffshore());
     }
 
     var latestApprovedGeneralDetails = submissionDetailService
         .getLatestApprovedSubmissionForSubmission(submissionDetail)
         .flatMap(generalDetailsPersistenceService::getGeneralDetailBySubmissionDetail)
         .orElse(null);
-    var isLicencePresent = false;
+    var licencePresent = LicensePresent.LICENSE_NOT_PRESENT;
     if (latestApprovedGeneralDetails != null) {
-      isLicencePresent = !licencePersistenceService.getLicencesByGeneralDetail(latestApprovedGeneralDetails).isEmpty();
+      licencePresent = !licencePersistenceService.getLicencesByGeneralDetail(latestApprovedGeneralDetails).isEmpty()
+          ? LicensePresent.LICENSE_NOT_PRESENT
+          : LicensePresent.LICENSE_PRESENT;
     }
     return new GeneralDetailsFormValidatorHints(
-        validationType, submissionDetail, latestApprovedGeneralDetails, isLicencePresent);
+        validationType, submissionDetail, latestApprovedGeneralDetails, licencePresent, resourceDetail.getOnshoreOffshore());
   }
 
 }

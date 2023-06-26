@@ -27,7 +27,7 @@ class GeneralFluidPropertyFormValidatorTest {
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
     generalFluidPropertyFormValidator = new GeneralFluidPropertyFormValidator();
   }
 

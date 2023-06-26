@@ -30,6 +30,9 @@
 <#-- @ftlvariable name="isSubmissionUpdate" type="Boolean" -->
 <#-- @ftlvariable name="oilCase" type="Boolean" -->
 <#-- @ftlvariable name="mixedCase" type="Boolean" -->
+<#-- @ftlvariable name="isOffshore" type="Boolean" -->
+<#-- @ftlvariable name="isRegulator" type="Boolean" -->
+<#-- @ftlvariable name="submissionUpdateReason" type="String" -->
 
 <#if !submittable>
   <#assign notificationBanner>
@@ -69,8 +72,7 @@
           mixedCase=mixedCase
           mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
           mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
-          resourceDetailSummaryView=resourceDetailSummaryView
-          />
+          resourceDetailSummaryView=resourceDetailSummaryView/>
         <#if !submittable && isRegulator>
           <div class="govuk-form-group <#if errorList?has_content>govuk-form-group--error</#if>">
               <@fdsCheckbox.checkbox

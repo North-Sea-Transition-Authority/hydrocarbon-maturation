@@ -29,7 +29,7 @@ class GeneralFluidPropertyPersistenceServiceTest {
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
   }
 
   @Test

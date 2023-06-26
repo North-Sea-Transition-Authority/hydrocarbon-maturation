@@ -33,7 +33,7 @@ class GasCaseVolumetricsFormValidatorTest {
   @BeforeEach
   void setUp() {
     gasCaseVolumetricsFormValidator = new GasCaseVolumetricsFormValidator();
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
   }
 
   @Test

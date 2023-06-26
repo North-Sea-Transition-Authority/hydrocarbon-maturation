@@ -20,6 +20,9 @@
 <#-- @ftlvariable name="trapPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView" -->
 <#-- @ftlvariable name="resourceDetailSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView" -->
 <#-- @ftlvariable name="isSubmissionUpdate" type="Boolean" -->
+<#-- @ftlvariable name="isOffshore" type="Boolean" -->
+<#-- @ftlvariable name="isRegulator" type="Boolean" -->
+<#-- @ftlvariable name="submissionUpdateReason" type="String" -->
 
 <#if !submittable>
   <#assign notificationBanner>

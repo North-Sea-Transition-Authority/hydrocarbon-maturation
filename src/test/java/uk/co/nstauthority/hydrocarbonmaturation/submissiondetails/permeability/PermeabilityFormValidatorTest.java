@@ -34,7 +34,7 @@ class PermeabilityFormValidatorTest {
 
   @BeforeAll
   static void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
   }
 
   @Test

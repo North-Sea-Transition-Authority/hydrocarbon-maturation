@@ -48,7 +48,7 @@
   <@fdsAccordion.accordion accordionId="summaryaccordian-${accordionId}">
     <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details" openSection=true>
       <@resourceDetailSummary.resourceDetailCard resourceDetailValues=resourceDetailSummaryView/>
-      <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView/>
+      <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView isOffshore=resourceDetailSummaryView.isOffshore()/>
     </@fdsAccordion.accordionSection>
     <@fdsAccordion.accordionSection sectionHeading="Opportunity" summaryText="Opportunity details, trap properties, source and seal">
       <@outlineForMaximumCaseSummary.outlineForMaximumCaseSummaryCard outlineForMaximumCaseValues=outlineForMaximumCaseSummaryView />

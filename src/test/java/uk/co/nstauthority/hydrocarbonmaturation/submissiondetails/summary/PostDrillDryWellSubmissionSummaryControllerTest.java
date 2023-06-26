@@ -221,7 +221,8 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
         .addObject("submittable", true)
         .addObject("isSubmissionUpdate", false)
-        .addObject("accordionId", submissionDetail.getId());
+        .addObject("accordionId", submissionDetail.getId())
+        .addObject("isOffshore", true);
     when(submissionSummaryModelService.createPostDrillDryWellSubmissionSummaryModelAndView(
         submissionDetail,
         VIEW_NAME)

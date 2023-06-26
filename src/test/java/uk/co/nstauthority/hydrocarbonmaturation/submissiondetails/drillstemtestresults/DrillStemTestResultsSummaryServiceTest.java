@@ -35,7 +35,7 @@ class DrillStemTestResultsSummaryServiceTest {
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
     drillStemTest = new DrillStemTest();
     drillStemTest.setSubmissionDetail(submissionDetail);
     drillStemTest.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.NO);

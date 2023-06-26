@@ -190,7 +190,7 @@ class SubmissionFilterServiceTest {
       when(resourceLinkService.getResourceLinksByProspect(
           submissionToBeFiltered.getSubmission().getResource()))
           .thenReturn(List.of(resourceLink));
-      var linkedDiscoverySubmission = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+      var linkedDiscoverySubmission = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
       when(submissionDetailService.getExtantSubmissionDetailsForResource(discoveryResource))
           .thenReturn(List.of(linkedDiscoverySubmission));
 

@@ -59,7 +59,9 @@ public class GeneralDetailsController {
   public ModelAndView getGeneralDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                         @ModelAttribute("form") GeneralDetailsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    return getGeneralDetailsModelAndView(generalDetailsFormService.getGeneralDetailsForm(submissionDetail), submissionDetail);
+    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
+    return getGeneralDetailsModelAndView(generalDetailsFormService.getGeneralDetailsForm(submissionDetail), submissionDetail,
+        resourceDetail.getOnshoreOffshore());
   }
 
   @PostMapping
@@ -68,17 +70,19 @@ public class GeneralDetailsController {
                                          ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     bindingResult = generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
+    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getGeneralDetailsModelAndView(form, submissionDetail),
+        getGeneralDetailsModelAndView(form, submissionDetail, resourceDetail.getOnshoreOffshore()),
         () -> {
-          generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail);
+          generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, resourceDetail.getOnshoreOffshore());
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );
   }
 
-  private ModelAndView getGeneralDetailsModelAndView(GeneralDetailsForm form, SubmissionDetail submissionDetail) {
+  private ModelAndView getGeneralDetailsModelAndView(GeneralDetailsForm form, SubmissionDetail submissionDetail,
+                                                     OnshoreOffshore onshoreOffshore) {
     var modelAndView =  new ModelAndView("remi/submissiondetails/generalDetails")
         .addObject("licenceApplicationEndpoint",
             SearchSelectorService.route(on(LicenceApplicationRestController.class)
@@ -99,7 +103,8 @@ public class GeneralDetailsController {
         .addObject("alreadyAddedLicences", generalDetailsFormService.getLicenceViews(
             form))
         .addObject("hasLicencesOnEarlierSubmission", generalDetailsFormService
-            .hasLicencesOnEarlierSubmission(submissionDetail));
+            .hasLicencesOnEarlierSubmission(submissionDetail))
+        .addObject("isOffshore", onshoreOffshore == OnshoreOffshore.OFFSHORE);
 
     // Relinquishment information source is automatically set to relinquishment
     if (!submissionDetail.isRelinquishment()) {

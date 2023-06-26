@@ -9,6 +9,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -30,6 +31,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   private boolean isRelinquishment;
   private GeneralDetail latestApprovedGeneralDetail;
   private boolean missingLicenceErrorPresent;
+  private boolean isOffshore;
 
   @Autowired
   GeneralDetailsFormValidator(LicenceQueryService licenceQueryService) {
@@ -54,7 +56,8 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     var submissionDetail = validatorHints.getSubmissionDetail();
     submissionType = submissionDetail.getSubmissionType();
     isRelinquishment = submissionDetail.isRelinquishment();
-    isLicencePresent = validatorHints.getLicencePresent();
+    isLicencePresent = validatorHints.getLicencePresent() == LicensePresent.LICENSE_PRESENT;
+    isOffshore = validatorHints.getOffshore() == OnshoreOffshore.OFFSHORE;
     var form = (GeneralDetailsForm) target;
 
     latestApprovedGeneralDetail = validatorHints.getLatestApprovedGeneralDetail();
@@ -100,7 +103,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
       validateExtantLicences(generalDetailsForm, errors);
     }
 
-    partialValidationPercentageLocatedInUkcs(generalDetailsForm, errors);
+    partialValidationPercentageLocated(generalDetailsForm, errors);
 
     if (isRelinquishment) {
       validateDateOfRelinquishment(ValidationType.PARTIAL, generalDetailsForm, errors);
@@ -124,8 +127,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
       }
     }
 
-    ValidationUtils.rejectIfEmpty(errors, "resourceLocatedInUkcs", "resourceLocatedInUkcs.required",
-        "Select whether the resource is wholly located within UKCS");
+    validateResourceLocated(errors);
 
     if (submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.PROSPECT_UPDATE
@@ -144,7 +146,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
       }
     }
 
-    fullValidationPercentageLocatedInUkcs(generalDetailsForm, errors);
+    fullValidationPercentageLocated(generalDetailsForm, errors);
 
     if (CollectionUtils.isEmpty(generalDetailsForm.getQuadrantBlocks())) {
       errors.rejectValue("quadrantBlockSelect", "quadrantBlockSelect.notEmpty",
@@ -180,21 +182,47 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     }
   }
 
-  private void fullValidationPercentageLocatedInUkcs(GeneralDetailsForm form, Errors errors) {
-    if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
-      configurePercentageLocatedInUkcs(form, errors).validate();
+  private void fullValidationPercentageLocated(GeneralDetailsForm form, Errors errors) {
+    if (isOffshore) {
+      if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
+        configurePercentageLocated(form.getPercentageLocatedInUkcs(), "percentageLocatedInUkcs", errors)
+            .validate();
+      }
+    } else {
+      if (BooleanUtils.isFalse(form.getResourceLocatedInEngland())) {
+        configurePercentageLocated(form.getPercentageLocatedInEngland(), "percentageLocatedInEngland", errors)
+            .validate();
+      }
     }
   }
 
-  private void partialValidationPercentageLocatedInUkcs(GeneralDetailsForm form, Errors errors) {
-    if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
-      configurePercentageLocatedInUkcs(form, errors).isOptional().validate();
+  private void partialValidationPercentageLocated(GeneralDetailsForm form, Errors errors) {
+    if (isOffshore) {
+      if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
+        configurePercentageLocated(form.getPercentageLocatedInUkcs(), "percentageLocatedInUkcs", errors)
+            .isOptional().validate();
+      }
+    } else {
+      if (BooleanUtils.isFalse(form.getResourceLocatedInEngland())) {
+        configurePercentageLocated(form.getPercentageLocatedInEngland(), "percentageLocatedInEngland", errors)
+            .isOptional().validate();
+      }
     }
   }
 
-  private DecimalInputValidator configurePercentageLocatedInUkcs(GeneralDetailsForm form, Errors errors) {
-    return DecimalInputValidator.configureValidator(errors, "percentageLocatedInUkcs.decimalInputValue",
-            "The hydrocarbon volume percentage", form.getPercentageLocatedInUkcs())
+  private void validateResourceLocated(Errors errors) {
+    if (isOffshore) {
+      ValidationUtils.rejectIfEmpty(errors, "resourceLocatedInUkcs", "resourceLocatedInUkcs.required",
+          "Select whether the resource is wholly located within the UKCS");
+    } else {
+      ValidationUtils.rejectIfEmpty(errors, "resourceLocatedInEngland", "resourceLocatedInEngland.required",
+          "Select whether the resource is wholly located within England");
+    }
+  }
+
+  private DecimalInputValidator configurePercentageLocated(DecimalInput percentage, String fieldName, Errors errors) {
+    return DecimalInputValidator.configureValidator(errors, "%s.decimalInputValue".formatted(fieldName),
+            "The hydrocarbon volume percentage", percentage)
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.valueOf(0.1))
         .setMaxValue(BigDecimal.valueOf(100));

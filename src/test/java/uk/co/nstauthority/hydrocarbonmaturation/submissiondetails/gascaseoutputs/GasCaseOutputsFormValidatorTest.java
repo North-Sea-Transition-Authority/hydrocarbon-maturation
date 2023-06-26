@@ -33,7 +33,7 @@ class GasCaseOutputsFormValidatorTest {
   @BeforeEach
   void setUp() {
     gasCaseOutputsFormValidator = new GasCaseOutputsFormValidator();
-    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
   }
 
   @Test
