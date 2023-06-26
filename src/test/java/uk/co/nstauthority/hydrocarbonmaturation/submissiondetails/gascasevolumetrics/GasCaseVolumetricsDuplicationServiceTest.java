@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -100,12 +101,29 @@ class GasCaseVolumetricsDuplicationServiceTest {
   }
 
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstances(SubmissionDetail oldSubmissionDetail) {
-    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-        ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION,
-        ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
-        ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
-        ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR
-    )));
+    var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      return when(
+          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              Set.of(
+                  ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
+                  ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+                  ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+                  ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR
+              )));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      return when(
+          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              Set.of(
+                  ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY,
+                  ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+                  ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+                  ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR
+              )));
+    }
+    return when(
+        probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(eq(oldSubmissionDetail),
+            any()));
   }
 
   private static Stream<Arguments> allDiscoveryAndProspectSubmissionTypes() {

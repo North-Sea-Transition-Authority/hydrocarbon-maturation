@@ -4,10 +4,10 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 
 @Service
@@ -20,8 +20,7 @@ public class TrapPropertiesPersistenceService {
   @Autowired
   public TrapPropertiesPersistenceService(TrapPropertiesRepository trapPropertiesRepository,
                                           ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                          SupportingDocumentService supportingDocumentService,
-                                          QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService) {
+                                          SupportingDocumentService supportingDocumentService) {
     this.trapPropertiesRepository = trapPropertiesRepository;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.supportingDocumentService = supportingDocumentService;
@@ -57,34 +56,39 @@ public class TrapPropertiesPersistenceService {
 
     trapPropertiesRepository.save(trapProperty);
 
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+
     // save depth to crest details
-    if (form.getDepthToCrest().getProbabilityDistributionType() != null) {
-      var depthToCrestInstance = ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
-          depthToCrestInstance,
-          form.getDepthToCrest(),
-          submissionDetail);
+    var depthToCrestInstance = ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      depthToCrestInstance = ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        depthToCrestInstance,
+        form.getDepthToCrest(),
+        submissionDetail);
 
     // save depth to spill point details
-    if (form.getDepthToSpillPoint().getProbabilityDistributionType() != null) {
-      var depthToSpillPointInstance = ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
-          depthToSpillPointInstance,
-          form.getDepthToSpillPoint(),
-          submissionDetail
-      );
+    var depthToSpillPointInstance = ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      depthToSpillPointInstance = ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        depthToSpillPointInstance,
+        form.getDepthToSpillPoint(),
+        submissionDetail
+    );
 
     // save productive area details
-    if (form.getProductiveArea().getProbabilityDistributionType() != null) {
-      var productiveAreaInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
-          productiveAreaInstance,
-          form.getProductiveArea(),
-          submissionDetail
-      );
+    var productiveAreaInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      productiveAreaInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        productiveAreaInstance,
+        form.getProductiveArea(),
+        submissionDetail
+    );
 
     supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getProspectDepthMap());
   }

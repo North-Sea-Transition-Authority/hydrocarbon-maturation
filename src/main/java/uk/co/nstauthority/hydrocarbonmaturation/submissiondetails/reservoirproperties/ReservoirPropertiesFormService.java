@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
@@ -148,7 +149,7 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
         ));
         form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
             submissionDetail,
-            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY
         ));
       }
       if (discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail)
@@ -166,34 +167,63 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
       }
     }
 
-    form.setGrossReservoirThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY
-    ));
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      form.setGrossReservoirThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT
+      ));
 
-    form.setGrossRockVolume(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME
-    ));
+      form.setGrossRockVolume(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT
+      ));
 
-    form.setNetPorosity(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY
-    ));
-    form.setNetToGross(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY
-    ));
+      form.setNetPorosity(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT
+      ));
+      form.setNetToGross(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT
+      ));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      form.setGrossReservoirThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY
+      ));
+
+      form.setGrossRockVolume(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY
+      ));
+
+      form.setNetPorosity(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY
+      ));
+      form.setNetToGross(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY
+      ));
+    }
 
     var hydrocarbonCaseDetail = hydrocarbonCasePersistenceService
         .getHydrocarbonCaseDetail(submissionDetail)
         .orElseGet(HydrocarbonCaseDetail::new);
     if (hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail)
         || submissionDetail.isDryWellSubmission()) {
-      form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
-          ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING
-      ));
+      if (resourceType == ResourceType.PROSPECT) {
+        form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+            submissionDetail,
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT
+        ));
+      } else if (resourceType == ResourceType.DISCOVERY) {
+        form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+            submissionDetail,
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY
+        ));
+      }
     }
 
     return form;

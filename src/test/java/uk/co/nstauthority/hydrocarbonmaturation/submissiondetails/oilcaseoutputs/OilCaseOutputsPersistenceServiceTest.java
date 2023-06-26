@@ -50,25 +50,25 @@ class OilCaseOutputsPersistenceServiceTest {
     oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE,
             form.getOilInPlace(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES,
             form.getOilRecoverableResources(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES,
             form.getAssociatedGasRecoverableResources(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES,
             form.getOilEquivalentRecoverableResources(),
             submissionDetail);
@@ -89,13 +89,13 @@ class OilCaseOutputsPersistenceServiceTest {
     oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE,
             form.getOilInPlace(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES,
             form.getOilRecoverableResources(),
             submissionDetail);
@@ -106,7 +106,7 @@ class OilCaseOutputsPersistenceServiceTest {
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES,
             form.getOilEquivalentRecoverableResources(),
             submissionDetail);
@@ -121,13 +121,13 @@ class OilCaseOutputsPersistenceServiceTest {
     oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, submissionDetail);
 
     verify(probabilityDistributionPersistenceService, never())
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE,
             form.getOilInPlace(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, never())
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES,
             form.getOilRecoverableResources(),
             submissionDetail);
@@ -138,7 +138,7 @@ class OilCaseOutputsPersistenceServiceTest {
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, never())
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES,
             form.getOilEquivalentRecoverableResources(),
             submissionDetail);

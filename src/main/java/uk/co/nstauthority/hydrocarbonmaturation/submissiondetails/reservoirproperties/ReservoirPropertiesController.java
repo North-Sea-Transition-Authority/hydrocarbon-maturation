@@ -15,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -193,31 +194,59 @@ public class ReservoirPropertiesController {
 
   private void addProbabilityTemplates(ModelAndView modelAndView, SubmissionDetail submissionDetail) {
     modelAndView
-        .addObject("grossReservoirThicknessTemplate",
-            probabilityDistributionTemplateService
-                .getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
         .addObject("grossReservoirThicknessError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("grossRockVolumeTemplate",
-            probabilityDistributionTemplateService
-                .getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
         .addObject("grossRockVolumeError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("percentOfGrvOilBearingTemplate",
-            probabilityDistributionTemplateService
-                .getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
         .addObject("percentOfGrvOilBearingError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("netToGrossTemplate",
-            probabilityDistributionTemplateService
-                .getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
         .addObject("netToGrossError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("netPorosityTemplate",
-            probabilityDistributionTemplateService
-                .getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
         .addObject("netPorosityError", ProbabilityDistributionTypeError.emptyError());
+
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      modelAndView
+          .addObject("grossReservoirThicknessTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT))
+          .addObject("grossRockVolumeTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT))
+          .addObject("percentOfGrvOilBearingTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
+          .addObject("netToGrossTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT))
+          .addObject("netPorosityTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      modelAndView
+          .addObject("grossReservoirThicknessTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY))
+          .addObject("grossRockVolumeTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY))
+          .addObject("percentOfGrvOilBearingTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY))
+          .addObject("netToGrossTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY))
+          .addObject("netPorosityTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY));
+    }
+
     if (submissionDetail.isProspectSubmission()) {
       modelAndView
           .addObject("depthToHydrocarbonContactTemplate",

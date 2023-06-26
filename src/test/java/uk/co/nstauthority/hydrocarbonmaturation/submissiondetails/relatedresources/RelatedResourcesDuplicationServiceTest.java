@@ -62,9 +62,6 @@ class RelatedResourcesDuplicationServiceTest {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var newSubmissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
 
-    when(relatedResourcePersistenceService.getRelatedResource(oldSubmissionDetail))
-        .thenReturn(Optional.empty());
-
     relatedResourceDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
     verify(submissionDuplicationPersistenceService, never())

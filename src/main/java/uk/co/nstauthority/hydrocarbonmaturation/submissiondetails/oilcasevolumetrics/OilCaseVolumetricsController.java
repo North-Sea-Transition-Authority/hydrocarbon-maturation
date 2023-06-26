@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
@@ -86,22 +87,39 @@ public class OilCaseVolumetricsController {
   private ModelAndView getOilCaseVolumetricsModelAndView(OilCaseVolumetricsForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/oilCaseVolumetrics")
         .addObject("form", form)
-        .addObject("oilHydrocarbonSaturationTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION))
         .addObject("associatedGasOilRatioLifeOfFieldTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
-        .addObject("formationVolumeFactorTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
-        .addObject("oilRecoveryFactorTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR))
         .addObject("oilHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedGasOilRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
         .addObject("formationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
+
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      modelAndView
+          .addObject("oilHydrocarbonSaturationTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT))
+          .addObject("formationVolumeFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT))
+          .addObject("oilRecoveryFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      modelAndView
+          .addObject("oilHydrocarbonSaturationTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY))
+          .addObject("formationVolumeFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY))
+          .addObject("oilRecoveryFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY));
+    }
+
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }

@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
@@ -257,15 +259,15 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .containsEntry("averageNetPayThicknessTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT))
         .containsEntry("grossReservoirThicknessTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT))
         .containsEntry("grossRockVolumeTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT))
         .containsEntry("percentOfGrvOilBearingTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
         .containsEntry("netToGrossTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT))
         .containsEntry("netPorosityTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT))
         .doesNotContainKeys("depthToGasOilContactTemplate",
             "depthToGasWaterContactTemplate", "depthToOilWaterContactTemplate");
   }
@@ -273,17 +275,22 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = SubmissionType.class, names = {"UPDATE_DISCOVERY", "CREATE_DISCOVERY", "CREATE_DISCOVERY_FROM_PROSPECT", "RELINQUISHMENT_DISCOVERY"})
   void saveReservoirProperties_whenInvalidForm_andDiscoverySubmission_assertModelProperties(SubmissionType submissionType) throws Exception {
-    submissionDetail.setSubmissionType(submissionType);
+    var discoverySubmissionDetailId = UUID.randomUUID();
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(submissionType,
+        discoverySubmissionDetailId);
+    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
+
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(reservoirPropertiesFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetail.getId())).thenReturn(discoverySubmissionDetail);
     Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
     when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
     Map<String, String> preSelectedSubUnit = Map.of("SUBUNIT", "sub unit");
     when(reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit())).thenReturn(preSelectedSubUnit);
 
     var modelMap = mockMvc.perform(
-            post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
+            post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(discoverySubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
                 .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
                 .with(user(USER))
                 .with(csrf()))
@@ -293,7 +300,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .getModelMap();
 
     verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(ValidationType.FULL), eq(submissionDetail));
+        .validate(any(), any(), eq(ValidationType.FULL), eq(discoverySubmissionDetail));
     verify(reservoirPropertiesPersistenceService, never())
         .saveReservoirProperty(any(), any());
 
@@ -304,7 +311,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)
@@ -327,15 +334,15 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .containsEntry("averageNetPayThicknessOptionalTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY))
         .containsEntry("grossReservoirThicknessTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY))
         .containsEntry("grossRockVolumeTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY))
         .containsEntry("percentOfGrvOilBearingTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY))
         .containsEntry("netToGrossTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY))
         .containsEntry("netPorosityTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY))
         .doesNotContainKeys("depthToGasOilContactTemplate",
             "depthToGasWaterContactTemplate", "depthToOilWaterContactTemplate");
 
@@ -398,15 +405,15 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .containsEntry("averageNetReservoirThicknessTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL))
         .containsEntry("grossReservoirThicknessTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT))
         .containsEntry("grossRockVolumeTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT))
         .containsEntry("percentOfGrvOilBearingTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
         .containsEntry("netToGrossTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT))
         .containsEntry("netPorosityTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT))
         .doesNotContainKeys("depthToGasOilContactTemplate",
             "depthToGasWaterContactTemplate", "depthToOilWaterContactTemplate");
   }
@@ -473,15 +480,15 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .containsEntry("averageNetPayThicknessTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT))
         .containsEntry("grossReservoirThicknessTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT))
         .containsEntry("grossRockVolumeTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT))
         .containsEntry("percentOfGrvOilBearingTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
         .containsEntry("netToGrossTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT))
         .containsEntry("netPorosityTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT))
         .containsEntry("depthToHydrocarbonContactTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT))
         .containsEntry("mixedCase", true)
@@ -491,13 +498,18 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void getReservoirPropertiesModelAndView_whenDiscoverySubmission_mixedCase_assertModelProperties() throws Exception {
+    var discoverySubmissionDetailId = UUID.randomUUID();
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
+        discoverySubmissionDetailId);
+    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
+
     var form = new ReservoirPropertiesForm();
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
+    when(reservoirPropertiesFormService.getReservoirPropertiesForm(discoverySubmissionDetail)).thenReturn(form);
     var discoveryWellDetails = new DiscoveryWellDetail();
     when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(any())).thenReturn(true);
-    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(discoverySubmissionDetail))
         .thenReturn(Optional.of(discoveryWellDetails));
     Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
     when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
@@ -508,7 +520,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
-                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId)))
+                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(discoverySubmissionDetailId)))
                         .with(user(USER)))
                 .andReturn()
                 .getModelAndView())
@@ -521,7 +533,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)
@@ -552,15 +564,15 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .containsEntry("averageNetPayThicknessOptionalTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY))
         .containsEntry("grossReservoirThicknessTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY))
         .containsEntry("grossRockVolumeTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY))
         .containsEntry("percentOfGrvOilBearingTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY))
         .containsEntry("netToGrossTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY))
         .containsEntry("netPorosityTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY))
         .containsEntry("depthToOilWaterContactTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT))
         .containsEntry("depthToGasWaterContactTemplate", probabilityDistributionTemplateService
@@ -572,14 +584,19 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void getReservoirPropertiesModelAndView_whenDiscoverySubmission_oilCase_assertModelProperties() throws Exception {
+    var discoverySubmissionDetailId = UUID.randomUUID();
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
+        discoverySubmissionDetailId);
+    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
+
     var form = new ReservoirPropertiesForm();
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
+    when(reservoirPropertiesFormService.getReservoirPropertiesForm(discoverySubmissionDetail)).thenReturn(form);
     var discoveryWellDetails = new DiscoveryWellDetail();
     when(discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(any())).thenReturn(true);
     when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(any())).thenReturn(false);
-    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(discoverySubmissionDetail))
         .thenReturn(Optional.of(discoveryWellDetails));
     Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
     when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
@@ -588,7 +605,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
-                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId)))
+                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(discoverySubmissionDetailId)))
                         .with(user(USER)))
                 .andReturn()
                 .getModelAndView())
@@ -601,7 +618,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)
@@ -626,15 +643,15 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .containsEntry("averageNetPayThicknessOptionalTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY))
         .containsEntry("grossReservoirThicknessTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY))
         .containsEntry("grossRockVolumeTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY))
         .containsEntry("percentOfGrvOilBearingTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY))
         .containsEntry("netToGrossTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY))
         .containsEntry("netPorosityTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY))
         .containsEntry("depthToOilWaterContactTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT))
         .containsEntry("mixedCase", false)
@@ -644,14 +661,19 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void getReservoirPropertiesModelAndView_whenDiscoverySubmission_gasCase_assertModelProperties() throws Exception {
+    var discoverySubmissionDetailId = UUID.randomUUID();
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
+        discoverySubmissionDetailId);
+    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
+
     var form = new ReservoirPropertiesForm();
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)).thenReturn(form);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
+    when(reservoirPropertiesFormService.getReservoirPropertiesForm(discoverySubmissionDetail)).thenReturn(form);
     var discoveryWellDetails = new DiscoveryWellDetail();
     when(discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(any())).thenReturn(true);
     when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(any())).thenReturn(false);
-    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(discoverySubmissionDetail))
         .thenReturn(Optional.of(discoveryWellDetails));
     Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
     when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
@@ -660,7 +682,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
-                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId)))
+                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(discoverySubmissionDetailId)))
                         .with(user(USER)))
                 .andReturn()
                 .getModelAndView())
@@ -673,7 +695,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)
@@ -698,15 +720,15 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .containsEntry("averageNetPayThicknessOptionalTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY))
         .containsEntry("grossReservoirThicknessTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY))
         .containsEntry("grossRockVolumeTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY))
         .containsEntry("percentOfGrvOilBearingTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY))
         .containsEntry("netToGrossTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY))
         .containsEntry("netPorosityTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY))
         .containsEntry("depthToGasWaterContactTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT))
         .containsEntry("mixedCase", false)
@@ -771,15 +793,15 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .containsEntry("averageNetReservoirThicknessTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL))
         .containsEntry("grossReservoirThicknessTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT))
         .containsEntry("grossRockVolumeTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT))
         .containsEntry("percentOfGrvOilBearingTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
         .containsEntry("netToGrossTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT))
         .containsEntry("netPorosityTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY))
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT))
         .doesNotContainKeys("mixedCase", "depthToGasOilContactTemplate",
             "depthToGasWaterContactTemplate", "depthToOilWaterContactTemplate");
   }

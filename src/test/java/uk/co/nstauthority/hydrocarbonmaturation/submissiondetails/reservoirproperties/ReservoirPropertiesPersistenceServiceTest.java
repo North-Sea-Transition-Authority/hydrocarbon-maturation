@@ -51,14 +51,14 @@ class ReservoirPropertiesPersistenceServiceTest {
     reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
 
 
-    verifyGenericSubmissionTypesProbabilityTablesSaved(form);
+    verifyProspectSubmissionTypesProbabilityTablesSaved(form, submissionDetail);
 
     // Prospect specific
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
         form.getAverageNetPayThickness(),
         submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
         form.getDepthToHydrocarbonContact(),
         submissionDetail);
@@ -93,10 +93,10 @@ class ReservoirPropertiesPersistenceServiceTest {
     var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
     reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
 
-    verifyGenericSubmissionTypesProbabilityTablesSaved(form);
+    verifyProspectSubmissionTypesProbabilityTablesSaved(form, submissionDetail);
 
     // Dry well specific
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
         form.getAverageNetPayThickness(),
         submissionDetail);
@@ -127,40 +127,40 @@ class ReservoirPropertiesPersistenceServiceTest {
   @Test
   void saveReservoirProperties_whenDiscoverySubmission_givenAForm_verifyCreated_Entity() {
     var form = getValidForm();
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY);
     var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, discoverySubmissionDetail);
 
-    verifyGenericSubmissionTypesProbabilityTablesSaved(form);
+    verifyDiscoverySubmissionTypesProbabilityTablesSaved(form, discoverySubmissionDetail);
 
     // Discovery specific
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY,
         form.getAverageNetPayThickness(),
-        submissionDetail);
+        discoverySubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
-            submissionDetail);
+            discoverySubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
-            submissionDetail);
+            discoverySubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
-            submissionDetail);
+            discoverySubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
+        .saveProbabilityDistributionWhenNotNull(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
             form.getDepthToGasWaterContact(),
-            submissionDetail);
+            discoverySubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
             form.getDepthToOilWaterContact(),
-            submissionDetail);
+            discoverySubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
             form.getDepthToGasOilContact(),
-            submissionDetail);
+            discoverySubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
 
@@ -176,7 +176,7 @@ class ReservoirPropertiesPersistenceServiceTest {
             ReservoirProperty::getReservoirFacies
         )
         .containsExactly(
-            submissionDetail,
+            discoverySubmissionDetail,
             form.getGroupName(),
             form.getLithology(),
             form.getLithologyOther(),
@@ -191,25 +191,48 @@ class ReservoirPropertiesPersistenceServiceTest {
     verify(reservoirPropertiesRepository, times(1)).findBySubmissionDetail(submissionDetail);
   }
 
-  private void verifyGenericSubmissionTypesProbabilityTablesSaved(ReservoirPropertiesForm form) {
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
+  private void verifyProspectSubmissionTypesProbabilityTablesSaved(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT,
         form.getNetToGross(),
         submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY,
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT,
         form.getNetPorosity(),
         submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
         form.getPercentOfGrvOilBearing(),
         submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,
         form.getGrossRockVolume(),
         submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
+        form.getGrossReservoirThickness(),
+        submissionDetail);
+  }
+
+  private void verifyDiscoverySubmissionTypesProbabilityTablesSaved(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY,
+        form.getNetToGross(),
+        submissionDetail);
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY,
+        form.getNetPorosity(),
+        submissionDetail);
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY,
+        form.getPercentOfGrvOilBearing(),
+        submissionDetail);
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY,
+        form.getGrossRockVolume(),
+        submissionDetail);
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY,
         form.getGrossReservoirThickness(),
         submissionDetail);
   }

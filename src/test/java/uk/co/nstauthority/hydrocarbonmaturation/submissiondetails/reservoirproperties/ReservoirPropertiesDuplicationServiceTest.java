@@ -45,8 +45,8 @@ class ReservoirPropertiesDuplicationServiceTest {
 
   @Test
   void duplicateSubmissionSection_ReservoirPropertyExists_DoesDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
 
     var reservoirProperty = mock(ReservoirProperty.class);
     when(reservoirPropertiesPersistenceService.getReservoirProperty(oldSubmissionDetail))
@@ -60,8 +60,8 @@ class ReservoirPropertiesDuplicationServiceTest {
 
   @Test
   void duplicateSubmissionSection_ReservoirPropertyDoesNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
 
     when(reservoirPropertiesPersistenceService.getReservoirProperty(oldSubmissionDetail))
         .thenReturn(Optional.empty());
@@ -249,11 +249,11 @@ class ReservoirPropertiesDuplicationServiceTest {
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(SubmissionDetail oldSubmissionDetail) {
     return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
-        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
-        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
-        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT,
         ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT
     )));
   }
@@ -261,11 +261,11 @@ class ReservoirPropertiesDuplicationServiceTest {
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(SubmissionDetail oldSubmissionDetail) {
     return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY,
-        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
-        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
-        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY,
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
         ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
@@ -274,11 +274,11 @@ class ReservoirPropertiesDuplicationServiceTest {
 
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(SubmissionDetail oldSubmissionDetail) {
     return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
-        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
-        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT
     )));
   }
 
@@ -286,11 +286,11 @@ class ReservoirPropertiesDuplicationServiceTest {
       SubmissionDetail oldSubmissionDetails) {
     return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetails, Set.of(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
-        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
-        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
-        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT,
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT
         )));
   }

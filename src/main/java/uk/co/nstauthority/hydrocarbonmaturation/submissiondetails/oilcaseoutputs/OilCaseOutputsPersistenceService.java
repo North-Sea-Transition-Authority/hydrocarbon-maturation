@@ -39,7 +39,7 @@ public class OilCaseOutputsPersistenceService {
   private void saveProbabilityDistributionFields(OilCaseOutputsForm oilCaseOutputsForm, SubmissionDetail submissionDetail) {
     if (oilCaseOutputsForm.getOilInPlace().getProbabilityDistributionType() != null) {
       var oilInPlace = ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           oilInPlace,
           oilCaseOutputsForm.getOilInPlace(),
           submissionDetail
@@ -48,7 +48,7 @@ public class OilCaseOutputsPersistenceService {
 
     if (oilCaseOutputsForm.getOilRecoverableResources().getProbabilityDistributionType() != null) {
       var oilRecoverableResources = ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           oilRecoverableResources,
           oilCaseOutputsForm.getOilRecoverableResources(),
           submissionDetail
@@ -59,7 +59,7 @@ public class OilCaseOutputsPersistenceService {
     if (oilCaseOutputsForm.getHasAssociatedGasRecoverableResources() != null
         && oilCaseOutputsForm.getHasAssociatedGasRecoverableResources()
         && oilCaseOutputsForm.getAssociatedGasRecoverableResources().getProbabilityDistributionType() != null) {
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           associatedGasRecoverableResources,
           oilCaseOutputsForm.getAssociatedGasRecoverableResources(),
           submissionDetail
@@ -75,7 +75,7 @@ public class OilCaseOutputsPersistenceService {
     if (oilCaseOutputsForm.getOilEquivalentRecoverableResources().getProbabilityDistributionType() != null) {
       var oilEquivalentRecoverableResources =
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           oilEquivalentRecoverableResources,
           oilCaseOutputsForm.getOilEquivalentRecoverableResources(),
           submissionDetail

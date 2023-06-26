@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -73,24 +74,27 @@ public class TrapPropertiesSummaryService {
     var longitudeHemisphere = trapProperty.getLongitudeHemisphere() != null
         ? trapProperty.getLongitudeHemisphere().getDisplayName() : "";
 
+    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+
+    if (resourceType == ResourceType.PROSPECT) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT);
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY);
+    }
+
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-    var depthToCrest =
+    listOfInstances.forEach(instance -> listOfSummaryViews.add(
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY,
-            submissionDetail);
-    listOfSummaryViews.add(depthToCrest);
-
-    var depthToSpillPoint =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY,
-            submissionDetail);
-    listOfSummaryViews.add(depthToSpillPoint);
-
-    var productiveArea =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA,
-            submissionDetail);
-    listOfSummaryViews.add(productiveArea);
+            instance, submissionDetail)));
 
     var fileUploadList = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,

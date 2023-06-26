@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -99,25 +100,44 @@ public class TrapPropertiesController {
         .addObject("datumTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirDatum.class))
         .addObject("quadrantAndBlocks", trapPropertiesFormService.getQuadrantAndBlocks(submissionDetail))
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
-        .addObject("depthToCrestTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY
-            ))
         .addObject("depthToCrestError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("depthToSpillPointTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY
-            ))
         .addObject("depthToSpillPointError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("productiveAreaTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA
-            ))
         .addObject("productiveAreaError", ProbabilityDistributionTypeError.emptyError())
         .addObject("prospectDepthMapTemplate",
             supportingDocumentService.buildFileUploadTemplate(submissionDetail.getId(),
                 SupportingDocumentType.PROSPECT_DEPTH_MAP))
         .addObject("prospectDepthMapUploads", prospectDepthMapUploads);
+
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      modelAndView
+          .addObject("depthToCrestTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT
+              ))
+          .addObject("depthToSpillPointTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT
+              ))
+          .addObject("productiveAreaTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT
+              ));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      modelAndView
+          .addObject("depthToCrestTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY
+              ))
+          .addObject("depthToSpillPointTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY
+              ))
+          .addObject("productiveAreaTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY
+              ));
+    }
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;

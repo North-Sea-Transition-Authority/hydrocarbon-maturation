@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
@@ -95,20 +96,39 @@ public class TrapPropertiesFormService implements SubmissionFormService {
       form.setCentreOfInterestQuadrantBlock(trapProperty.getCentreOfInterestQuadrantBlock());
     }
     var submissionDetail = trapProperty.getSubmissionDetail();
-    form.setDepthToCrest(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY
-    ));
 
-    form.setDepthToSpillPoint(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY
-    ));
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      form.setDepthToCrest(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT
+      ));
 
-    form.setProductiveArea(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA
-    ));
+      form.setDepthToSpillPoint(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT
+      ));
+
+      form.setProductiveArea(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT
+      ));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      form.setDepthToCrest(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY
+      ));
+
+      form.setDepthToSpillPoint(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY
+      ));
+
+      form.setProductiveArea(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY
+      ));
+    }
 
     form.setProspectDepthMap(prospectDepthMapUploads);
 

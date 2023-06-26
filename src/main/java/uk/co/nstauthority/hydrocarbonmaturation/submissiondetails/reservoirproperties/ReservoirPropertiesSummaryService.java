@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
@@ -45,49 +46,41 @@ public class ReservoirPropertiesSummaryService {
 
   private ReservoirPropertiesSummaryView createSummaryViewFromReservoirProperty(SubmissionDetail submissionDetail,
                                                                                 ReservoirProperty reservoirProperty) {
-    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-    ProbabilityDistributionSummaryView averageNetPayThickness;
-    if (submissionDetail.isDryWellSubmission()) {
-      averageNetPayThickness = probabilityDistributionSummaryService
-          .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
-              submissionDetail
-          );
-    } else if (submissionDetail.isDiscoverySubmission()) {
-      averageNetPayThickness = probabilityDistributionSummaryService
-          .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY,
-              submissionDetail
-          );
-    } else {
-      averageNetPayThickness = probabilityDistributionSummaryService
-          .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
-              submissionDetail
-          );
-    }
-    listOfSummaryViews.add(averageNetPayThickness);
+    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
 
-    addGrossReservoirThickness(submissionDetail, listOfSummaryViews);
-    addGrossRockVolume(submissionDetail, listOfSummaryViews);
     if (submissionDetail.isDryWellSubmission()) {
-      addPercentOfGrvOilBearing(submissionDetail, listOfSummaryViews);
+      listOfInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL);
+    } else if (submissionDetail.isDiscoverySubmission()) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
+    } else {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
+    }
+
+    addGrossReservoirThickness(submissionDetail, listOfInstances);
+    addGrossRockVolume(submissionDetail, listOfInstances);
+    if (submissionDetail.isDryWellSubmission()) {
+      addPercentOfGrvOilBearing(submissionDetail, listOfInstances);
     } else if (submissionDetail.isProspectSubmission()) {
       hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail)
           .ifPresent(hydrocarbonCaseDetail -> {
             if (hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail)) {
-              addPercentOfGrvOilBearing(submissionDetail, listOfSummaryViews);
+              addPercentOfGrvOilBearing(submissionDetail, listOfInstances);
             }
           });
     }
-    var listOfDepthToContactDistributions  = getDiscoveryProbabilityTableSummaryViews(submissionDetail, listOfSummaryViews);
+    var listOfDepthToContactDistributions  = getDiscoveryProbabilityTableSummaryViews(submissionDetail, listOfInstances);
 
-    addNetToGross(submissionDetail, listOfSummaryViews);
-    addNetPorosity(submissionDetail, listOfSummaryViews);
+    addNetToGross(submissionDetail, listOfInstances);
+    addNetPorosity(submissionDetail, listOfInstances);
 
     if (submissionDetail.isProspectSubmission()) {
-      addDepthToHydrocarbonContact(submissionDetail, listOfSummaryViews);
+      addDepthToHydrocarbonContact(listOfInstances);
     }
+
+    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
+    listOfInstances.forEach(instance -> listOfSummaryViews.add(
+        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            instance, submissionDetail)));
 
     return new ReservoirPropertiesSummaryView(
         submissionDetail.getSubmissionType(),
@@ -139,111 +132,98 @@ public class ReservoirPropertiesSummaryService {
   }
 
   private void addNetPorosity(SubmissionDetail submissionDetail,
-                              List<ProbabilityDistributionSummaryView> listOfSummaryViews) {
-    var netPorosity =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY,
-            submissionDetail);
-    listOfSummaryViews.add(netPorosity);
+                              List<ProbabilityDistributionFieldInstance> listOfInstances) {
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT);
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY);
+    }
   }
 
   private void addNetToGross(SubmissionDetail submissionDetail,
-                             List<ProbabilityDistributionSummaryView> listOfSummaryViews) {
-    var netToGross =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
-            submissionDetail);
-    listOfSummaryViews.add(netToGross);
+                             List<ProbabilityDistributionFieldInstance> listOfInstances) {
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT);
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY);
+    }
   }
 
   private List<ProbabilityDistributionSummaryView> getDiscoveryProbabilityTableSummaryViews(
       SubmissionDetail submissionDetail,
-      List<ProbabilityDistributionSummaryView> listOfSummaryViews) {
-    var depthToContactDistributions = new ArrayList<ProbabilityDistributionSummaryView>();
+      List<ProbabilityDistributionFieldInstance> listOfInstances) {
+    var listOfDepthToContactInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
     if (submissionDetail.isDiscoverySubmission()) {
       discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
           .map(DiscoveryWellDetail::getHydrocarbonsDiscovered)
           .ifPresent(hydrocarbonsDiscovered -> {
             if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
                 || hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
-              addDepthToOilWaterContact(submissionDetail, depthToContactDistributions);
+              addDepthToOilWaterContact(listOfDepthToContactInstances);
             }
             if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
                 || hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
-              addDepthToGasWaterContact(submissionDetail, depthToContactDistributions);
+              addDepthToGasWaterContact(listOfDepthToContactInstances);
             }
             if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
-              addPercentOfGrvOilBearing(submissionDetail, listOfSummaryViews);
-              addDepthToGasOilContact(submissionDetail, depthToContactDistributions);
+              addPercentOfGrvOilBearing(submissionDetail, listOfInstances);
+              addDepthToGasOilContact(listOfDepthToContactInstances);
             }
           });
     }
+
+    var depthToContactDistributions = new ArrayList<ProbabilityDistributionSummaryView>();
+    listOfDepthToContactInstances.forEach(instance -> depthToContactDistributions.add(
+        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            instance, submissionDetail)));
     return depthToContactDistributions;
   }
 
   private void addGrossReservoirThickness(SubmissionDetail submissionDetail,
-                                          List<ProbabilityDistributionSummaryView> listOfSummaryViews) {
-    var grossReservoirThickness =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
-            submissionDetail);
-    listOfSummaryViews.add(grossReservoirThickness);
+                                          List<ProbabilityDistributionFieldInstance> listOfInstances) {
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT);
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY);
+    }
   }
 
   private void addGrossRockVolume(SubmissionDetail submissionDetail,
-                                  List<ProbabilityDistributionSummaryView> listOfSummaryViews) {
-    var grossRockVolume =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
-            submissionDetail);
-    listOfSummaryViews.add(grossRockVolume);
+                                  List<ProbabilityDistributionFieldInstance> listOfInstances) {
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT);
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY);
+    }
   }
 
-  private void addDepthToHydrocarbonContact(SubmissionDetail submissionDetail,
-                                            List<ProbabilityDistributionSummaryView> listOfSummaryViews) {
-    var depthToHydrocarbonContact =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
-            submissionDetail);
-    listOfSummaryViews.add(depthToHydrocarbonContact);
+  private void addDepthToHydrocarbonContact(List<ProbabilityDistributionFieldInstance> listOfInstances) {
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT);
   }
 
-  private void addDepthToOilWaterContact(SubmissionDetail submissionDetail,
-                                         List<ProbabilityDistributionSummaryView> summaryViewList) {
-    var depthToOilWaterContact =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
-            submissionDetail
-        );
-    summaryViewList.add(depthToOilWaterContact);
+  private void addDepthToOilWaterContact(List<ProbabilityDistributionFieldInstance> listOfInstances) {
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT);
   }
 
-  private void addDepthToGasWaterContact(SubmissionDetail submissionDetail,
-                                         List<ProbabilityDistributionSummaryView> listOfSummaryViews) {
-    var depthToGasWaterContact =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
-            submissionDetail
-        );
-    listOfSummaryViews.add(depthToGasWaterContact);
+  private void addDepthToGasWaterContact(List<ProbabilityDistributionFieldInstance> listOfInstances) {
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
   }
 
-  private void addDepthToGasOilContact(SubmissionDetail submissionDetail,
-                                       List<ProbabilityDistributionSummaryView> listOfSummaryViews) {
-    var depthToGasOilContact =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
-            submissionDetail
-        );
-    listOfSummaryViews.add(depthToGasOilContact);
+  private void addDepthToGasOilContact(List<ProbabilityDistributionFieldInstance> listOfInstances) {
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT);
   }
 
   private void addPercentOfGrvOilBearing(SubmissionDetail submissionDetail,
-                                         List<ProbabilityDistributionSummaryView> listOfSummaryViews) {
-    var percentOfGrvOilBearing =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
-            submissionDetail);
-    listOfSummaryViews.add(percentOfGrvOilBearing);
+                                         List<ProbabilityDistributionFieldInstance> listOfInstances) {
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT);
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY);
+    }
   }
 }

@@ -20,24 +20,20 @@ public class SubmissionDetailTestUtils {
     return createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
   }
 
-  public static SubmissionDetail createDiscoveryFromProspectSubmissionDetail() {
-    return createSubmissionDetail(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-  }
-
-  public static SubmissionDetail createNewDiscoverySubmissionDetail() {
-    return createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
-  }
-
-  public static SubmissionDetail createNewDiscoveryUpdateSubmissionDetail() {
-    return createSubmissionDetail(SubmissionType.UPDATE_DISCOVERY);
-  }
-
   public static SubmissionDetail createNewPostDrillDryWellSubmissionDetail() {
     return createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
   }
 
-  public static SubmissionDetail createNewDiscoveryRelinquishmentSubmissionDetail() {
-    return createSubmissionDetail(SubmissionType.RELINQUISHMENT_DISCOVERY);
+  public static SubmissionDetail createDiscoveryFromProspectSubmissionDetail() {
+    return createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+  }
+
+  public static SubmissionDetail createNewDiscoverySubmissionDetail() {
+    return createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+  }
+
+  public static SubmissionDetail createNewDiscoveryUpdateSubmissionDetail() {
+    return createDiscoverySubmissionDetail(SubmissionType.UPDATE_DISCOVERY);
   }
 
   public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType,
@@ -60,6 +56,19 @@ public class SubmissionDetailTestUtils {
 
   public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType, UUID submissionDetailId) {
     var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+
+    return createSubmissionDetail(submissionType, submissionDetailId, resource);
+  }
+
+  public static SubmissionDetail createDiscoverySubmissionDetail(SubmissionType submissionType, UUID submissionDetailId) {
+    var resource = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
+
+    return createSubmissionDetail(submissionType, submissionDetailId, resource);
+  }
+
+  public static SubmissionDetail createDiscoverySubmissionDetail(SubmissionType submissionType) {
+    var resource = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
+    var submissionDetailId = UUID.randomUUID();
 
     return createSubmissionDetail(submissionType, submissionDetailId, resource);
   }

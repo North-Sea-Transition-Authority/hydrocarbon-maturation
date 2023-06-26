@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -34,7 +36,7 @@ class GasCaseVolumetricsFormServiceTest {
   @InjectMocks
   private GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
 
-  private final SubmissionDetail submissionDetail = new SubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
   @Test
   void validate_verifyMethodCall() {
@@ -55,19 +57,12 @@ class GasCaseVolumetricsFormServiceTest {
   @Test
   void getGasCaseVolumetricsForm_newEntity_thenEmptyForm() {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION))
+        eq(submissionDetail), any())).thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR))
-        .thenReturn(new ProbabilityDistributionForm());
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR))
-        .thenReturn(new ProbabilityDistributionForm());
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD))
-        .thenReturn(new ProbabilityDistributionForm());
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
+        submissionDetail, ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
 
     assertThat(gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(submissionDetail))
@@ -88,24 +83,17 @@ class GasCaseVolumetricsFormServiceTest {
   }
 
   @Test
-  void getGasCaseVolumetricsForm_existingEntity_thenPopulatedForm() {
+  void getGasCaseVolumetricsForm_existingProspectEntity_thenPopulatedForm() {
     var probabilityDistributionForm =
         ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm();
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION))
+        eq(submissionDetail), any())).thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR))
-        .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR))
-        .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD))
-        .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
+        submissionDetail, ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT))
         .thenReturn(probabilityDistributionForm);
 
     assertThat(gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(submissionDetail))
@@ -126,6 +114,59 @@ class GasCaseVolumetricsFormServiceTest {
             form -> form.getGasFormationVolumeFactor().getConstant().getConstant(),
             form -> form.getGasFormationVolumeFactor().getConstant().getComments()
             )
+        .containsExactly(
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getConstant().getConstant(),
+            probabilityDistributionForm.getConstant().getComments(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getConstant().getConstant(),
+            probabilityDistributionForm.getConstant().getComments(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getConstant().getConstant(),
+            probabilityDistributionForm.getConstant().getComments(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getConstant().getConstant(),
+            probabilityDistributionForm.getConstant().getComments(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getConstant().getConstant(),
+            probabilityDistributionForm.getConstant().getComments()
+        );
+  }
+
+  @Test
+  void getGasCaseVolumetricsForm_existingDiscoveryEntity_thenPopulatedForm() {
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm();
+
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        eq(discoverySubmissionDetail), any())).thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY))
+        .thenReturn(probabilityDistributionForm);
+
+    assertThat(gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(discoverySubmissionDetail))
+        .extracting(
+            form -> form.getCondensateGasRatioLifeOfField().getProbabilityDistributionType(),
+            form -> form.getCondensateGasRatioLifeOfField().getConstant().getConstant(),
+            form -> form.getCondensateGasRatioLifeOfField().getConstant().getComments(),
+            form -> form.getGasExpansionFactor().getProbabilityDistributionType(),
+            form -> form.getGasExpansionFactor().getConstant().getConstant(),
+            form -> form.getGasExpansionFactor().getConstant().getComments(),
+            form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
+            form -> form.getGasRecoveryFactor().getConstant().getConstant(),
+            form -> form.getGasRecoveryFactor().getConstant().getComments(),
+            form -> form.getGasHydrocarbonSaturation().getProbabilityDistributionType(),
+            form -> form.getGasHydrocarbonSaturation().getConstant().getConstant(),
+            form -> form.getGasHydrocarbonSaturation().getConstant().getComments(),
+            form -> form.getGasFormationVolumeFactor().getProbabilityDistributionType(),
+            form -> form.getGasFormationVolumeFactor().getConstant().getConstant(),
+            form -> form.getGasFormationVolumeFactor().getConstant().getComments()
+        )
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getConstant().getConstant(),

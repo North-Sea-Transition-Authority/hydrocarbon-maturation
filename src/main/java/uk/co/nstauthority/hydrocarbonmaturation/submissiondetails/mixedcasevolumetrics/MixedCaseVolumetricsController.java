@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
@@ -86,15 +87,6 @@ public class MixedCaseVolumetricsController {
   private ModelAndView getMixedCaseVolumetricsModelAndView(MixedCaseVolumetricsForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/mixedCaseVolumetrics")
         .addObject("form", form)
-        .addObject("formationVolumeFactorTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
-        .addObject("oilHydrocarbonSaturationTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION))
-        .addObject("gasHydrocarbonSaturationTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION))
         .addObject("associatedGasOilRatioLifeOfFieldTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
@@ -104,9 +96,6 @@ public class MixedCaseVolumetricsController {
         .addObject("condensateGasRatioLifeOfFieldTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD))
-        .addObject("oilRecoveryFactorTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR))
         .addObject("gasRecoveryFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR))
@@ -118,6 +107,37 @@ public class MixedCaseVolumetricsController {
         .addObject("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilRecoveryFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
+
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      modelAndView
+          .addObject("formationVolumeFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT))
+          .addObject("oilHydrocarbonSaturationTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT))
+          .addObject("gasHydrocarbonSaturationTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT))
+          .addObject("oilRecoveryFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      modelAndView
+          .addObject("formationVolumeFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY))
+          .addObject("oilHydrocarbonSaturationTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY))
+          .addObject("gasHydrocarbonSaturationTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY))
+          .addObject("oilRecoveryFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY));
+    }
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;

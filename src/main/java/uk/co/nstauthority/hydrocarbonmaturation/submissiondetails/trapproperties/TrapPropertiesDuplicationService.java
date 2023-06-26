@@ -1,9 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -51,13 +54,25 @@ class TrapPropertiesDuplicationService implements SubmissionSectionDuplicationSe
     ));
 
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
-      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-              ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA,
-              ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY,
-              ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY
-          ))
+      var applicableInstances = new HashSet<ProbabilityDistributionFieldInstance>();
+      var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
+      if (resourceType == ResourceType.PROSPECT) {
+        applicableInstances.addAll(List.of(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT));
+      } else if (resourceType == ResourceType.DISCOVERY) {
+        applicableInstances.addAll(List.of(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY));
+      }
+
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              applicableInstances)
           .forEach(probabilityDistribution ->
-              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
+              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
+                  probabilityDistribution,
                   ProbabilityDistribution.class));
     }
   }

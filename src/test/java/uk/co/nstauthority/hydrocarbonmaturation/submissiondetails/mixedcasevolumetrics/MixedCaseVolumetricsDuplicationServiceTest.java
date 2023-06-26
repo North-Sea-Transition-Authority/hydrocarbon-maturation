@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -99,16 +100,37 @@ class MixedCaseVolumetricsDuplicationServiceTest {
   }
 
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstances(SubmissionDetail oldSubmissionDetail) {
-    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-        ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION,
-        ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION,
-        ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
-        ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
-        ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
-        ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
-        ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR
-    )));
+    var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      return when(
+          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              Set.of(
+                  ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT,
+                  ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
+                  ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
+                  ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
+                  ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT
+              )));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      return when(
+          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              Set.of(
+                  ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY,
+                  ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY,
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY,
+                  ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
+                  ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
+                  ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY
+              )));
+    }
+    return when(
+        probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(eq(oldSubmissionDetail),
+            any()));
   }
 
   private static Stream<Arguments> allDiscoveryAndProspectSubmissionTypes() {

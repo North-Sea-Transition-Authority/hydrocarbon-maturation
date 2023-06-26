@@ -17,9 +17,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -140,7 +144,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @Test
-  void getGeneralDetailsModelAndView_assertModelProperties() throws Exception {
+  void getGeneralDetailsModelAndView_whenProspect_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(fileUploadTemplate);
@@ -159,15 +163,15 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     modelMapExpected.put("longitudeHemisphere", Hemisphere.getLongitudeHemisphere());
     modelMapExpected.put("depthToCrestTemplate",
         probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY));
+            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT));
     modelMapExpected.put("depthToCrestError", ProbabilityDistributionTypeError.emptyError());
     modelMapExpected.put("depthToSpillPointTemplate",
         probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY));
+            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT));
     modelMapExpected.put("depthToSpillPointError", ProbabilityDistributionTypeError.emptyError());
     modelMapExpected.put("productiveAreaTemplate",
         probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA));
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT));
     modelMapExpected.put("productiveAreaError", ProbabilityDistributionTypeError.emptyError());
     modelMapExpected.put("prospectDepthMapTemplate", fileUploadTemplate);
     assertThat(modelMap).containsAllEntriesOf(modelMapExpected);
@@ -175,6 +179,51 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+    );
+  }
+
+  @Test
+  void getGeneralDetailsModelAndView_whenDiscovery_assertModelProperties() throws Exception {
+    var discoverySubmissionDetailId = UUID.randomUUID();
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
+        discoverySubmissionDetailId);
+    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
+
+    when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
+    when(trapPropertiesFormService.getTrapPropertiesForm(discoverySubmissionDetail)).thenReturn(new TrapPropertiesForm());
+    when(supportingDocumentService.buildFileUploadTemplate(discoverySubmissionDetailId, SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(fileUploadTemplate);
+
+    var modelMap =     Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(discoverySubmissionDetailId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    @SuppressWarnings(value="unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    Map<String, Object> modelMapExpected = new HashMap<>();
+    modelMapExpected.put("trapTypes", TrapType.getTrapTypes());
+    modelMapExpected.put("longitudeHemisphere", Hemisphere.getLongitudeHemisphere());
+    modelMapExpected.put("depthToCrestTemplate",
+        probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY));
+    modelMapExpected.put("depthToCrestError", ProbabilityDistributionTypeError.emptyError());
+    modelMapExpected.put("depthToSpillPointTemplate",
+        probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY));
+    modelMapExpected.put("depthToSpillPointError", ProbabilityDistributionTypeError.emptyError());
+    modelMapExpected.put("productiveAreaTemplate",
+        probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY));
+    modelMapExpected.put("productiveAreaError", ProbabilityDistributionTypeError.emptyError());
+    modelMapExpected.put("prospectDepthMapTemplate", fileUploadTemplate);
+    assertThat(modelMap).containsAllEntriesOf(modelMapExpected);
+    assertThat(modelMap.get("form").getClass()).isEqualTo(TrapPropertiesForm.class);
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
     );
   }
 }

@@ -28,14 +28,14 @@ class ProbabilityDistributionSummaryServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var probabilityDistribution = new ProbabilityDistribution();
     probabilityDistribution.setDistributionType(ProbabilityDistributionType.LOGNORMAL);
-    probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA);
+    probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT);
 
     when(probabilityDistributionPersistenceService.getProbabilityDistribution(
-        submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA))
+        submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
         .thenReturn(Optional.of(probabilityDistribution));
 
     assertThat(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-        ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA, submissionDetail))
+        ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT, submissionDetail))
         .extracting(
             ProbabilityDistributionSummaryView::probabilityDistributionName,
             ProbabilityDistributionSummaryView::probabilityDistributionType,
@@ -51,7 +51,7 @@ class ProbabilityDistributionSummaryServiceTest {
             ProbabilityDistributionSummaryView::units,
             ProbabilityDistributionSummaryView::comments)
         .contains(
-            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA.getDisplayName(),
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getDisplayName(),
             "",
             "",
             "",
@@ -63,7 +63,7 @@ class ProbabilityDistributionSummaryServiceTest {
             "",
             "",
             "",
-            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA.getUnits(),
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getUnits(),
             "");
   }
 
@@ -73,7 +73,7 @@ class ProbabilityDistributionSummaryServiceTest {
     var probabilityDistribution = new ProbabilityDistribution();
 
     probabilityDistribution.setDistributionType(ProbabilityDistributionType.LOGNORMAL);
-    probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING);
+    probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT);
     probabilityDistribution.setConstantValue(BigDecimal.ONE);
     probabilityDistribution.setMaxValue(BigDecimal.ONE);
     probabilityDistribution.setMeanValue(BigDecimal.ONE);
@@ -86,11 +86,11 @@ class ProbabilityDistributionSummaryServiceTest {
     probabilityDistribution.setComments(COMMENTS);
 
     when(probabilityDistributionPersistenceService.getProbabilityDistribution(
-        submissionDetail, ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING))
+        submissionDetail, ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
         .thenReturn(Optional.of(probabilityDistribution));
 
     assertThat(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING, submissionDetail))
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT, submissionDetail))
         .extracting(
             ProbabilityDistributionSummaryView::probabilityDistributionName,
             ProbabilityDistributionSummaryView::probabilityDistributionType,
@@ -106,7 +106,7 @@ class ProbabilityDistributionSummaryServiceTest {
             ProbabilityDistributionSummaryView::units,
             ProbabilityDistributionSummaryView::comments)
         .contains(
-            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING.getDisplayName(),
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT.getDisplayName(),
             ProbabilityDistributionType.LOGNORMAL.getDisplayName(),
             "1",
             "1",
@@ -117,7 +117,7 @@ class ProbabilityDistributionSummaryServiceTest {
             "1",
             "1",
             "1",
-            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING.getUnits(),
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT.getUnits(),
             COMMENTS
         );
   }

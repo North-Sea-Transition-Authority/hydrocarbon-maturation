@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolume
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -19,42 +20,33 @@ public class OilCaseVolumetricsPersistenceService {
 
   @Transactional
   public void saveOilCaseVolumetrics(OilCaseVolumetricsForm oilCaseVolumetricsForm, SubmissionDetail submissionDetail) {
-    if (oilCaseVolumetricsForm.getOilHydrocarbonSaturation().getProbabilityDistributionType() != null) {
-      var oilHydrocarbonSaturation =
-          ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
-          oilHydrocarbonSaturation,
-          oilCaseVolumetricsForm.getOilHydrocarbonSaturation(),
-          submissionDetail
-      );
-    }
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
 
-    if (oilCaseVolumetricsForm.getOilFormationVolumeFactor().getProbabilityDistributionType() != null) {
-      var formationVolumeFactor = ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
-          formationVolumeFactor,
-          oilCaseVolumetricsForm.getOilFormationVolumeFactor(),
-          submissionDetail
-      );
+    var oilHydrocarbonSaturation =
+        ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      oilHydrocarbonSaturation = ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(oilHydrocarbonSaturation,
+        oilCaseVolumetricsForm.getOilHydrocarbonSaturation(), submissionDetail);
 
-    if (oilCaseVolumetricsForm.getOilRecoveryFactor().getProbabilityDistributionType() != null) {
-      var oilRecoveryFactor = ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
-          oilRecoveryFactor,
-          oilCaseVolumetricsForm.getOilRecoveryFactor(),
-          submissionDetail
-      );
+    var formationVolumeFactor = ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      formationVolumeFactor = ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(formationVolumeFactor,
+        oilCaseVolumetricsForm.getOilFormationVolumeFactor(), submissionDetail);
 
-    if (oilCaseVolumetricsForm.getAssociatedGasOilRatioLifeOfField().getProbabilityDistributionType() != null) {
-      var associatedGasOilRatioLifeOfField =
-          ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
-          associatedGasOilRatioLifeOfField,
-          oilCaseVolumetricsForm.getAssociatedGasOilRatioLifeOfField(),
-          submissionDetail
-      );
+    var oilRecoveryFactor = ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      oilRecoveryFactor = ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY;
     }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(oilRecoveryFactor,
+        oilCaseVolumetricsForm.getOilRecoveryFactor(), submissionDetail);
+
+    var associatedGasOilRatioLifeOfField =
+        ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD;
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(associatedGasOilRatioLifeOfField,
+        oilCaseVolumetricsForm.getAssociatedGasOilRatioLifeOfField(), submissionDetail);
   }
 }

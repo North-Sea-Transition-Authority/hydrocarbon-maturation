@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -47,7 +48,7 @@ class TrapPropertiesSummaryServiceTest {
   @InjectMocks
   private TrapPropertiesSummaryService trapPropertiesSummaryService;
 
-  private SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
   @Test
   void getTrapPropertiesSummaryFromSubmissionDetail_whenNoTrapProperty() {
@@ -99,7 +100,7 @@ class TrapPropertiesSummaryServiceTest {
   }
 
   @Test
-  void getTrapPropertiesSummaryFromSubmissionDetail_whenTrapPropertyPresent() {
+  void getTrapPropertiesSummaryFromSubmissionDetail_whenProspect_whenTrapPropertyPresent() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
         "20", "20", "20",
@@ -127,6 +128,21 @@ class TrapPropertiesSummaryServiceTest {
         .thenReturn(Optional.of(trapProperty));
     when(probabilityDistributionSummaryService
              .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT,
+            submissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT,
+            submissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT,
+            submissionDetail))
         .thenReturn(testSummary);
     when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
         submissionDetail,
@@ -180,5 +196,106 @@ class TrapPropertiesSummaryServiceTest {
               ReservoirDatum.ED50.getDisplayName(),
               "10/15"
           );
+  }
+
+  @Test
+  void getTrapPropertiesSummaryFromSubmissionDetail_whenDiscovery_whenTrapPropertyPresent() {
+    var testSummary = new ProbabilityDistributionSummaryView(
+        "test", "type", "20",
+        "20", "20", "20",
+        "20", "20", "20",
+        "20", "", "20", "unit", "comments");
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+
+
+    var trapProperty = new TrapProperty();
+    trapProperty.setTrapDescription("desc");
+    trapProperty.setTrapType(TrapType.OTHER);
+    trapProperty.setSubmissionDetail(discoverySubmissionDetail);
+    trapProperty.setLatitudeDegrees(BigDecimal.ONE);
+    trapProperty.setLatitudeMinutes(BigDecimal.ONE);
+    trapProperty.setLatitudeSeconds(BigDecimal.ONE);
+    trapProperty.setLongitudeDegrees(BigDecimal.TEN);
+    trapProperty.setLongitudeMinutes(BigDecimal.TEN);
+    trapProperty.setLongitudeSeconds(BigDecimal.TEN);
+    trapProperty.setLongitudeHemisphere(Hemisphere.EAST);
+    trapProperty.setOtherTrapType("other trap type");
+    trapProperty.setDatum(ReservoirDatum.ED50);
+    trapProperty.setCentreOfInterestQuadrantBlock("10/15");
+    FileUploadForm fileUploadForm = new FileUploadForm();
+    fileUploadForm.setUploadedFileDescription("description");
+
+    when(trapPropertiesPersistenceService.getTrapProperty(discoverySubmissionDetail))
+        .thenReturn(Optional.of(trapProperty));
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(discoverySubmissionDetail)))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY,
+            discoverySubmissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY,
+            discoverySubmissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY,
+            discoverySubmissionDetail))
+        .thenReturn(testSummary);
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+        discoverySubmissionDetail,
+        SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(fileUploadForm));
+
+    var uploadedFile = new UploadedFile();
+    uploadedFile.setFilename("uploadedfile.txt");
+    uploadedFile.setDescription("description");
+
+    when(fileUploadService.findUploadedFileOrThrow(fileUploadForm.getUploadedFileId()))
+        .thenReturn(uploadedFile);
+
+    var fileMap = new HashMap<UploadedFile, String>();
+    fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
+        .download(discoverySubmissionDetail.getId(), fileUploadForm.getUploadedFileId())));
+
+    var trapPropertiesSummaryView = trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(discoverySubmissionDetail);
+
+    assertThat(trapPropertiesSummaryView)
+        .extracting(
+            TrapPropertiesSummaryView::trapDescription,
+            TrapPropertiesSummaryView::trapType,
+            TrapPropertiesSummaryView::otherTrapType,
+            TrapPropertiesSummaryView::latitudeDegrees,
+            TrapPropertiesSummaryView::latitudeMinutes,
+            TrapPropertiesSummaryView::latitudeSeconds,
+            TrapPropertiesSummaryView::longitudeDegrees,
+            TrapPropertiesSummaryView::longitudeMinutes,
+            TrapPropertiesSummaryView::longitudeSeconds,
+            TrapPropertiesSummaryView::longitudeHemisphere,
+            TrapPropertiesSummaryView::probabilityDistributionSummaryViews,
+            TrapPropertiesSummaryView::prospectDepthMap,
+            TrapPropertiesSummaryView::datum,
+            TrapPropertiesSummaryView::quadAndBlockCentreOfInterest)
+        .containsExactly(
+            "desc",
+            "Other",
+            "other trap type",
+            "1°",
+            "1''",
+            "1'",
+            "10°",
+            "10''",
+            "10'",
+            "East",
+            List.of(
+                testSummary,
+                testSummary,
+                testSummary),
+            fileMap,
+            ReservoirDatum.ED50.getDisplayName(),
+            "10/15"
+        );
   }
 }

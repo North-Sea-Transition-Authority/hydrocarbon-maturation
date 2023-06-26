@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -46,7 +47,8 @@ class TrapPropertiesFormServiceTest {
   private static SupportingDocumentService supportingDocumentService;
   private static QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private static GeneralDetailsPersistenceService generalDetailsPersistenceService;
-  private static SubmissionDetail submissionDetail;
+
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
   @BeforeAll
   static void setup() {
@@ -63,10 +65,6 @@ class TrapPropertiesFormServiceTest {
         quadrantAndBlockPersistenceService,
         generalDetailsPersistenceService,
         supportingDocumentService);
-
-    UUID submissionDetailId = UUID.randomUUID();
-    submissionDetail = new SubmissionDetail();
-    submissionDetail.setId(submissionDetailId);
   }
 
   @Test
@@ -94,13 +92,13 @@ class TrapPropertiesFormServiceTest {
   void trapPropertiesEntityToForm_newEntity_thenEmptyForm() {
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail)).thenReturn(Optional.empty());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY))
+        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY))
+        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA))
+        submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     var fileUploadFormList = List.of(mock(FileUploadForm.class));
     when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP))
@@ -129,24 +127,148 @@ class TrapPropertiesFormServiceTest {
   }
 
   @Test
-  void trapPropertiesEntityToForm_existingEntity_thenPopulatedForm() {
+  void trapPropertiesEntityToForm_existingProspectEntity_thenPopulatedForm() {
     var trapProperty = getTrapProperty(submissionDetail);
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail)).thenReturn(Optional.of(trapProperty));
     var probabilityDistributionForm =
         ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY))
+        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY))
+        submissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA))
+        submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     var fileUploadFormList = List.of(mock(FileUploadForm.class));
     when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP))
         .thenReturn(fileUploadFormList);
     assertThat(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail))
+        .extracting(
+            TrapPropertiesForm::getTrapType,
+            TrapPropertiesForm::getOtherTrapType,
+            TrapPropertiesForm::getTrapDescription,
+            TrapPropertiesForm::getProspectDepthMap,
+            form -> form.getCoordinateInputForm().getLatitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            form -> form.getCoordinateInputForm().getLatitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            form -> form.getCoordinateInputForm().getLatitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            form -> form.getCoordinateInputForm().getLongitudeCoordinates().getDegrees().createBigDecimalOrNull(),
+            form -> form.getCoordinateInputForm().getLongitudeCoordinates().getMinutes().createBigDecimalOrNull(),
+            form -> form.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
+            form -> form.getCoordinateInputForm().getLongitudeHemisphere(),
+            TrapPropertiesForm::getDatum,
+            TrapPropertiesForm::getCentreOfInterestQuadrantBlock,
+            form -> form.getDepthToCrest().getProbabilityDistributionType(),
+            form -> form.getDepthToCrest().getNormal().getMin(),
+            form -> form.getDepthToCrest().getNormal().getP99(),
+            form -> form.getDepthToCrest().getNormal().getP90(),
+            form -> form.getDepthToCrest().getNormal().getMode(),
+            form -> form.getDepthToCrest().getNormal().getP50(),
+            form -> form.getDepthToCrest().getNormal().getMean(),
+            form -> form.getDepthToCrest().getNormal().getP10(),
+            form -> form.getDepthToCrest().getNormal().getP1(),
+            form -> form.getDepthToCrest().getNormal().getMax(),
+            form -> form.getDepthToCrest().getNormal().getConstant(),
+            form -> form.getDepthToCrest().getNormal().getComments(),
+            form -> form.getDepthToSpillPoint().getProbabilityDistributionType(),
+            form -> form.getDepthToSpillPoint().getNormal().getMin(),
+            form -> form.getDepthToSpillPoint().getNormal().getP99(),
+            form -> form.getDepthToSpillPoint().getNormal().getP90(),
+            form -> form.getDepthToSpillPoint().getNormal().getMode(),
+            form -> form.getDepthToSpillPoint().getNormal().getP50(),
+            form -> form.getDepthToSpillPoint().getNormal().getMean(),
+            form -> form.getDepthToSpillPoint().getNormal().getP10(),
+            form -> form.getDepthToSpillPoint().getNormal().getP1(),
+            form -> form.getDepthToSpillPoint().getNormal().getMax(),
+            form -> form.getDepthToSpillPoint().getNormal().getConstant(),
+            form -> form.getDepthToSpillPoint().getNormal().getComments(),
+            form -> form.getProductiveArea().getProbabilityDistributionType(),
+            form -> form.getProductiveArea().getNormal().getMin(),
+            form -> form.getProductiveArea().getNormal().getP99(),
+            form -> form.getProductiveArea().getNormal().getP90(),
+            form -> form.getProductiveArea().getNormal().getMode(),
+            form -> form.getProductiveArea().getNormal().getP50(),
+            form -> form.getProductiveArea().getNormal().getMean(),
+            form -> form.getProductiveArea().getNormal().getP10(),
+            form -> form.getProductiveArea().getNormal().getP1(),
+            form -> form.getProductiveArea().getNormal().getMax(),
+            form -> form.getProductiveArea().getNormal().getConstant(),
+            form -> form.getProductiveArea().getNormal().getComments())
+        .containsExactly(
+            trapProperty.getTrapType(),
+            trapProperty.getOtherTrapType(),
+            trapProperty.getTrapDescription(),
+            fileUploadFormList,
+            trapProperty.getLatitudeDegrees(),
+            trapProperty.getLatitudeMinutes(),
+            trapProperty.getLatitudeSeconds(),
+            trapProperty.getLongitudeDegrees(),
+            trapProperty.getLongitudeMinutes(),
+            trapProperty.getLongitudeSeconds(),
+            trapProperty.getLongitudeHemisphere(),
+            trapProperty.getDatum(),
+            trapProperty.getCentreOfInterestQuadrantBlock(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getNormal().getMin(),
+            probabilityDistributionForm.getNormal().getP99(),
+            probabilityDistributionForm.getNormal().getP90(),
+            probabilityDistributionForm.getNormal().getMode(),
+            probabilityDistributionForm.getNormal().getP50(),
+            probabilityDistributionForm.getNormal().getMean(),
+            probabilityDistributionForm.getNormal().getP10(),
+            probabilityDistributionForm.getNormal().getP1(),
+            probabilityDistributionForm.getNormal().getMax(),
+            probabilityDistributionForm.getNormal().getConstant(),
+            probabilityDistributionForm.getNormal().getComments(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getNormal().getMin(),
+            probabilityDistributionForm.getNormal().getP99(),
+            probabilityDistributionForm.getNormal().getP90(),
+            probabilityDistributionForm.getNormal().getMode(),
+            probabilityDistributionForm.getNormal().getP50(),
+            probabilityDistributionForm.getNormal().getMean(),
+            probabilityDistributionForm.getNormal().getP10(),
+            probabilityDistributionForm.getNormal().getP1(),
+            probabilityDistributionForm.getNormal().getMax(),
+            probabilityDistributionForm.getNormal().getConstant(),
+            probabilityDistributionForm.getNormal().getComments(),
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getNormal().getMin(),
+            probabilityDistributionForm.getNormal().getP99(),
+            probabilityDistributionForm.getNormal().getP90(),
+            probabilityDistributionForm.getNormal().getMode(),
+            probabilityDistributionForm.getNormal().getP50(),
+            probabilityDistributionForm.getNormal().getMean(),
+            probabilityDistributionForm.getNormal().getP10(),
+            probabilityDistributionForm.getNormal().getP1(),
+            probabilityDistributionForm.getNormal().getMax(),
+            probabilityDistributionForm.getNormal().getConstant(),
+            probabilityDistributionForm.getNormal().getComments()
+        );
+  }
+
+  @Test
+  void trapPropertiesEntityToForm_existingDiscoveryEntity_thenPopulatedForm() {
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+
+    var trapProperty = getTrapProperty(discoverySubmissionDetail);
+    when(trapPropertiesPersistenceService.getTrapProperty(discoverySubmissionDetail)).thenReturn(Optional.of(trapProperty));
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY))
+        .thenReturn(probabilityDistributionForm);
+    var fileUploadFormList = List.of(mock(FileUploadForm.class));
+    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(discoverySubmissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP))
+        .thenReturn(fileUploadFormList);
+    assertThat(trapPropertiesFormService.getTrapPropertiesForm(discoverySubmissionDetail))
         .extracting(
             TrapPropertiesForm::getTrapType,
             TrapPropertiesForm::getOtherTrapType,

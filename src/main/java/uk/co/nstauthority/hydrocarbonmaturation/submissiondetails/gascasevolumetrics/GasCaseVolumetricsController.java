@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
@@ -85,12 +86,6 @@ public class GasCaseVolumetricsController {
   private ModelAndView getGasCaseVolumetricsModelAndView(GasCaseVolumetricsForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/gasCaseVolumetrics")
         .addObject("form", form)
-        .addObject("gasFormationVolumeFactorTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY))
-        .addObject("gasHydrocarbonSaturationTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION))
         .addObject("condensateGasRatioLifeOfFieldTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD))
@@ -105,6 +100,26 @@ public class GasCaseVolumetricsController {
         .addObject("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
+
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      modelAndView
+          .addObject("gasFormationVolumeFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT))
+          .addObject("gasHydrocarbonSaturationTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      modelAndView
+          .addObject("gasFormationVolumeFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY))
+          .addObject("gasHydrocarbonSaturationTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY));
+    }
+
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
   }

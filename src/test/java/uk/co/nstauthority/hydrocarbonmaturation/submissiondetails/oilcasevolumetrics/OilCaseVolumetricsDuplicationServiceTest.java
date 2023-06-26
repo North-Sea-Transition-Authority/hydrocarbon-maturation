@@ -22,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -100,12 +101,29 @@ class OilCaseVolumetricsDuplicationServiceTest {
   }
 
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstances(SubmissionDetail oldSubmissionDetail) {
-    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-        ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR,
-        ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION,
-        ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
-    )));
+    var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      return when(
+          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              Set.of(
+                  ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
+                  ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+                  ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT,
+                  ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
+              )));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      return when(
+          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              Set.of(
+                  ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY,
+                  ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
+                  ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY,
+                  ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
+              )));
+    }
+    return when(
+        probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(eq(oldSubmissionDetail),
+            any()));
   }
 
   private static Stream<Arguments> allDiscoveryAndProspectSubmissionTypes() {

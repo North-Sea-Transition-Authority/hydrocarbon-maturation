@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolume
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -40,10 +41,28 @@ public class GasCaseVolumetricsFormService implements SubmissionFormService {
   private GasCaseVolumetricsForm submissionDetailToForm(SubmissionDetail submissionDetail) {
     var form = new GasCaseVolumetricsForm();
 
-    form.setGasHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION
-    ));
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      form.setGasHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT
+      ));
+
+      form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT
+      ));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      form.setGasHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY
+      ));
+
+      form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          submissionDetail,
+          ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY
+      ));
+    }
 
     form.setGasExpansionFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
@@ -58,11 +77,6 @@ public class GasCaseVolumetricsFormService implements SubmissionFormService {
     form.setCondensateGasRatioLifeOfField(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
         ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD
-    ));
-
-    form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY
     ));
 
     return form;

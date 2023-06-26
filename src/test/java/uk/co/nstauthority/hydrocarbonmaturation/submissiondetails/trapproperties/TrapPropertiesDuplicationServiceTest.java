@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -160,10 +161,26 @@ class TrapPropertiesDuplicationServiceTest {
   }
 
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstances(SubmissionDetail oldSubmissionDetail) {
-    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-        ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY
-    )));
+    var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      return when(
+          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              Set.of(
+                  ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT,
+                  ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT,
+                  ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT
+              )));
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      return when(
+          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              Set.of(
+                  ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY,
+                  ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY,
+                  ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY
+              )));
+    }
+    return when(
+        probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(eq(oldSubmissionDetail),
+            any()));
   }
 }

@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,8 +29,8 @@ class ProbabilityDistributionPersistenceServiceTest {
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Test
-  void saveProbabilityDistribution() {
-    var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA;
+  void saveProbabilityDistributionWhenNotNull() {
+    var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
     when(probabilityDistributionRepository.findBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance))
@@ -36,7 +39,7 @@ class ProbabilityDistributionPersistenceServiceTest {
     var probabilityDistributionForm = getProbabilityDistributionForm();
 
     var argumentCaptor = ArgumentCaptor.forClass(ProbabilityDistribution.class);
-    probabilityDistributionPersistenceService.saveProbabilityDistribution(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail);
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail);
 
     verify(probabilityDistributionRepository).save(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue())
@@ -75,8 +78,20 @@ class ProbabilityDistributionPersistenceServiceTest {
   }
 
   @Test
+  void saveProbabilityDistributionWhenNotNull_whenNull() {
+    var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
+    var submissionDetail = new SubmissionDetail();
+
+    var emptyProbabilityDistributionForm = new ProbabilityDistributionForm();
+
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, emptyProbabilityDistributionForm, submissionDetail);
+
+    verify(probabilityDistributionRepository, never()).save(any());
+  }
+
+  @Test
   void deleteProbabilityDistribution_verifyMethodCall() {
-    var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA;
+    var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
     probabilityDistributionPersistenceService.deleteProbabilityDistribution(probabilityDistributionFieldInstance, submissionDetail);
@@ -86,7 +101,7 @@ class ProbabilityDistributionPersistenceServiceTest {
 
   @Test
   void getProbabilityDistribution_verifyMethodCall() {
-    var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA;
+    var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
     probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, probabilityDistributionFieldInstance);
@@ -97,8 +112,8 @@ class ProbabilityDistributionPersistenceServiceTest {
   @Test
   void getAllProbabilityDistributionsForInstances_verifyMethodCall() {
     var probabilityDistributionFieldInstances = Set.of(
-        ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY
+        ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT
     );
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 

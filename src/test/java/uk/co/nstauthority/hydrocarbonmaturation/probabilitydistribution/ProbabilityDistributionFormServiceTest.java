@@ -22,7 +22,7 @@ class ProbabilityDistributionFormServiceTest {
   @Test
   void probabilityDistributionEntityToForm_NoSavedTypeAndInstanceIsPreset_TypeIsNull() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var instance = ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY;
+    var instance = ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT;
 
     when(probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance))
         .thenReturn(Optional.empty());
@@ -50,7 +50,7 @@ class ProbabilityDistributionFormServiceTest {
   @Test
   void probabilityDistributionEntityToForm_HasSavedTypeAndInstanceIsPreset_TypeIsFromSaved() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var instance = ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT_DISCOVERY;
+    var instance = ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT;
 
     var probabilityDistribution = new ProbabilityDistribution();
     probabilityDistribution.setDistributionType(ProbabilityDistributionType.NORMAL);

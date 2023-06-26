@@ -30,7 +30,7 @@ class GasCaseOutputsPersistenceService {
 
     if (gasCaseOutputsForm.getGasInPlace().getProbabilityDistributionType() != null) {
       var gasInPlace = ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           gasInPlace,
           gasCaseOutputsForm.getGasInPlace(),
           submissionDetail
@@ -39,7 +39,7 @@ class GasCaseOutputsPersistenceService {
 
     if (gasCaseOutputsForm.getGasRecoverableResources().getProbabilityDistributionType() != null) {
       var gasRecoverableResources = ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           gasRecoverableResources,
           gasCaseOutputsForm.getGasRecoverableResources(),
           submissionDetail
@@ -50,7 +50,7 @@ class GasCaseOutputsPersistenceService {
     if (gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources() != null
         && gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources()
         && gasCaseOutputsForm.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType() != null) {
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           associatedCondensateRecoverableResources,
           gasCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
           submissionDetail
@@ -66,7 +66,7 @@ class GasCaseOutputsPersistenceService {
     if (gasCaseOutputsForm.getOilEquivalentRecoverableResources().getProbabilityDistributionType() != null) {
       var oilEquivalentRecoverableResources =
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           oilEquivalentRecoverableResources,
           gasCaseOutputsForm.getOilEquivalentRecoverableResources(),
           submissionDetail

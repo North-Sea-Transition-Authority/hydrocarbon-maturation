@@ -1,9 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -31,18 +34,31 @@ class MixedCaseVolumetricsDuplicationService implements SubmissionSectionDuplica
     }
 
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
-      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-              ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
-              ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION,
-              ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION,
-              ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
-              ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
-              ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
-              ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
-              ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR
-          ))
+      var applicableInstances = new HashSet<>(Set.of(
+          ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+          ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
+          ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+          ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR));
+      var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
+      if (resourceType == ResourceType.PROSPECT) {
+        applicableInstances.addAll(List.of(
+            ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT));
+      } else if (resourceType == ResourceType.DISCOVERY) {
+        applicableInstances.addAll(List.of(
+            ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY,
+            ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY,
+            ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY));
+      }
+
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              applicableInstances)
           .forEach(probabilityDistribution ->
-              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
+              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
+                  probabilityDistribution,
                   ProbabilityDistribution.class));
     }
   }

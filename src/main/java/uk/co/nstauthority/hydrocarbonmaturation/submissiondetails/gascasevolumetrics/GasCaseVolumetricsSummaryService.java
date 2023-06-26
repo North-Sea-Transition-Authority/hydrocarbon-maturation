@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolume
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
@@ -20,38 +21,29 @@ public class GasCaseVolumetricsSummaryService {
   }
 
   public ProbabilityDistributionsFormSummaryView getGasCaseVolumetricsSummaryView(SubmissionDetail submissionDetail) {
+    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+
+    if (resourceType == ResourceType.PROSPECT) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT);
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY);
+
+      listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY);
+    }
+
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR);
+
+    listOfInstances.add(ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD);
+
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR);
+
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-
-    var gasHydrocarbonSaturation =
+    listOfInstances.forEach(instance -> listOfSummaryViews.add(
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION,
-            submissionDetail);
-    listOfSummaryViews.add(gasHydrocarbonSaturation);
-
-    var gasExpansionFactor =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
-            submissionDetail);
-    listOfSummaryViews.add(gasExpansionFactor);
-
-    var condensateGasRatioLifeOfField =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
-            submissionDetail);
-    listOfSummaryViews.add(condensateGasRatioLifeOfField);
-
-    var gasRecoveryFactor =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
-            submissionDetail);
-    listOfSummaryViews.add(gasRecoveryFactor);
-
-    var gasFormationVolumeFactor =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
-            submissionDetail);
-    listOfSummaryViews.add(gasFormationVolumeFactor);
-
+            instance, submissionDetail)));
     return new ProbabilityDistributionsFormSummaryView(listOfSummaryViews);
   }
 }

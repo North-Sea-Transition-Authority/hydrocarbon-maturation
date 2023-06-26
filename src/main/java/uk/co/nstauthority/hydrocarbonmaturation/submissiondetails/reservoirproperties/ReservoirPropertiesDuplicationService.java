@@ -1,10 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -37,30 +38,40 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
                 ReservoirProperty.class)
         );
 
-    var applicableInstances = new HashSet<>(Set.of(
-        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME,
-        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING,
-        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT_DISCOVERY
-    ));
+    var applicableInstances = new HashSet<ProbabilityDistributionFieldInstance>();
 
-    if (newSubmissionDetail.isProspectSubmission()) {
-      applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
-      applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT);
+    var resourceType = newSubmissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      applicableInstances.addAll(List.of(
+          ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
+          ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,
+          ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
+          ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT,
+          ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT));
+
+      if (newSubmissionDetail.isProspectSubmission()) {
+        applicableInstances.addAll(List.of(
+            ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT));
+      } else if (newSubmissionDetail.isDryWellSubmission()
+          && oldSubmissionDetail.hasSameSubmissionType(newSubmissionDetail)) {
+        applicableInstances.addAll(List.of(
+            ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT));
+      }
     }
 
-    if (newSubmissionDetail.isDryWellSubmission()
-        && oldSubmissionDetail.hasSameSubmissionType(newSubmissionDetail)) {
-      applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL);
-      applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
-    }
-
-    if (newSubmissionDetail.isDiscoverySubmission()) {
-      applicableInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
-      applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT);
-      applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
-      applicableInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT);
+    if (resourceType == ResourceType.DISCOVERY) {
+      applicableInstances.addAll(List.of(
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY,
+          ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY,
+          ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY,
+          ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY,
+          ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY,
+          ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT));
     }
 
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {

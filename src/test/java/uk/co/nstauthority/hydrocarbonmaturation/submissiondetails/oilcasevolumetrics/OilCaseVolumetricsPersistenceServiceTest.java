@@ -1,7 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -32,7 +30,7 @@ class OilCaseVolumetricsPersistenceServiceTest {
   }
 
   @Test
-  void saveOilCaseVolumetrics_whenGivenAForm_verifyCreatedEntity() {
+  void saveOilCaseVolumetrics_whenProspect_whenGivenAForm_verifyCreatedEntity() {
     var form = new OilCaseVolumetricsForm();
     form.setOilHydrocarbonSaturation(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setOilFormationVolumeFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
@@ -42,36 +40,64 @@ class OilCaseVolumetricsPersistenceServiceTest {
     oilCaseVolumetricsPersistenceService.saveOilCaseVolumetrics(form, submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
-            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION,
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT,
             form.getOilHydrocarbonSaturation(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
-            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR,
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
             form.getOilRecoveryFactor(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
             form.getAssociatedGasOilRatioLifeOfField(),
             submissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistribution(
-            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
             form.getOilFormationVolumeFactor(),
             submissionDetail);
   }
 
   @Test
-  void saveOilCaseVolumetrics_whenGivenEmptyForm_verifyNothingSaved() {
+  void saveOilCaseVolumetrics_whenDiscovery_whenGivenAForm_verifyCreatedEntity() {
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+
     var form = new OilCaseVolumetricsForm();
+    form.setOilHydrocarbonSaturation(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
+    form.setOilFormationVolumeFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
+    form.setOilRecoveryFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
+    form.setAssociatedGasOilRatioLifeOfField(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
 
-    oilCaseVolumetricsPersistenceService.saveOilCaseVolumetrics(form, submissionDetail);
+    oilCaseVolumetricsPersistenceService.saveOilCaseVolumetrics(form, discoverySubmissionDetail);
 
-    verify(probabilityDistributionPersistenceService, never()).saveProbabilityDistribution(any(), any(), any());
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY,
+            form.getOilHydrocarbonSaturation(),
+            discoverySubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY,
+            form.getOilRecoveryFactor(),
+            discoverySubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+            form.getAssociatedGasOilRatioLifeOfField(),
+            discoverySubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
+            form.getOilFormationVolumeFactor(),
+            discoverySubmissionDetail);
   }
 }

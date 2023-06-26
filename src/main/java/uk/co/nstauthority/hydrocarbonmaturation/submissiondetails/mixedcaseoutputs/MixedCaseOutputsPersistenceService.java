@@ -40,7 +40,7 @@ class MixedCaseOutputsPersistenceService {
   private void saveProbabilityDistributionFields(MixedCaseOutputsForm mixedCaseOutputsForm, SubmissionDetail submissionDetail) {
     if (mixedCaseOutputsForm.getOilInPlace().getProbabilityDistributionType() != null) {
       var oilInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           oilInPlace,
           mixedCaseOutputsForm.getOilInPlace(),
           submissionDetail
@@ -50,7 +50,7 @@ class MixedCaseOutputsPersistenceService {
     if (mixedCaseOutputsForm.getOilEquivalentRecoverableResources().getProbabilityDistributionType() != null) {
       var oilEquivalentRecoverableResources =
           ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           oilEquivalentRecoverableResources,
           mixedCaseOutputsForm.getOilEquivalentRecoverableResources(),
           submissionDetail
@@ -62,7 +62,7 @@ class MixedCaseOutputsPersistenceService {
 
     if (hasAssociatedGasRecoverableResources(mixedCaseOutputsForm)
         && mixedCaseOutputsForm.getAssociatedGasRecoverableResources().getProbabilityDistributionType() != null) {
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           associatedGasRecoverableResources,
           mixedCaseOutputsForm.getAssociatedGasRecoverableResources(),
           submissionDetail
@@ -75,7 +75,7 @@ class MixedCaseOutputsPersistenceService {
 
     if (mixedCaseOutputsForm.getGasInPlace().getProbabilityDistributionType() != null) {
       var gasInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           gasInPlace,
           mixedCaseOutputsForm.getGasInPlace(),
           submissionDetail
@@ -85,7 +85,7 @@ class MixedCaseOutputsPersistenceService {
     if (mixedCaseOutputsForm.getGasRecoverableResources().getProbabilityDistributionType() != null) {
       var gasRecoverableResources =
           ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           gasRecoverableResources,
           mixedCaseOutputsForm.getGasRecoverableResources(),
           submissionDetail
@@ -95,7 +95,7 @@ class MixedCaseOutputsPersistenceService {
     if (mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType() != null) {
       var associatedCondensateRecoverableResources =
           ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           associatedCondensateRecoverableResources,
           mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
           submissionDetail
@@ -105,7 +105,7 @@ class MixedCaseOutputsPersistenceService {
     if (mixedCaseOutputsForm.getOilRecoverableResources().getProbabilityDistributionType() != null) {
       var oilRecoverableResources =
           ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES;
-      probabilityDistributionPersistenceService.saveProbabilityDistribution(
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           oilRecoverableResources,
           mixedCaseOutputsForm.getOilRecoverableResources(),
           submissionDetail

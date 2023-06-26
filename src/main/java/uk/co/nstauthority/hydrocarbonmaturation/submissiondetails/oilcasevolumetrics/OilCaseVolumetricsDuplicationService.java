@@ -1,9 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -31,14 +34,25 @@ class OilCaseVolumetricsDuplicationService implements SubmissionSectionDuplicati
     }
 
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
-      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
-              ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR,
-              ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY,
-              ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION,
-              ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
-          ))
+      var applicableInstances = new HashSet<>(
+          Set.of(ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD));
+      var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
+      if (resourceType == ResourceType.PROSPECT) {
+        applicableInstances.addAll(List.of(
+            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT));
+      } else if (resourceType == ResourceType.DISCOVERY) {
+        applicableInstances.addAll(List.of(
+            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY));
+      }
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+              applicableInstances)
           .forEach(probabilityDistribution ->
-              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
+              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
+                  probabilityDistribution,
                   ProbabilityDistribution.class));
     }
   }

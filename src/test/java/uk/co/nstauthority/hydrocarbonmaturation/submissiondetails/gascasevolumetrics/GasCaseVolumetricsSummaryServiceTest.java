@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
@@ -53,7 +54,7 @@ class GasCaseVolumetricsSummaryServiceTest {
   }
 
   @Test
-  void getGasCaseVolumetricsSummaryView_filledSummaries() {
+  void getGasCaseVolumetricsSummaryView_whenProspect_filledSummaries() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
         "20", "20", "20",
@@ -63,9 +64,58 @@ class GasCaseVolumetricsSummaryServiceTest {
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))
         .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
+            submissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
+            submissionDetail))
+        .thenReturn(testSummary);
 
     var gasCaseVolumetricsSummaryView = gasCaseVolumetricsSummaryService.getGasCaseVolumetricsSummaryView(
         submissionDetail);
+
+    assertThat(gasCaseVolumetricsSummaryView)
+        .extracting(
+            ProbabilityDistributionsFormSummaryView::probabilityDistributionSummaryViews)
+        .isEqualTo(
+            List.of(
+                testSummary,
+                testSummary,
+                testSummary,
+                testSummary,
+                testSummary)
+        );
+  }
+
+  @Test
+  void getGasCaseVolumetricsSummaryView_whenDiscovery_filledSummaries() {
+    var testSummary = new ProbabilityDistributionSummaryView(
+        "test", "type", "20",
+        "20", "20", "20",
+        "20", "20", "20",
+        "20", "20", "unit", "", "comments");
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(discoverySubmissionDetail)))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY,
+            discoverySubmissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
+            discoverySubmissionDetail))
+        .thenReturn(testSummary);
+
+    var gasCaseVolumetricsSummaryView = gasCaseVolumetricsSummaryService.getGasCaseVolumetricsSummaryView(
+        discoverySubmissionDetail);
 
     assertThat(gasCaseVolumetricsSummaryView)
         .extracting(
