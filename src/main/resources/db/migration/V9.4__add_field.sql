@@ -6,6 +6,8 @@ CREATE TABLE fields (
   corrected_legal_field_name TEXT,
   common_name_for_field TEXT,
   responsible_organisation_id INTEGER,
+  organisation_name TEXT,
+  organisation_registered_number TEXT,
   onshore_offshore TEXT,
   geographical_area TEXT,
   responsible_team_type TEXT,

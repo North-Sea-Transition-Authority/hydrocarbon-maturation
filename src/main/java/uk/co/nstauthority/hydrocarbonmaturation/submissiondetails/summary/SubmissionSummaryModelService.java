@@ -41,7 +41,8 @@ public class SubmissionSummaryModelService {
       case CREATE_DISCOVERY, UPDATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT, RELINQUISHMENT_DISCOVERY ->
           createDiscoverySubmissionSummaryModelAndView(submissionDetail, viewName);
       case CREATE_FIELD ->
-          createFieldSubmissionSummaryModelAndView(submissionDetail, viewName);
+          // No summary view for fields
+          new ModelAndView(viewName);
     };
   }
 
@@ -193,10 +194,5 @@ public class SubmissionSummaryModelService {
 
     var resourceDetailSummaryView = prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail);
     modelAndView.addObject("resourceDetailSummaryView", resourceDetailSummaryView);
-  }
-
-  private ModelAndView createFieldSubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
-    // TODO HM-564 - Add model and view when field submission summary controller is created
-    return null;
   }
 }
