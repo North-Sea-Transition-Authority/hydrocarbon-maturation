@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,13 +47,15 @@ class SubmissionDetailPersistenceServiceTest {
   private RegulatorTeamService regulatorTeamService;
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  @Mock
+  private AreaTeamService areaTeamService;
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
   @BeforeEach
   void setUp() {
     var clock = Clock.fixed(Instant.from(INSTANT), ZoneId.systemDefault());
     submissionDetailPersistenceService = new SubmissionDetailPersistenceService(submissionDetailRepository, clock, userDetailService, resourceGroupService,
-        regulatorTeamService, resourceDetailsPersistenceService);
+        regulatorTeamService, resourceDetailsPersistenceService, areaTeamService);
   }
 
   @Test
@@ -60,11 +63,30 @@ class SubmissionDetailPersistenceServiceTest {
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
     var submissionType = SubmissionType.CREATE_PROSPECT;
-    var resource = new Resource();
     var submission = new Submission();
+    submissionDetailPersistenceService.createInitialSubmissionDetail(submission, submissionType);
     var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
-    var submissionDetail = submissionDetailPersistenceService
-        .createInitialSubmissionDetail(submission, submissionType);
+    verify(submissionDetailRepository, times(1)).save(submissionDetailArgumentCaptor.capture());
+
+    var createdSubmissionDetail = submissionDetailArgumentCaptor.getValue();
+    assertThat(createdSubmissionDetail.getCreatedTimestamp()).isEqualTo(INSTANT);
+    assertThat(createdSubmissionDetail.getSubmitterType()).isEqualTo(SubmitterType.REGULATOR);
+    assertThat(createdSubmissionDetail.getCreatedByWuaId()).isEqualTo(USER_WUA_ID.intValue());
+    assertThat(createdSubmissionDetail.getStatus()).isEqualTo(SubmissionDetailStatus.DRAFT);
+    assertThat(createdSubmissionDetail.getSubmissionType()).isEqualTo(submissionType);
+    assertThat(createdSubmissionDetail.getSubmission()).isEqualTo(submission);
+    assertThat(createdSubmissionDetail.getVersionNumber()).isEqualTo(SubmissionDetailService.FIRST_VERSION);
+  }
+
+  @Test
+  void createInitialSubmissionDetail_whenArea() {
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+    when(areaTeamService.isAreaUser(USER)).thenReturn(true);
+    var submissionType = SubmissionType.CREATE_PROSPECT;
+    var submission = new Submission();
+    submissionDetailPersistenceService.createInitialSubmissionDetail(submission, submissionType);
+    var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
     verify(submissionDetailRepository, times(1)).save(submissionDetailArgumentCaptor.capture());
 
     var createdSubmissionDetail = submissionDetailArgumentCaptor.getValue();
@@ -81,12 +103,11 @@ class SubmissionDetailPersistenceServiceTest {
   void createInitialSubmissionDetail_whenIndustry() {
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+    when(areaTeamService.isAreaUser(USER)).thenReturn(false);
     var submissionType = SubmissionType.CREATE_PROSPECT;
-    var resource = new Resource();
     var submission = new Submission();
+    submissionDetailPersistenceService.createInitialSubmissionDetail(submission, submissionType);
     var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
-    var submissionDetail = submissionDetailPersistenceService.createInitialSubmissionDetail(
-        submission, submissionType);
     verify(submissionDetailRepository, times(1)).save(submissionDetailArgumentCaptor.capture());
 
     var createdSubmissionDetail = submissionDetailArgumentCaptor.getValue();

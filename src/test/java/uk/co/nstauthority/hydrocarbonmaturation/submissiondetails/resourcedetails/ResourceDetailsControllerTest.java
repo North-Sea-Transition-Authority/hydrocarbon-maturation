@@ -162,7 +162,7 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
                     .searchOrganisationUnits(null))),
             entry("responsibleOrganisation", preselectedOrganisation),
             entry("resourceType", submissionDetail.getSubmission().getResource().getType().name().toLowerCase()),
-            entry("isRegulator", false),
+            entry("isRegulatorOrAreaTeamUser", false),
             entry("relinquishmentSubmission", false)
         );
     assertEquals(ResourceDetailsForm.class, modelMap.get("form").getClass());

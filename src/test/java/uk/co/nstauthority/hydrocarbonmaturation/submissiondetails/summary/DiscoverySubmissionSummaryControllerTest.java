@@ -215,7 +215,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
             entry("pageName", PAGE_NAME),
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
             entry("submittable", true),
-            entry("isRegulator", false),
+            entry("isRegulatorOrAreaTeamUser", false),
             entry("gasFluidPropertiesSummaryView", gasFluidPropertySummaryView),
             entry("generalFluidPropertiesSummaryView", generalFluidPropertySummaryView),
             entry("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView),
@@ -272,7 +272,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     when(submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(
         submissionDetail, VIEW_NAME)
     ).thenReturn(modelAndView);
-    when(submissionSummaryFormService.isRegulator()).thenReturn(false);
+    when(submissionSummaryFormService.isRegulatorOrAreaTeamUser()).thenReturn(false);
 
   }
 }

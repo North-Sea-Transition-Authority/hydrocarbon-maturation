@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessInterceptorStrategy;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Component
@@ -13,19 +14,23 @@ public class ResourceAccessInterceptorFactory {
   private final OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
   private final UserDetailService userDetailService;
   private final RegulatorTeamService regulatorTeamService;
+  private final AreaTeamService areaTeamService;
 
   @Autowired
   public ResourceAccessInterceptorFactory(RegulatorResourceAccessInterceptorRule regulatorTeamMembershipInterceptorRule,
                                           OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule,
-                                          UserDetailService userDetailService, RegulatorTeamService regulatorTeamService) {
+                                          UserDetailService userDetailService, RegulatorTeamService regulatorTeamService,
+                                          AreaTeamService areaTeamService) {
     this.regulatorTeamMembershipInterceptorRule = regulatorTeamMembershipInterceptorRule;
     this.operatorTeamMembershipInterceptorRule = operatorTeamMembershipInterceptorRule;
     this.userDetailService = userDetailService;
     this.regulatorTeamService = regulatorTeamService;
+    this.areaTeamService = areaTeamService;
   }
 
   public ResourceAccessInterceptorStrategy getResourceAccessInterceptorStrategy() {
-    if (regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail())) {
+    var userDetail = userDetailService.getUserDetail();
+    if (regulatorTeamService.isRegulatorUser(userDetail) || areaTeamService.isAreaUser(userDetail)) {
       return regulatorTeamMembershipInterceptorRule;
     } else {
       return operatorTeamMembershipInterceptorRule;

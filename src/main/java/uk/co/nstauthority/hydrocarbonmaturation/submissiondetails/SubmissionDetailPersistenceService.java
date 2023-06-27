@@ -8,6 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Service
@@ -19,6 +20,7 @@ public class SubmissionDetailPersistenceService {
   private final ResourceGroupService resourceGroupService;
   private final RegulatorTeamService regulatorTeamService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  private final AreaTeamService areaTeamService;
 
   @Autowired
   public SubmissionDetailPersistenceService(SubmissionDetailRepository submissionDetailRepository,
@@ -26,13 +28,15 @@ public class SubmissionDetailPersistenceService {
                                             UserDetailService userDetailService,
                                             ResourceGroupService resourceGroupService,
                                             RegulatorTeamService regulatorTeamService,
-                                            ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
+                                            ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+                                            AreaTeamService areaTeamService) {
     this.submissionDetailRepository = submissionDetailRepository;
     this.clock = clock;
     this.userDetailService = userDetailService;
     this.resourceGroupService = resourceGroupService;
     this.regulatorTeamService = regulatorTeamService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+    this.areaTeamService = areaTeamService;
   }
 
   SubmissionDetail createInitialSubmissionDetail(Submission submission,
@@ -45,7 +49,7 @@ public class SubmissionDetailPersistenceService {
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setSubmission(submission);
     submissionDetail.setVersionNumber(SubmissionDetailService.FIRST_VERSION);
-    if (regulatorTeamService.isRegulatorUser(user)) {
+    if (regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user)) {
       submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
     } else {
       submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);

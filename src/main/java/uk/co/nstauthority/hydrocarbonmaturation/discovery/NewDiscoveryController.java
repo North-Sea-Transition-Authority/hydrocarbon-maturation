@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Controller
@@ -38,16 +39,18 @@ public class NewDiscoveryController {
   private final StartDiscoveryService startDiscoveryService;
   private final UserDetailService userDetailService;
   private final RegulatorTeamService regulatorTeamService;
+  private final AreaTeamService areaTeamService;
 
   @Autowired
   public NewDiscoveryController(ControllerHelperService controllerHelperService,
                                 StartDiscoveryService startDiscoveryService,
                                 UserDetailService userDetailService,
-                                RegulatorTeamService regulatorTeamService) {
+                                RegulatorTeamService regulatorTeamService, AreaTeamService areaTeamService) {
     this.controllerHelperService = controllerHelperService;
     this.startDiscoveryService = startDiscoveryService;
     this.userDetailService = userDetailService;
     this.regulatorTeamService = regulatorTeamService;
+    this.areaTeamService = areaTeamService;
   }
 
   @GetMapping
@@ -77,9 +80,14 @@ public class NewDiscoveryController {
             SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)))
         .addObject("resourceType",
             ResourceType.DISCOVERY.getDisplayName().toLowerCase())
-        .addObject("isRegulator", regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail()))
+        .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser())
         .addObject("form", form)
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore());
+  }
+
+  private boolean isRegulatorOrAreaTeamUser() {
+    var userDetail = userDetailService.getUserDetail();
+    return regulatorTeamService.isRegulatorUser(userDetail) || areaTeamService.isAreaUser(userDetail);
   }
 }
 

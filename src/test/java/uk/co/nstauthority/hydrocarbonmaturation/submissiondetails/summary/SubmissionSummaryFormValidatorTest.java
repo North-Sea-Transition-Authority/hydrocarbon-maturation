@@ -37,7 +37,7 @@ class SubmissionSummaryFormValidatorTest {
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
-  void validate_whenChecked_whenRegulator_noErrors(Boolean submittable) {
+  void validate_whenChecked_whenRegulatorOrAreaTeamUser_noErrors(Boolean submittable) {
     var form = new SubmissionSummaryForm();
     form.setCompleteWithoutMandatoryInformation(true);
     var bindingResult = new BeanPropertyBindingResult(form, "form");

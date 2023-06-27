@@ -81,6 +81,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
   void showSearchResourceRecordsScreen_whenOperator_assertStatusOk() throws Exception {
     var form = new SearchResourceRecordsForm();
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+    when(areaTeamService.isAreaUser(USER)).thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchResourceRecordsController.class)
                 .showSearchResourceRecordsScreen(null)))
@@ -92,7 +93,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchResourceRecordsScreen_whenRegulator_whenFilterInSessionAndShowResults_verifyMethodCalls() throws Exception {
     var operatorQueryService = mock(OperatorResourceRecordQueryService.class);
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
     when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
         .thenReturn(operatorQueryService);
     mockMvc.perform(
@@ -147,8 +148,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
 
   @Test
   void showSearchResourceRecordsScreenModelAndView_whenRegulator_assertModelProperties() throws Exception {
-    when(regulatorTeamService.isRegulatorUser(USER))
-        .thenReturn(true);
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null)))
                 .with(user(USER)))
@@ -160,7 +160,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
         .contains(
             entry("pageTitle", SearchResourceRecordsController.PAGE_TITLE),
             entry("filtersAdded", false),
-            entry("isRegulator", true),
+            entry("isRegulatorOrAreaTeamUser", true),
             entry("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
                 .clearSearchResourceRecordFilter(null, null))),
             entry("resourceRecordSearchResultItems", Collections.emptyList()),

@@ -238,7 +238,7 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
             entry("pageName", PAGE_NAME),
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
             entry("submittable", true),
-            entry("isRegulator", true),
+            entry("isRegulatorOrAreaTeamUser", true),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("hydrocarbonCaseSummaryView", hydrocarbonCaseSummaryView),
@@ -284,6 +284,6 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
         submissionDetail,
         VIEW_NAME
     )).thenReturn(modelAndView);
-    when(submissionSummaryFormService.isRegulator()).thenReturn(true);
+    when(submissionSummaryFormService.isRegulatorOrAreaTeamUser()).thenReturn(true);
   }
 }

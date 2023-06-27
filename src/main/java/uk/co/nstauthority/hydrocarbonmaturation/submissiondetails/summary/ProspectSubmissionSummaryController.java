@@ -89,7 +89,7 @@ public class ProspectSubmissionSummaryController {
         .addObject("pageName", PAGE_NAME)
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())))
         .addObject("submittable", submissionReadyService.isSubmissionSubmittable(submissionDetail))
-        .addObject("isRegulator", submissionSummaryFormService.isRegulator());
+        .addObject("isRegulatorOrAreaTeamUser", submissionSummaryFormService.isRegulatorOrAreaTeamUser());
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
 

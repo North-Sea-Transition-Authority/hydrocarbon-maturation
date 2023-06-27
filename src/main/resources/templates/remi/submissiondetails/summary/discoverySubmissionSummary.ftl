@@ -8,6 +8,7 @@
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="submittable" type="Boolean" -->
+<#-- @ftlvariable name="isRegulatorOrAreaTeamUser" type="Boolean" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="oilOnlyDiscovery" type="Boolean" -->
@@ -39,7 +40,7 @@
 
 <#if !submittable>
   <#assign notificationBanner>
-      <@banner.submissionSummaryNotificationBanner isRegulator=isRegulator/>
+      <@banner.submissionSummaryNotificationBanner isRegulator=isRegulatorOrAreaTeamUser/>
   </#assign>
 <#else>
   <#assign notificationBanner = ""/>
@@ -80,14 +81,14 @@
       sourceAndSealSummaryView=sourceAndSealSummaryView
       trapPropertiesSummaryView=trapPropertiesSummaryView
       resourceDetailSummaryView=resourceDetailSummaryView/>
-      <#if !submittable && isRegulator>
+      <#if !submittable && isRegulatorOrAreaTeamUser>
         <div class="govuk-form-group <#if errorList?has_content>govuk-form-group--error</#if>">
             <@fdsCheckbox.checkbox
               labelText="I want to complete this submission without providing all the required information"
               path="form.completeWithoutMandatoryInformation"/>
         </div>
       </#if>
-    <#if isRegulator || submittable>
+    <#if isRegulatorOrAreaTeamUser || submittable>
       <@fdsAction.submitButtons
         primaryButtonText="Submit"
         secondaryLinkText="Back to task list"

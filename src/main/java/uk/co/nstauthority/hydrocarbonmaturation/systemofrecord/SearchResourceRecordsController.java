@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Controller
@@ -36,16 +37,18 @@ public class SearchResourceRecordsController {
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
   private final RegulatorTeamService regulatorTeamService;
   private final UserDetailService userDetailService;
+  private final AreaTeamService areaTeamService;
 
   @Autowired
   public SearchResourceRecordsController(SearchResourceRecordsService searchResourceRecordsService,
                                          ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
                                          RegulatorTeamService regulatorTeamService,
-                                         UserDetailService userDetailService) {
+                                         UserDetailService userDetailService, AreaTeamService areaTeamService) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
+    this.areaTeamService = areaTeamService;
   }
 
   @GetMapping
@@ -60,7 +63,7 @@ public class SearchResourceRecordsController {
               form,
               resourceRecordQueryServiceFactory.getQueryServiceStrategy()),
           FiltersAdded.YES,
-          regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail())
+          isRegulatorOrAreaTeamUser()
       );
     }
 
@@ -86,20 +89,20 @@ public class SearchResourceRecordsController {
   }
 
   private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form) {
-    var isRegulator = regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail());
-    if (isRegulator) {
+    var isRegulatorOrAreaTeamUser = isRegulatorOrAreaTeamUser();
+    if (isRegulatorOrAreaTeamUser) {
       form.setShowOnlyPreferredViews(true);
     }
-    return getModelAndView(form, Collections.emptyList(), FiltersAdded.NO, isRegulator);
+    return getModelAndView(form, Collections.emptyList(), FiltersAdded.NO, isRegulatorOrAreaTeamUser);
   }
 
   private ModelAndView getModelAndView(SearchResourceRecordsForm form,
                                        List<ResourceRecordSearchResultItem> resourceRecordSearchResults,
                                        FiltersAdded filtersAdded,
-                                       boolean isRegulator) {
+                                       boolean isRegulatorOrAreaTeamUser) {
     return new ModelAndView("remi/systemofrecord/searchResourceRecords")
         .addObject("form", form)
-        .addObject("isRegulator", isRegulator)
+        .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser)
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("filtersAdded", filtersAdded.isHasFilters())
         .addObject("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
@@ -128,5 +131,10 @@ public class SearchResourceRecordsController {
     var filter = new SearchResourceRecordsFilter();
     filter.clearFilter();
     return filter;
+  }
+
+  private boolean isRegulatorOrAreaTeamUser() {
+    var userDetail = userDetailService.getUserDetail();
+    return regulatorTeamService.isRegulatorUser(userDetail) || areaTeamService.isAreaUser(userDetail);
   }
 }

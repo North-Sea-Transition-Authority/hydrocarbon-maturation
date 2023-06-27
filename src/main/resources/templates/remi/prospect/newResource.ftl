@@ -11,7 +11,7 @@
   pageSize=PageSize.TWO_THIRDS_COLUMN
   backLinkUrl=springUrl(backLinkUrl)
   errorItems=errorList>
-  <#if isRegulator>
+  <#if isRegulatorOrAreaTeamUser>
     <#assign isOptional = true>
   <#else>
     <#assign isOptional = false>

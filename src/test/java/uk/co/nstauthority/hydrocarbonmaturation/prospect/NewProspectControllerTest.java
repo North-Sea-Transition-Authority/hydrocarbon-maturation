@@ -31,9 +31,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
@@ -74,7 +74,7 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
             "organisationUnitEndpoint",
             "form",
             "resourceType",
-            "isRegulator",
+            "isRegulatorOrAreaTeamUser",
             "onshoreOffshore")
         .containsExactly(
             ReverseRouter.route(on(StartProspectController.class).getStartPage()),
@@ -133,7 +133,7 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
             "organisationUnitEndpoint",
             "form",
             "resourceType",
-            "isRegulator",
+            "isRegulatorOrAreaTeamUser",
             "onshoreOffshore")
         .containsExactly(
             ReverseRouter.route(on(StartProspectController.class).getStartPage()),

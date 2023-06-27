@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -43,19 +44,21 @@ public class ResourceDetailsController {
   private final UserDetailService userDetailService;
   private final RegulatorTeamService regulatorTeamService;
   private final SubmissionDetailService submissionDetailService;
+  private final AreaTeamService areaTeamService;
 
   @Autowired
   public ResourceDetailsController(ControllerHelperService controllerHelperService,
                                    ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                    ResourceDetailsFormService resourceDetailsFormService,
                                    UserDetailService userDetailService, RegulatorTeamService regulatorTeamService,
-                                   SubmissionDetailService submissionDetailService) {
+                                   SubmissionDetailService submissionDetailService, AreaTeamService areaTeamService) {
     this.controllerHelperService = controllerHelperService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.resourceDetailsFormService = resourceDetailsFormService;
     this.userDetailService = userDetailService;
     this.regulatorTeamService = regulatorTeamService;
     this.submissionDetailService = submissionDetailService;
+    this.areaTeamService = areaTeamService;
   }
 
   @GetMapping
@@ -89,13 +92,17 @@ public class ResourceDetailsController {
             .getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
         .addObject("form", form)
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
-        .addObject("isRegulator",
-            regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail()))
+        .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser())
         .addObject("relinquishmentSubmission",
             submissionDetail.isDiscoveryRelinquishment()
                 || submissionDetail.isProspectRelinquishment());
 
     return TaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+  }
+
+  private boolean isRegulatorOrAreaTeamUser() {
+    var userDetail = userDetailService.getUserDetail();
+    return regulatorTeamService.isRegulatorUser(userDetail) || areaTeamService.isAreaUser(userDetail);
   }
 }

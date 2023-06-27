@@ -75,7 +75,7 @@
         <@fdsSearch.searchFilterItem itemName="Geographical area">
           <@fdsSearch.searchCheckboxes path="form.geographicalArea" checkboxes=geographicalArea/>
         </@fdsSearch.searchFilterItem>
-        <#if isRegulator>
+        <#if isRegulatorOrAreaTeamUser>
           <@fdsSearch.searchFilterItem itemName="Preferred view">
             <@fdsCheckbox.checkboxGroup smallCheckboxes=true path="form.showOnlyPreferredViews">
               <@fdsCheckbox.checkbox path="form.showOnlyPreferredViews" labelText="Show only preferred views"/>

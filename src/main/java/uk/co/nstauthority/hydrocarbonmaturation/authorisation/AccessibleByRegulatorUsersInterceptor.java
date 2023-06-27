@@ -14,6 +14,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Component
@@ -27,12 +28,15 @@ public class AccessibleByRegulatorUsersInterceptor extends AbstractHandlerInterc
 
   private final UserDetailService userDetailService;
   private final RegulatorTeamService regulatorTeamService;
+  private final AreaTeamService areaTeamService;
 
   @Autowired
-  public AccessibleByRegulatorUsersInterceptor(UserDetailService userDetailService, PermissionService permissionService,
-                                               RegulatorTeamService regulatorTeamService) {
+  public AccessibleByRegulatorUsersInterceptor(UserDetailService userDetailService,
+                                               RegulatorTeamService regulatorTeamService,
+                                               AreaTeamService areaTeamService) {
     this.userDetailService = userDetailService;
     this.regulatorTeamService = regulatorTeamService;
+    this.areaTeamService = areaTeamService;
   }
 
   @Override
@@ -46,7 +50,7 @@ public class AccessibleByRegulatorUsersInterceptor extends AbstractHandlerInterc
 
       var user = userDetailService.getUserDetail();
 
-      if (!regulatorTeamService.isRegulatorUser(user)) {
+      if (!(regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user))) {
 
         var errorMessage = "User with ID %s is not a regulator user".formatted(user.wuaId());
 

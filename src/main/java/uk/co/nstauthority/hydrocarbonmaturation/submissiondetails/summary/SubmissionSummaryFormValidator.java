@@ -13,7 +13,7 @@ class SubmissionSummaryFormValidator implements SmartValidator {
   public void validate(Object target, Errors errors, Object... validationHints) {
     var hints = extractValidatorHints(validationHints);
 
-    if (!hints.isCompleted() && hints.isRegulator()) {
+    if (!hints.isCompleted() && hints.isRegulatorOrAreaTeamUser()) {
       validate(target, errors);
     }
   }

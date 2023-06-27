@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -20,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +38,9 @@ class SubmissionSummaryFormServiceTest {
 
   @Mock
   private RegulatorTeamService regulatorTeamService;
+
+  @Mock
+  private AreaTeamService areaTeamService;
 
   @InjectMocks
   private SubmissionSummaryFormService submissionSummaryFormService;
@@ -66,7 +71,7 @@ class SubmissionSummaryFormServiceTest {
     assertThat(hintsCaptor.getValue())
         .extracting(
             SubmitValidatorHints::isCompleted,
-            SubmitValidatorHints::isRegulator)
+            SubmitValidatorHints::isRegulatorOrAreaTeamUser)
         .containsExactly(
             submissionSubmittable,
             false
@@ -74,19 +79,27 @@ class SubmissionSummaryFormServiceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(booleans = {true, false})
-  void isRegulator_verifyMethodCall(boolean isRegulator) {
+  @CsvSource(value = { "true, true",
+      "true, false",
+      "false, true"})
+  void isRegulator_verifyMethodCall(boolean isRegulatorUser, boolean isAreaUser) {
     var user = ServiceUserDetailTestUtil.Builder().build();
     when(userDetailService.getUserDetail()).thenReturn(user);
-    when(regulatorTeamService.isRegulatorUser(user)).thenReturn(isRegulator);
-    var result = submissionSummaryFormService.isRegulator();
+    when(regulatorTeamService.isRegulatorUser(user)).thenReturn(isRegulatorUser);
+    if (!isRegulatorUser) {
+      when(areaTeamService.isAreaUser(user)).thenReturn(isAreaUser);
+    }
+    var result = submissionSummaryFormService.isRegulatorOrAreaTeamUser();
 
-    if (isRegulator) {
+    if (isRegulatorUser || isAreaUser) {
       assertThat(result).isTrue();
     } else {
       assertThat(result).isFalse();
     }
 
     verify(regulatorTeamService).isRegulatorUser(user);
+    if (!isRegulatorUser) {
+      verify(areaTeamService).isAreaUser(user);
+    }
   }
 }
