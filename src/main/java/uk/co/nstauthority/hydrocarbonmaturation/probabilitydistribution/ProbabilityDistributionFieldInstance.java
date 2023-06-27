@@ -51,7 +51,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Average net pay thickness"
   ),
   AVERAGE_NET_PAY_THICKNESS_DISCOVERY(
-      List.of(BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.M_TVT,
       "Average net pay thickness"
   ),
