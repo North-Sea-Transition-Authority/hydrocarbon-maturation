@@ -56,19 +56,19 @@ public class TrapPropertiesSummaryService {
         ? trapProperty.getLatitudeDegrees().toString() + "°"
         : "";
     var latitudeMinutes = trapProperty.getLatitudeMinutes() != null
-        ? trapProperty.getLatitudeMinutes().toString() + "''"
+        ? trapProperty.getLatitudeMinutes().toString() + "'"
         : "";
     var latitudeSeconds = trapProperty.getLatitudeSeconds() != null
-        ? trapProperty.getLatitudeSeconds().toString() + "'"
+        ? trapProperty.getLatitudeSeconds().toString() + "''"
         : "";
     var longitudeDegrees = trapProperty.getLongitudeDegrees() != null
         ? trapProperty.getLongitudeDegrees().toString() + "°"
         : "";
     var longitudeMinutes = trapProperty.getLongitudeMinutes() != null
-        ? trapProperty.getLongitudeMinutes().toString() + "''"
+        ? trapProperty.getLongitudeMinutes().toString() + "'"
         : "";
     var longitudeSeconds = trapProperty.getLongitudeSeconds() != null
-        ? trapProperty.getLongitudeSeconds().toString() + "'"
+        ? trapProperty.getLongitudeSeconds().toString() + "''"
         : "";
 
     var longitudeHemisphere = trapProperty.getLongitudeHemisphere() != null
