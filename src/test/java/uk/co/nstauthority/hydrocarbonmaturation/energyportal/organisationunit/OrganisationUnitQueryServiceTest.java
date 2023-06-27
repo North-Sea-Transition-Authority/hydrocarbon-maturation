@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationPro
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -58,6 +59,8 @@ class OrganisationUnitQueryServiceTest {
 
   @Mock
   private SearchSelectorService searchSelectorService;
+  @Mock
+  private AreaTeamService areaTeamService;
 
   private OrganisationUnitQueryService organisationUnitQueryService;
 
@@ -69,7 +72,10 @@ class OrganisationUnitQueryServiceTest {
         userDetailService,
         industryTeamService,
         regulatorTeamService,
-        organisationGroupQueryService, searchSelectorService);
+        organisationGroupQueryService,
+        searchSelectorService,
+        areaTeamService
+    );
   }
 
   @Test

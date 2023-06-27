@@ -218,19 +218,20 @@ public class SubmissionCreateService {
     var userDetail = userDetailService.getUserDetail();
     var resourceTypeOptions = ResourceType.getResourceTypes();
 
-    // TODO HM-526: When fields are added change this to be based on data dictionary,
-    //  'What type of resources do you want to submit information for?'
-    resourceTypeOptions.remove(ResourceType.FIELD.name());
-
     var isNotIndustrySubmitter = !industryTeamService.isSubmitter(userDetail);
     var isNotExplorationTeam = !regulatorTeamService.isExploration(userDetail);
+    var isNotAreaTeamMember = !areaTeamService.isAreaTeamMember(userDetail);
+
     if (isNotIndustrySubmitter && isNotExplorationTeam) {
       resourceTypeOptions.remove(ResourceType.PROSPECT.name());
     }
 
-    var isNotAreaTeamMember = !areaTeamService.isAreaTeamMember(userDetail);
     if (isNotIndustrySubmitter && isNotExplorationTeam && isNotAreaTeamMember) {
       resourceTypeOptions.remove(ResourceType.DISCOVERY.name());
+    }
+
+    if (isNotAreaTeamMember) {
+      resourceTypeOptions.remove(ResourceType.FIELD.name());
     }
 
     return resourceTypeOptions;

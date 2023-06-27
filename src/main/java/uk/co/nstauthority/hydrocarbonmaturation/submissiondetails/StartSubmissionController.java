@@ -13,6 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryPurposeController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPurposeController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectPurposeController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -56,7 +57,7 @@ public class StartSubmissionController {
         () -> switch (form.getResourceType()) {
           case PROSPECT -> ReverseRouter.redirect(on(ProspectPurposeController.class).getProspectPurposeForm());
           case DISCOVERY -> ReverseRouter.redirect(on(DiscoveryPurposeController.class).getDiscoveryPurposeForm());
-          case FIELD -> ReverseRouter.redirect(on(StartSubmissionController.class).getSubmissionType());
+          case FIELD -> ReverseRouter.redirect(on(FieldPurposeController.class).getFieldPurposeForm());
         });
   }
 

@@ -127,7 +127,7 @@ public class SubmissionDetailService {
             .map(this::getLatestApprovedProspectSubmissionForResource)
             .flatMap(Optional::stream)
             .min(Comparator.comparing(SubmissionDetail::getApprovedTimestamp));
-      case CREATE_PROSPECT, CREATE_DISCOVERY ->
+      case CREATE_PROSPECT, CREATE_DISCOVERY, CREATE_FIELD ->
           Optional.of(submissionDetail);
     };
   }

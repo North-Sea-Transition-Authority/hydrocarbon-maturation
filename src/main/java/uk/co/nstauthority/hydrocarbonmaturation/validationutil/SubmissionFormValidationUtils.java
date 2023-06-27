@@ -37,8 +37,8 @@ public class SubmissionFormValidationUtils {
   }
 
   public static RegulatorManagedInformationFormValidatorHints extractRegulatorManagedInformationValidatorHints(
-      Object[] validationHInts) {
-    return Arrays.stream(validationHInts)
+      Object[] validationHints) {
+    return Arrays.stream(validationHints)
         .filter(RegulatorManagedInformationFormValidatorHints.class::isInstance)
         .map(RegulatorManagedInformationFormValidatorHints.class::cast)
         .findFirst()

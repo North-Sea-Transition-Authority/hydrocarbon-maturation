@@ -1,0 +1,195 @@
+package uk.co.nstauthority.hydrocarbonmaturation.field;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+
+@ExtendWith(MockitoExtension.class)
+class NewFieldPersistenceServiceTest {
+  @Mock
+  private FieldRepository fieldRepository;
+  @Mock
+  private OrganisationUnitQueryService organisationUnitQueryService;
+  @InjectMocks
+  private NewFieldPersistenceService underTest;
+
+  @Nested
+  class WhenCreatingNewField {
+    private NewFieldForm form;
+    @Mock
+    private Resource resource;
+    private final String LEGAL_NAME = "legal name";
+    private final String CORRECTED_LEGAL_NAME = "corrected legal name";
+    private final String COMMON_NAME = "common name";
+    private final String RESPONSIBLE_ORGANISATION_ID = "123";
+    private final OnshoreOffshore ONSHORE_OFFSHORE = OnshoreOffshore.OFFSHORE;
+    private final DeterminationStatus DETERMINATION_STATUS = DeterminationStatus.DETERMINED;
+    private final DecimalInput FIELD_NUMBER = DecimalInput.createDecimalInput(1);
+    private final boolean INFRASTRUCTURE_HOST = true;
+    private final GeographicalArea GEOGRAPHICAL_AREA = GeographicalArea.NORTHERN_NORTH_SEA;
+    private final ResponsibleTeamType RESPONSIBLE_TEAM_TYPE = ResponsibleTeamType.ONSHORE;
+    private final String RESPONSIBLE_ORGANISATION_NAME = "responsible organisation";
+    private final String REGISTERED_NUMBER = "123";
+
+    @BeforeEach
+    void setup() {
+      form = new NewFieldForm();
+      form.setLegalFieldName(LEGAL_NAME);
+      form.setCorrectedLegalFieldName(CORRECTED_LEGAL_NAME);
+      form.setCommonNameForField(COMMON_NAME);
+      form.setResponsibleOrganisationId(RESPONSIBLE_ORGANISATION_ID);
+      form.setOnshoreOffshore(ONSHORE_OFFSHORE);
+      form.setGeographicalArea(GEOGRAPHICAL_AREA);
+      form.setResponsibleTeamType(RESPONSIBLE_TEAM_TYPE);
+      form.setDeterminationStatus(DETERMINATION_STATUS);
+      form.setFieldNumber(FIELD_NUMBER);
+      form.setInfrastructureHost(INFRASTRUCTURE_HOST);
+    }
+
+    @Test
+    void statusAutomaticallySet() {
+
+      var result = underTest.createNewField(form, resource);
+      assertThat(result)
+          .extracting(
+              Field::getResource,
+              Field::getFieldStatus
+          )
+          .containsExactly(
+              resource,
+              FieldStatus.UNDER_APPRAISAL_NO_FDP_200
+          );
+    }
+
+    @Test
+    void onshoreSelected_GeographicalAreaAndTeamTypeAutomaticallySet() {
+      form.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
+
+      var result = underTest.createNewField(form, resource);
+      assertThat(result)
+          .extracting(
+              Field::getOnshoreOffshore,
+              Field::getGeographicalArea,
+              Field::getResponsibleTeamType
+          )
+          .containsExactly(
+              OnshoreOffshore.ONSHORE,
+              GeographicalArea.ONSHORE,
+              ResponsibleTeamType.ONSHORE
+          );
+    }
+
+    @Test
+    void responsibleOrganisationFound() {
+      var organisationUnit = OrganisationUnit.newBuilder()
+          .organisationUnitId(Integer.valueOf(RESPONSIBLE_ORGANISATION_ID))
+          .name(RESPONSIBLE_ORGANISATION_NAME)
+          .registeredNumber(REGISTERED_NUMBER)
+          .build();
+      when(organisationUnitQueryService.findOrganisationUnit(anyInt())).thenReturn(Optional.ofNullable(organisationUnit));
+
+      var result = underTest.createNewField(form, resource);
+      assertThat(result)
+          .extracting(
+              Field::getResponsibleOrganisationId,
+              Field::getOrganisationName,
+              Field::getOrganisationRegisteredNumber
+          )
+          .containsExactly(
+              Integer.valueOf(RESPONSIBLE_ORGANISATION_ID),
+              RESPONSIBLE_ORGANISATION_NAME,
+              REGISTERED_NUMBER
+          );
+    }
+
+    @Test
+    void parentFieldSet() {
+      var parentDeterminedField = 1;
+      var field = mock(Field.class);
+      form.setDeterminationStatus(DeterminationStatus.SUB_AREA_OF_DETERMINED_FIELD);
+      form.setParentDeterminedField(String.valueOf(parentDeterminedField));
+      when(fieldRepository.findById(parentDeterminedField)).thenReturn(Optional.ofNullable(field));
+
+      var result = underTest.createNewField(form, resource);
+      assertThat(result.getParentDeterminedField())
+          .isEqualTo(field);
+    }
+
+    @Test
+    void formValuesSetInField() {
+
+      var result = underTest.createNewField(form, resource);
+      assertThat(result)
+          .extracting(
+              Field::getResource,
+              Field::getFieldStatus,
+              Field::getLegalFieldName,
+              Field::getCorrectedLegalFieldName,
+              Field::getCommonNameForField,
+              Field::getResponsibleOrganisationId,
+              Field::getOnshoreOffshore,
+              Field::getGeographicalArea,
+              Field::getResponsibleTeamType,
+              Field::getDeterminationStatus,
+              Field::getFieldNumber,
+              Field::getInfrastructureHost
+          )
+          .containsExactly(
+              resource,
+              FieldStatus.UNDER_APPRAISAL_NO_FDP_200,
+              LEGAL_NAME,
+              CORRECTED_LEGAL_NAME,
+              COMMON_NAME,
+              null,
+              ONSHORE_OFFSHORE,
+              GEOGRAPHICAL_AREA,
+              RESPONSIBLE_TEAM_TYPE,
+              DETERMINATION_STATUS,
+              FIELD_NUMBER.createIntegerOrNull(),
+              INFRASTRUCTURE_HOST
+          );
+
+      verify(fieldRepository).save(result);
+    }
+  }
+
+  @Nested
+  class WhenGettingDeterminedFieldsByCorrectedLegalName {
+    private final String FIELD_NAME = "FIELD_NAME";
+
+    @Test
+    void verifyCalls() {
+      underTest.getDeterminedFieldsByCorrectedLegalName(FIELD_NAME);
+      verify(fieldRepository).findByDeterminationStatusAndCorrectedLegalFieldNameContainingIgnoreCase(DeterminationStatus.DETERMINED, FIELD_NAME);
+    }
+  }
+
+  @Nested
+  class WhenGettingField {
+    private final Integer PARENT_DETERMINED_FIELD_ID = 1;
+
+    @Test
+    void verifyCalls() {
+      underTest.getField(PARENT_DETERMINED_FIELD_ID);
+      verify(fieldRepository).findById(PARENT_DETERMINED_FIELD_ID);
+    }
+  }
+}

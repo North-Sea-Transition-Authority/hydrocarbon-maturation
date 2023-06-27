@@ -27,7 +27,10 @@ public enum SubmissionType implements Displayable {
       Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT), 70),
   RELINQUISHMENT_DISCOVERY("Relinquishment", "Advise of a relinquishment", Set.of(ResourceType.DISCOVERY),
       Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
-          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER), 80);
+          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER), 80),
+  CREATE_FIELD("Field", "Create a new field",
+      Set.of(ResourceType.FIELD), Set.of(RolePermission.ONSHORE_AREA_TEAM_MEMBER,
+      RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER), 90);
 
   private final String typeName;
   private final String displayName;

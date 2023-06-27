@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -44,6 +45,7 @@ public class OrganisationUnitQueryService {
   private final RegulatorTeamService regulatorTeamService;
   private final OrganisationGroupQueryService organisationGroupQueryService;
   private final SearchSelectorService searchSelectorService;
+  private final AreaTeamService areaTeamService;
 
   @Autowired
   public OrganisationUnitQueryService(OrganisationApi organisationApi,
@@ -52,7 +54,8 @@ public class OrganisationUnitQueryService {
                                       IndustryTeamService industryTeamService,
                                       RegulatorTeamService regulatorTeamService,
                                       OrganisationGroupQueryService organisationGroupQueryService,
-                                      SearchSelectorService searchSelectorService) {
+                                      SearchSelectorService searchSelectorService,
+                                      AreaTeamService areaTeamService) {
     this.organisationApi = organisationApi;
     this.energyPortalApiWrapper = energyPortalApiWrapper;
     this.userDetailService = userDetailService;
@@ -60,22 +63,16 @@ public class OrganisationUnitQueryService {
     this.regulatorTeamService = regulatorTeamService;
     this.organisationGroupQueryService = organisationGroupQueryService;
     this.searchSelectorService = searchSelectorService;
+    this.areaTeamService = areaTeamService;
   }
 
   public List<OrganisationUnitDto> getOrganisationSearchableResults(String organisationName) {
     var user = userDetailService.getUserDetail();
     var isRegulatorUser = regulatorTeamService.isRegulatorUser(user);
-    if (isRegulatorUser) {
-      return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-          searchOrganisations(
-              organisationName,
-              requestPurpose,
-              logCorrelationId)
-              .stream()
-              .filter(unit -> !BooleanUtils.isTrue(unit.getIsDuplicate()))
-              .map(this::fromOrganisationUnit)
-              .sorted(Comparator.comparing(OrganisationUnitDto::getOrganisationUnitName))
-              .toList());
+    var isAreaUser = areaTeamService.isAreaUser(user);
+
+    if (isRegulatorUser || isAreaUser) {
+      return searchOrganisationUnitsWithName(organisationName);
     } else {
       var userOrganisationGroupIds = industryTeamService.getOrganisationGroupIdsForUser(user);
       return getOrganisationUnitsByOrganisationGroupsAndName(userOrganisationGroupIds, organisationName);
@@ -109,12 +106,12 @@ public class OrganisationUnitQueryService {
     }
     return findOrganisationUnit(organisationUnitId)
         .map(organisationUnit -> {
-          if (organisationUnit.getRegisteredNumber() != null) {
-            return "%s (%s)"
-                .formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber());
-          } else {
+          if (organisationUnit.getRegisteredNumber() == null) {
             return organisationUnit.getName();
           }
+
+          return "%s (%s)"
+              .formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber());
         })
         .orElse("");
   }
@@ -141,32 +138,45 @@ public class OrganisationUnitQueryService {
         logCorrelationId);
   }
 
+  private List<OrganisationUnitDto> searchOrganisationUnitsWithName(String organisationName) {
+    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
+        searchOrganisations(
+            organisationName,
+            requestPurpose,
+            logCorrelationId)
+            .stream()
+            .filter(unit -> !BooleanUtils.isTrue(unit.getIsDuplicate()))
+            .map(this::fromOrganisationUnit)
+            .sorted(Comparator.comparing(OrganisationUnitDto::getOrganisationUnitName))
+            .toList());
+  }
+
   private List<Integer> organisationGroupIdsFromOrganisationUnit(OrganisationUnit organisationUnit) {
-    if (organisationUnit.getOrganisationGroups() != null) {
-      return organisationUnit.getOrganisationGroups()
-          .stream()
-          .map(OrganisationGroup::getOrganisationGroupId)
-          .filter(Objects::nonNull)
-          .toList();
-    } else {
+    if (organisationUnit.getOrganisationGroups() == null) {
       return List.of();
     }
+
+    return organisationUnit.getOrganisationGroups()
+        .stream()
+        .map(OrganisationGroup::getOrganisationGroupId)
+        .filter(Objects::nonNull)
+        .toList();
   }
 
   private List<OrganisationUnitDto> getOrganisationUnitsByOrganisationGroupsAndName(
       List<Integer> organisationGroupIds, String organisationName) {
-    if (organisationGroupIds != null && !organisationGroupIds.isEmpty()) {
-      return getOrganisationUnitsByGroups(
-          organisationGroupQueryService.getOrganisationGroupsByIds(organisationGroupIds))
-          .stream()
-          .filter(organisationUnit -> !BooleanUtils.isTrue(organisationUnit.getIsDuplicate())
-              && organisationUnit.getName().toLowerCase().contains(organisationName.toLowerCase()))
-          .map(this::fromOrganisationUnit)
-          .sorted(Comparator.comparing(OrganisationUnitDto::getOrganisationUnitName))
-          .toList();
-    } else {
+    if (organisationGroupIds == null || organisationGroupIds.isEmpty()) {
       return List.of();
     }
+
+    return getOrganisationUnitsByGroups(
+        organisationGroupQueryService.getOrganisationGroupsByIds(organisationGroupIds))
+        .stream()
+        .filter(organisationUnit -> !BooleanUtils.isTrue(organisationUnit.getIsDuplicate())
+            && organisationUnit.getName().toLowerCase().contains(organisationName.toLowerCase()))
+        .map(this::fromOrganisationUnit)
+        .sorted(Comparator.comparing(OrganisationUnitDto::getOrganisationUnitName))
+        .toList();
   }
 
   private List<OrganisationUnit> getOrganisationUnitsByGroups(List<OrganisationGroup> organisationGroups) {

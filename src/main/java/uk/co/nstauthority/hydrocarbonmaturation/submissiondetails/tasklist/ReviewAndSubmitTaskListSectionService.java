@@ -43,6 +43,9 @@ public class ReviewAndSubmitTaskListSectionService implements TaskListSectionSer
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(DiscoverySubmissionSummaryController.class)
                   .showSubmissionSummary(submissionDetail.getId()))));
+      case CREATE_FIELD ->
+          // TODO HM-564 - Add task list item when field submission summary controller is created
+          List.of();
     };
   }
 }

@@ -13,7 +13,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Sets;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -349,21 +349,19 @@ class SubmissionCreateServiceTest {
   @MethodSource("calculateGetResourceTypeOptionsForUserConditionArguments")
   void getResourceTypeOptionsForUser(boolean isSubmitter, boolean isExploration, boolean isAreaTeamMember) {
     when(userDetailService.getUserDetail()).thenReturn(USER);
-
     when(industryTeamService.isSubmitter(USER)).thenReturn(isSubmitter);
-    if (!isSubmitter) {
-      when(regulatorTeamService.isExploration(USER)).thenReturn(isExploration);
-    }
-    if (!isSubmitter && !isExploration) {
-      when(areaTeamService.isAreaTeamMember(USER)).thenReturn(isAreaTeamMember);
-    }
+    when(regulatorTeamService.isExploration(USER)).thenReturn(isExploration);
+    when(areaTeamService.isAreaTeamMember(USER)).thenReturn(isAreaTeamMember);
 
-    var resourceTypeOptions = new java.util.HashMap<String, String>(Map.of());
+    var resourceTypeOptions = new HashMap<>();
     if (isSubmitter || isExploration) {
       resourceTypeOptions.put(ResourceType.PROSPECT.name(), ResourceType.PROSPECT.getDisplayName());
     }
     if (isSubmitter || isExploration || isAreaTeamMember) {
       resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getDisplayName());
+    }
+    if (isAreaTeamMember) {
+      resourceTypeOptions.put(ResourceType.FIELD.name(), ResourceType.FIELD.getDisplayName());
     }
 
     assertThat(submissionCreateService.getResourceTypeOptionsForUser()).isEqualTo(resourceTypeOptions);
