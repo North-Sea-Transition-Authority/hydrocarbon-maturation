@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
@@ -32,11 +33,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
     RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
     RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
     RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+@Validated
 public class CorrectionSelectionController {
 
   private final ResourceService resourceService;
   private final CorrectionService correctionService;
-  private final UserDetailService userDetailService;
   private final CorrectionFormValidator correctionFormValidator;
   private final ControllerHelperService controllerHelperService;
   private final SubmissionHistoryQueryService submissionHistoryQueryService;
@@ -44,29 +45,27 @@ public class CorrectionSelectionController {
   @Autowired
   public CorrectionSelectionController(ResourceService resourceService,
                                        CorrectionService correctionService,
-                                       UserDetailService userDetailService,
                                        CorrectionFormValidator correctionFormValidator,
                                        ControllerHelperService controllerHelperService,
                                        SubmissionHistoryQueryService submissionHistoryQueryService) {
     this.resourceService = resourceService;
     this.correctionService = correctionService;
-    this.userDetailService = userDetailService;
     this.correctionFormValidator = correctionFormValidator;
     this.controllerHelperService = controllerHelperService;
     this.submissionHistoryQueryService = submissionHistoryQueryService;
   }
 
   @GetMapping
-  public ModelAndView startCorrection(@PathVariable("resourceId") UUID resourceId) {
+  public ModelAndView startCorrection(@PathVariable("resourceId") UUID resourceId, ServiceUserDetail user) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
             .formatted(resourceId)));
 
-    if (!correctionService.canStartCorrection(resource)) {
+    if (!correctionService.canStartCorrection(resource, user)) {
       throw new ResponseStatusException(
           HttpStatus.FORBIDDEN,
           "User with id %s cannot start a correction for resource %s"
-              .formatted(userDetailService.getUserDetail().wuaId(), resourceId)
+              .formatted(user.wuaId(), resourceId)
       );
     }
     return getCorrectionModelAndView(new CorrectionForm(), resourceId);
@@ -75,13 +74,17 @@ public class CorrectionSelectionController {
   @PostMapping
   public ModelAndView startCorrection(@PathVariable("resourceId") UUID resourceId,
                                       @ModelAttribute("form") CorrectionForm form,
-                                      BindingResult bindingResult) {
-    bindingResult = correctionFormValidator.validateForm(form, bindingResult);
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getCorrectionModelAndView(form, resourceId),
-        () -> ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resourceId))
-    );
+                                      BindingResult bindingResult,
+                                      ServiceUserDetail user) {
+    correctionFormValidator.validate(form, bindingResult);
+    if (bindingResult.hasErrors()) {
+      var modelAndView = getCorrectionModelAndView(form, resourceId);
+      modelAndView.addObject("errorList", controllerHelperService.getErrorItemsFromBindingResult(bindingResult));
+      return modelAndView;
+    } else {
+      var correctionSubmissionDetail = correctionService.startCorrectionForType(form, user);
+      return correctionService.getCorrectionRedirectForType(form, correctionSubmissionDetail);
+    }
   }
 
   private ModelAndView getCorrectionModelAndView(CorrectionForm form, UUID resourceId) {

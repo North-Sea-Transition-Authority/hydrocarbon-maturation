@@ -12,6 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailArgumentResolver;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
@@ -23,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionSt
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortalConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ValidationTypeArgumentResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -45,7 +49,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     HasPermissionInterceptor.class,
     HasTeamPermissionInterceptor.class,
     PermissionService.class,
-    SubmissionStatusInterceptorRule.class})
+    SubmissionStatusInterceptorRule.class,
+    ServiceUserDetailArgumentResolver.class,
+    ValidationTypeArgumentResolver.class
+})
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
 @IncludeTechnicalSupportConfigurationProperties
@@ -74,9 +81,12 @@ public abstract class AbstractControllerTest {
   @Autowired
   protected ControllerHelperService controllerHelperService;
 
+  protected ServiceUserDetail user;
+
   @BeforeEach
-  void setUpUser() {
+  void setupAbstractControllerTest() {
     doCallRealMethod().when(userDetailService).getUserDetail();
+    user = ServiceUserDetailTestUtil.Builder().build();
   }
 
   @TestConfiguration

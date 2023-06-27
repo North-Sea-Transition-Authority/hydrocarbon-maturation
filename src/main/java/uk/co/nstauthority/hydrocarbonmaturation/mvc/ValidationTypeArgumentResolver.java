@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.core.MethodParameter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -15,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
  * or 'Save and complete') into the type of validation which should be performed for each.
  * Should only be used when posting a form page that is using the submitButtons macro.
  */
+@Component
 public class ValidationTypeArgumentResolver implements HandlerMethodArgumentResolver {
 
   @Override

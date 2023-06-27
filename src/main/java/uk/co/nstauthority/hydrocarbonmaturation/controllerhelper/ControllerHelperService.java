@@ -42,7 +42,7 @@ public class ControllerHelperService {
     modelAndView.addObject("errorList", errorList);
   }
 
-  private List<ErrorItem> getErrorItemsFromBindingResult(BindingResult bindingResult) {
+  public List<ErrorItem> getErrorItemsFromBindingResult(BindingResult bindingResult) {
     List<ErrorItem> errorItems = new ArrayList<>();
     var index = 0;
     for (var errorItem: bindingResult.getFieldErrors()) {

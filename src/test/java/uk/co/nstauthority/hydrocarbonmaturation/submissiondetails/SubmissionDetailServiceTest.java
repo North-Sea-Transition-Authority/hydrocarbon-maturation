@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -21,6 +23,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
@@ -271,5 +275,14 @@ class SubmissionDetailServiceTest {
 
     assertThat(result)
         .containsExactly(latestExtantSubmissionDetail);
+  }
+
+  @Test
+  void openCorrectionExists() {
+    var statuses = Set.of(SubmissionDetailStatus.DRAFT);
+    var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    submissionDetailService.openCorrectionExists(statuses, resource);
+    verify(submissionDetailRepository, times(1))
+        .existsSubmissionDetailByCorrectionTrueAndStatusInAndSubmission_Resource(statuses, resource);
   }
 }

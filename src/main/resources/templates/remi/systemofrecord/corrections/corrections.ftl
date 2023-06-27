@@ -6,7 +6,7 @@
 <@defaultPage
 htmlTitle="What do you want to correct?"
 errorItems=errorList
-backLinkEnabled=true>
+backLinkUrl=springUrl(cancelUrl)>
 
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup path="form.correctionType" labelText="What do you want to correct?" fieldsetHeadingSize="h1" fieldsetHeadingClass="govuk-fieldset__legend--xl"  hiddenContent=true>

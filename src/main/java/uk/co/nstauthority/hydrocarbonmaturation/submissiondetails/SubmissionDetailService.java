@@ -87,7 +87,10 @@ public class SubmissionDetailService {
   public List<SubmissionDetail> getExtantSubmissionDetailsForResource(Resource resource) {
     return submissionPersistenceService.getSubmissionsByResource(resource)
         .stream()
-        .map(this::getLatestExtantVersionSubmissionDetailBySubmission)
+        .map(submission -> getLatestExtantVersionSubmissionDetailBySubmissionAndStatuses(
+            submission,
+            Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)
+        ))
         .flatMap(Optional::stream)
         .toList();
   }
@@ -141,10 +144,18 @@ public class SubmissionDetailService {
     return submissionDetailRepository.findAllBySubmission(submission);
   }
 
-  private Optional<SubmissionDetail> getLatestExtantVersionSubmissionDetailBySubmission(Submission submission) {
-    //gets the latest submission detail for submission
+  public Optional<SubmissionDetail> getLatestExtantVersionSubmissionDetailBySubmissionAndStatuses(
+      Submission submission, Set<SubmissionDetailStatus> statuses
+  ) {
     return submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
         submission,
-        Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT));
+        statuses
+    );
+  }
+
+  public boolean openCorrectionExists(Set<SubmissionDetailStatus> statuses, Resource resource) {
+    return submissionDetailRepository.existsSubmissionDetailByCorrectionTrueAndStatusInAndSubmission_Resource(
+        statuses, resource
+    );
   }
 }

@@ -165,9 +165,9 @@ public class ViewResourceRecordController {
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource));
     }
 
-    if (correctionService.canStartCorrection(resource)) {
+    if (correctionService.canStartCorrection(resource, userDetail)) {
       modelAndView.addObject("correctionUrl",
-          ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId)));
+          ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)));
     }
 
     return modelAndView

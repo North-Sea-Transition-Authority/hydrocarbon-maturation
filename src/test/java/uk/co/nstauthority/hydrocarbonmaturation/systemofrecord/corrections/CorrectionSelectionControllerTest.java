@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -28,8 +30,6 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -47,8 +47,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 
 @ContextConfiguration(classes = CorrectionSelectionController.class)
 class CorrectionSelectionControllerTest extends AbstractControllerTest {
-
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @MockBean
   private ResourceService resourceService;
@@ -80,32 +78,33 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
     form = new CorrectionForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
     when(resourceService.getResourceById(resource.getId())).thenReturn(Optional.of(resource));
-    when(permissionService.hasPermission(USER, Set.of(
+    when(permissionService.hasPermission(user, Set.of(
         RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
-    when(correctionService.canStartCorrection(resource)).thenReturn(true);
+    when(correctionService.canStartCorrection(resource, user)).thenReturn(true);
   }
 
   @SecurityTest
   void getCorrectionPage_assertStatusOk() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(CorrectionSelectionController.class)
-                .startCorrection(resourceId)))
-                .with(user(USER)))
+                .startCorrection(resourceId, null)))
+                .with(user(user)))
         .andExpect(status().isOk());
   }
 
   @SecurityTest
-  void postCorrectionPage_assertValidRedirection() throws Exception {
-    when(correctionFormValidator.validateForm(any(), any())).thenReturn(bindingResult);
+  void postCorrectionPage_noErrors_assertStatusOk_verifyRedirectCall() throws Exception {
     mockMvc.perform(
             post(ReverseRouter.route(on(CorrectionSelectionController.class)
-                .startCorrection(resourceId, form, bindingResult)))
-                .with(user(USER))
+                .startCorrection(resourceId, form, bindingResult, null)))
+                .with(user(user))
                 .with(csrf()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId))));
+        .andExpect(status().isOk());
+
+    verify(correctionService, times(1)).startCorrectionForType(any(CorrectionForm.class), eq(user));
+    verify(correctionService, times(1)).getCorrectionRedirectForType(any(CorrectionForm.class), any());
   }
 
   @SecurityTest
@@ -116,42 +115,41 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             get(ReverseRouter.route(on(CorrectionSelectionController.class)
-                .startCorrection(invalidResourceId)))
-                .with(user(USER)))
+                .startCorrection(invalidResourceId, null)))
+                .with(user(user)))
         .andExpect(status().isNotFound());
   }
 
   @SecurityTest
   void getCorrectionPage_whenUserDoesntHaveValidPermission() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(
+    when(permissionService.hasPermission(user, Set.of(
         RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(CorrectionSelectionController.class)
-                .startCorrection(resourceId)))
-                .with(user(USER)))
+                .startCorrection(resourceId, null)))
+                .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
   void getCorrectionPage_whenUserCantStartCorrection() throws Exception {
-    when(correctionService.canStartCorrection(resource)).thenReturn(false);
+    when(correctionService.canStartCorrection(resource, user)).thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(CorrectionSelectionController.class)
-                .startCorrection(resourceId)))
-                .with(user(USER)))
+                .startCorrection(resourceId, null)))
+                .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
   void postCorrectionPage_withInvalidForm_assertIsOk() throws Exception {
     bindingResult.addError(new ObjectError("form", "invalid form"));
-    when(correctionFormValidator.validateForm(any(), any())).thenReturn(bindingResult);
     mockMvc.perform(
             post(ReverseRouter.route(on(CorrectionSelectionController.class)
-                .startCorrection(resourceId, form, bindingResult)))
-                .with(user(USER))
+                .startCorrection(resourceId, form, bindingResult, null)))
+                .with(user(user))
                 .with(csrf()))
         .andExpect(status().isOk());
   }
@@ -166,8 +164,8 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resourceId)).thenReturn(approvedSubmissions);
     Map<String, String> submissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(approvedSubmissions);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId)))
-                .with(user(USER)))
+            get(ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)))
+                .with(user(user)))
         .andExpect(view().name("remi/systemofrecord/corrections/corrections"))
         .andReturn()
         .getModelAndView()).getModelMap();

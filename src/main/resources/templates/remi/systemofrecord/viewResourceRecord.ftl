@@ -50,7 +50,7 @@
         linkUrl=springUrl(resourceGroupUrl)/>
         <#if correctionUrl?has_content>
             <@fdsAction.link
-            linkText="Corrections"
+            linkText="Correct submission"
             linkClass="govuk-button govuk-button--secondary"
             linkUrl=springUrl(correctionUrl)/>
         </#if>

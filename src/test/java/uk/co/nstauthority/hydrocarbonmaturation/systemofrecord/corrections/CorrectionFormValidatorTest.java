@@ -56,7 +56,7 @@ class CorrectionFormValidatorTest {
 
   private BindingResult validateCorrectionForm(CorrectionForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    correctionFormValidator.validateForm(form, bindingResult);
+    correctionFormValidator.validate(form, bindingResult);
     return bindingResult;
   }
 }

@@ -69,7 +69,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private ResponsibleTeamService responsibleTeamService;
   @MockBean
   private CorrectionService correctionService;
-  
   private Resource resource;
   private UUID resourceId;
   private SubmissionDetail submissionDetail;
@@ -129,7 +128,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(Optional.of(resource));
     when(viewResourceRecordService.canViewSubmissionDetail(otherSubmissionOnResource, resource))
         .thenReturn(true);
-    when(correctionService.canStartCorrection(resource)).thenReturn(true);
+    when(correctionService.canStartCorrection(resource, USER)).thenReturn(true);
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(otherSubmissionOnResource));
     mockModelAndViewCreation(otherSubmissionOnResource, queryResult);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -147,7 +146,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType()),
-            entry("correctionUrl", ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId())))
+            entry("correctionUrl", ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -174,7 +173,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(Optional.of(resource));
     when(viewResourceRecordService.canViewSubmissionDetail(submissionDetail, resource))
         .thenReturn(true);
-    when(correctionService.canStartCorrection(resource)).thenReturn(false);
+    when(correctionService.canStartCorrection(resource, USER)).thenReturn(false);
     mockModelAndViewCreation(submissionDetail, List.of());
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -221,7 +220,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var resourceGroupSummary = new ResourceGroupSummaryView(List.of(), ResourceType.DISCOVERY, "");
     when(resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
         .thenReturn(resourceGroupSummary);
-    when(correctionService.canStartCorrection(resource)).thenReturn(true);
+    when(correctionService.canStartCorrection(resource, USER)).thenReturn(true);
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
     mockModelAndViewCreation(submissionDetail, queryResult);
 
@@ -250,7 +249,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceGroupsSummaryView", resourceGroupSummary),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("canViewRegulatorManagementInfo", true),
-            entry("correctionUrl", ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId())))
+            entry("correctionUrl", ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

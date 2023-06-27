@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailArgumentResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermissionInterceptor;
@@ -38,6 +39,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
   private final HasTeamPermissionInterceptor hasTeamPermissionInterceptor;
   private final SubmissionHandlerInterceptor submissionHandlerInterceptor;
   private final AccessibleByRegulatorUsersInterceptor accessibleByRegulatorUsersInterceptor;
+  private final ValidationTypeArgumentResolver validationTypeArgumentResolver;
+  private final ServiceUserDetailArgumentResolver serviceUserDetailArgumentResolver;
 
   @Autowired
   public WebMvcConfiguration(PermissionManagementHandlerInterceptor permissionManagementHandlerInterceptor,
@@ -46,7 +49,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                              HasPermissionInterceptor hasPermissionInterceptor,
                              HasTeamPermissionInterceptor hasTeamPermissionInterceptor,
                              SubmissionHandlerInterceptor submissionHandlerInterceptor,
-                             AccessibleByRegulatorUsersInterceptor accessibleByRegulatorUsersInterceptor) {
+                             AccessibleByRegulatorUsersInterceptor accessibleByRegulatorUsersInterceptor,
+                             ValidationTypeArgumentResolver validationTypeArgumentResolver,
+                             ServiceUserDetailArgumentResolver serviceUserDetailArgumentResolver) {
     this.permissionManagementHandlerInterceptor = permissionManagementHandlerInterceptor;
     this.regulatorPermissionManagementHandlerInterceptor = regulatorPermissionManagementHandlerInterceptor;
     this.industryPermissionManagementHandlerInterceptor = industryPermissionManagementHandlerInterceptor;
@@ -54,6 +59,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     this.hasTeamPermissionInterceptor = hasTeamPermissionInterceptor;
     this.submissionHandlerInterceptor = submissionHandlerInterceptor;
     this.accessibleByRegulatorUsersInterceptor = accessibleByRegulatorUsersInterceptor;
+    this.validationTypeArgumentResolver = validationTypeArgumentResolver;
+    this.serviceUserDetailArgumentResolver = serviceUserDetailArgumentResolver;
   }
 
   @Override
@@ -67,7 +74,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-    resolvers.add(new ValidationTypeArgumentResolver());
+    resolvers.add(validationTypeArgumentResolver);
+    resolvers.add(serviceUserDetailArgumentResolver);
   }
 
   @Override
