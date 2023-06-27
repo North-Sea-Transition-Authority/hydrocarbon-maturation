@@ -5,14 +5,19 @@ DECLARE
     source_formation TEXT;
     source_manual_formation TEXT;
     source_age TEXT;
+    source_manual_age TEXT;
+    source_lithology_option TEXT;
+    source_lithology_other_text TEXT;
     top_seal_formation TEXT;
     top_seal_manual_formation TEXT;
     top_seal_age TEXT;
+    top_seal_manual_age TEXT;
     top_seal_lithology_option TEXT;
     top_seal_lithology_other_text TEXT;
     reservoir_formation TEXT;
     reservoir_manual_formation TEXT;
     reservoir_age TEXT;
+    reservoir_manual_age TEXT;
     reservoir_lithology_option TEXT;
     reservoir_lithology_other_text TEXT;
 
@@ -29,14 +34,19 @@ BEGIN
         source_formation := NULL;
         source_manual_formation := NULL;
         source_age := NULL;
+        source_manual_age := NULL;
+        source_lithology_option := NULL;
+        source_lithology_other_text := NULL;
         top_seal_formation := NULL;
         top_seal_manual_formation := NULL;
         top_seal_age := NULL;
+        top_seal_manual_age := NULL;
         top_seal_lithology_option := NULL;
         top_seal_lithology_other_text := NULL;
         reservoir_formation := NULL;
         reservoir_manual_formation := NULL;
         reservoir_age := NULL;
+        reservoir_manual_age := NULL;
         reservoir_lithology_option := NULL;
         reservoir_lithology_other_text := NULL;
 
@@ -193,7 +203,32 @@ BEGIN
                     )
                 THEN REPLACE(REPLACE(UPPER(chance_of_success_rec.play_source_age), ' ', '_'), '&', 'AND')
             END
-        INTO source_age; -- There is an item in the issue log about what to do about non-matching age values
+        INTO source_age;
+
+        IF source_age IS NULL THEN
+            source_manual_age := chance_of_success_rec.play_source_age;
+        END IF;
+
+        SELECT
+            CASE
+                WHEN REPLACE(UPPER(chance_of_success_rec.play_source_lithology), ' ', '_')
+                    IN (
+                        'SHALE',
+                        'CLAYSTONE',
+                        'MUDSTONE',
+                        'COALS',
+                        'ARGILLACEOUS_DOLOMITE',
+                        'ARGILLACEOUS_LIMESTONE'
+                         )
+                    THEN REPLACE(UPPER(chance_of_success_rec.play_source_lithology), ' ', '_')
+                WHEN chance_of_success_rec.play_source_lithology IS NOT NULL THEN 'OTHER'
+                ELSE 'NOT_PROVIDED'
+            END
+        INTO source_lithology_option;
+
+        IF source_lithology_option = 'OTHER' THEN
+            source_lithology_other_text := chance_of_success_rec.play_source_lithology;
+        END IF;
 
         SELECT
             CASE
@@ -350,6 +385,10 @@ BEGIN
             END
         INTO top_seal_age;
 
+        IF top_seal_age IS NULL THEN
+            top_seal_manual_age := chance_of_success_rec.play_seal_age;
+        END IF;
+
         SELECT
             CASE
                 WHEN REPLACE(UPPER(chance_of_success_rec.play_seal_lithology), ' ', '_')
@@ -375,9 +414,13 @@ BEGIN
             source_formation,
             source_manual_formation,
             source_age,
+            source_manual_age,
+            source_lithology_option,
+            source_lithology_other_text,
             top_seal_formation,
             top_seal_manual_formation,
             top_seal_age,
+            top_seal_manual_age,
             top_seal_lithology_option,
             top_seal_lithology_other_text
         ) IS NOT NULL THEN
@@ -386,29 +429,31 @@ BEGIN
                 id,
                 submission_detail_id,
                 source_formation_name,
-                source_age_stage,
-                source_lithology,
-                top_seal_formation_name,
-                top_seal_age_stage,
-                top_seal_lithology,
-                source_group_name,
-                top_seal_group_name,
                 source_formation_name_manual,
+                source_age_stage,
+                source_age_stage_manual,
+                source_lithology,
+                source_lithology_other,
+                top_seal_formation_name,
                 top_seal_formation_name_manual,
+                top_seal_age_stage,
+                top_seal_age_stage_manual,
+                top_seal_lithology,
                 top_seal_lithology_other
             ) VALUES (
                 gen_random_uuid(),
                 chance_of_success_rec.sd_id,
                 source_formation,
-                source_age,
-                NULL, -- source lithology TBD
-                top_seal_formation,
-                top_seal_age,
-                top_seal_lithology_option,
-                NULL, -- not in PaDI
-                NULL, -- not in PaDI
                 source_manual_formation,
+                source_age,
+                source_manual_age,
+                source_lithology_option,
+                source_lithology_other_text,
+                top_seal_formation,
                 top_seal_manual_formation,
+                top_seal_age,
+                top_seal_manual_age,
+                top_seal_lithology_option,
                 top_seal_lithology_other_text
             );
 
@@ -569,6 +614,10 @@ BEGIN
             END
         INTO reservoir_age;
 
+        IF reservoir_age IS NULL THEN
+            reservoir_manual_age := chance_of_success_rec.play_reservoir_age;
+        END IF;
+
         SELECT
             CASE
                 WHEN REPLACE(UPPER(chance_of_success_rec.play_reservoir_lithology), ' ', '_')
@@ -592,6 +641,7 @@ BEGIN
             reservoir_formation,
             reservoir_manual_formation,
             reservoir_age,
+            reservoir_manual_age,
             reservoir_lithology_option,
             reservoir_lithology_other_text
         ) IS NOT NULL THEN
@@ -603,6 +653,7 @@ BEGIN
                     formation_name = reservoir_formation,
                     formation_name_manual = reservoir_manual_formation,
                     age_stage = reservoir_age,
+                    age_stage_manual = reservoir_manual_age,
                     lithology = reservoir_lithology_option,
                     lithology_other = reservoir_lithology_other_text
                 WHERE id = chance_of_success_rec.rp_id;
@@ -613,6 +664,7 @@ BEGIN
                     id,
                     submission_detail_id,
                     age_stage,
+                    age_stage_manual,
                     formation_name,
                     formation_name_manual,
                     lithology,
@@ -621,6 +673,7 @@ BEGIN
                     gen_random_uuid(),
                     chance_of_success_rec.sd_id,
                     reservoir_age,
+                    reservoir_manual_age,
                     reservoir_formation,
                     reservoir_manual_formation,
                     reservoir_lithology_option,
