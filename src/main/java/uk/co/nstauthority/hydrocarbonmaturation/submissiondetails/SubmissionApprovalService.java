@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
@@ -41,7 +42,7 @@ public class SubmissionApprovalService {
   public void submitSubmission(SubmissionDetail submissionDetail) {
     submissionDetailPersistenceService.submitSubmission(submissionDetail);
 
-    if (submissionDetail.isUpdateSubmission()) {
+    if (submissionDetail.isUpdateSubmission() && BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
       submissionUpdateService.resolveUpdateOnSubmission(submissionDetail);
     }
 

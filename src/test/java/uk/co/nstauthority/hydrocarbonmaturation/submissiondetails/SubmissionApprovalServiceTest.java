@@ -75,6 +75,21 @@ class SubmissionApprovalServiceTest {
     }
 
     @Test
+    void whenCorrection_thenVerifyUpdateDoesntNeedResolving() {
+      submissionDetail.setVersionNumber(2);
+      submissionDetail.setCorrection(true);
+      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+      when(areaTeamService.isAreaUser(USER)).thenReturn(false);
+
+      underTest.submitSubmission(submissionDetail);
+
+      verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
+      verifyNoInteractions(submissionUpdateService);
+      verify(submissionEmailService, times(1))
+          .sendSubmittedSubmissionEmails(submissionDetail);
+    }
+
+    @Test
     void andCanNotAutoApprove_ThenVerifyCallToSubmit() {
       submissionDetail.setVersionNumber(1);
       when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
