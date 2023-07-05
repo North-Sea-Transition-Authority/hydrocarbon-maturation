@@ -20,6 +20,7 @@
       <@maps.shapeMap
         geoJsonDataUrl=springUrl(geoJsonDataUrl)
         dataMapAttributions=dataMapAttributions
+        shapeName="Outline for maximum case"
         showFieldDeterminationBoundariesLayer=true
         showQuadBlocksLayer=true
         showLicenceBlocksLayer=true

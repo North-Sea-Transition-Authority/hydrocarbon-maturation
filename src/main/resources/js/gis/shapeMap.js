@@ -18,52 +18,75 @@ export default class ShapeMap {
     this.showLicenceBlocksLayer = this.module.getAttribute("data-show-licence-blocks-layer") === 'true';
     this.showFieldBlobsLayer = this.module.getAttribute("data-show-field-blobs-layer") === 'true';
 
-    let fieldDeterminationBoundariesFillColor = 'rgba(0, 0, 0, 0)';
-    let fieldDeterminationBoundariesStrokeColor = '#be303d';
-    let quadBlockFillColor = 'rgba(0, 0, 0, 0)';
-    let quadBlockStrokeColor = 'rgba(0, 46, 109, 0.8)';
-    let licenseBlockFillColor = 'rgba(255, 253, 208, 0.8)';
-    let licenseBlockStrokeColor = '#0073e6';
-    let fieldBlobFillColor = '#cb5964';
-    let fieldBlobStrokeColor = 'rgba(0, 0, 0, 0)';
+    let fieldDeterminationBoundariesFillColour = 'rgba(0, 0, 0, 0)';
+    let fieldDeterminationBoundariesStrokeColour = '#be303d';
+    let quadBlockFillColour = 'rgba(0, 0, 0, 0)';
+    let quadBlockStrokeColour = 'rgba(0, 46, 109, 0.8)';
+    let licenseBlockFillColour = 'rgba(255, 253, 208, 0.8)';
+    let licenseBlockStrokeColour = '#0073e6';
+    let gasFieldBlobFillColour = '#cb5964';
+    let oilFieldBlobFillColour = '#35a978';
+    let condensateFieldBlobFillColour = '#e1955f';
+    let fieldBlobStrokeColour = 'rgba(0, 0, 0, 0)';
+    let shapeFillColour = '#eeeeee';
+    let shapeStrokeColour = '#319FD3';
 
-    this.fieldDeterminationBoundariesStyle = ShapeMap._getStyle(fieldDeterminationBoundariesFillColor, fieldDeterminationBoundariesStrokeColor, 0.5);
-    this.quadBlockStyle = ShapeMap._getStyle(quadBlockFillColor, quadBlockStrokeColor, 0.5);
-    this.licenseBlockStyle = ShapeMap._getStyle(licenseBlockFillColor, licenseBlockStrokeColor, 0.5);
-    this.fieldBlobStyle = ShapeMap._getStyle(fieldBlobFillColor, fieldBlobStrokeColor, 0);
+    this.fieldDeterminationBoundariesStyle = ShapeMap._getStyle(fieldDeterminationBoundariesFillColour, fieldDeterminationBoundariesStrokeColour, 0.5);
+    this.quadBlockStyle = ShapeMap._getStyle(quadBlockFillColour, quadBlockStrokeColour, 0.5);
+    this.licenseBlockStyle = ShapeMap._getStyle(licenseBlockFillColour, licenseBlockStrokeColour, 0.5);
+    this.fieldBlobStyles = [
+      {name: "OIL", fillColour: oilFieldBlobFillColour, strokeColour: fieldBlobStrokeColour, strokeWidth: 0},
+      {name: "GAS", fillColour: gasFieldBlobFillColour, strokeColour: fieldBlobStrokeColour, strokeWidth: 0},
+      {name: "COND", fillColour: condensateFieldBlobFillColour, strokeColour: fieldBlobStrokeColour, strokeWidth: 0}
+    ];
+    this.shapeStyle = ShapeMap._getStyle(shapeFillColour, shapeStrokeColour, 1);
 
     this.module.getElementsByClassName("shape-map__legend-box").forEach(box => {
       switch (box.id) {
         case "quad-blocks-legend":
-          box.style.backgroundColor = quadBlockFillColor;
-          box.style.borderColor = quadBlockStrokeColor;
+          box.style.backgroundColor = quadBlockFillColour;
+          box.style.borderColor = quadBlockStrokeColour;
           break;
         case "license-blocks-legend":
-          box.style.backgroundColor = licenseBlockFillColor;
-          box.style.borderColor = licenseBlockStrokeColor;
+          box.style.backgroundColor = licenseBlockFillColour;
+          box.style.borderColor = licenseBlockStrokeColour;
           break;
-        case "fields-legend":
-          box.style.backgroundColor = fieldBlobFillColor;
-          box.style.borderColor = fieldBlobStrokeColor;
+        case "gas-fields-legend":
+          box.style.backgroundColor = gasFieldBlobFillColour;
+          box.style.borderColor = fieldBlobStrokeColour;
+          break;
+        case "oil-fields-legend":
+          box.style.backgroundColor = oilFieldBlobFillColour;
+          box.style.borderColor = fieldBlobStrokeColour;
+          break;
+        case "cond-fields-legend":
+          box.style.backgroundColor = condensateFieldBlobFillColour;
+          box.style.borderColor = fieldBlobStrokeColour;
           break;
         case "field-determination-boundaries-legend":
-          box.style.backgroundColor = fieldDeterminationBoundariesFillColor;
-          box.style.borderColor = fieldDeterminationBoundariesStrokeColor;
+          box.style.backgroundColor = fieldDeterminationBoundariesFillColour;
+          box.style.borderColor = fieldDeterminationBoundariesStrokeColour;
+          break;
+        case "shape-legend":
+          box.style.backgroundColor = shapeFillColour;
+          box.style.borderColor = shapeStrokeColour;
           break;
       }
     })
 
-    this.fieldDeterminationBoundariesUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Offshore_FieldDets_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
+    this.fieldDeterminationBoundariesOffshoreUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Offshore_FieldDets_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
+    this.fieldDeterminationBoundariesOnshoreUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/ENG_Onshore_FieldsDets_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
     this.quadBlockUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_ReferenceBlocks_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
-    this.licenseBlockUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Licences_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
-    this.fieldBlobUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Offshore_Fields_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
+    this.licenseBlockUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Licences_WGS84/FeatureServer/1/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
+    this.fieldBlobOffshoreUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Offshore_Fields_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
+    this.fieldBlobOnshoreUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/ENG_Onshore_Fields_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
   }
 
   async init() {
 
     const layers = this.getBaseLayers();
 
-    const shapeLayer = this.getShapeLayer(ShapeMap._getStyle('#eeeeee'));
+    const shapeLayer = this.getShapeLayer(this.shapeStyle);
     layers.push(shapeLayer);
 
     const map = this.createMap(layers);
@@ -76,12 +99,23 @@ export default class ShapeMap {
 
   }
 
-  getFieldDeterminationBoundariesLayer() {
+  getFieldDeterminationBoundariesOffshoreLayer() {
     return ShapeMap._getVectorLayer(
       'Field Determination Boundaries',
-      ShapeMap._getVectorSource(this.fieldDeterminationBoundariesUrl, this.mapAttributions),
+      ShapeMap._getVectorSource(this.fieldDeterminationBoundariesOffshoreUrl, this.mapAttributions),
       this.fieldDeterminationBoundariesStyle,
-      'FIELDNAME'
+      'FIELDNAME',
+      !this.showFieldBlobsLayer
+    );
+  }
+
+  getFieldDeterminationBoundariesOnshoreLayer() {
+    return ShapeMap._getVectorLayer(
+      'Field Determination Boundaries',
+      ShapeMap._getVectorSource(this.fieldDeterminationBoundariesOnshoreUrl, this.mapAttributions),
+      this.fieldDeterminationBoundariesStyle,
+      'FIELDNAME',
+      !this.showFieldBlobsLayer
     );
   }
 
@@ -98,17 +132,28 @@ export default class ShapeMap {
     return ShapeMap._getVectorLayer(
       'License Blocks',
       ShapeMap._getVectorSource(this.licenseBlockUrl, this.mapAttributions),
-      this.licenseBlockStyle ,
+      this.licenseBlockStyle,
       'BLOCKREF'
     );
   }
 
-  getFieldBlobsLayer() {
-    return ShapeMap._getVectorLayer(
+  getFieldBlobsOffshoreLayer() {
+    return ShapeMap._getDynamicVectorLayer(
       'License Blocks',
-      ShapeMap._getVectorSource(this.fieldBlobUrl, this.mapAttributions),
-      this.fieldBlobStyle ,
-      'FIELDNAME'
+      ShapeMap._getVectorSource(this.fieldBlobOffshoreUrl, this.mapAttributions),
+      'FIELDNAME',
+      'FIELDTYPE',
+      this.fieldBlobStyles,
+    );
+  }
+
+  getFieldBlobsOnshoreLayer() {
+    return ShapeMap._getDynamicVectorLayer(
+      'License Blocks',
+      ShapeMap._getVectorSource(this.fieldBlobOnshoreUrl, this.mapAttributions),
+      'FIELDNAME',
+      'FIELDTYPE',
+      this.fieldBlobStyles,
     );
   }
 
@@ -127,11 +172,13 @@ export default class ShapeMap {
     }
 
     if (this.showFieldDeterminationBoundariesLayer) {
-      layers.push(this.getFieldDeterminationBoundariesLayer());
+      layers.push(this.getFieldDeterminationBoundariesOffshoreLayer());
+      layers.push(this.getFieldDeterminationBoundariesOnshoreLayer());
     }
 
     if (this.showFieldBlobsLayer) {
-      layers.push(this.getFieldBlobsLayer());
+      layers.push(this.getFieldBlobsOffshoreLayer());
+      layers.push(this.getFieldBlobsOnshoreLayer());
     }
 
     return layers;
@@ -180,11 +227,33 @@ export default class ShapeMap {
     }
   }
 
-  static _getVectorLayer(title, vectorSource, style, featureName) {
+  static _getVectorLayer(title, vectorSource, style, textFeatureName, showText = true) {
     return new VectorLayer({
       source: vectorSource,
       style: function (feature) {
-        style.getText().setText(String(feature.get(featureName)));
+        if (showText) {
+          style.getText().setText(String(feature.get(textFeatureName)));
+        }
+        return style;
+      }
+    });
+  }
+
+  static _getDynamicVectorLayer(title, vectorSource, textFeatureName, dynamicFeatureName, dynamicStyles, showText = true) {
+    return new VectorLayer({
+      source: vectorSource,
+      style: function (feature) {
+        let dynamicStyle = dynamicStyles.find(({name}) => name === feature.get(dynamicFeatureName));
+        if (dynamicStyle === undefined) {
+          return undefined;
+        }
+
+        let style = ShapeMap._getStyle(dynamicStyle.fillColour, dynamicStyle.strokeColour, dynamicStyle.strokeWidth);
+
+        if (showText) {
+          style.getText().setText(String(feature.get(textFeatureName)));
+        }
+
         return style;
       }
     });
@@ -198,13 +267,13 @@ export default class ShapeMap {
     });
   }
 
-  static _getStyle(fillColor = 'rgba(0, 0, 0, 0)', strokeColor = '#319FD3', strokeWidth = 1) {
+  static _getStyle(fillColour = 'rgba(0, 0, 0, 0)', strokeColour = '#319FD3', strokeWidth = 1) {
     return new Style({
       fill: new Fill({
-        color: fillColor
+        color: fillColour
       }),
       stroke: new Stroke({
-        color: strokeColor,
+        color: strokeColour,
         width: strokeWidth
       }),
       text: new Text({
