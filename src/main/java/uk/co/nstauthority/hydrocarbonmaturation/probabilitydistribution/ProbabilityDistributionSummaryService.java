@@ -48,6 +48,8 @@ public class ProbabilityDistributionSummaryService {
 
     if (probabilityDistribution.getDistributionType() != null) {
       probabilityDistributionType = probabilityDistribution.getDistributionType().getDisplayName();
+    } else if (probabilityDistribution.getOtherDistributionType() != null) {
+      probabilityDistributionType = probabilityDistribution.getOtherDistributionType();
     }
 
     var probabilityDistributionName = Objects.requireNonNullElse(probabilityDistributionFieldInstance.getDisplayName(), "");

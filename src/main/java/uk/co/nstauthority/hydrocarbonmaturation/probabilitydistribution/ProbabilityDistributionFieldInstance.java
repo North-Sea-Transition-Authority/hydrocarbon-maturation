@@ -157,6 +157,16 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT,
       "Gas recovery factor"
   ),
+  GAS_FORMATION_VOLUME_FACTOR_PROSPECT(
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.RB_STB,
+      "Gas formation volume factor (Bg)"
+  ),
+  GAS_FORMATION_VOLUME_FACTOR_DISCOVERY(
+      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.RB_STB,
+      "Gas formation volume factor (Bg)"
+  ),
 
   // Oil case volumetrics
   OIL_RECOVERY_FACTOR_PROSPECT(
@@ -193,16 +203,6 @@ public enum ProbabilityDistributionFieldInstance {
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
       ProbabilityOfExceedanceUnits.SCF_STB,
       "Associated gas-oil ratio life of field"
-  ),
-  GAS_FORMATION_VOLUME_FACTOR_PROSPECT(
-      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.RB_STB,
-      "Gas formation volume factor (Bg)"
-  ),
-  GAS_FORMATION_VOLUME_FACTOR_DISCOVERY(
-      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.RB_STB,
-      "Gas formation volume factor (Bg)"
   ),
 
   // Mixed case volumetrics

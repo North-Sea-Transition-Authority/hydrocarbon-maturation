@@ -33,6 +33,13 @@ public class ProbabilityDistributionPersistenceService {
       SubmissionDetail submissionDetail) {
     var probabilityDistribution = getProbabilityDistribution(submissionDetail, instance)
         .orElse(new ProbabilityDistribution());
+
+    //Legacy probability distributions may not have a distribution type, so delete those first on save
+    if (probabilityDistribution.getDistributionType() == null) {
+      probabilityDistributionRepository.delete(probabilityDistribution);
+      probabilityDistribution = new ProbabilityDistribution();
+    }
+
     probabilityDistribution.setSubmissionDetail(submissionDetail);
     probabilityDistribution.setDistributionType(form.getProbabilityDistributionType());
     probabilityDistribution.setInstance(instance);
@@ -69,4 +76,5 @@ public class ProbabilityDistributionPersistenceService {
                                             SubmissionDetail submissionDetail) {
     probabilityDistributionRepository.deleteBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance);
   }
+
 }

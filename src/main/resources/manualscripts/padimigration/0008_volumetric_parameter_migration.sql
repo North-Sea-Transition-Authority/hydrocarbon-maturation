@@ -1,13 +1,9 @@
 DO $$
 DECLARE
 
-    common_parameters RECORD;
-    prospect_parameters RECORD;
-    discovery_dry_well_parameters RECORD;
-    dry_well_or_mixed_case_parameters RECORD;
-    gas_and_oil_case_parameters RECORD;
-    mixed_case_parameters RECORD;
-    distribution_type TEXT;
+    volumetric_parameters RECORD;
+    padi_distribution_type TEXT;
+    padi_other_distribution_type TEXT;
     N TEXT := 'N';
     L TEXT := 'L';
     B TEXT := 'B';
@@ -25,383 +21,469 @@ DECLARE
 
 BEGIN
 
-    -- Parameters which appear across all submission types
-    -- TRAP PROPERTIES
-    FOR common_parameters IN (
-        SELECT prdp.*, sd.id sd_id
+    FOR volumetric_parameters IN (
+        SELECT prdp.*, LOWER(prdh.hc_case) hydrocarbon_case, sd.id sd_id, sd.submission_type, r.type resource_type
         FROM remi.padi_res_data_param prdp
-        JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdp.resdat_id
+        JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdp.resdat_id
+        JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON r.id = s.resource_id
     )
     LOOP
 
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
+
         -- depth to crest
-        IF common_parameters.depth_to_crest_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+        SELECT
+            CASE volumetric_parameters.depth_to_crest_dist
+                WHEN N THEN NORMAL
+                WHEN L THEN LOGNORMAL
+                WHEN B THEN BETA
+                WHEN T THEN TRIANGULAR
+                WHEN R THEN RECTANGULAR
+                WHEN C THEN CONSTANT
+            END
+        INTO padi_distribution_type;
 
-            SELECT
-                CASE common_parameters.depth_to_crest_dist
-                    WHEN N THEN NORMAL
-                    WHEN L THEN LOGNORMAL
-                    WHEN B THEN BETA
-                    WHEN T THEN TRIANGULAR
-                    WHEN R THEN RECTANGULAR
-                    WHEN C THEN CONSTANT
-                END
-            INTO distribution_type;
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value
-            ) VALUES (
-                gen_random_uuid(),
-                common_parameters.sd_id,
-                distribution_type,
-                'DEPTH_TO_CREST_PROSPECT_DISCOVERY',
-                NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_crest_p01) END,
-                NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.depth_to_crest_mean) END, -- most values exist in the mean column, but two items exist in the P50 column
-                NULL -- does most likely exist in PaDI
-             );
-
+        IF padi_distribution_type IS NULL AND volumetric_parameters.depth_to_crest_dist != Z THEN
+            padi_other_distribution_type := volumetric_parameters.depth_to_crest_dist;
         END IF;
+
+        INSERT INTO remi.probability_distributions (
+            id,
+            submission_detail_id,
+            distribution_type,
+            other_distribution_type,
+            instance,
+            min_value,
+            p99,
+            p90,
+            mode_value,
+            p50,
+            mean_value,
+            p10,
+            p1,
+            max_value,
+            constant_value,
+            most_likely_value
+        ) VALUES (
+            gen_random_uuid(),
+            volumetric_parameters.sd_id,
+            padi_distribution_type,
+            padi_other_distribution_type,
+            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'DEPTH_TO_CREST_PROSPECT' ELSE 'DEPTH_TO_CREST_DISCOVERY' END,
+            NULL, -- does min exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p99) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p90) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_mode) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p50) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_mean) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p10) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p01) END,
+            NULL, -- does max exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.depth_to_crest_mean) END, -- most values exist in the mean column, but two items exist in the P50 column
+            NULL -- does most likely exist in PaDI
+         );
+
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
         -- depth to spill point
-        IF common_parameters.depth_to_spill_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+        SELECT
+            CASE volumetric_parameters.depth_to_spill_dist
+                WHEN N THEN NORMAL
+                WHEN L THEN LOGNORMAL
+                WHEN B THEN BETA
+                WHEN T THEN TRIANGULAR
+                WHEN R THEN RECTANGULAR
+                WHEN C THEN CONSTANT
+            END
+        INTO padi_distribution_type;
 
-            SELECT
-                CASE common_parameters.depth_to_spill_dist
-                    WHEN N THEN NORMAL
-                    WHEN L THEN LOGNORMAL
-                    WHEN B THEN BETA
-                    WHEN T THEN TRIANGULAR
-                    WHEN R THEN RECTANGULAR
-                    WHEN C THEN CONSTANT
-                END
-            INTO distribution_type;
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value
-            ) VALUES (
-                gen_random_uuid(),
-                common_parameters.sd_id,
-                distribution_type,
-                'DEPTH_TO_SPILL_POINT_PROSPECT_DISCOVERY',
-                NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.depth_to_spill_p01) END,
-                NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.depth_to_spill_mean) END,
-                NULL -- does most likely exist in PaDI
-            );
-
+        IF padi_distribution_type IS NULL AND volumetric_parameters.depth_to_spill_dist != Z THEN
+            padi_other_distribution_type := volumetric_parameters.depth_to_spill_dist;
         END IF;
+
+        INSERT INTO remi.probability_distributions (
+            id,
+            submission_detail_id,
+            distribution_type,
+            other_distribution_type,
+            instance,
+            min_value,
+            p99,
+            p90,
+            mode_value,
+            p50,
+            mean_value,
+            p10,
+            p1,
+            max_value,
+            constant_value,
+            most_likely_value
+        ) VALUES (
+            gen_random_uuid(),
+            volumetric_parameters.sd_id,
+            padi_distribution_type,
+            padi_other_distribution_type,
+            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'DEPTH_TO_SPILL_POINT_PROSPECT' ELSE 'DEPTH_TO_SPILL_POINT_DISCOVERY' END,
+            NULL, -- does min exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p99) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p90) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_mode) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p50) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_mean) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p10) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p01) END,
+            NULL, -- does max exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.depth_to_spill_mean) END,
+            NULL -- does most likely exist in PaDI
+        );
+
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
         -- productive area
-        IF common_parameters.area_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+        SELECT
+            CASE volumetric_parameters.area_dist
+                WHEN N THEN NORMAL
+                WHEN L THEN LOGNORMAL
+                WHEN B THEN BETA
+                WHEN T THEN TRIANGULAR
+                WHEN R THEN RECTANGULAR
+                WHEN C THEN CONSTANT
+            END
+        INTO padi_distribution_type;
 
-            SELECT
-                CASE common_parameters.area_dist
-                    WHEN N THEN NORMAL
-                    WHEN L THEN LOGNORMAL
-                    WHEN B THEN BETA
-                    WHEN T THEN TRIANGULAR
-                    WHEN R THEN RECTANGULAR
-                    WHEN C THEN CONSTANT
-                END
-            INTO distribution_type;
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value
-            ) VALUES (
-                gen_random_uuid(),
-                common_parameters.sd_id,
-                distribution_type,
-                'PRODUCTIVE_AREA',
-                NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.area_p01) END,
-                NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.area_mean) END,
-                NULL -- does most likely exist in PaDI
-            );
-
+        IF padi_distribution_type IS NULL AND volumetric_parameters.area_dist != Z THEN
+            padi_other_distribution_type := volumetric_parameters.area_dist;
         END IF;
+
+        INSERT INTO remi.probability_distributions (
+            id,
+            submission_detail_id,
+            distribution_type,
+            other_distribution_type,
+            instance,
+            min_value,
+            p99,
+            p90,
+            mode_value,
+            p50,
+            mean_value,
+            p10,
+            p1,
+            max_value,
+            constant_value,
+            most_likely_value
+        ) VALUES (
+            gen_random_uuid(),
+            volumetric_parameters.sd_id,
+            padi_distribution_type,
+            padi_other_distribution_type,
+            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'PRODUCTIVE_AREA_PROSPECT' ELSE 'PRODUCTIVE_AREA_DISCOVERY' END,
+            NULL, -- does min exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p99) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p90) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_mode) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p50) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_mean) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p10) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p01) END,
+            NULL, -- does max exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.area_mean) END,
+            NULL -- does most likely exist in PaDI
+        );
+
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
         -- RESERVOIR PROPERTIES
         -- Gross reservoir thickness
-        IF common_parameters.gross_thick_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+        SELECT
+            CASE volumetric_parameters.gross_thick_dist
+                WHEN N THEN NORMAL
+                WHEN L THEN LOGNORMAL
+                WHEN B THEN BETA
+                WHEN T THEN TRIANGULAR
+                WHEN R THEN RECTANGULAR
+                WHEN C THEN CONSTANT
+            END
+        INTO padi_distribution_type;
 
-            SELECT
-                CASE common_parameters.gross_thick_dist
-                    WHEN N THEN NORMAL
-                    WHEN L THEN LOGNORMAL
-                    WHEN B THEN BETA
-                    WHEN T THEN TRIANGULAR
-                    WHEN R THEN RECTANGULAR
-                    WHEN C THEN CONSTANT
-                END
-            INTO distribution_type;
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value
-            ) VALUES (
-                gen_random_uuid(),
-                common_parameters.sd_id,
-                distribution_type,
-                'GROSS_RESERVOIR_THICKNESS_PROSPECT_DISCOVERY',
-                NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.gross_thick_p01) END,
-                NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.gross_thick_mean) END,
-                NULL -- does most likely exist in PaDI
-            );
-
+        IF padi_distribution_type IS NULL AND volumetric_parameters.gross_thick_dist != Z THEN
+            padi_other_distribution_type := volumetric_parameters.gross_thick_dist;
         END IF;
+
+        INSERT INTO remi.probability_distributions (
+            id,
+            submission_detail_id,
+            distribution_type,
+            other_distribution_type,
+            instance,
+            min_value,
+            p99,
+            p90,
+            mode_value,
+            p50,
+            mean_value,
+            p10,
+            p1,
+            max_value,
+            constant_value,
+            most_likely_value
+        ) VALUES (
+            gen_random_uuid(),
+            volumetric_parameters.sd_id,
+            padi_distribution_type,
+            padi_other_distribution_type,
+            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'GROSS_RESERVOIR_THICKNESS_PROSPECT' ELSE 'GROSS_RESERVOIR_THICKNESS_DISCOVERY' END,
+            NULL, -- does min exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p99) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p90) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_mode) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p50) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_mean) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p10) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p01) END,
+            NULL, -- does max exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gross_thick_mean) END,
+            NULL -- does most likely exist in PaDI
+        );
+
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
         -- Gross rock volume
-        IF common_parameters.grv_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+        SELECT
+            CASE volumetric_parameters.grv_dist
+                WHEN N THEN NORMAL
+                WHEN L THEN LOGNORMAL
+                WHEN B THEN BETA
+                WHEN T THEN TRIANGULAR
+                WHEN R THEN RECTANGULAR
+                WHEN C THEN CONSTANT
+            END
+        INTO padi_distribution_type;
 
-            SELECT
-                CASE common_parameters.grv_dist
-                    WHEN N THEN NORMAL
-                    WHEN L THEN LOGNORMAL
-                    WHEN B THEN BETA
-                    WHEN T THEN TRIANGULAR
-                    WHEN R THEN RECTANGULAR
-                    WHEN C THEN CONSTANT
-                END
-            INTO distribution_type;
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value
-            ) VALUES (
-                gen_random_uuid(),
-                common_parameters.sd_id,
-                distribution_type,
-                'GROSS_ROCK_VOLUME',
-                NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.grv_p01) END,
-                NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.grv_mean) END,
-                NULL -- does most likely exist in PaDI
-            );
-
+        IF padi_distribution_type IS NULL AND volumetric_parameters.grv_dist != Z THEN
+            padi_other_distribution_type := volumetric_parameters.grv_dist;
         END IF;
+
+        INSERT INTO remi.probability_distributions (
+            id,
+            submission_detail_id,
+            distribution_type,
+            other_distribution_type,
+            instance,
+            min_value,
+            p99,
+            p90,
+            mode_value,
+            p50,
+            mean_value,
+            p10,
+            p1,
+            max_value,
+            constant_value,
+            most_likely_value
+        ) VALUES (
+            gen_random_uuid(),
+            volumetric_parameters.sd_id,
+            padi_distribution_type,
+            padi_other_distribution_type,
+            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'GROSS_ROCK_VOLUME_PROSPECT' ELSE 'GROSS_ROCK_VOLUME_DISCOVERY' END,
+            NULL, -- does min exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p99) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p90) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_mode) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p50) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_mean) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p10) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p01) END,
+            NULL, -- does max exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.grv_mean) END,
+            NULL -- does most likely exist in PaDI
+        );
+
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
         -- Net-to-gross
-        IF common_parameters.ntg_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+        SELECT
+            CASE volumetric_parameters.ntg_dist
+                WHEN N THEN NORMAL
+                WHEN L THEN LOGNORMAL
+                WHEN B THEN BETA
+                WHEN T THEN TRIANGULAR
+                WHEN R THEN RECTANGULAR
+                WHEN C THEN CONSTANT
+            END
+        INTO padi_distribution_type;
 
-            SELECT
-                CASE common_parameters.ntg_dist
-                    WHEN N THEN NORMAL
-                    WHEN L THEN LOGNORMAL
-                    WHEN B THEN BETA
-                    WHEN T THEN TRIANGULAR
-                    WHEN R THEN RECTANGULAR
-                    WHEN C THEN CONSTANT
-                END
-            INTO distribution_type;
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value
-            ) VALUES (
-                gen_random_uuid(),
-                common_parameters.sd_id,
-                distribution_type,
-                'NET_TO_GROSS_PROSPECT_DISCOVERY',
-                NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.ntg_p01) END,
-                NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.ntg_mean) END,
-                NULL -- does most likely exist in PaDI
-            );
-
+        IF padi_distribution_type IS NULL AND volumetric_parameters.ntg_dist != Z THEN
+            padi_other_distribution_type := volumetric_parameters.ntg_dist;
         END IF;
+
+        INSERT INTO remi.probability_distributions (
+            id,
+            submission_detail_id,
+            distribution_type,
+            other_distribution_type,
+            instance,
+            min_value,
+            p99,
+            p90,
+            mode_value,
+            p50,
+            mean_value,
+            p10,
+            p1,
+            max_value,
+            constant_value,
+            most_likely_value
+        ) VALUES (
+            gen_random_uuid(),
+            volumetric_parameters.sd_id,
+            padi_distribution_type,
+            padi_other_distribution_type,
+            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'NET_TO_GROSS_PROSPECT' ELSE 'NET_TO_GROSS_DISCOVERY' END,
+            NULL, -- does min exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p99) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p90) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_mode) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p50) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_mean) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p10) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p01) END,
+            NULL, -- does max exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.ntg_mean) END,
+            NULL -- does most likely exist in PaDI
+        );
+
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
         -- Net porosity
-        IF common_parameters.porosity_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+        SELECT
+            CASE volumetric_parameters.porosity_dist
+                WHEN N THEN NORMAL
+                WHEN L THEN LOGNORMAL
+                WHEN B THEN BETA
+                WHEN T THEN TRIANGULAR
+                WHEN R THEN RECTANGULAR
+                WHEN C THEN CONSTANT
+            END
+        INTO padi_distribution_type;
 
-            SELECT
-                CASE common_parameters.porosity_dist
-                    WHEN N THEN NORMAL
-                    WHEN L THEN LOGNORMAL
-                    WHEN B THEN BETA
-                    WHEN T THEN TRIANGULAR
-                    WHEN R THEN RECTANGULAR
-                    WHEN C THEN CONSTANT
-                END
-            INTO distribution_type;
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value
-            ) VALUES (
-                gen_random_uuid(),
-                common_parameters.sd_id,
-                distribution_type,
-                'NET_POROSITY_PROSPECT_DISCOVERY',
-                NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(common_parameters.porosity_p01) END,
-                NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(common_parameters.porosity_mean) END,
-                NULL -- does most likely exist in PaDI
-            );
-
+        IF padi_distribution_type IS NULL AND volumetric_parameters.porosity_dist != Z THEN
+            padi_other_distribution_type := volumetric_parameters.porosity_dist;
         END IF;
 
-    END LOOP;
+        INSERT INTO remi.probability_distributions (
+            id,
+            submission_detail_id,
+            distribution_type,
+            other_distribution_type,
+            instance,
+            min_value,
+            p99,
+            p90,
+            mode_value,
+            p50,
+            mean_value,
+            p10,
+            p1,
+            max_value,
+            constant_value,
+            most_likely_value
+        ) VALUES (
+            gen_random_uuid(),
+            volumetric_parameters.sd_id,
+            padi_distribution_type,
+            padi_other_distribution_type,
+            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'NET_POROSITY_PROSPECT' ELSE 'NET_POROSITY_DISCOVERY' END,
+            NULL, -- does min exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p99) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p90) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_mode) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p50) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_mean) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p10) END,
+            CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p01) END,
+            NULL, -- does max exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.porosity_mean) END,
+            NULL -- does most likely exist in PaDI
+        );
 
-    -- Parameters which only appear for prospects
-    -- RESERVOIR PROPERTIES
-    FOR prospect_parameters IN (
-        SELECT prdp.*, sd.id sd_id
-        FROM remi.padi_res_data_param prdp
-        JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdp.resdat_id
-        WHERE sd.submission_type IN ('CREATE_PROSPECT','PROSPECT_UPDATE','RELINQUISHMENT_PROSPECT')
-    )
-    LOOP
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
         -- Average net pay thickness
-        IF prospect_parameters.net_pay_dist IN (N,L,B,T,R,C,Z) THEN -- need to verify with NSTA what to do with other values
+        SELECT
+            CASE volumetric_parameters.net_pay_dist
+                WHEN N THEN NORMAL
+                WHEN L THEN LOGNORMAL
+                WHEN B THEN BETA
+                WHEN T THEN TRIANGULAR
+                WHEN R THEN RECTANGULAR
+                WHEN C THEN CONSTANT
+                WHEN Z THEN NOT_CALCULATED
+            END
+        INTO padi_distribution_type;
+
+        IF padi_distribution_type IS NULL THEN
+            padi_other_distribution_type := volumetric_parameters.net_pay_dist;
+        END IF;
+
+        INSERT INTO remi.probability_distributions (
+            id,
+            submission_detail_id,
+            distribution_type,
+            other_distribution_type,
+            instance,
+            min_value,
+            p99,
+            p90,
+            mode_value,
+            p50,
+            mean_value,
+            p10,
+            p1,
+            max_value,
+            constant_value,
+            most_likely_value
+        ) VALUES (
+            gen_random_uuid(),
+            volumetric_parameters.sd_id,
+            padi_distribution_type,
+            padi_other_distribution_type,
+            CASE
+                WHEN volumetric_parameters.submission_type = 'POST_DRILL_DRY_HOLE' THEN 'AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL'
+                WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'AVERAGE_NET_RESERVOIR_THICKNESS_PROSPECT'
+                ELSE 'AVERAGE_NET_RESERVOIR_THICKNESS_DISCOVERY'
+            END,
+            NULL, -- does min exist in PaDI
+            CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p99) END,
+            CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p90) END,
+            CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_mode) END,
+            CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p50) END,
+            CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_mean) END,
+            CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p10) END,
+            CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p01) END,
+            NULL, -- does max exist in PaDI
+            CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.net_pay_mean) END,
+            NULL -- does most likely exist in PaDI
+        );
+
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
+
+        IF volumetric_parameters.submission_type = 'POST_DRILL_DRY_HOLE' OR volumetric_parameters.hydrocarbon_case = 'mixed oil and gas' THEN
 
             SELECT
-                CASE prospect_parameters.net_pay_dist
+                CASE volumetric_parameters.grv_perc_oil_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -410,12 +492,17 @@ BEGIN
                     WHEN C THEN CONSTANT
                     WHEN Z THEN NOT_CALCULATED
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL THEN
+                padi_other_distribution_type := volumetric_parameters.grv_perc_oil_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -430,41 +517,33 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                prospect_parameters.sd_id,
-                distribution_type,
-                'AVERAGE_NET_PAY_THICKNESS_PROSPECT',
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
+                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'PERCENT_OF_GRV_OIL_BEARING_PROSPECT' ELSE 'PERCENT_OF_GRV_OIL_BEARING_DISCOVERY' END,
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_p99) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_p90) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_mode) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_p50) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_mean) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_p10) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(prospect_parameters.net_pay_p01) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p99) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p90) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_mode) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p50) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_mean) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p10) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(prospect_parameters.net_pay_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.grv_perc_oil_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
+
         END IF;
 
-    END LOOP;
+        IF volumetric_parameters.submission_type != 'POST_DRILL_DRY_HOLE' AND volumetric_parameters.hydrocarbon_case IN ('oil', 'gas', 'condensate') THEN
 
-    -- Parameters which only appear for either dry wells or discoveries
-    -- RESERVOIR PROPERTIES
-    FOR discovery_dry_well_parameters IN (
-        SELECT prdp.*, sd.id sd_id
-        FROM remi.padi_res_data_param prdp
-        JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdp.resdat_id
-        WHERE sd.submission_type IN ('CREATE_DISCOVERY_FROM_PROSPECT','CREATE_DISCOVERY','UPDATE_DISCOVERY','RELINQUISHMENT_DISCOVERY','POST_DRILL_DRY_HOLE')
-    )
-    LOOP
-
-        -- Average net pay thickness
-        IF discovery_dry_well_parameters.net_pay_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
-
+            -- Gas expansion factor
             SELECT
-                CASE discovery_dry_well_parameters.net_pay_dist
+                CASE volumetric_parameters.gef_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -472,12 +551,17 @@ BEGIN
                     WHEN R THEN RECTANGULAR
                     WHEN C THEN CONSTANT
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL AND volumetric_parameters.gef_dist != Z THEN
+                padi_other_distribution_type := volumetric_parameters.gef_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -492,156 +576,29 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                discovery_dry_well_parameters.sd_id,
-                distribution_type,
-                'AVERAGE_NET_PAY_THICKNESS_DRY_WELL_DISCOVERY',
-                NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(discovery_dry_well_parameters.net_pay_p01) END,
-                NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(discovery_dry_well_parameters.net_pay_mean) END,
-                NULL -- does most likely exist in PaDI
-            );
-
-        END IF;
-
-    END LOOP;
-
-    -- Parameters which only appear for either dry wells or discoveries
-    -- Percent of GRV which is oil bearing appears for both dry well cases, or if it is a mixed oil and gas case
-    FOR dry_well_or_mixed_case_parameters IN (
-        SELECT prdp.*, sd.id sd_id
-        FROM remi.padi_res_data_param prdp
-        JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdp.resdat_id
-        JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
-        WHERE sd.submission_type = 'POST_DRILL_DRY_HOLE' OR LOWER(prdh.hc_case) = 'mixed oil and gas'
-    )
-    LOOP
-
-        IF dry_well_or_mixed_case_parameters.grv_perc_oil_dist IN (N,L,B,T,R,C,Z) THEN -- need to verify with NSTA what to do with other values
-
-            SELECT
-                CASE dry_well_or_mixed_case_parameters.grv_perc_oil_dist
-                    WHEN N THEN NORMAL
-                    WHEN L THEN LOGNORMAL
-                    WHEN B THEN BETA
-                    WHEN T THEN TRIANGULAR
-                    WHEN R THEN RECTANGULAR
-                    WHEN C THEN CONSTANT
-                    WHEN Z THEN NOT_CALCULATED
-                END
-            INTO distribution_type;
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value
-            ) VALUES (
-                gen_random_uuid(),
-                dry_well_or_mixed_case_parameters.sd_id,
-                distribution_type,
-                'PERCENT_OF_GRV_OIL_BEARING',
-                NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_p99) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_p90) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_mode) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_p50) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_mean) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_p10) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(dry_well_or_mixed_case_parameters.grv_perc_oil_p01) END,
-                NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(dry_well_or_mixed_case_parameters.grv_perc_oil_mean) END,
-                NULL -- does most likely exist in PaDI
-            );
-
-        END IF;
-
-    END LOOP;
-
-    -- Parameters for gas cases
-    FOR gas_and_oil_case_parameters IN (
-        SELECT prdp.*, sd.id sd_id
-        FROM remi.padi_res_data_param prdp
-        JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdp.resdat_id
-        JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
-        WHERE sd.submission_type != 'POST_DRILL_DRY_HOLE'
-        AND LOWER(prdh.hc_case) IN ('oil', 'gas', 'condensate')
-
-    )
-    LOOP
-
-        -- Gas expansion factor
-        IF gas_and_oil_case_parameters.gef_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
-
-            SELECT
-                CASE gas_and_oil_case_parameters.gef_dist
-                    WHEN N THEN NORMAL
-                    WHEN L THEN LOGNORMAL
-                    WHEN B THEN BETA
-                    WHEN T THEN TRIANGULAR
-                    WHEN R THEN RECTANGULAR
-                    WHEN C THEN CONSTANT
-                END
-            INTO distribution_type;
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value
-            ) VALUES (
-                gen_random_uuid(),
-                gas_and_oil_case_parameters.sd_id,
-                distribution_type,
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
                 'GAS_EXPANSION_FACTOR',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gef_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gef_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gef_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gef_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gef_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gef_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gef_p01) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p99) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p90) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_mode) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p50) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p10) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(gas_and_oil_case_parameters.gef_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gef_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
-        END IF;
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
 
-        -- Gas recovery factor
-        IF gas_and_oil_case_parameters.rf_gas_dist IN (N,L,B,T,R,C,Z) THEN -- need to verify with NSTA what to do with other values
-
+            -- Gas recovery factor
             SELECT
-                CASE gas_and_oil_case_parameters.rf_gas_dist
+                CASE volumetric_parameters.rf_gas_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -650,12 +607,17 @@ BEGIN
                     WHEN C THEN CONSTANT
                     WHEN Z THEN NOT_CALCULATED
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL THEN
+                padi_other_distribution_type := volumetric_parameters.rf_gas_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -670,29 +632,28 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                gas_and_oil_case_parameters.sd_id,
-                distribution_type,
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
                 'GAS_RECOVERY_FACTOR',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_gas_p99) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_gas_p90) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_gas_mode) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_gas_p50) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_gas_mean) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_gas_p10) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_gas_p01) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p99) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p90) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_mode) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p50) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_mean) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p10) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(gas_and_oil_case_parameters.rf_gas_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_gas_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
-        END IF;
-
-        -- Condensate gas ratio
-        IF gas_and_oil_case_parameters.cgr_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
 
             SELECT
-                CASE gas_and_oil_case_parameters.cgr_dist
+                CASE volumetric_parameters.cgr_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -700,12 +661,17 @@ BEGIN
                     WHEN R THEN RECTANGULAR
                     WHEN C THEN CONSTANT
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL AND volumetric_parameters.cgr_dist != Z THEN
+                padi_other_distribution_type := volumetric_parameters.cgr_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -720,29 +686,28 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                gas_and_oil_case_parameters.sd_id,
-                distribution_type,
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
                 'CONDENSATE_GAS_RATIO_LIFE_OF_FIELD',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.cgr_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.cgr_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.cgr_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.cgr_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.cgr_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.cgr_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.cgr_p01) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p99) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p90) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_mode) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p50) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p10) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(gas_and_oil_case_parameters.cgr_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.cgr_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
-        END IF;
-
-        -- Formation volume factor
-        IF gas_and_oil_case_parameters.fvf_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
 
             SELECT
-                CASE gas_and_oil_case_parameters.fvf_dist
+                CASE volumetric_parameters.fvf_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -750,12 +715,17 @@ BEGIN
                     WHEN R THEN RECTANGULAR
                     WHEN C THEN CONSTANT
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL AND volumetric_parameters.fvf_dist != Z THEN
+                padi_other_distribution_type := volumetric_parameters.fvf_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -770,29 +740,37 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                gas_and_oil_case_parameters.sd_id,
-                distribution_type,
-                'FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY',
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
+                CASE
+                    WHEN volumetric_parameters.resource_type = 'PROSPECT' AND volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate')
+                        THEN 'GAS_FORMATION_VOLUME_FACTOR_PROSPECT'
+                    WHEN volumetric_parameters.resource_type = 'DISCOVERY' AND volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate')
+                        THEN 'GAS_FORMATION_VOLUME_FACTOR_DISCOVERY'
+                    WHEN volumetric_parameters.resource_type = 'PROSPECT' AND volumetric_parameters.hydrocarbon_case = 'oil'
+                        THEN 'OIL_FORMATION_VOLUME_FACTOR_PROSPECT'
+                    WHEN volumetric_parameters.resource_type = 'DISCOVERY' AND volumetric_parameters.hydrocarbon_case = 'oil'
+                        THEN 'OIL_FORMATION_VOLUME_FACTOR_DISCOVERY'
+                END,
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.fvf_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.fvf_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.fvf_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.fvf_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.fvf_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.fvf_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.fvf_p01) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p90) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mode) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p50) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p10) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(gas_and_oil_case_parameters.fvf_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.fvf_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
-        END IF;
-
-        -- Oil recovery factor
-        IF gas_and_oil_case_parameters.rf_oil_dist IN (N,L,B,T,R,C,Z) THEN -- need to verify with NSTA what to do with other values
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
 
             SELECT
-                CASE gas_and_oil_case_parameters.rf_oil_dist
+                CASE volumetric_parameters.rf_oil_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -800,13 +778,18 @@ BEGIN
                     WHEN R THEN RECTANGULAR
                     WHEN C THEN CONSTANT
                     WHEN Z THEN NOT_CALCULATED
-                    END
-            INTO distribution_type;
+                END
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL THEN
+                padi_other_distribution_type := volumetric_parameters.rf_oil_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -821,42 +804,46 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                gas_and_oil_case_parameters.sd_id,
-                distribution_type,
-                'OIL_RECOVERY_FACTOR',
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
+                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'OIL_RECOVERY_FACTOR_PROSPECT' ELSE 'OIL_RECOVERY_FACTOR_DISCOVERY' END,
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_oil_p99) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_oil_p90) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_oil_mode) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_oil_p50) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_oil_mean) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_oil_p10) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(gas_and_oil_case_parameters.rf_oil_p01) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p99) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p90) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_mode) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p50) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_mean) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p10) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(gas_and_oil_case_parameters.rf_oil_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_oil_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
-        END IF;
-
-        -- Gas oil ratio
-        IF gas_and_oil_case_parameters.gor_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
 
             SELECT
-                CASE gas_and_oil_case_parameters.gor_dist
+                CASE volumetric_parameters.gor_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
                     WHEN T THEN TRIANGULAR
                     WHEN R THEN RECTANGULAR
                     WHEN C THEN CONSTANT
-                    END
-            INTO distribution_type;
+                END
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL AND volumetric_parameters.gor_dist != Z THEN
+                padi_other_distribution_type := volumetric_parameters.gor_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -871,42 +858,32 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                gas_and_oil_case_parameters.sd_id,
-                distribution_type,
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
                 'ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gor_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gor_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gor_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gor_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gor_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gor_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(gas_and_oil_case_parameters.gor_p01) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p99) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p90) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_mode) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p50) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p10) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(gas_and_oil_case_parameters.gor_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gor_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
+
         END IF;
 
-    END LOOP;
-
-    -- Parameters for mixed cases
-    FOR mixed_case_parameters IN (
-        SELECT prdp.*, sd.id sd_id
-        FROM remi.padi_res_data_param prdp
-        JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdp.resdat_id
-        JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
-        WHERE sd.submission_type != 'POST_DRILL_DRY_HOLE'
-        AND LOWER(prdh.hc_case) = 'mixed oil and gas'
-    )
-    LOOP
-
-        -- Formation volume factor
-        IF mixed_case_parameters.fvf_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+        IF volumetric_parameters.submission_type != 'POST_DRILL_DRY_HOLE' AND volumetric_parameters.hydrocarbon_case = 'mixed oil and gas' THEN
 
             SELECT
-                CASE mixed_case_parameters.fvf_dist
+                CASE volumetric_parameters.fvf_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -914,12 +891,17 @@ BEGIN
                     WHEN R THEN RECTANGULAR
                     WHEN C THEN CONSTANT
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL AND volumetric_parameters.fvf_dist != Z THEN
+                padi_other_distribution_type := volumetric_parameters.fvf_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -934,29 +916,28 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                mixed_case_parameters.sd_id,
-                distribution_type,
-                'MIXED_FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY',
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
+                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'MIXED_FORMATION_VOLUME_FACTOR_PROSPECT' ELSE 'MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY' END,
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.fvf_p01) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p90) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mode) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p50) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p10) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.fvf_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.fvf_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
-        END IF;
-
-        -- Oil recovery factor
-        IF mixed_case_parameters.rf_oil_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
 
             SELECT
-                CASE mixed_case_parameters.rf_oil_dist
+                CASE volumetric_parameters.rf_oil_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -964,12 +945,17 @@ BEGIN
                     WHEN R THEN RECTANGULAR
                     WHEN C THEN CONSTANT
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL AND volumetric_parameters.rf_oil_dist != Z THEN
+                padi_other_distribution_type := volumetric_parameters.rf_oil_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -984,29 +970,28 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                mixed_case_parameters.sd_id,
-                distribution_type,
-                'MIXED_OIL_RECOVERY_FACTOR',
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
+                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'MIXED_OIL_RECOVERY_FACTOR_PROSPECT' ELSE 'MIXED_OIL_RECOVERY_FACTOR_DISCOVERY' END,
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_oil_p01) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p99) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p90) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_mode) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p50) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p10) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.rf_oil_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_oil_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
-        END IF;
-
-        -- Gas oil ratio
-        IF mixed_case_parameters.gor_dist IN (N,L,B,T,R,C,Z) THEN -- need to verify with NSTA what to do with other values
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
 
             SELECT
-                CASE mixed_case_parameters.gor_dist
+                CASE volumetric_parameters.gor_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -1015,12 +1000,17 @@ BEGIN
                     WHEN C THEN CONSTANT
                     WHEN Z THEN NOT_CALCULATED
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL THEN
+                padi_other_distribution_type := volumetric_parameters.gor_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -1035,29 +1025,28 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                mixed_case_parameters.sd_id,
-                distribution_type,
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
                 'MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_p99) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_p90) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_mode) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_p50) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_mean) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_p10) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.gor_p01) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p99) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p90) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_mode) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p50) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_mean) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p10) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.gor_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gor_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
-        END IF;
-
-        -- Gas expansion factor
-        IF mixed_case_parameters.gef_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
 
             SELECT
-                CASE mixed_case_parameters.gef_dist
+                CASE volumetric_parameters.gef_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -1065,12 +1054,17 @@ BEGIN
                     WHEN R THEN RECTANGULAR
                     WHEN C THEN CONSTANT
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL AND volumetric_parameters.gef_dist != Z THEN
+                padi_other_distribution_type := volumetric_parameters.gef_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -1085,29 +1079,28 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                mixed_case_parameters.sd_id,
-                distribution_type,
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
                 'MIXED_GAS_EXPANSION_FACTOR',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.gef_p01) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p99) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p90) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_mode) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p50) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p10) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.gef_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gef_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
-        END IF;
-
-        -- Gas recovery factor
-        IF mixed_case_parameters.rf_gas_dist IN (N,L,B,T,R,C) THEN -- need to verify with NSTA what to do with other values
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
 
             SELECT
-                CASE mixed_case_parameters.rf_gas_dist
+                CASE volumetric_parameters.rf_gas_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -1115,12 +1108,17 @@ BEGIN
                     WHEN R THEN RECTANGULAR
                     WHEN C THEN CONSTANT
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL AND volumetric_parameters.rf_gas_dist != Z THEN
+                padi_other_distribution_type := volumetric_parameters.rf_gas_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -1135,29 +1133,28 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                mixed_case_parameters.sd_id,
-                distribution_type,
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
                 'MIXED_GAS_RECOVERY_FACTOR',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_p99) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_p90) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_mode) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_p50) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_mean) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_p10) END,
-                CASE WHEN distribution_type = CONSTANT THEN NULL ELSE abs(mixed_case_parameters.rf_gas_p01) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p99) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p90) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_mode) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p50) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p10) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.rf_gas_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_gas_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 
-        END IF;
-
-        -- Condensate gas ratio
-        IF mixed_case_parameters.cgr_dist IN (N,L,B,T,R,C,Z) THEN -- need to verify with NSTA what to do with other values
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
 
             SELECT
-                CASE mixed_case_parameters.cgr_dist
+                CASE volumetric_parameters.cgr_dist
                     WHEN N THEN NORMAL
                     WHEN L THEN LOGNORMAL
                     WHEN B THEN BETA
@@ -1166,12 +1163,17 @@ BEGIN
                     WHEN C THEN CONSTANT
                     WHEN Z THEN NOT_CALCULATED
                 END
-            INTO distribution_type;
+            INTO padi_distribution_type;
+
+            IF padi_distribution_type IS NULL THEN
+                padi_other_distribution_type := volumetric_parameters.cgr_dist;
+            END IF;
 
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
                 distribution_type,
+                other_distribution_type,
                 instance,
                 min_value,
                 p99,
@@ -1186,19 +1188,20 @@ BEGIN
                 most_likely_value
             ) VALUES (
                 gen_random_uuid(),
-                mixed_case_parameters.sd_id,
-                distribution_type,
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
                 'MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD',
                 NULL, -- does min exist in PaDI
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_p99) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_p90) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_mode) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_p50) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_mean) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_p10) END,
-                CASE WHEN distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(mixed_case_parameters.cgr_p01) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p99) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p90) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_mode) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p50) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_mean) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p10) END,
+                CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p01) END,
                 NULL, -- does max exist in PaDI
-                CASE WHEN distribution_type = CONSTANT THEN abs(mixed_case_parameters.cgr_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.cgr_mean) END,
                 NULL -- does most likely exist in PaDI
             );
 

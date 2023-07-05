@@ -90,6 +90,24 @@ class ProbabilityDistributionPersistenceServiceTest {
   }
 
   @Test
+  void saveProbabilityDistributionWhenNotNull_withNullDistributionType() {
+    var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
+    var submissionDetail = new SubmissionDetail();
+
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.NORMAL);
+    var probabilityDistribution = new ProbabilityDistribution();
+    probabilityDistribution.setDistributionType(null);
+    when(probabilityDistributionRepository.findBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance))
+        .thenReturn(Optional.of(probabilityDistribution));
+
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail);
+
+    verify(probabilityDistributionRepository, times(1)).delete(probabilityDistribution);
+    verify(probabilityDistributionRepository, times(1)).save(any());
+  }
+
+  @Test
   void deleteProbabilityDistribution_verifyMethodCall() {
     var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();

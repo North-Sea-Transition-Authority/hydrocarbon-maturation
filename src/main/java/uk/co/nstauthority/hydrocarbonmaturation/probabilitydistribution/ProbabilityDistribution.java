@@ -30,6 +30,8 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
   @Enumerated(EnumType.STRING)
   private ProbabilityDistributionType distributionType;
 
+  private String otherDistributionType;
+
   @Enumerated(EnumType.STRING)
   private ProbabilityDistributionFieldInstance instance;
 
@@ -80,6 +82,14 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
   public void setDistributionType(
       ProbabilityDistributionType distributionType) {
     this.distributionType = distributionType;
+  }
+
+  public String getOtherDistributionType() {
+    return otherDistributionType;
+  }
+
+  public void setOtherDistributionType(String otherDistributionType) {
+    this.otherDistributionType = otherDistributionType;
   }
 
   public ProbabilityDistributionFieldInstance getInstance() {

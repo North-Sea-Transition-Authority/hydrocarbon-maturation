@@ -22,6 +22,9 @@ public class ProbabilityDistributionFormService {
   ) {
     return probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance)
         .map(probabilityDistribution -> {
+          if (probabilityDistribution.getDistributionType() == null) {
+            return createProbabilityDistributionForm(instance);
+          }
           var exceedanceForm = getExceedanceFormFromEntity(probabilityDistribution);
 
           var form = createProbabilityDistributionForm(instance, probabilityDistribution.getDistributionType());

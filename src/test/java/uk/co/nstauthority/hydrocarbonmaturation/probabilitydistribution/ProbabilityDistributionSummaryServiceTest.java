@@ -121,4 +121,29 @@ class ProbabilityDistributionSummaryServiceTest {
             COMMENTS
         );
   }
+
+  @Test
+  void getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission_withOtherDistributionType() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var probabilityDistribution = new ProbabilityDistribution();
+
+    var otherDistributionType = "Other";
+    probabilityDistribution.setDistributionType(null);
+    probabilityDistribution.setOtherDistributionType(otherDistributionType);
+    probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT);
+
+    when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+        submissionDetail, ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
+        .thenReturn(Optional.of(probabilityDistribution));
+
+    assertThat(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT, submissionDetail))
+        .extracting(
+            ProbabilityDistributionSummaryView::probabilityDistributionName,
+            ProbabilityDistributionSummaryView::probabilityDistributionType)
+        .contains(
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT.getDisplayName(),
+            otherDistributionType
+        );
+  }
 }

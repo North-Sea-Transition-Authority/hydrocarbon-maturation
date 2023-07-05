@@ -10,9 +10,11 @@ BEGIN
     -- Get oil and gas outputs and apply to either oil or gas hydrocarbon case
     -- as we can't rely on the PaDI hydrocarbon case to be accurate for the information supplied
     FOR oil_and_gas_output_rec IN (
-        SELECT prdvo.*, sd.id sd_id
+        SELECT prdvo.*, sd.id sd_id, r.type resource_type
         FROM remi.padi_res_data_vol_outputs prdvo
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdvo.resdat_id
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON r.id = s.resource_id
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
         WHERE sd.submission_type != 'POST_DRILL_DRY_HOLE'
         AND LOWER(prdh.hc_case) IN ('oil','gas','condensate')
@@ -59,7 +61,10 @@ BEGIN
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                'OIL_OUTPUTS_OIL_IN_PLACE',
+                CASE
+                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT'
+                    ELSE 'OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY'
+                END,
                 abs(oil_and_gas_output_rec.oil_inplace_p99),
                 abs(oil_and_gas_output_rec.oil_inplace_p90),
                 abs(oil_and_gas_output_rec.oil_inplace_mode),
@@ -98,7 +103,10 @@ BEGIN
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY'
+                END,
                 abs(oil_and_gas_output_rec.oil_recoverable_p99),
                 abs(oil_and_gas_output_rec.oil_recoverable_p90),
                 abs(oil_and_gas_output_rec.oil_recoverable_mode),
@@ -141,7 +149,10 @@ BEGIN
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
+                END,
                 abs(oil_and_gas_output_rec.assgas_recoverable_p99),
                 abs(oil_and_gas_output_rec.assgas_recoverable_p90),
                 abs(oil_and_gas_output_rec.assgas_recoverable_mode),
@@ -180,7 +191,10 @@ BEGIN
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY'
+                END,
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p99),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p90),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_mode),
@@ -230,7 +244,10 @@ BEGIN
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                'GAS_OUTPUTS_GAS_IN_PLACE',
+                CASE
+                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT'
+                    ELSE 'GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY'
+                END,
                 abs(oil_and_gas_output_rec.gas_inplace_p99),
                 abs(oil_and_gas_output_rec.gas_inplace_p90),
                 abs(oil_and_gas_output_rec.gas_inplace_mode),
@@ -269,7 +286,10 @@ BEGIN
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
+                END,
                 abs(oil_and_gas_output_rec.gas_recoverable_p99),
                 abs(oil_and_gas_output_rec.gas_recoverable_p90),
                 abs(oil_and_gas_output_rec.gas_recoverable_mode),
@@ -312,7 +332,10 @@ BEGIN
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                'GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY'
+                END,
                 abs(oil_and_gas_output_rec.asscon_recoverable_p99),
                 abs(oil_and_gas_output_rec.asscon_recoverable_p90),
                 abs(oil_and_gas_output_rec.asscon_recoverable_mode),
@@ -351,7 +374,10 @@ BEGIN
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY'
+                END,
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p99),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p90),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_mode),
@@ -367,9 +393,11 @@ BEGIN
 
     -- If mixed hydrocarbon case we can simply populate the mixed case output types
     FOR mixed_output_rec IN (
-        SELECT prdvo.*, sd.id sd_id
+        SELECT prdvo.*, sd.id sd_id, r.type resource_type
         FROM remi.padi_res_data_vol_outputs prdvo
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdvo.resdat_id
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON r.id = s.resource_id
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
         WHERE sd.submission_type != 'POST_DRILL_DRY_HOLE'
         AND LOWER(prdh.hc_case) = 'mixed oil and gas'
@@ -416,7 +444,10 @@ BEGIN
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                'MIXED_CASE_OIL_IN_PLACE',
+                CASE
+                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_OIL_IN_PLACE_PROSPECT'
+                    ELSE 'MIXED_CASE_OIL_IN_PLACE_DISCOVERY'
+                END,
                 abs(mixed_output_rec.oil_inplace_p99),
                 abs(mixed_output_rec.oil_inplace_p90),
                 abs(mixed_output_rec.oil_inplace_mode),
@@ -455,7 +486,10 @@ BEGIN
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                'MIXED_CASE_OIL_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY'
+                END,
                 abs(mixed_output_rec.oil_recoverable_p99),
                 abs(mixed_output_rec.oil_recoverable_p90),
                 abs(mixed_output_rec.oil_recoverable_mode),
@@ -498,7 +532,10 @@ BEGIN
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                'MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT'
+                END,
                 abs(mixed_output_rec.assgas_recoverable_p99),
                 abs(mixed_output_rec.assgas_recoverable_p90),
                 abs(mixed_output_rec.assgas_recoverable_mode),
@@ -537,7 +574,10 @@ BEGIN
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                'MIXED_CASE_GAS_IN_PLACE',
+                CASE
+                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_GAS_IN_PLACE_PROSPECT'
+                    ELSE 'MIXED_CASE_GAS_IN_PLACE_DISCOVERY'
+                END,
                 abs(mixed_output_rec.gas_inplace_p99),
                 abs(mixed_output_rec.gas_inplace_p90),
                 abs(mixed_output_rec.gas_inplace_mode),
@@ -576,7 +616,10 @@ BEGIN
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                'MIXED_CASE_GAS_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
+                END,
                 abs(mixed_output_rec.gas_recoverable_p99),
                 abs(mixed_output_rec.gas_recoverable_p90),
                 abs(mixed_output_rec.gas_recoverable_mode),
@@ -615,7 +658,10 @@ BEGIN
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                'MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY'
+                END,
                 abs(mixed_output_rec.asscon_recoverable_p99),
                 abs(mixed_output_rec.asscon_recoverable_p90),
                 abs(mixed_output_rec.asscon_recoverable_mode),
@@ -654,7 +700,10 @@ BEGIN
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                'MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES',
+                CASE
+                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT'
+                    ELSE 'MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY'
+                END,
                 abs(mixed_output_rec.oilequiv_recoverable_p99),
                 abs(mixed_output_rec.oilequiv_recoverable_p90),
                 abs(mixed_output_rec.oilequiv_recoverable_mode),

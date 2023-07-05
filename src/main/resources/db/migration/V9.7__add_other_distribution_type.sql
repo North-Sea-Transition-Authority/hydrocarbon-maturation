@@ -1,0 +1,2 @@
+ALTER TABLE probability_distributions
+ADD COLUMN other_distribution_type TEXT;
