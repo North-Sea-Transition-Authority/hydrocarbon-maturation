@@ -430,7 +430,6 @@ class GeneralDetailsFormServiceTest {
     when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
         .thenReturn(Optional.of(approvedProspect));
     var generalDetail = new GeneralDetail();
-    generalDetail.setResourceOnALicence(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(approvedProspect))
         .thenReturn(Optional.of(generalDetail));
     when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))

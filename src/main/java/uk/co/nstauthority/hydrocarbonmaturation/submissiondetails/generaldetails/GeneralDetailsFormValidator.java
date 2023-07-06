@@ -76,20 +76,13 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
 
   private void validateAlways(GeneralDetailsForm form, Errors errors) {
     if (latestApprovedGeneralDetail != null
-        && BooleanUtils.isTrue(latestApprovedGeneralDetail.getResourceOnALicence())
-        && !isRelinquishment) {
-      if (form.getResourceOnALicence() == null || !form.getResourceOnALicence()) {
-        errors.rejectValue("resourceOnALicence",
-            "resourceOnALicence.required",
-            "You cannot remove all licences from a resource that has " +
-                "a licence on an earlier approved submission");
-        missingLicenceErrorPresent = true;
-      } else if (isLicencePresent && CollectionUtils.isEmpty(form.getLicences())) {
-        errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
-            "You cannot remove all licences from a resource that has " +
-                "a licence on an earlier approved submission");
-        missingLicenceErrorPresent = true;
-      }
+        && !isRelinquishment
+        && isLicencePresent
+        && CollectionUtils.isEmpty(form.getLicences())) {
+      errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
+          "You cannot remove all licences from a resource that has " +
+              "a licence on an earlier approved submission");
+      missingLicenceErrorPresent = true;
     }
   }
 
@@ -97,9 +90,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   public void validatePartial(SubmissionForm form, Errors errors) {
     GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
 
-    if (!isRelinquishment
-        && !generalDetailsForm.getLicences().isEmpty()
-        && BooleanUtils.isTrue(generalDetailsForm.getResourceOnALicence())) {
+    if (!isRelinquishment && !generalDetailsForm.getLicences().isEmpty()) {
       validateExtantLicences(generalDetailsForm, errors);
     }
 
@@ -115,11 +106,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     var generalDetailsForm = (GeneralDetailsForm) form;
 
     if (!isRelinquishment && !missingLicenceErrorPresent) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "resourceOnALicence",
-          "resourceOnALicence.required", "Select whether the resource is on a licence");
-
-      if (BooleanUtils.isTrue(generalDetailsForm.getResourceOnALicence())
-          && CollectionUtils.isEmpty(generalDetailsForm.getLicences())) {
+      if (CollectionUtils.isEmpty(generalDetailsForm.getLicences())) {
         errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
             "You must select at least one licence");
       } else {

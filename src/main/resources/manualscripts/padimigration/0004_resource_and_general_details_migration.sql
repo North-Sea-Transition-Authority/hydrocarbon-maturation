@@ -51,8 +51,7 @@ BEGIN
             CASE
                 WHEN prdh.stage_name NOT IN (bid, pre_drill, well_investment, relinquishment) THEN prdh.stage_name
             END other_info_source,
-            CASE WHEN prdh.stage_name = bid THEN prdh.application_ref END licence_app_ref,
-            CASE WHEN prdh.licence_list IS NOT NULL THEN TRUE ELSE FALSE END resource_on_licence
+            CASE WHEN prdh.stage_name = bid THEN prdh.application_ref END licence_app_ref
         FROM remi.submission_details sd
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
     )
@@ -83,8 +82,7 @@ BEGIN
             percentage_located_in_ukcs,
             information_source,
             other_information_source,
-            licence_application_reference,
-            resource_on_a_licence
+            licence_application_reference
         ) VALUES (
             gen_random_uuid(),
             submission_rec.id,
@@ -93,7 +91,6 @@ BEGIN
             submission_rec.info_source,
             submission_rec.other_info_source,
             submission_rec.licence_app_ref,
-            submission_rec.resource_on_licence
         );
 
     END LOOP;

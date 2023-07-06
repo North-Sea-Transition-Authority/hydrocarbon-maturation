@@ -92,7 +92,7 @@ class GeneralDetailsFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
-            entry("resourceOnALicence", Set.of("resourceOnALicence.required")),
+            entry("licenceSelect", Set.of("licenceSelect.required")),
             entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
             entry("informationSource", Set.of("informationSource.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
@@ -106,7 +106,7 @@ class GeneralDetailsFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
-            entry("resourceOnALicence", Set.of("resourceOnALicence.required")),
+            entry("licenceSelect", Set.of("licenceSelect.required")),
             entry("resourceLocatedInEngland", Set.of("resourceLocatedInEngland.required")),
             entry("informationSource", Set.of("informationSource.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
@@ -158,7 +158,7 @@ class GeneralDetailsFormValidatorTest {
   }
 
   @Test
-  void validate_whenInValidForm_noQuadrantBlockAndLicence_thenValidationErrors() {
+  void validate_whenInValidForm_noQuadrantBlockAndLicences_thenValidationErrors() {
     var form = getValidForm();
     form.setQuadrantBlocks(Collections.emptyList());
     form.setLicences(List.of());
@@ -168,6 +168,20 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrors)
         .containsExactly(
             entry("licenceSelect", Set.of("licenceSelect.required")),
+            entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
+        );
+  }
+
+  @Test
+  void validate_whenInValidForm_noQuadrantBlocks_thenValidationErrors() {
+    var form = getValidForm();
+    form.setQuadrantBlocks(Collections.emptyList());
+    form.setLicences(List.of("1", "2"));
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.FULL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
         );
   }
@@ -262,38 +276,12 @@ class GeneralDetailsFormValidatorTest {
 
   @ParameterizedTest
   @EnumSource(ValidationType.class)
-  void validate_whenResourceNotOnLicence_WhenInPreviousSubmission(ValidationType validationType) {
-    var form = getValidForm();
-    form.setLicences(List.of("1"));
-    form.setLicenceSelect(null);
-    form.setResourceOnALicence(false);
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var generalDetail = new GeneralDetail();
-    generalDetail.setResourceOnALicence(true);
-
-    generalDetailsFormValidator.validate(
-        form,
-        bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, generalDetail,
-            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("resourceOnALicence", Set.of("resourceOnALicence.required"))
-        );
-  }
-
-  @ParameterizedTest
-  @EnumSource(ValidationType.class)
   void validate_whenNoLicenceSelected_WhenInPreviousSubmission(ValidationType validationType) {
     var form = getValidForm();
     form.setLicences(List.of());
     form.setLicenceSelect(null);
-    form.setResourceOnALicence(true);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var generalDetail = new GeneralDetail();
-    generalDetail.setResourceOnALicence(true);
 
     generalDetailsFormValidator.validate(
         form,
@@ -396,10 +384,8 @@ class GeneralDetailsFormValidatorTest {
     var form = getValidForm();
     form.setLicences(List.of());
     form.setLicenceSelect(null);
-    form.setResourceOnALicence(true);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var generalDetail = new GeneralDetail();
-    generalDetail.setResourceOnALicence(true);
 
     generalDetailsFormValidator.validate(
         form,
@@ -415,34 +401,6 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrorMessages)
         .containsExactly(
             entry("licenceSelect", Set.of("You must select at least one licence"))
-        );
-  }
-
-  @Test
-  void validate_whenResourceNotOnLicence_WhenInPreviousSubmission() {
-    var form = getValidForm();
-    form.setLicences(List.of());
-    form.setLicenceSelect(null);
-    form.setResourceOnALicence(null);
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var generalDetail = new GeneralDetail();
-    generalDetail.setResourceOnALicence(true);
-
-    generalDetailsFormValidator.validate(
-        form,
-        bindingResult,
-        new GeneralDetailsFormValidatorHints(ValidationType.FULL, submissionDetail, generalDetail,
-            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("resourceOnALicence", Set.of("resourceOnALicence.required"))
-        );
-    assertThat(extractedErrorMessages)
-        .containsExactly(
-            entry("resourceOnALicence", Set.of("You cannot remove all licences from a resource that has a" +
-                " licence on an earlier approved submission"))
         );
   }
 
@@ -485,7 +443,6 @@ class GeneralDetailsFormValidatorTest {
     form.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
     form.setQuadrantBlocks(List.of("27/10"));
     form.setLicences(List.of("122"));
-    form.setResourceOnALicence(true);
     form.setRelinquishmentDay("12");
     form.setRelinquishmentMonth("6");
     form.setRelinquishmentYear("2011");

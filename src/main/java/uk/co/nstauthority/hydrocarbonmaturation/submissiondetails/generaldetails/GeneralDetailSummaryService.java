@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -55,8 +54,6 @@ public class GeneralDetailSummaryService {
     }
     return new GeneralDetailSummaryView(
         detail.getSubmissionDetail().getSubmissionType(),
-        BooleanUtil.yesNoFromBoolean(detail.getResourceOnALicence(), ""),
-        getIsResourceOnALicenceBoolean(detail),
         BooleanUtil.yesNoFromBoolean(detail.getResourceLocatedInUkcs(), ""),
         BooleanUtil.yesNoFromBoolean(detail.getResourceLocatedInEngland(), ""),
         getPercentageLocatedInUkcs(detail),
@@ -81,11 +78,6 @@ public class GeneralDetailSummaryService {
 
   private String getResourceTypeDisplay(SubmissionDetail submissionDetail) {
     return submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase();
-  }
-
-  private boolean getIsResourceOnALicenceBoolean(GeneralDetail detail) {
-    return BooleanUtils.isTrue(detail.getResourceOnALicence())
-        || detail.getResourceOnALicence() == null;
   }
 
   private List<String> getQuadBlocksDisplay(List<QuadrantAndBlock> quadrantAndBlocks) {

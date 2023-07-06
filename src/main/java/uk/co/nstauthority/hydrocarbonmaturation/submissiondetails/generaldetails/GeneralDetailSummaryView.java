@@ -5,8 +5,6 @@ import java.util.List;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 public record GeneralDetailSummaryView(SubmissionType submissionType,
-                                       String isResourceOnALicence,
-                                       Boolean showLicences,
                                        String resourceLocatedInUkcs,
                                        String resourceLocatedInEngland,
                                        String percentageLocatedInUkcs,
@@ -22,8 +20,6 @@ public record GeneralDetailSummaryView(SubmissionType submissionType,
                                                String resourceType) {
     return new GeneralDetailSummaryView(
         submissionType,
-        "",
-        Boolean.TRUE,
         "",
         "",
         "",

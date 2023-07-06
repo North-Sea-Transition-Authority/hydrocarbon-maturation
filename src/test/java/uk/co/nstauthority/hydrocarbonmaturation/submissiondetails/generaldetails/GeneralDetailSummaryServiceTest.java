@@ -66,8 +66,6 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
-            GeneralDetailSummaryView::isResourceOnALicence,
-            GeneralDetailSummaryView::showLicences,
             GeneralDetailSummaryView::licenceDisplayList,
             GeneralDetailSummaryView::relinquishmentDate
         )
@@ -80,8 +78,6 @@ class GeneralDetailSummaryServiceTest {
             false,
             "",
             Collections.emptyList(),
-            "",
-            true,
             Collections.emptyList(),
             ""
         );
@@ -125,7 +121,6 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setResourceLocatedInUkcs(false);
     generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(4.2));
     generalDetail.setResourceLocatedInEngland(false);
-    generalDetail.setResourceOnALicence(true);
 
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
 
@@ -139,9 +134,7 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
-            GeneralDetailSummaryView::isResourceOnALicence,
             GeneralDetailSummaryView::licenceDisplayList,
-            GeneralDetailSummaryView::showLicences,
             GeneralDetailSummaryView::resourceType,
             GeneralDetailSummaryView::relinquishmentDate
         )
@@ -154,9 +147,7 @@ class GeneralDetailSummaryServiceTest {
             true,
             generalDetail.getLicenceApplicationReference(),
             List.of(quadrantBlockRef1, quadrantBlockRef2),
-            "Yes",
             List.of(licence1.getLicenceReference(), licence2.getLicenceReference()),
-            true,
             "prospect",
             ""
         );
@@ -203,7 +194,6 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setResourceLocatedInUkcs(false);
     generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(4.2));
     generalDetail.setResourceLocatedInEngland(false);
-    generalDetail.setResourceOnALicence(true);
     generalDetail.setRelinquishmentDate(LocalDate.of(2012, 6, 12));
 
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
@@ -218,9 +208,7 @@ class GeneralDetailSummaryServiceTest {
             GeneralDetailSummaryView::isLicenceApplicationInfoSource,
             GeneralDetailSummaryView::licenceApplication,
             GeneralDetailSummaryView::quadAndBlockDisplayList,
-            GeneralDetailSummaryView::isResourceOnALicence,
             GeneralDetailSummaryView::licenceDisplayList,
-            GeneralDetailSummaryView::showLicences,
             GeneralDetailSummaryView::resourceType,
             GeneralDetailSummaryView::relinquishmentDate
         )
@@ -233,9 +221,7 @@ class GeneralDetailSummaryServiceTest {
             true,
             generalDetail.getLicenceApplicationReference(),
             List.of(quadrantBlockRef1, quadrantBlockRef2),
-            "Yes",
             List.of(licence1.getLicenceReference(), licence2.getLicenceReference()),
-            true,
             "prospect",
             "12 Jun 2012"
         );

@@ -46,7 +46,6 @@ public class GeneralDetailsPersistenceService {
     } else {
       generalDetail.setInformationSource(InformationSource.RELINQUISHMENT);
     }
-    generalDetail.setResourceOnALicence(form.getResourceOnALicence());
 
     var licenceApplication = form.getLicenceApplication();
     setLicenceApplication(generalDetail, licenceApplication, form.getInformationSource());

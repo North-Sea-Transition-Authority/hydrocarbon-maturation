@@ -20,7 +20,6 @@ class GeneralDetailsForm implements SubmissionForm {
   private InformationSource informationSource;
   private String licenceApplication;
   private String otherSourceOfInformation;
-  private Boolean resourceOnALicence;
   private String relinquishmentDay;
   private String relinquishmentMonth;
   private String relinquishmentYear;
@@ -106,14 +105,6 @@ class GeneralDetailsForm implements SubmissionForm {
   public void setLicences(
       List<String> licences) {
     this.licences = licences;
-  }
-
-  public Boolean getResourceOnALicence() {
-    return resourceOnALicence;
-  }
-
-  public void setResourceOnALicence(Boolean resourceOnALicence) {
-    this.resourceOnALicence = resourceOnALicence;
   }
 
   public String getLicenceSelect() {

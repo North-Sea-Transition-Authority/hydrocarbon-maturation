@@ -67,7 +67,6 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     var form = new GeneralDetailsForm();
     form.setResourceLocatedInUkcs(generalDetail.getResourceLocatedInUkcs());
     form.setResourceLocatedInEngland(generalDetail.getResourceLocatedInEngland());
-    form.setResourceOnALicence(generalDetail.getResourceOnALicence());
 
     var licenceApplicationId = generalDetail.getLicenceApplicationId();
     var licenceApplicationRef = generalDetail.getLicenceApplicationReference();
