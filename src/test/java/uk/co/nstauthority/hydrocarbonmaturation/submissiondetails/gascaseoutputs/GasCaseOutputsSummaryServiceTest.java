@@ -71,6 +71,7 @@ class GasCaseOutputSummaryServiceTest {
         "test", "type", "20",
         "20", "20", "20",
         "20", "20", "20",
+        "20", "20", "20",
         "20", "20", "10", "unit", "comments");
 
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(submissionDetail))
@@ -117,6 +118,7 @@ class GasCaseOutputSummaryServiceTest {
   void getGasCaseOutputSummaryFromSubmissionDetail_whenPresent_notEmptySummary_whenDiscovery() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
+        "20", "20", "20",
         "20", "20", "20",
         "20", "20", "20",
         "20", "20", "10", "unit", "comments");

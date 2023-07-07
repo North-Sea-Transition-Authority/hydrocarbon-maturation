@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-import java.util.Objects;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalInputTestUtil;
 
@@ -9,17 +8,21 @@ public class ProbabilityDistributionTestUtil {
   public static ProbabilityDistributionForm getValidProbabilityDistributionForm(
       ProbabilityDistributionType probabilityDistributionType
   ) {
-    var probabilityDistributionForm = new ProbabilityDistributionForm();
-
-    var instance = Objects.equals(probabilityDistributionType, ProbabilityDistributionType.CUSTOM)
+    var instance = probabilityDistributionType == ProbabilityDistributionType.CUSTOM
         ? ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT
         : ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT;
 
-    probabilityDistributionForm.setProbabilityDistributionType(probabilityDistributionType);
-    var behaviour = ProbabilityDistributionTypeBehaviourUtil.getBehaviour(instance,
-        probabilityDistributionType);
-    var probabilityOfExceedanceForm = getValidProbabilityOfExceedanceForm(behaviour);
+    var behaviour = ProbabilityDistributionTypeBehaviourUtil.getBehaviour(instance, probabilityDistributionType);
 
+    return getValidProbabilityDistributionForm(probabilityDistributionType, behaviour);
+  }
+
+  private static ProbabilityDistributionForm getValidProbabilityDistributionForm(
+      ProbabilityDistributionType probabilityDistributionType, ProbabilityDistributionTypeBehaviour behaviour) {
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(probabilityDistributionType);
+
+    var probabilityOfExceedanceForm = getValidProbabilityOfExceedanceForm(behaviour);
     probabilityDistributionForm.setProbabilityOfExceedanceForm(probabilityOfExceedanceForm);
 
     return probabilityDistributionForm;
@@ -55,6 +58,11 @@ public class ProbabilityDistributionTestUtil {
 
   public static ProbabilityDistributionForm getValidCustomProbabilityDistributionForm() {
     return getValidProbabilityDistributionForm(ProbabilityDistributionType.CUSTOM);
+  }
+
+  public static ProbabilityDistributionForm getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance instance) {
+    var behaviour = ProbabilityDistributionTypeBehaviourUtil.newCustomBehaviourInstance(instance);
+    return getValidProbabilityDistributionForm(ProbabilityDistributionType.CUSTOM, behaviour);
   }
 
   public static ProbabilityDistributionForm getFormWithExceedance(
@@ -112,10 +120,13 @@ public class ProbabilityDistributionTestUtil {
     probabilityOfExceedanceForm.setMin(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setP99(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setP90(new DecimalInput("abc"));
+    probabilityOfExceedanceForm.setThreeC(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setMode(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setP50(new DecimalInput("abc"));
+    probabilityOfExceedanceForm.setTwoC(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setMean(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setP10(new DecimalInput("abc"));
+    probabilityOfExceedanceForm.setOneC(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setP1(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setMax(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setConstant(new DecimalInput("abc"));
@@ -134,17 +145,26 @@ public class ProbabilityDistributionTestUtil {
     if (behaviour.isP90Available()) {
       probabilityOfExceedanceForm.setP90(DecimalInputTestUtil.getDecimalInput(3));
     }
+    if (behaviour.is3CAvailable()) {
+      probabilityOfExceedanceForm.setThreeC(DecimalInputTestUtil.getDecimalInput(3));
+    }
     if (behaviour.isModeAvailable()) {
       probabilityOfExceedanceForm.setMode(DecimalInputTestUtil.getDecimalInput(4));
     }
     if (behaviour.isP50Available()) {
       probabilityOfExceedanceForm.setP50(DecimalInputTestUtil.getDecimalInput(5));
     }
+    if (behaviour.is2CAvailable()) {
+      probabilityOfExceedanceForm.setTwoC(DecimalInputTestUtil.getDecimalInput(5));
+    }
     if (behaviour.isMeanAvailable()) {
       probabilityOfExceedanceForm.setMean(DecimalInputTestUtil.getDecimalInput(6));
     }
     if (behaviour.isP10Available()) {
       probabilityOfExceedanceForm.setP10(DecimalInputTestUtil.getDecimalInput(7));
+    }
+    if (behaviour.is1CAvailable()) {
+      probabilityOfExceedanceForm.setOneC(DecimalInputTestUtil.getDecimalInput(7));
     }
     if (behaviour.isP1Available()) {
       probabilityOfExceedanceForm.setP1(DecimalInputTestUtil.getDecimalInput(8));

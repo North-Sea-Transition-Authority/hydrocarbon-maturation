@@ -10,10 +10,13 @@ public class ProbabilityOfExceedanceForm {
   private DecimalInput min = new DecimalInput();
   private DecimalInput p99 = new DecimalInput();
   private DecimalInput p90 = new DecimalInput();
+  private DecimalInput threeC = new DecimalInput();
   private DecimalInput mode = new DecimalInput();
   private DecimalInput p50 = new DecimalInput();
+  private DecimalInput twoC = new DecimalInput();
   private DecimalInput mean = new DecimalInput();
   private DecimalInput p10 = new DecimalInput();
+  private DecimalInput oneC = new DecimalInput();
   private DecimalInput p1 = new DecimalInput();
   private DecimalInput max = new DecimalInput();
   private DecimalInput constant = new DecimalInput();
@@ -52,6 +55,14 @@ public class ProbabilityOfExceedanceForm {
     this.p90 = p90;
   }
 
+  public DecimalInput getThreeC() {
+    return threeC;
+  }
+
+  public void setThreeC(DecimalInput threeC) {
+    this.threeC = threeC;
+  }
+
   public DecimalInput getMode() {
     return mode;
   }
@@ -68,6 +79,14 @@ public class ProbabilityOfExceedanceForm {
     this.p50 = p50;
   }
 
+  public DecimalInput getTwoC() {
+    return twoC;
+  }
+
+  public void setTwoC(DecimalInput twoC) {
+    this.twoC = twoC;
+  }
+
   public DecimalInput getMean() {
     return mean;
   }
@@ -82,6 +101,14 @@ public class ProbabilityOfExceedanceForm {
 
   public void setP10(DecimalInput p10) {
     this.p10 = p10;
+  }
+
+  public DecimalInput getOneC() {
+    return oneC;
+  }
+
+  public void setOneC(DecimalInput oneC) {
+    this.oneC = oneC;
   }
 
   public DecimalInput getP1() {

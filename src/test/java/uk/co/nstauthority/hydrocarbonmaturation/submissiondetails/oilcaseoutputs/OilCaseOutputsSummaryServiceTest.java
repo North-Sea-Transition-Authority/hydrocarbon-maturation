@@ -75,6 +75,7 @@ class OilCaseOutputsSummaryServiceTest {
         "test", "type", "20",
         "20", "20", "20",
         "20", "20", "20",
+        "20", "20", "20",
         "20", "", "20", "unit", "comments");
 
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
@@ -124,6 +125,7 @@ class OilCaseOutputsSummaryServiceTest {
   void getOilCaseOutputSummaryFromSubmissionDetail_whenPresent_notEmptySummary_whenDiscovery() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
+        "20", "20", "20",
         "20", "20", "20",
         "20", "20", "20",
         "20", "", "20", "unit", "comments");

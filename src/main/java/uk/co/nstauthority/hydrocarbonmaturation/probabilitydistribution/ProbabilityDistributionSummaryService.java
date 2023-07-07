@@ -29,8 +29,10 @@ public class ProbabilityDistributionSummaryService {
 
     var p99 = Objects.requireNonNullElse(probabilityDistribution.getP99(), "").toString();
     var p90 = Objects.requireNonNullElse(probabilityDistribution.getP90(), "").toString();
+    var threeC = Objects.requireNonNullElse(probabilityDistribution.getThreeC(), "").toString();
     var mode = Objects.requireNonNullElse(probabilityDistribution.getModeValue(), "").toString();
     var p50 = Objects.requireNonNullElse(probabilityDistribution.getP50(), "").toString();
+    var twoC = Objects.requireNonNullElse(probabilityDistribution.getTwoC(), "").toString();
     var meanOrConstant = "";
     if (probabilityDistribution.getMeanValue() != null) {
       meanOrConstant = probabilityDistribution.getMeanValue().toString();
@@ -39,6 +41,7 @@ public class ProbabilityDistributionSummaryService {
     }
 
     var p10 = Objects.requireNonNullElse(probabilityDistribution.getP10(), "").toString();
+    var oneC = Objects.requireNonNullElse(probabilityDistribution.getOneC(), "").toString();
     var p1 = Objects.requireNonNullElse(probabilityDistribution.getP1(), "").toString();
     var min = Objects.requireNonNullElse(probabilityDistribution.getMinValue(), "").toString();
     var max = Objects.requireNonNullElse(probabilityDistribution.getMaxValue(), "").toString();
@@ -62,10 +65,13 @@ public class ProbabilityDistributionSummaryService {
         min,
         p99,
         p90,
+        threeC,
         mode,
         p50,
+        twoC,
         meanOrConstant,
         p10,
+        oneC,
         p1,
         mostLikely,
         max,

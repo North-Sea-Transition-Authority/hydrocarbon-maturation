@@ -112,4 +112,34 @@ public abstract class BaseBehaviour implements ProbabilityDistributionTypeBehavi
   public boolean isMostLikelyRequired() {
     return false;
   }
+
+  @Override
+  public boolean is1CAvailable() {
+    return false;
+  }
+
+  @Override
+  public boolean is1CRequired() {
+    return false;
+  }
+
+  @Override
+  public boolean is2CAvailable() {
+    return false;
+  }
+
+  @Override
+  public boolean is2CRequired() {
+    return false;
+  }
+
+  @Override
+  public boolean is3CAvailable() {
+    return false;
+  }
+
+  @Override
+  public boolean is3CRequired() {
+    return false;
+  }
 }

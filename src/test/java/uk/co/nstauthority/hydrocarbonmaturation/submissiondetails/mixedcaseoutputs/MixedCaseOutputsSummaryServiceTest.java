@@ -79,6 +79,7 @@ class MixedCaseOutputSummaryServiceTest {
          "test", "type", "20",
         "20", "20", "20",
         "20", "20", "20",
+        "20", "20", "20",
         "20", "", "20", "unit", "comments");
 
     when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(submissionDetail))
@@ -146,6 +147,7 @@ class MixedCaseOutputSummaryServiceTest {
   void getMixedCaseOutputSummaryFromSubmissionDetail_whenPresent_notEmptySummary_whenDiscovery() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
+        "20", "20", "20",
         "20", "20", "20",
         "20", "20", "20",
         "20", "", "20", "unit", "comments");

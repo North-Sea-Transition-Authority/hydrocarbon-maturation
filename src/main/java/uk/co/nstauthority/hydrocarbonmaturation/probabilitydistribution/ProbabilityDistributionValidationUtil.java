@@ -32,6 +32,9 @@ public class ProbabilityDistributionValidationUtil {
   public static final String P99_TO_P1_ERROR_MESSAGE =
       "%s - P99 to P1 values must be in the order of P99 < P90 < P50 < P10 < P1";
 
+  public static final String THREE_C_TO_TWO_C_ERROR_MESSAGE =
+      "%s - 3C to 1C values must be in the order of 3C < 2C < 1C";
+
   private ProbabilityDistributionValidationUtil() {
     throw new IllegalUtilClassInstantiationException(this.getClass());
   }
@@ -138,6 +141,19 @@ public class ProbabilityDistributionValidationUtil {
           errors
       );
 
+      // validate 3C input
+      validateInput(
+          behaviour.is3CAvailable(),
+          behaviour.is3CRequired(),
+          formField,
+          typePath,
+          ProbabilityOfExceedanceType.THREE_C.getPath(),
+          probabilityOfExceedanceForm.getThreeC(),
+          units,
+          validationType,
+          errors
+      );
+
       // validate Mode input
       validateInput(
           behaviour.isModeAvailable(),
@@ -164,6 +180,19 @@ public class ProbabilityDistributionValidationUtil {
           errors
       );
 
+      // validate 2C input
+      validateInput(
+          behaviour.is2CAvailable(),
+          behaviour.is2CRequired(),
+          formField,
+          typePath,
+          ProbabilityOfExceedanceType.TWO_C.getPath(),
+          probabilityOfExceedanceForm.getTwoC(),
+          units,
+          validationType,
+          errors
+      );
+
       // validate Mean input
       validateInput(
           behaviour.isMeanAvailable(),
@@ -185,6 +214,19 @@ public class ProbabilityDistributionValidationUtil {
           typePath,
           ProbabilityOfExceedanceType.P10.getPath(),
           probabilityOfExceedanceForm.getP10(),
+          units,
+          validationType,
+          errors
+      );
+
+      // validate 1C input
+      validateInput(
+          behaviour.is1CAvailable(),
+          behaviour.is1CRequired(),
+          formField,
+          typePath,
+          ProbabilityOfExceedanceType.ONE_C.getPath(),
+          probabilityOfExceedanceForm.getOneC(),
           units,
           validationType,
           errors
@@ -268,14 +310,14 @@ public class ProbabilityDistributionValidationUtil {
         var minPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.MIN.getPath() + DECIMAL_INPUT_VALUE_PATH);
         var maxPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.MAX.getPath() + DECIMAL_INPUT_VALUE_PATH);
 
-        ArrayList<DecimalInput> minMaxValues = new ArrayList<>(
+        var minMaxValues = new ArrayList<>(
             Arrays.asList(
                 probabilityOfExceedanceForm.getMin(),
                 probabilityOfExceedanceForm.getMax()
             )
         );
 
-        ArrayList<String> minMaxPaths = new ArrayList<>(
+        var minMaxPaths = new ArrayList<>(
             Arrays.asList(
                 minPath,
                 maxPath
@@ -302,11 +344,11 @@ public class ProbabilityDistributionValidationUtil {
           probabilityOfExceedanceForm.getP10(),
           probabilityOfExceedanceForm.getP1()
       );
-      ArrayList<DecimalInput> filteredProbabilityValues = probabilityValues.stream()
+      var filteredProbabilityValues = probabilityValues.stream()
           .filter(DecimalInput::hasContent)
           .collect(Collectors.toCollection(ArrayList::new));
 
-      ArrayList<String> pathList = new ArrayList<>();
+      var pathList = new ArrayList<String>();
       if (probabilityOfExceedanceForm.getP1().hasContent()) {
         var p1Path = cleanPath(formTypePath + ProbabilityOfExceedanceType.P1.getPath() + DECIMAL_INPUT_VALUE_PATH);
         pathList.add(p1Path);
@@ -340,6 +382,46 @@ public class ProbabilityDistributionValidationUtil {
               errorPath,
               errorPath + ERROR_CODE,
               P99_TO_P1_ERROR_MESSAGE.formatted(label)
+          );
+        }
+      }
+
+      /* 3C to 1C validation */
+      probabilityValues = List.of(
+          probabilityOfExceedanceForm.getThreeC(),
+          probabilityOfExceedanceForm.getTwoC(),
+          probabilityOfExceedanceForm.getOneC()
+      );
+      filteredProbabilityValues = probabilityValues.stream()
+          .filter(DecimalInput::hasContent)
+          .collect(Collectors.toCollection(ArrayList::new));
+
+      pathList = new ArrayList<String>();
+      if (probabilityOfExceedanceForm.getThreeC().hasContent()) {
+        var threeCPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.THREE_C.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(threeCPath);
+      }
+      if (probabilityOfExceedanceForm.getTwoC().hasContent()) {
+        var twoCPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.TWO_C.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(twoCPath);
+      }
+      if (probabilityOfExceedanceForm.getOneC().hasContent()) {
+        var oneCPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.ONE_C.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(oneCPath);
+      }
+
+      errorCountAfter = errors.getErrorCount();
+
+      // validate 3C to 1C values if any have been entered and no other errors have been found so far
+      if (!filteredProbabilityValues.isEmpty() && errorCountAfter == errorCountBefore) {
+        validateProbabilityFieldOrder(filteredProbabilityValues, pathList, errors);
+
+        errorCountAfter = errors.getErrorCount();
+        if (errorCountAfter > errorCountBefore) {
+          errors.rejectValue(
+              errorPath,
+              errorPath + ERROR_CODE,
+              THREE_C_TO_TWO_C_ERROR_MESSAGE.formatted(label)
           );
         }
       }

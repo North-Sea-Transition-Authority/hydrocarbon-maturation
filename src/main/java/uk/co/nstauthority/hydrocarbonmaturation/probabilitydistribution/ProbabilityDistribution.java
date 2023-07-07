@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -41,13 +42,22 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
 
   private BigDecimal p90;
 
+  @Column(name = "three_c")
+  private BigDecimal threeC;
+
   private BigDecimal modeValue;
 
   private BigDecimal p50;
 
+  @Column(name = "two_c")
+  private BigDecimal twoC;
+
   private BigDecimal meanValue;
 
   private BigDecimal p10;
+
+  @Column(name = "one_c")
+  private BigDecimal oneC;
 
   private BigDecimal p1;
 
@@ -125,6 +135,14 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
     this.p90 = p90;
   }
 
+  public BigDecimal getThreeC() {
+    return threeC;
+  }
+
+  public void setThreeC(BigDecimal threeC) {
+    this.threeC = threeC;
+  }
+
   public BigDecimal getModeValue() {
     return modeValue;
   }
@@ -141,6 +159,14 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
     this.p50 = p50;
   }
 
+  public BigDecimal getTwoC() {
+    return twoC;
+  }
+
+  public void setTwoC(BigDecimal twoC) {
+    this.twoC = twoC;
+  }
+
   public BigDecimal getMeanValue() {
     return meanValue;
   }
@@ -155,6 +181,14 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
 
   public void setP10(BigDecimal p10) {
     this.p10 = p10;
+  }
+
+  public BigDecimal getOneC() {
+    return oneC;
+  }
+
+  public void setOneC(BigDecimal oneC) {
+    this.oneC = oneC;
   }
 
   public BigDecimal getP1() {

@@ -62,6 +62,7 @@ class MixedCaseVolumetricsSummaryServiceTest {
         "test", "type", "20",
         "20", "20", "20",
         "20", "20", "20",
+        "20", "20", "20",
         "20", "10", "20", "unit", "comments");
 
     when(probabilityDistributionSummaryService
@@ -111,6 +112,7 @@ class MixedCaseVolumetricsSummaryServiceTest {
   void getMixedCaseVolumetricsSummaryView_whenDiscovery_filledSummaries() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
+        "20", "20", "20",
         "20", "20", "20",
         "20", "20", "20",
         "20", "10", "20", "unit", "comments");

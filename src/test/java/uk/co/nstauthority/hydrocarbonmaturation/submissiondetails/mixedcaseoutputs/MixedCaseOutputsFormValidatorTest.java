@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
@@ -51,7 +52,7 @@ class MixedCaseOutputsFormValidatorTest {
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
   void validate_whenValidForm_whenProspect_thenNoValidationErrors(ValidationType validationType) {
-    var form = getValidForm();
+    var form = getProspectValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     mixedCaseOutputsFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
@@ -62,7 +63,7 @@ class MixedCaseOutputsFormValidatorTest {
   @EnumSource(value = ValidationType.class)
   void validate_whenValidForm_whenDiscovery_thenNoValidationErrors(ValidationType validationType) {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var form = getValidForm();
+    var form = getDiscoveryValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     mixedCaseOutputsFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(validationType, discoverySubmissionDetail));
@@ -126,7 +127,7 @@ class MixedCaseOutputsFormValidatorTest {
 
   @Test
   void validate_whenYesNoNotSelected_thenValidationErrors() {
-    var form = getValidForm();
+    var form = getProspectValidForm();
     form.setHasAssociatedGasRecoverableResources(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     mixedCaseOutputsFormValidator.validate(
@@ -209,16 +210,27 @@ class MixedCaseOutputsFormValidatorTest {
     return form;
   }
 
-  private MixedCaseOutputsForm getValidForm() {
+  private MixedCaseOutputsForm getProspectValidForm() {
+    return getValidForm(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT);
+  }
+
+  private MixedCaseOutputsForm getDiscoveryValidForm() {
+    return getValidForm(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
+  }
+
+  private MixedCaseOutputsForm getValidForm(ProbabilityDistributionFieldInstance probDistributionFieldInstanceForRecoverableResource) {
     var form = new MixedCaseOutputsForm();
     var probDistributionForm = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
+    var probDistributionFormForRecoverableResource = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        probDistributionFieldInstanceForRecoverableResource
+    );
     form.setGasInPlace(probDistributionForm);
-    form.setAssociatedGasRecoverableResources(probDistributionForm);
-    form.setOilEquivalentRecoverableResources(probDistributionForm);
-    form.setOilRecoverableResources(probDistributionForm);
+    form.setAssociatedGasRecoverableResources(probDistributionFormForRecoverableResource);
+    form.setOilEquivalentRecoverableResources(probDistributionFormForRecoverableResource);
+    form.setOilRecoverableResources(probDistributionFormForRecoverableResource);
     form.setOilInPlace(probDistributionForm);
-    form.setAssociatedCondensateRecoverableResources(probDistributionForm);
-    form.setGasRecoverableResources(probDistributionForm);
+    form.setAssociatedCondensateRecoverableResources(probDistributionFormForRecoverableResource);
+    form.setGasRecoverableResources(probDistributionFormForRecoverableResource);
     form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("1"));
     form.setHasAssociatedGasRecoverableResources(true);
     return form;

@@ -69,6 +69,13 @@ public class ProbabilityDistributionTemplateService {
     );
 
     checkAvailabilityAndAddProbabilityInputs(
+        behaviour.is3CAvailable(),
+        behaviour.is3CRequired(),
+        ProbabilityOfExceedanceType.THREE_C,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
         behaviour.isModeAvailable(),
         behaviour.isModeRequired(),
         ProbabilityOfExceedanceType.MODE,
@@ -83,6 +90,13 @@ public class ProbabilityDistributionTemplateService {
     );
 
     checkAvailabilityAndAddProbabilityInputs(
+        behaviour.is2CAvailable(),
+        behaviour.is2CRequired(),
+        ProbabilityOfExceedanceType.TWO_C,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
         behaviour.isMeanAvailable(),
         behaviour.isMeanRequired(),
         ProbabilityOfExceedanceType.MEAN,
@@ -93,6 +107,13 @@ public class ProbabilityDistributionTemplateService {
         behaviour.isP10Available(),
         behaviour.isP10Required(),
         ProbabilityOfExceedanceType.P10,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.is1CAvailable(),
+        behaviour.is1CRequired(),
+        ProbabilityOfExceedanceType.ONE_C,
         probabilityDistributionTypeInputs
     );
 

@@ -13,6 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
@@ -51,7 +52,7 @@ class GasCaseOutputsFormValidatorTest {
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
   void validate_whenValidForm_whenProspect_thenNoValidationErrors(ValidationType validationType) {
-    var form = getValidForm();
+    var form = getProspectValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     gasCaseOutputsFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
@@ -62,7 +63,7 @@ class GasCaseOutputsFormValidatorTest {
   @EnumSource(value = ValidationType.class)
   void validate_whenValidForm_whenDiscovery_thenNoValidationErrors(ValidationType validationType) {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var form = getValidForm();
+    var form = getDiscoveryValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     gasCaseOutputsFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(validationType, discoverySubmissionDetail));
@@ -112,7 +113,7 @@ class GasCaseOutputsFormValidatorTest {
 
   @Test
   void validate_whenYesNoNotSelected_thenValidationErrors() {
-    var form = getValidForm();
+    var form = getProspectValidForm();
     form.setHasAssociatedCondensateRecoverableResources(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     gasCaseOutputsFormValidator.validate(
@@ -211,13 +212,24 @@ class GasCaseOutputsFormValidatorTest {
     return form;
   }
 
-  private GasCaseOutputsForm getValidForm() {
+  private GasCaseOutputsForm getProspectValidForm() {
+    return getValidForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT);
+  }
+
+  private GasCaseOutputsForm getDiscoveryValidForm() {
+    return getValidForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
+  }
+
+  private GasCaseOutputsForm getValidForm(ProbabilityDistributionFieldInstance probDistributionFieldInstanceForRecoverableResource) {
     var form = new GasCaseOutputsForm();
     var probDistributionForm = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
+    var probDistributionFormForRecoverableResource = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        probDistributionFieldInstanceForRecoverableResource
+    );
     form.setGasInPlace(probDistributionForm);
-    form.setOilEquivalentRecoverableResources(probDistributionForm);
-    form.setAssociatedCondensateRecoverableResources(probDistributionForm);
-    form.setGasRecoverableResources(probDistributionForm);
+    form.setOilEquivalentRecoverableResources(probDistributionFormForRecoverableResource);
+    form.setAssociatedCondensateRecoverableResources(probDistributionFormForRecoverableResource);
+    form.setGasRecoverableResources(probDistributionFormForRecoverableResource);
     form.setHasAssociatedCondensateRecoverableResources(true);
     return form;
   }

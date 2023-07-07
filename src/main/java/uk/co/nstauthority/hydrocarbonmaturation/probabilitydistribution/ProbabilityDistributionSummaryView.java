@@ -5,10 +5,13 @@ public record ProbabilityDistributionSummaryView(String probabilityDistributionN
                                                  String min,
                                                  String p99,
                                                  String p90,
+                                                 String threeC,
                                                  String mode,
                                                  String p50,
+                                                 String twoC,
                                                  String meanOrConstant,
                                                  String p10,
+                                                 String oneC,
                                                  String p1,
                                                  String mostLikely,
                                                  String max,
@@ -17,6 +20,9 @@ public record ProbabilityDistributionSummaryView(String probabilityDistributionN
   public static ProbabilityDistributionSummaryView empty(String probabilityDistributionName) {
     return new ProbabilityDistributionSummaryView(
         probabilityDistributionName,
+        "",
+        "",
+        "",
         "",
         "",
         "",
