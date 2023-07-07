@@ -111,7 +111,7 @@ public class SearchResourceRecordsController {
         .addObject("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
             .searchResources(null)))
         .addObject("licenceEndpoint",
-            SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
+            SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null)))
         .addObject("preselectedLicence", searchResourceRecordsService.getPreselectedLicence(form))
         .addObject("resourceName", searchResourceRecordsService.getPreSelectedResourceName(form))
         .addObject("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)

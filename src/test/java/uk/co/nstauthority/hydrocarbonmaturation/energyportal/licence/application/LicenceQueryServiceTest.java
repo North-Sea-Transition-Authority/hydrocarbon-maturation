@@ -42,7 +42,7 @@ class LicenceQueryServiceTest {
   }
 
   @Test
-  void getLicence_whenNoLicencesFound() {
+  void getLiveLicences_whenNoLicencesFound() {
     var filter = LicenceQueryService.LICENCES_PROJECTION_ROOT;
     when(licenceApi.searchLicences(
         eq(licenceRef),
@@ -51,21 +51,22 @@ class LicenceQueryServiceTest {
         any()
     )).thenReturn(Collections.emptyList());
 
-    assertThat(licenceQueryService.getExtantLicencesBy(licenceRef)).isEmpty();
+    assertThat(licenceQueryService.getLiveLicencesBy(licenceRef)).isEmpty();
   }
 
   @Test
-  void getLicence_whenLicencesFound() {
+  void getLiveLicences_whenLicencesFound() {
     var licence = LicenceTestUtil.Builder().build();
+    var revokedLicence = LicenceTestUtil.Builder().withStatus(LicenceStatus.REVOKED).build();
     var filter = LicenceQueryService.LICENCES_PROJECTION_ROOT;
     when(licenceApi.searchLicences(
         eq(licenceRef),
         eq(filter),
         any(),
         any()
-    )).thenReturn(List.of(licence));
+    )).thenReturn(List.of(licence, revokedLicence));
 
-    assertThat(licenceQueryService.getExtantLicencesBy(licenceRef))
+    assertThat(licenceQueryService.getLiveLicencesBy(licenceRef))
         .extracting(
             LicenceView::getSelectionId,
             LicenceView::getSelectionText
@@ -73,6 +74,47 @@ class LicenceQueryServiceTest {
             tuple(
                 licence.getId().toString(),
                 licence.getLicenceRef()
+            ),
+            tuple(
+                revokedLicence.getId().toString(),
+                revokedLicence.getLicenceRef()
+            )
+        );
+  }
+
+  @Test
+  void getLicencesByStatus_whenNoLicencesFound() {
+    var filter = LicenceQueryService.LICENCES_PROJECTION_ROOT;
+    when(licenceApi.searchLicences(
+        eq(licenceRef),
+        eq(filter),
+        any(),
+        any()
+    )).thenReturn(Collections.emptyList());
+
+    assertThat(licenceQueryService.getLicencesByReferenceAndStatus(licenceRef, LicenceStatus.EXTANT)).isEmpty();
+  }
+
+  @Test
+  void getLicencesByStatus_whenLicencesFound() {
+    var licence = LicenceTestUtil.Builder().withStatus(LicenceStatus.SURRENDERED).build();
+    var extantLicence = LicenceTestUtil.Builder().withStatus(LicenceStatus.EXTANT).build();
+    var filter = LicenceQueryService.LICENCES_PROJECTION_ROOT;
+    when(licenceApi.searchLicences(
+        eq(licenceRef),
+        eq(filter),
+        any(),
+        any()
+    )).thenReturn(List.of(licence, extantLicence));
+
+    assertThat(licenceQueryService.getLicencesByReferenceAndStatus(licenceRef, LicenceStatus.EXTANT))
+        .extracting(
+            LicenceView::getSelectionId,
+            LicenceView::getSelectionText
+        ).containsExactly(
+            tuple(
+                extantLicence.getId().toString(),
+                extantLicence.getLicenceRef()
             )
         );
   }

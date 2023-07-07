@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -24,10 +25,19 @@ public class LicenceRestController {
   }
 
   @GetMapping("/licence")
-  public RestSearchResult searchExtantLicences(@RequestParam("term") String searchReference) {
+  public RestSearchResult searchLiveLicences(@RequestParam("term") String searchReference) {
+    var licences = licenceQueryService.getLiveLicencesBy(searchReference);
     return searchSelectorService.search(
         searchReference,
-        licenceQueryService::getExtantLicencesBy
+        licences
     );
+  }
+
+  @GetMapping("/licence/extant")
+  public RestSearchResult searchExtantLicences(@RequestParam("term") String searchReference) {
+    var licences = licenceQueryService.getLicencesByReferenceAndStatus(searchReference, LicenceStatus.EXTANT);
+    return searchSelectorService.search(
+        searchReference,
+        licences);
   }
 }

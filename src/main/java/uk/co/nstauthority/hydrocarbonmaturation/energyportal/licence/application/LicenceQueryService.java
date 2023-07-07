@@ -29,19 +29,21 @@ public class LicenceQueryService {
     this.energyPortalApiWrapper = energyPortalApiWrapper;
   }
 
-  public List<LicenceView> getExtantLicencesBy(String searchReference) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        licenceApi.searchLicences(
-            searchReference,
-            LICENCES_PROJECTION_ROOT,
-            requestPurpose,
-            logCorrelationId
-            ).stream()
-            .filter(licence -> licence.getLicenceStatus() == LicenceStatus.EXTANT)
-            .map(this::getLicenceView)
-            .sorted(new LicenceViewByReferenceComparator())
-            .toList()
-    );
+  public List<LicenceView> getLicencesByReferenceAndStatus(String searchReference, LicenceStatus licenceStatus) {
+    return getLicenceListBy(searchReference)
+        .stream()
+        .filter(licence -> licence.getLicenceStatus() == licenceStatus)
+        .map(this::getLicenceView)
+        .sorted(new LicenceViewByReferenceComparator())
+        .toList();
+  }
+
+  public List<LicenceView> getLiveLicencesBy(String searchReference) {
+    return getLicenceListBy(searchReference)
+        .stream()
+        .map(this::getLicenceView)
+        .sorted(new LicenceViewByReferenceComparator())
+        .toList();
   }
 
   public List<LicenceView> getLicencesByIds(List<String> searchIdStrings) {
@@ -83,5 +85,15 @@ public class LicenceQueryService {
 
   private LicenceView getLicenceView(Licence licence) {
     return new LicenceView(licence.getLicenceRef(), licence.getId(), licence.getLicenceStatus());
+  }
+
+  private List<Licence> getLicenceListBy(String searchReference) {
+    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
+        licenceApi.searchLicences(
+            searchReference,
+            LICENCES_PROJECTION_ROOT,
+            requestPurpose,
+            logCorrelationId
+        ));
   }
 }

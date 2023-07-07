@@ -36,4 +36,15 @@ class LicenceRestControllerTest extends AbstractControllerTest {
             .with(user(USER)))
         .andExpect(status().isOk());
   }
+
+  @SecurityTest
+  void searchLicencesByStatus() throws Exception {
+    mockMvc.perform(get(SearchSelectorService.route(on(LicenceRestController.class)
+            .searchLiveLicences(null)))
+            .param("term", SEARCH_TERM)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+
 }
