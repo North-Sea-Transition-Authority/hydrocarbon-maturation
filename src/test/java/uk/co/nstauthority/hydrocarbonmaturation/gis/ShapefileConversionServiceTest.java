@@ -1,13 +1,17 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.SpatialReference;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,7 +41,6 @@ class ShapefileConversionServiceTest {
     private SupportingDocument shapefileZipDocument;
     @Mock
     private UploadedFile uploadedFile;
-    @Mock
     private InputStream inputStream;
     private final String FILENAME = "FILENAME";
     private final ShapefileZipContents SHAPEFILE_ZIP_CONTENTS = new ShapefileZipContents(
@@ -51,11 +54,13 @@ class ShapefileConversionServiceTest {
 
 
     @BeforeEach
-    void setup() {
+    void setup() throws IOException {
+      inputStream = IOUtils.toInputStream("test data", "UTF-8");
+
       when(shapefileZipDocument.getUploadedFile()).thenReturn(uploadedFile);
       when(uploadedFile.getFilename()).thenReturn(FILENAME);
       when(fileUploadService.downloadFile(uploadedFile)).thenReturn(inputStream);
-      when(shapefileZipService.getShapefileZipContents(inputStream, FILENAME)).thenReturn(SHAPEFILE_ZIP_CONTENTS);
+      when(shapefileZipService.getShapefileZipContents(any(), eq(FILENAME))).thenReturn(SHAPEFILE_ZIP_CONTENTS);
     }
 
     @Test

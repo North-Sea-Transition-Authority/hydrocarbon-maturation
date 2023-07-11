@@ -59,7 +59,7 @@ public class SupportingDocumentService {
       return FileUploadResult.error(filename, multipartFile, uploadErrorType);
     }
 
-    var errors = validateWithCustomValidator(supportingDocumentType, multipartFile);
+    var errors = validateWithCustomValidator(supportingDocumentType, multipartFile, submissionDetail.getId());
     if (!errors.isEmpty()) {
       var lineSeparator = System.lineSeparator();
       var errorMessage = String.join(lineSeparator, errors);
@@ -97,7 +97,9 @@ public class SupportingDocumentService {
     return uploadedFile;
   }
 
-  private List<String> validateWithCustomValidator(SupportingDocumentType supportingDocumentType, MultipartFile multipartFile) {
+  private List<String> validateWithCustomValidator(SupportingDocumentType supportingDocumentType,
+                                                   MultipartFile multipartFile, UUID usageId) {
+
     var fileUploadCustomValidator = fileUploadCustomValidatorFactory.getFileUploadCustomValidator(supportingDocumentType);
 
     if (fileUploadCustomValidator.isEmpty()) {
@@ -106,7 +108,7 @@ public class SupportingDocumentService {
 
     try {
       return fileUploadCustomValidator.get()
-          .validateFileUpload(multipartFile.getInputStream(), multipartFile.getOriginalFilename());
+          .validateFileUpload(multipartFile.getInputStream(), multipartFile.getOriginalFilename(), usageId);
     } catch (IOException e) {
       throw new IllegalArgumentException("Could not open file upload %s".formatted(multipartFile.getOriginalFilename()), e);
     }

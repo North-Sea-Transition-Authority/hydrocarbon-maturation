@@ -46,7 +46,7 @@ class GeoJsonExportService {
 
   public String exportGeometryAsGeoJson(SupportedCoordinateReferenceSystem coordinateReferenceSystem, Geometry geometry) {
     var crs = coordinateReferenceSystem.toSpatialReference();
-    return exportToGeoJson.execute(GeoJsonExportFlags.geoJsonExportSkipCRS, crs, geometry);
+    return exportToGeoJson.execute(GeoJsonExportFlags.geoJsonExportDefaults, crs, geometry);
   }
 
   private Geometry getUnionOfGeometries(SpatialReference thresholds, Geometry[] geometriesArray) {

@@ -4,28 +4,33 @@ import com.esri.core.geometry.SpatialReference;
 import java.util.Arrays;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 enum SupportedCoordinateReferenceSystem {
-  ED50(4230, "GCS_European_1950"),
-  WGS84(4326, "GCS_WGS_1984"),
-  OSGB36_NG(27700, "GCS_OSGB_1936", "British_National_Grid"),
-  ETRS89(4258, "GCS_ETRS_1989"),
-  WGS84_WEB_MERCATOR(3857, "GCS_WGS_1984", "WGS_1984_Web_Mercator_Auxiliary_Sphere"),
+  ED50(4230, "GCS_European_1950", OnshoreOffshore.OFFSHORE),
+  WGS84(4326, "GCS_WGS_1984", OnshoreOffshore.OFFSHORE),
+  OSGB36_NG(27700, "GCS_OSGB_1936", "British_National_Grid", OnshoreOffshore.ONSHORE),
+  ETRS89(4258, "GCS_ETRS_1989", OnshoreOffshore.OFFSHORE),
   ;
 
   private final int epsgCode;
   private final String geographicCsName;
   @Nullable
   private final String projectionCsName;
+  private final OnshoreOffshore onshoreOffshore;
 
-  SupportedCoordinateReferenceSystem(int epsgCode, String geographicCsName, @Nullable String projectionCsName) {
+  SupportedCoordinateReferenceSystem(int epsgCode,
+                                     String geographicCsName,
+                                     @Nullable String projectionCsName,
+                                     OnshoreOffshore onshoreOffshore) {
     this.epsgCode = epsgCode;
     this.geographicCsName = geographicCsName;
     this.projectionCsName = projectionCsName;
+    this.onshoreOffshore = onshoreOffshore;
   }
 
-  SupportedCoordinateReferenceSystem(int epsgCode, String geographicCsName) {
-    this(epsgCode, geographicCsName, null);
+  SupportedCoordinateReferenceSystem(int epsgCode, String geographicCsName, OnshoreOffshore onshoreOffshore) {
+    this(epsgCode, geographicCsName, null, onshoreOffshore);
   }
 
   public int getEpsgCode() {
@@ -38,6 +43,10 @@ enum SupportedCoordinateReferenceSystem {
 
   public Optional<String> getProjectionCsName() {
     return Optional.ofNullable(projectionCsName);
+  }
+
+  public OnshoreOffshore getOnshoreOffshore() {
+    return onshoreOffshore;
   }
 
   public SpatialReference toSpatialReference() {

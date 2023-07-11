@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 @IntegrationTest
 class ShapefileValidationServiceIntegrationTest {
@@ -88,8 +89,15 @@ class ShapefileValidationServiceIntegrationTest {
   }
 
   @Test
-  void validateShapefileZip_ValidateShapefileProject() throws IOException {
-    var result = validateShapefileProjectInZip(ShapefileTestUtils.SHAPEFILE_ZIP_RESOURCE_LOCATION);
+  void validateShapefileZip_ValidateShapefileProjectOffshore() throws IOException {
+    var result = validateShapefileProjectInZip(ShapefileTestUtils.SHAPEFILE_ZIP_RESOURCE_LOCATION, OnshoreOffshore.OFFSHORE);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void validateShapefileZip_ValidateShapefileProjectOnshore() throws IOException {
+    var result = validateShapefileProjectInZip(ShapefileTestUtils.SHAPEFILE_ZIP_ONSHORE_RESOURCE_LOCATION, OnshoreOffshore.ONSHORE);
 
     assertThat(result).isTrue();
   }
@@ -143,9 +151,10 @@ class ShapefileValidationServiceIntegrationTest {
     return shapefileZipService.hasRequiredFiles(shapefileZipContents);
   }
 
-  private boolean validateShapefileProjectInZip(String shapefileZipResourceLocation) throws IOException {
+  private boolean validateShapefileProjectInZip(String shapefileZipResourceLocation, OnshoreOffshore onshoreOffshore) throws IOException {
     var shapefileZip = getShapefileZipContents(shapefileZipResourceLocation);
-    return shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(shapefileZip);
+    return shapefileValidationService.supportedCoordinateReferenceSystemByOnshoreOrOffshoreIsValid(shapefileZip,
+        onshoreOffshore);
   }
 
   private ShapefileZipContents getShapefileZipContents(String shapefileZipResourceLocation) throws IOException {

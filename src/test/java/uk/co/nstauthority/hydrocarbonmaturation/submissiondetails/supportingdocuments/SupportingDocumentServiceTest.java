@@ -87,13 +87,12 @@ class SupportingDocumentServiceTest {
 
   @Test
   void processFileUpload_FailsCustomValidation_ReturnsInvalidResult() {
-    var submissionDetail = mock(SubmissionDetail.class);
     when(fileUploadService.sanitiseFilename(filename)).thenReturn(filename);
     when(fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename))
         .thenReturn(null);
     var supportingDocumentType = SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
     when(fileUploadCustomValidatorFactory.getFileUploadCustomValidator(supportingDocumentType)).thenReturn(Optional.of(shapefileValidationService));
-    when(shapefileValidationService.validateFileUpload(any(), eq(filename))).thenReturn(List.of("error"));
+    when(shapefileValidationService.validateFileUpload(any(), eq(filename), eq(submissionDetail.getId()))).thenReturn(List.of("error"));
 
     var fileUploadResult = supportingDocumentService.processFileUpload(submissionDetail, supportingDocumentType, multipartFile);
 

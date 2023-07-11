@@ -57,7 +57,7 @@ class GeoJsonExportServiceTest {
       );
 
       verify(operatorUnion, never()).execute(eq(geometryCursor), any(), any());
-      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportSkipCRS, coordinateReferenceSystem.toSpatialReference(), geometry1);
+      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportDefaults, coordinateReferenceSystem.toSpatialReference(), geometry1);
     }
 
     @Test
@@ -72,7 +72,7 @@ class GeoJsonExportServiceTest {
 
       verify(exportToGeoJson, never()).execute(geometry1);
       verify(exportToGeoJson, never()).execute(geometry2);
-      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportSkipCRS, coordinateReferenceSystem.toSpatialReference(), geometry);
+      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportDefaults, coordinateReferenceSystem.toSpatialReference(), geometry);
     }
   }
 
@@ -86,7 +86,7 @@ class GeoJsonExportServiceTest {
     void verifyGeometryPassedInForConversion() {
       var result = underTest.exportGeometryAsGeoJson(supportedCoordinateReferenceSystem, geometry);
 
-      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportSkipCRS, supportedCoordinateReferenceSystem.toSpatialReference(), geometry);
+      verify(exportToGeoJson).execute(GeoJsonExportFlags.geoJsonExportDefaults, supportedCoordinateReferenceSystem.toSpatialReference(), geometry);
     }
 
   }

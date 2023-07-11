@@ -2,7 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdoc
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 
 public interface FileUploadCustomValidator {
-  List<String> validateFileUpload(InputStream inputStream, String originalFilename);
+  List<String> validateFileUpload(InputStream inputStream, String originalFilename, UUID usageId);
 }

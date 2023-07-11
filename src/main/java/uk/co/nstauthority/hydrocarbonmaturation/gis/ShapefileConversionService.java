@@ -1,5 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
@@ -25,9 +28,18 @@ public class ShapefileConversionService {
     var uploadedZip = shapefileZipDocument.getUploadedFile();
     var shapefileZipInputStream = fileUploadService.downloadFile(uploadedZip);
 
-    var shapefileZip = shapefileZipService.getShapefileZipContents(shapefileZipInputStream, uploadedZip.getFilename());
+    var byteArrayInputStream = getByteArrayInputStream(shapefileZipInputStream);
+    var shapefileZip = shapefileZipService.getShapefileZipContents(byteArrayInputStream, uploadedZip.getFilename());
 
     return getGeoJsonFromShapefileZip(shapefileZip);
+  }
+
+  private static ByteArrayInputStream getByteArrayInputStream(InputStream shapefileZipInputStream) {
+    try {
+      return new ByteArrayInputStream(shapefileZipInputStream.readAllBytes());
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Could not read shapefile", e);
+    }
   }
 
   private String getGeoJsonFromShapefileZip(ShapefileZipContents shapefileZip) {

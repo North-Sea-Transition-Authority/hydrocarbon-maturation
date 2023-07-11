@@ -11,6 +11,7 @@ public class ShapefileTestUtils {
   public static final String CLASSPATH_SHAPEFILES = "classpath:shapefiles";
   static final String INVALID_SHAPEFILE_ZIP_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/missing.zip";
   static final String SHAPEFILE_ZIP_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.zip";
+  static final String SHAPEFILE_ZIP_ONSHORE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test_onshore.zip";
   static final String SHAPEFILE_PROJECT_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.prj";
   static final String SHAPEFILE_DBASE_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/test.dbf";
   static final String UNSUPPORTED_SHAPEFILE_PROJECT_RESOURCE_LOCATION = CLASSPATH_SHAPEFILES + "/unsupported.prj";
