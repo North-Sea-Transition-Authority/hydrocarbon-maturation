@@ -9,19 +9,29 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
 @ExtendWith(MockitoExtension.class)
 class CorrectionFormValidatorTest {
 
+  @Mock
+  private SubmissionDetailService submissionDetailService;
+
+  @Mock
+  private SubmissionHistoryQueryService submissionHistoryQueryService;
+
   private CorrectionFormValidator correctionFormValidator;
 
   @BeforeEach
   void setUp() {
-    correctionFormValidator = new CorrectionFormValidator();
+    correctionFormValidator = new CorrectionFormValidator(submissionDetailService, submissionHistoryQueryService);
   }
 
   @Test
@@ -56,7 +66,7 @@ class CorrectionFormValidatorTest {
 
   private BindingResult validateCorrectionForm(CorrectionForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    correctionFormValidator.validate(form, bindingResult);
+    correctionFormValidator.isValid(form, new Resource(), bindingResult);
     return bindingResult;
   }
 }

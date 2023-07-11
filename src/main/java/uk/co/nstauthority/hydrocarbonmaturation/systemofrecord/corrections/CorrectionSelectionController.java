@@ -18,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -68,7 +69,7 @@ public class CorrectionSelectionController {
               .formatted(user.wuaId(), resourceId)
       );
     }
-    return getCorrectionModelAndView(new CorrectionForm(), resourceId);
+    return getCorrectionModelAndView(new CorrectionForm(), resource);
   }
 
   @PostMapping
@@ -76,9 +77,12 @@ public class CorrectionSelectionController {
                                       @ModelAttribute("form") CorrectionForm form,
                                       BindingResult bindingResult,
                                       ServiceUserDetail user) {
-    correctionFormValidator.validate(form, bindingResult);
-    if (bindingResult.hasErrors()) {
-      var modelAndView = getCorrectionModelAndView(form, resourceId);
+    var resource = resourceService.getResourceById(resourceId)
+        .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
+            .formatted(resourceId)));
+
+    if (!correctionFormValidator.isValid(form, resource, bindingResult)) {
+      var modelAndView = getCorrectionModelAndView(form, resource);
       modelAndView.addObject("errorList", controllerHelperService.getErrorItemsFromBindingResult(bindingResult));
       return modelAndView;
     } else {
@@ -87,10 +91,10 @@ public class CorrectionSelectionController {
     }
   }
 
-  private ModelAndView getCorrectionModelAndView(CorrectionForm form, UUID resourceId) {
+  private ModelAndView getCorrectionModelAndView(CorrectionForm form, Resource resource) {
     var modelAndView = new ModelAndView("remi/systemofrecord/corrections/corrections");
     var submissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
-        submissionHistoryQueryService.getApprovedSubmissionsOnResource(resourceId)
+        submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())
     );
 
     modelAndView
@@ -98,7 +102,7 @@ public class CorrectionSelectionController {
         .addObject("submissionsOnResource", submissionsOnResource)
         .addObject("form", form)
         .addObject("cancelUrl",
-            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId))
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId()))
         );
 
     return modelAndView;

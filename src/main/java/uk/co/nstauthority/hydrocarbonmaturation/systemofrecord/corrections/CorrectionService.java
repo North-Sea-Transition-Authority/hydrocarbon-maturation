@@ -3,6 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -12,16 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 
 @Service
 public class CorrectionService {
@@ -30,19 +37,25 @@ public class CorrectionService {
   private final ResponsibleTeamService responsibleTeamService;
   private final SubmissionCreateService submissionCreateService;
   private final SubmissionDetailService submissionDetailService;
-  private final SubmissionDetailRepository submissionDetailRepository;
+  private final SubmissionPersistenceService submissionPersistenceService;
+  private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
+  private final SubmissionDetailDuplicationService submissionDetailDuplicationService;
 
   @Autowired
   public CorrectionService(RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                            ResponsibleTeamService responsibleTeamService,
                            SubmissionCreateService submissionCreateService,
                            SubmissionDetailService submissionDetailService,
-                           SubmissionDetailRepository submissionDetailRepository) {
+                           SubmissionPersistenceService submissionPersistenceService,
+                           SubmissionDetailPersistenceService submissionDetailPersistenceService,
+                           SubmissionDetailDuplicationService submissionDetailDuplicationService) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.responsibleTeamService = responsibleTeamService;
     this.submissionCreateService = submissionCreateService;
     this.submissionDetailService = submissionDetailService;
-    this.submissionDetailRepository = submissionDetailRepository;
+    this.submissionPersistenceService = submissionPersistenceService;
+    this.submissionDetailPersistenceService = submissionDetailPersistenceService;
+    this.submissionDetailDuplicationService = submissionDetailDuplicationService;
   }
 
 
@@ -72,31 +85,114 @@ public class CorrectionService {
 
   SubmissionDetail startCorrectionForType(CorrectionForm form, ServiceUserDetail user) {
     return switch (form.getCorrectionType()) {
-      case HISTORIC_UPDATE -> null;
-      case SUBMISSION_CORRECTION -> startCorrection(UUID.fromString(form.getSubmissionIdForCorrectingInformation()), user);
-      case APPROVAL_DATE_CHANGE -> null;
+      case HISTORIC_UPDATE -> createMissingUpdate(
+          UUID.fromString(form.getSubmissionIdForMissingUpdate()),
+          form.getMissingUpdateDay(),
+          form.getMissingUpdateMonth(),
+          form.getMissingUpdateYear(),
+          user);
+      case SUBMISSION_CORRECTION -> createCorrection(UUID.fromString(form.getSubmissionIdForCorrectingInformation()), user);
+      case APPROVAL_DATE_CHANGE -> updateApprovedDate(
+          UUID.fromString(form.getSubmissionIdForChangingApprovedDate()),
+          form.getApprovalDateChangeDay(),
+          form.getApprovalDateChangeMonth(),
+          form.getApprovalDateChangeYear(),
+          user);
       case REMOVE_SUBMISSION -> null;
     };
   }
 
   ModelAndView getCorrectionRedirectForType(CorrectionForm form, SubmissionDetail submissionDetail) {
     return switch (form.getCorrectionType()) {
-      case HISTORIC_UPDATE -> null;
-      case SUBMISSION_CORRECTION -> ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
-      case APPROVAL_DATE_CHANGE -> null;
+      case HISTORIC_UPDATE, SUBMISSION_CORRECTION -> ReverseRouter.redirect(on(TaskListController.class)
+          .getTaskList(submissionDetail.getId()));
+      case APPROVAL_DATE_CHANGE -> ReverseRouter.redirect(on(ViewResourceRecordController.class)
+          .showSubmissionSummary(submissionDetail.getSubmission().getResource().getId(), submissionDetail.getId(), null));
       case REMOVE_SUBMISSION -> null;
     };
   }
 
   @Transactional
-  public SubmissionDetail startCorrection(UUID submissionDetailId, ServiceUserDetail serviceUserDetail) {
+  public SubmissionDetail createCorrection(UUID submissionDetailId, ServiceUserDetail serviceUserDetail) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var correctionSubmissionDetail = submissionCreateService.createUpdateSubmissionDetail(previousSubmissionDetail);
-    correctionSubmissionDetail.setCorrection(true);
-    correctionSubmissionDetail.setCorrectionByWuaId(serviceUserDetail.wuaId().intValue());
-    correctionSubmissionDetail.setCorrectionTimestamp(Instant.now());
-    correctionSubmissionDetail.setSubmitterType(SubmitterType.REGULATOR);
-    submissionDetailRepository.save(correctionSubmissionDetail);
+    correctionSubmissionDetail.setSubmittedByWuaId(serviceUserDetail.wuaId().intValue());
+    correctionSubmissionDetail.setSubmittedTimestamp(previousSubmissionDetail.getSubmittedTimestamp());
+    correctionSubmissionDetail.setApprovedByWuaId(serviceUserDetail.wuaId().intValue());
+    correctionSubmissionDetail.setApprovedTimestamp(previousSubmissionDetail.getApprovedTimestamp());
+    setCorrectionDetails(correctionSubmissionDetail, serviceUserDetail);
+    submissionDetailPersistenceService.saveSubmissionDetail(correctionSubmissionDetail);
     return correctionSubmissionDetail;
+  }
+
+  @Transactional
+  public SubmissionDetail updateApprovedDate(UUID submissionDetailId,
+                                             String day,
+                                             String month,
+                                             String year,
+                                             ServiceUserDetail serviceUserDetail) {
+    var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var correctionSubmissionDetail = submissionCreateService.createUpdateSubmissionDetail(previousSubmissionDetail);
+
+    correctionSubmissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+
+    setApprovalDateAndUser(correctionSubmissionDetail, day, month, year, serviceUserDetail);
+
+    setCorrectionDetails(correctionSubmissionDetail, serviceUserDetail);
+
+    submissionDetailPersistenceService.saveSubmissionDetail(correctionSubmissionDetail);
+    return correctionSubmissionDetail;
+  }
+
+  @Transactional
+  public SubmissionDetail createMissingUpdate(UUID submissionDetailId,
+                                              String day,
+                                              String month,
+                                              String year,
+                                              ServiceUserDetail serviceUserDetail) {
+    var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var resource = previousSubmissionDetail.getSubmission().getResource();
+    var submission = submissionPersistenceService.createSubmission(resource);
+    SubmissionDetail newSubmissionDetail;
+    if (previousSubmissionDetail.isProspectSubmission()) {
+      newSubmissionDetail =
+          submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.PROSPECT_UPDATE);
+    } else if (previousSubmissionDetail.isDiscoverySubmission()) {
+      newSubmissionDetail =
+          submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.UPDATE_DISCOVERY);
+    } else {
+      throw new ActionNotAllowedException("Corrections can only be done for prospects and discoveries");
+    }
+
+    submissionDetailDuplicationService.duplicateSubmissionDetailSections(previousSubmissionDetail, newSubmissionDetail);
+
+    setApprovalDateAndUser(newSubmissionDetail, day, month, year, serviceUserDetail);
+
+    setCorrectionDetails(newSubmissionDetail, serviceUserDetail);
+
+    submissionDetailPersistenceService.saveSubmissionDetail(newSubmissionDetail);
+
+    return newSubmissionDetail;
+
+  }
+
+  private void setApprovalDateAndUser(SubmissionDetail submissionDetail,
+                                      String day,
+                                      String month,
+                                      String year,
+                                      ServiceUserDetail serviceUserDetail) {
+    var approvedDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day))
+        .atStartOfDay(ZoneId.systemDefault()).toInstant();
+    submissionDetail.setSubmittedTimestamp(approvedDate);
+    submissionDetail.setSubmittedByWuaId(serviceUserDetail.wuaId().intValue());
+    submissionDetail.setApprovedTimestamp(approvedDate);
+    submissionDetail.setApprovedByWuaId(serviceUserDetail.wuaId().intValue());
+  }
+
+  private void setCorrectionDetails(SubmissionDetail submissionDetail, ServiceUserDetail serviceUserDetail) {
+    submissionDetail.setCorrection(true);
+    submissionDetail.setCorrectionByWuaId(serviceUserDetail.wuaId().intValue());
+    submissionDetail.setCorrectionTimestamp(Instant.now());
+    submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
   }
 }

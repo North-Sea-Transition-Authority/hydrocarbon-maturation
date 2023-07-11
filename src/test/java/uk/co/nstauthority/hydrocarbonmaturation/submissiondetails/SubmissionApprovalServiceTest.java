@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -55,13 +57,13 @@ class SubmissionApprovalServiceTest {
 
     @BeforeEach
     void setup() {
-      when(userDetailService.getUserDetail()).thenReturn(USER);
       submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     }
 
     @Test
     void whenVersionNumberGreaterThanOne_thenVerifyUpdateResolved() {
       submissionDetail.setVersionNumber(2);
+      when(userDetailService.getUserDetail()).thenReturn(USER);
       when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
       when(areaTeamService.isAreaUser(USER)).thenReturn(false);
 
@@ -75,23 +77,22 @@ class SubmissionApprovalServiceTest {
     }
 
     @Test
-    void whenCorrection_thenVerifyUpdateDoesntNeedResolving() {
-      submissionDetail.setVersionNumber(2);
+    void whenCorrection_thenVerifyOnlyStatusUpdated() {
       submissionDetail.setCorrection(true);
-      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
-      when(areaTeamService.isAreaUser(USER)).thenReturn(false);
 
       underTest.submitSubmission(submissionDetail);
 
-      verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
+      var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
+      verify(submissionDetailPersistenceService).saveSubmissionDetail(submissionDetailArgumentCaptor.capture());
+      assertEquals(SubmissionDetailStatus.APPROVED, submissionDetailArgumentCaptor.getValue().getStatus());
       verifyNoInteractions(submissionUpdateService);
-      verify(submissionEmailService, times(1))
-          .sendSubmittedSubmissionEmails(submissionDetail);
+      verifyNoInteractions(submissionEmailService);
     }
 
     @Test
     void andCanNotAutoApprove_ThenVerifyCallToSubmit() {
       submissionDetail.setVersionNumber(1);
+      when(userDetailService.getUserDetail()).thenReturn(USER);
       when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
       when(areaTeamService.isAreaUser(USER)).thenReturn(false);
 
@@ -108,6 +109,7 @@ class SubmissionApprovalServiceTest {
                          "true, false",
                          "false, true"})
     void andCanAutoApprove_ThenVerifyCallsToSubmitAndApprove(boolean isRegulatorUser, boolean isAreaUser) {
+      when(userDetailService.getUserDetail()).thenReturn(USER);
       when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
       if (!isRegulatorUser) {
         when(areaTeamService.isAreaUser(USER)).thenReturn(isAreaUser);

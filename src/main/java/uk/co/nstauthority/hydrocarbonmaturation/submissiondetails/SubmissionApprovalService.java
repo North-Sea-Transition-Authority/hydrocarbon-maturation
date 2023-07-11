@@ -40,17 +40,24 @@ public class SubmissionApprovalService {
 
   @Transactional
   public void submitSubmission(SubmissionDetail submissionDetail) {
-    submissionDetailPersistenceService.submitSubmission(submissionDetail);
-
-    if (submissionDetail.isUpdateSubmission() && BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
-      submissionUpdateService.resolveUpdateOnSubmission(submissionDetail);
-    }
-
-    if (canAutoApproveSubmission()) {
-      submissionDetailPersistenceService.approveSubmission(submissionDetail);
+    // corrections will already have submission and approval details stored, just need to set the status
+    if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {
+      submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetailPersistenceService.saveSubmissionDetail(submissionDetail);
     } else {
-      submissionEmailService.sendSubmittedSubmissionEmails(submissionDetail);
+      submissionDetailPersistenceService.submitSubmission(submissionDetail);
+
+      if (submissionDetail.isUpdateSubmission()) {
+        submissionUpdateService.resolveUpdateOnSubmission(submissionDetail);
+      }
+
+      if (canAutoApproveSubmission()) {
+        submissionDetailPersistenceService.approveSubmission(submissionDetail);
+      } else {
+        submissionEmailService.sendSubmittedSubmissionEmails(submissionDetail);
+      }
     }
+
   }
 
   @Transactional

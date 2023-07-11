@@ -1,23 +1,472 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionQuerySearchRecord;
+import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUtil;
 
 @Service
-public class CorrectionFormValidator {
+class CorrectionFormValidator {
 
-  public void validate(CorrectionForm form, Errors errors) {
+  private final SubmissionDetailService submissionDetailService;
+  private final SubmissionHistoryQueryService submissionHistoryQueryService;
+
+  @Autowired
+  CorrectionFormValidator(SubmissionDetailService submissionDetailService,
+                          SubmissionHistoryQueryService submissionHistoryQueryService) {
+    this.submissionDetailService = submissionDetailService;
+    this.submissionHistoryQueryService = submissionHistoryQueryService;
+  }
+
+  boolean isValid(CorrectionForm form, Resource resource, Errors errors) {
 
     ValidationUtils.rejectIfEmpty(
         errors, "correctionType", "correctionType.required", "Select what you want to correct");
 
     if (form.getCorrectionType() == CorrectionType.SUBMISSION_CORRECTION) {
-      ValidationUtils.rejectIfEmpty(
-          errors,
-          "submissionIdForCorrectingInformation",
-          "submissionIdForCorrectingInformation.required",
-          "Select the submission you want to correct");
+      validateSubmissionCorrection(errors);
+    }
+
+    if (form.getCorrectionType() == CorrectionType.APPROVAL_DATE_CHANGE) {
+      validateApprovalDateChange(form, resource, errors);
+    }
+
+    if (form.getCorrectionType() == CorrectionType.HISTORIC_UPDATE) {
+      validateMissingUpdate(form, resource, errors);
+    }
+
+    return !errors.hasErrors();
+  }
+
+  private void validateSubmissionCorrection(Errors errors) {
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "submissionIdForCorrectingInformation",
+        "submissionIdForCorrectingInformation.required",
+        "Select the submission you want to correct");
+  }
+
+  private void validateApprovalDateChange(CorrectionForm form, Resource resource, Errors errors) {
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "submissionIdForChangingApprovedDate",
+        "submissionIdForChangingApprovedDate.required",
+        "Select the submission you want to change the approved date for");
+
+    if (form.getSubmissionIdForChangingApprovedDate() != null) {
+      var formSubmissionDetail = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+      var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(formSubmissionDetail);
+
+      // basic date validation - check it isn't in the future
+      var basicDateValidationPassed = DateValidationUtil.validateDateIsTodayOrInThePast(
+          "approvalDateChange",
+          "new approved date of the submission",
+          form.getApprovalDateChangeDay(),
+          form.getApprovalDateChangeMonth(),
+          form.getApprovalDateChangeYear(),
+          errors);
+
+      if (basicDateValidationPassed) {
+        var approvedSubmissions = submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId());
+
+        checkDateAvailable(
+            approvedSubmissions,
+            form.getApprovalDateChangeDay(),
+            form.getApprovalDateChangeMonth(),
+            form.getApprovalDateChangeYear(),
+            "approvalDateChange",
+            "New approved date cannot be the same as another approved date",
+            errors
+        );
+
+        if (selectedSubmissionDetail.getSubmission().getResource().getType() == ResourceType.PROSPECT) {
+          // if it is a prospect submission, and not the create submission, check it is after the create approved date
+          if (selectedSubmissionDetail.getSubmissionType() != SubmissionType.CREATE_PROSPECT) {
+            checkApprovalAfterDateForSubmissionTypes(
+                approvedSubmissions,
+                List.of(SubmissionType.CREATE_PROSPECT),
+                form.getApprovalDateChangeDay(),
+                form.getApprovalDateChangeMonth(),
+                form.getApprovalDateChangeYear(),
+                "approvalDateChange",
+                "new approved date of the submission",
+                "after the creation date of the prospect - %s",
+                errors
+            );
+          }
+
+          // if the selected submission isn't a relinquishment check it is before that relinquishment date
+          if (selectedSubmissionDetail.getSubmissionType() != SubmissionType.RELINQUISHMENT_PROSPECT) {
+            checkApprovalBeforeDateForSubmissionTypes(
+                approvedSubmissions,
+                List.of(SubmissionType.RELINQUISHMENT_PROSPECT),
+                form.getApprovalDateChangeDay(),
+                form.getApprovalDateChangeMonth(),
+                form.getApprovalDateChangeYear(),
+                "approvalDateChange",
+                "new approved date of the submission",
+                "before the relinquishment date of the prospect - %s",
+                errors
+            );
+          }
+
+          // if it isn't a dry well submission, check it is before any dry well submission
+          if (!selectedSubmissionDetail.isDryWellSubmission()) {
+            checkApprovalBeforeDateForSubmissionTypes(
+                approvedSubmissions,
+                List.of(SubmissionType.POST_DRILL_DRY_HOLE),
+                form.getApprovalDateChangeDay(),
+                form.getApprovalDateChangeMonth(),
+                form.getApprovalDateChangeYear(),
+                "approvalDateChange",
+                "new approved date of the submission",
+                "before the dry well date of the resource - %s",
+                errors
+            );
+          }
+
+          checkApprovalBeforeDateForSubmissionTypes(
+              approvedSubmissions,
+              List.of(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT),
+              form.getApprovalDateChangeDay(),
+              form.getApprovalDateChangeMonth(),
+              form.getApprovalDateChangeYear(),
+              "approvalDateChange",
+              "new approved date of the submission",
+              "before the initial discovery date of the resource - %s",
+              errors
+          );
+        }
+
+        if (selectedSubmissionDetail.getSubmission().getResource().getType() == ResourceType.DISCOVERY) {
+          // if it is a discovery submission, and not the create submission, check it is after the create approved date
+          if (selectedSubmissionDetail.getSubmissionType() != SubmissionType.CREATE_DISCOVERY
+              && selectedSubmissionDetail.getSubmissionType() != SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
+            checkApprovalAfterDateForSubmissionTypes(
+                approvedSubmissions,
+                List.of(SubmissionType.CREATE_DISCOVERY, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT),
+                form.getApprovalDateChangeDay(),
+                form.getApprovalDateChangeMonth(),
+                form.getApprovalDateChangeYear(),
+                "approvalDateChange",
+                "new approved date of the submission",
+                "after the creation date of the discovery - %s",
+                errors
+            );
+          }
+
+          // if the selected submission isn't a relinquishment check it is before that relinquishment date
+          if (selectedSubmissionDetail.getSubmissionType() != SubmissionType.RELINQUISHMENT_DISCOVERY) {
+            checkApprovalBeforeDateForSubmissionTypes(
+                approvedSubmissions,
+                List.of(SubmissionType.RELINQUISHMENT_DISCOVERY),
+                form.getApprovalDateChangeDay(),
+                form.getApprovalDateChangeMonth(),
+                form.getApprovalDateChangeYear(),
+                "approvalDateChange",
+                "new approved date of the submission",
+                "before the relinquishment date of the discovery - %s",
+                errors
+            );
+          }
+
+          // if it is a discovery submission, check it is after the latest prospect submission
+          checkDiscoveryAfterLatestProspect(
+              approvedSubmissions,
+              form.getApprovalDateChangeDay(),
+              form.getApprovalDateChangeMonth(),
+              form.getApprovalDateChangeYear(),
+              "approvalDateChange",
+              "new approved date of the submission",
+              "after the latest prospect submission date of the resource - %s",
+              errors
+          );
+        }
+      }
+    }
+  }
+
+  private void validateMissingUpdate(CorrectionForm form, Resource resource, Errors errors) {
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "submissionIdForMissingUpdate",
+        "submissionIdForMissingUpdate.required",
+        "Select the submission you want to create the update after");
+
+    if (form.getSubmissionIdForMissingUpdate() != null) {
+      var formSubmissionDetail = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+      var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(formSubmissionDetail);
+
+      // basic date validation - check it isn't in the future
+      var basicDateValidationPassed = DateValidationUtil.validateDateIsTodayOrInThePast(
+          "missingUpdate",
+          "missing update date of the submission",
+          form.getMissingUpdateDay(),
+          form.getMissingUpdateMonth(),
+          form.getMissingUpdateYear(),
+          errors);
+
+      if (basicDateValidationPassed) {
+        var approvedSubmissions = submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId());
+
+        checkDateAvailable(
+            approvedSubmissions,
+            form.getMissingUpdateDay(),
+            form.getMissingUpdateMonth(),
+            form.getMissingUpdateYear(),
+            "missingUpdate",
+            "Missing update date cannot be the same as another approved date",
+            errors
+        );
+
+        if (selectedSubmissionDetail.getSubmission().getResource().getType() == ResourceType.PROSPECT) {
+          // check it is after the create approved date
+          checkApprovalAfterDateForSubmissionTypes(
+              approvedSubmissions,
+              List.of(SubmissionType.CREATE_PROSPECT),
+              form.getMissingUpdateDay(),
+              form.getMissingUpdateMonth(),
+              form.getMissingUpdateYear(),
+              "missingUpdate",
+              "missing update date of the submission",
+              "after the creation date of the prospect - %s",
+              errors
+          );
+
+          // check it is before any dry well submission
+          checkApprovalBeforeDateForSubmissionTypes(
+              approvedSubmissions,
+              List.of(SubmissionType.POST_DRILL_DRY_HOLE),
+              form.getMissingUpdateDay(),
+              form.getMissingUpdateMonth(),
+              form.getMissingUpdateYear(),
+              "missingUpdate",
+              "missing update date of the submission",
+              "before the dry well date of the resource - %s",
+              errors
+          );
+
+          // check it is before any relinquishment date
+          checkApprovalBeforeDateForSubmissionTypes(
+              approvedSubmissions,
+              List.of(SubmissionType.RELINQUISHMENT_PROSPECT),
+              form.getMissingUpdateDay(),
+              form.getMissingUpdateMonth(),
+              form.getMissingUpdateYear(),
+              "missingUpdate",
+              "missing update date of the submission",
+              "before the relinquishment date of the prospect - %s",
+              errors
+          );
+
+          checkApprovalBeforeDateForSubmissionTypes(
+              approvedSubmissions,
+              List.of(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT),
+              form.getMissingUpdateDay(),
+              form.getMissingUpdateMonth(),
+              form.getMissingUpdateYear(),
+              "missingUpdate",
+              "missing update date of the submission",
+              "before the initial discovery date of the resource - %s",
+              errors
+          );
+        }
+
+        if (selectedSubmissionDetail.getSubmission().getResource().getType() == ResourceType.DISCOVERY) {
+          // check it is after the create approved date
+          checkApprovalAfterDateForSubmissionTypes(
+              approvedSubmissions,
+              List.of(SubmissionType.CREATE_DISCOVERY, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT),
+              form.getMissingUpdateDay(),
+              form.getMissingUpdateMonth(),
+              form.getMissingUpdateYear(),
+              "missingUpdate",
+              "missing update date of the submission",
+              "after the creation date of the discovery - %s",
+              errors
+          );
+
+          // check it is before a relinquishment date
+          checkApprovalBeforeDateForSubmissionTypes(
+              approvedSubmissions,
+              List.of(SubmissionType.RELINQUISHMENT_DISCOVERY),
+              form.getMissingUpdateDay(),
+              form.getMissingUpdateMonth(),
+              form.getMissingUpdateYear(),
+              "missingUpdate",
+              "missing update date of the submission",
+              "before the relinquishment date of the discovery - %s",
+              errors
+          );
+
+          // if it is a discovery submission, check it is after the latest prospect submission
+          checkDiscoveryAfterLatestProspect(
+              approvedSubmissions,
+              form.getMissingUpdateDay(),
+              form.getMissingUpdateMonth(),
+              form.getMissingUpdateYear(),
+              "missingUpdate",
+              "missing update date of the submission",
+              "after the latest prospect submission date of the resource - %s",
+              errors
+          );
+        }
+      }
+    }
+  }
+
+  // check the new approved date isn't the same as any other approved date
+  private void checkDateAvailable(List<SubmissionQuerySearchRecord> approvedSubmissions,
+                                  String day,
+                                  String month,
+                                  String year,
+                                  String fieldPrefix,
+                                  String errorMessage,
+                                  Errors errors) {
+    var approvedDates = approvedSubmissions.stream()
+        .map(a -> a.approvedTimestamp().toLocalDateTime().toLocalDate())
+        .toList();
+    var newApprovedDate = LocalDate.of(
+        Integer.parseInt(year),
+        Integer.parseInt(month),
+        Integer.parseInt(day)
+    );
+
+    if (approvedDates.contains(newApprovedDate)) {
+      errors.rejectValue(
+          fieldPrefix + "Day",
+          fieldPrefix + "Day.invalid",
+          errorMessage
+      );
+      errors.rejectValue(
+          fieldPrefix + "Month",
+          fieldPrefix + "Month.invalid",
+          ""
+      );
+      errors.rejectValue(
+          fieldPrefix + "Year",
+          fieldPrefix + "Year.invalid",
+          ""
+      );
+    }
+  }
+
+  private void checkApprovalBeforeDateForSubmissionTypes(List<SubmissionQuerySearchRecord> approvedSubmissions,
+                                                         List<SubmissionType> submissionTypes,
+                                                         String day,
+                                                         String month,
+                                                         String year,
+                                                         String fieldPrefix,
+                                                         String displayPrefix,
+                                                         String errorSuffix,
+                                                         Errors errors
+  ) {
+    var approvedLocalDate = getApprovedLocalDateForSubmissionTypes(
+        approvedSubmissions,
+        submissionTypes
+    );
+
+    approvedLocalDate.ifPresent(localDate -> DateValidationUtil.validateDateIsBeforeComparisonDate(
+        fieldPrefix,
+        displayPrefix,
+        day,
+        month,
+        year,
+        localDate,
+        String.format(errorSuffix, DateUtil.formatDate(localDate)),
+        errors));
+  }
+
+  private void checkApprovalAfterDateForSubmissionTypes(List<SubmissionQuerySearchRecord> approvedSubmissions,
+                                                        List<SubmissionType> submissionTypes,
+                                                        String day,
+                                                        String month,
+                                                        String year,
+                                                        String fieldPrefix,
+                                                        String displayPrefix,
+                                                        String errorSuffix,
+                                                        Errors errors
+  ) {
+    var createApprovedLocalDate = getApprovedLocalDateForSubmissionTypes(
+        approvedSubmissions,
+        submissionTypes
+    );
+
+    createApprovedLocalDate.ifPresent(localDate -> DateValidationUtil.validateDateIsAfterComparisonDate(
+        fieldPrefix,
+        displayPrefix,
+        day,
+        month,
+        year,
+        localDate,
+        String.format(errorSuffix, DateUtil.formatDate(localDate)),
+        errors));
+  }
+
+  private Optional<LocalDate> getApprovedLocalDateForSubmissionTypes(List<SubmissionQuerySearchRecord> approvedSubmissions,
+                                                                     List<SubmissionType> submissionTypes) {
+    var approvedTimestamp = approvedSubmissions.stream()
+        .filter(a -> submissionTypes.contains(a.submissionType()))
+        .map(SubmissionQuerySearchRecord::approvedTimestamp)
+        .findFirst();
+
+    if (approvedTimestamp.isPresent()) {
+      var approvedInstant = approvedTimestamp.get().toInstant();
+      var approvedLocalDate = LocalDate.ofInstant(
+          approvedInstant,
+          ZoneId.systemDefault()
+      );
+      return Optional.of(approvedLocalDate);
+    }
+    return Optional.empty();
+  }
+
+  private void checkDiscoveryAfterLatestProspect(List<SubmissionQuerySearchRecord> approvedSubmissions,
+                                                 String day,
+                                                 String month,
+                                                 String year,
+                                                 String fieldPrefix,
+                                                 String displayPrefix,
+                                                 String errorSuffix,
+                                                 Errors errors) {
+    var latestProspectTimestamp = approvedSubmissions.stream()
+        .filter(a ->
+            submissionDetailService.getSubmissionDetailForIdOrError(a.submissionDetailId()).isProspectSubmission()
+        )
+        .sorted(Comparator.comparing(SubmissionQuerySearchRecord::approvedTimestamp).reversed())
+        .map(SubmissionQuerySearchRecord::approvedTimestamp)
+        .findFirst();
+
+    if (latestProspectTimestamp.isPresent()) {
+      var latestProspectApprovedInstant = latestProspectTimestamp.get().toInstant();
+      var latestProspectLocalDate = LocalDate.ofInstant(
+          latestProspectApprovedInstant,
+          ZoneId.systemDefault()
+      );
+      DateValidationUtil.validateDateIsAfterComparisonDate(
+          fieldPrefix,
+          displayPrefix,
+          day,
+          month,
+          year,
+          latestProspectLocalDate,
+          String.format(errorSuffix, DateUtil.formatDate(latestProspectLocalDate)),
+          errors
+      );
     }
   }
 }

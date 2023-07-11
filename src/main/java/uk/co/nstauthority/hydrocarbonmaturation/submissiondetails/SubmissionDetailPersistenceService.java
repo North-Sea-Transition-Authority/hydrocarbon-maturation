@@ -39,7 +39,7 @@ public class SubmissionDetailPersistenceService {
     this.areaTeamService = areaTeamService;
   }
 
-  SubmissionDetail createInitialSubmissionDetail(Submission submission,
+  public SubmissionDetail createInitialSubmissionDetail(Submission submission,
                                                  SubmissionType submissionType) {
     var submissionDetail = new SubmissionDetail();
     var user = userDetailService.getUserDetail();
@@ -100,6 +100,11 @@ public class SubmissionDetailPersistenceService {
     if (submissionDetail.isUpdateSubmission()) {
       submissionDetail.setVersionNumber(null);
     }
+    submissionDetailRepository.save(submissionDetail);
+  }
+
+  @Transactional
+  public void saveSubmissionDetail(SubmissionDetail submissionDetail) {
     submissionDetailRepository.save(submissionDetail);
   }
 }

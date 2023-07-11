@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,7 +29,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -96,6 +96,8 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void postCorrectionPage_noErrors_assertStatusOk_verifyRedirectCall() throws Exception {
+    when(correctionFormValidator.isValid(any(CorrectionForm.class), any(Resource.class), any(BindingResult.class)))
+        .thenReturn(true);
     mockMvc.perform(
             post(ReverseRouter.route(on(CorrectionSelectionController.class)
                 .startCorrection(resourceId, form, bindingResult, null)))
@@ -145,13 +147,16 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void postCorrectionPage_withInvalidForm_assertIsOk() throws Exception {
-    bindingResult.addError(new ObjectError("form", "invalid form"));
+    when(correctionFormValidator.isValid(any(CorrectionForm.class), any(Resource.class), any(BindingResult.class)))
+        .thenReturn(false);
     mockMvc.perform(
             post(ReverseRouter.route(on(CorrectionSelectionController.class)
                 .startCorrection(resourceId, form, bindingResult, null)))
                 .with(user(user))
                 .with(csrf()))
         .andExpect(status().isOk());
+    verify(correctionService, never()).startCorrectionForType(any(),any());
+    verify(correctionService, never()).getCorrectionRedirectForType(any(),any());
   }
 
   @Test
