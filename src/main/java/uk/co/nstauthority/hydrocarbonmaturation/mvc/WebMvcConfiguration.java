@@ -41,6 +41,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
   private final AccessibleByRegulatorUsersInterceptor accessibleByRegulatorUsersInterceptor;
   private final ValidationTypeArgumentResolver validationTypeArgumentResolver;
   private final ServiceUserDetailArgumentResolver serviceUserDetailArgumentResolver;
+  private final ErrorSummaryHandlerInterceptor errorSummaryHandlerInterceptor;
 
   @Autowired
   public WebMvcConfiguration(PermissionManagementHandlerInterceptor permissionManagementHandlerInterceptor,
@@ -51,7 +52,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                              SubmissionHandlerInterceptor submissionHandlerInterceptor,
                              AccessibleByRegulatorUsersInterceptor accessibleByRegulatorUsersInterceptor,
                              ValidationTypeArgumentResolver validationTypeArgumentResolver,
-                             ServiceUserDetailArgumentResolver serviceUserDetailArgumentResolver) {
+                             ServiceUserDetailArgumentResolver serviceUserDetailArgumentResolver,
+                             ErrorSummaryHandlerInterceptor errorSummaryHandlerInterceptor) {
     this.permissionManagementHandlerInterceptor = permissionManagementHandlerInterceptor;
     this.regulatorPermissionManagementHandlerInterceptor = regulatorPermissionManagementHandlerInterceptor;
     this.industryPermissionManagementHandlerInterceptor = industryPermissionManagementHandlerInterceptor;
@@ -61,6 +63,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     this.accessibleByRegulatorUsersInterceptor = accessibleByRegulatorUsersInterceptor;
     this.validationTypeArgumentResolver = validationTypeArgumentResolver;
     this.serviceUserDetailArgumentResolver = serviceUserDetailArgumentResolver;
+    this.errorSummaryHandlerInterceptor = errorSummaryHandlerInterceptor;
   }
 
   @Override
@@ -96,6 +99,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     registry.addInterceptor(hasPermissionInterceptor)
         .excludePathPatterns(ASSETS_PATH);
     registry.addInterceptor(accessibleByRegulatorUsersInterceptor)
+        .excludePathPatterns(ASSETS_PATH);
+    registry.addInterceptor(errorSummaryHandlerInterceptor)
         .excludePathPatterns(ASSETS_PATH);
   }
 

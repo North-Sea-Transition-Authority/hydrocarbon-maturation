@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,7 +22,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
@@ -46,7 +46,7 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startProspectSubmission_whenValidFormCreateProspect_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -83,7 +83,7 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startProspectSubmission_whenValidFormProspectUpdate_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -103,7 +103,7 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startProspectSubmission_whenValidFormPostDrillDryHole_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -124,7 +124,7 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startProspectSubmission_whenValidFormCreateDiscoveryFromProspect_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -145,7 +145,7 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startProspectSubmission_whenValidFormRelinquishmentProspect_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -166,7 +166,7 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startProspectSubmission_whenValidFormCreateDiscovery_assertForbidden() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -195,7 +195,7 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getSubmissionPurpose_assertModelProperties() throws Exception {
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))

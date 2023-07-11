@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,7 +22,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.StartRelinquishmentSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
@@ -44,7 +44,7 @@ class DiscoveryPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startDiscoverySubmission_whenValidFormCreateDiscovery_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -84,7 +84,7 @@ class DiscoveryPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startDiscoverySubmission_whenValidFormCreateDiscoveryFromProspect_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -107,7 +107,7 @@ class DiscoveryPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startDiscoverySubmission_whenValidFormUpdateDiscovery_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -130,7 +130,7 @@ class DiscoveryPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startDiscoverySubmission_whenValidFormRelinquishmentDiscovery_assertRedirection() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -153,7 +153,7 @@ class DiscoveryPurposeControllerTest extends AbstractSubmissionControllerTest {
   void startDiscoverySubmission_whenValidFormCreateProspect_assertForbidden() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
@@ -172,7 +172,7 @@ class DiscoveryPurposeControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getSubmissionPurpose_assertModelProperties() throws Exception {
-    var submissionTypeOptions = DisplayableEnumOptionUtil.getDisplayableOptions(SubmissionType.class);
+    var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY)).thenReturn(submissionTypeOptions);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,

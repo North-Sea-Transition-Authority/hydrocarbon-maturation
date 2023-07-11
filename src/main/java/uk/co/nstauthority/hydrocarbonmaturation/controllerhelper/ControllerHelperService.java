@@ -37,7 +37,7 @@ public class ControllerHelperService {
    * @param modelAndView The model and view which failed validation
    * @param bindingResult The result of the submitted form containing the list of validation errors
    */
-  private void addFieldValidationErrors(ModelAndView modelAndView, BindingResult bindingResult) {
+  public void addFieldValidationErrors(ModelAndView modelAndView, BindingResult bindingResult) {
     final var errorList = getErrorItemsFromBindingResult(bindingResult);
     modelAndView.addObject("errorList", errorList);
   }

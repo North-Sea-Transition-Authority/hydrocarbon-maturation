@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,9 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
-import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionTypeSelectServiceTest {
@@ -58,17 +55,12 @@ class SubmissionTypeSelectServiceTest {
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
 
-    var expectedMap = Stream.of(
-        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
-        SubmissionType.CREATE_DISCOVERY,
-        SubmissionType.UPDATE_DISCOVERY,
-        SubmissionType.RELINQUISHMENT_DISCOVERY)
-        .collect(StreamUtil.toLinkedHashMap(
-            Displayable::getEnumName,
-            Displayable::getDisplayName
-        ));
     assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY))
-        .isEqualTo(expectedMap);
+        .containsExactly(
+            SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
+            SubmissionType.CREATE_DISCOVERY,
+            SubmissionType.UPDATE_DISCOVERY,
+            SubmissionType.RELINQUISHMENT_DISCOVERY);
   }
 
   @Test
@@ -76,18 +68,13 @@ class SubmissionTypeSelectServiceTest {
     when(userDetailService.getUserDetail()).thenReturn(USER);
     when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
 
-    var expectedMap = Stream.of(
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT))
+        .containsExactly(
             SubmissionType.CREATE_PROSPECT,
             SubmissionType.PROSPECT_UPDATE,
             SubmissionType.POST_DRILL_DRY_HOLE,
             SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
-            SubmissionType.RELINQUISHMENT_PROSPECT)
-        .collect(StreamUtil.toLinkedHashMap(
-            Displayable::getEnumName,
-            Displayable::getDisplayName
-        ));
-    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT))
-        .isEqualTo(expectedMap);
+            SubmissionType.RELINQUISHMENT_PROSPECT);
   }
 
   @Test
@@ -100,14 +87,36 @@ class SubmissionTypeSelectServiceTest {
         RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
-    var expectedMap = Stream.of(
-            SubmissionType.UPDATE_DISCOVERY,
-            SubmissionType.RELINQUISHMENT_DISCOVERY)
-        .collect(StreamUtil.toLinkedHashMap(
-            Displayable::getEnumName,
-            Displayable::getDisplayName
-        ));
     assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY))
-        .isEqualTo(expectedMap);
+        .containsOnly(
+            SubmissionType.UPDATE_DISCOVERY,
+            SubmissionType.RELINQUISHMENT_DISCOVERY);
+  }
+
+  @Test
+  void getSubmissionTypeOptions_field_allPermissions() {
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
+
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD))
+        .containsOnly(
+            SubmissionType.CREATE_FIELD,
+            SubmissionType.CREATE_CSR);
+  }
+
+  @Test
+  void getSubmissionTypeOptions_field_onlyIndustrySubmit() {
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.ONSHORE_AREA_TEAM_MEMBER, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(false);
+
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD))
+        .containsOnly(
+            SubmissionType.CREATE_CSR);
   }
 }

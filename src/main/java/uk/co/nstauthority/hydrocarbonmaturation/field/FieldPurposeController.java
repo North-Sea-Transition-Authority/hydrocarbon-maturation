@@ -15,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.conceptselectreport.StartConceptSelectReportController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectForm;
@@ -53,6 +54,7 @@ public class FieldPurposeController {
         getFieldPurposeTypeModelAndView(form),
         () -> switch (form.getSubmissionType()) {
           case CREATE_FIELD -> ReverseRouter.redirect(on(StartFieldController.class).getStartPage());
+          case CREATE_CSR -> ReverseRouter.redirect(on(StartConceptSelectReportController.class).getStartPage());
           default -> throw new ResponseStatusException(HttpStatus.FORBIDDEN,
               "Invalid submission type selected for field only form");
         });

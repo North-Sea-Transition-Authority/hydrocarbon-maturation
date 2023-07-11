@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionSt
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortalConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ErrorSummaryHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ValidationTypeArgumentResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
@@ -52,7 +53,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     PermissionService.class,
     SubmissionStatusInterceptorRule.class,
     ServiceUserDetailArgumentResolver.class,
-    ValidationTypeArgumentResolver.class
+    ValidationTypeArgumentResolver.class,
+    ErrorSummaryHandlerInterceptor.class
 })
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
