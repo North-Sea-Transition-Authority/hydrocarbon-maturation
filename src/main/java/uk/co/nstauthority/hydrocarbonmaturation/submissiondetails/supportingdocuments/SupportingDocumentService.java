@@ -94,7 +94,6 @@ public class SupportingDocumentService {
     // so if it fails, we don't upload. If upload fails, we will roll back
     fileUploadService.uploadFile(inputStream, uploadedFile);
 
-
     return uploadedFile;
   }
 

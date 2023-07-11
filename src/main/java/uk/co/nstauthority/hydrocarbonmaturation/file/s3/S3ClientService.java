@@ -3,7 +3,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.file.s3;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import java.io.InputStream;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +43,14 @@ public class S3ClientService {
     doesObjectExistOrThrow(bucketName, s3Key);
 
     return s3Client.getObject(bucketName, s3Key).getObjectContent();
+  }
+
+  public List<S3ObjectSummary> getFileObjectsInBucket(String bucketName) {
+    doesBucketExistOrThrow(bucketName);
+
+    var objects = s3Client.listObjectsV2(bucketName);
+
+    return objects.getObjectSummaries();
   }
 
   public void deleteFile(String bucketName, String s3Key) {

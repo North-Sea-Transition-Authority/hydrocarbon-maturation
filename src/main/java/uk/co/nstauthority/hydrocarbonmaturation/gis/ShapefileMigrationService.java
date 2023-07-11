@@ -1,8 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
@@ -12,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3ClientService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
@@ -19,41 +23,60 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocu
 
 @Service
 public class ShapefileMigrationService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ShapefileMigrationService.class);
   public static final String PID = "pid";
+  public static final String SHAPEFILE_ZIP_CONTENT_TYPE = "application/zip";
+  public static final String VIRTUAL_FOLDER = "migration/shapefiles/";
   public static final SupportingDocumentType SUPPORTING_DOCUMENT_TYPE =
       SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
-  public static final String SHAPEFILE_ZIP_CONTENT_TYPE = "application/zip";
+  private static final Logger LOGGER = LoggerFactory.getLogger(ShapefileMigrationService.class);
   private final ShapefileValidationService shapefileValidationService;
   private final ShapefileZipService shapefileZipService;
   private final ShapefileMigrationProgressRepository shapefileMigrationProgressRepository;
   private final SupportingDocumentService supportingDocumentService;
   private final SubmissionDetailService submissionDetailService;
+  private final S3ClientService s3ClientService;
 
   @Autowired
   public ShapefileMigrationService(ShapefileValidationService shapefileValidationService,
                                    ShapefileZipService shapefileZipService,
                                    ShapefileMigrationProgressRepository shapefileMigrationProgressRepository,
                                    SupportingDocumentService supportingDocumentService,
-                                   SubmissionDetailService submissionDetailService) {
+                                   SubmissionDetailService submissionDetailService, S3ClientService s3ClientService) {
     this.shapefileValidationService = shapefileValidationService;
     this.shapefileZipService = shapefileZipService;
     this.shapefileMigrationProgressRepository = shapefileMigrationProgressRepository;
     this.supportingDocumentService = supportingDocumentService;
     this.submissionDetailService = submissionDetailService;
+    this.s3ClientService = s3ClientService;
   }
 
-  @Transactional
-  public void migrateShapefilesInDirectory(String migrationDirectoryLocation) throws FileNotFoundException {
+  void migrateShapefilesInDirectory(String migrationDirectoryLocation) throws IOException {
     var migrationDirectory = ResourceUtils.getFile(migrationDirectoryLocation);
     for (var file : FileUtils.listFiles(migrationDirectory, new String[]{"zip"}, false)) {
-      var shapefileZipContents = shapefileZipService.getShapefileZipContents(file);
-      migrateLegacyShapefile(shapefileZipContents, file);
+      migrateLegacyShapefile(getByteArrayInputStream(getShapefileZipFileInputStream(file)), file.getName(), file.length());
     }
   }
 
   @Transactional
-  public void migrateLegacyShapefile(ShapefileZipContents shapefileZipContents, File shapefileZipFile) {
+  public void migrateShapefilesFromS3() {
+    var bucketName = s3ClientService.getDefaultBucketName();
+    var fileKeys = s3ClientService.getFileObjectsInBucket(bucketName);
+
+    fileKeys.stream()
+        .filter(fileObject -> fileObject.getKey().startsWith(VIRTUAL_FOLDER) && fileObject.getKey().endsWith(".zip"))
+        .forEach(fileObject -> {
+          try (var inputStream = s3ClientService.fetchFile(bucketName, fileObject.getKey())) {
+            var byteArrayInputStream = getByteArrayInputStream(inputStream);
+            migrateLegacyShapefile(byteArrayInputStream, fileObject.getKey(), fileObject.getSize());
+          } catch (IOException e) {
+            throw new IllegalArgumentException("Could not fetch file from S3 or migrate shapefile", e);
+          }
+        });
+  }
+
+  @Transactional
+  public void migrateLegacyShapefile(InputStream shapefileZipInputStream, String fileName, long fileSize) {
+    var shapefileZipContents = shapefileZipService.getShapefileZipContents(shapefileZipInputStream, fileName);
 
     checkShapefileOrThrow(shapefileZipContents);
 
@@ -100,13 +123,23 @@ public class ShapefileMigrationService {
       return;
     }
 
+    rewindShapefileInputStream(shapefileZipInputStream, fileName);
+
     submissionDetails.forEach(submissionDetail ->
-        supportingDocumentService.uploadedFile(submissionDetail, SUPPORTING_DOCUMENT_TYPE, shapefileZipFile.length(),
-            shapefileZipContents.shapefileName(), SHAPEFILE_ZIP_CONTENT_TYPE, getShapefileZipFileInputStream(shapefileZipFile)));
+        supportingDocumentService.uploadedFile(submissionDetail, SUPPORTING_DOCUMENT_TYPE, fileSize,
+            shapefileZipContents.shapefileName(), SHAPEFILE_ZIP_CONTENT_TYPE, shapefileZipInputStream));
 
     migrationProgress.setStatus(ShapefileMigrationStatus.COMPLETED);
     shapefileMigrationProgressRepository.save(migrationProgress);
 
+  }
+
+  private static void rewindShapefileInputStream(InputStream shapefileZipInputStream, String fileName) {
+    try {
+      shapefileZipInputStream.reset();
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Could not reset shapefile zip input stream for file %s".formatted(fileName), e);
+    }
   }
 
   private List<SubmissionDetail> getSubmissionDetails(String polygonId) {
@@ -140,11 +173,15 @@ public class ShapefileMigrationService {
     return shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(polygonId);
   }
 
-  FileInputStream getShapefileZipFileInputStream(File shapefileZipFile) {
+  private FileInputStream getShapefileZipFileInputStream(File shapefileZipFile) {
     try {
       return new FileInputStream(shapefileZipFile);
     } catch (FileNotFoundException e) {
       throw new IllegalArgumentException("File not found for shapefile %s".formatted(shapefileZipFile.getName()), e);
     }
+  }
+
+  ByteArrayInputStream getByteArrayInputStream(InputStream inputStream) throws IOException {
+    return new ByteArrayInputStream(inputStream.readAllBytes());
   }
 }
