@@ -1,12 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
+import javax.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,13 +25,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 @ExtendWith(MockitoExtension.class)
-class NewFieldPersistenceServiceTest {
+class FieldPersistenceServiceTest {
   @Mock
   private FieldRepository fieldRepository;
   @Mock
   private OrganisationUnitQueryService organisationUnitQueryService;
   @InjectMocks
-  private NewFieldPersistenceService underTest;
+  private FieldPersistenceService underTest;
 
   @Nested
   class WhenCreatingNewField {
@@ -190,6 +192,38 @@ class NewFieldPersistenceServiceTest {
     void verifyCalls() {
       underTest.getField(PARENT_DETERMINED_FIELD_ID);
       verify(fieldRepository).findById(PARENT_DETERMINED_FIELD_ID);
+    }
+  }
+
+  @Nested
+  class WhenGettingFieldsByCorrectedLegalName {
+    private final String FIELD_NAME = "FIELD_NAME";
+
+    @Test
+    void verifyCalls() {
+      underTest.getFieldsByCorrectedLegalName(FIELD_NAME);
+      verify(fieldRepository).findFieldsByCorrectedLegalFieldNameContainingIgnoreCase(FIELD_NAME);
+    }
+  }
+
+  @Nested
+  class WhenGettingFieldOrThrow {
+    private final Integer PARENT_DETERMINED_FIELD_ID = 1;
+
+    @Test
+    void verifyCalls() {
+      when(fieldRepository.findById(PARENT_DETERMINED_FIELD_ID)).thenReturn(Optional.of(new Field()));
+
+      underTest.getFieldOrThrow(PARENT_DETERMINED_FIELD_ID);
+      verify(fieldRepository).findById(PARENT_DETERMINED_FIELD_ID);
+    }
+
+    @Test
+    void throwsWhenNoField() {
+      when(fieldRepository.findById(PARENT_DETERMINED_FIELD_ID)).thenReturn(Optional.empty());
+      assertThatThrownBy(() -> underTest.getFieldOrThrow(PARENT_DETERMINED_FIELD_ID))
+          .isInstanceOf(EntityNotFoundException.class)
+          .hasMessageContaining("No field found for id: %s".formatted(PARENT_DETERMINED_FIELD_ID));
     }
   }
 }

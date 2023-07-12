@@ -360,11 +360,35 @@ class SubmissionCreateServiceTest {
     if (isSubmitter || isExploration || isAreaTeamMember) {
       resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getDisplayName());
     }
-    if (isAreaTeamMember) {
+    if (isSubmitter || isAreaTeamMember) {
       resourceTypeOptions.put(ResourceType.FIELD.name(), ResourceType.FIELD.getDisplayName());
     }
 
     assertThat(submissionCreateService.getResourceTypeOptionsForUser()).isEqualTo(resourceTypeOptions);
+  }
+
+  @Test
+  void createCsrFieldSubmission() {
+    var resource = new Resource();
+    var submission = new Submission();
+    when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    submissionCreateService.createCsrFieldSubmissionDetail(resource);
+
+    verify(submissionPersistenceService, times(1)).createSubmission(resource);
+    verify(submissionDetailPersistenceService, times(1))
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_CSR);
+  }
+
+  @Test
+  void createFdpFieldSubmission() {
+    var resource = new Resource();
+    var submission = new Submission();
+    when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    submissionCreateService.createFdpFieldSubmissionDetail(resource);
+
+    verify(submissionPersistenceService, times(1)).createSubmission(resource);
+    verify(submissionDetailPersistenceService, times(1))
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDP);
   }
 
   private static Stream<Arguments> calculateGetResourceTypeOptionsForUserConditionArguments() {

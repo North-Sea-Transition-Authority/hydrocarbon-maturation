@@ -23,7 +23,7 @@ public class StartConceptSelectReportController {
 
   @GetMapping
   public ModelAndView getStartPage() {
-    return new ModelAndView("remi/field/startCsr")
+    return new ModelAndView("remi/field/csr/startCsr")
         .addObject("actionUrl", ReverseRouter.route(on(StartConceptSelectReportController.class).startConceptSelectReport()))
         .addObject("backLinkUrl", ReverseRouter.route(on(FieldPurposeController.class)
             .getFieldPurposeForm()));
@@ -31,10 +31,6 @@ public class StartConceptSelectReportController {
 
   @PostMapping
   public ModelAndView startConceptSelectReport() {
-    return new ModelAndView("remi/field/startCsr")
-        .addObject("actionUrl", ReverseRouter.route(on(StartConceptSelectReportController.class).getStartPage()))
-        .addObject("backLinkUrl", ReverseRouter.route(on(FieldPurposeController.class)
-            .getFieldPurposeForm()));
+    return ReverseRouter.redirect(on(NewConceptSelectReportController.class).getNewCsrPage(null));
   }
-
 }

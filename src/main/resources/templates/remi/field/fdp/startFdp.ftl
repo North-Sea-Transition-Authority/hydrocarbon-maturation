@@ -1,6 +1,6 @@
-<#include '../layout/layout.ftl'>
+<#include '../../layout/layout.ftl'>
 
-<#assign pageTitle = "Submit a concept select report (CSR)" />
+<#assign pageTitle = "Submit a field development plan (FDP)" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 
@@ -11,7 +11,7 @@ pageSize=PageSize.TWO_THIRDS_COLUMN
 backLinkUrl=springUrl(backLinkUrl)>
     <@fdsStartPage.startPage startActionText="Start now" startActionUrl=actionUrl>
       <p class="govuk-body">
-        Use this submission to submit your CSR for a field. You will only be able to submit this report for fields that have not progressed past the concept select stage.
+        Use this submission to submit your FDP for a field. You will only be able to submit an FDP for fields that have not progressed past the field development plan stage.
       </p>
 
       <p class="govuk-body">

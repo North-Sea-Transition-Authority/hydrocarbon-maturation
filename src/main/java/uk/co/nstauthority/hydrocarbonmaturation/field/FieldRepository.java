@@ -5,7 +5,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface FieldRepository extends CrudRepository<Field, Integer> {
+interface FieldRepository extends CrudRepository<Field, Integer> {
   List<Field> findByDeterminationStatusAndCorrectedLegalFieldNameContainingIgnoreCase(DeterminationStatus determinationStatus,
                                                                                       String fieldName);
+
+  List<Field> findFieldsByCorrectedLegalFieldNameContainingIgnoreCase(String fieldName);
 }

@@ -92,6 +92,15 @@ public enum SubmissionType implements Displayable {
           RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
       "Only the final report agreed with NSTA should be provided",
       100
+  ),
+  CREATE_FDP(
+      "Field Development Plan (FDP)",
+      "Provide a field development plan (FDP)",
+      Set.of(ResourceType.FIELD),
+      Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
+          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      "Only the final plan agreed with NSTA should be provided",
+      110
   );
 
   private final String typeName;

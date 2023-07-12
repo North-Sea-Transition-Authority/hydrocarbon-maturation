@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,12 +13,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 @Service
-class NewFieldPersistenceService {
+public class FieldPersistenceService {
   private final FieldRepository fieldRepository;
   private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
-  NewFieldPersistenceService(FieldRepository fieldRepository, OrganisationUnitQueryService organisationUnitQueryService) {
+  FieldPersistenceService(FieldRepository fieldRepository, OrganisationUnitQueryService organisationUnitQueryService) {
     this.fieldRepository = fieldRepository;
     this.organisationUnitQueryService = organisationUnitQueryService;
   }
@@ -75,7 +76,16 @@ class NewFieldPersistenceService {
     );
   }
 
-  public Optional<Field> getField(Integer parentDeterminedFieldId) {
-    return fieldRepository.findById(parentDeterminedFieldId);
+  public Optional<Field> getField(Integer fieldId) {
+    return fieldRepository.findById(fieldId);
+  }
+
+  public Field getFieldOrThrow(Integer fieldId) {
+    return getField(fieldId)
+        .orElseThrow(() -> new EntityNotFoundException("No field found for id: %s".formatted(fieldId)));
+  }
+
+  public List<Field> getFieldsByCorrectedLegalName(String fieldName) {
+    return fieldRepository.findFieldsByCorrectedLegalFieldNameContainingIgnoreCase(fieldName);
   }
 }

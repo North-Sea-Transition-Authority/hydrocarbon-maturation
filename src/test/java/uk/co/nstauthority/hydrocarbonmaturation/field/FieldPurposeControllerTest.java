@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.conceptselectreport.StartConceptSelectReportController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fielddevelopmentplan.StartFieldDevelopmentPlanController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
@@ -75,6 +76,25 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
                 .param("submissionType", SubmissionType.CREATE_CSR.name()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(StartConceptSelectReportController.class).getStartPage())));
+  }
+
+  @SecurityTest
+  void startFieldSubmission_whenValidFormCreateFdp_assertRedirection() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(true);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null)))
+                .with(user(USER))
+                .with(csrf())
+                .param("submissionType", SubmissionType.CREATE_FDP.name()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(StartFieldDevelopmentPlanController.class).getStartPage())));
   }
 
   @SecurityTest

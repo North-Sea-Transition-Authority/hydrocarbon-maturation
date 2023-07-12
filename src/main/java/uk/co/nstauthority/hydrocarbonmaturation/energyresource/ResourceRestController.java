@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @RestController
@@ -18,12 +20,15 @@ public class ResourceRestController {
 
   private final SearchSelectorService searchSelectorService;
   private final SubmissionQueryService submissionQueryService;
+  private final FieldQueryService fieldQueryService;
 
   @Autowired
   public ResourceRestController(SearchSelectorService searchSelectorService,
-                                SubmissionQueryService submissionQueryService) {
+                                SubmissionQueryService submissionQueryService,
+                                FieldQueryService fieldQueryService) {
     this.searchSelectorService = searchSelectorService;
     this.submissionQueryService = submissionQueryService;
+    this.fieldQueryService = fieldQueryService;
   }
 
   @GetMapping("/prospects/{submissionType}")
@@ -53,6 +58,19 @@ public class ResourceRestController {
     return searchSelectorService.search(
         searchTerm,
         submissionQueryService::getLatestResourceSubmissionsByName
+    );
+  }
+
+  @GetMapping("field/{submissionType}")
+  public RestSearchResult searchFields(@RequestParam("term") String searchTerm,
+                                       @PathVariable("submissionType") SubmissionType submissionType,
+                                       ServiceUserDetail user) {
+    return searchSelectorService.search(
+        searchTerm,
+        fieldQueryService.getFieldByNameForSubmissionType(
+            searchTerm,
+            submissionType,
+            user)
     );
   }
 }

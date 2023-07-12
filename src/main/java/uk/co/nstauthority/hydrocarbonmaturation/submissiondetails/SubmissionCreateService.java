@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -214,6 +215,22 @@ public class SubmissionCreateService {
     return updateSubmissionDetail;
   }
 
+  @Transactional
+  public SubmissionDetail createCsrFieldSubmissionDetail(Resource resource) {
+    var submission = submissionPersistenceService.createSubmission(resource);
+
+    return submissionDetailPersistenceService
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_CSR);
+  }
+
+  @Transactional
+  public SubmissionDetail createFdpFieldSubmissionDetail(Resource resource) {
+    var submission = submissionPersistenceService.createSubmission(resource);
+
+    return submissionDetailPersistenceService
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDP);
+  }
+
   public Map<String, String> getResourceTypeOptionsForUser() {
     var userDetail = userDetailService.getUserDetail();
     var resourceTypeOptions = ResourceType.getResourceTypes();
@@ -230,7 +247,7 @@ public class SubmissionCreateService {
       resourceTypeOptions.remove(ResourceType.DISCOVERY.name());
     }
 
-    if (isNotAreaTeamMember) {
+    if (isNotIndustrySubmitter && isNotAreaTeamMember) {
       resourceTypeOptions.remove(ResourceType.FIELD.name());
     }
 

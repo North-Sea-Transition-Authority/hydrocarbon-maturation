@@ -20,18 +20,18 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 @Service
 class NewFieldService {
   private final NewFieldFormValidator newFieldFormValidator;
-  private final NewFieldPersistenceService newFieldPersistenceService;
+  private final FieldPersistenceService fieldPersistenceService;
   private final ResourceService resourceService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final SearchSelectorService searchSelectorService;
 
   @Autowired
   NewFieldService(NewFieldFormValidator newFieldFormValidator,
-                  NewFieldPersistenceService newFieldPersistenceService,
+                  FieldPersistenceService fieldPersistenceService,
                   ResourceService resourceService, OrganisationUnitQueryService organisationUnitQueryService,
                   SearchSelectorService searchSelectorService) {
     this.newFieldFormValidator = newFieldFormValidator;
-    this.newFieldPersistenceService = newFieldPersistenceService;
+    this.fieldPersistenceService = fieldPersistenceService;
     this.resourceService = resourceService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.searchSelectorService = searchSelectorService;
@@ -46,7 +46,7 @@ class NewFieldService {
   public Field createNewField(NewFieldForm form) {
     var resource = resourceService.createResource(ResourceType.FIELD);
 
-    return newFieldPersistenceService.createNewField(form, resource);
+    return fieldPersistenceService.createNewField(form, resource);
   }
 
   Map<String, String> getResponsibleTeamTypeDisplayableOptions() {
@@ -85,7 +85,7 @@ class NewFieldService {
   }
 
   public List<FieldDto> getDeterminedFields(String fieldName) {
-    return newFieldPersistenceService.getDeterminedFieldsByCorrectedLegalName(fieldName).stream()
+    return fieldPersistenceService.getDeterminedFieldsByCorrectedLegalName(fieldName).stream()
         .map(FieldDto::from)
         .toList();
   }
@@ -95,7 +95,7 @@ class NewFieldService {
       return Map.of();
     }
 
-    var key = newFieldPersistenceService.getField(Integer.valueOf(parentDeterminedFieldId));
+    var key = fieldPersistenceService.getField(Integer.valueOf(parentDeterminedFieldId));
 
     if (key.isEmpty()) {
       return Map.of();

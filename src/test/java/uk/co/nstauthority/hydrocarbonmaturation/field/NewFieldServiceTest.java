@@ -26,7 +26,7 @@ class NewFieldServiceTest {
   @Mock
   private NewFieldFormValidator newFieldFormValidator;
   @Mock
-  private NewFieldPersistenceService newFieldPersistenceService;
+  private FieldPersistenceService fieldPersistenceService;
   @Mock
   private ResourceService resourceService;
   @Mock
@@ -49,7 +49,7 @@ class NewFieldServiceTest {
 
       underTest.createNewField(form);
 
-      verify(newFieldPersistenceService).createNewField(form, resource);
+      verify(fieldPersistenceService).createNewField(form, resource);
     }
   }
 
@@ -94,7 +94,7 @@ class NewFieldServiceTest {
 
     @Test
     void verifyMethodCalls() {
-      var result = underTest.getPreSelectedOrganisationUnit(RESPONSIBLE_ORGANISATION_ID);
+      underTest.getPreSelectedOrganisationUnit(RESPONSIBLE_ORGANISATION_ID);
       verify(organisationUnitQueryService).getPreSelectedOrganisationUnit(Integer.valueOf(RESPONSIBLE_ORGANISATION_ID));
     }
   }
@@ -119,15 +119,15 @@ class NewFieldServiceTest {
 
     @Test
     void noField() {
-      when(newFieldPersistenceService.getField(Integer.valueOf(PARENT_DETERMINED_FIELD_ID))).thenReturn(Optional.empty());
+      when(fieldPersistenceService.getField(Integer.valueOf(PARENT_DETERMINED_FIELD_ID))).thenReturn(Optional.empty());
       var result = underTest.getPreSelectedParentDeterminedField(PARENT_DETERMINED_FIELD_ID);
       assertThat(result).isEqualTo(Map.of());
     }
 
     @Test
     void verifyMethodCalls() {
-      when(newFieldPersistenceService.getField(Integer.valueOf(PARENT_DETERMINED_FIELD_ID))).thenReturn(Optional.of(field));
-      var result = underTest.getPreSelectedParentDeterminedField(PARENT_DETERMINED_FIELD_ID);
+      when(fieldPersistenceService.getField(Integer.valueOf(PARENT_DETERMINED_FIELD_ID))).thenReturn(Optional.of(field));
+      underTest.getPreSelectedParentDeterminedField(PARENT_DETERMINED_FIELD_ID);
       verify(searchSelectorService).buildPrePopulatedSelection(PARENT_DETERMINED_FIELD_ID, field.getCorrectedLegalFieldName());
     }
   }

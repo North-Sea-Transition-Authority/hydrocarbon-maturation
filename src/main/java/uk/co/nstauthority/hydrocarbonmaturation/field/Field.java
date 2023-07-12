@@ -17,7 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 
 @Entity
 @Table(name = "fields")
-class Field {
+public class Field {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "field_identifier_seq")
   @SequenceGenerator(name = "field_identifier_seq", sequenceName = "field_identifier_seq", allocationSize = 1)

@@ -6,5 +6,5 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 
 public interface SubmissionValidator {
 
-  void validate(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail, ValidationType validationType);
+  boolean isValid(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail, ValidationType validationType);
 }

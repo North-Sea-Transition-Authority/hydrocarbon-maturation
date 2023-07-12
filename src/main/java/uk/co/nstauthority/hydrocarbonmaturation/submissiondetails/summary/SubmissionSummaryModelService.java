@@ -40,7 +40,7 @@ public class SubmissionSummaryModelService {
           createPostDrillDryWellSubmissionSummaryModelAndView(submissionDetail, viewName);
       case CREATE_DISCOVERY, UPDATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT, RELINQUISHMENT_DISCOVERY ->
           createDiscoverySubmissionSummaryModelAndView(submissionDetail, viewName);
-      case CREATE_FIELD, CREATE_CSR ->
+      case CREATE_FIELD, CREATE_CSR, CREATE_FDP ->
           // No summary view for fields
           new ModelAndView(viewName);
     };

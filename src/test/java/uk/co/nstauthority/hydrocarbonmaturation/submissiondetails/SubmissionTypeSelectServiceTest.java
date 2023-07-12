@@ -101,7 +101,8 @@ class SubmissionTypeSelectServiceTest {
     assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD))
         .containsOnly(
             SubmissionType.CREATE_FIELD,
-            SubmissionType.CREATE_CSR);
+            SubmissionType.CREATE_CSR,
+            SubmissionType.CREATE_FDP);
   }
 
   @Test
@@ -117,6 +118,7 @@ class SubmissionTypeSelectServiceTest {
 
     assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD))
         .containsOnly(
-            SubmissionType.CREATE_CSR);
+            SubmissionType.CREATE_CSR,
+            SubmissionType.CREATE_FDP);
   }
 }

@@ -3,7 +3,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.conceptselectreport;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
@@ -63,5 +66,21 @@ class StartConceptSelectReportControllerTest extends AbstractSubmissionControlle
             get(ReverseRouter.route(on(StartConceptSelectReportController.class).getStartPage()))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void startConceptSelectReport_assertRedirection() throws Exception {
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(true);
+    mockMvc.perform(
+            post(ReverseRouter.route(on(StartConceptSelectReportController.class).startConceptSelectReport()))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(NewConceptSelectReportController.class)
+            .getNewCsrPage(null))));
   }
 }
