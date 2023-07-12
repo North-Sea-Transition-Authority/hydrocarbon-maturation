@@ -66,7 +66,7 @@ public class LicenceQueryService {
   }
 
   public Optional<LicenceView> getLicenceById(String licenceId) {
-    return findLicence(Integer.parseInt(licenceId)).filter(LicenceView::isValid);
+    return findLicence(Integer.parseInt(licenceId));
   }
 
   public static boolean isLicenceStatusValid(LicenceStatus licenceStatus) {

@@ -13,6 +13,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.licence.licence.LicenceApi;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
@@ -144,11 +146,13 @@ class LicenceQueryServiceTest {
             tuple(licenceId.toString(), licenceRef));
   }
 
-  @Test
-  void getLicenceById_whenLicenceFound() {
+  @ParameterizedTest
+  @EnumSource(value = LicenceStatus.class)
+  void getLicenceById(LicenceStatus licenceStatus) {
     var licence = LicenceTestUtil.Builder()
         .withLicenceId(licenceId)
         .withLicenceRef(licenceRef)
+        .withStatus(licenceStatus)
         .build();
     var filter = LicenceQueryService.LICENCE_PROJECTION_ROOT;
     when(licenceApi.findLicence(
@@ -167,26 +171,5 @@ class LicenceQueryServiceTest {
             LicenceView::getSelectionText)
         .containsExactly(
             licenceId.toString(), licenceRef);
-  }
-
-  @Test
-  void getLicenceById_whenNotExtantLicenceFound() {
-    var licence = LicenceTestUtil.Builder()
-        .withLicenceId(licenceId)
-        .withLicenceRef(licenceRef)
-        .withStatus(LicenceStatus.SURRENDERED)
-        .build();
-    var filter = LicenceQueryService.LICENCE_PROJECTION_ROOT;
-    when(licenceApi.findLicence(
-        eq(licenceId),
-        eq(filter),
-        any(),
-        any()
-    )).thenReturn(Optional.of(licence));
-
-    var expectedLicence = licenceQueryService
-        .getLicenceById(licenceId.toString());
-
-    assertThat(expectedLicence).isNotPresent();
   }
 }
