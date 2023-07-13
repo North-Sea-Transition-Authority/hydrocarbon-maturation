@@ -24,8 +24,8 @@ public class RegulatorManagedInformationPersistenceService {
   }
 
   @Transactional
-  public void saveResponsibleTeamByResource(Resource resource,
-                                             ResponsibleTeamType responsibleTeamTypeEnum) {
+  public void saveResponsibleTeamAndGeoByResource(Resource resource,
+                                                  ResponsibleTeamType responsibleTeamTypeEnum) {
     var regulatorManagedInformation = getRegulatorManagedInformationByResource(resource)
         .orElse(new RegulatorManagedInformation());
     regulatorManagedInformation.setResource(resource);
@@ -47,6 +47,20 @@ public class RegulatorManagedInformationPersistenceService {
 
     resourceSupportingDocumentService.updateResourceSupportingDocumentFileDescriptions(
         regulatorManagedInformationForm.getRelinquishmentReport());
+    regulatorManagedInformationRepository.save(regulatorManagedInformation);
+  }
+
+  @Transactional
+  public void saveResponsibleTeamAndGeographicAreaByResource(Resource resource,
+                                                             ResponsibleTeamType responsibleTeamType,
+                                                             GeographicalArea geographicalArea) {
+    var regulatorManagedInformation = getRegulatorManagedInformationByResource(resource)
+        .orElse(new RegulatorManagedInformation());
+
+    regulatorManagedInformation.setResource(resource);
+    regulatorManagedInformation.setResponsibleTeamType(responsibleTeamType);
+    regulatorManagedInformation.setGeographicalArea(geographicalArea);
+
     regulatorManagedInformationRepository.save(regulatorManagedInformation);
   }
 

@@ -81,7 +81,7 @@ public class SubmissionCreateService {
   public SubmissionDetail createInitialProspect(ResourceDetailsForm form) {
     var resource = resourceService.createResource(ResourceType.PROSPECT);
     var submission = submissionPersistenceService.createSubmission(resource);
-    regulatorManagedInformationPersistenceService.saveResponsibleTeamByResource(resource, ResponsibleTeamType.EXPLORATION);
+    regulatorManagedInformationPersistenceService.saveResponsibleTeamAndGeoByResource(resource, ResponsibleTeamType.EXPLORATION);
     var submissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_PROSPECT);
     resourceDetailsPersistenceService.createInitialResourceDetail(form, submissionDetail);
@@ -129,7 +129,7 @@ public class SubmissionCreateService {
   @Transactional
   public SubmissionDetail createDiscovery(ResourceDetailsForm form) {
     var resource = resourceService.createResource(ResourceType.DISCOVERY);
-    regulatorManagedInformationPersistenceService.saveResponsibleTeamByResource(resource, ResponsibleTeamType.EXPLORATION);
+    regulatorManagedInformationPersistenceService.saveResponsibleTeamAndGeoByResource(resource, ResponsibleTeamType.EXPLORATION);
     var submission = submissionPersistenceService.createSubmission(resource);
 
     var submissionDetail = submissionDetailPersistenceService
@@ -142,7 +142,7 @@ public class SubmissionCreateService {
   @Transactional
   public SubmissionDetail createNewDiscoveryFromProspect(StartDiscoveryForm form) {
     var discoveryResource = resourceService.createResource(ResourceType.DISCOVERY);
-    regulatorManagedInformationPersistenceService.saveResponsibleTeamByResource(
+    regulatorManagedInformationPersistenceService.saveResponsibleTeamAndGeoByResource(
         discoveryResource, ResponsibleTeamType.EXPLORATION);
     var oldSubmissionDetail =
         submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(form.getProspectSelectedOption()));

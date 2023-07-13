@@ -40,7 +40,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
 
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
 
-    regulatorManagedInformationPersistenceService.saveResponsibleTeamByResource(resource, ResponsibleTeamType.EXPLORATION);
+    regulatorManagedInformationPersistenceService.saveResponsibleTeamAndGeoByResource(resource, ResponsibleTeamType.EXPLORATION);
 
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
 
@@ -63,7 +63,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
 
     regulatorManagedInformationPersistenceService
-        .saveResponsibleTeamByResource(resource, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
+        .saveResponsibleTeamAndGeoByResource(resource, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
 
@@ -172,6 +172,30 @@ class RegulatorManagedInformationPersistenceServiceTest {
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             GeographicalArea.CENTRAL_NORTH_SEA);
+  }
+
+  @Test
+  void saveResponsibleTeamAndGeographicAreaByResource_verifyCalls() {
+    var resource = mock(Resource.class);
+    var responsibleTeamType = ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND;
+    var geographicalArea = GeographicalArea.NORTHERN_NORTH_SEA;
+
+    var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
+    regulatorManagedInformationPersistenceService.saveResponsibleTeamAndGeographicAreaByResource(resource, responsibleTeamType, geographicalArea);
+
+    verify(regulatorManagedInformationRepository).save(argCaptor.capture());
+
+    assertThat(argCaptor.getValue())
+        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
+        .extracting(
+            RegulatorManagedInformation::getResource,
+            RegulatorManagedInformation::getResponsibleTeamType,
+            RegulatorManagedInformation::getGeographicalArea)
+        .containsExactly(
+            resource,
+            responsibleTeamType,
+            geographicalArea
+        );
   }
 
   @Test

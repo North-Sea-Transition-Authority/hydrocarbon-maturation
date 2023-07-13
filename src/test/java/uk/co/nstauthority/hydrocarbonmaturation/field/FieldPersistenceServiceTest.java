@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
@@ -30,6 +31,8 @@ class FieldPersistenceServiceTest {
   private FieldRepository fieldRepository;
   @Mock
   private OrganisationUnitQueryService organisationUnitQueryService;
+  @Mock
+  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @InjectMocks
   private FieldPersistenceService underTest;
 
@@ -86,17 +89,9 @@ class FieldPersistenceServiceTest {
       form.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
 
       var result = underTest.createNewField(form, resource);
-      assertThat(result)
-          .extracting(
-              Field::getOnshoreOffshore,
-              Field::getGeographicalArea,
-              Field::getResponsibleTeamType
-          )
-          .containsExactly(
-              OnshoreOffshore.ONSHORE,
-              GeographicalArea.ONSHORE,
-              ResponsibleTeamType.ONSHORE
-          );
+
+      verify(regulatorManagedInformationPersistenceService).saveResponsibleTeamAndGeographicAreaByResource(resource, ResponsibleTeamType.ONSHORE, GeographicalArea.ONSHORE);
+      assertThat(result.getOnshoreOffshore()).isEqualTo(OnshoreOffshore.ONSHORE);
     }
 
     @Test
@@ -148,8 +143,6 @@ class FieldPersistenceServiceTest {
               Field::getCommonNameForField,
               Field::getResponsibleOrganisationId,
               Field::getOnshoreOffshore,
-              Field::getGeographicalArea,
-              Field::getResponsibleTeamType,
               Field::getDeterminationStatus,
               Field::getFieldNumber,
               Field::getInfrastructureHost
@@ -162,8 +155,6 @@ class FieldPersistenceServiceTest {
               COMMON_NAME,
               null,
               ONSHORE_OFFSHORE,
-              GEOGRAPHICAL_AREA,
-              RESPONSIBLE_TEAM_TYPE,
               DETERMINATION_STATUS,
               FIELD_NUMBER.createIntegerOrNull(),
               INFRASTRUCTURE_HOST

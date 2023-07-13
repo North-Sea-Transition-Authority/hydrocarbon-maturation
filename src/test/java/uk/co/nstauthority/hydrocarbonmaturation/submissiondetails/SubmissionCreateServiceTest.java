@@ -116,7 +116,7 @@ class SubmissionCreateServiceTest {
     submissionCreateService.createInitialProspect(RESOURCE_DETAILS_FORM);
 
     verify(regulatorManagedInformationPersistenceService, times(1))
-        .saveResponsibleTeamByResource(resource, ResponsibleTeamType.EXPLORATION);
+        .saveResponsibleTeamAndGeoByResource(resource, ResponsibleTeamType.EXPLORATION);
     verify(submissionDetailPersistenceService, times(1))
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_PROSPECT);
     verify(submissionPersistenceService, times(1)).createSubmission(resource);
@@ -222,7 +222,7 @@ class SubmissionCreateServiceTest {
 
     verify(resourceLinkService).createNewResourceLink(prospectResource, discoveryResource);
     verify(regulatorManagedInformationPersistenceService, times(1))
-        .saveResponsibleTeamByResource(discoveryResource, ResponsibleTeamType.EXPLORATION);
+        .saveResponsibleTeamAndGeoByResource(discoveryResource, ResponsibleTeamType.EXPLORATION);
     verify(submissionDetailDuplicationService)
         .duplicateSubmissionDetailSections(submissionDetail, submissionDetailNew);
     verify(submissionPersistenceService, times(1))
@@ -266,7 +266,7 @@ class SubmissionCreateServiceTest {
 
     verify(resourceService, times(1)).createResource(ResourceType.DISCOVERY);
     verify(regulatorManagedInformationPersistenceService, times(1))
-        .saveResponsibleTeamByResource(captor.capture(), eq(ResponsibleTeamType.EXPLORATION));
+        .saveResponsibleTeamAndGeoByResource(captor.capture(), eq(ResponsibleTeamType.EXPLORATION));
     verify(submissionDetailPersistenceService, times(1))
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_DISCOVERY);
     verify(submissionPersistenceService, times(1)).createSubmission(captor.getValue());

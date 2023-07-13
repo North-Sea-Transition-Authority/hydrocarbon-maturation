@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
@@ -16,11 +17,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 public class FieldPersistenceService {
   private final FieldRepository fieldRepository;
   private final OrganisationUnitQueryService organisationUnitQueryService;
+  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Autowired
-  FieldPersistenceService(FieldRepository fieldRepository, OrganisationUnitQueryService organisationUnitQueryService) {
+  FieldPersistenceService(FieldRepository fieldRepository,
+                          OrganisationUnitQueryService organisationUnitQueryService,
+                          RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
     this.fieldRepository = fieldRepository;
     this.organisationUnitQueryService = organisationUnitQueryService;
+    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
   }
 
   @Transactional
@@ -44,12 +49,14 @@ public class FieldPersistenceService {
         });
 
     field.setOnshoreOffshore(form.getOnshoreOffshore());
-    if (form.getOnshoreOffshore() == OnshoreOffshore.OFFSHORE) {
-      field.setGeographicalArea(form.getGeographicalArea());
-      field.setResponsibleTeamType(form.getResponsibleTeamType());
-    } else if (form.getOnshoreOffshore() == OnshoreOffshore.ONSHORE) {
-      field.setGeographicalArea(GeographicalArea.ONSHORE);
-      field.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
+    GeographicalArea geographicalArea;
+    ResponsibleTeamType responsibleTeamType;
+    if (form.getOnshoreOffshore() == OnshoreOffshore.ONSHORE) {
+      geographicalArea = GeographicalArea.ONSHORE;
+      responsibleTeamType = ResponsibleTeamType.ONSHORE;
+    } else {
+      geographicalArea = form.getGeographicalArea();
+      responsibleTeamType = form.getResponsibleTeamType();
     }
 
     field.setDeterminationStatus(form.getDeterminationStatus());
@@ -64,6 +71,11 @@ public class FieldPersistenceService {
     field.setFieldNumber(form.getFieldNumber().createIntegerOrNull());
     field.setInfrastructureHost(form.getInfrastructureHost());
 
+    regulatorManagedInformationPersistenceService.saveResponsibleTeamAndGeographicAreaByResource(
+        resource,
+        responsibleTeamType,
+        geographicalArea
+    );
     fieldRepository.save(field);
 
     return field;

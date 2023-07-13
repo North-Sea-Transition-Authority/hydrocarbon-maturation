@@ -11,8 +11,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 @Entity
@@ -44,12 +42,6 @@ public class Field {
 
   @Enumerated(EnumType.STRING)
   private OnshoreOffshore onshoreOffshore;
-
-  @Enumerated(EnumType.STRING)
-  private GeographicalArea geographicalArea;
-
-  @Enumerated(EnumType.STRING)
-  private ResponsibleTeamType responsibleTeamType;
 
   private Integer fieldNumber;
 
@@ -141,23 +133,6 @@ public class Field {
   public void setOnshoreOffshore(
       OnshoreOffshore onshoreOffshore) {
     this.onshoreOffshore = onshoreOffshore;
-  }
-
-  public GeographicalArea getGeographicalArea() {
-    return geographicalArea;
-  }
-
-  public void setGeographicalArea(GeographicalArea geographicalArea) {
-    this.geographicalArea = geographicalArea;
-  }
-
-  public ResponsibleTeamType getResponsibleTeamType() {
-    return responsibleTeamType;
-  }
-
-  public void setResponsibleTeamType(
-      ResponsibleTeamType responsibleTeamType) {
-    this.responsibleTeamType = responsibleTeamType;
   }
 
   public Integer getFieldNumber() {
