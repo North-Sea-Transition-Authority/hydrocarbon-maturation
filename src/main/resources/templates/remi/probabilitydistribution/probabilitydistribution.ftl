@@ -62,7 +62,7 @@
     <#list probabilityDistributionInputs as input>
           <@probabilityDistributionInputItem
                 path=pathPrefix+"."+input.probabilityOfExceedanceType.path+".decimalInputValue"
-                labelText=input.probabilityOfExceedanceType.displayName
+                labelText=input.prompt
                 required=input.required
           />
     </#list>

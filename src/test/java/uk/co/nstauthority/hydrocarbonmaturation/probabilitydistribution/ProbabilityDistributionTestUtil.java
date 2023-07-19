@@ -120,13 +120,13 @@ public class ProbabilityDistributionTestUtil {
     probabilityOfExceedanceForm.setMin(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setP99(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setP90(new DecimalInput("abc"));
-    probabilityOfExceedanceForm.setThreeC(new DecimalInput("abc"));
+    probabilityOfExceedanceForm.setOneC(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setMode(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setP50(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setTwoC(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setMean(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setP10(new DecimalInput("abc"));
-    probabilityOfExceedanceForm.setOneC(new DecimalInput("abc"));
+    probabilityOfExceedanceForm.setThreeC(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setP1(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setMax(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setConstant(new DecimalInput("abc"));
@@ -145,8 +145,8 @@ public class ProbabilityDistributionTestUtil {
     if (behaviour.isP90Available()) {
       probabilityOfExceedanceForm.setP90(DecimalInputTestUtil.getDecimalInput(3));
     }
-    if (behaviour.is3CAvailable()) {
-      probabilityOfExceedanceForm.setThreeC(DecimalInputTestUtil.getDecimalInput(3));
+    if (behaviour.is1CAvailable()) {
+      probabilityOfExceedanceForm.setOneC(DecimalInputTestUtil.getDecimalInput(3));
     }
     if (behaviour.isModeAvailable()) {
       probabilityOfExceedanceForm.setMode(DecimalInputTestUtil.getDecimalInput(4));
@@ -163,8 +163,8 @@ public class ProbabilityDistributionTestUtil {
     if (behaviour.isP10Available()) {
       probabilityOfExceedanceForm.setP10(DecimalInputTestUtil.getDecimalInput(7));
     }
-    if (behaviour.is1CAvailable()) {
-      probabilityOfExceedanceForm.setOneC(DecimalInputTestUtil.getDecimalInput(7));
+    if (behaviour.is3CAvailable()) {
+      probabilityOfExceedanceForm.setThreeC(DecimalInputTestUtil.getDecimalInput(7));
     }
     if (behaviour.isP1Available()) {
       probabilityOfExceedanceForm.setP1(DecimalInputTestUtil.getDecimalInput(8));

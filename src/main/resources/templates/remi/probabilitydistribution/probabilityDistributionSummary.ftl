@@ -5,8 +5,9 @@
 
 <#macro probabilityDistributionTable
   probabilityDistributions = []
-  withDistributionType=true>
-  <@probabilityDistributionTableHeader withDistributionType=withDistributionType>
+  withDistributionType=true
+  withContingentUncertaintyCategories=false>
+  <@probabilityDistributionTableHeader withDistributionType=withDistributionType withContingentUncertaintyCategories=withContingentUncertaintyCategories>
     <#list probabilityDistributions as probabilityDistribution>
       <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__header">
@@ -40,11 +41,23 @@
           <td class="govuk-table__cell">${probabilityDistribution.min()}</td>
         </#if>
         <td class="govuk-table__cell">${probabilityDistribution.p99()}</td>
-        <td class="govuk-table__cell">${probabilityDistribution.p90()}</td>
+        <#if withContingentUncertaintyCategories && probabilityDistribution.oneC()?has_content>
+          <td class="govuk-table__cell">${probabilityDistribution.oneC()}</td>
+        <#else>
+          <td class="govuk-table__cell">${probabilityDistribution.p90()}</td>
+        </#if>
         <td class="govuk-table__cell">${probabilityDistribution.mode()}</td>
-        <td class="govuk-table__cell">${probabilityDistribution.p50()}</td>
+        <#if withContingentUncertaintyCategories && probabilityDistribution.twoC()?has_content>
+          <td class="govuk-table__cell">${probabilityDistribution.twoC()}</td>
+        <#else>
+          <td class="govuk-table__cell">${probabilityDistribution.p50()}</td>
+        </#if>
         <td class="govuk-table__cell">${probabilityDistribution.meanOrConstant()}</td>
-        <td class="govuk-table__cell">${probabilityDistribution.p10()}</td>
+        <#if withContingentUncertaintyCategories && probabilityDistribution.threeC()?has_content>
+          <td class="govuk-table__cell">${probabilityDistribution.threeC()}</td>
+        <#else>
+          <td class="govuk-table__cell">${probabilityDistribution.p10()}</td>
+        </#if>
         <td class="govuk-table__cell">${probabilityDistribution.p1()}</td>
         <#if withDistributionType>
           <td class="govuk-table__cell">${probabilityDistribution.max()}</td>
@@ -89,7 +102,8 @@
 </#macro>
 
 <#macro probabilityDistributionTableHeader
-  withDistributionType=true>
+  withDistributionType=true
+  withContingentUncertaintyCategories=false>
   <table class="govuk-table remi-table">
     <thead class="govuk-table__head">
     <tr class="govuk-table__row">
@@ -98,11 +112,23 @@
         <th scope="col" class="govuk-table__header">Min</th>
       </#if>
       <th scope="col" class="govuk-table__header">P99</th>
-      <th scope="col" class="govuk-table__header">P90</th>
+      <#if withContingentUncertaintyCategories>
+        <th scope="col" class="govuk-table__header">P90 or 1C</th>
+      <#else>
+        <th scope="col" class="govuk-table__header">P90</th>
+      </#if>
       <th scope="col" class="govuk-table__header">Mode</th>
-      <th scope="col" class="govuk-table__header">P50</th>
+      <#if withContingentUncertaintyCategories>
+        <th scope="col" class="govuk-table__header">P50 or 2C</th>
+      <#else>
+        <th scope="col" class="govuk-table__header">P50</th>
+      </#if>
       <th scope="col" class="govuk-table__header">Mean / constant</th>
-      <th scope="col" class="govuk-table__header">P10</th>
+      <#if withContingentUncertaintyCategories>
+        <th scope="col" class="govuk-table__header">P10 or 3C</th>
+      <#else>
+        <th scope="col" class="govuk-table__header">P10</th>
+      </#if>
       <th scope="col" class="govuk-table__header">P1</th>
       <#if withDistributionType>
         <th scope="col" class="govuk-table__header">Max</th>

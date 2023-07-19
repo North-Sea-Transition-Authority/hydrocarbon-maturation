@@ -42,8 +42,8 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
 
   private BigDecimal p90;
 
-  @Column(name = "three_c")
-  private BigDecimal threeC;
+  @Column(name = "one_c")
+  private BigDecimal oneC;
 
   private BigDecimal modeValue;
 
@@ -56,8 +56,8 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
 
   private BigDecimal p10;
 
-  @Column(name = "one_c")
-  private BigDecimal oneC;
+  @Column(name = "three_c")
+  private BigDecimal threeC;
 
   private BigDecimal p1;
 
@@ -135,12 +135,12 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
     this.p90 = p90;
   }
 
-  public BigDecimal getThreeC() {
-    return threeC;
+  public BigDecimal getOneC() {
+    return oneC;
   }
 
-  public void setThreeC(BigDecimal threeC) {
-    this.threeC = threeC;
+  public void setOneC(BigDecimal oneC) {
+    this.oneC = oneC;
   }
 
   public BigDecimal getModeValue() {
@@ -183,12 +183,12 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
     this.p10 = p10;
   }
 
-  public BigDecimal getOneC() {
-    return oneC;
+  public BigDecimal getThreeC() {
+    return threeC;
   }
 
-  public void setOneC(BigDecimal oneC) {
-    this.oneC = oneC;
+  public void setThreeC(BigDecimal threeC) {
+    this.threeC = threeC;
   }
 
   public BigDecimal getP1() {

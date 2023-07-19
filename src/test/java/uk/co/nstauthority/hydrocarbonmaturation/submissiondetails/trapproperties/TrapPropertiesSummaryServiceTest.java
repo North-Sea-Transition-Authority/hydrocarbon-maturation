@@ -103,9 +103,7 @@ class TrapPropertiesSummaryServiceTest {
   void getTrapPropertiesSummaryFromSubmissionDetail_whenProspect_whenTrapPropertyPresent() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
-        "20", "20", "20",
-        "20", "20", "20",
-        "20", "20", "20",
+        "20", "20", "20", "20", "20", "20", "20", "20", "20",
         "20", "", "20", "unit", "comments");
 
     var trapProperty = new TrapProperty();
@@ -203,9 +201,7 @@ class TrapPropertiesSummaryServiceTest {
   void getTrapPropertiesSummaryFromSubmissionDetail_whenDiscovery_whenTrapPropertyPresent() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
-        "20", "20", "20",
-        "20", "20", "20",
-        "20", "20", "20",
+        "20", "20", "20", "20", "20", "20", "20", "20", "20",
         "20", "", "20", "unit", "comments");
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
 

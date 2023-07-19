@@ -32,8 +32,8 @@ public class ProbabilityDistributionValidationUtil {
   public static final String P99_TO_P1_ERROR_MESSAGE =
       "%s - P99 to P1 values must be in the order of P99 < P90 < P50 < P10 < P1";
 
-  public static final String THREE_C_TO_TWO_C_ERROR_MESSAGE =
-      "%s - 3C to 1C values must be in the order of 3C < 2C < 1C";
+  public static final String ONE_C_TO_THREE_C_ERROR_MESSAGE =
+      "%s - 1C to 3C values must be in the order of 1C < 2C < 3C";
 
   private ProbabilityDistributionValidationUtil() {
     throw new IllegalUtilClassInstantiationException(this.getClass());
@@ -386,28 +386,28 @@ public class ProbabilityDistributionValidationUtil {
         }
       }
 
-      /* 3C to 1C validation */
+      /* 1C to 3C validation */
       probabilityValues = List.of(
-          probabilityOfExceedanceForm.getThreeC(),
+          probabilityOfExceedanceForm.getOneC(),
           probabilityOfExceedanceForm.getTwoC(),
-          probabilityOfExceedanceForm.getOneC()
-      );
+          probabilityOfExceedanceForm.getThreeC()
+          );
       filteredProbabilityValues = probabilityValues.stream()
           .filter(DecimalInput::hasContent)
           .collect(Collectors.toCollection(ArrayList::new));
 
       pathList = new ArrayList<String>();
-      if (probabilityOfExceedanceForm.getThreeC().hasContent()) {
-        var threeCPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.THREE_C.getPath() + DECIMAL_INPUT_VALUE_PATH);
-        pathList.add(threeCPath);
+      if (probabilityOfExceedanceForm.getOneC().hasContent()) {
+        var oneCPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.ONE_C.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(oneCPath);
       }
       if (probabilityOfExceedanceForm.getTwoC().hasContent()) {
         var twoCPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.TWO_C.getPath() + DECIMAL_INPUT_VALUE_PATH);
         pathList.add(twoCPath);
       }
-      if (probabilityOfExceedanceForm.getOneC().hasContent()) {
-        var oneCPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.ONE_C.getPath() + DECIMAL_INPUT_VALUE_PATH);
-        pathList.add(oneCPath);
+      if (probabilityOfExceedanceForm.getThreeC().hasContent()) {
+        var threeCPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.THREE_C.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(threeCPath);
       }
 
       errorCountAfter = errors.getErrorCount();
@@ -421,7 +421,7 @@ public class ProbabilityDistributionValidationUtil {
           errors.rejectValue(
               errorPath,
               errorPath + ERROR_CODE,
-              THREE_C_TO_TWO_C_ERROR_MESSAGE.formatted(label)
+              ONE_C_TO_THREE_C_ERROR_MESSAGE.formatted(label)
           );
         }
       }

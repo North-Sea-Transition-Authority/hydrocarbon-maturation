@@ -47,13 +47,13 @@ public class ProbabilityDistributionPersistenceService {
     probabilityDistribution.setMinValue(exceedanceForm.getMin().createBigDecimalOrNull());
     probabilityDistribution.setP99(exceedanceForm.getP99().createBigDecimalOrNull());
     probabilityDistribution.setP90(exceedanceForm.getP90().createBigDecimalOrNull());
-    probabilityDistribution.setThreeC(exceedanceForm.getThreeC().createBigDecimalOrNull());
+    probabilityDistribution.setOneC(exceedanceForm.getOneC().createBigDecimalOrNull());
     probabilityDistribution.setModeValue(exceedanceForm.getMode().createBigDecimalOrNull());
     probabilityDistribution.setP50(exceedanceForm.getP50().createBigDecimalOrNull());
     probabilityDistribution.setTwoC(exceedanceForm.getTwoC().createBigDecimalOrNull());
     probabilityDistribution.setMeanValue(exceedanceForm.getMean().createBigDecimalOrNull());
     probabilityDistribution.setP10(exceedanceForm.getP10().createBigDecimalOrNull());
-    probabilityDistribution.setOneC(exceedanceForm.getOneC().createBigDecimalOrNull());
+    probabilityDistribution.setThreeC(exceedanceForm.getThreeC().createBigDecimalOrNull());
     probabilityDistribution.setP1(exceedanceForm.getP1().createBigDecimalOrNull());
     probabilityDistribution.setMaxValue(exceedanceForm.getMax().createBigDecimalOrNull());
     probabilityDistribution.setMostLikelyValue(exceedanceForm.getMostLikely().createBigDecimalOrNull());

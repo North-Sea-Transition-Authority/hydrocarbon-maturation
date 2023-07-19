@@ -73,9 +73,7 @@ class OilCaseOutputsSummaryServiceTest {
   void getOilCaseOutputSummaryFromSubmissionDetail_whenPresent_notEmptySummary_whenProspect() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
-        "20", "20", "20",
-        "20", "20", "20",
-        "20", "20", "20",
+        "20", "20", "20", "20", "20", "20", "20", "20", "20",
         "20", "", "20", "unit", "comments");
 
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
@@ -125,9 +123,7 @@ class OilCaseOutputsSummaryServiceTest {
   void getOilCaseOutputSummaryFromSubmissionDetail_whenPresent_notEmptySummary_whenDiscovery() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
-        "20", "20", "20",
-        "20", "20", "20",
-        "20", "20", "20",
+        "20", "20", "20", "20", "20", "20", "20", "20", "20",
         "20", "", "20", "unit", "comments");
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     oilCaseOutput.setSubmissionDetail(discoverySubmissionDetail);

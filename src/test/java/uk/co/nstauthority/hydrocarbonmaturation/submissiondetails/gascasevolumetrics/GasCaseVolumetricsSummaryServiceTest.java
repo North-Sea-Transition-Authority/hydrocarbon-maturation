@@ -57,9 +57,7 @@ class GasCaseVolumetricsSummaryServiceTest {
   void getGasCaseVolumetricsSummaryView_whenProspect_filledSummaries() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
-        "20", "20", "20",
-        "20", "20", "20",
-        "20", "20", "20",
+        "20", "20", "20", "20", "20", "20", "20", "20", "20",
         "20", "20", "unit", "", "comments");
 
     when(probabilityDistributionSummaryService
@@ -96,9 +94,7 @@ class GasCaseVolumetricsSummaryServiceTest {
   void getGasCaseVolumetricsSummaryView_whenDiscovery_filledSummaries() {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
-        "20", "20", "20",
-        "20", "20", "20",
-        "20", "20", "20",
+        "20", "20", "20", "20", "20", "20", "20", "20", "20",
         "20", "20", "unit", "", "comments");
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
 

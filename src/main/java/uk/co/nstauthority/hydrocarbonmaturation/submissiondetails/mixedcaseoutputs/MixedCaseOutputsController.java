@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceTypeUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -119,6 +120,8 @@ public class MixedCaseOutputsController {
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT));
     } else if (resourceType == ResourceType.DISCOVERY) {
+      var contingentUncertaintyCategoryPromptOverrides =
+          ProbabilityOfExceedanceTypeUtil.getContingentUncertaintyCategoryPromptOverrides();
       modelAndView
           .addObject("oilInPlaceTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
@@ -127,20 +130,25 @@ public class MixedCaseOutputsController {
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_DISCOVERY))
           .addObject("oilRecoverableResourcesTemplate",
-              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY))
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                  ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
+                  contingentUncertaintyCategoryPromptOverrides))
           .addObject("associatedGasRecoverableResourcesTemplate",
-              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                  ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+                  contingentUncertaintyCategoryPromptOverrides))
           .addObject("oilEquivalentRecoverableResourcesTemplate",
-              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY))
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                  ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY,
+                  contingentUncertaintyCategoryPromptOverrides))
           .addObject("gasRecoverableResourcesTemplate",
-              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                  ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+                  contingentUncertaintyCategoryPromptOverrides))
           .addObject("associatedCondensateRecoverableResourcesTemplate",
-              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY));
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                  ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
+                  contingentUncertaintyCategoryPromptOverrides));
     }
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
