@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.conceptselectreport.StartConceptSelectReportController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fielddevelopmentplan.StartFieldDevelopmentPlanController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fielddevelopmentplanaddendum.StartFieldDevelopmentPlanAddendumController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
@@ -46,7 +47,8 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
@@ -65,7 +67,8 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
@@ -84,7 +87,8 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
@@ -98,12 +102,33 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @SecurityTest
+  void startFieldSubmission_whenValidFormCreateFdpa_assertRedirection() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(true);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null)))
+                .with(user(USER))
+                .with(csrf())
+                .param("submissionType", SubmissionType.CREATE_FDPA.name()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(StartFieldDevelopmentPlanAddendumController.class).getStartPage())));
+  }
+
+  @SecurityTest
   void startFieldSubmission_whenValidForm_whenNoPermission_assertForbidden() throws Exception {
     var form = new SubmissionTypeSelectForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
 
@@ -119,7 +144,8 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
     var submissionTypeOptions = List.of(SubmissionType.values());
 
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD)).thenReturn(submissionTypeOptions);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     var modelAndView = mockMvc.perform(

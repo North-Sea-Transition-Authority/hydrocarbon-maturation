@@ -31,6 +31,6 @@ public class StartFieldDevelopmentPlanController {
 
   @PostMapping
   public ModelAndView startFieldDevelopmentPlan() {
-    return ReverseRouter.redirect(on(NewFieldDevelopmentController.class).getNewFdpPage(null));
+    return ReverseRouter.redirect(on(NewFieldDevelopmentPlanController.class).getNewFdpPage(null));
   }
 }

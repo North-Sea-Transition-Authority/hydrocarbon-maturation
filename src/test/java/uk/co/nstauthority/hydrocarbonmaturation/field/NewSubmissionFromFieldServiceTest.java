@@ -3,9 +3,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,28 +26,40 @@ class NewSubmissionFromFieldServiceTest {
   @InjectMocks
   private NewSubmissionFromFieldService newSubmissionFromFieldService;
 
-  @ParameterizedTest
-  @EnumSource(value = SubmissionType.class,
-      names = {
-          "CREATE_CSR",
-          "CREATE_FDP"},
-      mode = EnumSource.Mode.INCLUDE)
-  void createSubmissionFromField(SubmissionType submissionType) {
-    var form = new FieldSelectForm();
+  private FieldSelectForm form;
+  private Resource resource;
+
+  @BeforeEach
+  void setUp() {
+    form = new FieldSelectForm();
     form.setFieldSelectedOption("42");
-    var resource = new Resource();
+    resource = new Resource();
     var field = new Field();
     field.setResource(resource);
     when(fieldPersistenceService.getFieldOrThrow(Integer.parseInt(form.getFieldSelectedOption()))).thenReturn(field);
+  }
 
+  @Test
+  void createSubmissionFromField_createCsr() {
     var submissionDetail = new SubmissionDetail();
-    switch (submissionType) {
-      case CREATE_CSR -> when(submissionCreateService.createCsrFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
-      case CREATE_FDP -> when(submissionCreateService.createFdpFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
-      default -> {}
-    }
+    when(submissionCreateService.createCsrFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
 
+    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_CSR)).isEqualTo(submissionDetail);
+  }
 
-    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, submissionType)).isEqualTo(submissionDetail);
+  @Test
+  void createSubmissionFromField_createFdp() {
+    var submissionDetail = new SubmissionDetail();
+    when(submissionCreateService.createFdpFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
+
+    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDP)).isEqualTo(submissionDetail);
+  }
+
+  @Test
+  void createSubmissionFromField_createFdpa() {
+    var submissionDetail = new SubmissionDetail();
+    when(submissionCreateService.createFdpaFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
+
+    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDPA)).isEqualTo(submissionDetail);
   }
 }

@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.conceptselectreport.StartConceptSelectReportController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fielddevelopmentplan.StartFieldDevelopmentPlanController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fielddevelopmentplanaddendum.StartFieldDevelopmentPlanAddendumController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectForm;
@@ -26,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 @Controller
 @RequestMapping("/field/purpose")
 @HasPermission(permissions = {
+    RolePermission.INDUSTRY_SUBMIT,
     RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
     RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
     RolePermission.ONSHORE_AREA_TEAM_MEMBER
@@ -57,6 +59,8 @@ public class FieldPurposeController {
           case CREATE_FIELD -> ReverseRouter.redirect(on(StartFieldController.class).getStartPage());
           case CREATE_CSR -> ReverseRouter.redirect(on(StartConceptSelectReportController.class).getStartPage());
           case CREATE_FDP -> ReverseRouter.redirect(on(StartFieldDevelopmentPlanController.class).getStartPage());
+          case CREATE_FDPA ->
+              ReverseRouter.redirect(on(StartFieldDevelopmentPlanAddendumController.class).getStartPage());
           default -> throw new ResponseStatusException(HttpStatus.FORBIDDEN,
               "Invalid submission type selected for field only form");
         });

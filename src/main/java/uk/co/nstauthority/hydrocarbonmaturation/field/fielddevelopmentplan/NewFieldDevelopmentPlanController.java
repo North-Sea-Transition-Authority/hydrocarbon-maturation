@@ -28,39 +28,39 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
     RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
     RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
     RolePermission.ONSHORE_AREA_TEAM_MEMBER})
-public class NewFieldDevelopmentController {
+public class NewFieldDevelopmentPlanController {
 
   private final FieldSelectValidator fieldSelectValidator;
   private final NewSubmissionFromFieldService newSubmissionFromFieldService;
 
   @Autowired
-  public NewFieldDevelopmentController(FieldSelectValidator fieldSelectValidator,
-                                       NewSubmissionFromFieldService newSubmissionFromFieldService) {
+  public NewFieldDevelopmentPlanController(FieldSelectValidator fieldSelectValidator,
+                                           NewSubmissionFromFieldService newSubmissionFromFieldService) {
     this.fieldSelectValidator = fieldSelectValidator;
     this.newSubmissionFromFieldService = newSubmissionFromFieldService;
   }
 
   @GetMapping
   public ModelAndView getNewFdpPage(@ModelAttribute("form") FieldSelectForm form) {
-    return getNewCsrPageModelAndView(form);
+    return getNewFdpPageModelAndView(form);
   }
 
   @PostMapping
   public ModelAndView createNewFdp(@ModelAttribute("form") FieldSelectForm form,
                                    BindingResult bindingResult) {
     if (!fieldSelectValidator.isValid(bindingResult)) {
-      return getNewCsrPageModelAndView(form);
+      return getNewFdpPageModelAndView(form);
     } else {
       newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDP);
       return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
     }
   }
 
-  private ModelAndView getNewCsrPageModelAndView(FieldSelectForm form) {
+  private ModelAndView getNewFdpPageModelAndView(FieldSelectForm form) {
     return new ModelAndView("remi/field/fdp/newFdp")
         .addObject("form", form)
         .addObject("actionUrl",
-            ReverseRouter.route(on(NewFieldDevelopmentController.class).createNewFdp(null, null)))
+            ReverseRouter.route(on(NewFieldDevelopmentPlanController.class).createNewFdp(null, null)))
         .addObject("backLinkUrl",
             ReverseRouter.route(on(StartFieldDevelopmentPlanController.class).getStartPage()))
         .addObject("fieldApiEndpoint",

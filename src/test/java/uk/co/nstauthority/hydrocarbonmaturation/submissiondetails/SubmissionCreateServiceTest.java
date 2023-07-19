@@ -391,6 +391,18 @@ class SubmissionCreateServiceTest {
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDP);
   }
 
+  @Test
+  void createFdpaFieldSubmission() {
+    var resource = new Resource();
+    var submission = new Submission();
+    when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    submissionCreateService.createFdpaFieldSubmissionDetail(resource);
+
+    verify(submissionPersistenceService, times(1)).createSubmission(resource);
+    verify(submissionDetailPersistenceService, times(1))
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDPA);
+  }
+
   private static Stream<Arguments> calculateGetResourceTypeOptionsForUserConditionArguments() {
     return Sets.cartesianProduct(Set.of(true, false), Set.of(true, false), Set.of(true, false)).stream()
         .map(booleans -> Arguments.of(booleans.get(0), booleans.get(1), booleans.get(2)));

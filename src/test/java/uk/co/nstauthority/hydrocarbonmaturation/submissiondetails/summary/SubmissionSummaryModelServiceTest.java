@@ -127,7 +127,7 @@ class SubmissionSummaryModelServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP"}, mode = EnumSource.Mode.EXCLUDE)
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"}, mode = EnumSource.Mode.EXCLUDE)
   void createSummaryForSubmissionTypeToModelAndView(SubmissionType submissionType) {
     var submissionSummaryModelServiceSpy = spy(submissionSummaryModelService);
 

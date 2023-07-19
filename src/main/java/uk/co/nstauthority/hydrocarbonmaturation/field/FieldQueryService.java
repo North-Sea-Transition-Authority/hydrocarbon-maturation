@@ -58,6 +58,12 @@ public class FieldQueryService {
           FieldStatus.UNDER_APPRAISAL_NO_FDP_200,
           FieldStatus.UNDER_APPRAISAL_FUTURE_FDP_CSR_RECEIVED_300,
           FieldStatus.APPRAISAL_FDP_UNDER_DISCUSSION_CSR_APPROVED_400));
+      case CREATE_FDPA -> allowedStatuses.addAll(Set.of(
+          FieldStatus.CONSTRUCTION_FDP_APPROVED_CONSENTED_600,
+          FieldStatus.PRODUCING_700,
+          FieldStatus.PRODUCTION_SUSPENDED_POSSIBLE_RESERVES_REMAIN_799,
+          FieldStatus.PRODUCTION_SUSPENDED_800,
+          FieldStatus.PRODUCTION_CEASED_VENT_CONSENT_NEEDED_899));
       default -> throw new ActionNotAllowedException("No field statuses for submission type: %s".formatted(submissionType));
     }
 

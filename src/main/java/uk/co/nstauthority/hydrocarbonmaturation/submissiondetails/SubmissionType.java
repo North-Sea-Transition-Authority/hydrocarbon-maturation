@@ -101,7 +101,16 @@ public enum SubmissionType implements Displayable {
           RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
       "Only the final plan agreed with NSTA should be provided",
       110
-  );
+  ),
+  CREATE_FDPA(
+      "Field Development Plan Addendum  (FDPA)",
+          "Provide a field development addendum  (FDPA)",
+      Set.of(ResourceType.FIELD),
+      Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
+  RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      "Only the final plan agreed with NSTA should be provided",
+      120
+      );
 
   private final String typeName;
   private final String displayName;

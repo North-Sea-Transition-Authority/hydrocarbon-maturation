@@ -35,7 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-@ContextConfiguration(classes = NewFieldDevelopmentController.class)
+@ContextConfiguration(classes = NewFieldDevelopmentPlanController.class)
 class NewFieldDevelopmentPlanControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
@@ -62,7 +62,7 @@ class NewFieldDevelopmentPlanControllerTest extends AbstractSubmissionController
         .thenReturn(false);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(NewFieldDevelopmentController.class).getNewFdpPage(null)))
+            get(ReverseRouter.route(on(NewFieldDevelopmentPlanController.class).getNewFdpPage(null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -71,7 +71,7 @@ class NewFieldDevelopmentPlanControllerTest extends AbstractSubmissionController
   void getNewFdpPage_assertModelProperties() throws Exception {
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
-                get(ReverseRouter.route(on(NewFieldDevelopmentController.class).getNewFdpPage(null)))
+                get(ReverseRouter.route(on(NewFieldDevelopmentPlanController.class).getNewFdpPage(null)))
                     .with(user(USER)))
             .andReturn()
             .getModelAndView()
@@ -81,7 +81,7 @@ class NewFieldDevelopmentPlanControllerTest extends AbstractSubmissionController
     assertThat(modelMap)
         .contains(
             entry("actionUrl",
-                ReverseRouter.route(on(NewFieldDevelopmentController.class).createNewFdp(null, null))),
+                ReverseRouter.route(on(NewFieldDevelopmentPlanController.class).createNewFdp(null, null))),
             entry("backLinkUrl", ReverseRouter.route(on(StartFieldDevelopmentPlanController.class).getStartPage())),
             entry("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class).searchFields(null, SubmissionType.CREATE_FDP, null)))
         );
@@ -92,7 +92,7 @@ class NewFieldDevelopmentPlanControllerTest extends AbstractSubmissionController
     when(fieldSelectValidator.isValid(any(BindingResult.class))).thenReturn(false);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(NewFieldDevelopmentController.class)
+            post(ReverseRouter.route(on(NewFieldDevelopmentPlanController.class)
                 .createNewFdp(null, null)))
                 .with(user(USER))
                 .with(csrf()))
@@ -106,7 +106,7 @@ class NewFieldDevelopmentPlanControllerTest extends AbstractSubmissionController
     when(fieldSelectValidator.isValid(any(BindingResult.class))).thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(NewFieldDevelopmentController.class)
+            post(ReverseRouter.route(on(NewFieldDevelopmentPlanController.class)
                 .createNewFdp(null, null)))
                 .with(user(USER))
                 .with(csrf()))

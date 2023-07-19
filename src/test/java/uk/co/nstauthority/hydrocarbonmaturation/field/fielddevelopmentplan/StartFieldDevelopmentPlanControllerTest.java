@@ -80,7 +80,7 @@ class StartFieldDevelopmentPlanControllerTest extends AbstractSubmissionControll
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(NewFieldDevelopmentController.class)
+        .andExpect(redirectedUrl(ReverseRouter.route(on(NewFieldDevelopmentPlanController.class)
             .getNewFdpPage(null))));
   }
 }
