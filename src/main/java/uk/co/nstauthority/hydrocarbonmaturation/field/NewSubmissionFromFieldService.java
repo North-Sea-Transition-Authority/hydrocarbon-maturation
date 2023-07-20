@@ -34,6 +34,9 @@ public class NewSubmissionFromFieldService {
       case CREATE_FDPA -> {
         return submissionCreateService.createFdpaFieldSubmissionDetail(resource);
       }
+      case CREATE_COP -> {
+        return submissionCreateService.createCoPFieldSubmissionDetail(resource);
+      }
       default ->
           throw new ActionNotAllowedException("No field statuses for submission type: %s".formatted(submissionType));
     }

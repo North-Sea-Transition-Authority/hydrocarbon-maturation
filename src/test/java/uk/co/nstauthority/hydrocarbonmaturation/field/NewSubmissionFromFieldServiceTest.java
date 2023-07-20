@@ -28,9 +28,11 @@ class NewSubmissionFromFieldServiceTest {
 
   private FieldSelectForm form;
   private Resource resource;
+  private SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setUp() {
+    submissionDetail = new SubmissionDetail();
     form = new FieldSelectForm();
     form.setFieldSelectedOption("42");
     resource = new Resource();
@@ -41,7 +43,6 @@ class NewSubmissionFromFieldServiceTest {
 
   @Test
   void createSubmissionFromField_createCsr() {
-    var submissionDetail = new SubmissionDetail();
     when(submissionCreateService.createCsrFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
 
     assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_CSR)).isEqualTo(submissionDetail);
@@ -49,7 +50,6 @@ class NewSubmissionFromFieldServiceTest {
 
   @Test
   void createSubmissionFromField_createFdp() {
-    var submissionDetail = new SubmissionDetail();
     when(submissionCreateService.createFdpFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
 
     assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDP)).isEqualTo(submissionDetail);
@@ -57,9 +57,15 @@ class NewSubmissionFromFieldServiceTest {
 
   @Test
   void createSubmissionFromField_createFdpa() {
-    var submissionDetail = new SubmissionDetail();
     when(submissionCreateService.createFdpaFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
 
     assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDPA)).isEqualTo(submissionDetail);
+  }
+
+  @Test
+  void createSubmissionFromField_createCop() {
+    when(submissionCreateService.createCoPFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
+
+    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_COP)).isEqualTo(submissionDetail);
   }
 }

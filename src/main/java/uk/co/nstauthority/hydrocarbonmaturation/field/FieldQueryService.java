@@ -64,6 +64,11 @@ public class FieldQueryService {
           FieldStatus.PRODUCTION_SUSPENDED_POSSIBLE_RESERVES_REMAIN_799,
           FieldStatus.PRODUCTION_SUSPENDED_800,
           FieldStatus.PRODUCTION_CEASED_VENT_CONSENT_NEEDED_899));
+      case CREATE_COP -> allowedStatuses.addAll(Set.of(
+          FieldStatus.PRODUCING_700,
+          FieldStatus.PRODUCTION_SUSPENDED_POSSIBLE_RESERVES_REMAIN_799,
+          FieldStatus.PRODUCTION_SUSPENDED_800,
+          FieldStatus.PRODUCTION_CEASED_VENT_CONSENT_NEEDED_899));
       default -> throw new ActionNotAllowedException("No field statuses for submission type: %s".formatted(submissionType));
     }
 

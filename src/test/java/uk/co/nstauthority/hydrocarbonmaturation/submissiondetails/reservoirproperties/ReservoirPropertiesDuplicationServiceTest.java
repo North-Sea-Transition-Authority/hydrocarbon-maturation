@@ -97,7 +97,7 @@ class ReservoirPropertiesDuplicationServiceTest {
   @ParameterizedTest
   @EnumSource(
       value = SubmissionType.class,
-      names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT", "CREATE_DISCOVERY", "CREATE_PROSPECT", "CREATE_DISCOVERY_FROM_PROSPECT", "CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"},
+      names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT", "CREATE_DISCOVERY", "CREATE_PROSPECT", "CREATE_DISCOVERY_FROM_PROSPECT", "CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"},
       mode = EnumSource.Mode.EXCLUDE)
   void duplicateSubmissionSection_ProbabilityDistributionsExist_NonProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);

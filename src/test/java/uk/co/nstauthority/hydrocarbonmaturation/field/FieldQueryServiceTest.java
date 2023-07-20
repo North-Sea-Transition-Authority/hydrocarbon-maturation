@@ -234,12 +234,79 @@ class FieldQueryServiceTest {
               new FieldView(field5.getFieldIdentifier(), field5.getCorrectedLegalFieldName()));
     }
 
+    @Test
+    void whenFieldSubmission_createCop_assertFiltersFieldStatuses() {
+      when(areaTeamService.isAreaTeamMember(USER)).thenReturn(false);
+      when(industryTeamService.isSubmitter(USER)).thenReturn(true);
+      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(eq(USER), any())).thenReturn(true);
+
+      var searchTerm = "field";
+
+      var resource1 = new Resource();
+      var field1 = new Field();
+      field1.setFieldIdentifier(24);
+      field1.setFieldStatus(FieldStatus.PRODUCING_700);
+      field1.setResource(resource1);
+      field1.setCorrectedLegalFieldName("legalFieldName1");
+      var submissionDetail1 = new SubmissionDetail();
+      submissionDetail1.setStatus(SubmissionDetailStatus.APPROVED);
+
+      var resource2 = new Resource();
+      var field2 = new Field();
+      field2.setFieldIdentifier(42);
+      field2.setFieldStatus(FieldStatus.PRODUCTION_SUSPENDED_POSSIBLE_RESERVES_REMAIN_799);
+      field2.setResource(resource2);
+      field2.setCorrectedLegalFieldName("legalFieldName2");
+      var submissionDetail2 = new SubmissionDetail();
+      submissionDetail2.setStatus(SubmissionDetailStatus.DELETED);
+
+      var resource3 = new Resource();
+      var field3 = new Field();
+      field3.setFieldIdentifier(48);
+      field3.setFieldStatus(FieldStatus.PRODUCTION_SUSPENDED_800);
+      field3.setResource(resource3);
+      field3.setCorrectedLegalFieldName("legalFieldName3");
+      var submissionDetail3 = new SubmissionDetail();
+      submissionDetail3.setStatus(SubmissionDetailStatus.APPROVED);
+
+      var resource4 = new Resource();
+      var field4 = new Field();
+      field4.setFieldIdentifier(84);
+      field4.setFieldStatus(FieldStatus.PRODUCTION_CEASED_VENT_CONSENT_NEEDED_899);
+      field4.setResource(resource4);
+      field4.setCorrectedLegalFieldName("legalFieldName4");
+      var submissionDetail4 = new SubmissionDetail();
+      submissionDetail4.setStatus(SubmissionDetailStatus.DELETED);
+
+      var resource5 = new Resource();
+      var field5 = new Field();
+      field5.setFieldIdentifier(96);
+      field5.setFieldStatus(FieldStatus.PRODUCTION_CEASED_900);
+      field5.setResource(resource5);
+      field5.setCorrectedLegalFieldName("legalFieldName5");
+      var submissionDetail5 = new SubmissionDetail();
+      submissionDetail5.setStatus(SubmissionDetailStatus.DELETED);
+
+      when(fieldPersistenceService.getFieldsByCorrectedLegalName(searchTerm))
+          .thenReturn(List.of(field1, field2, field3, field4, field5));
+      when(submissionDetailService.getExtantSubmissionDetailsForResource(resource1))
+          .thenReturn(List.of(submissionDetail1, submissionDetail2, submissionDetail3, submissionDetail4, submissionDetail5));
+
+      assertThat(fieldQueryService.getFieldByNameForSubmissionType(searchTerm, SubmissionType.CREATE_COP, USER))
+          .containsExactly(
+              new FieldView(field1.getFieldIdentifier(), field1.getCorrectedLegalFieldName()),
+              new FieldView(field2.getFieldIdentifier(), field2.getCorrectedLegalFieldName()),
+              new FieldView(field3.getFieldIdentifier(), field3.getCorrectedLegalFieldName()),
+              new FieldView(field4.getFieldIdentifier(), field4.getCorrectedLegalFieldName()));
+    }
+
     @ParameterizedTest
     @EnumSource(value = SubmissionType.class,
         names = {
             "CREATE_CSR",
             "CREATE_FDP",
-            "CREATE_FDPA"},
+            "CREATE_FDPA",
+            "CREATE_COP"},
         mode = EnumSource.Mode.EXCLUDE)
     void whenInvalidSubmissionType_assertThrows(SubmissionType submissionType) {
       var searchTerm = "field";

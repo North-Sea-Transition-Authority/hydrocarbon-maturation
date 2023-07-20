@@ -43,7 +43,7 @@ public class ReviewAndSubmitTaskListSectionService implements TaskListSectionSer
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(DiscoverySubmissionSummaryController.class)
                   .showSubmissionSummary(submissionDetail.getId()))));
-      case CREATE_FIELD, CREATE_CSR, CREATE_FDP, CREATE_FDPA ->
+      case CREATE_FIELD, CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
           // No task list items for fields
           List.of();
     };

@@ -103,7 +103,8 @@ class SubmissionTypeSelectServiceTest {
             SubmissionType.CREATE_FIELD,
             SubmissionType.CREATE_CSR,
             SubmissionType.CREATE_FDP,
-            SubmissionType.CREATE_FDPA);
+            SubmissionType.CREATE_FDPA,
+            SubmissionType.CREATE_COP);
   }
 
   @Test
@@ -121,6 +122,7 @@ class SubmissionTypeSelectServiceTest {
         .containsOnly(
             SubmissionType.CREATE_CSR,
             SubmissionType.CREATE_FDP,
-            SubmissionType.CREATE_FDPA);
+            SubmissionType.CREATE_FDPA,
+            SubmissionType.CREATE_COP);
   }
 }

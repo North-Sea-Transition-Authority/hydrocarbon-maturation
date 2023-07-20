@@ -239,6 +239,14 @@ public class SubmissionCreateService {
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDPA);
   }
 
+  @Transactional
+  public SubmissionDetail createCoPFieldSubmissionDetail(Resource resource) {
+    var submission = submissionPersistenceService.createSubmission(resource);
+
+    return submissionDetailPersistenceService
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_COP);
+  }
+
   public Map<String, String> getResourceTypeOptionsForUser() {
     var userDetail = userDetailService.getUserDetail();
     var resourceTypeOptions = ResourceType.getResourceTypes();

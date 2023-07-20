@@ -110,7 +110,16 @@ public enum SubmissionType implements Displayable {
   RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
       "Only the final plan agreed with NSTA should be provided",
       120
-      );
+      ),
+  CREATE_COP(
+      "Cessation of Production notification (CoP)",
+      "Advise of cessation of production (CoP)",
+      Set.of(ResourceType.FIELD),
+      Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
+          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      "Only provide once production has ceased permanently and all the wells have been shut in",
+      130
+  );
 
   private final String typeName;
   private final String displayName;
