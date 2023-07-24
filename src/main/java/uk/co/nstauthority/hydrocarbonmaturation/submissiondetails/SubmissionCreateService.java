@@ -149,7 +149,7 @@ public class SubmissionCreateService {
     var prospectResource = oldSubmissionDetail.getSubmission().getResource();
     var submission = submissionPersistenceService.createSubmission(discoveryResource);
 
-    resourceLinkService.createNewResourceLink(prospectResource, discoveryResource);
+    resourceLinkService.createNewProspectDiscoveryResourceLink(prospectResource, discoveryResource);
 
     var newSubmissionDetail = submissionDetailPersistenceService.createInitialSubmissionDetail(
         submission,

@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,7 +21,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
 class NewFieldServiceTest {
@@ -31,6 +38,10 @@ class NewFieldServiceTest {
   private ResourceService resourceService;
   @Mock
   private OrganisationUnitQueryService organisationUnitQueryService;
+  @Mock
+  private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  @Mock
+  private SubmissionResourceService submissionResourceService;
   @InjectMocks
   private NewFieldService underTest;
   @Mock
@@ -129,6 +140,32 @@ class NewFieldServiceTest {
       when(fieldPersistenceService.getField(Integer.valueOf(PARENT_DETERMINED_FIELD_ID))).thenReturn(Optional.of(field));
       underTest.getPreSelectedParentDeterminedField(PARENT_DETERMINED_FIELD_ID);
       verify(searchSelectorService).buildPrePopulatedSelection(PARENT_DETERMINED_FIELD_ID, field.getCorrectedLegalFieldName());
+    }
+  }
+
+  @Nested
+  class WhenGettingPreSelectedAssociatedDiscoveriesMap {
+
+    @Test
+    void emptyIds() {
+      var result = underTest.getPreSelectedAssociatedDiscoveriesMap(List.of());
+      assertThat(result).isEmpty();
+    }
+
+    @Test
+    void assertResult() {
+      var resourceDetail = new ResourceDetail();
+      resourceDetail.setId(UUID.randomUUID());
+      var displayName = "dispaly name";
+
+      when(resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(resourceDetail.getId()))
+          .thenReturn(resourceDetail);
+      when(submissionResourceService.getResourceDisplayName(resourceDetail))
+          .thenReturn(displayName);
+
+      assertThat(underTest.getPreSelectedAssociatedDiscoveriesMap(List.of(resourceDetail.getId().toString())))
+          .extracting(ResourceView::getId, ResourceView::getName)
+          .containsExactly(Tuple.tuple(resourceDetail.getId().toString(), displayName));
     }
   }
 }

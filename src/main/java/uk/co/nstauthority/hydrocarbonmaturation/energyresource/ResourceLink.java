@@ -26,6 +26,10 @@ public class ResourceLink {
   @ManyToOne
   private Resource discoveryResource;
 
+  @JoinColumn(name = "field_resource_id")
+  @ManyToOne
+  private Resource fieldResource;
+
   public UUID getId() {
     return id;
   }
@@ -48,5 +52,13 @@ public class ResourceLink {
 
   public void setDiscoveryResource(Resource discoveryResource) {
     this.discoveryResource = discoveryResource;
+  }
+
+  public Resource getFieldResource() {
+    return fieldResource;
+  }
+
+  public void setFieldResource(Resource fieldResource) {
+    this.fieldResource = fieldResource;
   }
 }

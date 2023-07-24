@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -19,18 +20,24 @@ class SubmissionQueryService {
   private final SubmissionResourceService submissionResourceService;
   private final SubmissionFilterService submissionFilterService;
   private final SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory;
+  private final ResourceGroupService resourceGroupService;
+  private final RegulatorSubmissionSearchSelectorService regulatorSubmissionSearchSelectorService;
 
   @Autowired
   SubmissionQueryService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                          SubmissionDetailService submissionDetailService,
                          SubmissionResourceService submissionResourceService,
                          SubmissionFilterService submissionFilterService,
-                         SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory) {
+                         SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory,
+                         ResourceGroupService resourceGroupService,
+                         RegulatorSubmissionSearchSelectorService regulatorSubmissionSearchSelectorService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.submissionFilterService = submissionFilterService;
     this.submissionSearchSelectorServiceFactory = submissionSearchSelectorServiceFactory;
+    this.resourceGroupService = resourceGroupService;
+    this.regulatorSubmissionSearchSelectorService = regulatorSubmissionSearchSelectorService;
   }
 
   public List<ResourceView> getLatestDiscoveriesByNameForSubmissionType(String name,
@@ -82,6 +89,27 @@ class SubmissionQueryService {
         .flatMap(Optional::stream)
         .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)
         // Create a list of resource views for prospects to be displayed in a search selector
+        .map(this::getResourceViewFromResourceDetail)
+        .sorted(Comparator.comparing(ResourceView::getSelectionText))
+        .toList();
+  }
+
+  public List<ResourceView> getLatestNotRelinquishedAndNotInGroupOrPreferredViewDiscoveriesByName(String name) {
+    //gets every discovery resource with the name specified
+    var distinctDiscoveries =
+        submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, name);
+
+    //gets the latest submission for each discovery
+    //filtering out ones in a group but not the preferred view
+    var latestSubmissionsWhichCanBeSubmittedUpon =
+        distinctDiscoveries.stream()
+            .filter(resource -> !resourceGroupService.isInGroupAndIsNotPreferredView(resource))
+            .map(submissionDetailService::getLatestApprovedDiscoverySubmissionDetailForResource)
+            .flatMap(Optional::stream)
+            .filter(submissionDetail -> !submissionDetail.isDiscoveryRelinquishment());
+
+    return regulatorSubmissionSearchSelectorService
+        .getResourceDetailsForSubmissions(latestSubmissionsWhichCanBeSubmittedUpon, null)
         .map(this::getResourceViewFromResourceDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();

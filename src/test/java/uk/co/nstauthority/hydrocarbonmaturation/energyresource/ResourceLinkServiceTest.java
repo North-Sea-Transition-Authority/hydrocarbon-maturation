@@ -1,13 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,7 +23,7 @@ class ResourceLinkServiceTest {
   private ResourceLinkService resourceLinkService;
 
   @Test
-  void createNewResourceLink() {
+  void createNewProspectDiscoveryResourceLink() {
     var prospectResource = new Resource();
     var discoveryResource = new Resource();
     prospectResource.setType(ResourceType.PROSPECT);
@@ -33,7 +31,7 @@ class ResourceLinkServiceTest {
 
     ArgumentCaptor<ResourceLink> argumentCaptor = ArgumentCaptor.forClass(ResourceLink.class);
 
-    resourceLinkService.createNewResourceLink(prospectResource, discoveryResource);
+    resourceLinkService.createNewProspectDiscoveryResourceLink(prospectResource, discoveryResource);
 
     verify(resourceLinksRepository, times(1))
         .save(argumentCaptor.capture());
@@ -49,12 +47,54 @@ class ResourceLinkServiceTest {
   }
 
   @Test
+  void createNewDiscoveryFieldResourceLink() {
+    var discoveryResource = new Resource();
+    var fieldResource = new Resource();
+    discoveryResource.setType(ResourceType.DISCOVERY);
+    fieldResource.setType(ResourceType.FIELD);
+
+    ArgumentCaptor<ResourceLink> argumentCaptor = ArgumentCaptor.forClass(ResourceLink.class);
+
+    resourceLinkService.createNewDiscoveryFieldResourceLink(discoveryResource, fieldResource);
+
+    verify(resourceLinksRepository, times(1))
+        .save(argumentCaptor.capture());
+
+    assertThat(argumentCaptor.getValue())
+        .extracting(
+            ResourceLink::getDiscoveryResource,
+            ResourceLink::getFieldResource)
+        .containsExactly(
+            discoveryResource,
+            fieldResource
+        );
+  }
+
+  @Test
   void getResourceLinkByProspect_verifyMethodCall() {
     var prospect = new Resource();
 
     resourceLinkService.getResourceLinksByProspect(prospect);
 
     verify(resourceLinksRepository, times(1)).findAllByProspectResource(prospect);
+  }
+
+  @Test
+  void getResourceLinkByDiscovery_verifyMethodCall() {
+    var discovery = new Resource();
+
+    resourceLinkService.getResourceLinksByDiscovery(discovery);
+
+    verify(resourceLinksRepository, times(1)).findAllByDiscoveryResource(discovery);
+  }
+
+  @Test
+  void getResourceLinkByField_verifyMethodCall() {
+    var field = new Resource();
+
+    resourceLinkService.getResourceLinksByField(field);
+
+    verify(resourceLinksRepository, times(1)).findAllByFieldResource(field);
   }
 
   @Test
@@ -85,6 +125,26 @@ class ResourceLinkServiceTest {
   }
 
   @Test
+  void isResourceLinkedOrSameResource_whenFieldResourcesLinked_assertTrue() {
+    var field = ResourceTestUtils.buildResource(ResourceType.FIELD);
+    var linkedDiscovery = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
+    var resourceLink = new ResourceLink();
+    resourceLink.setDiscoveryResource(linkedDiscovery);
+    resourceLink.setProspectResource(ResourceTestUtils.buildResource(ResourceType.PROSPECT));
+    resourceLink.setFieldResource(field);
+
+    when(resourceLinksRepository.findAllByFieldResource(field))
+        .thenReturn(List.of(resourceLink));
+    when(resourceLinksRepository.findAllByDiscoveryResource(linkedDiscovery))
+        .thenReturn(List.of(resourceLink));
+
+    assertThat(resourceLinkService.isResourceLinkedOrSameResource(field, linkedDiscovery))
+        .isTrue();
+    assertThat(resourceLinkService.isResourceLinkedOrSameResource(linkedDiscovery, field))
+        .isTrue();
+  }
+
+  @Test
   void isResourceLinkedOrSameResource_whenResourcesNotLinked_assertFalse() {
     var prospect = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     var discovery = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
@@ -98,15 +158,5 @@ class ResourceLinkServiceTest {
         .isFalse();
     assertThat(resourceLinkService.isResourceLinkedOrSameResource(discovery, prospect))
         .isFalse();
-  }
-
-  @Test
-  void isResourceLinkedOrSameResource_whenResourceTypeField_assertThrows() {
-    var field = ResourceTestUtils.buildResource(ResourceType.FIELD);
-    var discovery = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
-
-    assertThatThrownBy(() -> resourceLinkService.isResourceLinkedOrSameResource(field, discovery))
-        .isExactlyInstanceOf(NotImplementedException.class)
-        .hasMessage("This functionality has not yet been implemented for resource type Field");
   }
 }

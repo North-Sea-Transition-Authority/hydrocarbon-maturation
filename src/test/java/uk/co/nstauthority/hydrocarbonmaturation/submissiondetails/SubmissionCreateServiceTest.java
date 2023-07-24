@@ -220,7 +220,7 @@ class SubmissionCreateServiceTest {
 
     submissionCreateService.createNewDiscoveryFromProspect(form);
 
-    verify(resourceLinkService).createNewResourceLink(prospectResource, discoveryResource);
+    verify(resourceLinkService).createNewProspectDiscoveryResourceLink(prospectResource, discoveryResource);
     verify(regulatorManagedInformationPersistenceService, times(1))
         .saveResponsibleTeamAndGeoByResource(discoveryResource, ResponsibleTeamType.EXPLORATION);
     verify(submissionDetailDuplicationService)

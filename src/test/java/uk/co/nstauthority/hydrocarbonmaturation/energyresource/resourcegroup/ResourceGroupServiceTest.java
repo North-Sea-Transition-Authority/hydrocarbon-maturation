@@ -271,6 +271,14 @@ class ResourceGroupServiceTest {
     }
   }
 
+  @Test
+  void isInGroupAndIsNotPreferredView_verifyMethodCall() {
+    var resource = new Resource();
+    resourceGroupService.isInGroupAndIsNotPreferredView(resource);
+
+    verify(resourceGroupLinksRepository).existsResourceGroupLinkByResourceAndPreferredViewIs(resource, false);
+  }
+
   private RelatedResource buildRelatedProspect(SubmissionDetail submissionDetail) {
     var relatedProspect = new RelatedResource();
     relatedProspect.setRelatedToAnotherResource(true);

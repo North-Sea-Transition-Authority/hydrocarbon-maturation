@@ -57,6 +57,10 @@ public class ResourceGroupService {
     return resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId);
   }
 
+  public boolean isInGroupAndIsNotPreferredView(Resource resource) {
+    return resourceGroupLinksRepository.existsResourceGroupLinkByResourceAndPreferredViewIs(resource, false);
+  }
+
   private void addToGroup(RelatedResource relatedResource,
                           Resource currentResourceResource,
                           ResourceGroupLink resourceGroupLinkForRelatedResource) {

@@ -2,15 +2,18 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 @Service
@@ -18,14 +21,20 @@ public class FieldPersistenceService {
   private final FieldRepository fieldRepository;
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
+  private final ResourceLinkService resourceLinkService;
+  private final SubmissionDetailService submissionDetailService;
 
   @Autowired
   FieldPersistenceService(FieldRepository fieldRepository,
                           OrganisationUnitQueryService organisationUnitQueryService,
-                          RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
+                          RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
+                          ResourceLinkService resourceLinkService,
+                          SubmissionDetailService submissionDetailService) {
     this.fieldRepository = fieldRepository;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
+    this.resourceLinkService = resourceLinkService;
+    this.submissionDetailService = submissionDetailService;
   }
 
   @Transactional
@@ -77,6 +86,13 @@ public class FieldPersistenceService {
         geographicalArea
     );
     fieldRepository.save(field);
+
+    form.getAssociatedDiscoveries()
+        .stream()
+        .map(resourceDetailId ->
+            submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(resourceDetailId)))
+        .map(submissionDetail -> submissionDetail.getSubmission().getResource())
+        .forEach(discovery -> resourceLinkService.createNewDiscoveryFieldResourceLink(discovery, field.getResource()));
 
     return field;
   }

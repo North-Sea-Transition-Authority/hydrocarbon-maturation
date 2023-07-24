@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +37,8 @@ class NewFieldFormValidatorTest {
             entry("onshoreOffshore", Set.of("onshoreOffshore.required")),
             entry("determinationStatus", Set.of("determinationStatus.required")),
             entry("fieldNumber.decimalInputValue", Set.of("fieldNumber.decimalInputValue.required")),
-            entry("infrastructureHost", Set.of("infrastructureHost.required"))
+            entry("infrastructureHost", Set.of("infrastructureHost.required")),
+            entry("associatedDiscoverySelect", Set.of("associatedDiscoverySelect.notEmpty"))
         );
   }
 
@@ -100,6 +102,7 @@ class NewFieldFormValidatorTest {
     form.setDeterminationStatus(DeterminationStatus.UNDETERMINED);
     form.setFieldNumber(DecimalInput.createDecimalInput(1));
     form.setInfrastructureHost(false);
+    form.setAssociatedDiscoveries(List.of("associated discovery"));
 
     return form;
   }

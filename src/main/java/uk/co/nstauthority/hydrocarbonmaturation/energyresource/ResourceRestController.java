@@ -53,6 +53,15 @@ public class ResourceRestController {
     );
   }
 
+  @GetMapping("/discoveries/field-discoveries")
+  public RestSearchResult searchDiscoveriesNotInGroupOrPreferredView(@RequestParam("term") String searchTerm) {
+    return searchSelectorService.search(
+        searchTerm,
+        submissionQueryService.getLatestNotRelinquishedAndNotInGroupOrPreferredViewDiscoveriesByName(
+            searchTerm)
+    );
+  }
+
   @GetMapping("/resources")
   public RestSearchResult searchResources(@RequestParam("term") String searchTerm) {
     return searchSelectorService.search(

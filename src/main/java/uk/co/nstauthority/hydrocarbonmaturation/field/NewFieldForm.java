@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field;
 
+import java.util.List;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -17,6 +18,8 @@ class NewFieldForm {
   private Boolean infrastructureHost;
   private DeterminationStatus determinationStatus;
   private String parentDeterminedField;
+  private List<String> associatedDiscoveries;
+  private String associatedDiscoverySelect;
 
   public String getLegalFieldName() {
     return legalFieldName;
@@ -106,5 +109,21 @@ class NewFieldForm {
 
   public void setParentDeterminedField(String parentDeterminedField) {
     this.parentDeterminedField = parentDeterminedField;
+  }
+
+  public List<String> getAssociatedDiscoveries() {
+    return associatedDiscoveries;
+  }
+
+  public void setAssociatedDiscoveries(List<String> associatedDiscoveries) {
+    this.associatedDiscoveries = associatedDiscoveries;
+  }
+
+  public String getAssociatedDiscoverySelect() {
+    return associatedDiscoverySelect;
+  }
+
+  public void setAssociatedDiscoverySelect(String associatedDiscoverySelect) {
+    this.associatedDiscoverySelect = associatedDiscoverySelect;
   }
 }

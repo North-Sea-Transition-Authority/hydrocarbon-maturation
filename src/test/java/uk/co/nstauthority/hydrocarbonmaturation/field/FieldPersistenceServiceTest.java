@@ -7,7 +7,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import javax.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -20,10 +22,14 @@ import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @ExtendWith(MockitoExtension.class)
 class FieldPersistenceServiceTest {
@@ -31,6 +37,10 @@ class FieldPersistenceServiceTest {
   private FieldRepository fieldRepository;
   @Mock
   private OrganisationUnitQueryService organisationUnitQueryService;
+  @Mock
+  private ResourceLinkService resourceLinkService;
+  @Mock
+  private SubmissionDetailService submissionDetailService;
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @InjectMocks
@@ -53,6 +63,7 @@ class FieldPersistenceServiceTest {
     private final ResponsibleTeamType RESPONSIBLE_TEAM_TYPE = ResponsibleTeamType.ONSHORE;
     private final String RESPONSIBLE_ORGANISATION_NAME = "responsible organisation";
     private final String REGISTERED_NUMBER = "123";
+    private final UUID ASSOCIATED_DISCOVERY_ID = UUID.randomUUID();
 
     @BeforeEach
     void setup() {
@@ -67,6 +78,7 @@ class FieldPersistenceServiceTest {
       form.setDeterminationStatus(DETERMINATION_STATUS);
       form.setFieldNumber(FIELD_NUMBER);
       form.setInfrastructureHost(INFRASTRUCTURE_HOST);
+      form.setAssociatedDiscoveries(List.of());
     }
 
     @Test
@@ -128,6 +140,23 @@ class FieldPersistenceServiceTest {
       var result = underTest.createNewField(form, resource);
       assertThat(result.getParentDeterminedField())
           .isEqualTo(field);
+    }
+
+    @Test
+    void associatedDiscoveriesSet() {
+      form.setAssociatedDiscoveries(List.of(ASSOCIATED_DISCOVERY_ID.toString()));
+
+
+      var discovery = new Resource();
+      var submission = new Submission();
+      submission.setResource(discovery);
+      var submissionDetail = new SubmissionDetail();
+      submissionDetail.setSubmission(submission);
+      when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(ASSOCIATED_DISCOVERY_ID))
+          .thenReturn(submissionDetail);
+
+      var field = underTest.createNewField(form, discovery);
+      verify(resourceLinkService).createNewDiscoveryFieldResourceLink(discovery, field.getResource());
     }
 
     @Test

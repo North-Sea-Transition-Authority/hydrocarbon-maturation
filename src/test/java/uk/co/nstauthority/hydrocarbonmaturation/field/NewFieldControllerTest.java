@@ -15,9 +15,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,6 +28,7 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceView;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -74,6 +77,12 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
     when(newFieldService.getPreSelectedParentDeterminedField(form.getParentDeterminedField()))
         .thenReturn(parentDeterminedField);
 
+    var alreadyAddedDiscovery = List.of(
+        new ResourceView(UUID.randomUUID(), "Discovery1")
+    );
+    when(newFieldService.getPreSelectedAssociatedDiscoveriesMap(form.getAssociatedDiscoveries()))
+        .thenReturn(alreadyAddedDiscovery);
+
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                     get(ReverseRouter.route(on(NewFieldController.class)
@@ -96,7 +105,8 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
             entry("responsibleTeamTypes", responsibleTeamTypes),
             entry("determinationStatus", DisplayableEnumOptionUtil.getDisplayableOptions(DeterminationStatus.class)),
             entry("parentDeterminedFieldEndpoint", SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null))),
-            entry("parentDeterminedField", parentDeterminedField)
+            entry("parentDeterminedField", parentDeterminedField),
+            entry("alreadyAddedAssociatedDiscoveries", alreadyAddedDiscovery)
         );
   }
 

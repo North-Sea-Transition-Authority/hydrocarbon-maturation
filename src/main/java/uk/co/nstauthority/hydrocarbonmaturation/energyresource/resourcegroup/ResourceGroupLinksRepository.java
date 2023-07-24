@@ -15,4 +15,6 @@ public interface ResourceGroupLinksRepository extends CrudRepository<ResourceGro
   Optional<ResourceGroupLink> findByResourceGroupIdAndPreferredViewIsTrue(UUID resourceGroupId);
 
   List<ResourceGroupLink> findByResourceGroupId(UUID resourceGroupId);
+
+  boolean existsResourceGroupLinkByResourceAndPreferredViewIs(Resource resource, boolean isPreferredView);
 }

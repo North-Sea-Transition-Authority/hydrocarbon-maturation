@@ -1,9 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,10 +14,14 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceView;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Service
@@ -24,17 +31,22 @@ class NewFieldService {
   private final ResourceService resourceService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final SearchSelectorService searchSelectorService;
+  private final SubmissionResourceService submissionResourceService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @Autowired
   NewFieldService(NewFieldFormValidator newFieldFormValidator,
                   FieldPersistenceService fieldPersistenceService,
                   ResourceService resourceService, OrganisationUnitQueryService organisationUnitQueryService,
-                  SearchSelectorService searchSelectorService) {
+                  SearchSelectorService searchSelectorService, SubmissionResourceService submissionResourceService,
+                  ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
     this.newFieldFormValidator = newFieldFormValidator;
     this.fieldPersistenceService = fieldPersistenceService;
     this.resourceService = resourceService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.searchSelectorService = searchSelectorService;
+    this.submissionResourceService = submissionResourceService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
   }
 
   BindingResult validate(NewFieldForm form, BindingResult bindingResult) {
@@ -102,5 +114,23 @@ class NewFieldService {
     }
 
     return searchSelectorService.buildPrePopulatedSelection(parentDeterminedFieldId, key.get().getCorrectedLegalFieldName());
+  }
+
+  public List<ResourceView> getPreSelectedAssociatedDiscoveriesMap(List<String> preSelectedAssociatedDiscoveryIds) {
+    if (ObjectUtils.isEmpty(preSelectedAssociatedDiscoveryIds)) {
+      return Collections.emptyList();
+    }
+
+    return preSelectedAssociatedDiscoveryIds
+        .stream()
+        .map(resourceDetailId -> resourceDetailsPersistenceService
+            .getResourceDetailByIdOrThrow(UUID.fromString(resourceDetailId)))
+        .map(this::getResourceViewFromResourceDetail)
+        .toList();
+  }
+
+  private ResourceView getResourceViewFromResourceDetail(ResourceDetail resourceDetail) {
+    var resourceDisplayName = submissionResourceService.getResourceDisplayName(resourceDetail);
+    return new ResourceView(resourceDetail.getId(), resourceDisplayName);
   }
 }

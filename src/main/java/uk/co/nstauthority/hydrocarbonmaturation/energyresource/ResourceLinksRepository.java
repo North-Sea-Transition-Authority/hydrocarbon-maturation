@@ -12,4 +12,5 @@ interface ResourceLinksRepository extends CrudRepository<ResourceLink, UUID> {
 
   List<ResourceLink> findAllByDiscoveryResource(Resource discovery);
 
+  List<ResourceLink> findAllByFieldResource(Resource field);
 }

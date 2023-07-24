@@ -28,6 +28,37 @@
       hintText="This name is used to improve public reports by removing operator names or changing the compass position to be at the end of the name."
       inputClass="govuk-input--width-20"/>
 
+    <@fdsFieldset.fieldset
+      legendHeadingSize="h2"
+      legendHeadingClass="govuk-fieldset__legend--s"
+      legendHeading="What discoveries are associated with this field?">
+        <@fdsAddToList.addToList
+          pathForList="form.associatedDiscoveries"
+          pathForSelector="form.associatedDiscoverySelect"
+          alreadyAdded=alreadyAddedAssociatedDiscoveries
+          title=""
+          itemName="Discovery"
+          noItemText="No discovery"
+          invalidItemText="This discovery is invalid"
+          addToListId="associated-discovery-table"
+          selectorInputWidth="48"
+          selectorLabelText="Select a discovery to associate to this field"
+          restUrl=springUrl(discoveriesApiEndpoint)/>
+      <@fdsDetails.summaryDetails summaryTitle="The discovery the field is associated with is not listed">
+        <p class="govuk-body">
+          Relinquished discoveries cannot be associated with a field.
+        </p>
+
+        <p class="govuk-body">
+          If there are multiple views of the same discovery then only the preferred NSTA view can be associated with the field.
+        </p>
+
+        <p class="govuk-body">
+          If the discovery does not exist then it will need to be created by the exploration team.
+        </p>
+      </@fdsDetails.summaryDetails>
+    </@fdsFieldset.fieldset>
+
     <@fdsSearchSelector.searchSelectorRest
       path="form.responsibleOrganisationId"
       restUrl=springUrl(organisationUnitEndpoint)

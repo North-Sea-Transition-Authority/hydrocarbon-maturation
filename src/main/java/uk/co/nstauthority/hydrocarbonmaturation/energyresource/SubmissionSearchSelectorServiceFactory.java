@@ -18,7 +18,8 @@ class SubmissionSearchSelectorServiceFactory {
   @Autowired
   SubmissionSearchSelectorServiceFactory(RegulatorSubmissionSearchSelectorService regulatorSubmissionSearchSelectorService,
                                          OperatorSubmissionSearchSelectorService operatorSubmissionSearchSelectorService,
-                                         UserDetailService userDetailService, RegulatorTeamService regulatorTeamService,
+                                         UserDetailService userDetailService,
+                                         RegulatorTeamService regulatorTeamService,
                                          AreaTeamService areaTeamService) {
     this.regulatorSubmissionSearchSelectorService = regulatorSubmissionSearchSelectorService;
     this.operatorSubmissionSearchSelectorService = operatorSubmissionSearchSelectorService;

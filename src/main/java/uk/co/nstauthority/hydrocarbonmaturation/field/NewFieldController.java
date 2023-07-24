@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -79,6 +80,11 @@ class NewFieldController {
         .addObject("parentDeterminedFieldEndpoint",
             SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null)))
         .addObject("parentDeterminedField", newFieldService
-            .getPreSelectedParentDeterminedField(form.getParentDeterminedField()));
+            .getPreSelectedParentDeterminedField(form.getParentDeterminedField()))
+        .addObject("alreadyAddedAssociatedDiscoveries", newFieldService
+            .getPreSelectedAssociatedDiscoveriesMap(form.getAssociatedDiscoveries()))
+        .addObject("discoveriesApiEndpoint",
+            SearchSelectorService.route(on(ResourceRestController.class)
+                .searchDiscoveriesNotInGroupOrPreferredView(null)));
   }
 }

@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -53,6 +55,9 @@ class SubmissionQueryServiceTest {
 
   @Mock
   private OperatorSubmissionSearchSelectorService operatorSubmissionSearchSelectorService;
+
+  @Mock
+  private ResourceGroupService resourceGroupService;
 
   private Resource resourceWithoutLatestApproved = new Resource();
 
@@ -316,6 +321,103 @@ class SubmissionQueryServiceTest {
               tuple(latestApprovedDiscoveryResourceDetail.getId().toString(), latestApprovedDiscoveryName),
               tuple(latestApprovedProspectResourceDetail.getId().toString(), latestApprovedProspectName)
           );
+    }
+  }
+
+  @Nested
+  class getLatestNotRelinquishedAndNotInGroupOrPreferredViewDiscoveriesByName {
+
+    @Test
+    void whenDiscoverySubmission_andNotInGroup_assertOneFound() {
+      var searchTerm = "discovery";
+
+      var latestApprovedResourceDetail = createResourceDetail(
+          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
+      var resource = latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource();
+
+      when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
+          .thenReturn(List.of(resource, resourceWithoutLatestApproved));
+      when(resourceGroupService.isInGroupAndIsNotPreferredView(resource)).thenReturn(false);
+      when(resourceGroupService.isInGroupAndIsNotPreferredView(resourceWithoutLatestApproved)).thenReturn(false);
+      when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
+          .thenReturn(Optional.of(latestApprovedResourceDetail.getSubmissionDetail()));
+      when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resourceWithoutLatestApproved))
+          .thenReturn(Optional.empty());
+
+      ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
+
+      when(regulatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+          lastestSubmissionStream.capture(), isNull()))
+          .thenReturn(Stream.of(latestApprovedResourceDetail));
+      when(submissionResourceService.getResourceDisplayName(latestApprovedResourceDetail))
+          .thenReturn(searchTerm);
+      var result = submissionQueryService
+          .getLatestNotRelinquishedAndNotInGroupOrPreferredViewDiscoveriesByName(searchTerm);
+
+      assertThat(result)
+          .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
+          .containsExactly(
+              tuple(latestApprovedResourceDetail.getId().toString(), searchTerm)
+          );
+
+      assertThat(lastestSubmissionStream.getValue().toList())
+          .containsExactly(latestApprovedResourceDetail.getSubmissionDetail());
+    }
+
+    @Test
+    void whenDiscoverySubmission_andInGroupNotPreferredView_assertEmpty() {
+      var searchTerm = "discovery";
+
+      var latestApprovedResourceDetail = createResourceDetail(
+          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
+      var resource = latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource();
+
+      when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
+          .thenReturn(List.of(resource, resourceWithoutLatestApproved));
+      when(resourceGroupService.isInGroupAndIsNotPreferredView(resource)).thenReturn(true);
+      when(resourceGroupService.isInGroupAndIsNotPreferredView(resourceWithoutLatestApproved)).thenReturn(true);
+
+      ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
+
+      when(regulatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+          lastestSubmissionStream.capture(), isNull()))
+          .thenReturn(Stream.empty());
+
+      var result = submissionQueryService
+          .getLatestNotRelinquishedAndNotInGroupOrPreferredViewDiscoveriesByName(searchTerm);
+
+      assertThat(result).isEmpty();
+      assertThat(lastestSubmissionStream.getValue().toList()).isEmpty();
+    }
+
+    @Test
+    void whenDiscoverySubmission_andRelinquishment_assertEmpty() {
+      var searchTerm = "discovery";
+
+      var latestApprovedResourceDetail = createResourceDetail(
+          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.RELINQUISHMENT_DISCOVERY);
+      var resource = latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource();
+
+      when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
+          .thenReturn(List.of(resource, resourceWithoutLatestApproved));
+      when(resourceGroupService.isInGroupAndIsNotPreferredView(resource)).thenReturn(false);
+      when(resourceGroupService.isInGroupAndIsNotPreferredView(resourceWithoutLatestApproved)).thenReturn(false);
+      when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
+          .thenReturn(Optional.of(latestApprovedResourceDetail.getSubmissionDetail()));
+      when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resourceWithoutLatestApproved))
+          .thenReturn(Optional.empty());
+
+      ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
+
+      when(regulatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+          lastestSubmissionStream.capture(), isNull()))
+          .thenReturn(Stream.empty());
+
+      var result = submissionQueryService
+          .getLatestNotRelinquishedAndNotInGroupOrPreferredViewDiscoveriesByName(searchTerm);
+
+      assertThat(result).isEmpty();
+      assertThat(lastestSubmissionStream.getValue().toList()).isEmpty();
     }
   }
 

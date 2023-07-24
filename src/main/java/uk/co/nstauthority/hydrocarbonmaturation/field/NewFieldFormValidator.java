@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
@@ -27,6 +28,11 @@ class NewFieldFormValidator implements Validator {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors,
         "commonNameForField", "commonNameForField.required", "Enter the common name for field");
+
+    if (CollectionUtils.isEmpty(form.getAssociatedDiscoveries())) {
+      errors.rejectValue("associatedDiscoverySelect", "associatedDiscoverySelect.notEmpty",
+          "You must select at least one associated discovery");
+    }
 
     ValidationUtils.rejectIfEmpty(errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
 
