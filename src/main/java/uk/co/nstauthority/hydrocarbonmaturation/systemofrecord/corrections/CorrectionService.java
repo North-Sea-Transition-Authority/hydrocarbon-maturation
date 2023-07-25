@@ -83,16 +83,18 @@ public class CorrectionService {
     return !submissionDetailService.openCorrectionExists(Set.of(SubmissionDetailStatus.DRAFT), resource);
   }
 
-  SubmissionDetail startCorrectionForType(CorrectionForm form, ServiceUserDetail user) {
+  ModelAndView startCorrectionForTypeAndRedirect(CorrectionForm form, ServiceUserDetail user) {
     return switch (form.getCorrectionType()) {
-      case HISTORIC_UPDATE -> createMissingUpdate(
+      case HISTORIC_UPDATE -> createMissingUpdateAndRedirect(
           UUID.fromString(form.getSubmissionIdForMissingUpdate()),
           form.getMissingUpdateDay(),
           form.getMissingUpdateMonth(),
           form.getMissingUpdateYear(),
           user);
-      case SUBMISSION_CORRECTION -> createCorrection(UUID.fromString(form.getSubmissionIdForCorrectingInformation()), user);
-      case APPROVAL_DATE_CHANGE -> updateApprovedDate(
+      case SUBMISSION_CORRECTION -> createCorrectionAndRedirect(
+          UUID.fromString(form.getSubmissionIdForCorrectingInformation()),
+          user);
+      case APPROVAL_DATE_CHANGE -> updateApprovedDateAndRedirect(
           UUID.fromString(form.getSubmissionIdForChangingApprovedDate()),
           form.getApprovalDateChangeDay(),
           form.getApprovalDateChangeMonth(),
@@ -102,8 +104,8 @@ public class CorrectionService {
     };
   }
 
-  ModelAndView getCorrectionRedirectForType(CorrectionForm form, SubmissionDetail submissionDetail) {
-    return switch (form.getCorrectionType()) {
+  private ModelAndView getCorrectionRedirectForType(CorrectionType correctionType, SubmissionDetail submissionDetail) {
+    return switch (correctionType) {
       case HISTORIC_UPDATE, SUBMISSION_CORRECTION -> ReverseRouter.redirect(on(TaskListController.class)
           .getTaskList(submissionDetail.getId()));
       case APPROVAL_DATE_CHANGE -> ReverseRouter.redirect(on(ViewResourceRecordController.class)
@@ -113,7 +115,7 @@ public class CorrectionService {
   }
 
   @Transactional
-  public SubmissionDetail createCorrection(UUID submissionDetailId, ServiceUserDetail serviceUserDetail) {
+  public ModelAndView createCorrectionAndRedirect(UUID submissionDetailId, ServiceUserDetail serviceUserDetail) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var correctionSubmissionDetail = submissionCreateService.createUpdateSubmissionDetail(previousSubmissionDetail);
     correctionSubmissionDetail.setSubmittedByWuaId(serviceUserDetail.wuaId().intValue());
@@ -122,15 +124,15 @@ public class CorrectionService {
     correctionSubmissionDetail.setApprovedTimestamp(previousSubmissionDetail.getApprovedTimestamp());
     setCorrectionDetails(correctionSubmissionDetail, serviceUserDetail);
     submissionDetailPersistenceService.saveSubmissionDetail(correctionSubmissionDetail);
-    return correctionSubmissionDetail;
+    return getCorrectionRedirectForType(CorrectionType.SUBMISSION_CORRECTION, correctionSubmissionDetail);
   }
 
   @Transactional
-  public SubmissionDetail updateApprovedDate(UUID submissionDetailId,
-                                             String day,
-                                             String month,
-                                             String year,
-                                             ServiceUserDetail serviceUserDetail) {
+  public ModelAndView updateApprovedDateAndRedirect(UUID submissionDetailId,
+                                                    String day,
+                                                    String month,
+                                                    String year,
+                                                    ServiceUserDetail serviceUserDetail) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var correctionSubmissionDetail = submissionCreateService.createUpdateSubmissionDetail(previousSubmissionDetail);
 
@@ -141,15 +143,16 @@ public class CorrectionService {
     setCorrectionDetails(correctionSubmissionDetail, serviceUserDetail);
 
     submissionDetailPersistenceService.saveSubmissionDetail(correctionSubmissionDetail);
-    return correctionSubmissionDetail;
+
+    return getCorrectionRedirectForType(CorrectionType.APPROVAL_DATE_CHANGE, correctionSubmissionDetail);
   }
 
   @Transactional
-  public SubmissionDetail createMissingUpdate(UUID submissionDetailId,
-                                              String day,
-                                              String month,
-                                              String year,
-                                              ServiceUserDetail serviceUserDetail) {
+  public ModelAndView createMissingUpdateAndRedirect(UUID submissionDetailId,
+                                                     String day,
+                                                     String month,
+                                                     String year,
+                                                     ServiceUserDetail serviceUserDetail) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var resource = previousSubmissionDetail.getSubmission().getResource();
     var submission = submissionPersistenceService.createSubmission(resource);
@@ -172,7 +175,7 @@ public class CorrectionService {
 
     submissionDetailPersistenceService.saveSubmissionDetail(newSubmissionDetail);
 
-    return newSubmissionDetail;
+    return getCorrectionRedirectForType(CorrectionType.HISTORIC_UPDATE, newSubmissionDetail);
 
   }
 

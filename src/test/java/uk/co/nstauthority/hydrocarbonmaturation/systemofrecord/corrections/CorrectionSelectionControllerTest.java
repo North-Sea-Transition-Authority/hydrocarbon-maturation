@@ -105,8 +105,7 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
                 .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(correctionService, times(1)).startCorrectionForType(any(CorrectionForm.class), eq(user));
-    verify(correctionService, times(1)).getCorrectionRedirectForType(any(CorrectionForm.class), any());
+    verify(correctionService, times(1)).startCorrectionForTypeAndRedirect(any(CorrectionForm.class), eq(user));
   }
 
   @SecurityTest
@@ -155,8 +154,7 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
                 .with(user(user))
                 .with(csrf()))
         .andExpect(status().isOk());
-    verify(correctionService, never()).startCorrectionForType(any(),any());
-    verify(correctionService, never()).getCorrectionRedirectForType(any(),any());
+    verify(correctionService, never()).startCorrectionForTypeAndRedirect(any(),any());
   }
 
   @Test

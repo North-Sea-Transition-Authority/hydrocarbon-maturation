@@ -1,17 +1,40 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections;
 
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ApplyFormErrorOrdering;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ErrorSummaryDisplayOrder;
+
+@ApplyFormErrorOrdering
 class CorrectionForm {
 
+  @ErrorSummaryDisplayOrder(1)
   private CorrectionType correctionType;
-  private String submissionIdForCorrectingInformation;
-  private String submissionIdForChangingApprovedDate;
-  private String approvalDateChangeDay;
-  private String approvalDateChangeMonth;
-  private String approvalDateChangeYear;
+
+  @ErrorSummaryDisplayOrder(2)
   private String submissionIdForMissingUpdate;
+
+  @ErrorSummaryDisplayOrder(3)
   private String missingUpdateDay;
+
+  @ErrorSummaryDisplayOrder(4)
   private String missingUpdateMonth;
+
+  @ErrorSummaryDisplayOrder(5)
   private String missingUpdateYear;
+
+  @ErrorSummaryDisplayOrder(6)
+  private String submissionIdForCorrectingInformation;
+
+  @ErrorSummaryDisplayOrder(7)
+  private String submissionIdForChangingApprovedDate;
+
+  @ErrorSummaryDisplayOrder(8)
+  private String approvalDateChangeDay;
+
+  @ErrorSummaryDisplayOrder(9)
+  private String approvalDateChangeMonth;
+
+  @ErrorSummaryDisplayOrder(10)
+  private String approvalDateChangeYear;
 
   public CorrectionType getCorrectionType() {
     return correctionType;

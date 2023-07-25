@@ -22,6 +22,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUti
 @Service
 class CorrectionFormValidator {
 
+  private static final String APPROVAL_DATA_CHANGE_FIELD_PREFIX = "approvalDateChange";
+  private static final String APPROVAL_DATA_CHANGE_DISPLAY_PREFIX = "new approved date of the submission";
+  private static final String MISSING_UPDATE_FIELD_PREFIX = "missingUpdate";
+  private static final String MISSING_UPDATE_DISPLAY_PREFIX = "missing update date of the submission";
+
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionHistoryQueryService submissionHistoryQueryService;
 
@@ -73,8 +78,8 @@ class CorrectionFormValidator {
 
       // basic date validation - check it isn't in the future
       var basicDateValidationPassed = DateValidationUtil.validateDateIsTodayOrInThePast(
-          "approvalDateChange",
-          "new approved date of the submission",
+          APPROVAL_DATA_CHANGE_FIELD_PREFIX,
+          APPROVAL_DATA_CHANGE_DISPLAY_PREFIX,
           form.getApprovalDateChangeDay(),
           form.getApprovalDateChangeMonth(),
           form.getApprovalDateChangeYear(),
@@ -88,7 +93,7 @@ class CorrectionFormValidator {
             form.getApprovalDateChangeDay(),
             form.getApprovalDateChangeMonth(),
             form.getApprovalDateChangeYear(),
-            "approvalDateChange",
+            APPROVAL_DATA_CHANGE_FIELD_PREFIX,
             "New approved date cannot be the same as another approved date",
             errors
         );
@@ -102,8 +107,8 @@ class CorrectionFormValidator {
                 form.getApprovalDateChangeDay(),
                 form.getApprovalDateChangeMonth(),
                 form.getApprovalDateChangeYear(),
-                "approvalDateChange",
-                "new approved date of the submission",
+                APPROVAL_DATA_CHANGE_FIELD_PREFIX,
+                APPROVAL_DATA_CHANGE_DISPLAY_PREFIX,
                 "after the creation date of the prospect - %s",
                 errors
             );
@@ -117,8 +122,8 @@ class CorrectionFormValidator {
                 form.getApprovalDateChangeDay(),
                 form.getApprovalDateChangeMonth(),
                 form.getApprovalDateChangeYear(),
-                "approvalDateChange",
-                "new approved date of the submission",
+                APPROVAL_DATA_CHANGE_FIELD_PREFIX,
+                APPROVAL_DATA_CHANGE_DISPLAY_PREFIX,
                 "before the relinquishment date of the prospect - %s",
                 errors
             );
@@ -132,8 +137,8 @@ class CorrectionFormValidator {
                 form.getApprovalDateChangeDay(),
                 form.getApprovalDateChangeMonth(),
                 form.getApprovalDateChangeYear(),
-                "approvalDateChange",
-                "new approved date of the submission",
+                APPROVAL_DATA_CHANGE_FIELD_PREFIX,
+                APPROVAL_DATA_CHANGE_DISPLAY_PREFIX,
                 "before the dry well date of the resource - %s",
                 errors
             );
@@ -145,8 +150,8 @@ class CorrectionFormValidator {
               form.getApprovalDateChangeDay(),
               form.getApprovalDateChangeMonth(),
               form.getApprovalDateChangeYear(),
-              "approvalDateChange",
-              "new approved date of the submission",
+              APPROVAL_DATA_CHANGE_FIELD_PREFIX,
+              APPROVAL_DATA_CHANGE_DISPLAY_PREFIX,
               "before the initial discovery date of the resource - %s",
               errors
           );
@@ -162,8 +167,8 @@ class CorrectionFormValidator {
                 form.getApprovalDateChangeDay(),
                 form.getApprovalDateChangeMonth(),
                 form.getApprovalDateChangeYear(),
-                "approvalDateChange",
-                "new approved date of the submission",
+                APPROVAL_DATA_CHANGE_FIELD_PREFIX,
+                APPROVAL_DATA_CHANGE_DISPLAY_PREFIX,
                 "after the creation date of the discovery - %s",
                 errors
             );
@@ -177,8 +182,8 @@ class CorrectionFormValidator {
                 form.getApprovalDateChangeDay(),
                 form.getApprovalDateChangeMonth(),
                 form.getApprovalDateChangeYear(),
-                "approvalDateChange",
-                "new approved date of the submission",
+                APPROVAL_DATA_CHANGE_FIELD_PREFIX,
+                APPROVAL_DATA_CHANGE_DISPLAY_PREFIX,
                 "before the relinquishment date of the discovery - %s",
                 errors
             );
@@ -190,9 +195,8 @@ class CorrectionFormValidator {
               form.getApprovalDateChangeDay(),
               form.getApprovalDateChangeMonth(),
               form.getApprovalDateChangeYear(),
-              "approvalDateChange",
-              "new approved date of the submission",
-              "after the latest prospect submission date of the resource - %s",
+              APPROVAL_DATA_CHANGE_FIELD_PREFIX,
+              APPROVAL_DATA_CHANGE_DISPLAY_PREFIX,
               errors
           );
         }
@@ -213,8 +217,8 @@ class CorrectionFormValidator {
 
       // basic date validation - check it isn't in the future
       var basicDateValidationPassed = DateValidationUtil.validateDateIsTodayOrInThePast(
-          "missingUpdate",
-          "missing update date of the submission",
+          MISSING_UPDATE_FIELD_PREFIX,
+          MISSING_UPDATE_DISPLAY_PREFIX,
           form.getMissingUpdateDay(),
           form.getMissingUpdateMonth(),
           form.getMissingUpdateYear(),
@@ -228,7 +232,7 @@ class CorrectionFormValidator {
             form.getMissingUpdateDay(),
             form.getMissingUpdateMonth(),
             form.getMissingUpdateYear(),
-            "missingUpdate",
+            MISSING_UPDATE_FIELD_PREFIX,
             "Missing update date cannot be the same as another approved date",
             errors
         );
@@ -241,8 +245,8 @@ class CorrectionFormValidator {
               form.getMissingUpdateDay(),
               form.getMissingUpdateMonth(),
               form.getMissingUpdateYear(),
-              "missingUpdate",
-              "missing update date of the submission",
+              MISSING_UPDATE_FIELD_PREFIX,
+              MISSING_UPDATE_DISPLAY_PREFIX,
               "after the creation date of the prospect - %s",
               errors
           );
@@ -254,8 +258,8 @@ class CorrectionFormValidator {
               form.getMissingUpdateDay(),
               form.getMissingUpdateMonth(),
               form.getMissingUpdateYear(),
-              "missingUpdate",
-              "missing update date of the submission",
+              MISSING_UPDATE_FIELD_PREFIX,
+              MISSING_UPDATE_DISPLAY_PREFIX,
               "before the dry well date of the resource - %s",
               errors
           );
@@ -267,8 +271,8 @@ class CorrectionFormValidator {
               form.getMissingUpdateDay(),
               form.getMissingUpdateMonth(),
               form.getMissingUpdateYear(),
-              "missingUpdate",
-              "missing update date of the submission",
+              MISSING_UPDATE_FIELD_PREFIX,
+              MISSING_UPDATE_DISPLAY_PREFIX,
               "before the relinquishment date of the prospect - %s",
               errors
           );
@@ -279,8 +283,8 @@ class CorrectionFormValidator {
               form.getMissingUpdateDay(),
               form.getMissingUpdateMonth(),
               form.getMissingUpdateYear(),
-              "missingUpdate",
-              "missing update date of the submission",
+              MISSING_UPDATE_FIELD_PREFIX,
+              MISSING_UPDATE_DISPLAY_PREFIX,
               "before the initial discovery date of the resource - %s",
               errors
           );
@@ -294,8 +298,8 @@ class CorrectionFormValidator {
               form.getMissingUpdateDay(),
               form.getMissingUpdateMonth(),
               form.getMissingUpdateYear(),
-              "missingUpdate",
-              "missing update date of the submission",
+              MISSING_UPDATE_FIELD_PREFIX,
+              MISSING_UPDATE_DISPLAY_PREFIX,
               "after the creation date of the discovery - %s",
               errors
           );
@@ -307,8 +311,8 @@ class CorrectionFormValidator {
               form.getMissingUpdateDay(),
               form.getMissingUpdateMonth(),
               form.getMissingUpdateYear(),
-              "missingUpdate",
-              "missing update date of the submission",
+              MISSING_UPDATE_FIELD_PREFIX,
+              MISSING_UPDATE_DISPLAY_PREFIX,
               "before the relinquishment date of the discovery - %s",
               errors
           );
@@ -319,9 +323,8 @@ class CorrectionFormValidator {
               form.getMissingUpdateDay(),
               form.getMissingUpdateMonth(),
               form.getMissingUpdateYear(),
-              "missingUpdate",
-              "missing update date of the submission",
-              "after the latest prospect submission date of the resource - %s",
+              MISSING_UPDATE_FIELD_PREFIX,
+              MISSING_UPDATE_DISPLAY_PREFIX,
               errors
           );
         }
@@ -441,11 +444,11 @@ class CorrectionFormValidator {
                                                  String year,
                                                  String fieldPrefix,
                                                  String displayPrefix,
-                                                 String errorSuffix,
                                                  Errors errors) {
     var latestProspectTimestamp = approvedSubmissions.stream()
-        .filter(a ->
-            submissionDetailService.getSubmissionDetailForIdOrError(a.submissionDetailId()).isProspectSubmission()
+        .filter(a -> a.submissionType() == SubmissionType.CREATE_PROSPECT
+            || a.submissionType() == SubmissionType.PROSPECT_UPDATE
+            || a.submissionType() == SubmissionType.RELINQUISHMENT_PROSPECT
         )
         .sorted(Comparator.comparing(SubmissionQuerySearchRecord::approvedTimestamp).reversed())
         .map(SubmissionQuerySearchRecord::approvedTimestamp)
@@ -464,7 +467,10 @@ class CorrectionFormValidator {
           month,
           year,
           latestProspectLocalDate,
-          String.format(errorSuffix, DateUtil.formatDate(latestProspectLocalDate)),
+          String.format(
+              "after the latest prospect submission date of the resource - %s",
+              DateUtil.formatDate(latestProspectLocalDate)
+          ),
           errors
       );
     }

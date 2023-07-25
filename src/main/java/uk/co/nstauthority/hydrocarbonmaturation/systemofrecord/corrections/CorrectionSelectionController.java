@@ -16,7 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
@@ -38,19 +37,16 @@ public class CorrectionSelectionController {
   private final ResourceService resourceService;
   private final CorrectionService correctionService;
   private final CorrectionFormValidator correctionFormValidator;
-  private final ControllerHelperService controllerHelperService;
   private final SubmissionHistoryQueryService submissionHistoryQueryService;
 
   @Autowired
   public CorrectionSelectionController(ResourceService resourceService,
                                        CorrectionService correctionService,
                                        CorrectionFormValidator correctionFormValidator,
-                                       ControllerHelperService controllerHelperService,
                                        SubmissionHistoryQueryService submissionHistoryQueryService) {
     this.resourceService = resourceService;
     this.correctionService = correctionService;
     this.correctionFormValidator = correctionFormValidator;
-    this.controllerHelperService = controllerHelperService;
     this.submissionHistoryQueryService = submissionHistoryQueryService;
   }
 
@@ -80,12 +76,9 @@ public class CorrectionSelectionController {
             .formatted(resourceId)));
 
     if (!correctionFormValidator.isValid(form, resource, bindingResult)) {
-      var modelAndView = getCorrectionModelAndView(form, resource);
-      modelAndView.addObject("errorList", controllerHelperService.getErrorItemsFromBindingResult(bindingResult));
-      return modelAndView;
+      return getCorrectionModelAndView(form, resource);
     } else {
-      var correctionSubmissionDetail = correctionService.startCorrectionForType(form, user);
-      return correctionService.getCorrectionRedirectForType(form, correctionSubmissionDetail);
+      return correctionService.startCorrectionForTypeAndRedirect(form, user);
     }
   }
 

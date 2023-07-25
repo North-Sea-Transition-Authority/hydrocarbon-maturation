@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,17 +18,18 @@ import java.time.ZoneId;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -43,6 +45,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 
@@ -154,10 +157,11 @@ class CorrectionServiceTest {
     when(submissionCreateService.createUpdateSubmissionDetail(previousSubmissionDetail)).thenReturn(correctionSubmissionDetail);
     var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
 
-    correctionService.startCorrectionForType(form, user);
+    var modelAndView = correctionService.startCorrectionForTypeAndRedirect(form, user);
 
     verify(submissionDetailPersistenceService, times(1)).saveSubmissionDetail(submissionDetailArgumentCaptor.capture());
-    assertThat(submissionDetailArgumentCaptor.getValue()).extracting(
+    var submissionDetail = submissionDetailArgumentCaptor.getValue();
+    assertThat(submissionDetail).extracting(
         SubmissionDetail::isCorrection,
         SubmissionDetail::getCorrectionByWuaId,
         SubmissionDetail::getSubmitterType
@@ -167,39 +171,123 @@ class CorrectionServiceTest {
         SubmitterType.REGULATOR
     );
     assertNotNull(submissionDetailArgumentCaptor.getValue().getCorrectionTimestamp());
-  }
-
-  @Test
-  void getCorrectionRedirectForType_submissionCorrection() {
-    var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.SUBMISSION_CORRECTION);
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
-    var modelAndView = correctionService.getCorrectionRedirectForType(form, submissionDetail);
     assertEquals(
         ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId())).getView(),
-        modelAndView.getView());
+        modelAndView.getView()
+    );
   }
 
   @Test
-  @Disabled
-  void startCorrectionForType_historicUpdate() {
+  void startCorrectionForType_historicUpdate_forProspect() {
+    var previousSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
+
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.HISTORIC_UPDATE);
+    form.setMissingUpdateDay("1");
+    form.setMissingUpdateMonth("1");
+    form.setMissingUpdateYear("2023");
+    form.setSubmissionIdForMissingUpdate(previousSubmissionDetail.getId().toString());
 
-    var submissionDetail = correctionService.startCorrectionForType(form, user);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(previousSubmissionDetail.getId())).thenReturn(previousSubmissionDetail);
 
-    assertNull(submissionDetail);
+    var newSubmission = new Submission();
+    newSubmission.setResource(previousSubmissionDetail.getSubmission().getResource());
+    when(submissionPersistenceService.createSubmission(previousSubmissionDetail.getSubmission().getResource())).thenReturn(newSubmission);
 
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.PROSPECT_UPDATE);
+
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(newSubmission, SubmissionType.PROSPECT_UPDATE))
+        .thenReturn(newSubmissionDetail);
+
+    var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
+
+    var modelAndView = correctionService.startCorrectionForTypeAndRedirect(form, user);
+
+    historicUpdateAssertions(previousSubmissionDetail, newSubmissionDetail, submissionDetailArgumentCaptor, form, modelAndView);
   }
 
   @Test
-  @Disabled
-  void getCorrectionRedirectForType_historicUpdate() {
+  void startCorrectionForType_historicUpdate_forDiscovery() {
+    var previousSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.HISTORIC_UPDATE);
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
-    var modelAndView = correctionService.getCorrectionRedirectForType(form, submissionDetail);
-    assertNull(modelAndView);
+    form.setMissingUpdateDay("1");
+    form.setMissingUpdateMonth("1");
+    form.setMissingUpdateYear("2023");
+    form.setSubmissionIdForMissingUpdate(previousSubmissionDetail.getId().toString());
+
+    when(submissionDetailService.getSubmissionDetailForIdOrError(previousSubmissionDetail.getId())).thenReturn(previousSubmissionDetail);
+
+    var newSubmission = new Submission();
+    newSubmission.setResource(previousSubmissionDetail.getSubmission().getResource());
+    when(submissionPersistenceService.createSubmission(previousSubmissionDetail.getSubmission().getResource())).thenReturn(newSubmission);
+
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.UPDATE_DISCOVERY);
+
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(newSubmission, SubmissionType.UPDATE_DISCOVERY))
+        .thenReturn(newSubmissionDetail);
+
+    var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
+
+    var modelAndView = correctionService.startCorrectionForTypeAndRedirect(form, user);
+
+    historicUpdateAssertions(previousSubmissionDetail, newSubmissionDetail, submissionDetailArgumentCaptor, form, modelAndView);
+  }
+
+  @Test
+  void startCorrectionForType_historicUpdate_forField() {
+    var previousSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(previousSubmissionDetail.getId())).thenReturn(previousSubmissionDetail);
+    var form = new CorrectionForm();
+    form.setCorrectionType(CorrectionType.HISTORIC_UPDATE);
+    form.setSubmissionIdForMissingUpdate(previousSubmissionDetail.getId().toString());
+
+    assertThatThrownBy(() -> correctionService.startCorrectionForTypeAndRedirect(form, user))
+        .hasMessage("Corrections can only be done for prospects and discoveries")
+        .isExactlyInstanceOf(ActionNotAllowedException.class);;
+  }
+
+  private void historicUpdateAssertions(SubmissionDetail previousSubmissionDetail,
+                                        SubmissionDetail newSubmissionDetail,
+                                        ArgumentCaptor<SubmissionDetail> submissionDetailArgumentCaptor,
+                                        CorrectionForm form,
+                                        ModelAndView modelAndView) {
+    verify(submissionDetailDuplicationService, times(1)).duplicateSubmissionDetailSections(previousSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDetailPersistenceService, times(1)).saveSubmissionDetail(submissionDetailArgumentCaptor.capture());
+    var submissionDetail = submissionDetailArgumentCaptor.getValue();
+    var approvedDate = LocalDate.of(
+        Integer.parseInt(form.getMissingUpdateYear()),
+        Integer.parseInt(form.getMissingUpdateMonth()),
+        Integer.parseInt(form.getMissingUpdateDay())
+    ).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    var wuaId = user.wuaId().intValue();
+
+    assertThat(submissionDetail).extracting(
+        SubmissionDetail::getStatus,
+        SubmissionDetail::getSubmittedByWuaId,
+        SubmissionDetail::getSubmittedTimestamp,
+        SubmissionDetail::getApprovedByWuaId,
+        SubmissionDetail::getApprovedTimestamp,
+        SubmissionDetail::isCorrection,
+        SubmissionDetail::getCorrectionByWuaId,
+        SubmissionDetail::getSubmitterType
+    ).containsExactly(
+        SubmissionDetailStatus.DRAFT,
+        wuaId,
+        approvedDate,
+        wuaId,
+        approvedDate,
+        true,
+        wuaId,
+        SubmitterType.REGULATOR
+    );
+    assertNotNull(submissionDetail.getCorrectionTimestamp());
+    assertEquals(
+        ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId())).getView(),
+        modelAndView.getView()
+    );
   }
 
   @Test
@@ -216,10 +304,11 @@ class CorrectionServiceTest {
     when(submissionCreateService.createUpdateSubmissionDetail(selectedSubmissionDetail)).thenReturn(correctionSubmissionDetail);
     var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
 
-    correctionService.startCorrectionForType(form, user);
+    var modelAndView = correctionService.startCorrectionForTypeAndRedirect(form, user);
 
     verify(submissionDetailPersistenceService, times(1)).saveSubmissionDetail(submissionDetailArgumentCaptor.capture());
 
+    var submissionDetail = submissionDetailArgumentCaptor.getValue();
     var approvedDate = LocalDate.of(
         Integer.parseInt(form.getApprovalDateChangeYear()),
         Integer.parseInt(form.getApprovalDateChangeMonth()),
@@ -227,7 +316,7 @@ class CorrectionServiceTest {
     ).atStartOfDay(ZoneId.systemDefault()).toInstant();
     var wuaId = user.wuaId().intValue();
 
-    assertThat(submissionDetailArgumentCaptor.getValue()).extracting(
+    assertThat(submissionDetail).extracting(
         SubmissionDetail::getStatus,
         SubmissionDetail::getSubmittedByWuaId,
         SubmissionDetail::getSubmittedTimestamp,
@@ -246,20 +335,12 @@ class CorrectionServiceTest {
         wuaId,
         SubmitterType.REGULATOR
     );
-    assertNotNull(submissionDetailArgumentCaptor.getValue().getCorrectionTimestamp());
-
-  }
-
-  @Test
-  void getCorrectionRedirectForType_approvalDateChange() {
-    var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
-    var modelAndView = correctionService.getCorrectionRedirectForType(form, submissionDetail);
+    assertNotNull(submissionDetail.getCorrectionTimestamp());
     assertEquals(
         ReverseRouter.redirect(on(ViewResourceRecordController.class)
             .showSubmissionSummary(submissionDetail.getSubmission().getResource().getId(), submissionDetail.getId(), null)).getView(),
-        modelAndView.getView());
+        modelAndView.getView()
+    );
   }
 
   @Test
@@ -267,18 +348,9 @@ class CorrectionServiceTest {
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.REMOVE_SUBMISSION);
 
-    var submissionDetail = correctionService.startCorrectionForType(form, user);
+    var submissionDetail = correctionService.startCorrectionForTypeAndRedirect(form, user);
 
     assertNull(submissionDetail);
 
-  }
-
-  @Test
-  void getCorrectionRedirectForType_removeSubmission() {
-    var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.REMOVE_SUBMISSION);
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
-    var modelAndView = correctionService.getCorrectionRedirectForType(form, submissionDetail);
-    assertNull(modelAndView);
   }
 }
