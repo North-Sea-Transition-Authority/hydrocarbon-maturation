@@ -42,7 +42,7 @@ public class FieldPersistenceService {
     var field = new Field();
 
     field.setResource(resource);
-    field.setFieldStatus(FieldStatus.UNDER_APPRAISAL_NO_FDP_200);
+    field.setFieldStatus(FieldStatus.STATUS_200);
 
     field.setLegalFieldName(form.getLegalFieldName());
     field.setCorrectedLegalFieldName(form.getCorrectedLegalFieldName());

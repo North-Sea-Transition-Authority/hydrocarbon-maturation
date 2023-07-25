@@ -92,7 +92,7 @@ class FieldPersistenceServiceTest {
           )
           .containsExactly(
               resource,
-              FieldStatus.UNDER_APPRAISAL_NO_FDP_200
+              FieldStatus.STATUS_200
           );
     }
 
@@ -178,7 +178,7 @@ class FieldPersistenceServiceTest {
           )
           .containsExactly(
               resource,
-              FieldStatus.UNDER_APPRAISAL_NO_FDP_200,
+              FieldStatus.STATUS_200,
               LEGAL_NAME,
               CORRECTED_LEGAL_NAME,
               COMMON_NAME,

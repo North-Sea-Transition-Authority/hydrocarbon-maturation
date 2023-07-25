@@ -53,22 +53,22 @@ public class FieldQueryService {
     HashSet<FieldStatus> allowedStatuses = new HashSet<>();
 
     switch (submissionType) {
-      case CREATE_CSR -> allowedStatuses.add(FieldStatus.UNDER_APPRAISAL_NO_FDP_200);
+      case CREATE_CSR -> allowedStatuses.add(FieldStatus.STATUS_200);
       case CREATE_FDP -> allowedStatuses.addAll(Set.of(
-          FieldStatus.UNDER_APPRAISAL_NO_FDP_200,
-          FieldStatus.UNDER_APPRAISAL_FUTURE_FDP_CSR_RECEIVED_300,
-          FieldStatus.APPRAISAL_FDP_UNDER_DISCUSSION_CSR_APPROVED_400));
+          FieldStatus.STATUS_200,
+          FieldStatus.STATUS_300,
+          FieldStatus.STATUS_400));
       case CREATE_FDPA -> allowedStatuses.addAll(Set.of(
-          FieldStatus.CONSTRUCTION_FDP_APPROVED_CONSENTED_600,
-          FieldStatus.PRODUCING_700,
-          FieldStatus.PRODUCTION_SUSPENDED_POSSIBLE_RESERVES_REMAIN_799,
-          FieldStatus.PRODUCTION_SUSPENDED_800,
-          FieldStatus.PRODUCTION_CEASED_VENT_CONSENT_NEEDED_899));
+          FieldStatus.STATUS_600,
+          FieldStatus.STATUS_700,
+          FieldStatus.STATUS_799,
+          FieldStatus.STATUS_800,
+          FieldStatus.STATUS_899));
       case CREATE_COP -> allowedStatuses.addAll(Set.of(
-          FieldStatus.PRODUCING_700,
-          FieldStatus.PRODUCTION_SUSPENDED_POSSIBLE_RESERVES_REMAIN_799,
-          FieldStatus.PRODUCTION_SUSPENDED_800,
-          FieldStatus.PRODUCTION_CEASED_VENT_CONSENT_NEEDED_899));
+          FieldStatus.STATUS_700,
+          FieldStatus.STATUS_799,
+          FieldStatus.STATUS_800,
+          FieldStatus.STATUS_899));
       default -> throw new ActionNotAllowedException("No field statuses for submission type: %s".formatted(submissionType));
     }
 
