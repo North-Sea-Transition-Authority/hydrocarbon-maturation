@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.P
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirListController;
 
 @Service
 public class ReservoirTaskListSectionService implements TaskListSectionService {
@@ -31,12 +31,25 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
   @Override
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
 
-    var items = new ArrayList<>(List.of(
+    var items = new ArrayList<TaskListItem>();
+
+    if (submissionDetail.isDiscoverySubmission()) {
+      items.add(
+          new TaskListItem("Discovery reservoirs",
+              //TODO base task list label on completeness of reservoir sub-tasks
+              TaskListLabel.NOT_COMPLETE,
+              //TODO redirect to reservoir sub task list if any reservoirs are saved
+              ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetail.getId(), null)))
+      );
+    }
+
+    items.add(
         new TaskListItem("Reservoir properties",
             TaskListLabel.notStartedOrComplete(
                 reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail)),
             ReverseRouter.route(
-                on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetail.getId())))));
+                on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetail.getId())))
+    );
 
     if (submissionDetail.isDryWellOrDiscoverySubmission()) {
       items.add(new TaskListItem("Permeability",

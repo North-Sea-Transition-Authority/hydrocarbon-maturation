@@ -26,7 +26,9 @@ public class ErrorSummaryHandlerInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+  public void postHandle(HttpServletRequest request,
+                         HttpServletResponse response,
+                         Object handler,
                          ModelAndView modelAndView) {
     if (modelAndView != null) {
       var bindingResult = (BindingResult) modelAndView.getModelMap().get(BindingResult.MODEL_KEY_PREFIX + MODEL_FORM);
