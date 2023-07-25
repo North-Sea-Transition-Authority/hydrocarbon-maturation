@@ -104,7 +104,7 @@ public enum SubmissionType implements Displayable {
   ),
   CREATE_FDPA(
       "Field Development Plan Addendum  (FDPA)",
-          "Provide a field development addendum  (FDPA)",
+          "Provide a field development plan addendum  (FDPA)",
       Set.of(ResourceType.FIELD),
       Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
   RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
