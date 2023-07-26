@@ -41,7 +41,7 @@ class ReservoirListFormServiceTest {
     var reservoirSubmissionDetail2 = new ReservoirSubmissionDetail();
     reservoirSubmissionDetail2.setReservoir(reservoir2);
     var reservoirSubmissionList = List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionList);
     var reservoirListForm = reservoirListFormService.getReservoirForm(submissionDetail);
     assertThat(reservoirListForm.getReservoirs()).containsExactly(RESERVOIR_NAME_1, RESERVOIR_NAME_2);

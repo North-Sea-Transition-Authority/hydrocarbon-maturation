@@ -26,12 +26,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/mixed-case-volumetrics")
+@RequestMapping("/submission-details/{submissionDetailId}/" +
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/mixed-case-volumetrics")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.DISCOVERY_AND_PROSPECT)
 @IsFromResponsibleTeam
@@ -42,6 +44,7 @@ public class MixedCaseVolumetricsController {
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final MixedCaseVolumetricsFormService mixedCaseVolumetricsFormService;
   private final MixedCaseVolumetricsPersistenceService mixedCaseVolumetricsPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   public static final String PAGE_NAME = "Mixed case volumetrics parameters";
 
@@ -50,35 +53,43 @@ public class MixedCaseVolumetricsController {
                                         ControllerHelperService controllerHelperService,
                                         ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
                                         MixedCaseVolumetricsFormService mixedCaseVolumetricsFormService,
-                                        MixedCaseVolumetricsPersistenceService mixedCaseVolumetricsPersistenceService) {
+                                        MixedCaseVolumetricsPersistenceService mixedCaseVolumetricsPersistenceService,
+                                        ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.mixedCaseVolumetricsFormService = mixedCaseVolumetricsFormService;
     this.mixedCaseVolumetricsPersistenceService = mixedCaseVolumetricsPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getMixedCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                              @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                               @ModelAttribute("form") MixedCaseVolumetricsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getMixedCaseVolumetricsModelAndView(
-        mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail), submissionDetail);
+        mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail), submissionDetail);
   }
 
   @PostMapping
   public ModelAndView saveMixedCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                               @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                                @Valid @ModelAttribute("form") MixedCaseVolumetricsForm form,
                                                BindingResult bindingResult,
                                                ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     bindingResult = mixedCaseVolumetricsFormService.validate(form, bindingResult, validationType, submissionDetail);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getMixedVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          mixedCaseVolumetricsPersistenceService.saveMixedCaseVolumetrics(form, submissionDetail);
+          mixedCaseVolumetricsPersistenceService.saveMixedCaseVolumetrics(form, reservoirSubmissionDetail);
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );

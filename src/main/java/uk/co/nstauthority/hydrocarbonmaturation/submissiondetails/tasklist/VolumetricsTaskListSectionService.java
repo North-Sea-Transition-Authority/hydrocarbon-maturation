@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 
 
 @Service
@@ -37,6 +38,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
   private final MixedCaseOutputsSubmissionService mixedCaseOutputsSubmissionService;
   private final MixedCaseVolumetricsSubmissionService mixedCaseVolumetricsSubmissionService;
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   public VolumetricsTaskListSectionService(HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
                                            OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService,
@@ -45,7 +47,9 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
                                            GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService,
                                            MixedCaseOutputsSubmissionService mixedCaseOutputsSubmissionService,
                                            MixedCaseVolumetricsSubmissionService mixedCaseVolumetricsSubmissionService,
-                                           DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService) {
+                                           DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
+                                           ReservoirSubmissionDetailPersistenceService
+                                               reservoirSubmissionDetailPersistenceService) {
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
     this.oilCaseVolumetricsSubmissionService = oilCaseVolumetricsSubmissionService;
     this.oilCaseOutputsSubmissionService = oilCaseOutputsSubmissionService;
@@ -54,6 +58,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
     this.mixedCaseOutputsSubmissionService = mixedCaseOutputsSubmissionService;
     this.mixedCaseVolumetricsSubmissionService = mixedCaseVolumetricsSubmissionService;
     this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @Override
@@ -75,6 +80,8 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     if (submissionDetail.isDiscoverySubmission() || submissionDetail.isProspectSubmission()) {
+      var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+          .getReservoirSubmissionDetail(submissionDetail);
       var discoveryWellDetail = discoveryWellDetailsPersistenceService
           .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
           .orElseGet(DiscoveryWellDetail::new);
@@ -88,18 +95,20 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
       var sectionSubmittable = true;
 
       if (gasOnly) {
-        sectionSubmittable = gasCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)
-            && gasCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail);
+        sectionSubmittable = gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)
+            && gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
       }
 
       if (oilOnly) {
-        sectionSubmittable = sectionSubmittable && oilCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)
-            && oilCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail);
+        sectionSubmittable = sectionSubmittable
+            && oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)
+            && oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
       }
 
       if (oilAndGas) {
-        sectionSubmittable = sectionSubmittable && mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)
-            && mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail);
+        sectionSubmittable = sectionSubmittable
+            && mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)
+            && mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
       }
 
       return sectionSubmittable;
@@ -108,6 +117,8 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
   }
 
   private List<TaskListItem> getTaskListItemsByHydrocarbonCase(SubmissionDetail submissionDetail) {
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetail(submissionDetail);
     var discoveryWellDetail = discoveryWellDetailsPersistenceService
         .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
         .orElseGet(DiscoveryWellDetail::new);
@@ -124,17 +135,17 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
       listOfItems.add(
           new TaskListItem("Oil case volumetrics parameters",
               TaskListLabel.notStartedOrComplete(
-                  oilCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)),
+                  oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(OilCaseVolumetricsController.class)
-                  .getOilCaseVolumetrics(submissionDetail.getId(), null)))
+                  .getOilCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
       );
       listOfItems.add(
           new TaskListItem(
               "Oil case outputs (resources)",
               TaskListLabel.notStartedOrComplete(
-                  oilCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)),
+                  oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(OilCaseOutputsController.class)
-                  .getOilCaseOutputs(submissionDetail.getId(), null)))
+                  .getOilCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
       );
     }
 
@@ -142,16 +153,16 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
       listOfItems.add(
           new TaskListItem("Gas case volumetrics parameters",
               TaskListLabel.notStartedOrComplete(
-                  gasCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)),
+                  gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(GasCaseVolumetricsController.class)
-                  .getGasCaseVolumetrics(submissionDetail.getId(), null)))
+                  .getGasCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
       );
       listOfItems.add(
           new TaskListItem(
               "Gas case outputs (resources)",
-              TaskListLabel.notStartedOrComplete(gasCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)),
+              TaskListLabel.notStartedOrComplete(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(GasCaseOutputsController.class)
-                  .getGasCaseOutputs(submissionDetail.getId(), null)))
+                  .getGasCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
       );
     }
 
@@ -159,17 +170,17 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
       listOfItems.add(
           new TaskListItem("Mixed case volumetrics parameters",
               TaskListLabel.notStartedOrComplete(
-                  mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail)),
+                  mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(MixedCaseVolumetricsController.class)
-                  .getMixedCaseVolumetrics(submissionDetail.getId(), null)))
+                  .getMixedCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
       );
       listOfItems.add(
           new TaskListItem(
               "Mixed case outputs (resources)",
               TaskListLabel.notStartedOrComplete(
-                  mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail)),
+                  mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(MixedCaseOutputsController.class)
-                  .getMixedCaseOutputs(submissionDetail.getId(), null)))
+                  .getMixedCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
       );
     }
     return listOfItems;

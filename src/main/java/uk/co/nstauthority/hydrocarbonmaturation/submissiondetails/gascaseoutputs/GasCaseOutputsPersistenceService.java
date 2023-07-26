@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 class GasCaseOutputsPersistenceService {
@@ -22,13 +22,14 @@ class GasCaseOutputsPersistenceService {
   }
 
   @Transactional
-  public void saveGasCaseOutputs(GasCaseOutputsForm gasCaseOutputsForm, SubmissionDetail submissionDetail) {
+  public void saveGasCaseOutputs(GasCaseOutputsForm gasCaseOutputsForm, ReservoirSubmissionDetail reservoirSubmissionDetail) {
 
-    var gasCaseOutput = getGasCaseOutput(submissionDetail).orElseGet(GasCaseOutput::new);
-    gasCaseOutput.setSubmissionDetail(submissionDetail);
+    var gasCaseOutput = getGasCaseOutput(reservoirSubmissionDetail).orElseGet(GasCaseOutput::new);
+    gasCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     gasCaseOutput.setHasAssociatedCondensateRecoverableResources(
         gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources());
 
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var resourceType = submissionDetail.getSubmission().getResource().getType();
 
     var gasInPlace = ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT;
@@ -38,7 +39,8 @@ class GasCaseOutputsPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         gasInPlace,
         gasCaseOutputsForm.getGasInPlace(),
-        submissionDetail
+        submissionDetail,
+        reservoirSubmissionDetail
     );
 
     var gasRecoverableResources =
@@ -49,7 +51,8 @@ class GasCaseOutputsPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         gasRecoverableResources,
         gasCaseOutputsForm.getGasRecoverableResources(),
-        submissionDetail
+        submissionDetail,
+        reservoirSubmissionDetail
     );
 
     var associatedCondensateRecoverableResources =
@@ -63,13 +66,14 @@ class GasCaseOutputsPersistenceService {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           associatedCondensateRecoverableResources,
           gasCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
-          submissionDetail
+          submissionDetail,
+          reservoirSubmissionDetail
       );
     } else if (gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources() != null
         && !gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources()) {
       probabilityDistributionPersistenceService.deleteProbabilityDistribution(
           associatedCondensateRecoverableResources,
-          submissionDetail
+          reservoirSubmissionDetail
       );
     }
 
@@ -82,13 +86,14 @@ class GasCaseOutputsPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         oilEquivalentRecoverableResources,
         gasCaseOutputsForm.getOilEquivalentRecoverableResources(),
-        submissionDetail
+        submissionDetail,
+        reservoirSubmissionDetail
     );
 
     gasCaseOutputsRepository.save(gasCaseOutput);
   }
 
-  public Optional<GasCaseOutput> getGasCaseOutput(SubmissionDetail submissionDetail) {
-    return gasCaseOutputsRepository.findBySubmissionDetail(submissionDetail);
+  public Optional<GasCaseOutput> getGasCaseOutput(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return gasCaseOutputsRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 }

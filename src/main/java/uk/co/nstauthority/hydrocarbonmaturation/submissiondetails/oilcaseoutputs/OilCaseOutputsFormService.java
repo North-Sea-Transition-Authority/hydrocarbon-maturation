@@ -10,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -40,57 +41,58 @@ public class OilCaseOutputsFormService implements SubmissionFormService {
     return bindingResult;
   }
 
-  OilCaseOutputsForm getOilCaseOutputsForm(SubmissionDetail submissionDetail) {
-    return submissionDetailToForm(submissionDetail);
+  OilCaseOutputsForm getOilCaseOutputsForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return reservoirSubmissionDetailToForm(reservoirSubmissionDetail);
   }
 
-  private OilCaseOutputsForm submissionDetailToForm(SubmissionDetail submissionDetail) {
+  private OilCaseOutputsForm reservoirSubmissionDetailToForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var form = new OilCaseOutputsForm();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       form.setOilInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT
       ));
 
       form.setOilRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT
       ));
 
       form.setAssociatedGasRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT
       ));
 
       form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
       ));
     } else if (resourceType == ResourceType.DISCOVERY) {
       form.setOilInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY
       ));
 
       form.setOilRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY
       ));
 
       form.setAssociatedGasRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
       ));
 
       form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
       ));
     }
 
-    var oilCaseOutput = oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail);
+    var oilCaseOutput = oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail);
 
     var riskedOilEquivalentRecoverableMean = oilCaseOutput
         .map(OilCaseOutput::getRiskedOilEquivalentRecoverableMean)

@@ -1,0 +1,10 @@
+ALTER TABLE probability_distributions
+ALTER COLUMN submission_detail_id DROP NOT NULL;
+ALTER TABLE probability_distributions
+ADD COLUMN reservoir_submission_detail_id UUID NULL;
+ALTER TABLE probability_distributions
+DROP CONSTRAINT probability_distributions_fk;
+ALTER TABLE probability_distributions
+ADD CONSTRAINT submission_details_probability_distributions_fk FOREIGN KEY (submission_detail_id) REFERENCES submission_details (id);
+ALTER TABLE probability_distributions
+ADD CONSTRAINT reservoir_submission_details_probability_distributions_fk FOREIGN KEY (reservoir_submission_detail_id) REFERENCES reservoir_submission_details (id);

@@ -21,6 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -40,6 +42,7 @@ class MixedCaseOutputsFormServiceTest {
   private MixedCaseOutputsFormService mixedCaseOutputsFormService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
   void validate_verifyMethodCall() {
@@ -58,31 +61,31 @@ class MixedCaseOutputsFormServiceTest {
   @Test
   void getMixedCaseOutputsForm_newEntity_thenEmptyForm() {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
 
-    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(submissionDetail))
+    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(new MixedCaseOutput()));
 
-    assertThat(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail))
+    assertThat(mixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilInPlace().getProbabilityDistributionType(),
@@ -112,34 +115,34 @@ class MixedCaseOutputsFormServiceTest {
         ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
 
     MixedCaseOutput mixedCaseOutput = new MixedCaseOutput();
     mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
-    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(submissionDetail))
+    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
 
-    assertThat(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail))
+    assertThat(mixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getCustom().getConstant(),
@@ -194,39 +197,40 @@ class MixedCaseOutputsFormServiceTest {
   @Test
   void getMixedCaseOutputsForm_existingDiscoveryEntity_thenPopulatedForm() {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
 
     var probabilityDistributionForm =
         ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
 
     MixedCaseOutput mixedCaseOutput = new MixedCaseOutput();
     mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
-    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(discoverySubmissionDetail))
+    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(discoveryReservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
 
-    assertThat(mixedCaseOutputsFormService.getMixedCaseOutputsForm(discoverySubmissionDetail))
+    assertThat(mixedCaseOutputsFormService.getMixedCaseOutputsForm(discoveryReservoirSubmissionDetail))
         .extracting(
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getCustom().getConstant(),
@@ -284,32 +288,32 @@ class MixedCaseOutputsFormServiceTest {
         ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
 
     MixedCaseOutput mixedCaseOutput = new MixedCaseOutput();
-    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(submissionDetail))
+    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
 
-    assertThat(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail))
+    assertThat(mixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getCustom().getConstant(),

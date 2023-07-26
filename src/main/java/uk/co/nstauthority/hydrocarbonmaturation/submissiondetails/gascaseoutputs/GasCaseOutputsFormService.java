@@ -8,6 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -34,15 +35,16 @@ class GasCaseOutputsFormService implements SubmissionFormService {
     return bindingResult;
   }
 
-  GasCaseOutputsForm getGasCaseOutputsForm(SubmissionDetail submissionDetail) {
-    return submissionDetailToForm(submissionDetail);
+  GasCaseOutputsForm getGasCaseOutputsForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return reservoirSubmissionDetailToForm(reservoirSubmissionDetail);
   }
 
-  private GasCaseOutputsForm submissionDetailToForm(SubmissionDetail submissionDetail) {
+  private GasCaseOutputsForm reservoirSubmissionDetailToForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var form = new GasCaseOutputsForm();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     var hasAssociatedCondensateRecoverableResources = gasCaseOutputsPersistenceService.getGasCaseOutput(
-            submissionDetail)
+            reservoirSubmissionDetail)
         .map(GasCaseOutput::getHasAssociatedCondensateRecoverableResources)
         .orElse(null);
 
@@ -51,44 +53,44 @@ class GasCaseOutputsFormService implements SubmissionFormService {
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       form.setGasInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT
       ));
 
       form.setGasRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT
       ));
 
       form.setAssociatedCondensateRecoverableResources(
           probabilityDistributionFormService.probabilityDistributionEntityToForm(
-              submissionDetail,
+              reservoirSubmissionDetail,
               ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT
           ));
 
       form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
       ));
     } else if (resourceType == ResourceType.DISCOVERY) {
       form.setGasInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
       ));
 
       form.setGasRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY
       ));
 
       form.setAssociatedCondensateRecoverableResources(
           probabilityDistributionFormService.probabilityDistributionEntityToForm(
-              submissionDetail,
+              reservoirSubmissionDetail,
               ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
           ));
 
       form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
       ));
     }

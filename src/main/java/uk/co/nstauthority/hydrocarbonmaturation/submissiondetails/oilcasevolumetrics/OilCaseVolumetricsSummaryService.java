@@ -8,7 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 public class OilCaseVolumetricsSummaryService {
@@ -20,8 +20,10 @@ public class OilCaseVolumetricsSummaryService {
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
   }
 
-  public ProbabilityDistributionsFormSummaryView getOilCaseVolumetricsSummaryView(SubmissionDetail submissionDetail) {
+  public ProbabilityDistributionsFormSummaryView getOilCaseVolumetricsSummaryView(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var resourceType = submissionDetail.getSubmission().getResource().getType();
 
     if (resourceType == ResourceType.PROSPECT) {
@@ -43,7 +45,7 @@ public class OilCaseVolumetricsSummaryService {
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
     listOfInstances.forEach(instance -> listOfSummaryViews.add(
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail)));
+            instance, submissionDetail, reservoirSubmissionDetail)));
     return new ProbabilityDistributionsFormSummaryView(listOfSummaryViews);
   }
 }

@@ -7,7 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 
 @Service
@@ -23,15 +23,17 @@ public class GasCaseOutputsSummaryService {
     this.gasCaseOutputsPersistenceService = gasCaseOutputsPersistenceService;
   }
 
-  public GasCaseOutputsSummaryView getGasCaseOutputsSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    var gasCaseOutput = gasCaseOutputsPersistenceService.getGasCaseOutput(submissionDetail);
+  public GasCaseOutputsSummaryView getGasCaseOutputsSummaryFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var gasCaseOutput = gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail);
     return gasCaseOutput.map(this::createSummaryViewFromGasCaseOutput)
         .orElse(GasCaseOutputsSummaryView.empty());
   }
 
   private GasCaseOutputsSummaryView createSummaryViewFromGasCaseOutput(GasCaseOutput gasCaseOutput) {
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
-    var submissionDetail = gasCaseOutput.getSubmissionDetail();
+    var reservoirSubmissionDetail = gasCaseOutput.getReservoirSubmissionDetail();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var hasAssociatedGasRecoverableResources = BooleanUtil.yesNoFromBoolean(
         gasCaseOutput.getHasAssociatedCondensateRecoverableResources(), "");
 
@@ -67,7 +69,7 @@ public class GasCaseOutputsSummaryService {
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
     listOfInstances.forEach(instance -> listOfSummaryViews.add(
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail)));
+            instance, submissionDetail, reservoirSubmissionDetail)));
     return new GasCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, listOfSummaryViews);
   }
 }

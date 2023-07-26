@@ -30,4 +30,12 @@ public class SubmissionDetailUtil {
         || submissionType == SubmissionType.PROSPECT_UPDATE
         || submissionType == SubmissionType.RELINQUISHMENT_PROSPECT;
   }
+
+  public static boolean isFieldSubmission(SubmissionType submissionType) {
+    return submissionType == SubmissionType.CREATE_FIELD
+        || submissionType == SubmissionType.CREATE_FDP
+        || submissionType == SubmissionType.CREATE_CSR
+        || submissionType == SubmissionType.CREATE_COP
+        || submissionType == SubmissionType.CREATE_FDPA;
+  }
 }

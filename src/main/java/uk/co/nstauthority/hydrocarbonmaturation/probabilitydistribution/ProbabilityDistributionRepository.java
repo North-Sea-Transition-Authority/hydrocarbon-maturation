@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Repository
 interface ProbabilityDistributionRepository
@@ -21,5 +22,16 @@ interface ProbabilityDistributionRepository
       ProbabilityDistributionFieldInstance instance);
 
   List<ProbabilityDistribution> findBySubmissionDetailAndInstanceIn(SubmissionDetail submissionDetail,
+                                                                    Set<ProbabilityDistributionFieldInstance> instances);
+
+  Optional<ProbabilityDistribution> findByReservoirSubmissionDetailAndInstance(
+      ReservoirSubmissionDetail reservoirSubmissionDetail,
+      ProbabilityDistributionFieldInstance instance);
+
+  void deleteByReservoirSubmissionDetailAndInstance(
+      ReservoirSubmissionDetail reservoirSubmissionDetail,
+      ProbabilityDistributionFieldInstance instance);
+
+  List<ProbabilityDistribution> findByReservoirSubmissionDetailAndInstanceIn(ReservoirSubmissionDetail reservoirSubmissionDetail,
                                                                     Set<ProbabilityDistributionFieldInstance> instances);
 }

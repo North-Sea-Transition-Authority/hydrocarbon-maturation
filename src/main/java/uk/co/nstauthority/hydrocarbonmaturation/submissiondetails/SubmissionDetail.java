@@ -183,6 +183,10 @@ public class SubmissionDetail {
     return SubmissionDetailUtil.isDiscoverySubmission(submissionType);
   }
 
+  public boolean isFieldSubmission() {
+    return SubmissionDetailUtil.isFieldSubmission(submissionType);
+  }
+
   public boolean isApprovedOrSubmittedSubmission() {
     return status == SubmissionDetailStatus.SUBMITTED
         || status == SubmissionDetailStatus.APPROVED;

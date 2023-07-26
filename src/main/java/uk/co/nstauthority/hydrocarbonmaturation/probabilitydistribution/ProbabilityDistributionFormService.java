@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 public class ProbabilityDistributionFormService {
@@ -21,18 +22,30 @@ public class ProbabilityDistributionFormService {
       ProbabilityDistributionFieldInstance instance
   ) {
     return probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, instance)
-        .map(probabilityDistribution -> {
-          if (probabilityDistribution.getDistributionType() == null) {
-            return createProbabilityDistributionForm(instance);
-          }
-          var exceedanceForm = getExceedanceFormFromEntity(probabilityDistribution);
-
-          var form = createProbabilityDistributionForm(instance, probabilityDistribution.getDistributionType());
-          form.setProbabilityOfExceedanceForm(exceedanceForm);
-
-          return form;
-        })
+        .map(probabilityDistribution -> createProbabilityDistributionForm(probabilityDistribution, instance))
         .orElseGet(() -> createProbabilityDistributionForm(instance));
+  }
+
+  public ProbabilityDistributionForm probabilityDistributionEntityToForm(
+      ReservoirSubmissionDetail reservoirSubmissionDetail,
+      ProbabilityDistributionFieldInstance instance
+  ) {
+    return probabilityDistributionPersistenceService.getProbabilityDistribution(reservoirSubmissionDetail, instance)
+        .map(probabilityDistribution -> createProbabilityDistributionForm(probabilityDistribution, instance))
+        .orElseGet(() -> createProbabilityDistributionForm(instance));
+  }
+
+  private ProbabilityDistributionForm createProbabilityDistributionForm(ProbabilityDistribution probabilityDistribution,
+                                                                        ProbabilityDistributionFieldInstance instance) {
+    if (probabilityDistribution.getDistributionType() == null) {
+      return createProbabilityDistributionForm(instance);
+    }
+    var exceedanceForm = getExceedanceFormFromEntity(probabilityDistribution);
+
+    var form = createProbabilityDistributionForm(instance, probabilityDistribution.getDistributionType());
+    form.setProbabilityOfExceedanceForm(exceedanceForm);
+
+    return form;
   }
 
   private ProbabilityDistributionForm createProbabilityDistributionForm(ProbabilityDistributionFieldInstance instance,

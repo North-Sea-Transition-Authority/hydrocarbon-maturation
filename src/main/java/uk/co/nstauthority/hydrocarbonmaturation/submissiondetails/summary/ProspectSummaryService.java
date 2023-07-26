@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaxi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
@@ -111,32 +112,34 @@ class ProspectSummaryService {
     return reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
   }
 
-  public ProbabilityDistributionsFormSummaryView getOilCaseVolumetricsSummaryViewFromSubmissionDetail(
-      SubmissionDetail submissionDetail) {
-    return oilCaseVolumetricsSummaryService.getOilCaseVolumetricsSummaryView(submissionDetail);
+  public ProbabilityDistributionsFormSummaryView getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return oilCaseVolumetricsSummaryService.getOilCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
-  public OilCaseOutputsSummaryView getOilCaseOutputsSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    return oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+  public OilCaseOutputsSummaryView getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
-  public ProbabilityDistributionsFormSummaryView getGasCaseVolumetricsSummaryViewFromSubmissionDetail(
-      SubmissionDetail submissionDetail) {
-    return gasCaseVolumetricsSummaryService.getGasCaseVolumetricsSummaryView(submissionDetail);
+  public ProbabilityDistributionsFormSummaryView getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return gasCaseVolumetricsSummaryService.getGasCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
-  public GasCaseOutputsSummaryView getGasCaseOutputsSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    return gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+  public GasCaseOutputsSummaryView getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
-  public ProbabilityDistributionsFormSummaryView getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(
-      SubmissionDetail submissionDetail) {
-    return mixedCaseVolumetricsSummaryService.getMixedCaseVolumetricsSummaryView(submissionDetail);
+  public ProbabilityDistributionsFormSummaryView getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return mixedCaseVolumetricsSummaryService.getMixedCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
-  public MixedCaseOutputsSummaryView getMixedCaseOutputsSummaryViewFromSubmissionDetail(
-      SubmissionDetail submissionDetail) {
-    return mixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+  public MixedCaseOutputsSummaryView getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return mixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   public TrapPropertiesSummaryView getTrapPropertiesSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {

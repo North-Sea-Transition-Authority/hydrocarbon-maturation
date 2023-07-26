@@ -46,7 +46,7 @@ class ReservoirSubmissionDetailPersistenceServiceTest {
   @Test
   void getAllReservoirsForSubmissionDetail() {
     var submissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY);
-    reservoirSubmissionDetailPersistenceService.getAllReservoirsForSubmissionDetail(submissionDetail);
+    reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
     verify(reservoirSubmissionDetailRepository, times(1)).findBySubmissionDetailOrderByReservoir_Name(submissionDetail);
   }
 

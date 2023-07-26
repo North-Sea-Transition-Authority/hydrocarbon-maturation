@@ -1,8 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 public class ProbabilityDistributionSummaryService {
@@ -17,10 +19,20 @@ public class ProbabilityDistributionSummaryService {
   public ProbabilityDistributionSummaryView getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
       ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
       SubmissionDetail submissionDetail) {
+    return getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+        probabilityDistributionFieldInstance, submissionDetail, null);
+  }
+
+  public ProbabilityDistributionSummaryView getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+      ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
+      SubmissionDetail submissionDetail,
+      @Nullable ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var probabilityDistribution =
-        probabilityDistributionPersistenceService.getProbabilityDistribution(
-            submissionDetail,
-            probabilityDistributionFieldInstance)
+        (reservoirSubmissionDetail == null
+            ? probabilityDistributionPersistenceService
+            .getProbabilityDistribution(submissionDetail, probabilityDistributionFieldInstance)
+            : probabilityDistributionPersistenceService
+            .getProbabilityDistribution(reservoirSubmissionDetail, probabilityDistributionFieldInstance))
             .orElse(null);
 
     if (probabilityDistribution == null) {

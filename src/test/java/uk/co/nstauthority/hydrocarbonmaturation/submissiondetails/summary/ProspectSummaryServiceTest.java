@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
@@ -21,6 +22,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService;
@@ -68,18 +71,19 @@ class ProspectSummaryServiceTest {
   private OpportunityDetailsSummaryService opportunityDetailsSummaryService;
 
   @Mock
-  private OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService;
+  private ResourceDetailSummaryService resourceDetailSummaryService;
 
   @Mock
-  private ResourceDetailSummaryService resourceDetailSummaryService;
+  private OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService;
 
   @InjectMocks
   private ProspectSummaryService prospectSummaryService;
 
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+
   @Test
   void getGeneralDetailSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
     prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail);
 
     verify(generalDetailSummaryService, times(1))
@@ -88,8 +92,6 @@ class ProspectSummaryServiceTest {
 
   @Test
   void getResourceDetailSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
     prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail);
 
     verify(resourceDetailSummaryService, times(1))
@@ -98,19 +100,7 @@ class ProspectSummaryServiceTest {
 
 
   @Test
-  void getOpportunityDetailsSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
-    prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail);
-
-    verify(opportunityDetailsSummaryService, times(1))
-        .getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
-  }
-
-  @Test
   void getSourceAndSealSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
     prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail);
 
     verify(sourceAndSealSummaryService, times(1))
@@ -119,8 +109,6 @@ class ProspectSummaryServiceTest {
 
   @Test
   void getChanceOfSuccessSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
     prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail);
 
     verify(chanceOfSuccessSummaryService, times(1))
@@ -129,8 +117,6 @@ class ProspectSummaryServiceTest {
 
   @Test
   void getHydrocarbonCaseSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
     prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail);
 
     verify(hydrocarbonCaseSummaryService, times(1))
@@ -139,8 +125,6 @@ class ProspectSummaryServiceTest {
 
   @Test
   void getReservoirPropertiesSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
     prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail);
 
     verify(reservoirPropertiesSummaryService, times(1))
@@ -148,69 +132,55 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
-  void getOilCaseVolumetricsSummaryViewFromSubmissionDetail() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
-    prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail() {
+    prospectSummaryService.getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(oilCaseVolumetricsSummaryService, times(1))
-        .getOilCaseVolumetricsSummaryView(submissionDetail);
+        .getOilCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
   @Test
-  void getOilCaseOutputsSummaryViewFromSubmissionDetail() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
-    prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail() {
+    prospectSummaryService.getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(oilCaseOutputsSummaryService, times(1))
-        .getOilCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+        .getOilCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test
-  void getGasCaseVolumetricsSummaryViewFromSubmissionDetail() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
-    prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getGasCaseVolumetricsSummaryViewFromReservoirSubmisionDetail() {
+    prospectSummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(gasCaseVolumetricsSummaryService, times(1))
-        .getGasCaseVolumetricsSummaryView(submissionDetail);
+        .getGasCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
   @Test
-  void getGasCaseOutputsSummaryViewFromSubmissionDetail() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
-    prospectSummaryService.getGasCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail() {
+    prospectSummaryService.getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(gasCaseOutputsSummaryService, times(1))
-        .getGasCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+        .getGasCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test
-  void getMixedCaseOutputsSummaryViewFromSubmissionDetail() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
-    prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getMixedCaseOutputsSummaryViewFromReservoirSubmisionDetail() {
+    prospectSummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(mixedCaseOutputsSummaryService, times(1))
-        .getMixedCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+        .getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test
-  void getMixedCaseVolumetricsSummaryViewFromSubmissionDetail() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
-    prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getMixedCaseVolumetricsSummaryViewFromReservoirSubmisionDetail() {
+    prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(mixedCaseVolumetricsSummaryService, times(1))
-        .getMixedCaseVolumetricsSummaryView(submissionDetail);
+        .getMixedCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
   @Test
   void getTrapPropertiesSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-
     prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail);
 
     verify(trapPropertiesSummaryService, times(1))
@@ -218,22 +188,18 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
-  void getProspectSubNavigation_whenOneWrongSection_noResults() {
-    prospectSummaryService = new ProspectSummaryService(
-        generalDetailSummaryService,
-        sourceAndSealSummaryService,
-        chanceOfSuccessSummaryService,
-        hydrocarbonCaseSummaryService,
-        reservoirPropertiesSummaryService,
-        trapPropertiesSummaryService,
-        oilCaseVolumetricsSummaryService,
-        oilCaseOutputsSummaryService,
-        gasCaseVolumetricsSummaryService,
-        gasCaseOutputsSummaryService,
-        mixedCaseVolumetricsSummaryService,
-        mixedCaseOutputsSummaryService,
-        opportunityDetailsSummaryService,
-        resourceDetailSummaryService,
-        outlineForMaximumCaseSummaryService);
+  void getOpportunityDetailsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(opportunityDetailsSummaryService, times(1))
+        .getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getOutlineForMaximumCaseSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    prospectSummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(outlineForMaximumCaseSummaryService, times(1))
+        .getOutlineForMaximumCaseSummaryFromSubmissionDetail(submissionDetail);
   }
 }

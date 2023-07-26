@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,30 +30,32 @@ class MixedCaseOutputsSubmissionServiceTest {
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new MixedCaseOutputsForm();
 
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
-    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail)).thenReturn(form);
+    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
     when(mixedCaseOutputsFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
-    assertTrue(mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 
   @Test
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new MixedCaseOutputsForm();
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail)).thenReturn(form);
+    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
     when(mixedCaseOutputsFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
-    assertFalse(mixedCaseOutputsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

@@ -9,6 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -34,48 +35,49 @@ public class OilCaseVolumetricsFormService implements SubmissionFormService {
     return bindingResult;
   }
 
-  OilCaseVolumetricsForm getOilCaseVolumetricsForm(SubmissionDetail submissionDetail) {
-    return submissionDetailToForm(submissionDetail);
+  OilCaseVolumetricsForm getOilCaseVolumetricsForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return submissionDetailToForm(reservoirSubmissionDetail);
   }
 
-  private OilCaseVolumetricsForm submissionDetailToForm(SubmissionDetail submissionDetail) {
+  private OilCaseVolumetricsForm submissionDetailToForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var form = new OilCaseVolumetricsForm();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       form.setOilHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT
       ));
 
       form.setOilFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT
       ));
 
       form.setOilRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT
       ));
     } else if (resourceType == ResourceType.DISCOVERY) {
       form.setOilHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY
       ));
 
       form.setOilFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY
       ));
 
       form.setOilRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY
       ));
     }
 
     form.setAssociatedGasOilRatioLifeOfField(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
+        reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
     ));
 

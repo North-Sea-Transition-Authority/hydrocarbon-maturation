@@ -3,14 +3,18 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubm
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
-class ReservoirSubmissionDetailPersistenceService {
+public class ReservoirSubmissionDetailPersistenceService {
 
   private final ReservoirSubmissionDetailRepository reservoirSubmissionDetailRepository;
   private final ReservoirPersistenceService reservoirPersistenceService;
@@ -23,7 +27,7 @@ class ReservoirSubmissionDetailPersistenceService {
     this.reservoirPersistenceService = reservoirPersistenceService;
   }
 
-  List<ReservoirSubmissionDetail> getAllReservoirsForSubmissionDetail(SubmissionDetail submissionDetail) {
+  public List<ReservoirSubmissionDetail> getAllReservoirSubmissionDetailsForSubmissionDetail(SubmissionDetail submissionDetail) {
     return reservoirSubmissionDetailRepository.findBySubmissionDetailOrderByReservoir_Name(submissionDetail);
   }
 
@@ -38,5 +42,31 @@ class ReservoirSubmissionDetailPersistenceService {
       reservoirSubmissionDetails.add(newReservoirSubmissionDetail);
     });
     reservoirSubmissionDetailRepository.saveAll(reservoirSubmissionDetails);
+  }
+
+  @Transactional
+  public void saveReservoirSubmissionDetail(Reservoir reservoir, SubmissionDetail submissionDetail) {
+    // TODO: Add tests
+
+    var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+    reservoirSubmissionDetail.setReservoir(reservoir);
+    reservoirSubmissionDetail.setSubmissionDetail(submissionDetail);
+    reservoirSubmissionDetailRepository.save(reservoirSubmissionDetail);
+  }
+
+  public Optional<ReservoirSubmissionDetail> getReservoirSubmissionDetail(UUID reservoirSubmissionDetailId) {
+    return reservoirSubmissionDetailRepository.findById(reservoirSubmissionDetailId);
+  }
+
+  public ReservoirSubmissionDetail getReservoirSubmissionDetailOrThrow(UUID reservoirSubmissionDetailId) {
+    return getReservoirSubmissionDetail(reservoirSubmissionDetailId)
+        .orElseThrow(() -> new RemiEntityNotFoundException(
+            "Could not find reservoir submission detail for id %s".formatted(reservoirSubmissionDetailId)));
+  }
+
+  public ReservoirSubmissionDetail getReservoirSubmissionDetail(SubmissionDetail submissionDetail) {
+    return getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail).stream().findFirst()
+        .orElseThrow(() -> new RemiEntityNotFoundException(
+            "Could not find reservoir submission detail for submission detail %s".formatted(submissionDetail.getId())));
   }
 }

@@ -13,6 +13,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class MixedCaseVolumetricsPersistenceServiceTest {
@@ -23,6 +25,7 @@ class MixedCaseVolumetricsPersistenceServiceTest {
   private MixedCaseVolumetricsPersistenceService mixedCaseVolumetricsPersistenceService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @BeforeEach
   void setUp() {
@@ -44,60 +47,69 @@ class MixedCaseVolumetricsPersistenceServiceTest {
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
     form.setFormationVolumeFactor(probabilityDistributionForm);
 
-    mixedCaseVolumetricsPersistenceService.saveMixedCaseVolumetrics(form, submissionDetail);
+    mixedCaseVolumetricsPersistenceService.saveMixedCaseVolumetrics(form, reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT,
             form.getOilRecoveryFactor(),
-            submissionDetail);
+            submissionDetail,
+            reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
             form.getGasRecoveryFactor(),
-            submissionDetail);
+            submissionDetail,
+            reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
             form.getGasExpansionFactor(),
-            submissionDetail);
+            submissionDetail,
+            reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             form.getCondensateGasRatioLifeOfField(),
-            submissionDetail);
+            submissionDetail,
+            reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
             form.getAssociatedGasOilRatioLifeOfField(),
-            submissionDetail);
+            submissionDetail,
+            reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT,
             form.getFormationVolumeFactor(),
-            submissionDetail);
+            submissionDetail,
+            reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
             form.getOilHydrocarbonSaturation(),
-            submissionDetail);
+            submissionDetail,
+            reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
             form.getGasHydrocarbonSaturation(),
-            submissionDetail);
+            submissionDetail,
+            reservoirSubmissionDetail);
   }
 
   @Test
   void saveMixedCaseVolumetrics_whenDiscovery_whenGivenAForm_verifyCreatedEntity() {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
 
     var form = new MixedCaseVolumetricsForm();
     var probabilityDistributionForm =
@@ -112,54 +124,62 @@ class MixedCaseVolumetricsPersistenceServiceTest {
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
     form.setFormationVolumeFactor(probabilityDistributionForm);
 
-    mixedCaseVolumetricsPersistenceService.saveMixedCaseVolumetrics(form, discoverySubmissionDetail);
+    mixedCaseVolumetricsPersistenceService.saveMixedCaseVolumetrics(form, discoveryReservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY,
             form.getOilRecoveryFactor(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
             form.getGasRecoveryFactor(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
             form.getGasExpansionFactor(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             form.getCondensateGasRatioLifeOfField(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
             form.getAssociatedGasOilRatioLifeOfField(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY,
             form.getFormationVolumeFactor(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY,
             form.getOilHydrocarbonSaturation(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY,
             form.getGasHydrocarbonSaturation(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
   }
 }

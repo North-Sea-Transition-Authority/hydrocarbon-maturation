@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +22,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoverySummaryServiceTest {
@@ -42,6 +47,9 @@ class DiscoverySummaryServiceTest {
 
   @Mock
   private GeneralDetailSummaryService generalDetailSummaryService;
+
+  @Mock
+  private SourceAndSealSummaryService sourceAndSealSummaryService;
 
   @Mock
   private DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
@@ -67,15 +75,20 @@ class DiscoverySummaryServiceTest {
   @Mock
   private DiscoveryWellDetailsSummaryService discoveryWellDetailsSummaryService;
 
+  @Mock
+  private TrapPropertiesSummaryService trapPropertiesSummaryService;
+
+  @Mock
+  private OpportunityDetailsSummaryService opportunityDetailsSummaryService;
+
+  @Mock
+  private OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService;
+
   @InjectMocks
   private DiscoverySummaryService discoverySummaryService;
 
-  private SubmissionDetail submissionDetail;
-
-  @BeforeEach
-  void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
-  }
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
 
   @Test
   void getDiscoveryWellDetailsSummaryViewFromSubmissionDetail_verifyMethodCall() {
@@ -110,6 +123,14 @@ class DiscoverySummaryServiceTest {
   }
 
   @Test
+  void getSourceAndSealSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(sourceAndSealSummaryService, times(1))
+        .getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
   void getPermeabilitySummaryViewFromSubmissionDetail_verifyMethodCall() {
     discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail);
 
@@ -134,50 +155,74 @@ class DiscoverySummaryServiceTest {
   }
 
   @Test
-  void getOilCaseVolumetricsSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(oilCaseVolumetricsSummaryService, times(1))
-        .getOilCaseVolumetricsSummaryView(submissionDetail);
+        .getOilCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
   @Test
-  void getOilCaseOutputsSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(oilCaseOutputsSummaryService, times(1))
-        .getOilCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+        .getOilCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test
-  void getGasCaseVolumetricsSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(gasCaseVolumetricsSummaryService, times(1))
-        .getGasCaseVolumetricsSummaryView(submissionDetail);
+        .getGasCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
   @Test
-  void getGasCaseOutputsSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getGasCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(gasCaseOutputsSummaryService, times(1))
-        .getGasCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+        .getGasCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test
-  void getMixedCaseVolumetricsSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(mixedCaseVolumetricsSummaryService, times(1))
-        .getMixedCaseVolumetricsSummaryView(submissionDetail);
+        .getMixedCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
   @Test
-  void getMixedCaseOutputsSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail);
+  void getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(mixedCaseOutputsSummaryService, times(1))
-        .getMixedCaseOutputsSummaryFromSubmissionDetail(submissionDetail);
+        .getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+  }
+
+  @Test
+  void getTrapPropertiesSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(trapPropertiesSummaryService, times(1))
+        .getTrapPropertiesSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getOpportunityDetailsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(opportunityDetailsSummaryService, times(1))
+        .getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getOutlineForMaximumCaseSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail);
+
+    verify(outlineForMaximumCaseSummaryService, times(1))
+        .getOutlineForMaximumCaseSummaryFromSubmissionDetail(submissionDetail);
   }
 }

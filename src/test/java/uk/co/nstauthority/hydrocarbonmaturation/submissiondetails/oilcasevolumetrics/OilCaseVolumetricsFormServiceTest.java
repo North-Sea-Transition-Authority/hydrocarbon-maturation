@@ -19,6 +19,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -35,6 +37,7 @@ class OilCaseVolumetricsFormServiceTest {
   private OilCaseVolumetricsFormService oilCaseVolumetricsFormService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
 
   @Test
@@ -56,19 +59,19 @@ class OilCaseVolumetricsFormServiceTest {
   @Test
   void getOilCaseVolumetricsForm_newEntity_thenEmptyForm() {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
 
-    assertThat(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail))
+    assertThat(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getOilHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getOilRecoveryFactor().getProbabilityDistributionType(),
@@ -88,19 +91,19 @@ class OilCaseVolumetricsFormServiceTest {
         ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm();
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT))
         .thenReturn(probabilityDistributionForm);
 
-    assertThat(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail))
+    assertThat(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getOilFormationVolumeFactor().getProbabilityDistributionType(),
             form -> form.getOilFormationVolumeFactor().getConstant().getConstant(),
@@ -136,21 +139,22 @@ class OilCaseVolumetricsFormServiceTest {
         ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm();
 
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
 
-    assertThat(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(discoverySubmissionDetail))
+    assertThat(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(discoveryReservoirSubmissionDetail))
         .extracting(
             form -> form.getOilFormationVolumeFactor().getProbabilityDistributionType(),
             form -> form.getOilFormationVolumeFactor().getConstant().getConstant(),

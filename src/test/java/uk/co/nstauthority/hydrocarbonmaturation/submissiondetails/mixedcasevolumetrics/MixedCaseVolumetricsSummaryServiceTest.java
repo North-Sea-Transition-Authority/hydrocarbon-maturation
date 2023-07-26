@@ -17,6 +17,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class MixedCaseVolumetricsSummaryServiceTest {
@@ -28,17 +30,18 @@ class MixedCaseVolumetricsSummaryServiceTest {
   private MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
   void getMixedCaseVolumetricsSummaryView_emptySummaries() {
     var emptySummary = ProbabilityDistributionSummaryView.empty("empty");
 
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail), eq(reservoirSubmissionDetail)))
         .thenReturn(emptySummary);
 
     var mixedCaseVolumetricsSummaryView = mixedCaseVolumetricsSummaryService.getMixedCaseVolumetricsSummaryView(
-        submissionDetail);
+        reservoirSubmissionDetail);
 
     assertThat(mixedCaseVolumetricsSummaryView)
         .extracting(
@@ -64,31 +67,35 @@ class MixedCaseVolumetricsSummaryServiceTest {
         "20", "10", "20", "unit", "comments");
 
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail), eq(reservoirSubmissionDetail)))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT,
-            submissionDetail))
+            submissionDetail,
+            reservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
-            submissionDetail))
+            submissionDetail,
+            reservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
-            submissionDetail))
+            submissionDetail,
+            reservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT,
-            submissionDetail))
+            submissionDetail,
+            reservoirSubmissionDetail))
         .thenReturn(testSummary);
 
     var mixedCaseVolumetricsSummaryView = mixedCaseVolumetricsSummaryService.getMixedCaseVolumetricsSummaryView(
-        submissionDetail);
+        reservoirSubmissionDetail);
 
     assertThat(mixedCaseVolumetricsSummaryView)
         .extracting(
@@ -113,33 +120,38 @@ class MixedCaseVolumetricsSummaryServiceTest {
         "20", "20", "20", "20", "20", "20", "20", "20", "20",
         "20", "10", "20", "unit", "comments");
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
 
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(discoverySubmissionDetail)))
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(discoverySubmissionDetail), eq(discoveryReservoirSubmissionDetail)))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY,
-            discoverySubmissionDetail))
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY,
-            discoverySubmissionDetail))
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY,
-            discoverySubmissionDetail))
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY,
-            discoverySubmissionDetail))
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail))
         .thenReturn(testSummary);
 
     var mixedCaseVolumetricsSummaryView = mixedCaseVolumetricsSummaryService.getMixedCaseVolumetricsSummaryView(
-        discoverySubmissionDetail);
+        discoveryReservoirSubmissionDetail);
 
     assertThat(mixedCaseVolumetricsSummaryView)
         .extracting(

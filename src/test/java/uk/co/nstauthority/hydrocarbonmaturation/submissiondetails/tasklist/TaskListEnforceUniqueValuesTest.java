@@ -23,6 +23,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
@@ -51,12 +54,16 @@ class TaskListEnforceUniqueValuesTest {
   @MockBean
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
+  @MockBean
+  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
   private final ResourceDetail resourceDetail = new ResourceDetail();
   {
     resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
   }
 
   private SubmissionDetail submissionDetail;
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
@@ -67,8 +74,11 @@ class TaskListEnforceUniqueValuesTest {
   @EnumSource(SubmissionType.class)
   void verifyUniqueSectionNamesAndOrders(SubmissionType submissionType) {
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     var taskListSectionItemsList = taskListSectionServices.stream()
         .map(taskListSectionService -> taskListSectionService.getSection(submissionDetail))
@@ -124,8 +134,11 @@ class TaskListEnforceUniqueValuesTest {
   @EnumSource(SubmissionType.class)
   void verifyUniqueTaskListItems(SubmissionType submissionType) {
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     var sectionItemMap = taskListSectionServices.stream()
         .map(taskListSectionService -> taskListSectionService.getSection(submissionDetail))

@@ -8,36 +8,40 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class MixedCaseOutputsDuplicationService implements SubmissionSectionDuplicationService {
+class MixedCaseOutputsDuplicationService implements ReservoirSectionDuplicationService {
   private final MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService;
 
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
-  private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
   MixedCaseOutputsDuplicationService(MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService,
                                      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                     SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+                                     ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.mixedCaseOutputsPersistenceService = mixedCaseOutputsPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
-    this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
 
   @Override
   @Transactional
-  public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
+  public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
+                                        ReservoirSubmissionDetail newReservoirSubmissionDetail) {
+    var oldSubmissionDetail = oldReservoirSubmissionDetail.getSubmissionDetail();
+    var newSubmissionDetail = newReservoirSubmissionDetail.getSubmissionDetail();
+
     if (!newSubmissionDetail.isProspectSubmission() && !newSubmissionDetail.isDiscoverySubmission()) {
       return;
     }
 
-    mixedCaseOutputsPersistenceService.getMixedCaseOutput(oldSubmissionDetail)
+    mixedCaseOutputsPersistenceService.getMixedCaseOutput(oldReservoirSubmissionDetail)
         .ifPresent(mixedCaseOutput ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, mixedCaseOutput,
+            reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newReservoirSubmissionDetail, mixedCaseOutput,
                 MixedCaseOutput.class)
         );
 
@@ -65,10 +69,11 @@ class MixedCaseOutputsDuplicationService implements SubmissionSectionDuplication
       }
 
       probabilityDistributionPersistenceService
-          .getAllProbabilityDistributionsForInstances(oldSubmissionDetail, applicableInstances)
+          .getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail, applicableInstances)
           .forEach(probabilityDistribution ->
-              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution,
-                  ProbabilityDistribution.class));
+              reservoirDuplicationPersistenceService
+                  .duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution,
+                      ProbabilityDistribution.class));
     }
   }
 }

@@ -9,25 +9,29 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class GasCaseVolumetricsDuplicationService implements SubmissionSectionDuplicationService {
+class GasCaseVolumetricsDuplicationService implements ReservoirSectionDuplicationService {
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
-  private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
   GasCaseVolumetricsDuplicationService(ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                       SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+                                       ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
-    this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
 
   @Override
   @Transactional
-  public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
+  public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
+                                        ReservoirSubmissionDetail newReservoirSubmissionDetail) {
+    var oldSubmissionDetail = oldReservoirSubmissionDetail.getSubmissionDetail();
+    var newSubmissionDetail = newReservoirSubmissionDetail.getSubmissionDetail();
+
     if (!newSubmissionDetail.isDiscoverySubmission() && !newSubmissionDetail.isProspectSubmission()) {
       return;
     }
@@ -39,15 +43,19 @@ class GasCaseVolumetricsDuplicationService implements SubmissionSectionDuplicati
           ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR));
       var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
       if (resourceType == ResourceType.PROSPECT) {
-        applicableInstances.add(ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT);
+        applicableInstances.addAll(Set.of(
+            ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT));
       } else if (resourceType == ResourceType.DISCOVERY) {
-        applicableInstances.add(ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY);
+        applicableInstances.addAll(Set.of(
+            ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY,
+            ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY));
       }
 
-      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail,
               applicableInstances)
           .forEach(probabilityDistribution ->
-              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
+              reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newReservoirSubmissionDetail,
                   probabilityDistribution,
                   ProbabilityDistribution.class));
     }

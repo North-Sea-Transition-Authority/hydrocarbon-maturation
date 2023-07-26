@@ -13,11 +13,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSubmissionDetailChildEntity;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Entity
 @Table(name = "probability_distributions")
-public class ProbabilityDistribution implements SubmissionDetailChildEntity {
+public class ProbabilityDistribution implements SubmissionDetailChildEntity, ReservoirSubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -27,6 +29,10 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
   @ManyToOne
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
+
+  @ManyToOne
+  @JoinColumn(name = "reservoir_submission_detail_id")
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @Enumerated(EnumType.STRING)
   private ProbabilityDistributionType distributionType;
@@ -69,6 +75,9 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
 
   private String comments;
 
+  public ProbabilityDistribution() {
+  }
+
   public UUID getId() {
     return id;
   }
@@ -83,6 +92,15 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity {
 
   public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
+  }
+
+  public ReservoirSubmissionDetail getReservoirSubmissionDetail() {
+    return reservoirSubmissionDetail;
+  }
+
+  public void setReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    this.reservoirSubmissionDetail = reservoirSubmissionDetail;
   }
 
   public ProbabilityDistributionType getDistributionType() {

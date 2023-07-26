@@ -51,9 +51,9 @@ class SubmissionDuplicationPersistenceServiceTest {
             GeneralDetail::getLicenceApplicationId
         )
         .containsExactly(
-            newGeneralDetail.getResourceLocatedInUkcs(),
-            newGeneralDetail.getPercentageLocatedInUkcs(),
-            newGeneralDetail.getLicenceApplicationId()
+            oldGeneralDetail.getResourceLocatedInUkcs(),
+            oldGeneralDetail.getPercentageLocatedInUkcs(),
+            oldGeneralDetail.getLicenceApplicationId()
         );
   }
 

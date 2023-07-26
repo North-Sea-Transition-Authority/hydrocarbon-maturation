@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -36,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
@@ -43,10 +45,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.DiscoveryRelinquishmentForm;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.ProspectRelinquishmentForm;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
@@ -103,6 +110,12 @@ class SubmissionCreateServiceTest {
   @Mock
   private IndustryTeamService industryTeamService;
 
+  @Mock
+  private ReservoirPersistenceService reservoirPersistenceService;
+
+  @Mock
+  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
   @InjectMocks
   private SubmissionCreateService submissionCreateService;
 
@@ -110,17 +123,50 @@ class SubmissionCreateServiceTest {
   void createInitialProspect() {
     var resource = new Resource();
     var submission = new Submission();
+    var submissionDetail = new SubmissionDetail();
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     when(resourceService.createResource(ResourceType.PROSPECT)).thenReturn(resource);
     when(submissionPersistenceService.createSubmission(resource))
         .thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_PROSPECT))
+        .thenReturn(submissionDetail);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setResourceName("resource name");
+    var reservoir = new Reservoir();
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail))
+        .thenReturn(resourceDetail);
+    when(reservoirPersistenceService.createReservoir(resourceDetail.getResourceName()))
+        .thenReturn(reservoir);
+
     submissionCreateService.createInitialProspect(RESOURCE_DETAILS_FORM);
 
     verify(regulatorManagedInformationPersistenceService, times(1))
         .saveResponsibleTeamAndGeoByResource(resource, ResponsibleTeamType.EXPLORATION);
-    verify(submissionDetailPersistenceService, times(1))
-        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_PROSPECT);
     verify(submissionPersistenceService, times(1)).createSubmission(resource);
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(reservoir, submissionDetail);
+  }
 
+  @Test
+  void createInitialProspect_notProspect_notAllowedCreateReservoir() {
+    var resource = new Resource();
+    var submission = new Submission();
+    var submissionDetail = mock(SubmissionDetail.class);
+    when(submissionDetail.isProspectSubmission()).thenReturn(false);
+    when(resourceService.createResource(ResourceType.PROSPECT)).thenReturn(resource);
+    when(submissionPersistenceService.createSubmission(resource))
+        .thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_PROSPECT))
+        .thenReturn(submissionDetail);
+
+    assertThatThrownBy(() -> submissionCreateService.createInitialProspect(RESOURCE_DETAILS_FORM))
+        .isInstanceOf(ActionNotAllowedException.class)
+        .hasMessage("Cannot create a reservoir submission detail for a non prospect submission");
+
+    verify(regulatorManagedInformationPersistenceService, times(1))
+        .saveResponsibleTeamAndGeoByResource(resource, ResponsibleTeamType.EXPLORATION);
+    verify(submissionPersistenceService, times(1)).createSubmission(resource);
+    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
   }
 
   @Test
@@ -141,6 +187,10 @@ class SubmissionCreateServiceTest {
     var newGeneralDetail = new GeneralDetail();
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetailNew))
         .thenReturn(Optional.of(newGeneralDetail));
+    var reservoir = new Reservoir();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     submissionCreateService.createUpdateProspect(form);
 
@@ -149,6 +199,62 @@ class SubmissionCreateServiceTest {
     verify(generalDetailsPersistenceService, times(1))
         .updateGeneralDetailProspect(form, newGeneralDetail);
     verify(submissionPersistenceService).createSubmission(submissionDetail.getSubmission().getResource());
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(reservoir, submissionDetailNew);
+  }
+
+  @Test
+  void createUpdateProspect_createDiscoverySubmission_notAllowedCreateReservoir() {
+    var form = new UpdateProspectForm();
+    form.setProspectSelectedOption(UUID.randomUUID().toString());
+    var submission = new Submission();
+
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetailNew.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    when(submissionPersistenceService.createSubmission(submissionDetail.getSubmission().getResource()))
+        .thenReturn(submission);
+    when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(form.getProspectSelectedOption())))
+        .thenReturn(submissionDetail);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(
+        submission,
+        SubmissionType.PROSPECT_UPDATE)).thenReturn(submissionDetailNew);
+
+    assertThatThrownBy(() -> submissionCreateService.createUpdateProspect(form))
+        .isInstanceOf(ActionNotAllowedException.class)
+        .hasMessage("Cannot create a reservoir submission detail for a create discovery or field submission");
+
+    verifyNoInteractions(submissionDetailDuplicationService);
+    verifyNoInteractions(generalDetailsPersistenceService);
+    verify(submissionPersistenceService).createSubmission(submissionDetail.getSubmission().getResource());
+    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
+  }
+
+  @Test
+  void createUpdateProspect_fieldSubmission_notAllowedCreateReservoir() {
+    var form = new UpdateProspectForm();
+    form.setProspectSelectedOption(UUID.randomUUID().toString());
+    var submission = new Submission();
+
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetailNew.setSubmissionType(SubmissionType.CREATE_FIELD);
+    when(submissionPersistenceService.createSubmission(submissionDetail.getSubmission().getResource()))
+        .thenReturn(submission);
+    when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(form.getProspectSelectedOption())))
+        .thenReturn(submissionDetail);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(
+        submission,
+        SubmissionType.PROSPECT_UPDATE)).thenReturn(submissionDetailNew);
+
+    assertThatThrownBy(() -> submissionCreateService.createUpdateProspect(form))
+        .isInstanceOf(ActionNotAllowedException.class)
+        .hasMessage("Cannot create a reservoir submission detail for a create discovery or field submission");
+
+    verifyNoInteractions(submissionDetailDuplicationService);
+    verifyNoInteractions(generalDetailsPersistenceService);
+    verify(submissionPersistenceService).createSubmission(submissionDetail.getSubmission().getResource());
+    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
   }
 
   @Test
@@ -166,6 +272,7 @@ class SubmissionCreateServiceTest {
     verify(submissionDetailPersistenceService, never()).createInitialSubmissionDetail(any(), any());
     verify(generalDetailsPersistenceService, never()).updateGeneralDetailProspect(any(), any());
     verifyNoInteractions(submissionPersistenceService);
+    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
   }
 
   @Test
@@ -183,6 +290,10 @@ class SubmissionCreateServiceTest {
         submission,
         SubmissionType.POST_DRILL_DRY_HOLE))
         .thenReturn(submissionDetailNew);
+    var reservoir = new Reservoir();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     submissionCreateService.createPostDrillDryHoleSubmission(form);
 
@@ -192,6 +303,8 @@ class SubmissionCreateServiceTest {
         .createOrUpdateOpportunityDetail(submissionDetailNew);
     verify(submissionPersistenceService, times(1))
         .createSubmission(submissionDetail.getSubmission().getResource());
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(reservoir, submissionDetailNew);
   }
 
   @Test
@@ -229,6 +342,7 @@ class SubmissionCreateServiceTest {
         .createSubmission(discoveryResource);
     verify(opportunityDetailsPersistenceService, times(1))
         .createOrUpdateOpportunityDetail(submissionDetailNew);
+    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
   }
 
   @Test
@@ -246,6 +360,10 @@ class SubmissionCreateServiceTest {
         submission,
         SubmissionType.UPDATE_DISCOVERY))
         .thenReturn(submissionDetailNew);
+    var reservoir = new Reservoir();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     submissionCreateService.createUpdateDiscovery(form);
 
@@ -253,14 +371,19 @@ class SubmissionCreateServiceTest {
         .duplicateSubmissionDetailSections(submissionDetail, submissionDetailNew);
     verify(submissionPersistenceService, times(1))
         .createSubmission(submissionDetail.getSubmission().getResource());
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(reservoir, submissionDetailNew);
   }
 
   @Test
   void createDiscovery_verifyMethodCalls() {
     var captor = ArgumentCaptor.forClass(Resource.class);
     var submission = new Submission();
+    var submissionDetail = new SubmissionDetail();
     when(submissionPersistenceService.createSubmission(any()))
         .thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_DISCOVERY))
+        .thenReturn(submissionDetail);
 
     submissionCreateService.createDiscovery(RESOURCE_DETAILS_FORM);
 
@@ -272,6 +395,7 @@ class SubmissionCreateServiceTest {
     verify(submissionPersistenceService, times(1)).createSubmission(captor.getValue());
     verify(opportunityDetailsPersistenceService, times(1))
         .createOrUpdateOpportunityDetail(any());
+    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
   }
 
   @Test
@@ -282,24 +406,29 @@ class SubmissionCreateServiceTest {
     var submission = SubmissionTestUtils.createSubmission(new Resource());
     submissionDetail.setSubmission(submission);
     var newSubmission = SubmissionTestUtils.createSubmission(submission.getResource());
+    var newSubmissionDetail = new SubmissionDetail();
     when(submissionPersistenceService.createSubmission(submissionDetail.getSubmission().getResource()))
         .thenReturn(newSubmission);
     when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(
         UUID.fromString(prospectRelinquishmentForm.getProspectSelectedOption())))
         .thenReturn(submissionDetail);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(newSubmission, SubmissionType.RELINQUISHMENT_PROSPECT))
+        .thenReturn(newSubmissionDetail);
+    var reservoir = new Reservoir();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
-    var newSubmissionDetail = submissionCreateService.createProspectRelinquishment(prospectRelinquishmentForm);
+    submissionCreateService.createProspectRelinquishment(prospectRelinquishmentForm);
 
-    verify(submissionDetailPersistenceService)
-        .createInitialSubmissionDetail(
-            newSubmission,
-            SubmissionType.RELINQUISHMENT_PROSPECT);
     verify(submissionDetailDuplicationService)
         .duplicateSubmissionDetailSections(submissionDetail, newSubmissionDetail);
     verify(generalDetailsPersistenceService)
         .setRelinquishmentInformationSource(newSubmissionDetail);
     verify(submissionPersistenceService, times(1))
         .createSubmission(submissionDetail.getSubmission().getResource());
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(reservoir, newSubmissionDetail);
   }
 
   @Test
@@ -310,24 +439,29 @@ class SubmissionCreateServiceTest {
     var submission = SubmissionTestUtils.createSubmission(new Resource());
     submissionDetail.setSubmission(submission);
     var newSubmission = SubmissionTestUtils.createSubmission(submission.getResource());
+    var newSubmissionDetail = new SubmissionDetail();
     when(submissionPersistenceService.createSubmission(submissionDetail.getSubmission().getResource()))
         .thenReturn(newSubmission);
     when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(
         UUID.fromString(discoveryRelinquishmentForm.getDiscoverySelectedOption())))
         .thenReturn(submissionDetail);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(newSubmission, SubmissionType.RELINQUISHMENT_DISCOVERY))
+        .thenReturn(newSubmissionDetail);
+    var reservoir = new Reservoir();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
-    var newSubmissionDetail = submissionCreateService.createDiscoveryRelinquishment(discoveryRelinquishmentForm);
+    submissionCreateService.createDiscoveryRelinquishment(discoveryRelinquishmentForm);
 
-    verify(submissionDetailPersistenceService)
-        .createInitialSubmissionDetail(
-            newSubmission,
-            SubmissionType.RELINQUISHMENT_DISCOVERY);
     verify(submissionDetailDuplicationService)
         .duplicateSubmissionDetailSections(submissionDetail, newSubmissionDetail);
     verify(generalDetailsPersistenceService)
         .setRelinquishmentInformationSource(newSubmissionDetail);
     verify(submissionPersistenceService, times(1))
         .createSubmission(submissionDetail.getSubmission().getResource());
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(reservoir, newSubmissionDetail);
   }
 
   @Test
@@ -337,12 +471,18 @@ class SubmissionCreateServiceTest {
 
     when(submissionDetailPersistenceService.createUpdateSubmissionDetail(oldSubmissionDetail))
         .thenReturn(updateSubmissionDetail);
+    var reservoir = new Reservoir();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(oldSubmissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     assertThat(submissionCreateService.createUpdateSubmissionDetail(oldSubmissionDetail))
         .isEqualTo(updateSubmissionDetail);
 
     verify(submissionDetailDuplicationService, times(1))
         .duplicateSubmissionDetailSections(oldSubmissionDetail, updateSubmissionDetail);
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(reservoir, updateSubmissionDetail);
   }
 
   @ParameterizedTest
@@ -371,24 +511,34 @@ class SubmissionCreateServiceTest {
   void createCsrFieldSubmission() {
     var resource = new Resource();
     var submission = new Submission();
+    var submissionDetail = new SubmissionDetail();
     when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_CSR))
+        .thenReturn(submissionDetail);
+
     submissionCreateService.createCsrFieldSubmissionDetail(resource);
 
     verify(submissionPersistenceService, times(1)).createSubmission(resource);
     verify(submissionDetailPersistenceService, times(1))
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_CSR);
+    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
   }
 
   @Test
   void createFdpFieldSubmission() {
     var resource = new Resource();
     var submission = new Submission();
+    var submissionDetail = new SubmissionDetail();
     when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDP))
+        .thenReturn(submissionDetail);
+
     submissionCreateService.createFdpFieldSubmissionDetail(resource);
 
     verify(submissionPersistenceService, times(1)).createSubmission(resource);
     verify(submissionDetailPersistenceService, times(1))
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDP);
+    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
   }
 
   @Test

@@ -20,6 +20,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -36,6 +38,7 @@ class MixedCaseVolumetricsFormServiceTest {
   private MixedCaseVolumetricsFormService mixedCaseVolumetricsFormService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
   void validate_verifyMethodCall() {
@@ -57,10 +60,10 @@ class MixedCaseVolumetricsFormServiceTest {
   @Test
   void getMixedCaseVolumetricsForm_newEntity_thenEmptyForm() {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        eq(submissionDetail), any(ProbabilityDistributionFieldInstance.class)))
+        eq(reservoirSubmissionDetail), any(ProbabilityDistributionFieldInstance.class)))
         .thenReturn(new ProbabilityDistributionForm());
 
-    assertThat(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail))
+    assertThat(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getOilRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
@@ -89,21 +92,21 @@ class MixedCaseVolumetricsFormServiceTest {
         ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm();
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        eq(submissionDetail), any())).thenReturn(probabilityDistributionForm);
+        eq(reservoirSubmissionDetail), any())).thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT))
         .thenReturn(probabilityDistributionForm);
 
-    assertThat(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail))
+    assertThat(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getOilRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getOilRecoveryFactor().getConstant().getConstant(),
@@ -163,23 +166,24 @@ class MixedCaseVolumetricsFormServiceTest {
         ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm();
 
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        eq(discoverySubmissionDetail), any())).thenReturn(probabilityDistributionForm);
+        eq(discoveryReservoirSubmissionDetail), any())).thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
 
-    assertThat(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(discoverySubmissionDetail))
+    assertThat(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(discoveryReservoirSubmissionDetail))
         .extracting(
             form -> form.getOilRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getOilRecoveryFactor().getConstant().getConstant(),

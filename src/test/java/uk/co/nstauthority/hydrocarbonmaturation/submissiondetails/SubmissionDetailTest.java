@@ -150,6 +150,22 @@ class SubmissionDetailTest {
 
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
+  void isFieldSubmission(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    if (submissionType == SubmissionType.CREATE_FIELD
+        || submissionType == SubmissionType.CREATE_FDP
+        || submissionType == SubmissionType.CREATE_CSR
+        || submissionType == SubmissionType.CREATE_COP
+        || submissionType == SubmissionType.CREATE_FDPA) {
+      assertTrue(submissionDetail.isFieldSubmission());
+    } else {
+      assertFalse(submissionDetail.isFieldSubmission());
+    }
+  }
+
+
+  @ParameterizedTest
+  @EnumSource(SubmissionType.class)
   void hasSameSubmissionType(SubmissionType submissionType) {
     var otherSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     if (submissionDetail.getSubmissionType() == submissionType) {

@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 public class GasCaseVolumetricsPersistenceService {
@@ -19,7 +19,9 @@ public class GasCaseVolumetricsPersistenceService {
   }
 
   @Transactional
-  public void saveGasCaseVolumetrics(GasCaseVolumetricsForm gasCaseVolumetricsForm, SubmissionDetail submissionDetail) {
+  public void saveGasCaseVolumetrics(GasCaseVolumetricsForm gasCaseVolumetricsForm,
+                                     ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var resourceType = submissionDetail.getSubmission().getResource().getType();
 
     var gasFormationVolumeFactor = ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT;
@@ -27,25 +29,25 @@ public class GasCaseVolumetricsPersistenceService {
       gasFormationVolumeFactor = ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY;
     }
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasFormationVolumeFactor,
-        gasCaseVolumetricsForm.getGasFormationVolumeFactor(), submissionDetail);
+        gasCaseVolumetricsForm.getGasFormationVolumeFactor(), submissionDetail, reservoirSubmissionDetail);
 
     var gasHydrocarbonSaturation = ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT;
     if (resourceType == ResourceType.DISCOVERY) {
       gasHydrocarbonSaturation = ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY;
     }
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasHydrocarbonSaturation,
-        gasCaseVolumetricsForm.getGasHydrocarbonSaturation(), submissionDetail);
+        gasCaseVolumetricsForm.getGasHydrocarbonSaturation(), submissionDetail, reservoirSubmissionDetail);
 
     var gasExpansionFactor = ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasExpansionFactor,
-        gasCaseVolumetricsForm.getGasExpansionFactor(), submissionDetail);
+        gasCaseVolumetricsForm.getGasExpansionFactor(), submissionDetail, reservoirSubmissionDetail);
 
     var gasRecoveryFactor = ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasRecoveryFactor,
-        gasCaseVolumetricsForm.getGasRecoveryFactor(), submissionDetail);
+        gasCaseVolumetricsForm.getGasRecoveryFactor(), submissionDetail, reservoirSubmissionDetail);
 
     var condensateGasRatioLifeOfField = ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(condensateGasRatioLifeOfField,
-        gasCaseVolumetricsForm.getCondensateGasRatioLifeOfField(), submissionDetail);
+        gasCaseVolumetricsForm.getCondensateGasRatioLifeOfField(), submissionDetail, reservoirSubmissionDetail);
   }
 }

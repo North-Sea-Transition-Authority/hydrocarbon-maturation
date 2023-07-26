@@ -20,7 +20,7 @@ class ReservoirListFormService {
 
   ReservoirListForm getReservoirForm(SubmissionDetail submissionDetail) {
     return reservoirEntityToForm(
-        reservoirSubmissionDetailPersistenceService.getAllReservoirsForSubmissionDetail(submissionDetail)
+        reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
     );
   }
 

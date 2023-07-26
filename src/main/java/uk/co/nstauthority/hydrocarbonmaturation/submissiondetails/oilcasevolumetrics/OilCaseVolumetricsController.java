@@ -26,12 +26,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/oil-case-volumetrics")
+@RequestMapping("/submission-details/{submissionDetailId}/" +
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/oil-case-volumetrics")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.DISCOVERY_AND_PROSPECT)
 @IsFromResponsibleTeam
@@ -42,6 +44,7 @@ public class OilCaseVolumetricsController {
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final OilCaseVolumetricsFormService oilCaseVolumetricsFormService;
   private final OilCaseVolumetricsPersistenceService oilCaseVolumetricsPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   public static final String PAGE_NAME = "Oil case volumetrics parameters";
 
@@ -50,35 +53,43 @@ public class OilCaseVolumetricsController {
                                       ControllerHelperService controllerHelperService,
                                       ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
                                       OilCaseVolumetricsFormService oilCaseVolumetricsFormService,
-                                      OilCaseVolumetricsPersistenceService oilCaseVolumetricsPersistenceService) {
+                                      OilCaseVolumetricsPersistenceService oilCaseVolumetricsPersistenceService,
+                                      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.oilCaseVolumetricsFormService = oilCaseVolumetricsFormService;
     this.oilCaseVolumetricsPersistenceService = oilCaseVolumetricsPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getOilCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                            @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                             @ModelAttribute("form") OilCaseVolumetricsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getOilCaseVolumetricsModelAndView(
-        oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(submissionDetail), submissionDetail);
+        oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(reservoirSubmissionDetail), submissionDetail);
   }
 
   @PostMapping
   public ModelAndView saveOilCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                             @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                              @Valid @ModelAttribute("form") OilCaseVolumetricsForm form,
                                              BindingResult bindingResult,
                                              ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     bindingResult = oilCaseVolumetricsFormService.validate(form, bindingResult, validationType, submissionDetail);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getOilVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          oilCaseVolumetricsPersistenceService.saveOilCaseVolumetrics(form, submissionDetail);
+          oilCaseVolumetricsPersistenceService.saveOilCaseVolumetrics(form, reservoirSubmissionDetail);
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );

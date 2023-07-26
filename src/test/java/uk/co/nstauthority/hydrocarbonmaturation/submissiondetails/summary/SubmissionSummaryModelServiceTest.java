@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView;
@@ -35,6 +36,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproper
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
@@ -58,6 +61,8 @@ class SubmissionSummaryModelServiceTest {
   private PostDrillDryWellSummaryService postDrillDryWellSummaryService;
   @Mock
   private SubmissionUpdateService submissionUpdateService;
+  @Mock
+  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @InjectMocks
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -68,8 +73,9 @@ class SubmissionSummaryModelServiceTest {
   private ChanceOfSuccessSummaryView chanceOfSuccessSummaryView;
   private ReservoirPropertiesSummaryView reservoirPropertiesSummaryView;
   private ProbabilityDistributionsFormSummaryView oilCaseVolumetricsSummaryView;
-  private ProbabilityDistributionsFormSummaryView gasCaseVolumetricsSummaryView;
   private OilCaseOutputsSummaryView oilCaseOutputsSummaryView;
+  private ProbabilityDistributionsFormSummaryView gasCaseVolumetricsSummaryView;
+  private GasCaseOutputsSummaryView gasCaseOutputsSummaryView;
   private ProbabilityDistributionsFormSummaryView mixedCaseVolumetricsSummaryView;
   private MixedCaseOutputsSummaryView mixedCaseOutputsSummaryView;
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
@@ -102,6 +108,7 @@ class SubmissionSummaryModelServiceTest {
     oilCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
     gasCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
+    gasCaseOutputsSummaryView = GasCaseOutputsSummaryView.empty();
     mixedCaseVolumetricsSummaryView = new ProbabilityDistributionsFormSummaryView(new ArrayList<>());
     mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty();
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
@@ -152,6 +159,9 @@ class SubmissionSummaryModelServiceTest {
   @Test
   void createProspectSubmissionSummaryModelAndView() {
     var submissionDetail = Mockito.mock(SubmissionDetail.class);
+    var reservoirSubmissionDetail = Mockito.mock(ReservoirSubmissionDetail.class);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
     when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
     when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
@@ -162,15 +172,17 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(reservoirPropertiesSummaryView);
     when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(chanceOfSuccessSummaryView);
-    when(prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+    when(prospectSummaryService.getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(oilCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(gasCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
+    when(prospectSummaryService.getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(oilCaseOutputsSummaryView);
-    when(prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+    when(prospectSummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(gasCaseVolumetricsSummaryView);
+    when(prospectSummaryService.getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(gasCaseOutputsSummaryView);
+    when(prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(mixedCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
+    when(prospectSummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(mixedCaseOutputsSummaryView);
     when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(trapPropertiesSummaryView);
@@ -190,8 +202,9 @@ class SubmissionSummaryModelServiceTest {
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
             entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView),
             entry("oilCaseVolumetricsSummaryView", oilCaseVolumetricsSummaryView),
-            entry("gasCaseVolumetricsSummaryView", gasCaseVolumetricsSummaryView),
             entry("oilCaseOutputsSummaryView", oilCaseOutputsSummaryView),
+            entry("gasCaseVolumetricsSummaryView", gasCaseVolumetricsSummaryView),
+            entry("gasCaseOutputsSummaryView", gasCaseOutputsSummaryView),
             entry("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView),
             entry("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
@@ -233,6 +246,9 @@ class SubmissionSummaryModelServiceTest {
   @Test
   void createDiscoverySubmissionSummaryModelAndView() {
     var submissionDetail = Mockito.mock(SubmissionDetail.class);
+    var reservoirSubmissionDetail = Mockito.mock(ReservoirSubmissionDetail.class);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
     when(discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(permeabilityDetailSummaryView);
     when(discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
@@ -243,19 +259,21 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(generalFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
-    when(prospectSummaryService.getOilCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+    when(discoverySummaryService.getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(oilCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getGasCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(gasCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getOilCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
+    when(discoverySummaryService.getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(oilCaseOutputsSummaryView);
-    when(prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromSubmissionDetail(submissionDetail))
+    when(discoverySummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(gasCaseVolumetricsSummaryView);
+    when(discoverySummaryService.getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(gasCaseOutputsSummaryView);
+    when(discoverySummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(mixedCaseVolumetricsSummaryView);
-    when(prospectSummaryService.getMixedCaseOutputsSummaryViewFromSubmissionDetail(submissionDetail))
+    when(discoverySummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(mixedCaseOutputsSummaryView);
-    when(prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+    when(discoverySummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(trapPropertiesSummaryView);
-    when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+    when(discoverySummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(opportunityDetailsSummaryView);
     when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(resourceDetailSummaryView);

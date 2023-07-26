@@ -12,16 +12,21 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.DiscoveryRelinquishmentForm;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.ProspectRelinquishmentForm;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
@@ -46,6 +51,8 @@ public class SubmissionCreateService {
   private final RegulatorTeamService regulatorTeamService;
   private final AreaTeamService areaTeamService;
   private final IndustryTeamService industryTeamService;
+  private final ReservoirPersistenceService reservoirPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Autowired
   public SubmissionCreateService(ResourceService resourceService,
@@ -60,7 +67,9 @@ public class SubmissionCreateService {
                                  SubmissionDetailPersistenceService submissionDetailPersistenceService,
                                  SubmissionPersistenceService submissionPersistenceService,
                                  RegulatorTeamService regulatorTeamService, AreaTeamService areaTeamService,
-                                 IndustryTeamService industryTeamService) {
+                                 IndustryTeamService industryTeamService,
+                                 ReservoirPersistenceService reservoirPersistenceService,
+                                 ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.resourceService = resourceService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
@@ -75,6 +84,8 @@ public class SubmissionCreateService {
     this.regulatorTeamService = regulatorTeamService;
     this.areaTeamService = areaTeamService;
     this.industryTeamService = industryTeamService;
+    this.reservoirPersistenceService = reservoirPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @Transactional
@@ -84,7 +95,12 @@ public class SubmissionCreateService {
     regulatorManagedInformationPersistenceService.saveResponsibleTeamAndGeoByResource(resource, ResponsibleTeamType.EXPLORATION);
     var submissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_PROSPECT);
+
     resourceDetailsPersistenceService.createInitialResourceDetail(form, submissionDetail);
+
+    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
+    createReservoirSubmissionDetailForProspect(submissionDetail, resourceDetail);
+
     return submissionDetail;
   }
 
@@ -97,6 +113,8 @@ public class SubmissionCreateService {
 
     var newSubmissionDetail =
         submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.PROSPECT_UPDATE);
+
+    createReservoirSubmissionDetail(newSubmissionDetail, oldSubmissionDetail);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -119,6 +137,8 @@ public class SubmissionCreateService {
     var newSubmissionDetail =
         submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.POST_DRILL_DRY_HOLE);
 
+    createReservoirSubmissionDetail(newSubmissionDetail, oldSubmissionDetail);
+
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
     opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(newSubmissionDetail);
@@ -136,6 +156,7 @@ public class SubmissionCreateService {
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_DISCOVERY);
     resourceDetailsPersistenceService.createInitialResourceDetail(form, submissionDetail);
     opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(submissionDetail);
+
     return submissionDetail;
   }
 
@@ -171,6 +192,8 @@ public class SubmissionCreateService {
     var newSubmissionDetail =
         submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.UPDATE_DISCOVERY);
 
+    createReservoirSubmissionDetail(newSubmissionDetail, oldSubmissionDetail);
+
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
     opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(newSubmissionDetail);
@@ -196,6 +219,8 @@ public class SubmissionCreateService {
     var newSubmissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(submission, relinquishmentType);
 
+    createReservoirSubmissionDetail(newSubmissionDetail, oldSubmissionDetail);
+
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
 
@@ -208,6 +233,8 @@ public class SubmissionCreateService {
   public SubmissionDetail createUpdateSubmissionDetail(SubmissionDetail parentSubmissionDetail) {
     var updateSubmissionDetail = submissionDetailPersistenceService
         .createUpdateSubmissionDetail(parentSubmissionDetail);
+
+    createReservoirSubmissionDetail(updateSubmissionDetail, parentSubmissionDetail);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(parentSubmissionDetail, updateSubmissionDetail);
@@ -268,5 +295,31 @@ public class SubmissionCreateService {
     }
 
     return resourceTypeOptions;
+  }
+
+  private void createReservoirSubmissionDetailForProspect(SubmissionDetail submissionDetail, ResourceDetail resourceDetail) {
+    if (!submissionDetail.isProspectSubmission()) {
+      throw new ActionNotAllowedException("Cannot create a reservoir submission detail for a non prospect submission");
+    }
+
+    var resourceName = resourceDetail.getResourceName();
+    var reservoir = reservoirPersistenceService.createReservoir(resourceName);
+    createReservoirSubmissionDetail(reservoir, submissionDetail);
+  }
+
+  private void createReservoirSubmissionDetail(SubmissionDetail newSubmissionDetail,
+                                               SubmissionDetail oldSubmissionDetail) {
+    if (newSubmissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY || newSubmissionDetail.isFieldSubmission()) {
+      throw new ActionNotAllowedException(
+          "Cannot create a reservoir submission detail for a create discovery or field submission");
+    }
+
+    var oldReservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetail(oldSubmissionDetail);
+    createReservoirSubmissionDetail(oldReservoirSubmissionDetail.getReservoir(), newSubmissionDetail);
+  }
+
+  private void createReservoirSubmissionDetail(Reservoir reservoir, SubmissionDetail submissionDetail) {
+    reservoirSubmissionDetailPersistenceService.saveReservoirSubmissionDetail(reservoir, submissionDetail);
   }
 }

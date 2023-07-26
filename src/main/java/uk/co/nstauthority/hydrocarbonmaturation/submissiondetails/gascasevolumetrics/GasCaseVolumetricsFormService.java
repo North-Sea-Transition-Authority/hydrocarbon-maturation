@@ -9,6 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -34,48 +35,49 @@ public class GasCaseVolumetricsFormService implements SubmissionFormService {
     return bindingResult;
   }
 
-  GasCaseVolumetricsForm getGasCaseVolumetricsForm(SubmissionDetail submissionDetail) {
-    return submissionDetailToForm(submissionDetail);
+  GasCaseVolumetricsForm getGasCaseVolumetricsForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return submissionDetailToForm(reservoirSubmissionDetail);
   }
 
-  private GasCaseVolumetricsForm submissionDetailToForm(SubmissionDetail submissionDetail) {
+  private GasCaseVolumetricsForm submissionDetailToForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var form = new GasCaseVolumetricsForm();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       form.setGasHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT
       ));
 
       form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT
       ));
     } else if (resourceType == ResourceType.DISCOVERY) {
       form.setGasHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY
       ));
 
       form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY
       ));
     }
 
     form.setGasExpansionFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
+        reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR
     ));
 
     form.setGasRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
+        reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR
     ));
 
     form.setCondensateGasRatioLifeOfField(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
+        reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD
     ));
 

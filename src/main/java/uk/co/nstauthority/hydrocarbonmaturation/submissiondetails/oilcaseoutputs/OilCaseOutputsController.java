@@ -27,12 +27,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/oil-case-outputs")
+@RequestMapping("/submission-details/{submissionDetailId}/" +
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/oil-case-outputs")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.DISCOVERY_AND_PROSPECT)
 @IsFromResponsibleTeam
@@ -43,6 +45,7 @@ public class OilCaseOutputsController {
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final OilCaseOutputsFormService oilCaseOutputsFormService;
   private final OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   public static final String PAGE_NAME = "Oil case outputs (resources)";
 
@@ -51,35 +54,44 @@ public class OilCaseOutputsController {
                                   ControllerHelperService controllerHelperService,
                                   ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
                                   OilCaseOutputsFormService oilCaseOutputsFormService,
-                                  OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService) {
+                                  OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService,
+                                  ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.oilCaseOutputsFormService = oilCaseOutputsFormService;
     this.oilCaseOutputsPersistenceService = oilCaseOutputsPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getOilCaseOutputs(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                        @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                         @ModelAttribute("form") OilCaseOutputsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getOilCaseOutputsModelAndView(
-        oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail), submissionDetail);
+        oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail), submissionDetail);
   }
 
   @PostMapping
   public ModelAndView saveOilCaseOutputs(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                         @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                          @Valid @ModelAttribute("form") OilCaseOutputsForm form,
                                          BindingResult bindingResult,
                                          ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = oilCaseOutputsFormService.validate(form, bindingResult, validationType, submissionDetail);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+    bindingResult = oilCaseOutputsFormService
+        .validate(form, bindingResult, validationType, submissionDetail);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getOilOutputsModelAndViewWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, submissionDetail);
+          oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, reservoirSubmissionDetail);
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );

@@ -21,6 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -40,6 +42,7 @@ class OilCaseOutputsFormServiceTest {
   private OilCaseOutputsFormService oilCaseOutputsFormService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
   void validate_verifyMethodCall() {
@@ -61,21 +64,21 @@ class OilCaseOutputsFormServiceTest {
   @Test
   void getOilCaseOutputsForm_newEntity_thenEmptyForm() {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
-    when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
+    when(oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(new OilCaseOutput()));
 
-    assertThat(oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail))
+    assertThat(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getOilInPlace().getProbabilityDistributionType(),
             form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
@@ -97,24 +100,24 @@ class OilCaseOutputsFormServiceTest {
         ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
 
     OilCaseOutput oilCaseOutput = new OilCaseOutput();
     oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
-    when(oilCaseOutputsPersistenceService.getOilCaseOutput(submissionDetail))
+    when(oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(oilCaseOutput));
 
-    assertThat(oilCaseOutputsFormService.getOilCaseOutputsForm(submissionDetail))
+    assertThat(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getCustom().getConstant(),
@@ -150,29 +153,30 @@ class OilCaseOutputsFormServiceTest {
   @Test
   void getOilCaseOutputsForm_existingDiscoveryEntity_thenPopulatedForm() {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
 
     var probabilityDistributionForm =
         ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoverySubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
 
     OilCaseOutput oilCaseOutput = new OilCaseOutput();
     oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
-    when(oilCaseOutputsPersistenceService.getOilCaseOutput(discoverySubmissionDetail))
+    when(oilCaseOutputsPersistenceService.getOilCaseOutput(discoveryReservoirSubmissionDetail))
         .thenReturn(Optional.of(oilCaseOutput));
 
-    assertThat(oilCaseOutputsFormService.getOilCaseOutputsForm(discoverySubmissionDetail))
+    assertThat(oilCaseOutputsFormService.getOilCaseOutputsForm(discoveryReservoirSubmissionDetail))
         .extracting(
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getCustom().getConstant(),

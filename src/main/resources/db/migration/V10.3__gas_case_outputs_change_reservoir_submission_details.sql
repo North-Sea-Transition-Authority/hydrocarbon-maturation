@@ -1,0 +1,6 @@
+ALTER TABLE gas_case_outputs
+RENAME COLUMN submission_detail_id to reservoir_submission_detail_id;
+ALTER TABLE gas_case_outputs
+DROP CONSTRAINT gas_case_outputs_fk;
+ALTER TABLE gas_case_outputs
+ADD CONSTRAINT gasl_case_outputs_fk FOREIGN KEY (reservoir_submission_detail_id) REFERENCES reservoir_submission_details (id);

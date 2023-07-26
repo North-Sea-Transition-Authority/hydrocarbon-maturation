@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 public class ProbabilityDistributionPersistenceService {
@@ -23,15 +24,31 @@ public class ProbabilityDistributionPersistenceService {
                                                      ProbabilityDistributionForm probabilityDistributionForm,
                                                      SubmissionDetail submissionDetail) {
     if (probabilityDistributionForm.getProbabilityDistributionType() != null) {
-      saveProbabilityDistribution(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail);
+      saveProbabilityDistribution(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail,
+          null);
+    }
+  }
+
+  @Transactional
+  public void saveProbabilityDistributionWhenNotNull(ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
+                                                     ProbabilityDistributionForm probabilityDistributionForm,
+                                                     SubmissionDetail submissionDetail,
+                                                     ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    if (probabilityDistributionForm.getProbabilityDistributionType() != null) {
+      saveProbabilityDistribution(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail,
+          reservoirSubmissionDetail);
     }
   }
 
   private void saveProbabilityDistribution(
       ProbabilityDistributionFieldInstance instance,
       ProbabilityDistributionForm form,
-      SubmissionDetail submissionDetail) {
-    var probabilityDistribution = getProbabilityDistribution(submissionDetail, instance)
+      SubmissionDetail submissionDetail,
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var probabilityDistribution =
+        (reservoirSubmissionDetail == null
+            ? getProbabilityDistribution(submissionDetail, instance)
+            : getProbabilityDistribution(reservoirSubmissionDetail, instance))
         .orElse(new ProbabilityDistribution());
 
     //Legacy probability distributions may not have a distribution type, so delete those first on save
@@ -41,6 +58,7 @@ public class ProbabilityDistributionPersistenceService {
     }
 
     probabilityDistribution.setSubmissionDetail(submissionDetail);
+    probabilityDistribution.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     probabilityDistribution.setDistributionType(form.getProbabilityDistributionType());
     probabilityDistribution.setInstance(instance);
     var exceedanceForm = form.getProbabilityOfExceedanceForm();
@@ -69,10 +87,23 @@ public class ProbabilityDistributionPersistenceService {
     return probabilityDistributionRepository.findBySubmissionDetailAndInstance(submissionDetail, instance);
   }
 
+  Optional<ProbabilityDistribution> getProbabilityDistribution(
+      ReservoirSubmissionDetail reservoirSubmissionDetail,
+      ProbabilityDistributionFieldInstance instance
+  ) {
+    return probabilityDistributionRepository.findByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail, instance);
+  }
+
   public List<ProbabilityDistribution> getAllProbabilityDistributionsForInstances(
       SubmissionDetail submissionDetail,
       Set<ProbabilityDistributionFieldInstance> instances) {
     return probabilityDistributionRepository.findBySubmissionDetailAndInstanceIn(submissionDetail, instances);
+  }
+
+  public List<ProbabilityDistribution> getAllProbabilityDistributionsForInstances(
+      ReservoirSubmissionDetail reservoirSubmissionDetail,
+      Set<ProbabilityDistributionFieldInstance> instances) {
+    return probabilityDistributionRepository.findByReservoirSubmissionDetailAndInstanceIn(reservoirSubmissionDetail, instances);
   }
 
   public void deleteProbabilityDistribution(ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
@@ -80,4 +111,9 @@ public class ProbabilityDistributionPersistenceService {
     probabilityDistributionRepository.deleteBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance);
   }
 
+  public void deleteProbabilityDistribution(ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
+                                            ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    probabilityDistributionRepository
+        .deleteByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail, probabilityDistributionFieldInstance);
+  }
 }

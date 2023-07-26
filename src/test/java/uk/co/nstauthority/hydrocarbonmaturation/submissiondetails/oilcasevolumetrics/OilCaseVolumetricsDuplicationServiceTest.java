@@ -26,11 +26,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class OilCaseVolumetricsDuplicationServiceTest {
@@ -38,73 +40,90 @@ class OilCaseVolumetricsDuplicationServiceTest {
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Mock
-  private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @InjectMocks
   private OilCaseVolumetricsDuplicationService oilCaseVolumetricsDuplicationService;
 
   @ParameterizedTest
   @MethodSource("allDiscoveryAndProspectSubmissionTypes")
-  void duplicateSubmissionSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
+  void duplicateReservoirSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
-    whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
+    whenGetAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail)
         .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
 
-    oilCaseVolumetricsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    oilCaseVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution1,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution1,
         ProbabilityDistribution.class);
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution2,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution2,
         ProbabilityDistribution.class);
   }
 
   @ParameterizedTest
   @MethodSource("allDiscoveryAndProspectSubmissionTypes")
-  void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
+  void duplicateReservoirSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    whenGetAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail)
         .thenReturn(Collections.emptyList());
 
-    oilCaseVolumetricsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    oilCaseVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   @Test
-  void duplicateSubmissionSection_SubmissionDetailIsDiscoveryFromProspect_DoesNotDuplicate() {
+  void duplicateReservoirSection_SubmissionDetailIsDiscoveryFromProspect_DoesNotDuplicate() {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
 
-    oilCaseVolumetricsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    oilCaseVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class)
-  void duplicateSubmissionSection_DoesNotDuplicateToNonApplicableSubmissionType(SubmissionType submissionType) {
+  void duplicateReservoirSection_DoesNotDuplicateToNonApplicableSubmissionType(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    oilCaseVolumetricsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    oilCaseVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
-  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstances(SubmissionDetail oldSubmissionDetail) {
-    var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
+  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstances(
+      ReservoirSubmissionDetail oldReservoirSubmissionDetail) {
+    var resourceType = oldReservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       return when(
-          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail,
               Set.of(
                   ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
                   ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
@@ -113,7 +132,7 @@ class OilCaseVolumetricsDuplicationServiceTest {
               )));
     } else if (resourceType == ResourceType.DISCOVERY) {
       return when(
-          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+          probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail,
               Set.of(
                   ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY,
                   ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
@@ -122,7 +141,7 @@ class OilCaseVolumetricsDuplicationServiceTest {
               )));
     }
     return when(
-        probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(eq(oldSubmissionDetail),
+        probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(eq(oldReservoirSubmissionDetail),
             any()));
   }
 

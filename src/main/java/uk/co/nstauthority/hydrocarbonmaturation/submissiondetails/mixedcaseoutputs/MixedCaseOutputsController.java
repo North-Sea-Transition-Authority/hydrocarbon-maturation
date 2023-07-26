@@ -27,12 +27,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/mixed-case-outputs")
+@RequestMapping("/submission-details/{submissionDetailId}/" +
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/mixed-case-outputs")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.DISCOVERY_AND_PROSPECT)
 @IsFromResponsibleTeam
@@ -43,42 +45,51 @@ public class MixedCaseOutputsController {
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final MixedCaseOutputsFormService mixedCaseOutputsFormService;
   private final MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   public static final String PAGE_NAME = "Mixed case outputs (resources)";
 
   @Autowired
   public MixedCaseOutputsController(SubmissionDetailService submissionDetailService,
-                                  ControllerHelperService controllerHelperService,
-                                  ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
-                                  MixedCaseOutputsFormService mixedCaseOutputsFormService,
-                                  MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService) {
+                                    ControllerHelperService controllerHelperService,
+                                    ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
+                                    MixedCaseOutputsFormService mixedCaseOutputsFormService,
+                                    MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService,
+                                    ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.mixedCaseOutputsFormService = mixedCaseOutputsFormService;
     this.mixedCaseOutputsPersistenceService = mixedCaseOutputsPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getMixedCaseOutputs(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                        @ModelAttribute("form") MixedCaseOutputsForm form) {
+                                          @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
+                                          @ModelAttribute("form") MixedCaseOutputsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getMixedCaseOutputsModelAndView(
-        mixedCaseOutputsFormService.getMixedCaseOutputsForm(submissionDetail), submissionDetail);
+        mixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail), submissionDetail);
   }
 
   @PostMapping
   public ModelAndView saveMixedCaseOutputs(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                         @Valid @ModelAttribute("form") MixedCaseOutputsForm form,
-                                         BindingResult bindingResult,
-                                         ValidationType validationType) {
+                                           @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
+                                           @Valid @ModelAttribute("form") MixedCaseOutputsForm form,
+                                           BindingResult bindingResult,
+                                           ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     bindingResult = mixedCaseOutputsFormService.validate(form, bindingResult, validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getMixedOutputsModelAndViewWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          mixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, submissionDetail);
+          mixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );
@@ -156,8 +167,8 @@ public class MixedCaseOutputsController {
   }
 
   private ModelAndView getMixedOutputsModelAndViewWithErrors(BindingResult bindingResult,
-                                                           MixedCaseOutputsForm form,
-                                                           SubmissionDetail submissionDetail) {
+                                                             MixedCaseOutputsForm form, 
+                                                             SubmissionDetail submissionDetail) {
     var modelAndView = getMixedCaseOutputsModelAndView(form, submissionDetail);
 
     return modelAndView

@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,32 +30,34 @@ class MixedCaseVolumetricsSubmissionServiceTest {
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new MixedCaseVolumetricsForm();
 
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
-    when(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail)).thenReturn(form);
+    when(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
 
     when(mixedCaseVolumetricsFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
-    assertTrue(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 
   @Test
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new MixedCaseVolumetricsForm();
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(submissionDetail)).thenReturn(form);
+    when(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
 
     when(mixedCaseVolumetricsFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
-    assertFalse(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

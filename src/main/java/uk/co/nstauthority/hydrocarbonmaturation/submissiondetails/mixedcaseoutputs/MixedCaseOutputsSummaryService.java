@@ -7,7 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 
 @Service
@@ -23,15 +23,17 @@ public class MixedCaseOutputsSummaryService {
     this.mixedCaseOutputsPersistenceService = mixedCaseOutputsPersistenceService;
   }
 
-  public MixedCaseOutputsSummaryView getMixedCaseOutputsSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    var mixedCaseOutput = mixedCaseOutputsPersistenceService.getMixedCaseOutput(submissionDetail);
+  public MixedCaseOutputsSummaryView getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var mixedCaseOutput = mixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail);
     return mixedCaseOutput.map(this::createSummaryViewFromMixedCaseOutput)
         .orElse(MixedCaseOutputsSummaryView.empty());
   }
 
   private MixedCaseOutputsSummaryView createSummaryViewFromMixedCaseOutput(MixedCaseOutput mixedCaseOutput) {
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
-    var submissionDetail = mixedCaseOutput.getSubmissionDetail();
+    var reservoirSubmissionDetail = mixedCaseOutput.getReservoirSubmissionDetail();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var hasAssociatedGasRecoverableResources = BooleanUtil.yesNoFromBoolean(
         mixedCaseOutput.getHasAssociatedGasRecoverableResources(), "");
     var riskedOilEquivalentRecoverableMean = mixedCaseOutput.getRiskedOilEquivalentRecoverableMean() != null
@@ -80,7 +82,7 @@ public class MixedCaseOutputsSummaryService {
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
     listOfInstances.forEach(instance -> listOfSummaryViews.add(
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail)));
+            instance, submissionDetail, reservoirSubmissionDetail)));
     return new MixedCaseOutputsSummaryView(
         hasAssociatedGasRecoverableResources,
         riskedOilEquivalentRecoverableMean,

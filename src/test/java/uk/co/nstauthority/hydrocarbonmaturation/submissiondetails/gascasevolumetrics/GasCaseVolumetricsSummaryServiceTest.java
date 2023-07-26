@@ -17,6 +17,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class GasCaseVolumetricsSummaryServiceTest {
@@ -28,17 +30,18 @@ class GasCaseVolumetricsSummaryServiceTest {
   private GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
   void getGasCaseVolumetricsSummaryView_emptySummaries() {
     var emptySummary = ProbabilityDistributionSummaryView.empty("empty");
 
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail), eq(reservoirSubmissionDetail)))
         .thenReturn(emptySummary);
 
     var gasCaseVolumetricsSummaryView = gasCaseVolumetricsSummaryService.getGasCaseVolumetricsSummaryView(
-        submissionDetail);
+        reservoirSubmissionDetail);
 
     assertThat(gasCaseVolumetricsSummaryView)
         .extracting(
@@ -61,21 +64,23 @@ class GasCaseVolumetricsSummaryServiceTest {
         "20", "20", "unit", "", "comments");
 
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail), eq(reservoirSubmissionDetail)))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
-            submissionDetail))
+            submissionDetail,
+            reservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
-            submissionDetail))
+            submissionDetail,
+            reservoirSubmissionDetail))
         .thenReturn(testSummary);
 
     var gasCaseVolumetricsSummaryView = gasCaseVolumetricsSummaryService.getGasCaseVolumetricsSummaryView(
-        submissionDetail);
+        reservoirSubmissionDetail);
 
     assertThat(gasCaseVolumetricsSummaryView)
         .extracting(
@@ -97,23 +102,26 @@ class GasCaseVolumetricsSummaryServiceTest {
         "20", "20", "20", "20", "20", "20", "20", "20", "20",
         "20", "20", "unit", "", "comments");
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
 
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(discoverySubmissionDetail)))
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(discoverySubmissionDetail), eq(discoveryReservoirSubmissionDetail)))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY,
-            discoverySubmissionDetail))
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
-            discoverySubmissionDetail))
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail))
         .thenReturn(testSummary);
 
     var gasCaseVolumetricsSummaryView = gasCaseVolumetricsSummaryService.getGasCaseVolumetricsSummaryView(
-        discoverySubmissionDetail);
+        discoveryReservoirSubmissionDetail);
 
     assertThat(gasCaseVolumetricsSummaryView)
         .extracting(

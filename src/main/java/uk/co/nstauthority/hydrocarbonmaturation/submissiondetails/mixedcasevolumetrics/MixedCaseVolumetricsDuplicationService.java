@@ -10,25 +10,29 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class MixedCaseVolumetricsDuplicationService implements SubmissionSectionDuplicationService {
+class MixedCaseVolumetricsDuplicationService implements ReservoirSectionDuplicationService {
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
-  private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
   MixedCaseVolumetricsDuplicationService(ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                         SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+                                         ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
-    this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
 
   @Override
   @Transactional
-  public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
+  public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
+                                        ReservoirSubmissionDetail newReservoirSubmissionDetail) {
+    var oldSubmissionDetail = oldReservoirSubmissionDetail.getSubmissionDetail();
+    var newSubmissionDetail = newReservoirSubmissionDetail.getSubmissionDetail();
+
     if (!newSubmissionDetail.isDiscoverySubmission() && !newSubmissionDetail.isProspectSubmission()) {
       return;
     }
@@ -54,10 +58,10 @@ class MixedCaseVolumetricsDuplicationService implements SubmissionSectionDuplica
             ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY));
       }
 
-      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail,
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail,
               applicableInstances)
           .forEach(probabilityDistribution ->
-              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
+              reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newReservoirSubmissionDetail,
                   probabilityDistribution,
                   ProbabilityDistribution.class));
     }
