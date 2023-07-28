@@ -15,6 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class PostDrillDryWellSummaryServiceTest {
@@ -35,6 +37,7 @@ class PostDrillDryWellSummaryServiceTest {
   private PostDrillDryWellSummaryService postDrillDryWellSummaryService;
 
   private SubmissionDetail submissionDetail;
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
 
   @BeforeEach
   void setUp() {
@@ -66,10 +69,10 @@ class PostDrillDryWellSummaryServiceTest {
   }
 
   @Test
-  void getReservoirPropertiesSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail);
+  void getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(reservoirPropertiesSummaryService, times(1))
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 }

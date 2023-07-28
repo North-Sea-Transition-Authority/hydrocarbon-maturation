@@ -63,7 +63,7 @@ public class SubmissionSummaryModelService {
         .addObject("hydrocarbonCaseSummaryView",
             prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("reservoirPropertiesSummaryView",
-            prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+            prospectSummaryService.getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .addObject("trapPropertiesSummaryView",
             prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("oilCaseVolumetricsSummaryView",
@@ -103,6 +103,7 @@ public class SubmissionSummaryModelService {
   }
 
   public ModelAndView createPostDrillDryWellSubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail);
     var modelAndView = new ModelAndView(viewName)
         .addObject("dryWellDetailsSummaryView",
             postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
@@ -111,7 +112,8 @@ public class SubmissionSummaryModelService {
         .addObject("permeabilitySummaryView",
             postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("reservoirPropertiesSummaryView",
-            postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+            postDrillDryWellSummaryService
+                .getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .addObject("opportunityDetailsSummaryView",
             prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("outlineForMaximumCaseSummaryView",
@@ -138,7 +140,7 @@ public class SubmissionSummaryModelService {
         .addObject("oilFluidPropertiesSummaryView",
             discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("reservoirPropertiesSummaryView",
-            discoverySummaryService.getReservoirPropertySummaryViewFromSubmissionDetail(submissionDetail))
+            discoverySummaryService.getReservoirPropertySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .addObject("permeabilitySummaryView",
             discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("generalDetailsSummaryView",

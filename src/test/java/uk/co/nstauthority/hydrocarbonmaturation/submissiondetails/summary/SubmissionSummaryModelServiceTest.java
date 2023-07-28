@@ -162,13 +162,14 @@ class SubmissionSummaryModelServiceTest {
     var reservoirSubmissionDetail = Mockito.mock(ReservoirSubmissionDetail.class);
     when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
+
     when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
     when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(sourceAndSealSummaryView);
     when(prospectSummaryService.getHydrocarbonCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(hydrocarbonCaseSummaryView);
-    when(prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+    when(prospectSummaryService.getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(reservoirPropertiesSummaryView);
     when(prospectSummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(chanceOfSuccessSummaryView);
@@ -215,11 +216,15 @@ class SubmissionSummaryModelServiceTest {
   @Test
   void createPostDrillDryWellSubmissionSummaryModelAndView() {
     var submissionDetail = Mockito.mock(SubmissionDetail.class);
+    var reservoirSubmissionDetail = Mockito.mock(ReservoirSubmissionDetail.class);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
+
     when(postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(dryWellDetailsSummaryView);
     when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(permeabilityDetailSummaryView);
-    when(postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+    when(postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(reservoirPropertiesSummaryView);
     when(postDrillDryWellSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);

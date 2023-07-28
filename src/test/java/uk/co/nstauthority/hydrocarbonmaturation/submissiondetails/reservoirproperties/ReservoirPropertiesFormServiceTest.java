@@ -29,6 +29,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelld
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +54,7 @@ class ReservoirPropertiesFormServiceTest {
   private static HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   private static SubmissionDetail submissionDetail;
+  private static ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
@@ -60,6 +63,7 @@ class ReservoirPropertiesFormServiceTest {
         discoveryWellDetailsPersistenceService, hydrocarbonCasePersistenceService);
 
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
   }
 
   @Test
@@ -86,9 +90,9 @@ class ReservoirPropertiesFormServiceTest {
 
   @Test
   void reservoirPropertiesEntityToForm_newEntity_thenEmptyForm() {
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.empty());
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.empty());
 
-    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail))
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail))
         .extracting(
             ReservoirPropertiesForm::getFormationName,
             ReservoirPropertiesForm::getAgeStageOrSeries,
@@ -111,23 +115,23 @@ class ReservoirPropertiesFormServiceTest {
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "CREATE_PROSPECT", "POST_DRILL_DRY_HOLE"})
   void reservoirPropertiesEntityToForm_existingProspectEntity_thenPopulatedForm(SubmissionType submissionType) {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     submissionDetail.setSubmissionType(submissionType);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
     var probabilityDistributionForm =
         ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        eq(submissionDetail), any())).thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(submissionDetail,
+        eq(reservoirSubmissionDetail), any())).thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(submissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(submissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(submissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT))
         .thenReturn(probabilityDistributionForm);
 
@@ -135,7 +139,7 @@ class ReservoirPropertiesFormServiceTest {
     var expectedConnectivity = submissionType == SubmissionType.POST_DRILL_DRY_HOLE ? "connectivity" : null;
     var expectedFacies = submissionType == SubmissionType.POST_DRILL_DRY_HOLE ? "facies" : null;
 
-    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail))
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail))
         .extracting(
             ReservoirPropertiesForm::getAgeStageOrSeries,
             ReservoirPropertiesForm::getGroupName,
@@ -207,9 +211,10 @@ class ReservoirPropertiesFormServiceTest {
   void reservoirPropertiesEntityToForm_whenCreateOrUpdateDiscovery_thenVerifyDiscoveryDistributionEntityToForm(
       SubmissionType submissionType) {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(submissionType);
-    var reservoirProperty = getReservoirProperty(discoverySubmissionDetail);
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
+    var reservoirProperty = getReservoirProperty(discoveryReservoirSubmissionDetail);
     discoverySubmissionDetail.setSubmissionType(submissionType);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(discoverySubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(discoveryReservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     var discoveryWellDetail = new DiscoveryWellDetail();
 
@@ -221,35 +226,35 @@ class ReservoirPropertiesFormServiceTest {
     var probabilityDistributionForm =
         ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
 
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoverySubmissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoverySubmissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoverySubmissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoverySubmissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoverySubmissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoverySubmissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoverySubmissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoverySubmissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoverySubmissionDetail,
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
 
-    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(discoverySubmissionDetail))
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(discoveryReservoirSubmissionDetail))
         .extracting(
             ReservoirPropertiesForm::getDepthToOilWaterContact,
             ReservoirPropertiesForm::getDepthToGasOilContact,
@@ -266,45 +271,45 @@ class ReservoirPropertiesFormServiceTest {
 
   @Test
   void reservoirPropertiesEntityToForm_whenPostDrillDryHole_thenVerifyDryWellDistributionEntityToForm() {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     var probabilityDistributionForm =
         ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        eq(submissionDetail), any())).thenReturn(probabilityDistributionForm);
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(submissionDetail,
+        eq(reservoirSubmissionDetail), any())).thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL))
         .thenReturn(probabilityDistributionForm);
 
-    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getAverageNetPayThickness())
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getAverageNetPayThickness())
         .isEqualTo(probabilityDistributionForm);
   }
 
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withFormationEnum_thenPopulatedForm() {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setFormationName(Formation.ASGARD);
     reservoirProperty.setFormationNameManual(null);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     assertThat(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)
+        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail)
             .getFormationName()
     ).isEqualTo(Formation.ASGARD.name());
   }
 
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withManualFormation_thenPopulatedForm() {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setFormationName(null);
     reservoirProperty.setFormationNameManual("manual formation name");
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     assertThat(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)
+        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail)
             .getFormationName()
     ).isEqualTo(
         SearchSelectorService.getValueWithManualEntryPrefix(
@@ -315,36 +320,36 @@ class ReservoirPropertiesFormServiceTest {
 
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withNullFormationAndNullManual_thenNullFormation() {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setFormationName(null);
     reservoirProperty.setFormationNameManual(null);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
-    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getFormationName())
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getFormationName())
         .isNull();
   }
 
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withSubUnitEnum_thenPopulatedForm() {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setSubUnit(ReservoirSubUnit.T10);
     reservoirProperty.setSubUnitManual(null);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     assertThat(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getSubUnit()
+        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getSubUnit()
     ).isEqualTo(ReservoirSubUnit.T10.name());
   }
 
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withManualSubUnit_thenPopulatedForm() {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setSubUnit(null);
     reservoirProperty.setSubUnitManual("manual sub unit");
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     assertThat(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getSubUnit()
+        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getSubUnit()
     ).isEqualTo(
         SearchSelectorService.getValueWithManualEntryPrefix(
             reservoirProperty.getSubUnitManual()
@@ -354,37 +359,37 @@ class ReservoirPropertiesFormServiceTest {
 
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withNullSubUnitAndNullManual_thenNullSubUnit() {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setSubUnit(null);
     reservoirProperty.setSubUnitManual(null);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
-    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getSubUnit())
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getSubUnit())
         .isNull();
   }
 
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withAgeStageEnum_thenPopulatedForm() {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
     reservoirProperty.setAgeStageManual(null);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     assertThat(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)
+        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail)
             .getAgeStageOrSeries()
     ).isEqualTo(AgeSeries.LOWER_CARBONIFEROUS.name());
   }
 
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withManualAgeStage_thenPopulatedForm() {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setAgeStage(null);
     reservoirProperty.setAgeStageManual("manual age stage");
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     assertThat(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail)
+        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail)
             .getAgeStageOrSeries()
     ).isEqualTo(
         SearchSelectorService.getValueWithManualEntryPrefix(
@@ -395,18 +400,18 @@ class ReservoirPropertiesFormServiceTest {
 
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withNullAgeStageAndNullManual_thenNullAgeStage() {
-    var reservoirProperty = getReservoirProperty(submissionDetail);
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setAgeStage(null);
     reservoirProperty.setAgeStageManual(null);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)).thenReturn(Optional.of(reservoirProperty));
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
-    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail).getAgeStageOrSeries())
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getAgeStageOrSeries())
         .isNull();
   }
 
-  private ReservoirProperty getReservoirProperty(SubmissionDetail submissionDetail) {
+  private ReservoirProperty getReservoirProperty(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var reservoirProperty = new ReservoirProperty();
-    reservoirProperty.setSubmissionDetail(submissionDetail);
+    reservoirProperty.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     reservoirProperty.setLithology(ReservoirLithology.OTHER);
     reservoirProperty.setLithologyOther("other lithology");
     reservoirProperty.setReservoirConnectivity("connectivity");

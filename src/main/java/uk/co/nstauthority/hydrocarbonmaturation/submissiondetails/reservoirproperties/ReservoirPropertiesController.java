@@ -31,12 +31,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Form
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/reservoir-properties")
+@RequestMapping("/submission-details/{submissionDetailId}/" +
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/reservoir-properties")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @IsFromResponsibleTeam
 public class ReservoirPropertiesController {
@@ -56,6 +58,7 @@ public class ReservoirPropertiesController {
   private final FormationSearchService formationSearchService;
   private final ReservoirSubUnitSearchService reservoirSubUnitSearchService;
   private final AgeSeriesSearchService ageSeriesSearchService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Autowired
   public ReservoirPropertiesController(ControllerHelperService controllerHelperService,
@@ -67,7 +70,8 @@ public class ReservoirPropertiesController {
                                        HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
                                        FormationSearchService formationSearchService,
                                        ReservoirSubUnitSearchService reservoirSubUnitSearchService,
-                                       AgeSeriesSearchService ageSeriesSearchService) {
+                                       AgeSeriesSearchService ageSeriesSearchService,
+                                       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.controllerHelperService = controllerHelperService;
     this.reservoirPropertiesFormService = reservoirPropertiesFormService;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
@@ -78,28 +82,35 @@ public class ReservoirPropertiesController {
     this.formationSearchService = formationSearchService;
     this.reservoirSubUnitSearchService = reservoirSubUnitSearchService;
     this.ageSeriesSearchService = ageSeriesSearchService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @GetMapping
-  public ModelAndView getReservoirProperties(@PathVariable("submissionDetailId") UUID submissionDetailId) {
+  public ModelAndView getReservoirProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                             @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getReservoirPropertiesModelAndView(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail), submissionDetail);
+        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail), submissionDetail);
   }
 
   @PostMapping
   public ModelAndView saveReservoirProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                              @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                               @ModelAttribute("form") ReservoirPropertiesForm form,
                                               BindingResult bindingResult, ValidationType validationType) {
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     bindingResult = reservoirPropertiesFormService.validate(form, bindingResult,
         validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getReservoirPropertiesWithErrors(bindingResult, form, submissionDetail),
         () -> {
-          reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+          reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );

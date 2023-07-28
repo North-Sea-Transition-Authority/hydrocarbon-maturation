@@ -124,11 +124,11 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
-  void getReservoirPropertiesSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    prospectSummaryService.getReservoirPropertiesSummaryViewFromSubmissionDetail(submissionDetail);
+  void getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    prospectSummaryService.getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(reservoirPropertiesSummaryService, times(1))
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test
@@ -164,7 +164,7 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
-  void getMixedCaseOutputsSummaryViewFromReservoirSubmisionDetail() {
+  void getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail() {
     prospectSummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(mixedCaseOutputsSummaryService, times(1))
@@ -172,7 +172,7 @@ class ProspectSummaryServiceTest {
   }
 
   @Test
-  void getMixedCaseVolumetricsSummaryViewFromReservoirSubmisionDetail() {
+  void getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail() {
     prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(mixedCaseVolumetricsSummaryService, times(1))

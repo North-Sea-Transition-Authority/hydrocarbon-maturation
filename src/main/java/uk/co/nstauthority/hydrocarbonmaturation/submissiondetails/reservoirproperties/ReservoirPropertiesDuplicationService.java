@@ -10,31 +10,35 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicationService {
+class ReservoirPropertiesDuplicationService implements ReservoirSectionDuplicationService {
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
-  private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
   ReservoirPropertiesDuplicationService(ReservoirPropertiesPersistenceService chanceOfSuccessPersistenceService,
                                         ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                        SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+                                        ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.reservoirPropertiesPersistenceService = chanceOfSuccessPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
-    this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
 
   @Override
   @Transactional
-  public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    reservoirPropertiesPersistenceService.getReservoirProperty(oldSubmissionDetail)
+  public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
+                                        ReservoirSubmissionDetail newReservoirSubmissionDetail) {
+    var oldSubmissionDetail = oldReservoirSubmissionDetail.getSubmissionDetail();
+    var newSubmissionDetail = newReservoirSubmissionDetail.getSubmissionDetail();
+
+    reservoirPropertiesPersistenceService.getReservoirProperty(oldReservoirSubmissionDetail)
         .ifPresent(reservoirProperty ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, reservoirProperty,
+            reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newReservoirSubmissionDetail, reservoirProperty,
                 ReservoirProperty.class)
         );
 
@@ -76,7 +80,7 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
 
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
       probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(
-              oldSubmissionDetail,
+              oldReservoirSubmissionDetail,
               applicableInstances
           )
           .forEach(probabilityDistribution -> {
@@ -89,12 +93,12 @@ class ReservoirPropertiesDuplicationService implements SubmissionSectionDuplicat
                 return;
               }
               var newProbabilityDistribution =
-                  submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
-                      newSubmissionDetail, probabilityDistribution, ProbabilityDistribution.class);
+                  reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                      newReservoirSubmissionDetail, probabilityDistribution, ProbabilityDistribution.class);
               newProbabilityDistribution.setInstance(
                   ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
             } else {
-              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
+              reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newReservoirSubmissionDetail,
                   probabilityDistribution,
                   ProbabilityDistribution.class);
             }

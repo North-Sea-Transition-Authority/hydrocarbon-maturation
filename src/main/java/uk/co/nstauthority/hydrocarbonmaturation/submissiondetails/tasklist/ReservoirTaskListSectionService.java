@@ -13,19 +13,23 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.P
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 
 @Service
 public class ReservoirTaskListSectionService implements TaskListSectionService {
 
   private final ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
-
   private final PermeabilitySubmissionService permeabilitySubmissionService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Autowired
   public ReservoirTaskListSectionService(ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService,
-                                         PermeabilitySubmissionService permeabilitySubmissionService) {
+                                         PermeabilitySubmissionService permeabilitySubmissionService,
+                                         ReservoirSubmissionDetailPersistenceService
+                                               reservoirSubmissionDetailPersistenceService) {
     this.reservoirPropertiesSubmissionService = reservoirPropertiesSubmissionService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @Override
@@ -43,12 +47,15 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
       );
     }
 
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetail(submissionDetail);
+
     items.add(
         new TaskListItem("Reservoir properties",
             TaskListLabel.notStartedOrComplete(
-                reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail)),
-            ReverseRouter.route(
-                on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetail.getId())))
+                reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+            ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .getReservoirProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
     );
 
     if (submissionDetail.isDryWellOrDiscoverySubmission()) {
@@ -63,10 +70,13 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetail(submissionDetail);
+
     if (submissionDetail.isDryWellOrDiscoverySubmission()) {
-      return reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail)
+      return reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)
           && permeabilitySubmissionService.isSectionSubmittable(submissionDetail);
     }
-    return reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail);
+    return reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
   }
 }

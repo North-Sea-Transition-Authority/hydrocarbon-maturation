@@ -21,6 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesPersistenceServiceTest {
@@ -34,6 +36,7 @@ class ReservoirPropertiesPersistenceServiceTest {
   private static ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
 
   private static SubmissionDetail submissionDetail;
+  private static ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
@@ -41,6 +44,7 @@ class ReservoirPropertiesPersistenceServiceTest {
         probabilityDistributionPersistenceService);
 
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
   }
 
   @Test
@@ -48,20 +52,22 @@ class ReservoirPropertiesPersistenceServiceTest {
     var form = getValidForm();
 
     var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
 
-    verifyProspectSubmissionTypesProbabilityTablesSaved(form, submissionDetail);
+    verifyProspectSubmissionTypesProbabilityTablesSaved(form, reservoirSubmissionDetail);
 
     // Prospect specific
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
         form.getAverageNetPayThickness(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
         form.getDepthToHydrocarbonContact(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
 
@@ -69,7 +75,7 @@ class ReservoirPropertiesPersistenceServiceTest {
 
     assertThat(savedReservoirProperty)
         .extracting(
-            ReservoirProperty::getSubmissionDetail,
+            ReservoirProperty::getReservoirSubmissionDetail,
             ReservoirProperty::getGroupName,
             ReservoirProperty::getLithology,
             ReservoirProperty::getLithologyOther,
@@ -77,7 +83,7 @@ class ReservoirPropertiesPersistenceServiceTest {
             ReservoirProperty::getReservoirFacies
         )
         .containsExactly(
-            submissionDetail,
+            reservoirSubmissionDetail,
             form.getGroupName(),
             form.getLithology(),
             form.getLithologyOther(),
@@ -91,15 +97,16 @@ class ReservoirPropertiesPersistenceServiceTest {
     var form = getValidForm();
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
-    verifyProspectSubmissionTypesProbabilityTablesSaved(form, submissionDetail);
+    verifyProspectSubmissionTypesProbabilityTablesSaved(form, reservoirSubmissionDetail);
 
     // Dry well specific
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
         form.getAverageNetPayThickness(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
 
@@ -107,7 +114,7 @@ class ReservoirPropertiesPersistenceServiceTest {
 
     assertThat(savedReservoirProperty)
         .extracting(
-            ReservoirProperty::getSubmissionDetail,
+            ReservoirProperty::getReservoirSubmissionDetail,
             ReservoirProperty::getGroupName,
             ReservoirProperty::getLithology,
             ReservoirProperty::getLithologyOther,
@@ -115,7 +122,7 @@ class ReservoirPropertiesPersistenceServiceTest {
             ReservoirProperty::getReservoirFacies
         )
         .containsExactly(
-            submissionDetail,
+            reservoirSubmissionDetail,
             form.getGroupName(),
             form.getLithology(),
             form.getLithologyOther(),
@@ -128,39 +135,44 @@ class ReservoirPropertiesPersistenceServiceTest {
   void saveReservoirProperties_whenDiscoverySubmission_givenAForm_verifyCreated_Entity() {
     var form = getValidForm();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, discoverySubmissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, discoveryReservoirSubmissionDetail);
 
-    verifyDiscoverySubmissionTypesProbabilityTablesSaved(form, discoverySubmissionDetail);
+    verifyDiscoverySubmissionTypesProbabilityTablesSaved(form, discoveryReservoirSubmissionDetail);
 
     // Discovery specific
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY,
         form.getAverageNetPayThickness(),
-        discoverySubmissionDetail);
+        discoverySubmissionDetail,
+        discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
-            discoverySubmissionDetail);
+            discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
-            discoverySubmissionDetail);
+            discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
-            discoverySubmissionDetail);
+            discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
             form.getDepthToGasWaterContact(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
             form.getDepthToOilWaterContact(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
             form.getDepthToGasOilContact(),
-            discoverySubmissionDetail);
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
 
@@ -168,7 +180,7 @@ class ReservoirPropertiesPersistenceServiceTest {
 
     assertThat(savedReservoirProperty)
         .extracting(
-            ReservoirProperty::getSubmissionDetail,
+            ReservoirProperty::getReservoirSubmissionDetail,
             ReservoirProperty::getGroupName,
             ReservoirProperty::getLithology,
             ReservoirProperty::getLithologyOther,
@@ -176,7 +188,7 @@ class ReservoirPropertiesPersistenceServiceTest {
             ReservoirProperty::getReservoirFacies
         )
         .containsExactly(
-            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail,
             form.getGroupName(),
             form.getLithology(),
             form.getLithologyOther(),
@@ -187,54 +199,68 @@ class ReservoirPropertiesPersistenceServiceTest {
 
   @Test
   void getTrapProperty_verifyMethodCall() {
-    reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail);
-    verify(reservoirPropertiesRepository, times(1)).findBySubmissionDetail(submissionDetail);
+    reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail);
+    verify(reservoirPropertiesRepository, times(1)).findByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
-  private void verifyProspectSubmissionTypesProbabilityTablesSaved(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
+  private void verifyProspectSubmissionTypesProbabilityTablesSaved(ReservoirPropertiesForm form, ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT,
         form.getNetToGross(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT,
         form.getNetPorosity(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
         form.getPercentOfGrvOilBearing(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,
         form.getGrossRockVolume(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
         form.getGrossReservoirThickness(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
   }
 
-  private void verifyDiscoverySubmissionTypesProbabilityTablesSaved(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
+  private void verifyDiscoverySubmissionTypesProbabilityTablesSaved(ReservoirPropertiesForm form, ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY,
         form.getNetToGross(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY,
         form.getNetPorosity(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY,
         form.getPercentOfGrvOilBearing(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY,
         form.getGrossRockVolume(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY,
         form.getGrossReservoirThickness(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
   }
 
   @Test
@@ -242,7 +268,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     var form = new ReservoirPropertiesForm();
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
     var savedReservoirProperty = reservoirArgumentCaptor.getValue();
@@ -264,7 +290,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     form.setFormationName(Formation.ASGARD.name());
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
     var savedReservoirProperty = reservoirArgumentCaptor.getValue();
@@ -287,7 +313,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     form.setFormationName(SearchSelectorService.getValueWithManualEntryPrefix(formation));
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
     var savedReservoirProperty = reservoirArgumentCaptor.getValue();
@@ -310,7 +336,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     var form = new ReservoirPropertiesForm();
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
     var savedReservoirProperty = reservoirArgumentCaptor.getValue();
@@ -332,7 +358,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     form.setSubUnit(ReservoirSubUnit.ALBA.name());
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
     var savedReservoirProperty = reservoirArgumentCaptor.getValue();
@@ -355,7 +381,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     form.setSubUnit(SearchSelectorService.getValueWithManualEntryPrefix(subUnit));
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
     var savedReservoirProperty = reservoirArgumentCaptor.getValue();
@@ -376,7 +402,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     var form = new ReservoirPropertiesForm();
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
     var savedReservoirProperty = reservoirArgumentCaptor.getValue();
@@ -398,7 +424,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     form.setAgeStageOrSeries(AgeSeries.MIDDLE_JURASSIC.name());
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
     var savedReservoirProperty = reservoirArgumentCaptor.getValue();
@@ -421,7 +447,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     form.setAgeStageOrSeries(SearchSelectorService.getValueWithManualEntryPrefix(ageStage));
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, submissionDetail);
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
     var savedReservoirProperty = reservoirArgumentCaptor.getValue();

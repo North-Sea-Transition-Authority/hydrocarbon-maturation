@@ -107,9 +107,10 @@ class ProspectSummaryService {
     return hydrocarbonCaseSummaryService.getHydrocarbonSummaryFromSubmissionDetail(submissionDetail);
   }
 
-  public ReservoirPropertiesSummaryView getReservoirPropertiesSummaryViewFromSubmissionDetail(
-      SubmissionDetail submissionDetail) {
-    return reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+  public ReservoirPropertiesSummaryView getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return reservoirPropertiesSummaryService
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   public ProbabilityDistributionsFormSummaryView getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(

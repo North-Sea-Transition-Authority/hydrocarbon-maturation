@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelld
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 public class ReservoirPropertiesSummaryService {
@@ -36,17 +37,19 @@ public class ReservoirPropertiesSummaryService {
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
   }
 
-  public ReservoirPropertiesSummaryView getReservoirPropertiesSummaryFromSubmissionDetail(
-      SubmissionDetail submissionDetail) {
-    var reservoirPropertyOptional = reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail);
+  public ReservoirPropertiesSummaryView getReservoirPropertiesSummaryFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var reservoirPropertyOptional = reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail);
     return reservoirPropertyOptional.map(
-            reservoirProperty -> createSummaryViewFromReservoirProperty(submissionDetail, reservoirProperty))
-        .orElse(createSummaryViewFromReservoirProperty(submissionDetail, new ReservoirProperty()));
+            reservoirProperty -> createSummaryViewFromReservoirProperty(reservoirSubmissionDetail, reservoirProperty))
+        .orElse(createSummaryViewFromReservoirProperty(reservoirSubmissionDetail, new ReservoirProperty()));
   }
 
-  private ReservoirPropertiesSummaryView createSummaryViewFromReservoirProperty(SubmissionDetail submissionDetail,
-                                                                                ReservoirProperty reservoirProperty) {
+  private ReservoirPropertiesSummaryView createSummaryViewFromReservoirProperty(
+      ReservoirSubmissionDetail reservoirSubmissionDetail,
+      ReservoirProperty reservoirProperty) {
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     if (submissionDetail.isDryWellSubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL);
@@ -68,7 +71,7 @@ public class ReservoirPropertiesSummaryService {
             }
           });
     }
-    var listOfDepthToContactDistributions  = getDiscoveryProbabilityTableSummaryViews(submissionDetail, listOfInstances);
+    var listOfDepthToContactDistributions  = getDiscoveryProbabilityTableSummaryViews(reservoirSubmissionDetail, listOfInstances);
 
     addNetToGross(submissionDetail, listOfInstances);
     addNetPorosity(submissionDetail, listOfInstances);
@@ -80,7 +83,7 @@ public class ReservoirPropertiesSummaryService {
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
     listOfInstances.forEach(instance -> listOfSummaryViews.add(
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail)));
+            instance, submissionDetail, reservoirSubmissionDetail)));
 
     return new ReservoirPropertiesSummaryView(
         submissionDetail.getSubmissionType(),
@@ -152,9 +155,11 @@ public class ReservoirPropertiesSummaryService {
   }
 
   private List<ProbabilityDistributionSummaryView> getDiscoveryProbabilityTableSummaryViews(
-      SubmissionDetail submissionDetail,
+      ReservoirSubmissionDetail reservoirSubmissionDetail,
       List<ProbabilityDistributionFieldInstance> listOfInstances) {
     var listOfDepthToContactInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
     if (submissionDetail.isDiscoverySubmission()) {
       discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
           .map(DiscoveryWellDetail::getHydrocarbonsDiscovered)
@@ -177,7 +182,7 @@ public class ReservoirPropertiesSummaryService {
     var depthToContactDistributions = new ArrayList<ProbabilityDistributionSummaryView>();
     listOfDepthToContactInstances.forEach(instance -> depthToContactDistributions.add(
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail)));
+            instance, submissionDetail, reservoirSubmissionDetail)));
     return depthToContactDistributions;
   }
 

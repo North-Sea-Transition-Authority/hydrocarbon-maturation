@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.SectionSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirSectionSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class ReservoirPropertiesSubmissionService implements SectionSubmissionService {
+public class ReservoirPropertiesSubmissionService implements ReservoirSectionSubmissionService {
 
   private final ReservoirPropertiesFormService reservoirPropertiesFormService;
 
@@ -19,9 +19,10 @@ public class ReservoirPropertiesSubmissionService implements SectionSubmissionSe
   }
 
   @Override
-  public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    var form = reservoirPropertiesFormService.getReservoirPropertiesForm(submissionDetail);
+  public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var form = reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     bindingResult = reservoirPropertiesFormService.validate(
         form, bindingResult,
         ValidationType.FULL, submissionDetail);

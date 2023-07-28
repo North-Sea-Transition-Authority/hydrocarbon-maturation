@@ -24,10 +24,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesDuplicationServiceTest {
@@ -38,38 +40,46 @@ class ReservoirPropertiesDuplicationServiceTest {
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Mock
-  private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @InjectMocks
   private ReservoirPropertiesDuplicationService reservoirPropertiesDuplicationService;
 
   @Test
-  void duplicateSubmissionSection_ReservoirPropertyExists_DoesDuplicate() {
+  void duplicateReservoirSection_ReservoirPropertyExists_DoesDuplicate() {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
 
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
     var reservoirProperty = mock(ReservoirProperty.class);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(oldSubmissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(oldReservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, reservoirProperty,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, reservoirProperty,
         ReservoirProperty.class);
   }
 
   @Test
-  void duplicateSubmissionSection_ReservoirPropertyDoesNotExist_DoesNotDuplicate() {
+  void duplicateReservoirSection_ReservoirPropertyDoesNotExist_DoesNotDuplicate() {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(oldSubmissionDetail))
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(oldReservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ReservoirProperty.class), eq(ReservoirProperty.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ReservoirProperty.class), eq(ReservoirProperty.class));
   }
 
   @ParameterizedTest
@@ -77,20 +87,24 @@ class ReservoirPropertiesDuplicationServiceTest {
       value = SubmissionType.class,
       names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"},
       mode = EnumSource.Mode.INCLUDE)
-  void duplicateSubmissionSection_ProbabilityDistributionsExist_ProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
+  void duplicateReservoirSection_ProbabilityDistributionsExist_ProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
-    whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(oldSubmissionDetail)
+    whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(oldReservoirSubmissionDetail)
         .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution1,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution1,
         ProbabilityDistribution.class);
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution2,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution2,
         ProbabilityDistribution.class);
   }
 
@@ -99,29 +113,33 @@ class ReservoirPropertiesDuplicationServiceTest {
       value = SubmissionType.class,
       names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT", "CREATE_DISCOVERY", "CREATE_PROSPECT", "CREATE_DISCOVERY_FROM_PROSPECT", "CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"},
       mode = EnumSource.Mode.EXCLUDE)
-  void duplicateSubmissionSection_ProbabilityDistributionsExist_NonProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
+  void duplicateReservoirSection_ProbabilityDistributionsExist_NonProspectUpdate_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
     if (submissionType == SubmissionType.UPDATE_DISCOVERY
         || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
-      whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
+      whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldReservoirSubmissionDetail)
           .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
     } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
-      whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(oldSubmissionDetail)
+      whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(oldReservoirSubmissionDetail)
           .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
     } else {
-      whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(oldSubmissionDetail)
+      whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(oldReservoirSubmissionDetail)
           .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
     }
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution1,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution1,
         ProbabilityDistribution.class);
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, probabilityDistribution2,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution2,
         ProbabilityDistribution.class);
   }
 
@@ -130,124 +148,157 @@ class ReservoirPropertiesDuplicationServiceTest {
       value = SubmissionType.class,
       names = {"PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"},
       mode = EnumSource.Mode.INCLUDE)
-  void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_ProspectUpdate_DoesNotDuplicate(SubmissionType submissionType) {
+  void duplicateReservoirSection_ProbabilityDistributionsDoNotExist_ProspectUpdate_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(oldSubmissionDetail)
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(oldReservoirSubmissionDetail)
         .thenReturn(List.of());
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {
       "POST_DRILL_DRY_HOLE"}, mode = EnumSource.Mode.INCLUDE)
-  void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_DryWellAndSameType_DoesNotDuplicate(SubmissionType submissionType) {
+  void duplicateReservoirSection_ProbabilityDistributionsDoNotExist_DryWellAndSameType_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(oldSubmissionDetail)
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(oldReservoirSubmissionDetail)
         .thenReturn(List.of());
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {
       "UPDATE_DISCOVERY",
       "RELINQUISHMENT_DISCOVERY"})
-  void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_Discovery_DoesNotDuplicate(SubmissionType submissionType) {
+  void duplicateReservoirSection_ProbabilityDistributionsDoNotExist_Discovery_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldReservoirSubmissionDetail)
           .thenReturn(List.of());
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   @Test
-  void duplicateSubmissionSection_averageNetPayExists_Discovery_duplicates() {
+  void duplicateReservoirSection_averageNetPayExists_Discovery_duplicates() {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_DISCOVERY);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.UPDATE_DISCOVERY);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
     var averageNetPayProbDistribution = new ProbabilityDistribution();
     averageNetPayProbDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
     averageNetPayProbDistribution.setDistributionType(ProbabilityDistributionType.CONSTANT);
-    whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
+    whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldReservoirSubmissionDetail)
         .thenReturn(List.of(averageNetPayProbDistribution));
     var mockNetPayThickness = mock(ProbabilityDistribution.class);
-    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
-        eq(newSubmissionDetail), any(), eq(ProbabilityDistribution.class)))
+    when(reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
+        eq(newReservoirSubmissionDetail), any(), eq(ProbabilityDistribution.class)))
         .thenReturn(mockNetPayThickness);
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, times(1))
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    verify(reservoirDuplicationPersistenceService, times(1))
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   @Test
-  void duplicateSubmissionSection_averageNetPayExists_PostDrill_DoesNotSetAverageNetPayThickness() {
+  void duplicateReservoirSection_averageNetPayExists_PostDrill_DoesNotSetAverageNetPayThickness() {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.PROSPECT_UPDATE);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
     var averageNetPayProbDistribution = new ProbabilityDistribution();
     averageNetPayProbDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
     averageNetPayProbDistribution.setDistributionType(ProbabilityDistributionType.CONSTANT);
-    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(oldSubmissionDetail)
+    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(oldReservoirSubmissionDetail)
         .thenReturn(List.of(averageNetPayProbDistribution));
     var mockNetPayThickness = mock(ProbabilityDistribution.class);
-    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
-        eq(newSubmissionDetail), any(), eq(ProbabilityDistribution.class)))
+    when(reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
+        eq(newReservoirSubmissionDetail), any(), eq(ProbabilityDistribution.class)))
         .thenReturn(mockNetPayThickness);
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(mockNetPayThickness, never()).setInstance(any(ProbabilityDistributionFieldInstance.class));
-    verify(submissionDuplicationPersistenceService, times(1))
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    verify(reservoirDuplicationPersistenceService, times(1))
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   @Test
-  void duplicateSubmissionSection_PostDrill_update_Duplicates() {
+  void duplicateReservoirSection_PostDrill_update_Duplicates() {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
     var averageNetPayProbDistribution = new ProbabilityDistribution();
-    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(oldSubmissionDetail)
+    whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(oldReservoirSubmissionDetail)
         .thenReturn(List.of(averageNetPayProbDistribution));
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, times(1))
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    verify(reservoirDuplicationPersistenceService, times(1))
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   @Test
-  void duplicateSubmissionSection_averageNetPayExistsNotCalculated_Discovery_notDuplicates() {
+  void duplicateReservoirSection_averageNetPayExistsNotCalculated_Discovery_notDuplicates() {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_DISCOVERY);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.UPDATE_DISCOVERY);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
     var averageNetPayProbDistribution = new ProbabilityDistribution();
     averageNetPayProbDistribution.setInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT);
     averageNetPayProbDistribution.setDistributionType(ProbabilityDistributionType.NOT_CALCULATED);
-    whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldSubmissionDetail)
+    whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldReservoirSubmissionDetail)
         .thenReturn(List.of(averageNetPayProbDistribution));
 
-    reservoirPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verifyNoInteractions(submissionDuplicationPersistenceService);
+    verifyNoInteractions(reservoirDuplicationPersistenceService);
   }
 
-  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(SubmissionDetail oldSubmissionDetail) {
-    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
+  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForProspectUpdate(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(reservoirSubmissionDetail, Set.of(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,
@@ -258,8 +309,8 @@ class ReservoirPropertiesDuplicationServiceTest {
     )));
   }
 
-  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(SubmissionDetail oldSubmissionDetail) {
-    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
+  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(reservoirSubmissionDetail, Set.of(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY,
@@ -272,8 +323,8 @@ class ReservoirPropertiesDuplicationServiceTest {
     )));
   }
 
-  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(SubmissionDetail oldSubmissionDetail) {
-    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, Set.of(
+  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDryWellUpdate(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(reservoirSubmissionDetail, Set.of(
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
@@ -283,8 +334,8 @@ class ReservoirPropertiesDuplicationServiceTest {
   }
 
   private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForDryWellUpdateAndSameType(
-      SubmissionDetail oldSubmissionDetails) {
-    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetails, Set.of(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(reservoirSubmissionDetail, Set.of(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
         ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,

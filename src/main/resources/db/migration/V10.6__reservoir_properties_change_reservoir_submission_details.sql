@@ -1,0 +1,6 @@
+ALTER TABLE reservoir_properties
+RENAME COLUMN submission_detail_id to reservoir_submission_detail_id;
+ALTER TABLE reservoir_properties
+DROP CONSTRAINT reservoir_properties_fk;
+ALTER TABLE reservoir_properties
+ADD CONSTRAINT reservoir_properties_fk FOREIGN KEY (reservoir_submission_detail_id) REFERENCES reservoir_submission_details (id);

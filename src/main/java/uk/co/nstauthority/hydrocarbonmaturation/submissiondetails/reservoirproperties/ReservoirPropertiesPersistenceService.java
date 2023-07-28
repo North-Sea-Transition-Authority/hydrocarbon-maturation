@@ -10,9 +10,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 class ReservoirPropertiesPersistenceService {
@@ -28,9 +28,10 @@ class ReservoirPropertiesPersistenceService {
   }
 
   @Transactional
-  public void saveReservoirProperty(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
-    var reservoirProperty = getReservoirProperty(submissionDetail).orElse(new ReservoirProperty());
-    reservoirProperty.setSubmissionDetail(submissionDetail);
+  public void saveReservoirProperty(ReservoirPropertiesForm form, ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail).orElse(new ReservoirProperty());
+    reservoirProperty.setReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     setFormation(form, reservoirProperty);
     setSubUnit(form, reservoirProperty);
@@ -58,7 +59,8 @@ class ReservoirPropertiesPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         averageNetPayInstance,
         form.getAverageNetPayThickness(),
-        submissionDetail
+        submissionDetail,
+        reservoirSubmissionDetail
     );
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
@@ -71,7 +73,8 @@ class ReservoirPropertiesPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         grossReservoirThickness,
         form.getGrossReservoirThickness(),
-        submissionDetail
+        submissionDetail,
+        reservoirSubmissionDetail
     );
 
     var grossRockVolume = ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT;
@@ -81,7 +84,8 @@ class ReservoirPropertiesPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         grossRockVolume,
         form.getGrossRockVolume(),
-        submissionDetail
+        submissionDetail,
+        reservoirSubmissionDetail
     );
 
     if (submissionDetail.isProspectSubmission()) {
@@ -90,7 +94,8 @@ class ReservoirPropertiesPersistenceService {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           depthToHydrocarbonContact,
           form.getDepthToHydrocarbonContact(),
-          submissionDetail
+          submissionDetail,
+          reservoirSubmissionDetail
       );
     }
 
@@ -101,7 +106,8 @@ class ReservoirPropertiesPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         netPorosity,
         form.getNetPorosity(),
-        submissionDetail
+        submissionDetail,
+        reservoirSubmissionDetail
     );
 
     var netToGross = ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT;
@@ -111,7 +117,8 @@ class ReservoirPropertiesPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         netToGross,
         form.getNetToGross(),
-        submissionDetail
+        submissionDetail,
+        reservoirSubmissionDetail
     );
 
     var percentOfGrvOilBearing =
@@ -122,18 +129,19 @@ class ReservoirPropertiesPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         percentOfGrvOilBearing,
         form.getPercentOfGrvOilBearing(),
-        submissionDetail
+        submissionDetail,
+        reservoirSubmissionDetail
     );
 
     if (submissionDetail.isDiscoverySubmission()) {
-      saveDiscoveryProbabilityDistributions(submissionDetail, form);
+      saveDiscoveryProbabilityDistributions(reservoirSubmissionDetail, form);
     }
 
     reservoirPropertiesRepository.save(reservoirProperty);
   }
 
-  Optional<ReservoirProperty> getReservoirProperty(SubmissionDetail submissionDetail) {
-    return reservoirPropertiesRepository.findBySubmissionDetail(submissionDetail);
+  Optional<ReservoirProperty> getReservoirProperty(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return reservoirPropertiesRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   private void setFormation(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
@@ -181,29 +189,34 @@ class ReservoirPropertiesPersistenceService {
     }
   }
 
-  private void saveDiscoveryProbabilityDistributions(SubmissionDetail submissionDetail,
+  private void saveDiscoveryProbabilityDistributions(ReservoirSubmissionDetail reservoirSubmissionDetail,
                                                      ReservoirPropertiesForm form) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
     probabilityDistributionPersistenceService.deleteProbabilityDistribution(
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
-        submissionDetail);
+        reservoirSubmissionDetail);
     probabilityDistributionPersistenceService.deleteProbabilityDistribution(
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
-        submissionDetail);
+        reservoirSubmissionDetail);
     probabilityDistributionPersistenceService.deleteProbabilityDistribution(
         ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
-        submissionDetail);
+        reservoirSubmissionDetail);
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
         form.getDepthToOilWaterContact(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
         form.getDepthToGasWaterContact(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
         form.getDepthToGasOilContact(),
-        submissionDetail);
+        submissionDetail,
+        reservoirSubmissionDetail);
   }
 }

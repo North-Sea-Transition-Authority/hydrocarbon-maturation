@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproper
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryService;
@@ -44,6 +45,9 @@ class DiscoverySummaryServiceTest {
 
   @Mock
   private PermeabilitySummaryService permeabilitySummaryService;
+
+  @Mock
+  private ReservoirPropertiesSummaryService reservoirPropertiesSummaryService;
 
   @Mock
   private GeneralDetailSummaryService generalDetailSummaryService;
@@ -136,6 +140,14 @@ class DiscoverySummaryServiceTest {
 
     verify(permeabilitySummaryService, times(1))
         .getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getReservoirPropertySummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getReservoirPropertySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+
+    verify(reservoirPropertiesSummaryService, times(1))
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test

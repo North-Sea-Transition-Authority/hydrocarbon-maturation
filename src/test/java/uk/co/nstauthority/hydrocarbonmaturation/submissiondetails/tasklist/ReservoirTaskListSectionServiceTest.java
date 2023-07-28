@@ -23,6 +23,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.P
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirTaskListSectionServiceTest {
@@ -33,10 +36,14 @@ class ReservoirTaskListSectionServiceTest {
   @Mock
   private PermeabilitySubmissionService permeabilitySubmissionService;
 
+  @Mock
+  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
   @InjectMocks
   private ReservoirTaskListSectionService reservoirTaskListSectionService;
 
   private SubmissionDetail submissionDetail;
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
 
   @BeforeEach
   void setUp() {
@@ -45,6 +52,8 @@ class ReservoirTaskListSectionServiceTest {
 
   @Test
   void getSection() {
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
     var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail);
 
     var section = taskListSectionOptional.get();
@@ -57,7 +66,7 @@ class ReservoirTaskListSectionServiceTest {
         .containsExactly(List.of(
             new TaskListItem("Reservoir properties",
                 TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetail.getId()))),
+                ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             new TaskListItem("Permeability",
                 TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(submissionDetail.getId(), null)))),
@@ -68,7 +77,9 @@ class ReservoirTaskListSectionServiceTest {
 
   @Test
   void isSectionSubmittable_whenPostDrillDryWellItemsSubmittable_assertTrue() {
-    when(reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
+    when(reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
@@ -78,7 +89,9 @@ class ReservoirTaskListSectionServiceTest {
 
   @Test
   void isSectionSubmittable_whenPostDrillDryWellItemNotSubmittable_assertFalse() {
-    when(reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
+    when(reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
 
     var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
@@ -90,7 +103,9 @@ class ReservoirTaskListSectionServiceTest {
   @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "CREATE_PROSPECT"})
   void isSectionSubmittable_whenProspectItemNotSubmittable_assertFalse(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
-    when(reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
+    when(reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
     var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
 
@@ -101,7 +116,9 @@ class ReservoirTaskListSectionServiceTest {
   @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "CREATE_PROSPECT"})
   void isSectionSubmittable_whenProspectItemsSubmittable_assertTrue(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
-    when(reservoirPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
 

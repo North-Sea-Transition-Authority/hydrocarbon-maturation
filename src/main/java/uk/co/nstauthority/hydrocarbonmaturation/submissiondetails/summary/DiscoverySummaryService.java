@@ -126,9 +126,10 @@ class DiscoverySummaryService {
     return permeabilitySummaryService.getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
   }
 
-  public ReservoirPropertiesSummaryView getReservoirPropertySummaryViewFromSubmissionDetail(
-      SubmissionDetail submissionDetail) {
-    return reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+  public ReservoirPropertiesSummaryView getReservoirPropertySummaryViewFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return reservoirPropertiesSummaryService
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   public GeneralDetailSummaryView getGeneralDetailsSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {

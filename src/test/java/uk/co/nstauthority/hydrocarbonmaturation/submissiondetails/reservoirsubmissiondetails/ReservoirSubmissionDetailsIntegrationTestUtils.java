@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails;
 
+import java.util.UUID;
 import javax.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -12,7 +13,7 @@ public class ReservoirSubmissionDetailsIntegrationTestUtils {
 
   public static ReservoirSubmissionDetail createReservoirSubmissionDetail(SubmissionDetail submissionDetail, EntityManager entityManager) {
     var reservoir = new Reservoir();
-    reservoir.setName("reservoir name");
+    reservoir.setName("reservoir name: %s".formatted(UUID.randomUUID()));
     entityManager.persist(reservoir);
     entityManager.flush();
 

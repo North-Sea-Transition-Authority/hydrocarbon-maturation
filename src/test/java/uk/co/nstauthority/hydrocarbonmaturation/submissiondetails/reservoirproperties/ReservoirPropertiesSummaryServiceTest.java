@@ -28,6 +28,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Form
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesSummaryServiceTest {
@@ -48,6 +50,7 @@ class ReservoirPropertiesSummaryServiceTest {
   private ReservoirPropertiesSummaryService reservoirPropertiesSummaryService;
 
   private static SubmissionDetail submissionDetail;
+  private static ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   private final ProbabilityDistributionSummaryView averageNetPayThickness =
       ProbabilityDistributionSummaryView.empty("averageNetPayThickness");
@@ -73,16 +76,17 @@ class ReservoirPropertiesSummaryServiceTest {
   @BeforeAll
   static void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
   }
 
   @Test
-  void getReservoirPropertiesSummaryFromSubmissionDetail_whenProspect_noReservoirProperty() {
+  void getReservoirPropertiesSummaryFromReservoirSubmissionDetail_whenProspect_noReservoirProperty() {
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
-    whenGetProbabilityDistributionSummaryCalled(false, ResourceType.PROSPECT, submissionDetail);
+    whenGetProbabilityDistributionSummaryCalled(false, ResourceType.PROSPECT, reservoirSubmissionDetail);
 
-    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(reservoirPropertiesSummaryView)
         .extracting(
@@ -107,14 +111,14 @@ class ReservoirPropertiesSummaryServiceTest {
   }
 
   @Test
-  void getReservoirPropertiesSummaryFromSubmissionDetail_whenProspect_whenMixedCase() {
+  void getReservoirPropertiesSummaryFromReservoirSubmissionDetail_whenProspect_whenMixedCase() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setLithology(ReservoirLithology.CARBONATE);
     reservoirProperty.setGroupName(GroupName.CLAIR);
 
-    whenGetProbabilityDistributionSummaryCalled(true, ResourceType.PROSPECT, submissionDetail);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    whenGetProbabilityDistributionSummaryCalled(true, ResourceType.PROSPECT, reservoirSubmissionDetail);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
     var hydrocarbonCaseDetail = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
@@ -122,8 +126,8 @@ class ReservoirPropertiesSummaryServiceTest {
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail))
         .thenReturn(true);
 
-    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(
-        submissionDetail);
+    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
 
     assertThat(reservoirPropertiesSummaryView)
         .extracting(
@@ -153,7 +157,7 @@ class ReservoirPropertiesSummaryServiceTest {
   }
 
   @Test
-  void getReservoirPropertiesSummaryFromSubmissionDetail_whenProspect_reservoirProperty() {
+  void getReservoirPropertiesSummaryFromReservoirSubmissionDetail_whenProspect_reservoirProperty() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setLithology(ReservoirLithology.CHALK);
@@ -161,12 +165,12 @@ class ReservoirPropertiesSummaryServiceTest {
     reservoirProperty.setReservoirFacies("facies");
     reservoirProperty.setReservoirConnectivity("connectivity");
 
-    whenGetProbabilityDistributionSummaryCalled(false, ResourceType.PROSPECT, submissionDetail);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    whenGetProbabilityDistributionSummaryCalled(false, ResourceType.PROSPECT, reservoirSubmissionDetail);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
-    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(
-        submissionDetail);
+    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
 
     assertThat(reservoirPropertiesSummaryView)
         .extracting(
@@ -195,23 +199,23 @@ class ReservoirPropertiesSummaryServiceTest {
   }
 
   @Test
-  void getReservoirPropertiesSummaryFromSubmissionDetail_withOtherLithology() {
+  void getReservoirPropertiesSummaryFromReservoirSubmissionDetail_withOtherLithology() {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setLithology(ReservoirLithology.OTHER);
     var otherLithology = "Other lithology";
     reservoirProperty.setLithologyOther(otherLithology);
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
-    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(
-        submissionDetail);
+    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
 
     assertThat(reservoirPropertiesSummaryView.lithology()).isEqualTo(otherLithology);
   }
 
   @Test
-  void getReservoirPropertiesSummaryFromSubmissionDetail_whenDryHole_reservoirProperty() {
+  void getReservoirPropertiesSummaryFromReservoirSubmissionDetail_whenDryHole_reservoirProperty() {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
 
     var reservoirProperty = new ReservoirProperty();
@@ -220,13 +224,13 @@ class ReservoirPropertiesSummaryServiceTest {
     reservoirProperty.setReservoirFacies("facies");
     reservoirProperty.setReservoirConnectivity("connectivity");
 
-    whenGetProbabilityDistributionSummaryCalled(true, ResourceType.PROSPECT, submissionDetail);
+    whenGetProbabilityDistributionSummaryCalled(true, ResourceType.PROSPECT, reservoirSubmissionDetail);
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
-    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(
-        submissionDetail);
+    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
 
     assertThat(reservoirPropertiesSummaryView)
         .extracting(
@@ -256,9 +260,10 @@ class ReservoirPropertiesSummaryServiceTest {
 
   @ParameterizedTest
   @EnumSource(HydrocarbonsDiscovered.class)
-  void getReservoirPropertiesSummaryFromSubmissionDetail_whenDiscovery_reservoirProperty(
+  void getReservoirPropertiesSummaryFromReservoirSubmissionDetail_whenDiscovery_reservoirProperty(
       HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
 
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setGroupName(GroupName.DUNLIN);
@@ -270,7 +275,7 @@ class ReservoirPropertiesSummaryServiceTest {
       var discoveryWellDetail = new DiscoveryWellDetail();
       when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(discoverySubmissionDetail))
           .thenReturn(Optional.of(discoveryWellDetail));
-      whenGetProbabilityDistributionSummaryCalled(true, ResourceType.DISCOVERY, discoverySubmissionDetail);
+      whenGetProbabilityDistributionSummaryCalled(true, ResourceType.DISCOVERY, discoveryReservoirSubmissionDetail);
       expectedList = List.of(
           averageNetPayThickness,
           grossReservoirThickness,
@@ -279,7 +284,7 @@ class ReservoirPropertiesSummaryServiceTest {
           netToGross,
           netPorosity);
     } else {
-      whenGetProbabilityDistributionSummaryCalled(false, ResourceType.DISCOVERY, discoverySubmissionDetail);
+      whenGetProbabilityDistributionSummaryCalled(false, ResourceType.DISCOVERY, discoveryReservoirSubmissionDetail);
       expectedList = List.of(
           averageNetPayThickness,
           grossReservoirThickness,
@@ -287,12 +292,12 @@ class ReservoirPropertiesSummaryServiceTest {
           netToGross,
           netPorosity);
     }
-    var depthToExpectedList = whenDepthToProbabilityDistributionSummaryCalled(hydrocarbonsDiscovered, discoverySubmissionDetail);
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(discoverySubmissionDetail))
+    var depthToExpectedList = whenDepthToProbabilityDistributionSummaryCalled(hydrocarbonsDiscovered, discoveryReservoirSubmissionDetail);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(discoveryReservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
-    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromSubmissionDetail(
-        discoverySubmissionDetail);
+    var reservoirPropertiesSummaryView = reservoirPropertiesSummaryService.getReservoirPropertiesSummaryFromReservoirSubmissionDetail(
+        discoveryReservoirSubmissionDetail);
 
     assertThat(reservoirPropertiesSummaryView)
         .extracting(
@@ -315,132 +320,133 @@ class ReservoirPropertiesSummaryServiceTest {
   }
 
   @Test
-  void getReservoirPropertySummaryFromSubmissionDetail_formationEnumView() {
+  void getReservoirPropertySummaryFromReservoirSubmissionDetail_formationEnumView() {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setFormationName(Formation.AUK);
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
     var summaryView = reservoirPropertiesSummaryService
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(summaryView.formationName()).isEqualTo(Formation.AUK.getDisplayName());
   }
 
   @Test
-  void getReservoirPropertySummaryFromSubmissionDetail_manualFormationView() {
+  void getReservoirPropertySummaryFromReservoirSubmissionDetail_manualFormationView() {
     var formation = "manual formation";
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setFormationNameManual(formation);
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
     var summaryView = reservoirPropertiesSummaryService
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(summaryView.formationName()).isEqualTo(formation);
   }
 
   @Test
-  void getReservoirPropertySummaryFromSubmissionDetail_nullFormationView() {
+  void getReservoirPropertySummaryFromReservoirSubmissionDetail_nullFormationView() {
     var reservoirProperty = new ReservoirProperty();
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
     var summaryView = reservoirPropertiesSummaryService
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(summaryView.formationName()).isEmpty();
   }
 
   @Test
-  void getReservoirPropertySummaryFromSubmissionDetail_subUnitEnumView() {
+  void getReservoirPropertySummaryFromReservoirSubmissionDetail_subUnitEnumView() {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setSubUnit(ReservoirSubUnit.T10);
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
     var summaryView = reservoirPropertiesSummaryService
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(summaryView.subUnit()).isEqualTo(ReservoirSubUnit.T10.getDisplayName());
   }
 
   @Test
-  void getReservoirPropertySummaryFromSubmissionDetail_manualSubUnitView() {
+  void getReservoirPropertySummaryFromReservoirSubmissionDetail_manualSubUnitView() {
     var subUnit = "manual sub unit";
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setSubUnitManual(subUnit);
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
     var summaryView = reservoirPropertiesSummaryService
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(summaryView.subUnit()).isEqualTo(subUnit);
   }
 
   @Test
-  void getReservoirPropertySummaryFromSubmissionDetail_nullSubUnitView() {
+  void getReservoirPropertySummaryFromReservoirSubmissionDetail_nullSubUnitView() {
     var reservoirProperty = new ReservoirProperty();
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
     var summaryView = reservoirPropertiesSummaryService
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(summaryView.subUnit()).isEmpty();
   }
 
   @Test
-  void getReservoirPropertySummaryFromSubmissionDetail_ageStageEnumView() {
+  void getReservoirPropertySummaryFromReservoirSubmissionDetail_ageStageEnumView() {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setAgeStage(AgeSeries.LOWER_DEVONIAN);
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
     var summaryView = reservoirPropertiesSummaryService
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(summaryView.ageStageOrSeries()).isEqualTo(AgeSeries.LOWER_DEVONIAN.getDisplayName());
   }
 
   @Test
-  void getReservoirPropertySummaryFromSubmissionDetail_manualAgeStageView() {
+  void getReservoirPropertySummaryFromReservoirSubmissionDetail_manualAgeStageView() {
     var ageStage = "manual age stage";
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setAgeStageManual(ageStage);
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
     var summaryView = reservoirPropertiesSummaryService
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(summaryView.ageStageOrSeries()).isEqualTo(ageStage);
   }
 
   @Test
-  void getReservoirPropertySummaryFromSubmissionDetail_nullAgeStageView() {
+  void getReservoirPropertySummaryFromReservoirSubmissionDetail_nullAgeStageView() {
     var reservoirProperty = new ReservoirProperty();
 
-    when(reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail))
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
 
     var summaryView = reservoirPropertiesSummaryService
-        .getReservoirPropertiesSummaryFromSubmissionDetail(submissionDetail);
+        .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(summaryView.ageStageOrSeries()).isEmpty();
   }
 
-  private List<ProbabilityDistributionSummaryView> whenDepthToProbabilityDistributionSummaryCalled(HydrocarbonsDiscovered hydrocarbonsDiscovered, SubmissionDetail submissionDetail) {
+  private List<ProbabilityDistributionSummaryView> whenDepthToProbabilityDistributionSummaryCalled(HydrocarbonsDiscovered hydrocarbonsDiscovered, ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var discoveryWellDetails = new DiscoveryWellDetail();
     discoveryWellDetails.setHydrocarbonsDiscovered(hydrocarbonsDiscovered);
     when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
@@ -448,47 +454,48 @@ class ReservoirPropertiesSummaryServiceTest {
 
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
       when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT, submissionDetail))
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT, submissionDetail, reservoirSubmissionDetail))
           .thenReturn(depthToGasWaterContact);
       return List.of(depthToGasWaterContact);
 
     } else if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
       when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT, submissionDetail))
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT, submissionDetail, reservoirSubmissionDetail))
           .thenReturn(depthToOilWaterContact);
       return List.of(depthToOilWaterContact);
     } else {
       when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT, submissionDetail))
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT, submissionDetail, reservoirSubmissionDetail))
           .thenReturn(depthToOilWaterContact);
       when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT, submissionDetail))
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT, submissionDetail, reservoirSubmissionDetail))
           .thenReturn(depthToGasWaterContact);
       when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT, submissionDetail))
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT, submissionDetail, reservoirSubmissionDetail))
           .thenReturn(depthToGasOilContact);
       return List.of(depthToOilWaterContact, depthToGasWaterContact, depthToGasOilContact);
     }
   }
 
-  private void whenGetProbabilityDistributionSummaryCalled(boolean addPercentOfGrvOilBearing, ResourceType resourceType, SubmissionDetail submissionDetail) {
+  private void whenGetProbabilityDistributionSummaryCalled(boolean addPercentOfGrvOilBearing, ResourceType resourceType, ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     if (submissionDetail.isDryWellSubmission()) {
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(averageNetPayThickness);
     } else if (submissionDetail.isDiscoverySubmission()) {
         when(probabilityDistributionSummaryService
             .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
                 ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY,
-                submissionDetail
+                submissionDetail, reservoirSubmissionDetail
             )).thenReturn(averageNetPayThickness);
     } else {
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(averageNetPayThickness);
     }
 
@@ -496,57 +503,57 @@ class ReservoirPropertiesSummaryServiceTest {
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(grossReservoirThickness);
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(grossRockVolume);
       if (addPercentOfGrvOilBearing) {
         when(probabilityDistributionSummaryService
             .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
                 ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
-                submissionDetail
+                submissionDetail, reservoirSubmissionDetail
             )).thenReturn(percentOfGrvOilBearing);
       }
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(netToGross);
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(netPorosity);
     } else if (resourceType == ResourceType.DISCOVERY) {
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(grossReservoirThickness);
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(grossRockVolume);
       if (addPercentOfGrvOilBearing) {
         when(probabilityDistributionSummaryService
             .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
                 ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY,
-                submissionDetail
+                submissionDetail, reservoirSubmissionDetail
             )).thenReturn(percentOfGrvOilBearing);
       }
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(netToGross);
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(netPorosity);
     }
 
@@ -554,7 +561,7 @@ class ReservoirPropertiesSummaryServiceTest {
       when(probabilityDistributionSummaryService
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
-              submissionDetail
+              submissionDetail, reservoirSubmissionDetail
           )).thenReturn(depthToHydrocarbonContact);
     }
   }

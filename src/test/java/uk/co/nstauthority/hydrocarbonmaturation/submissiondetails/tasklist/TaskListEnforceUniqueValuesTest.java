@@ -20,12 +20,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
@@ -73,8 +73,8 @@ class TaskListEnforceUniqueValuesTest {
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
   void verifyUniqueSectionNamesAndOrders(SubmissionType submissionType) {
-    submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    submissionDetail = SubmissionDetailIntegrationTestUtils.createSubmissionDetail(submissionType, entityManager);
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsIntegrationTestUtils.createReservoirSubmissionDetail(submissionDetail, entityManager);
 
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
@@ -133,8 +133,8 @@ class TaskListEnforceUniqueValuesTest {
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
   void verifyUniqueTaskListItems(SubmissionType submissionType) {
-    submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    submissionDetail = SubmissionDetailIntegrationTestUtils.createSubmissionDetail(submissionType, entityManager);
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsIntegrationTestUtils.createReservoirSubmissionDetail(submissionDetail, entityManager);
 
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))

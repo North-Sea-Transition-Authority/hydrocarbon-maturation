@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelld
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -90,8 +91,8 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
     return bindingResult;
   }
 
-  ReservoirPropertiesForm getReservoirPropertiesForm(SubmissionDetail submissionDetail) {
-    return reservoirPropertiesPersistenceService.getReservoirProperty(submissionDetail)
+  ReservoirPropertiesForm getReservoirPropertiesForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)
         .map(this::reservoirPropertyEntityToForm)
         .orElse(new ReservoirPropertiesForm());
   }
@@ -107,14 +108,15 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
     form.setLithology(reservoirProperty.getLithology());
     form.setLithologyOther(reservoirProperty.getLithologyOther());
 
-    var submissionDetail = reservoirProperty.getSubmissionDetail();
+    var reservoirSubmissionDetail = reservoirProperty.getReservoirSubmissionDetail();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     if (submissionDetail.isProspectSubmission()) {
       form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT
       ));
       form.setDepthToHydrocarbonContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT
       ));
     }
@@ -126,14 +128,14 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
 
     if (submissionDetail.isDryWellSubmission()) {
       form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL
       ));
     }
 
     if (submissionDetail.isDiscoverySubmission()) {
       form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY
       ));
 
@@ -144,24 +146,24 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
       if (discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWellDetail)
           || discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail)) {
         form.setDepthToOilWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-            submissionDetail,
+            reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
         ));
         form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-            submissionDetail,
+            reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY
         ));
       }
       if (discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail)
           || discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail)) {
         form.setDepthToGasWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-            submissionDetail,
+            reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT
         ));
       }
       if (discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail)) {
         form.setDepthToGasOilContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-            submissionDetail,
+            reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT
         ));
       }
@@ -170,40 +172,40 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       form.setGrossReservoirThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT
       ));
 
       form.setGrossRockVolume(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT
       ));
 
       form.setNetPorosity(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT
       ));
       form.setNetToGross(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT
       ));
     } else if (resourceType == ResourceType.DISCOVERY) {
       form.setGrossReservoirThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY
       ));
 
       form.setGrossRockVolume(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY
       ));
 
       form.setNetPorosity(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY
       ));
       form.setNetToGross(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
+          reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY
       ));
     }
@@ -215,12 +217,12 @@ class ReservoirPropertiesFormService implements SubmissionFormService {
         || submissionDetail.isDryWellSubmission()) {
       if (resourceType == ResourceType.PROSPECT) {
         form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-            submissionDetail,
+            reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT
         ));
       } else if (resourceType == ResourceType.DISCOVERY) {
         form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-            submissionDetail,
+            reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY
         ));
       }
