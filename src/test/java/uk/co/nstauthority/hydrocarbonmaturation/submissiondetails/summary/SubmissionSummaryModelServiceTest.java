@@ -222,7 +222,7 @@ class SubmissionSummaryModelServiceTest {
 
     when(postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(dryWellDetailsSummaryView);
-    when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
+    when(postDrillDryWellSummaryService.getPermeabilitySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(permeabilityDetailSummaryView);
     when(postDrillDryWellSummaryService.getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(reservoirPropertiesSummaryView);
@@ -254,7 +254,7 @@ class SubmissionSummaryModelServiceTest {
     var reservoirSubmissionDetail = Mockito.mock(ReservoirSubmissionDetail.class);
     when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
-    when(discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
+    when(discoverySummaryService.getPermeabilitySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(permeabilityDetailSummaryView);
     when(discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(oilFluidPropertySummaryView);

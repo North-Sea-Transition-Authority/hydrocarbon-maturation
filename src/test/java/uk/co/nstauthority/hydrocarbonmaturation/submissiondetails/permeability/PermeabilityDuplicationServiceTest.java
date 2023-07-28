@@ -13,8 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @ExtendWith(MockitoExtension.class)
 class PermeabilityDuplicationServiceTest {
@@ -22,37 +22,37 @@ class PermeabilityDuplicationServiceTest {
   private PermeabilityPersistenceService permeabilityPersistenceService;
 
   @Mock
-  private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @InjectMocks
   private PermeabilityDuplicationService permeabilityDuplicationService;
 
   @Test
-  void duplicateSubmissionSection_PermeabilityExists_DoesDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+  void duplicateReservoirSection_PermeabilityExists_DoesDuplicate() {
+    var oldReservoirSubmissionDetail = mock(ReservoirSubmissionDetail.class);
+    var newReservoirSubmissionDetail = mock(ReservoirSubmissionDetail.class);
 
     var permeability = mock(PermeabilityDetail.class);
-    when(permeabilityPersistenceService.getPermeabilityDetail(oldSubmissionDetail))
+    when(permeabilityPersistenceService.getPermeabilityDetail(oldReservoirSubmissionDetail))
         .thenReturn(Optional.of(permeability));
 
-    permeabilityDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    permeabilityDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, permeability,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, permeability,
         PermeabilityDetail.class);
   }
 
   @Test
-  void duplicateSubmissionSection_PermeabilityDoesNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
+  void duplicateReservoirSection_PermeabilityDoesNotExist_DoesNotDuplicate() {
+    var oldReservoirSubmissionDetail = mock(ReservoirSubmissionDetail.class);
+    var newReservoirSubmissionDetail = mock(ReservoirSubmissionDetail.class);
 
-    when(permeabilityPersistenceService.getPermeabilityDetail(oldSubmissionDetail))
+    when(permeabilityPersistenceService.getPermeabilityDetail(oldReservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    permeabilityDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    permeabilityDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(PermeabilityDetail.class), eq(PermeabilityDetail.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(PermeabilityDetail.class), eq(PermeabilityDetail.class));
   }
 }

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -18,7 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -34,13 +34,8 @@ class PermeabilityFormServiceTest {
   @InjectMocks
   private PermeabilityFormService permeabilityFormService;
 
-  private SubmissionDetail submissionDetail;
-
-  @BeforeEach
-  void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
-  }
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
   void validate_verifyMethodCall() {
@@ -62,9 +57,9 @@ class PermeabilityFormServiceTest {
 
   @Test
   void permeabilityDetailToForm_newEntity_thenEmptyForm() {
-    when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail)).thenReturn(Optional.empty());
+    when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail)).thenReturn(Optional.empty());
 
-    assertThat(permeabilityFormService.getPermeabilityForm(submissionDetail))
+    assertThat(permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getPermeabilityValuesForm().getPermeabilityMin().asBigDecimal(),
             form -> form.getPermeabilityValuesForm().getPermeabilityMax().asBigDecimal(),
@@ -100,10 +95,10 @@ class PermeabilityFormServiceTest {
     filledEntity.setKvKhAverage(BigDecimal.ONE);
     filledEntity.setSourceOther("comments");
 
-    when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail))
+    when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(filledEntity));
 
-    assertThat(permeabilityFormService.getPermeabilityForm(submissionDetail))
+    assertThat(permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getPermeabilityValuesForm().getPermeabilityMin().asBigDecimal(),
             form -> form.getPermeabilityValuesForm().getPermeabilityMax().asBigDecimal(),

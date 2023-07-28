@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
@@ -17,8 +17,9 @@ public class PermeabilitySummaryService {
     this.permeabilityPersistenceService = permeabilityPersistenceService;
   }
 
-  public PermeabilityDetailSummaryView getPermeabilitySummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    var permeabiliyDetail = permeabilityPersistenceService.getPermeabilityDetail(submissionDetail);
+  public PermeabilityDetailSummaryView getPermeabilitySummaryFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var permeabiliyDetail = permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail);
     return permeabiliyDetail.map(this::createSummaryViewFromPermeability)
         .orElse(PermeabilityDetailSummaryView.empty());
   }

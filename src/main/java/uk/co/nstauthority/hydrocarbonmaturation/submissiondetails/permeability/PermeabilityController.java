@@ -22,12 +22,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/permeability")
+@RequestMapping("/submission-details/{submissionDetailId}/" +
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/permeability")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.DISCOVERY_AND_POST_DRILL)
 @IsFromResponsibleTeam
@@ -37,6 +39,7 @@ public class PermeabilityController {
   private final ControllerHelperService controllerHelperService;
   private final PermeabilityFormService permeabilityFormService;
   private final PermeabilityPersistenceService permeabilityPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   public static final String PAGE_NAME = "Permeability";
 
@@ -44,34 +47,42 @@ public class PermeabilityController {
   public PermeabilityController(SubmissionDetailService submissionDetailService,
                                 ControllerHelperService controllerHelperService,
                                 PermeabilityFormService permeabilityFormService,
-                                PermeabilityPersistenceService permeabilityPersistenceService) {
+                                PermeabilityPersistenceService permeabilityPersistenceService,
+                                ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
     this.permeabilityFormService = permeabilityFormService;
     this.permeabilityPersistenceService = permeabilityPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getPermeabilityPage(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                          @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                           @ModelAttribute("form") PermeabilityForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getPermeabilityModelAndView(
-        permeabilityFormService.getPermeabilityForm(submissionDetail), submissionDetail);
+        permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail), submissionDetail);
   }
 
   @PostMapping
   public ModelAndView savePermeabilityDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                              @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                               @ModelAttribute("form") PermeabilityForm form,
                                               BindingResult bindingResult,
                                               ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     bindingResult = permeabilityFormService.validate(form, bindingResult,
         validationType, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getPermeabilityModelAndView(form, submissionDetail),
         () -> {
-          permeabilityPersistenceService.savePermeabilityDetail(form, submissionDetail);
+          permeabilityPersistenceService.savePermeabilityDetail(form, reservoirSubmissionDetail);
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
         }
     );

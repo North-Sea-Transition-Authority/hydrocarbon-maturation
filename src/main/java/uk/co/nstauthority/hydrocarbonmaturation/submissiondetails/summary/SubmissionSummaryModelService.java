@@ -110,7 +110,7 @@ public class SubmissionSummaryModelService {
         .addObject("generalDetailsSummaryView",
             postDrillDryWellSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("permeabilitySummaryView",
-            postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
+            postDrillDryWellSummaryService.getPermeabilitySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .addObject("reservoirPropertiesSummaryView",
             postDrillDryWellSummaryService
                 .getReservoirPropertiesSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
@@ -142,7 +142,7 @@ public class SubmissionSummaryModelService {
         .addObject("reservoirPropertiesSummaryView",
             discoverySummaryService.getReservoirPropertySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .addObject("permeabilitySummaryView",
-            discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail))
+            discoverySummaryService.getPermeabilitySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .addObject("generalDetailsSummaryView",
             discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("oilCaseVolumetricsSummaryView",

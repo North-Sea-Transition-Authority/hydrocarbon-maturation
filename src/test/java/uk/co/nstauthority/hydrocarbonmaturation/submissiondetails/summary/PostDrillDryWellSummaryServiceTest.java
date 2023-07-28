@@ -61,11 +61,11 @@ class PostDrillDryWellSummaryServiceTest {
   }
 
   @Test
-  void getPermeabilityDetailSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    postDrillDryWellSummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail);
+  void getPermeabilitySummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    postDrillDryWellSummaryService.getPermeabilitySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(permeabilitySummaryService, times(1))
-        .getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
+        .getPermeabilitySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test

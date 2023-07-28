@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,30 +30,32 @@ class PermeabilitySubmissionServiceTest {
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new PermeabilityForm();
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
-    when(permeabilityFormService.getPermeabilityForm(submissionDetail)).thenReturn(form);
+    when(permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail)).thenReturn(form);
 
     when(permeabilityFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
         .thenReturn(emptyBindingResult);
 
-    assertTrue(permeabilitySubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
 
   }
 
   @Test
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new PermeabilityForm();
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(permeabilityFormService.getPermeabilityForm(submissionDetail)).thenReturn(form);
+    when(permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail)).thenReturn(form);
 
     when(permeabilityFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
         .thenReturn(bindingResultWithError);
 
-    assertFalse(permeabilitySubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

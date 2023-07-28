@@ -43,7 +43,7 @@ class ReservoirTaskListSectionServiceTest {
   private ReservoirTaskListSectionService reservoirTaskListSectionService;
 
   private SubmissionDetail submissionDetail;
-  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @BeforeEach
   void setUp() {
@@ -69,7 +69,7 @@ class ReservoirTaskListSectionServiceTest {
                 ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             new TaskListItem("Permeability",
                 TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(submissionDetail.getId(), null)))),
+                ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))),
             "Reservoir",
             40
         );
@@ -80,7 +80,7 @@ class ReservoirTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
     when(reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(permeabilitySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
     var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
 
@@ -92,7 +92,7 @@ class ReservoirTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
     when(reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(permeabilitySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
     var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
 

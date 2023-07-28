@@ -3,28 +3,30 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class PermeabilityDuplicationService implements SubmissionSectionDuplicationService {
+class PermeabilityDuplicationService implements ReservoirSectionDuplicationService {
   private final PermeabilityPersistenceService permeabilityPersistenceService;
-  private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
   PermeabilityDuplicationService(PermeabilityPersistenceService permeabilityPersistenceService,
-                                 SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+                                 ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.permeabilityPersistenceService = permeabilityPersistenceService;
-    this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
 
   @Override
   @Transactional
-  public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    permeabilityPersistenceService.getPermeabilityDetail(oldSubmissionDetail)
+  public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
+                                        ReservoirSubmissionDetail newReservoirSubmissionDetail) {
+    permeabilityPersistenceService.getPermeabilityDetail(oldReservoirSubmissionDetail)
         .ifPresent(permeabilityDetail ->
-            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, permeabilityDetail,
+            reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newReservoirSubmissionDetail,
+                permeabilityDetail,
                 PermeabilityDetail.class)
         );
   }

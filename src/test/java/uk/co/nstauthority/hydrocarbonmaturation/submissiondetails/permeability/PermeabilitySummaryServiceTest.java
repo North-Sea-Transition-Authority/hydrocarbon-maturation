@@ -10,8 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class PermeabilitySummaryServiceTest {
@@ -22,14 +22,14 @@ class PermeabilitySummaryServiceTest {
   @InjectMocks
   private PermeabilitySummaryService permeabilitySummaryService;
 
-  private SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+  private static final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
 
   @Test
-  void getPermeabilitySummaryFromSubmissionDetail_whenNoPermeability() {
-    when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail))
+  void getPermeabilitySummaryFromReservoirSubmissionDetail_whenNoPermeability() {
+    when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    var view = permeabilitySummaryService.getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
+    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(view)
         .extracting(
@@ -47,13 +47,13 @@ class PermeabilitySummaryServiceTest {
   }
 
   @Test
-  void getPermeabilitySummaryFromSubmissionDetail_whenEmptyPermeability() {
+  void getPermeabilitySummaryFromReservoirSubmissionDetail_whenEmptyPermeability() {
     var permeabilityDetail = new PermeabilityDetail();
 
-    when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail))
+    when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(permeabilityDetail));
 
-    var view = permeabilitySummaryService.getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
+    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(view)
         .extracting(
@@ -71,13 +71,13 @@ class PermeabilitySummaryServiceTest {
   }
 
   @Test
-  void getPermeabilitySummaryFromSubmissionDetail_whenGivenPermeabilityOtherSources() {
+  void getPermeabilitySummaryFromReservoirSubmissionDetail_whenGivenPermeabilityOtherSources() {
     var permeabilityDetail = getPermeabilityDetail();
 
-    when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail))
+    when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(permeabilityDetail));
 
-    var view = permeabilitySummaryService.getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
+    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(view)
         .extracting(
@@ -106,15 +106,15 @@ class PermeabilitySummaryServiceTest {
   }
 
   @Test
-  void getPermeabilitySummaryFromSubmissionDetail_whenPermeability() {
+  void getPermeabilitySummaryFromReservoirSubmissionDetail_whenPermeability() {
     var permeabilityDetail = getPermeabilityDetail();
 
     permeabilityDetail.setAverageMethodUsed(AverageMethod.GEOMETRIC);
     permeabilityDetail.setPermeabilitySource(PermeabilitySource.OTHER);
-    when(permeabilityPersistenceService.getPermeabilityDetail(submissionDetail))
+    when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(permeabilityDetail));
 
-    var view = permeabilitySummaryService.getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
+    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(view)
         .extracting(

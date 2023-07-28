@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -15,7 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class PermeabilityPersistenceServiceTest {
@@ -26,18 +26,12 @@ class PermeabilityPersistenceServiceTest {
   @InjectMocks
   private PermeabilityPersistenceService permeabilityPersistenceService;
 
-  private SubmissionDetail submissionDetail;
-
-
-  @BeforeEach
-  void setup() {
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
-  }
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
   void savePermeabilityDetail_verifyMethodCall() {
-    when(permeabilityDetailRepository.findBySubmissionDetail(submissionDetail))
+    when(permeabilityDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
     var form = PermeabilityFormValidatorTest.getValidFormWithPermeability().getPermeabilityValuesForm();
     var permeabilityDryWellForm = new PermeabilityForm();
@@ -45,7 +39,7 @@ class PermeabilityPersistenceServiceTest {
     permeabilityDryWellForm.setHasPermeability(true);
 
     var captor = ArgumentCaptor.forClass(PermeabilityDetail.class);
-    permeabilityPersistenceService.savePermeabilityDetail(permeabilityDryWellForm, submissionDetail);
+    permeabilityPersistenceService.savePermeabilityDetail(permeabilityDryWellForm, reservoirSubmissionDetail);
     verify(permeabilityDetailRepository, times(1)).save(captor.capture());
 
     var savedPermeabilityDetail = captor.getValue();
@@ -53,7 +47,7 @@ class PermeabilityPersistenceServiceTest {
         .extracting(
             PermeabilityDetail::getHasPermeability,
             PermeabilityDetail::getSourceOther,
-            PermeabilityDetail::getSubmissionDetail,
+            PermeabilityDetail::getReservoirSubmissionDetail,
             PermeabilityDetail::getAverageMethodUsed,
             PermeabilityDetail::getPermeabilitySource,
             PermeabilityDetail::getPermeabilityComments,
@@ -64,7 +58,7 @@ class PermeabilityPersistenceServiceTest {
         .containsExactly(
             permeabilityDryWellForm.getHasPermeability(),
             form.getOtherPermeabilitySource(),
-            submissionDetail,
+            reservoirSubmissionDetail,
             form.getAverageMethodUsed(),
             form.getPermeabilitySource(),
             form.getPermeabilityComments(),
@@ -77,7 +71,7 @@ class PermeabilityPersistenceServiceTest {
 
   @Test
   void savePermeabilityDetail_otherSource_verifyMethodCall() {
-    when(permeabilityDetailRepository.findBySubmissionDetail(submissionDetail))
+    when(permeabilityDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
     var form = PermeabilityFormValidatorTest.getValidFormWithPermeability().getPermeabilityValuesForm();
     var permeabilityDryWellForm = new PermeabilityForm();
@@ -89,7 +83,7 @@ class PermeabilityPersistenceServiceTest {
     permeabilityDryWellForm.setHasPermeability(true);
 
     var captor = ArgumentCaptor.forClass(PermeabilityDetail.class);
-    permeabilityPersistenceService.savePermeabilityDetail(permeabilityDryWellForm, submissionDetail);
+    permeabilityPersistenceService.savePermeabilityDetail(permeabilityDryWellForm, reservoirSubmissionDetail);
     verify(permeabilityDetailRepository, times(1)).save(captor.capture());
 
     var savedPermeabilityDetail = captor.getValue();
@@ -97,7 +91,7 @@ class PermeabilityPersistenceServiceTest {
         .extracting(
             PermeabilityDetail::getHasPermeability,
             PermeabilityDetail::getSourceOther,
-            PermeabilityDetail::getSubmissionDetail,
+            PermeabilityDetail::getReservoirSubmissionDetail,
             PermeabilityDetail::getAverageMethodUsed,
             PermeabilityDetail::getPermeabilitySource,
             PermeabilityDetail::getPermeabilityComments,
@@ -108,7 +102,7 @@ class PermeabilityPersistenceServiceTest {
         .containsExactly(
             permeabilityDryWellForm.getHasPermeability(),
             form.getOtherPermeabilitySource(),
-            submissionDetail,
+            reservoirSubmissionDetail,
             form.getAverageMethodUsed(),
             form.getPermeabilitySource(),
             form.getPermeabilityComments(),
@@ -121,9 +115,9 @@ class PermeabilityPersistenceServiceTest {
 
   @Test
   void getPermeabilityDetail_verifyMethodCall() {
-    permeabilityPersistenceService.getPermeabilityDetail(submissionDetail);
+    permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail);
 
     verify(permeabilityDetailRepository, times(1))
-        .findBySubmissionDetail(submissionDetail);
+        .findByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 }

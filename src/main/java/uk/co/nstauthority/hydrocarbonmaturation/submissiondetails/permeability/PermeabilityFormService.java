@@ -9,6 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -36,8 +37,9 @@ class PermeabilityFormService implements SubmissionFormService {
     return bindingResult;
   }
 
-  PermeabilityForm getPermeabilityForm(SubmissionDetail submissionDetail) {
-    return permeabilityPersistenceService.getPermeabilityDetail(submissionDetail)
+  PermeabilityForm getPermeabilityForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    return permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail)
         .map(detail -> permeabilityDetailToForm(submissionDetail, detail))
         .orElse(new PermeabilityForm());
   }

@@ -135,11 +135,11 @@ class DiscoverySummaryServiceTest {
   }
 
   @Test
-  void getPermeabilitySummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getPermeabilitySummaryViewFromSubmissionDetail(submissionDetail);
+  void getPermeabilitySummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getPermeabilitySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(permeabilitySummaryService, times(1))
-        .getPermeabilitySummaryFromSubmissionDetail(submissionDetail);
+        .getPermeabilitySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test

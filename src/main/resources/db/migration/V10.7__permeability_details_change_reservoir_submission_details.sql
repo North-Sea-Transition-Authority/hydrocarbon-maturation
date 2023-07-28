@@ -1,0 +1,6 @@
+ALTER TABLE permeability_details
+RENAME COLUMN submission_detail_id to reservoir_submission_detail_id;
+ALTER TABLE permeability_details
+DROP CONSTRAINT permeability_details_fk;
+ALTER TABLE permeability_details
+ADD CONSTRAINT permeability_details_fk FOREIGN KEY (reservoir_submission_detail_id) REFERENCES reservoir_submission_details (id);

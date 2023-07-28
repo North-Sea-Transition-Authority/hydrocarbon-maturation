@@ -5,8 +5,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 class PermeabilityPersistenceService {
@@ -19,10 +19,11 @@ class PermeabilityPersistenceService {
   }
 
   @Transactional
-  public void savePermeabilityDetail(PermeabilityForm form, SubmissionDetail submissionDetail) {
-    var permeabilityDetail = getPermeabilityDetail(submissionDetail)
+  public void savePermeabilityDetail(PermeabilityForm form, ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    var permeabilityDetail = getPermeabilityDetail(reservoirSubmissionDetail)
         .orElse(new PermeabilityDetail());
-    permeabilityDetail.setSubmissionDetail(submissionDetail);
+    permeabilityDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
       permeabilityDetail.setHasPermeability(form.getHasPermeability());
@@ -36,8 +37,8 @@ class PermeabilityPersistenceService {
     permeabilityDetailRepository.save(permeabilityDetail);
   }
 
-  Optional<PermeabilityDetail> getPermeabilityDetail(SubmissionDetail submissionDetail) {
-    return permeabilityDetailRepository.findBySubmissionDetail(submissionDetail);
+  Optional<PermeabilityDetail> getPermeabilityDetail(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return permeabilityDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   private void setPermeabilityDetails(PermeabilityDetail permeabilityDetail, PermeabilityValuesForm permeabilityValuesForm) {
