@@ -90,7 +90,7 @@ BEGIN
             NULL, -- we don't capture this in PaDI
             submission_rec.info_source,
             submission_rec.other_info_source,
-            submission_rec.licence_app_ref,
+            submission_rec.licence_app_ref
         );
 
     END LOOP;
