@@ -628,3 +628,9 @@ CREATE TABLE remi.padi_quad_block_mapping (
     block_centroid_match TEXT,
     shore_type           TEXT
 );
+
+CREATE TABLE remi.padi_licence_mapping (
+    padi_res_data_id INTEGER,
+    licence          TEXT,
+    licence_id       INTEGER
+);
