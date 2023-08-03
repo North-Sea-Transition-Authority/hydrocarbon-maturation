@@ -125,11 +125,11 @@ INSERT INTO remi.team_member_roles(uuid, team_id, wua_id, role) VALUES (
 - Go to `localhost:8080/remi/work-area` and log in as `administrator@remi.co.uk`
 
 ### 8. Add the other NSTA users
-- Go to `Manage Teams` and add the `NSTA` users from the [ReMI Development Users confluence page](https://confluence.fivium.co.uk/display/BESPOKE/ReMI+Development+Users)
+- Go to `Manage Teams` and add the `NSTA` users from the [ReMI Development Users confluence page](https://fivium.atlassian.net/wiki/spaces/BESPOKE/pages/1739600/ReMI+Development+Users)
 
 ### 9. Add the industry team and users
 - Log in as the `industry-manage@remi.co.uk`
-- Manage the industry team and add the `Industry` users from the [ReMI Development Users confluence page](https://confluence.fivium.co.uk/display/BESPOKE/ReMI+Development+Users)
+- Manage the industry team and add the `Industry` users from the [ReMI Development Users confluence page](https://fivium.atlassian.net/wiki/spaces/BESPOKE/pages/1739600/ReMI+Development+Users)
 
 ### Checkstyle
 1. In Intellij install the Checkstyle-IDEA plugin (from third-party repositories)
