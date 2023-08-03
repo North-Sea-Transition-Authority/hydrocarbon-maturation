@@ -111,6 +111,8 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         SUBMISSION_DETAIL_ID);
     submissionDetail.setApprovedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(SUBMISSION_DETAIL_ID)).thenReturn(Optional.of(submissionDetail));
+    when(submissionDetailService.getSubmissionDetailForIdOrError(UUID.fromString(submissionDetail.getId().toString())))
+        .thenReturn(submissionDetail);
     submissionDetail.setId(SUBMISSION_DETAIL_ID);
     var securityTestAnnotation = testInfo
         .getTestMethod().map(method -> method.getAnnotation(SecurityTest.class));

@@ -51,6 +51,13 @@ class ReservoirSubmissionDetailPersistenceServiceTest {
   }
 
   @Test
+  void submissionHasReservoirs() {
+    var submissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+    reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail);
+    verify(reservoirSubmissionDetailRepository, times(1)).existsBySubmissionDetail(submissionDetail);
+  }
+
+  @Test
   void saveReservoirSubmissionDetails() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
     var form = new ReservoirListForm();

@@ -65,8 +65,7 @@ public class MixedCaseVolumetricsController {
 
   @GetMapping
   public ModelAndView getMixedCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                              @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
-                                              @ModelAttribute("form") MixedCaseVolumetricsForm form) {
+                                              @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);

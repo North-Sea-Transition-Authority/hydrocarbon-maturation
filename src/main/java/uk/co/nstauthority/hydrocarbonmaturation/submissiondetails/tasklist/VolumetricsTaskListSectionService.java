@@ -64,7 +64,10 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
   @Override
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
 
-    var items = getTaskListItemsByHydrocarbonCase(submissionDetail);
+    var items = new ArrayList<TaskListItem>();
+    if (submissionDetail.isProspectSubmission()) {
+      items.addAll(getTaskListItemsByHydrocarbonCase(submissionDetail));
+    }
 
     if (items.isEmpty() || submissionDetail.isDryWellSubmission()) {
       return Optional.empty();
@@ -79,7 +82,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    if (submissionDetail.isDiscoverySubmission() || submissionDetail.isProspectSubmission()) {
+    if (submissionDetail.isProspectSubmission()) {
       var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
           .getReservoirSubmissionDetail(submissionDetail);
       var discoveryWellDetail = discoveryWellDetailsPersistenceService
@@ -137,7 +140,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
               TaskListLabel.notStartedOrComplete(
                   oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(OilCaseVolumetricsController.class)
-                  .getOilCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
+                  .getOilCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
       );
       listOfItems.add(
           new TaskListItem(
@@ -145,7 +148,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
               TaskListLabel.notStartedOrComplete(
                   oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(OilCaseOutputsController.class)
-                  .getOilCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
+                  .getOilCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
       );
     }
 
@@ -155,14 +158,17 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
               TaskListLabel.notStartedOrComplete(
                   gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(GasCaseVolumetricsController.class)
-                  .getGasCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
+                  .getGasCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
       );
       listOfItems.add(
           new TaskListItem(
               "Gas case outputs (resources)",
               TaskListLabel.notStartedOrComplete(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(GasCaseOutputsController.class)
-                  .getGasCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
+                  .getGasCaseOutputs(
+                      submissionDetail.getId(),
+                      reservoirSubmissionDetail.getId())
+              ))
       );
     }
 
@@ -172,7 +178,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
               TaskListLabel.notStartedOrComplete(
                   mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(MixedCaseVolumetricsController.class)
-                  .getMixedCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
+                  .getMixedCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
       );
       listOfItems.add(
           new TaskListItem(
@@ -180,7 +186,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
               TaskListLabel.notStartedOrComplete(
                   mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(MixedCaseOutputsController.class)
-                  .getMixedCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
+                  .getMixedCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
       );
     }
     return listOfItems;

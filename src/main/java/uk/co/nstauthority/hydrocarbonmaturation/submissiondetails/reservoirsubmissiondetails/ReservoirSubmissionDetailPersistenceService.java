@@ -31,6 +31,10 @@ public class ReservoirSubmissionDetailPersistenceService {
     return reservoirSubmissionDetailRepository.findBySubmissionDetailOrderByReservoir_Name(submissionDetail);
   }
 
+  public boolean submissionHasReservoirs(SubmissionDetail submissionDetail) {
+    return reservoirSubmissionDetailRepository.existsBySubmissionDetail(submissionDetail);
+  }
+
   @Transactional
   void saveReservoirSubmissionDetails(ReservoirListForm form, SubmissionDetail submissionDetail) {
     var reservoirSubmissionDetails = new ArrayList<ReservoirSubmissionDetail>();

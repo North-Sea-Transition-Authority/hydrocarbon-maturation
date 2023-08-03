@@ -16,15 +16,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AllowedSubmissionT
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -36,35 +35,34 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class PermeabilityController {
 
   private final SubmissionDetailService submissionDetailService;
-  private final ControllerHelperService controllerHelperService;
   private final PermeabilityFormService permeabilityFormService;
   private final PermeabilityPersistenceService permeabilityPersistenceService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final PermeabilityFormValidator permeabilityFormValidator;
 
   public static final String PAGE_NAME = "Permeability";
 
   @Autowired
   public PermeabilityController(SubmissionDetailService submissionDetailService,
-                                ControllerHelperService controllerHelperService,
                                 PermeabilityFormService permeabilityFormService,
                                 PermeabilityPersistenceService permeabilityPersistenceService,
-                                ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
+                                ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+                                PermeabilityFormValidator permeabilityFormValidator) {
     this.submissionDetailService = submissionDetailService;
-    this.controllerHelperService = controllerHelperService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.permeabilityFormValidator = permeabilityFormValidator;
     this.permeabilityFormService = permeabilityFormService;
     this.permeabilityPersistenceService = permeabilityPersistenceService;
-    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getPermeabilityPage(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                          @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
-                                          @ModelAttribute("form") PermeabilityForm form) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+                                          @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getPermeabilityModelAndView(
-        permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail), submissionDetail);
+        permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail), reservoirSubmissionDetail
+    );
   }
 
   @PostMapping
@@ -76,20 +74,18 @@ public class PermeabilityController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
-    bindingResult = permeabilityFormService.validate(form, bindingResult,
-        validationType, submissionDetail);
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getPermeabilityModelAndView(form, submissionDetail),
-        () -> {
-          permeabilityPersistenceService.savePermeabilityDetail(form, reservoirSubmissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
-        }
-    );
+    if (!permeabilityFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
+      return getPermeabilityModelAndView(form, reservoirSubmissionDetail);
+    } else {
+      permeabilityPersistenceService.savePermeabilityDetail(form, reservoirSubmissionDetail);
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class)
+          .getReservoirTaskList(submissionDetailId, null));
+    }
   }
 
-  private ModelAndView getPermeabilityModelAndView(PermeabilityForm form, SubmissionDetail submissionDetail) {
+  private ModelAndView getPermeabilityModelAndView(PermeabilityForm form, ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var viewName = "";
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     if (submissionDetail.isDiscoverySubmission()) {
       viewName = "remi/submissiondetails/permeability/permeabilityDiscovery";
     } else {
@@ -101,9 +97,8 @@ public class PermeabilityController {
         .addObject("methodUsed", DisplayableEnumOptionUtil.getDisplayableOptions(AverageMethod.class))
         .addObject("source", DisplayableEnumOptionUtil.getDisplayableOptions(PermeabilitySource.class));
 
-    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
-        modelAndView, PAGE_NAME, submissionDetail);
-
-    return modelAndView;
+    return TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(
+        modelAndView, PAGE_NAME, reservoirSubmissionDetail
+    );
   }
 }

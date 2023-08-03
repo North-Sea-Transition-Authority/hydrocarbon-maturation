@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -69,8 +70,9 @@ public class ReservoirListController {
       return modelAndView;
     }
     reservoirSubmissionDetailPersistenceService.saveReservoirSubmissionDetails(form, submissionDetail);
-    //TODO redirect to reservoir sub task list
-    return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
+    return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(
+        submissionDetail.getId(), null)
+    );
   }
 
   private ModelAndView getReservoirsModelAndView(SubmissionDetail submissionDetail, ReservoirListForm form) {

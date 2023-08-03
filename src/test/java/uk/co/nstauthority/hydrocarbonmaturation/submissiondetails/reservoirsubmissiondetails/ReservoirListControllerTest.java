@@ -32,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
@@ -43,9 +44,6 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private ReservoirListValidator reservoirListValidator;
-
-  @MockBean
-  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   private ReservoirListForm form;
   private BindingResult bindingResult;
@@ -134,7 +132,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null))));
 
     verify(reservoirSubmissionDetailPersistenceService, times(1))
         .saveReservoirSubmissionDetails(any(ReservoirListForm.class), eq(submissionDetail));

@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -36,14 +35,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-@Disabled
 @ContextConfiguration(classes = PermeabilityController.class)
 class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
 
@@ -52,8 +50,9 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private PermeabilityPersistenceService permeabilityPersistenceService;
+
   @MockBean
-  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private PermeabilityFormValidator permeabilityFormValidator;
 
 
   private UUID submissionDetailId;
@@ -79,7 +78,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
-        .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId, null)))
+        .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/permeability/permeabilityDryWell"));
@@ -89,7 +88,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   void getPermeabilityPage_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
-            .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId, null)))
+            .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -98,7 +97,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   void getPermeabilityPage_andTypeIsNotDryWellOrDiscovery_assertForbidden() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
-            .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId, null)))
+            .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -107,7 +106,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   void getPermeabilityPage_andUserNotInResponsibleOrganisation_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
-            .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId, null)))
+            .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -118,7 +117,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(PermeabilityForm.class, "form");
-    when(permeabilityFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(permeabilityFormValidator.isValid(any(), any(), any(), any())).thenReturn(true);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermeabilityController.class)
@@ -127,24 +126,22 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
+            .getReservoirTaskList(submissionDetailId, null))));
 
-    verify(permeabilityFormService, times(1)).validate(any(), any(),
-        eq(validationType), eq(submissionDetail));
     verify(permeabilityPersistenceService, times(1))
         .savePermeabilityDetail(any(PermeabilityForm.class), eq(reservoirSubmissionDetail));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
-  void savePermeabilityDetails_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+  void savePermeabilityDetails_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
 
     var bindingResult = new BeanPropertyBindingResult(PermeabilityForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(permeabilityFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(permeabilityFormValidator.isValid(any(), any(), any(), any())).thenReturn(false);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermeabilityController.class)
@@ -154,7 +151,6 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(permeabilityFormService, times(1)).validate(any(), any(), eq(validationType), any());
     verify(permeabilityPersistenceService, never())
         .savePermeabilityDetail(any(), any());
   }
@@ -171,7 +167,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
             get(ReverseRouter.route(on(PermeabilityController.class)
-                .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId, null)))
+                .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
             .andReturn()
             .getModelAndView())
@@ -191,7 +187,9 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+            .getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class)
+            .getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 }

@@ -14,6 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprope
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 
 @Service
 public class ReservoirTaskListSectionService implements TaskListSectionService {
@@ -42,27 +43,31 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
           new TaskListItem("Discovery reservoirs",
               //TODO base task list label on completeness of reservoir sub-tasks
               TaskListLabel.NOT_COMPLETE,
-              //TODO redirect to reservoir sub task list if any reservoirs are saved
-              ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetail.getId(), null)))
+              reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)
+                  ? ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(
+                      submissionDetail.getId(), null))
+                  : ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetail.getId(), null)))
       );
     }
 
-    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(submissionDetail);
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
+      var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+          .getReservoirSubmissionDetail(submissionDetail);
 
-    items.add(
-        new TaskListItem("Reservoir properties",
-            TaskListLabel.notStartedOrComplete(
-                reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-            ReverseRouter.route(on(ReservoirPropertiesController.class)
-                .getReservoirProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
-    );
+      if (submissionDetail.isDryWellSubmission()) {
+        items.add(new TaskListItem("Permeability",
+            TaskListLabel.notStartedOrComplete(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+            ReverseRouter.route(on(PermeabilityController.class)
+                .getPermeabilityPage(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+        );
+      }
 
-    if (submissionDetail.isDryWellOrDiscoverySubmission()) {
-      items.add(new TaskListItem("Permeability",
-          TaskListLabel.notStartedOrComplete(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-          ReverseRouter.route(on(PermeabilityController.class)
-              .getPermeabilityPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
+      items.add(
+          new TaskListItem("Reservoir properties",
+              TaskListLabel.notStartedOrComplete(
+                  reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+              ReverseRouter.route(on(ReservoirPropertiesController.class)
+                  .getReservoirProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
       );
     }
 
@@ -71,13 +76,18 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(submissionDetail);
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
+      var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+          .getReservoirSubmissionDetail(submissionDetail);
 
-    if (submissionDetail.isDryWellOrDiscoverySubmission()) {
-      return reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)
-          && permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
+      if (submissionDetail.isDryWellSubmission()) {
+        return reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)
+            && permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
+      } else if (submissionDetail.isProspectSubmission()) {
+        return reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
+      }
     }
-    return reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
+
+    return true;
   }
 }

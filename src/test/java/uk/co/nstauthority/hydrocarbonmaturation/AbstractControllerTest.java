@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ValidationTypeArgumentResolv
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
@@ -83,6 +84,9 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected AreaTeamService areaTeamService;
+
+  @MockBean
+  protected ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Autowired
   protected ControllerHelperService controllerHelperService;

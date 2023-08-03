@@ -66,8 +66,7 @@ public class OilCaseOutputsController {
 
   @GetMapping
   public ModelAndView getOilCaseOutputs(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                        @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
-                                        @ModelAttribute("form") OilCaseOutputsForm form) {
+                                        @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);

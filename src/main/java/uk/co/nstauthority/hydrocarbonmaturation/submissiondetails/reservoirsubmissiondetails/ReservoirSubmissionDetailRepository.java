@@ -10,4 +10,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 interface ReservoirSubmissionDetailRepository extends CrudRepository<ReservoirSubmissionDetail, UUID> {
 
   List<ReservoirSubmissionDetail> findBySubmissionDetailOrderByReservoir_Name(SubmissionDetail submissionDetail);
+
+  boolean existsBySubmissionDetail(SubmissionDetail submissionDetail);
 }

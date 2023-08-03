@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -55,14 +54,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Grou
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-@Disabled
 @ContextConfiguration(classes = ReservoirPropertiesController.class)
 class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
@@ -90,9 +87,6 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @MockBean
   private AgeSeriesSearchService ageSeriesSearchService;
 
-  @MockBean
-  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
-
   private ReservoirPropertiesForm form;
   private BindingResult bindingResult;
 
@@ -119,7 +113,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
-        get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
+        get(ReverseRouter.route(on(ReservoirPropertiesController.class)
+            .getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/reservoirProperties"));
@@ -130,7 +125,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
+            get(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -168,7 +164,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(Optional.of(discoveryWellDetails));
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
+            get(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/reservoirProperties"));
@@ -181,7 +178,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, null)))
+        post(ReverseRouter.route(on(ReservoirPropertiesController.class)
+            .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -202,7 +200,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
+            post(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
@@ -227,7 +226,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     when(reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit())).thenReturn(preSelectedSubUnit);
 
     var modelMap = mockMvc.perform(
-        post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
+        post(ReverseRouter.route(on(ReservoirPropertiesController.class)
+            .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
             .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
             .with(user(USER))
             .with(csrf()))
@@ -307,7 +307,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     when(reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit())).thenReturn(preSelectedSubUnit);
 
     var modelMap = mockMvc.perform(
-            post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
+            post(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .saveReservoirProperties(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
                 .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
                 .with(user(USER))
                 .with(csrf()))
@@ -378,7 +379,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     when(reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit())).thenReturn(preSelectedSubUnit);
 
     var modelMap = mockMvc.perform(
-            post(ReverseRouter.route(on(ReservoirPropertiesController.class).saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
+            post(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
                 .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
                 .with(user(USER))
                 .with(csrf()))
@@ -455,7 +457,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
-            get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
+            get(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
             .andReturn()
             .getModelAndView())
@@ -519,12 +522,13 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);
     discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId)).thenReturn(discoveryReservoirSubmissionDetail);
     when(reservoirPropertiesFormService.getReservoirPropertiesForm(discoveryReservoirSubmissionDetail)).thenReturn(form);
     var discoveryWellDetails = new DiscoveryWellDetail();
     when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(any())).thenReturn(true);
@@ -539,7 +543,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
-                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId)))
+                    get(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                        .getReservoirProperties(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId)))
                         .with(user(USER)))
                 .andReturn()
                 .getModelAndView())
@@ -607,12 +612,13 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);
     discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId)).thenReturn(discoveryReservoirSubmissionDetail);
     when(reservoirPropertiesFormService.getReservoirPropertiesForm(discoveryReservoirSubmissionDetail)).thenReturn(form);
     var discoveryWellDetails = new DiscoveryWellDetail();
     when(discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(any())).thenReturn(true);
@@ -626,7 +632,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
-                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId)))
+                    get(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                        .getReservoirProperties(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId)))
                         .with(user(USER)))
                 .andReturn()
                 .getModelAndView())
@@ -685,13 +692,14 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoverySubmissionDetailId = UUID.randomUUID();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId)).thenReturn(discoveryReservoirSubmissionDetail);
     when(reservoirPropertiesFormService.getReservoirPropertiesForm(discoveryReservoirSubmissionDetail)).thenReturn(form);
     var discoveryWellDetails = new DiscoveryWellDetail();
     when(discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(any())).thenReturn(true);
@@ -705,7 +713,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
-                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId)))
+                    get(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                        .getReservoirProperties(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId)))
                         .with(user(USER)))
                 .andReturn()
                 .getModelAndView())
@@ -775,7 +784,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
-            get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
+            get(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
             .andReturn()
             .getModelAndView())
@@ -840,7 +850,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
-                    get(ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
+                    get(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                        .getReservoirProperties(submissionDetailId, reservoirSubmissionDetailId)))
                         .with(user(USER)))
                 .andReturn()
                 .getModelAndView())

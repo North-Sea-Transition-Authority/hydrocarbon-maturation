@@ -12,10 +12,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class PermeabilitySubmissionService implements ReservoirSectionSubmissionService {
 
   private final PermeabilityFormService permeabilityFormService;
+  private final PermeabilityFormValidator permeabilityFormValidator;
 
   @Autowired
-  public PermeabilitySubmissionService(PermeabilityFormService permeabilityFormService) {
+  public PermeabilitySubmissionService(PermeabilityFormService permeabilityFormService,
+                                       PermeabilityFormValidator permeabilityFormValidator) {
     this.permeabilityFormService = permeabilityFormService;
+    this.permeabilityFormValidator = permeabilityFormValidator;
   }
 
   @Override
@@ -23,8 +26,6 @@ public class PermeabilitySubmissionService implements ReservoirSectionSubmission
     var form = permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-    bindingResult = permeabilityFormService.validate(form, bindingResult,
-        ValidationType.FULL, submissionDetail);
-    return !bindingResult.hasErrors();
+    return permeabilityFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
   }
 }

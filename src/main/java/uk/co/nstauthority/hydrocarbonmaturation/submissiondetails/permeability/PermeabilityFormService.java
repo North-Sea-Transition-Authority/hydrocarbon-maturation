@@ -3,38 +3,19 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class PermeabilityFormService implements SubmissionFormService {
+class PermeabilityFormService {
 
-  private final PermeabilityFormValidator permeabilityFormValidator;
   private final PermeabilityPersistenceService permeabilityPersistenceService;
 
   @Autowired
-  public PermeabilityFormService(PermeabilityFormValidator permeabilityFormValidator,
-                                 PermeabilityPersistenceService permeabilityPersistenceService) {
-    this.permeabilityFormValidator = permeabilityFormValidator;
+  public PermeabilityFormService(PermeabilityPersistenceService permeabilityPersistenceService) {
     this.permeabilityPersistenceService = permeabilityPersistenceService;
-  }
-
-  @Override
-  public BindingResult validate(SubmissionForm form,
-                                BindingResult bindingResult,
-                                ValidationType validationType,
-                                SubmissionDetail submissionDetail) {
-    permeabilityFormValidator.validate(
-        form, bindingResult,
-        new SubmissionFormValidatorHints(validationType, submissionDetail));
-    return bindingResult;
   }
 
   PermeabilityForm getPermeabilityForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {

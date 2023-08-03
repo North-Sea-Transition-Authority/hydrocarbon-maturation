@@ -99,8 +99,8 @@ public class ReservoirPropertiesController {
   public ModelAndView saveReservoirProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                               @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                               @ModelAttribute("form") ReservoirPropertiesForm form,
-                                              BindingResult bindingResult, ValidationType validationType) {
-
+                                              BindingResult bindingResult,
+                                              ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);

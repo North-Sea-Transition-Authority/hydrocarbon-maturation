@@ -66,8 +66,7 @@ public class MixedCaseOutputsController {
 
   @GetMapping
   public ModelAndView getMixedCaseOutputs(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                          @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
-                                          @ModelAttribute("form") MixedCaseOutputsForm form) {
+                                          @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);

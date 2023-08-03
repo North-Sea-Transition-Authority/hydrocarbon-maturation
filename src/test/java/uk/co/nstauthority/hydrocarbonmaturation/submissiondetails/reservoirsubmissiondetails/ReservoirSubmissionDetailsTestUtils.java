@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails;
 
+import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
@@ -19,6 +20,7 @@ public class ReservoirSubmissionDetailsTestUtils {
 
   public static ReservoirSubmissionDetail createReservoirSubmissionDetail(Reservoir reservoir, SubmissionDetail submissionDetail) {
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+    reservoirSubmissionDetail.setId(UUID.randomUUID());
     reservoirSubmissionDetail.setReservoir(reservoir);
     reservoirSubmissionDetail.setSubmissionDetail(submissionDetail);
     return reservoirSubmissionDetail;

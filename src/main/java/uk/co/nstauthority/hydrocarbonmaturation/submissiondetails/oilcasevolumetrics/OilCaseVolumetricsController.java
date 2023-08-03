@@ -65,8 +65,7 @@ public class OilCaseVolumetricsController {
 
   @GetMapping
   public ModelAndView getOilCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                            @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
-                                            @ModelAttribute("form") OilCaseVolumetricsForm form) {
+                                            @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);

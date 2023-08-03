@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -42,14 +41,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-@Disabled
 @ContextConfiguration(classes = OilCaseOutputsController.class)
 class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
@@ -58,9 +55,6 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
-
-  @MockBean
-  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
@@ -88,7 +82,7 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(
         get(ReverseRouter.route(on(OilCaseOutputsController.class)
-            .getOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null)))
+            .getOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -98,7 +92,7 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(OilCaseOutputsController.class)
-                .getOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId,  null)))
+                .getOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -108,7 +102,7 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     mockMvc.perform(
             get(ReverseRouter.route(on(OilCaseOutputsController.class)
-                .getOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId,  null)))
+                .getOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -154,7 +148,8 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId)).thenReturn(reservoirSubmissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OilCaseOutputsController.class).saveOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
+        post(ReverseRouter.route(on(OilCaseOutputsController.class)
+            .saveOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -171,7 +166,7 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(OilCaseOutputsController.class)
-            .getOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null)))
+            .getOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -206,17 +201,17 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   void getOilCaseOutputsModelAndView_whenDiscovery_assertModelProperties() throws Exception {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var discoverySubmissionDetailId = discoverySubmissionDetail.getId();
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
 
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
-    when(oilCaseOutputsFormService.getOilCaseOutputsForm(discoveryReservoirSubmissionDetail)).thenReturn(form);
     when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId)).thenReturn(discoveryReservoirSubmissionDetail);
+    when(oilCaseOutputsFormService.getOilCaseOutputsForm(discoveryReservoirSubmissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(OilCaseOutputsController.class)
-                .getOilCaseOutputs(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId, null)))
+                .getOilCaseOutputs(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();

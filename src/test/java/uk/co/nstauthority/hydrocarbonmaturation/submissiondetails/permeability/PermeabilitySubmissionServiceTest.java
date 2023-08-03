@@ -24,6 +24,9 @@ class PermeabilitySubmissionServiceTest {
   @Mock
   private PermeabilityFormService permeabilityFormService;
 
+  @Mock
+  private PermeabilityFormValidator permeabilityFormValidator;
+
   @InjectMocks
   private PermeabilitySubmissionService permeabilitySubmissionService;
 
@@ -36,8 +39,7 @@ class PermeabilitySubmissionServiceTest {
 
     when(permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail)).thenReturn(form);
 
-    when(permeabilityFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
-        .thenReturn(emptyBindingResult);
+    when(permeabilityFormValidator.isValid(eq(form), any(BindingResult.class), any(), eq(ValidationType.FULL))).thenReturn(true);
 
     assertTrue(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
 
@@ -53,8 +55,7 @@ class PermeabilitySubmissionServiceTest {
 
     when(permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail)).thenReturn(form);
 
-    when(permeabilityFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
-        .thenReturn(bindingResultWithError);
+    when(permeabilityFormValidator.isValid(eq(form), any(BindingResult.class), any(), eq(ValidationType.FULL))).thenReturn(false);
 
     assertFalse(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }

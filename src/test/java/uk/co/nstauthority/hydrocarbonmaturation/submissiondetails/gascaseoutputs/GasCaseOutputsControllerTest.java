@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -43,14 +42,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-@Disabled
 @ContextConfiguration(classes = GasCaseOutputsController.class)
 class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
@@ -59,9 +56,6 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
-
-  @MockBean
-  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
@@ -91,7 +85,8 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
-        get(ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null)))
+        get(ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
+            submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/gasCaseOutputs"));
@@ -101,7 +96,8 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   void getGasCaseOutputs_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(
-            get(ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null)))
+            get(ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
+                submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -110,7 +106,8 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   void getGasCaseOutputs_andTypeIsNotProspectOrDiscovery_assertForbidden() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     mockMvc.perform(
-            get(ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null)))
+            get(ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
+                submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -121,7 +118,7 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(GasCaseOutputsController.class)
-                .getGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null)))
+                .getGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -144,7 +141,8 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(GasCaseOutputsController.class).saveGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
+        post(ReverseRouter.route(on(GasCaseOutputsController.class)
+            .saveGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -163,7 +161,8 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(GasCaseOutputsController.class).saveGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
+        post(ReverseRouter.route(on(GasCaseOutputsController.class)
+            .saveGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -179,7 +178,7 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(GasCaseOutputsController.class)
-            .getGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null)))
+            .getGasCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -214,16 +213,18 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   void getGasCaseOutputsModelAndView_whenDiscovery_assertModelProperties() throws Exception {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var discoverySubmissionDetailId = discoverySubmissionDetail.getId();
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
 
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId))
+        .thenReturn(discoveryReservoirSubmissionDetail);
     when(gasCaseOutputsFormService.getGasCaseOutputsForm(discoveryReservoirSubmissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(GasCaseOutputsController.class)
-                .getGasCaseOutputs(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId, null)))
+                .getGasCaseOutputs(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();

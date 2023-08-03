@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
@@ -19,9 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,32 +34,19 @@ class PermeabilityFormValidatorTest {
     submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
   }
 
-  @Test
-  void supports_whenPermeabilityDryWellFormClass_thenTrue() {
-    var supportedClass = PermeabilityForm.class;
-    assertTrue(permeabilityFormValidator.supports(supportedClass));
-  }
-
-  @Test
-  void supports_whenPermeabilityDryWellFormClass_thenFalse() {
-    var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(permeabilityFormValidator.supports(nonSupportedClass));
-  }
-
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void validate_whenValidForm_withPermeability_thenNoValidationErrors(ValidationType validationType) {
     var form = getValidFormWithPermeability();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(
+    var isValid = permeabilityFormValidator.isValid(
         form,
         bindingResult,
-        new SubmissionFormValidatorHints(
-            validationType,
-            submissionDetail));
+        submissionDetail,
+        validationType);
 
-    assertFalse(bindingResult.hasErrors());
+    assertTrue(isValid);
   }
 
   @ParameterizedTest
@@ -71,14 +55,13 @@ class PermeabilityFormValidatorTest {
     var form = getValidFormWithoutPermeability();
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(
+    var isValid = permeabilityFormValidator.isValid(
         form,
         bindingResult,
-        new SubmissionFormValidatorHints(
-            validationType,
-            submissionDetail));
+        submissionDetail,
+        validationType);
 
-    assertFalse(bindingResult.hasErrors());
+    assertTrue(isValid);
   }
 
   @ParameterizedTest
@@ -91,12 +74,13 @@ class PermeabilityFormValidatorTest {
     form.getPermeabilityValuesForm().setKvKhAverage(DecimalInput.createDecimalInput(BigDecimal.valueOf(5.5555)));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(
+
+    permeabilityFormValidator.isValid(
         form,
         bindingResult,
-        new SubmissionFormValidatorHints(
-            validationType,
-            submissionDetail));
+        submissionDetail,
+        validationType);
+
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(errors)
@@ -118,12 +102,12 @@ class PermeabilityFormValidatorTest {
     form.getPermeabilityValuesForm().setKvKhAverage(DecimalInput.createDecimalInput(BigDecimal.valueOf(-6)));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(
+    permeabilityFormValidator.isValid(
         form,
         bindingResult,
-        new SubmissionFormValidatorHints(
-            validationType,
-            submissionDetail));
+        submissionDetail,
+        validationType);
+
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(errors)
@@ -141,12 +125,11 @@ class PermeabilityFormValidatorTest {
     form.setHasPermeability(true);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(
+    permeabilityFormValidator.isValid(
         form,
         bindingResult,
-        new SubmissionFormValidatorHints(
-            ValidationType.FULL,
-            submissionDetail));
+        submissionDetail,
+        ValidationType.FULL);
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
         .containsExactly(
@@ -164,12 +147,11 @@ class PermeabilityFormValidatorTest {
     var form = new PermeabilityForm();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(
+    permeabilityFormValidator.isValid(
         form,
         bindingResult,
-        new SubmissionFormValidatorHints(
-            ValidationType.FULL,
-            submissionDetail));
+        submissionDetail,
+        ValidationType.FULL);
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
         .containsExactly(
@@ -190,11 +172,11 @@ class PermeabilityFormValidatorTest {
     form.getPermeabilityValuesForm().setOtherPermeabilitySource("");
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    permeabilityFormValidator.validate(
+    permeabilityFormValidator.isValid(
         form,
         bindingResult,
-        new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail)
-    );
+        submissionDetail,
+        ValidationType.FULL);
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(errors)

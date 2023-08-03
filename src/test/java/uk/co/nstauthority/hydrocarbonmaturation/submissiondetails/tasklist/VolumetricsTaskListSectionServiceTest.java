@@ -19,7 +19,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSubmissionService;
@@ -113,84 +112,30 @@ class VolumetricsTaskListSectionServiceTest {
             new TaskListItem("Oil case volumetrics parameters",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(OilCaseVolumetricsController.class)
-                    .getOilCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))),
+                    .getOilCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             new TaskListItem(
                 "Oil case outputs (resources)",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(OilCaseOutputsController.class)
-                    .getOilCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))),
+                    .getOilCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             new TaskListItem("Gas case volumetrics parameters",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(GasCaseVolumetricsController.class)
-                    .getGasCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))),
+                    .getGasCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             new TaskListItem(
                 "Gas case outputs (resources)",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(GasCaseOutputsController.class)
-                    .getGasCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))),
+                    .getGasCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             new TaskListItem("Mixed case volumetrics parameters",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(MixedCaseVolumetricsController.class)
-                    .getMixedCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail .getId(), null))),
+                    .getMixedCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail .getId()))),
             new TaskListItem(
                 "Mixed case outputs (resources)",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(MixedCaseOutputsController.class)
-                    .getMixedCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))))
-        );
-  }
-
-  @Test
-  void getSection_discoverySubmission_whenAllCases_assertItems() {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    var discoveryWellDetail = new DiscoveryWellDetail();
-    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(discoveryWellDetail));
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirSubmissionDetail);
-
-    when(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail)).thenReturn(true);
-    when(discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWellDetail)).thenReturn(true);
-    when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail)).thenReturn(true);
-    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail);
-
-    var section = taskListSectionOptional.get();
-    assertThat(section)
-        .extracting(TaskListSection::items)
-        .isEqualTo(List.of(
-            new TaskListItem("Oil case volumetrics parameters",
-                TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(OilCaseVolumetricsController.class)
-                    .getOilCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))),
-            new TaskListItem(
-                "Oil case outputs (resources)",
-                TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(OilCaseOutputsController.class)
-                    .getOilCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))),
-            new TaskListItem("Gas case volumetrics parameters",
-                TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(GasCaseVolumetricsController.class)
-                    .getGasCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))),
-            new TaskListItem(
-                "Gas case outputs (resources)",
-                TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(GasCaseOutputsController.class)
-                    .getGasCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))),
-            new TaskListItem("Mixed case volumetrics parameters",
-                TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(MixedCaseVolumetricsController.class)
-                    .getMixedCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail .getId(), null))),
-            new TaskListItem(
-                "Mixed case outputs (resources)",
-                TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(MixedCaseOutputsController.class)
-                    .getMixedCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))))
+                    .getMixedCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId()))))
         );
   }
 
@@ -380,13 +325,7 @@ class VolumetricsTaskListSectionServiceTest {
 
   @Test
   void isSectionSubmittable_whenDiscoverySubmission_whenMixedDiscovery_assertTrue() {
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirSubmissionDetail);
-
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(any())).thenReturn(true);
-    when(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 }
