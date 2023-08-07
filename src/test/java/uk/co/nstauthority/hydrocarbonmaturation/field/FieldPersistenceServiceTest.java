@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -244,6 +245,39 @@ class FieldPersistenceServiceTest {
       assertThatThrownBy(() -> underTest.getFieldOrThrow(PARENT_DETERMINED_FIELD_ID))
           .isInstanceOf(EntityNotFoundException.class)
           .hasMessageContaining("No field found for id: %s".formatted(PARENT_DETERMINED_FIELD_ID));
+    }
+  }
+
+  @Nested
+  class WhenGettingFieldsByResource {
+    private final Resource RESOURCE = new Resource();
+
+    @Test
+    void verifyCalls() {
+      underTest.getFieldByResource(RESOURCE);
+      verify(fieldRepository).findFieldByResource(RESOURCE);
+    }
+  }
+
+  @Nested
+  class WhenGettingFieldByResourceOrThrow {
+    private final static Resource RESOURCE = new Resource();
+
+    @Test
+    void verifyCalls() {
+      var field = new Field();
+      when(fieldRepository.findFieldByResource(RESOURCE)).thenReturn(Optional.of(field));
+
+      assertThat(underTest.getFieldByResourceOrThrow(RESOURCE))
+          .isEqualTo(field);
+    }
+
+    @Test
+    void throwsWhenNoField() {
+      when(fieldRepository.findFieldByResource(RESOURCE)).thenReturn(Optional.empty());
+      assertThatThrownBy(() -> underTest.getFieldByResourceOrThrow(RESOURCE))
+          .isInstanceOf(RemiEntityNotFoundException.class)
+          .hasMessageContaining("No field found for resource id: %s".formatted(RESOURCE.getId()));
     }
   }
 }

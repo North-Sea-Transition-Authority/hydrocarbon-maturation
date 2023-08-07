@@ -30,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionSt
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionTypeInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -80,6 +81,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
 
   @MockBean
   protected PermissionService permissionService;
+
+  @MockBean
+  protected FieldPersistenceService fieldPersistenceService;
 
   @Autowired
   protected OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;

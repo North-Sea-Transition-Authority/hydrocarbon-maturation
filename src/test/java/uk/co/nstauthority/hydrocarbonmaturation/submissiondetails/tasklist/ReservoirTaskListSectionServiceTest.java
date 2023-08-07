@@ -153,6 +153,57 @@ class ReservoirTaskListSectionServiceTest {
   }
 
   @Test
+  void getSection_forField_withReservoirsAdded() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+    when(reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)).thenReturn(true);
+    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail);
+
+    var section = taskListSectionOptional.get();
+
+    assertThat(section)
+        .extracting(
+            TaskListSection::items,
+            TaskListSection::displayName,
+            TaskListSection::displayOrder
+        )
+        .containsExactly(
+            List.of(
+                new TaskListItem("Field reservoirs",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(
+                        submissionDetail.getId(), null)))
+            ),
+            "Field reservoirs",
+            40
+        );
+  }
+
+  @Test
+  void getSection_forField_withoutReservoirsAdded() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+    when(reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)).thenReturn(false);
+    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail);
+
+    var section = taskListSectionOptional.get();
+
+    assertThat(section)
+        .extracting(
+            TaskListSection::items,
+            TaskListSection::displayName,
+            TaskListSection::displayOrder
+        )
+        .containsExactly(
+            List.of(
+                new TaskListItem("Field reservoirs",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetail.getId(), null)))
+            ),
+            "Field reservoirs",
+            40
+        );
+  }
+
+  @Test
   void isSectionSubmittable_whenDiscoverySubmittable_assertTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);

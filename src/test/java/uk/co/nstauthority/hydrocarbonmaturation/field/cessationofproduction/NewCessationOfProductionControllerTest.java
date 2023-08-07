@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -31,9 +30,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSelectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSelectValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewSubmissionFromFieldService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
-import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = NewCessationOfProductionController.class)
 class NewCessationOfProductionControllerTest extends AbstractSubmissionControllerTest {
@@ -104,6 +104,9 @@ class NewCessationOfProductionControllerTest extends AbstractSubmissionControlle
   @Test
   void createdNewCop_whenValidForm_assertSaveAndRedirect() throws Exception {
     when(fieldSelectValidator.isValid(any(BindingResult.class))).thenReturn(true);
+    var submissionDetail = new SubmissionDetail();
+    when(newSubmissionFromFieldService.createSubmissionFromField(any(FieldSelectForm.class), eq(SubmissionType.CREATE_COP)))
+        .thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(NewCessationOfProductionController.class)
@@ -111,9 +114,6 @@ class NewCessationOfProductionControllerTest extends AbstractSubmissionControlle
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea())));
-
-    verify(newSubmissionFromFieldService, times(1))
-        .createSubmissionFromField(any(FieldSelectForm.class), eq(SubmissionType.CREATE_COP));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))));
   }
 }

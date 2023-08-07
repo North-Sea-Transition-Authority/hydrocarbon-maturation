@@ -38,9 +38,10 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
 
     var items = new ArrayList<TaskListItem>();
 
-    if (submissionDetail.isDiscoverySubmission()) {
+    if (submissionDetail.isDiscoverySubmission() || submissionDetail.isFieldSubmission()) {
       items.add(
-          new TaskListItem("Discovery reservoirs",
+          new TaskListItem("%s reservoirs".formatted(
+              submissionDetail.isDiscoverySubmission() ? "Discovery" : "Field"),
               //TODO base task list label on completeness of reservoir sub-tasks
               TaskListLabel.NOT_COMPLETE,
               reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)
@@ -71,7 +72,10 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
       );
     }
 
-    return Optional.of(new TaskListSection("Reservoir", 40, items));
+    return Optional.of(new TaskListSection(
+        submissionDetail.isFieldSubmission() ? "Field reservoirs" : "Reservoir",
+        40,
+        items));
   }
 
   @Override

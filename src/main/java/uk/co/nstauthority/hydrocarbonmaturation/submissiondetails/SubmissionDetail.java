@@ -233,8 +233,7 @@ public class SubmissionDetail {
   }
 
   public boolean isFirstSubmission() {
-    return submissionType == SubmissionType.CREATE_PROSPECT
-        || submissionType == SubmissionType.CREATE_DISCOVERY;
+    return SubmissionDetailUtil.isFirstSubmission(submissionType);
   }
 
   public boolean hasSameSubmissionType(SubmissionDetail otherSubmissionDetail) {

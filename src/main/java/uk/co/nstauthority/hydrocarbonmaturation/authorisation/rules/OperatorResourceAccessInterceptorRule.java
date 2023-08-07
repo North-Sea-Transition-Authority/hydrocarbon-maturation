@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessInterceptorStrategy;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
@@ -23,12 +24,15 @@ public class OperatorResourceAccessInterceptorRule implements ResourceAccessInte
 
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final IndustryTeamService industryTeamService;
+  private final FieldPersistenceService fieldPersistenceService;
 
   @Autowired
   OperatorResourceAccessInterceptorRule(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                        IndustryTeamService industryTeamService) {
+                                        IndustryTeamService industryTeamService,
+                                        FieldPersistenceService fieldPersistenceService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.industryTeamService = industryTeamService;
+    this.fieldPersistenceService = fieldPersistenceService;
   }
 
   @Override
@@ -55,6 +59,11 @@ public class OperatorResourceAccessInterceptorRule implements ResourceAccessInte
   }
 
   private Integer getResponsibleOrganisationId(SubmissionDetail submissionDetail) {
+    if (submissionDetail.isFieldSubmission()) {
+      var resource = submissionDetail.getSubmission().getResource();
+      return fieldPersistenceService.getFieldByResourceOrThrow(resource).getResponsibleOrganisationId();
+    }
+
     return resourceDetailsPersistenceService
         .getResourceDetailBySubmissionDetail(submissionDetail)
         .map(ResourceDetail::getOrganisationId)

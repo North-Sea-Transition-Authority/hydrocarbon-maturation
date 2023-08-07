@@ -15,7 +15,12 @@ public class SubmissionDetailIntegrationTestUtils {
   }
 
   public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType, EntityManager entityManager) {
-    var resource = ResourceIntegrationTestUtils.buildResource(ResourceType.PROSPECT, entityManager);
+    var resourceType = ResourceType.PROSPECT;
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      resourceType = ResourceType.FIELD;
+    }
+
+    var resource = ResourceIntegrationTestUtils.buildResource(resourceType, entityManager);
 
     return createSubmissionDetail(submissionType, resource, entityManager);
   }

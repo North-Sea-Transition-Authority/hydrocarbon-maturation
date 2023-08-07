@@ -163,6 +163,23 @@ class SubmissionDetailTest {
     }
   }
 
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class,
+      names = {"CREATE_PROSPECT", "CREATE_DISCOVERY", "CREATE_FDP", "CREATE_CSR", "CREATE_COP", "CREATE_FDPA"},
+      mode = EnumSource.Mode.INCLUDE)
+  void isFirstSubmission_true(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    assertTrue(submissionDetail.isFirstSubmission());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class,
+      names = {"CREATE_PROSPECT", "CREATE_DISCOVERY", "CREATE_FDP", "CREATE_CSR", "CREATE_COP", "CREATE_FDPA"},
+      mode = EnumSource.Mode.EXCLUDE)
+  void isFirstSubmission_false(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    assertFalse(submissionDetail.isFirstSubmission());
+  }
 
   @ParameterizedTest
   @EnumSource(SubmissionType.class)

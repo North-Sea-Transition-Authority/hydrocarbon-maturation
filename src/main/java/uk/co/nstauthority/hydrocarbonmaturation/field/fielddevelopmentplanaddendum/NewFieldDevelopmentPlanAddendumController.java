@@ -18,8 +18,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSelectValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewSubmissionFromFieldService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
-import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
 @RequestMapping("field/field-development-plan-addendum/create")
@@ -51,8 +51,8 @@ public class NewFieldDevelopmentPlanAddendumController {
     if (!fieldSelectValidator.isValid(bindingResult)) {
       return getNewFdpaPageModelAndView(form);
     } else {
-      newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDPA);
-      return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
+      var submissionDetail = newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDPA);
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
     }
   }
 

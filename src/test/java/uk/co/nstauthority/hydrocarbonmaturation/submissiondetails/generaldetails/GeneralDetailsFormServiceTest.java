@@ -32,6 +32,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -72,6 +74,9 @@ class GeneralDetailsFormServiceTest {
 
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+
+  @Mock
+  private FieldPersistenceService fieldPersistenceService;
 
   @InjectMocks
   private GeneralDetailsFormService generalDetailsFormService;
@@ -177,6 +182,32 @@ class GeneralDetailsFormServiceTest {
             GeneralDetailsFormValidatorHints::getLicencePresent,
             GeneralDetailsFormValidatorHints::getOffshore)
         .containsExactly(validationType, submissionDetail, latestGeneralDetail, LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.OFFSHORE);
+  }
+
+  @Test
+  void validate_whenFieldSubmission_whenOffshore_assertHints() {
+    var form = new GeneralDetailsForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var validationType = ValidationType.FULL;
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+    var captor = ArgumentCaptor.forClass(
+        GeneralDetailsFormValidatorHints.class);
+    var field = new Field();
+    field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+        .thenReturn(field);
+    generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
+    verify(generalDetailsFormValidator, times(1)).validate(eq(form), eq(bindingResult),
+        captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            GeneralDetailsFormValidatorHints::getValidationType,
+            GeneralDetailsFormValidatorHints::getSubmissionDetail,
+            GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
+            GeneralDetailsFormValidatorHints::getLicencePresent,
+            GeneralDetailsFormValidatorHints::getOffshore)
+        .containsExactly(validationType, submissionDetail, null, LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.OFFSHORE);
   }
 
   @Test

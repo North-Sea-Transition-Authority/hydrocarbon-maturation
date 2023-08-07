@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -115,5 +116,15 @@ public class FieldPersistenceService {
 
   public List<Field> getFieldsByCorrectedLegalName(String fieldName) {
     return fieldRepository.findFieldsByCorrectedLegalFieldNameContainingIgnoreCase(fieldName);
+  }
+
+  public Optional<Field> getFieldByResource(Resource resource) {
+    return fieldRepository.findFieldByResource(resource);
+  }
+
+  public Field getFieldByResourceOrThrow(Resource resource) {
+    return getFieldByResource(resource)
+        .orElseThrow(() -> new RemiEntityNotFoundException("No field found for resource id: %s"
+            .formatted(resource.getId())));
   }
 }

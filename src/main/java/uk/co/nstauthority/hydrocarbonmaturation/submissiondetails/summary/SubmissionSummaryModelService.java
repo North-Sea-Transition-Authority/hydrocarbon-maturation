@@ -131,32 +131,45 @@ public class SubmissionSummaryModelService {
 
   public ModelAndView createDiscoverySubmissionSummaryModelAndView(SubmissionDetail submissionDetail,
                                                                    String viewName) {
-    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail);
-    var modelAndView = new ModelAndView(viewName)
+    var modelAndView = new ModelAndView(viewName);
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
+      var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(
+          submissionDetail);
+      modelAndView
+          .addObject("reservoirPropertiesSummaryView",
+              discoverySummaryService.getReservoirPropertySummaryViewFromReservoirSubmissionDetail(
+                  reservoirSubmissionDetail))
+          .addObject("permeabilitySummaryView",
+              discoverySummaryService.getPermeabilitySummaryViewFromReservoirSubmissionDetail(
+                  reservoirSubmissionDetail))
+          .addObject("oilCaseVolumetricsSummaryView",
+              discoverySummaryService.getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
+                  reservoirSubmissionDetail))
+          .addObject("oilCaseOutputsSummaryView",
+              discoverySummaryService.getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail(
+                  reservoirSubmissionDetail))
+          .addObject("gasCaseVolumetricsSummaryView",
+              discoverySummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
+                  reservoirSubmissionDetail))
+          .addObject("gasCaseOutputsSummaryView",
+              discoverySummaryService.getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(
+                  reservoirSubmissionDetail))
+          .addObject("mixedCaseVolumetricsSummaryView",
+              discoverySummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
+                  reservoirSubmissionDetail))
+          .addObject("mixedCaseOutputsSummaryView",
+              discoverySummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(
+                  reservoirSubmissionDetail));
+    }
+    modelAndView
         .addObject("gasFluidPropertiesSummaryView",
             discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("generalFluidPropertiesSummaryView",
             discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("oilFluidPropertiesSummaryView",
             discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("reservoirPropertiesSummaryView",
-            discoverySummaryService.getReservoirPropertySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .addObject("permeabilitySummaryView",
-            discoverySummaryService.getPermeabilitySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .addObject("generalDetailsSummaryView",
             discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("oilCaseVolumetricsSummaryView",
-            discoverySummaryService.getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .addObject("oilCaseOutputsSummaryView",
-            discoverySummaryService.getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .addObject("gasCaseVolumetricsSummaryView",
-            discoverySummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .addObject("gasCaseOutputsSummaryView",
-            discoverySummaryService.getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .addObject("mixedCaseVolumetricsSummaryView",
-            discoverySummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .addObject("mixedCaseOutputsSummaryView",
-            discoverySummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
         .addObject("drillStemTestSummaryView",
             discoverySummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",

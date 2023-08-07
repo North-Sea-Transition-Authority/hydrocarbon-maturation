@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
@@ -29,6 +31,9 @@ class OperatorResourceAccessInterceptorRuleTest {
   @Mock
   private IndustryTeamService industryTeamService;
 
+  @Mock
+  private FieldPersistenceService fieldPersistenceService;
+
   @InjectMocks
   private OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
 
@@ -42,6 +47,26 @@ class OperatorResourceAccessInterceptorRuleTest {
     resourceDetail.setOrganisationId(1);
     when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(resourceDetail));
+    when(industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(
+        user, Set.of(IndustryTeamRole.SUBMITTER)))
+        .thenReturn(List.of(1));
+    var securityRuleResult = operatorTeamMembershipInterceptorRule
+        .hasRequiredResourceAccessPermissions(
+            user,
+            submissionDetail);
+    assertThat(securityRuleResult.hasRulePassed()).isTrue();
+  }
+
+  @Test
+  void hasRequiredTeamMembershipPermissions_whenIsIndustrySubmitterInResponsibleTeam_fieldSubmission_assertRulePass() {
+    var user = ServiceUserDetailTestUtil.Builder().build();
+    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+
+    var field = new Field();
+    field.setResponsibleOrganisationId(1);
+    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+        .thenReturn(field);
     when(industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(
         user, Set.of(IndustryTeamRole.SUBMITTER)))
         .thenReturn(List.of(1));

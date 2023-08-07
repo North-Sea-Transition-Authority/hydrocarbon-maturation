@@ -10,6 +10,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -137,6 +138,22 @@ class VolumetricsTaskListSectionServiceTest {
                 ReverseRouter.route(on(MixedCaseOutputsController.class)
                     .getMixedCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId()))))
         );
+  }
+
+  @Test
+  void getSection_discoverySubmission_assertEmptyOptional() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail);
+
+    assertThat(taskListSectionOptional).isNotPresent();
+  }
+
+  @Test
+  void getSection_fieldSubmission_assertEmptyOptional() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_FIELD);
+    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail);
+
+    assertThat(taskListSectionOptional).isNotPresent();
   }
 
   @Test

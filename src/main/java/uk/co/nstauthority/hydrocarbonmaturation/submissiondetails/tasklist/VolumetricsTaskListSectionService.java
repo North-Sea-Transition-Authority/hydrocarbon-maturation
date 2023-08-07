@@ -120,74 +120,73 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
   }
 
   private List<TaskListItem> getTaskListItemsByHydrocarbonCase(SubmissionDetail submissionDetail) {
-    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(submissionDetail);
-    var discoveryWellDetail = discoveryWellDetailsPersistenceService
-        .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
-        .orElseGet(DiscoveryWellDetail::new);
-    var hydrocarbonCaseDetail = hydrocarbonCasePersistenceService
-        .getHydrocarbonCaseDetail(submissionDetail)
-        .orElseGet(HydrocarbonCaseDetail::new);
-    var gasOnly = isGasOnly(hydrocarbonCaseDetail, discoveryWellDetail, submissionDetail);
-    var oilOnly = isOilOnly(hydrocarbonCaseDetail, discoveryWellDetail, submissionDetail);
-    var oilAndGas = isMixedOnly(hydrocarbonCaseDetail, discoveryWellDetail, submissionDetail);
-
     var listOfItems = new ArrayList<TaskListItem>();
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
+      var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+          .getReservoirSubmissionDetail(submissionDetail);
+      var discoveryWellDetail = discoveryWellDetailsPersistenceService
+          .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
+          .orElseGet(DiscoveryWellDetail::new);
+      var hydrocarbonCaseDetail = hydrocarbonCasePersistenceService
+          .getHydrocarbonCaseDetail(submissionDetail)
+          .orElseGet(HydrocarbonCaseDetail::new);
+      var gasOnly = isGasOnly(hydrocarbonCaseDetail, discoveryWellDetail, submissionDetail);
+      var oilOnly = isOilOnly(hydrocarbonCaseDetail, discoveryWellDetail, submissionDetail);
+      var oilAndGas = isMixedOnly(hydrocarbonCaseDetail, discoveryWellDetail, submissionDetail);
 
-    if (oilOnly) {
-      listOfItems.add(
-          new TaskListItem("Oil case volumetrics parameters",
-              TaskListLabel.notStartedOrComplete(
-                  oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-              ReverseRouter.route(on(OilCaseVolumetricsController.class)
-                  .getOilCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
-      );
-      listOfItems.add(
-          new TaskListItem(
-              "Oil case outputs (resources)",
-              TaskListLabel.notStartedOrComplete(
-                  oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-              ReverseRouter.route(on(OilCaseOutputsController.class)
-                  .getOilCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
-      );
-    }
+      if (oilOnly) {
+        listOfItems.add(
+            new TaskListItem("Oil case volumetrics parameters",
+                TaskListLabel.notStartedOrComplete(
+                    oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(OilCaseVolumetricsController.class)
+                    .getOilCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+        );
+        listOfItems.add(
+            new TaskListItem(
+                "Oil case outputs (resources)",
+                TaskListLabel.notStartedOrComplete(
+                    oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(OilCaseOutputsController.class)
+                    .getOilCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+        );
+      }
 
-    if (gasOnly) {
-      listOfItems.add(
-          new TaskListItem("Gas case volumetrics parameters",
-              TaskListLabel.notStartedOrComplete(
-                  gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-              ReverseRouter.route(on(GasCaseVolumetricsController.class)
-                  .getGasCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
-      );
-      listOfItems.add(
-          new TaskListItem(
-              "Gas case outputs (resources)",
-              TaskListLabel.notStartedOrComplete(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-              ReverseRouter.route(on(GasCaseOutputsController.class)
-                  .getGasCaseOutputs(
-                      submissionDetail.getId(),
-                      reservoirSubmissionDetail.getId())
-              ))
-      );
-    }
+      if (gasOnly) {
+        listOfItems.add(
+            new TaskListItem("Gas case volumetrics parameters",
+                TaskListLabel.notStartedOrComplete(
+                    gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(GasCaseVolumetricsController.class)
+                    .getGasCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+        );
+        listOfItems.add(
+            new TaskListItem(
+                "Gas case outputs (resources)",
+                TaskListLabel.notStartedOrComplete(
+                    gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(GasCaseOutputsController.class)
+                    .getGasCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+        );
+      }
 
-    if (oilAndGas) {
-      listOfItems.add(
-          new TaskListItem("Mixed case volumetrics parameters",
-              TaskListLabel.notStartedOrComplete(
-                  mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-              ReverseRouter.route(on(MixedCaseVolumetricsController.class)
-                  .getMixedCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
-      );
-      listOfItems.add(
-          new TaskListItem(
-              "Mixed case outputs (resources)",
-              TaskListLabel.notStartedOrComplete(
-                  mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-              ReverseRouter.route(on(MixedCaseOutputsController.class)
-                  .getMixedCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
-      );
+      if (oilAndGas) {
+        listOfItems.add(
+            new TaskListItem("Mixed case volumetrics parameters",
+                TaskListLabel.notStartedOrComplete(
+                    mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(MixedCaseVolumetricsController.class)
+                    .getMixedCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+        );
+        listOfItems.add(
+            new TaskListItem(
+                "Mixed case outputs (resources)",
+                TaskListLabel.notStartedOrComplete(
+                    mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(MixedCaseOutputsController.class)
+                    .getMixedCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+        );
+      }
     }
     return listOfItems;
   }

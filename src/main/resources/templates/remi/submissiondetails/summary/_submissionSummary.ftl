@@ -72,20 +72,20 @@
     || submissionType == "RELINQUISHMENT_DISCOVERY">
       <@discoverySubmissionSummary.discoverySubmissionSummary
         generalDetailsSummaryView=generalDetailsSummaryView
-        permeabilitySummaryView=permeabilitySummaryView
+        permeabilitySummaryView=permeabilitySummaryView!""
         oilOnlyDiscovery=oilOnlyDiscovery
         gasOnlyDiscovery=gasOnlyDiscovery
         mixedDiscovery=mixedDiscovery
         oilFluidPropertiesSummaryView=oilFluidPropertiesSummaryView
         gasFluidPropertiesSummaryView=gasFluidPropertiesSummaryView
         generalFluidPropertiesSummaryView=generalFluidPropertiesSummaryView
-        reservoirPropertiesSummaryView=reservoirPropertiesSummaryView
-        oilCaseOutputsSummaryView=oilCaseOutputsSummaryView
-        oilCaseVolumetricsSummaryView=oilCaseVolumetricsSummaryView
-        gasCaseVolumetricsSummaryView=gasCaseVolumetricsSummaryView
-        gasCaseOutputsSummaryView=gasCaseOutputsSummaryView
-        mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView
-        mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView
+        reservoirPropertiesSummaryView=reservoirPropertiesSummaryView!""
+        oilCaseOutputsSummaryView=oilCaseOutputsSummaryView!""
+        oilCaseVolumetricsSummaryView=oilCaseVolumetricsSummaryView!""
+        gasCaseVolumetricsSummaryView=gasCaseVolumetricsSummaryView!""
+        gasCaseOutputsSummaryView=gasCaseOutputsSummaryView!""
+        mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView!""
+        mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView!""
         drillStemTestSummaryView=drillStemTestSummaryView
         opportunityDetailsSummaryView=opportunityDetailsSummaryView
         outlineForMaximumCaseSummaryView=outlineForMaximumCaseSummaryView

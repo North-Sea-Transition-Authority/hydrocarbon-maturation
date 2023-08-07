@@ -36,6 +36,10 @@ public class SubmissionDetailTestUtils {
     return createDiscoverySubmissionDetail(SubmissionType.UPDATE_DISCOVERY);
   }
 
+  public static SubmissionDetail createNewFieldSubmissionDetail() {
+    return createFieldSubmissionDetail(SubmissionType.CREATE_CSR);
+  }
+
   public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType,
                                                         UUID submissionDetailId,
                                                         Resource resource) {
@@ -68,6 +72,13 @@ public class SubmissionDetailTestUtils {
 
   public static SubmissionDetail createDiscoverySubmissionDetail(SubmissionType submissionType) {
     var resource = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
+    var submissionDetailId = UUID.randomUUID();
+
+    return createSubmissionDetail(submissionType, submissionDetailId, resource);
+  }
+
+  public static SubmissionDetail createFieldSubmissionDetail(SubmissionType submissionType) {
+    var resource = ResourceTestUtils.buildResource(ResourceType.FIELD);
     var submissionDetailId = UUID.randomUUID();
 
     return createSubmissionDetail(submissionType, submissionDetailId, resource);

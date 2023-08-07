@@ -6,7 +6,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Geog
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
-class NewFieldForm {
+public class NewFieldForm {
   private String legalFieldName;
   private String correctedLegalFieldName;
   private String commonNameForField;

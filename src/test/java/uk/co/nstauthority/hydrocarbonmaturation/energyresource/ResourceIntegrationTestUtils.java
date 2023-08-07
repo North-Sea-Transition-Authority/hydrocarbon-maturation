@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import java.time.Instant;
 import javax.persistence.EntityManager;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 
 public class ResourceIntegrationTestUtils {
 
@@ -16,6 +17,14 @@ public class ResourceIntegrationTestUtils {
     resource.setCreatedTimestamp(Instant.now());
     entityManager.persist(resource);
     entityManager.flush();
+
+    if (resourceType == ResourceType.FIELD) {
+      var field = new Field();
+      field.setResource(resource);
+      entityManager.persist(field);
+      entityManager.flush();
+    }
+
     return resource;
   }
 }

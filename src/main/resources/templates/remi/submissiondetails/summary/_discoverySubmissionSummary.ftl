@@ -62,27 +62,28 @@
             <@drillStemTestSummary.drillStemTest drillStemTestValues=drillStemTestSummaryView/>
         </#if>
     </@fdsAccordion.accordionSection>
-    <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">
-        <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard
-          reservoirPropertiesValues=reservoirPropertiesSummaryView/>
-        <@permeabilitySummary.permeabilityDetailsSummaryCard
-          permeabilityDetailsValues=permeabilitySummaryView
-          optionalPermeability=false/>
-    </@fdsAccordion.accordionSection>
-    <@fdsAccordion.accordionSection sectionHeading="Volumetrics" summaryText="Oil case, gas case, and mixed case volumetric parameters and outputs">
-        <#if oilOnlyDiscovery>
-            <@oilCaseVolumetricsSummary.oilCaseVolumetricsSummary oilCaseVolumetricsValues=oilCaseVolumetricsSummaryView/>
-            <@oilCaseOutputsSummary.oilCaseOutputsSummaryCard oilCaseOutputsValues=oilCaseOutputsSummaryView withContingentUncertaintyCategories=true/>
-        </#if>
-        <#if gasOnlyDiscovery>
-            <@gasCaseVolumetricsSummary.gasCaseVolumetricsSummary gasCaseVolumetricsValues=gasCaseVolumetricsSummaryView/>
-            <@gasCaseOutputsSummary.gasCaseOutputsSummaryCard gasCaseOutputsValues=gasCaseOutputsSummaryView withContingentUncertaintyCategories=true/>
-        </#if>
-        <#if mixedDiscovery>
-            <@mixedCaseVolumetricsSummary.mixedCaseVolumetricsSummary mixedCaseVolumetricsValues=mixedCaseVolumetricsSummaryView/>
-            <@mixedCaseOutputsSummary.mixedCaseOutputsSummaryCard mixedCaseOutputsValues=mixedCaseOutputsSummaryView withContingentUncertaintyCategories=true/>
-        </#if>
-    </@fdsAccordion.accordionSection>
+<#-- TODO: Uncomment out when the discovery summaries have been finlaised - have a reservoir submission detial to tie to -->
+<#--    <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">-->
+<#--        <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard-->
+<#--          reservoirPropertiesValues=reservoirPropertiesSummaryView/>-->
+<#--        <@permeabilitySummary.permeabilityDetailsSummaryCard-->
+<#--          permeabilityDetailsValues=permeabilitySummaryView-->
+<#--          optionalPermeability=false/>-->
+<#--    </@fdsAccordion.accordionSection>-->
+<#--    <@fdsAccordion.accordionSection sectionHeading="Volumetrics" summaryText="Oil case, gas case, and mixed case volumetric parameters and outputs">-->
+<#--        <#if oilOnlyDiscovery>-->
+<#--            <@oilCaseVolumetricsSummary.oilCaseVolumetricsSummary oilCaseVolumetricsValues=oilCaseVolumetricsSummaryView/>-->
+<#--            <@oilCaseOutputsSummary.oilCaseOutputsSummaryCard oilCaseOutputsValues=oilCaseOutputsSummaryView withContingentUncertaintyCategories=true/>-->
+<#--        </#if>-->
+<#--        <#if gasOnlyDiscovery>-->
+<#--            <@gasCaseVolumetricsSummary.gasCaseVolumetricsSummary gasCaseVolumetricsValues=gasCaseVolumetricsSummaryView/>-->
+<#--            <@gasCaseOutputsSummary.gasCaseOutputsSummaryCard gasCaseOutputsValues=gasCaseOutputsSummaryView withContingentUncertaintyCategories=true/>-->
+<#--        </#if>-->
+<#--        <#if mixedDiscovery>-->
+<#--            <@mixedCaseVolumetricsSummary.mixedCaseVolumetricsSummary mixedCaseVolumetricsValues=mixedCaseVolumetricsSummaryView/>-->
+<#--            <@mixedCaseOutputsSummary.mixedCaseOutputsSummaryCard mixedCaseOutputsValues=mixedCaseOutputsSummaryView withContingentUncertaintyCategories=true/>-->
+<#--        </#if>-->
+<#--    </@fdsAccordion.accordionSection>-->
     <@fdsAccordion.accordionSection sectionHeading="Average hydrocarbon properties" summaryText="Oil, gas and general properties">
         <#if oilOnlyDiscovery || mixedDiscovery>
             <@oilFluidSummary.oilFluidPropertiesCard

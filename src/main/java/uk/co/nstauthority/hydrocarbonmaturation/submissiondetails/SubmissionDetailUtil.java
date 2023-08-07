@@ -38,4 +38,13 @@ public class SubmissionDetailUtil {
         || submissionType == SubmissionType.CREATE_COP
         || submissionType == SubmissionType.CREATE_FDPA;
   }
+
+  public static boolean isFirstSubmission(SubmissionType submissionType) {
+    return switch (submissionType) {
+      case CREATE_PROSPECT, CREATE_DISCOVERY,
+          CREATE_FDP, CREATE_CSR, CREATE_COP, CREATE_FDPA -> true;
+      case PROSPECT_UPDATE, POST_DRILL_DRY_HOLE, CREATE_DISCOVERY_FROM_PROSPECT,
+          UPDATE_DISCOVERY, RELINQUISHMENT_PROSPECT, RELINQUISHMENT_DISCOVERY, CREATE_FIELD -> false;
+    };
+  }
 }

@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -35,6 +36,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   private final LicencePersistenceService licencePersistenceService;
   private final SubmissionDetailService submissionDetailService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  private final FieldPersistenceService fieldPersistenceService;
 
   @Autowired
   public GeneralDetailsFormService(GeneralDetailsFormValidator generalDetailsFormValidator,
@@ -45,7 +47,8 @@ public class GeneralDetailsFormService implements SubmissionFormService {
                                    LicenceQueryService licenceQueryService,
                                    LicencePersistenceService licencePersistenceService,
                                    SubmissionDetailService submissionDetailService,
-                                   ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
+                                   ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+                                   FieldPersistenceService fieldPersistenceService) {
     this.generalDetailsFormValidator = generalDetailsFormValidator;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.licenceApplicationQueryService = licenceApplicationQueryService;
@@ -55,6 +58,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     this.licencePersistenceService = licencePersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+    this.fieldPersistenceService = fieldPersistenceService;
   }
 
   GeneralDetailsForm getGeneralDetailsForm(SubmissionDetail submissionDetail) {
@@ -174,7 +178,13 @@ public class GeneralDetailsFormService implements SubmissionFormService {
 
   private GeneralDetailsFormValidatorHints getValidationHints(SubmissionDetail submissionDetail,
                                                               ValidationType validationType) {
-    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
+    OnshoreOffshore onshoreOffshore;
+    if (submissionDetail.isFieldSubmission()) {
+      var resource = submissionDetail.getSubmission().getResource();
+      onshoreOffshore = fieldPersistenceService.getFieldByResourceOrThrow(resource).getOnshoreOffshore();
+    } else {
+      onshoreOffshore = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail).getOnshoreOffshore();
+    }
 
     if (submissionDetail.isFirstSubmission()) {
       return new GeneralDetailsFormValidatorHints(
@@ -182,7 +192,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
           submissionDetail,
           null,
           LicensePresent.LICENSE_NOT_PRESENT,
-          resourceDetail.getOnshoreOffshore());
+          onshoreOffshore);
     }
 
     var latestApprovedGeneralDetails = submissionDetailService
@@ -196,7 +206,7 @@ public class GeneralDetailsFormService implements SubmissionFormService {
           : LicensePresent.LICENSE_PRESENT;
     }
     return new GeneralDetailsFormValidatorHints(
-        validationType, submissionDetail, latestApprovedGeneralDetails, licencePresent, resourceDetail.getOnshoreOffshore());
+        validationType, submissionDetail, latestApprovedGeneralDetails, licencePresent, onshoreOffshore);
   }
 
 }

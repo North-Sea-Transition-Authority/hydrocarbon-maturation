@@ -18,8 +18,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSelectValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewSubmissionFromFieldService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
-import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
 @RequestMapping("field/cessation-of-production/create")
@@ -51,8 +51,8 @@ public class NewCessationOfProductionController {
     if (!fieldSelectValidator.isValid(bindingResult)) {
       return getNewCopPageModelAndView(form);
     } else {
-      newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_COP);
-      return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
+      var submissionDetail = newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_COP);
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
     }
   }
 
