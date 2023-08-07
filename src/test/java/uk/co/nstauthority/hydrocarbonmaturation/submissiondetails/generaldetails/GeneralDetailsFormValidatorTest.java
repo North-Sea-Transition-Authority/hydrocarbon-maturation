@@ -1,10 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -26,41 +24,33 @@ import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsFormValidatorTest {
 
-  private GeneralDetailsFormValidator generalDetailsFormValidator;
-
   @Mock
   private LicenceQueryService licenceQueryService;
 
+  @Mock
+  private OnshoreOffshoreService onshoreOffshoreService;
+
+  private GeneralDetailsFormValidator generalDetailsFormValidator;
+
   private SubmissionDetail submissionDetail;
+  private GeneralDetail generalDetail;
 
   @BeforeEach
   void setup() {
-    generalDetailsFormValidator = new GeneralDetailsFormValidator(licenceQueryService);
+    generalDetailsFormValidator = new GeneralDetailsFormValidator(licenceQueryService, onshoreOffshoreService);
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-  }
-
-  @Test
-  void supports_whenGeneralDetailsFormClass_thenTrue() {
-    var supportedClass = GeneralDetailsForm.class;
-    assertTrue(generalDetailsFormValidator.supports(supportedClass));
-  }
-
-  @Test
-  void supports_whenNotGeneralDetailsFormClass_thenFalse() {
-    var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(generalDetailsFormValidator.supports(nonSupportedClass));
+    generalDetail = new GeneralDetail();
+    generalDetail.setSubmissionDetail(submissionDetail);
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
   }
 
   @Test
@@ -101,6 +91,7 @@ class GeneralDetailsFormValidatorTest {
 
   @Test
   void validate_whenOnshoreInvalidForm_thenValidationErrors() {
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
     var form = new GeneralDetailsForm();
     var bindingResult = validateOnshoreGeneralDetailsForm(form, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -241,6 +232,7 @@ class GeneralDetailsFormValidatorTest {
 
   @Test
   void partialValidation_resourceLocatedInEngland_invalidPercentage() {
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
     var form = new GeneralDetailsForm();
     form.setResourceLocatedInEngland(false);
     form.setPercentageLocatedInEngland(new DecimalInput("abc"));
@@ -276,45 +268,17 @@ class GeneralDetailsFormValidatorTest {
 
   @ParameterizedTest
   @EnumSource(ValidationType.class)
-  void validate_whenNoLicenceSelected_WhenInPreviousSubmission(ValidationType validationType) {
-    var form = getValidForm();
-    form.setLicences(List.of());
-    form.setLicenceSelect(null);
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var generalDetail = new GeneralDetail();
-
-    generalDetailsFormValidator.validate(
-        form,
-        bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, generalDetail,
-            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("licenceSelect", Set.of("licenceSelect.required"))
-        );
-    assertThat(extractedErrorMessages)
-        .containsExactly(
-            entry("licenceSelect", Set.of("You cannot remove all licences from a resource that has " +
-                "a licence on an earlier approved submission"))
-        );
-  }
-
-  @ParameterizedTest
-  @EnumSource(ValidationType.class)
   void validate_whenRelinquishmentDatePartiallyFilled_whenRelinquishment_assertErrors(ValidationType validationType) {
     var form = getValidForm();
     form.setRelinquishmentYear(null);
     form.setRelinquishmentDay(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
-    GeneralDetail nullGeneralDetail = null;
-    generalDetailsFormValidator.validate(
+    generalDetailsFormValidator.isValid(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, nullGeneralDetail,
-            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
+        submissionDetail,
+        validationType);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     assertThat(extractedErrors)
@@ -338,11 +302,11 @@ class GeneralDetailsFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
     GeneralDetail nullGeneralDetail = null;
-    generalDetailsFormValidator.validate(
+    generalDetailsFormValidator.isValid(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(ValidationType.PARTIAL, submissionDetail, nullGeneralDetail,
-            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
+        submissionDetail,
+        ValidationType.PARTIAL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .isEmpty();
@@ -357,12 +321,11 @@ class GeneralDetailsFormValidatorTest {
     form.setRelinquishmentMonth("13");
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_DISCOVERY);
-    GeneralDetail nullGeneralDetail = null;
-    generalDetailsFormValidator.validate(
+    generalDetailsFormValidator.isValid(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail, nullGeneralDetail,
-            LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE));
+        submissionDetail,
+        validationType);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     assertThat(extractedErrors)
@@ -380,18 +343,17 @@ class GeneralDetailsFormValidatorTest {
   }
 
   @Test
-  void validate_whenNoLicenceSelected_WhenNotInPreviousSubmission() {
+  void validate_whenNoLicenceSelected() {
     var form = getValidForm();
     form.setLicences(List.of());
     form.setLicenceSelect(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var generalDetail = new GeneralDetail();
 
-    generalDetailsFormValidator.validate(
+    generalDetailsFormValidator.isValid(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(ValidationType.FULL, submissionDetail, generalDetail,
-            LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.OFFSHORE));
+        submissionDetail,
+        ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
     assertThat(extractedErrors)
@@ -404,35 +366,23 @@ class GeneralDetailsFormValidatorTest {
         );
   }
 
-  @Test
-  void validate_whenNoHintsProvided_assertThrow() {
-    assertThatThrownBy(() -> generalDetailsFormValidator
-        .validate(new GeneralDetailsForm(), ReverseRouter.emptyBindingResult()))
-        .hasMessage("Must provide GeneralDetailsFormValidatorHints")
-        .isExactlyInstanceOf(ActionNotAllowedException.class);
-  }
-
   private BindingResult validateOffshoreGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    GeneralDetail nullGeneralDetail = null;
-    generalDetailsFormValidator.validate(
+    generalDetailsFormValidator.isValid(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail,
-            nullGeneralDetail, LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.OFFSHORE));
+        submissionDetail,
+        validationType);
     return bindingResult;
   }
 
   private BindingResult validateOnshoreGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    GeneralDetail nullGeneralDetail = null;
-    generalDetailsFormValidator.validate(
+    generalDetailsFormValidator.isValid(
         form,
         bindingResult,
-        new GeneralDetailsFormValidatorHints(validationType, submissionDetail,
-            nullGeneralDetail, LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.ONSHORE));
+        submissionDetail,
+        validationType);
     return bindingResult;
   }
 

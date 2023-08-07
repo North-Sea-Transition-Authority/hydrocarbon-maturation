@@ -59,6 +59,6 @@ class RemiAbsoluteUrlUtilTest {
   void getWorkAreaUrl() {
     assertThat(RemiAbsoluteUrlUtil.getWorkAreaUrl())
         .isEqualTo(SERVICE_URL + ReverseRouter.route(on(WorkAreaController.class)
-            .getWorkArea()));
+            .getWorkArea(null)));
   }
 }

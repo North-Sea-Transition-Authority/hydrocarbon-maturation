@@ -59,7 +59,7 @@ class NewFieldController {
           NotificationBannerUtil.addSuccessNotification(redirectAttributes, "Success",
               "New field %s created".formatted(field.getCorrectedLegalFieldName()
           ));
-          return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
+          return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
         }
     );
   }

@@ -348,7 +348,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)),
             resourceName)
     );
@@ -407,7 +407,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
                 .param("responsibleTeamType", ResponsibleTeamType.ONSHORE.name())
                 .param("geographicalArea", GeographicalArea.ONSHORE.name()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea())));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null))));
   }
 
   @Test

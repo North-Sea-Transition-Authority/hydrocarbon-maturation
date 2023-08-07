@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.authorisation;
 
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
-public enum AllowedSubmissionTypes {
+public enum SecuritySubmissionTypes {
   PROSPECT_TYPES(
       SubmissionType.CREATE_PROSPECT,
       SubmissionType.PROSPECT_UPDATE,
@@ -32,11 +32,17 @@ public enum AllowedSubmissionTypes {
       SubmissionType.CREATE_DISCOVERY,
       SubmissionType.UPDATE_DISCOVERY,
       SubmissionType.RELINQUISHMENT_DISCOVERY),
+  FIELD_SUBMISSIONS(
+      SubmissionType.CREATE_COP,
+      SubmissionType.CREATE_CSR,
+      SubmissionType.CREATE_FDP,
+      SubmissionType.CREATE_FDPA
+  ),
   NONE()
   ;
   private final SubmissionType[] submissionTypesAllowed;
 
-  AllowedSubmissionTypes(SubmissionType... submissionTypesAllowed) {
+  SecuritySubmissionTypes(SubmissionType... submissionTypesAllowed) {
     this.submissionTypesAllowed = submissionTypesAllowed;
   }
 

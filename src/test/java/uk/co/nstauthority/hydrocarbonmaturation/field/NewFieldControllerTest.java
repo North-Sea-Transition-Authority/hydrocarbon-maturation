@@ -141,7 +141,7 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea())));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null))));
 
     verify(newFieldService, times(1)).createNewField(any(NewFieldForm.class));
   }

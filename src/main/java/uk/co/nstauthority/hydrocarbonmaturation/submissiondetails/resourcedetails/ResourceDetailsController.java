@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -33,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/resource-details")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
+@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.FIELD_SUBMISSIONS, mode = HasSubmissionType.Mode.EXCLUDE)
 @IsFromResponsibleTeam
 public class ResourceDetailsController {
 

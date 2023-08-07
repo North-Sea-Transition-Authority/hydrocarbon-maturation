@@ -102,7 +102,7 @@ class SubmissionFeedbackControllerTest extends AbstractSubmissionControllerTest 
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea())));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null))));
 
     verify(remiFeedbackService, times(1))
         .saveFeedback(eq(submissionDetail), any(FeedbackForm.class), eq(USER));

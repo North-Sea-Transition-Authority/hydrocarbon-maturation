@@ -67,7 +67,7 @@ public class SubmissionFeedbackController {
           remiFeedbackService.saveFeedback(submissionDetail, form, userDetailService.getUserDetail());
           NotificationBannerUtil.addSuccessNotification(
               redirectAttributes, "Success", "Your feedback has been submitted");
-          return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
+          return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
         }
     );
   }

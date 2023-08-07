@@ -32,7 +32,7 @@ class FeedbackEmailServiceTest {
   private static final String SUBMITTER_EMAIL_VALUE = "test@email.com";
   private static final String SERVICE_FEEDBACK_RATING = ServiceFeedbackRating.DISSATISFIED.name();
   private static final String TRANSACTION_REFERENCE = "transaction ref";
-  private static final String TRANSACTION_LINK = ReverseRouter.route(on(WorkAreaController.class).getWorkArea());
+  private static final String TRANSACTION_LINK = ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null));
   private static final String COMMENT_VALUE = "comment";
   private static final Instant GIVEN_INSTANT = Instant.now();
   private static final String SUBMITTER_NAME = "Name";

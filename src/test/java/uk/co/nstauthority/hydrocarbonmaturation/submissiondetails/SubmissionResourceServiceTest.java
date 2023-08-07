@@ -19,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesPersistenceService;
@@ -29,17 +31,14 @@ class SubmissionResourceServiceTest {
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   @Mock
   private TrapPropertiesPersistenceService trapPropertiesPersistenceService;
+  @Mock
+  private FieldPersistenceService fieldPersistenceService;
   @InjectMocks
   private SubmissionResourceService underTest;
 
   @Nested
   class WhenGettingResourcesBySubmissionTypeAndResourceName {
     private final ResourceType RESOURCE_TYPE = ResourceType.PROSPECT;
-    private final String NAME = "NAME";
-
-    @BeforeEach
-    void setup() {
-    }
 
     @Test
     void returnsOnlyResourcesOfCertainType() {
@@ -50,10 +49,11 @@ class SubmissionResourceServiceTest {
       var resource2 = buildResource(ResourceType.FIELD);
       var generalDetail3 = buildResourceDetail(resource2);
 
-      when(resourceDetailsPersistenceService.getResourceDetailsByName(NAME))
+      var name = "NAME";
+      when(resourceDetailsPersistenceService.getResourceDetailsByName(name))
           .thenReturn(List.of(generalDetail1, generalDetail2, generalDetail3));
 
-      var result = underTest.getResourcesBySubmissionTypeAndResourceName(RESOURCE_TYPE, NAME);
+      var result = underTest.getResourcesBySubmissionTypeAndResourceName(RESOURCE_TYPE, name);
 
       assertThat(result)
           .hasSize(1)
@@ -72,7 +72,6 @@ class SubmissionResourceServiceTest {
 
   @Nested
   class WhenGettingResourcesByName {
-    private final String NAME = "NAME";
 
     @Test
     void name() {
@@ -80,10 +79,11 @@ class SubmissionResourceServiceTest {
       var resourceDetail = buildResourceDetail(resource1);
       var resourceDetail1 = buildResourceDetail(resource1);
 
-      when(resourceDetailsPersistenceService.getResourceDetailsByName(NAME))
+      var name = "NAME";
+      when(resourceDetailsPersistenceService.getResourceDetailsByName(name))
           .thenReturn(List.of(resourceDetail, resourceDetail1));
 
-      var result = underTest.getResourcesByName(NAME);
+      var result = underTest.getResourcesByName(name);
 
       assertThat(result)
           .hasSize(1)
@@ -102,11 +102,10 @@ class SubmissionResourceServiceTest {
 
   @Nested
   class WhenGettingResourceName {
-    @Mock
-    private SubmissionDetail submissionDetail;
 
     @Test
-    void getFromGeneralDetail() {
+    void getFromGeneralDetail_notAField() {
+      var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
       var resourceDetail = new ResourceDetail();
       var resourceName = "name";
       resourceDetail.setResourceName(resourceName);
@@ -116,6 +115,18 @@ class SubmissionResourceServiceTest {
       var resourceNameOptional = underTest.getResourceName(submissionDetail);
 
       assertThat(resourceNameOptional).isEqualTo(Optional.of(resourceName));
+    }
+
+    @Test
+    void getName_whenResourceIsField() {
+      var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+      var field = new Field();
+      var fieldName = "Field name";
+      field.setCorrectedLegalFieldName(fieldName);
+      when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource())).thenReturn(field);
+      var resourceNameOptional = underTest.getResourceName(submissionDetail);
+
+      assertThat(resourceNameOptional).isEqualTo(Optional.of(fieldName));
     }
   }
 

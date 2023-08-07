@@ -149,10 +149,11 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
                 .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
         );
 
+    @SuppressWarnings(value="unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(ReviewSubmissionController.class)
                 .showReviewPage(submissionDetail.getSubmission().getResource().getId())),

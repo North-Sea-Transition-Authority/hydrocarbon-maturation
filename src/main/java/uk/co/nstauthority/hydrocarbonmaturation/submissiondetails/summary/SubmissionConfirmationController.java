@@ -51,6 +51,6 @@ public class SubmissionConfirmationController {
         .addObject("typeOfUpdate", submissionDetail.getSubmissionType().getDisplayName())
         .addObject("feedbackUrl", ReverseRouter.route(on(SubmissionFeedbackController.class)
             .getFeedback(submissionDetail.getId(), null)))
-        .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+        .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)));
   }
 }

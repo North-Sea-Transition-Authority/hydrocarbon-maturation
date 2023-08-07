@@ -13,5 +13,5 @@ interface FieldRepository extends CrudRepository<Field, Integer> {
 
   List<Field> findFieldsByCorrectedLegalFieldNameContainingIgnoreCase(String fieldName);
 
-  Optional<Field> findFieldByResource(Resource resource);
+  Optional<Field> findByResource(Resource resource);
 }

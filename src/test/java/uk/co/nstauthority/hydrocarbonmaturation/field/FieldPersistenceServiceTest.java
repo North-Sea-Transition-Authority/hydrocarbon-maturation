@@ -255,7 +255,7 @@ class FieldPersistenceServiceTest {
     @Test
     void verifyCalls() {
       underTest.getFieldByResource(RESOURCE);
-      verify(fieldRepository).findFieldByResource(RESOURCE);
+      verify(fieldRepository).findByResource(RESOURCE);
     }
   }
 
@@ -266,7 +266,7 @@ class FieldPersistenceServiceTest {
     @Test
     void verifyCalls() {
       var field = new Field();
-      when(fieldRepository.findFieldByResource(RESOURCE)).thenReturn(Optional.of(field));
+      when(fieldRepository.findByResource(RESOURCE)).thenReturn(Optional.of(field));
 
       assertThat(underTest.getFieldByResourceOrThrow(RESOURCE))
           .isEqualTo(field);
@@ -274,7 +274,7 @@ class FieldPersistenceServiceTest {
 
     @Test
     void throwsWhenNoField() {
-      when(fieldRepository.findFieldByResource(RESOURCE)).thenReturn(Optional.empty());
+      when(fieldRepository.findByResource(RESOURCE)).thenReturn(Optional.empty());
       assertThatThrownBy(() -> underTest.getFieldByResourceOrThrow(RESOURCE))
           .isInstanceOf(RemiEntityNotFoundException.class)
           .hasMessageContaining("No field found for resource id: %s".formatted(RESOURCE.getId()));

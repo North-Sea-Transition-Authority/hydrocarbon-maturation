@@ -12,7 +12,6 @@ import org.jooq.Condition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.ResourceDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Resources;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
@@ -29,22 +28,18 @@ class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryS
   private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
   private static final ResourceDetails RD_2 = RESOURCE_DETAILS.as("rd2");
   private static final Resources RESOURCES_2 = RESOURCES.as("r2");
-  private final UserDetailService userDetailService;
   private final IndustryTeamService industryTeamService;
   private final SubmissionWorkAreaQueryCommonService submissionWorkAreaQueryCommonService;
 
   @Autowired
-  OperatorSubmissionWorkAreaQueryService(UserDetailService userDetailService,
-                                         IndustryTeamService industryTeamService,
+  OperatorSubmissionWorkAreaQueryService(IndustryTeamService industryTeamService,
                                          SubmissionWorkAreaQueryCommonService submissionWorkAreaQueryCommonService) {
-    this.userDetailService = userDetailService;
     this.industryTeamService = industryTeamService;
     this.submissionWorkAreaQueryCommonService = submissionWorkAreaQueryCommonService;
   }
 
   @Override
-  public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems() {
-    var user = userDetailService.getUserDetail();
+  public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems(ServiceUserDetail user) {
     return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getOperatorConditions(user));
   }
 

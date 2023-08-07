@@ -36,7 +36,7 @@ public class RemiAbsoluteUrlUtil {
   }
 
   public static String getWorkAreaUrl() {
-    var workAreaUrl = ReverseRouter.route(on(WorkAreaController.class).getWorkArea());
+    var workAreaUrl = ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null));
     return "%s%s".formatted(getBaseUrl(), workAreaUrl);
   }
 

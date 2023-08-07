@@ -150,7 +150,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(ReviewSubmissionController.class)
                 .showReviewPage(submissionDetail.getSubmission().getResource().getId())),
@@ -176,7 +176,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
                 .with(user(USER)).with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class)
-            .getWorkArea())));
+            .getWorkArea(null))));
 
     verify(withdrawSubmissionService).withdrawSubmissionOrThrow(eq(submissionDetail), any());
   }

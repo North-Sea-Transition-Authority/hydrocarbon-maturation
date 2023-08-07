@@ -60,9 +60,14 @@ class GeneralDetailsTaskListSectionServiceTest {
   @EnumSource(value = SubmissionType.class, names = {
       "CREATE_PROSPECT",
       "CREATE_DISCOVERY",
-      "CREATE_DISCOVERY_FROM_PROSPECT"},
+      "CREATE_DISCOVERY_FROM_PROSPECT",
+      "CREATE_FIELD",
+      "CREATE_CSR",
+      "CREATE_FDP",
+      "CREATE_FDPA",
+      "CREATE_COP"},
       mode = EnumSource.Mode.EXCLUDE)
-  void getSection_AllSubmissionTypesExceptCreateProspect_OnlyGeneralDetails(SubmissionType submissionType) {
+  void getSection_expectOnlyGeneralDetails(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     if (submissionDetail.isInitialResourceSubmission()) {
       when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);

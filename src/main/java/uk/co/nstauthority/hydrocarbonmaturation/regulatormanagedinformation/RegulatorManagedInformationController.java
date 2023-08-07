@@ -142,7 +142,7 @@ public class RegulatorManagedInformationController {
                   "Success",
                   "The regulator managed information has been updated for the resource %s".formatted(resourceName));
 
-              return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
+              return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
             }
           } else {
             return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resourceId));

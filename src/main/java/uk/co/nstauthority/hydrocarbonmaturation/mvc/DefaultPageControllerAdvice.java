@@ -76,7 +76,7 @@ public class DefaultPageControllerAdvice {
   }
 
   private void addCommonUrls(Model model) {
-    model.addAttribute("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+    model.addAttribute("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)));
     model.addAttribute("accessibilityStatementUrl",
         ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement()));
     model.addAttribute("feedbackPageUrl", ReverseRouter.route(on(FeedbackController.class)

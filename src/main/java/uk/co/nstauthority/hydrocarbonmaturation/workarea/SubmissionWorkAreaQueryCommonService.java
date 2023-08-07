@@ -1,7 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.nvl;
 import static org.jooq.impl.DSL.select;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
@@ -40,7 +42,7 @@ class SubmissionWorkAreaQueryCommonService {
             SUBMISSION_DETAILS.ID,
             SUBMISSION_DETAILS.SUBMISSION_TYPE,
             SUBMISSION_DETAILS.STATUS,
-            RESOURCE_DETAILS.RESOURCE_NAME,
+            nvl(RESOURCE_DETAILS.RESOURCE_NAME, FIELDS.CORRECTED_LEGAL_FIELD_NAME),
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             RESOURCE_DETAILS.ORGANISATION_ID,
             DSL.arrayAgg(GENERAL_DETAILS_LICENCES.LICENCE_ID)
@@ -79,11 +81,14 @@ class SubmissionWorkAreaQueryCommonService {
             .on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
             .leftJoin(REGULATOR_MANAGED_INFORMATION)
             .on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
+            .leftJoin(FIELDS)
+            .on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID))
         .where(conditions))
         .groupBy(
             SUBMISSIONS.ID,
             SUBMISSION_DETAILS.ID,
             RESOURCE_DETAILS.RESOURCE_NAME,
+            FIELDS.CORRECTED_LEGAL_FIELD_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             RESOURCE_DETAILS.ORGANISATION_ID,
             SUBMISSION_UPDATE.ID)

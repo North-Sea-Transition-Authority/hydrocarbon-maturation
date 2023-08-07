@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -115,5 +116,8 @@ class NewCessationOfProductionControllerTest extends AbstractSubmissionControlle
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))));
+
+    verify(newSubmissionFromFieldService, times(1))
+        .createSubmissionFromField(any(FieldSelectForm.class), eq(SubmissionType.CREATE_COP));
   }
 }

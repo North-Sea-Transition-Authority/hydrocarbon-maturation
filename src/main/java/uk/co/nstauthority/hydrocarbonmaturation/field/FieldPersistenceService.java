@@ -114,12 +114,21 @@ public class FieldPersistenceService {
         .orElseThrow(() -> new EntityNotFoundException("No field found for id: %s".formatted(fieldId)));
   }
 
+  public Optional<Field> getField(Resource resource) {
+    return fieldRepository.findByResource(resource);
+  }
+
+  public Field getFieldOrThrow(Resource resource) {
+    return getField(resource)
+        .orElseThrow(() -> new EntityNotFoundException("No field found for resource id: %s".formatted(resource.getId())));
+  }
+
   public List<Field> getFieldsByCorrectedLegalName(String fieldName) {
     return fieldRepository.findFieldsByCorrectedLegalFieldNameContainingIgnoreCase(fieldName);
   }
 
   public Optional<Field> getFieldByResource(Resource resource) {
-    return fieldRepository.findFieldByResource(resource);
+    return fieldRepository.findByResource(resource);
   }
 
   public Field getFieldByResourceOrThrow(Resource resource) {

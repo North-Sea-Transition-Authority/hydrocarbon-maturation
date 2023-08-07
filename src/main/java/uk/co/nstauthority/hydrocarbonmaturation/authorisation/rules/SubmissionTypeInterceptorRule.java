@@ -29,10 +29,17 @@ public class SubmissionTypeInterceptorRule implements SubmissionInterceptorSecur
                                   HttpServletResponse response,
                                   ServiceUserDetail userDetails,
                                   SubmissionDetail submissionDetail) {
-    var allowedSubmissionTypes = ((HasSubmissionType) annotation).allowedSubmissionTypes();
+    var hasSubmissionType = (HasSubmissionType) annotation;
+    var submissionTypes = hasSubmissionType.submissionTypes();
+    var mode = hasSubmissionType.mode();
 
-    if (Arrays.stream(allowedSubmissionTypes.getSubmissionTypesAllowed())
-        .anyMatch(submissionType -> submissionType == submissionDetail.getSubmissionType())) {
+    if (mode == HasSubmissionType.Mode.INCLUDE
+        && Arrays.stream(submissionTypes.getSubmissionTypesAllowed())
+          .anyMatch(submissionType -> submissionType == submissionDetail.getSubmissionType())) {
+      return SecurityRuleResult.continueAsNormal();
+    } else if (mode == HasSubmissionType.Mode.EXCLUDE
+        && Arrays.stream(submissionTypes.getSubmissionTypesAllowed())
+          .noneMatch(submissionType -> submissionType == submissionDetail.getSubmissionType())) {
       return SecurityRuleResult.continueAsNormal();
     }
 

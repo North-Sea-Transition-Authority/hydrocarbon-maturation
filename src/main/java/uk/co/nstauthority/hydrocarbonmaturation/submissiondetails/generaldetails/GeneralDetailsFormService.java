@@ -9,25 +9,18 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class GeneralDetailsFormService implements SubmissionFormService {
+public class GeneralDetailsFormService {
 
-  private final GeneralDetailsFormValidator generalDetailsFormValidator;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final LicenceApplicationQueryService licenceApplicationQueryService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
@@ -35,21 +28,15 @@ public class GeneralDetailsFormService implements SubmissionFormService {
   private final LicenceQueryService licenceQueryService;
   private final LicencePersistenceService licencePersistenceService;
   private final SubmissionDetailService submissionDetailService;
-  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-  private final FieldPersistenceService fieldPersistenceService;
 
   @Autowired
-  public GeneralDetailsFormService(GeneralDetailsFormValidator generalDetailsFormValidator,
-                                   GeneralDetailsPersistenceService generalDetailsPersistenceService,
+  public GeneralDetailsFormService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                    LicenceApplicationQueryService licenceApplicationQueryService,
                                    QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                    ReferenceBlockQueryService referenceBlockQueryService,
                                    LicenceQueryService licenceQueryService,
                                    LicencePersistenceService licencePersistenceService,
-                                   SubmissionDetailService submissionDetailService,
-                                   ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                   FieldPersistenceService fieldPersistenceService) {
-    this.generalDetailsFormValidator = generalDetailsFormValidator;
+                                   SubmissionDetailService submissionDetailService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.licenceApplicationQueryService = licenceApplicationQueryService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
@@ -57,8 +44,6 @@ public class GeneralDetailsFormService implements SubmissionFormService {
     this.licenceQueryService = licenceQueryService;
     this.licencePersistenceService = licencePersistenceService;
     this.submissionDetailService = submissionDetailService;
-    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
-    this.fieldPersistenceService = fieldPersistenceService;
   }
 
   GeneralDetailsForm getGeneralDetailsForm(SubmissionDetail submissionDetail) {
@@ -152,16 +137,6 @@ public class GeneralDetailsFormService implements SubmissionFormService {
         .toList();
   }
 
-  @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
-    generalDetailsFormValidator.validate(
-        form,
-        bindingResult,
-        getValidationHints(submissionDetail, validationType));
-    return bindingResult;
-  }
-
   public boolean hasLicencesOnEarlierSubmission(SubmissionDetail submissionDetail) {
     if (submissionDetail.isFirstSubmission()) {
       return false;
@@ -174,39 +149,6 @@ public class GeneralDetailsFormService implements SubmissionFormService {
         .map(licencePersistenceService::getLicencesByGeneralDetail)
         .map(item -> !item.isEmpty())
         .orElse(false);
-  }
-
-  private GeneralDetailsFormValidatorHints getValidationHints(SubmissionDetail submissionDetail,
-                                                              ValidationType validationType) {
-    OnshoreOffshore onshoreOffshore;
-    if (submissionDetail.isFieldSubmission()) {
-      var resource = submissionDetail.getSubmission().getResource();
-      onshoreOffshore = fieldPersistenceService.getFieldByResourceOrThrow(resource).getOnshoreOffshore();
-    } else {
-      onshoreOffshore = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail).getOnshoreOffshore();
-    }
-
-    if (submissionDetail.isFirstSubmission()) {
-      return new GeneralDetailsFormValidatorHints(
-          validationType,
-          submissionDetail,
-          null,
-          LicensePresent.LICENSE_NOT_PRESENT,
-          onshoreOffshore);
-    }
-
-    var latestApprovedGeneralDetails = submissionDetailService
-        .getLatestApprovedSubmissionForSubmission(submissionDetail)
-        .flatMap(generalDetailsPersistenceService::getGeneralDetailBySubmissionDetail)
-        .orElse(null);
-    var licencePresent = LicensePresent.LICENSE_NOT_PRESENT;
-    if (latestApprovedGeneralDetails != null) {
-      licencePresent = !licencePersistenceService.getLicencesByGeneralDetail(latestApprovedGeneralDetails).isEmpty()
-          ? LicensePresent.LICENSE_NOT_PRESENT
-          : LicensePresent.LICENSE_PRESENT;
-    }
-    return new GeneralDetailsFormValidatorHints(
-        validationType, submissionDetail, latestApprovedGeneralDetails, licencePresent, onshoreOffshore);
   }
 
 }

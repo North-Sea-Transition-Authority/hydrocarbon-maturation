@@ -55,7 +55,7 @@ public class FeedbackController {
           remiFeedbackService.saveFeedback(form, userDetailService.getUserDetail());
           NotificationBannerUtil.addSuccessNotification(
               redirectAttributes, "Success", "Your feedback has been submitted");
-          return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
+          return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
         }
     );
   }
@@ -65,7 +65,7 @@ public class FeedbackController {
         .addObject("form", feedbackForm)
         .addObject("actionUrl", ReverseRouter.route(on(FeedbackController.class)
             .submitFeedback(null, null, null)))
-        .addObject("cancelUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
+        .addObject("cancelUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
         .addObject("serviceRatings",
             DisplayableEnumOptionUtil.getDisplayableOptions(ServiceFeedbackRating.class));
   }

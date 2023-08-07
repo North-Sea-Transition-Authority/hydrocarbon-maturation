@@ -80,7 +80,7 @@ public class DeleteSubmissionController {
     NotificationBannerUtil.applyNotificationBanner(
         redirectAttributes, getNotificationBanner(submissionDetail, isDraftUpdate));
 
-    return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
+    return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
   }
 
   private String getPageName(SubmissionDetail submissionDetail) {

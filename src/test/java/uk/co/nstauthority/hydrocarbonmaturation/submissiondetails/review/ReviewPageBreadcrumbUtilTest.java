@@ -24,11 +24,12 @@ class ReviewPageBreadcrumbUtilTest {
         .addWorkAreaAndManagementPageToModelAndView(
             modelAndView, pageName, submissionName, submissionDetail);
 
+    @SuppressWarnings(value="unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelAndViewWithBreadCrumbs
         .getModelMap().get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(ReviewSubmissionController.class)
                 .showReviewPage(submissionDetail.getSubmission().getResource().getId())),

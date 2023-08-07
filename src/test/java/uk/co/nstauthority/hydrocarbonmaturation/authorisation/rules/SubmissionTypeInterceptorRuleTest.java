@@ -13,8 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AllowedSubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
@@ -376,7 +376,7 @@ class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
 
   @Controller
   @RequestMapping("/route1")
-  @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.DISCOVERY_TYPES)
+  @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
   private static class TestControllerDiscovery {
     @GetMapping
     String get() {
@@ -386,7 +386,7 @@ class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
 
   @Controller
   @RequestMapping("/route2")
-  @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.CREATE_RESOURCE_SUBMISSIONS)
+  @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.CREATE_RESOURCE_SUBMISSIONS)
   private static class TestControllerCreateProspect {
     @GetMapping
     String get() {
@@ -396,7 +396,7 @@ class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
 
   @Controller
   @RequestMapping("/route3")
-  @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.PROSPECT_TYPES)
+  @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.PROSPECT_TYPES)
   private static class TestControllerProspect {
     @GetMapping
     String get() {
@@ -406,7 +406,7 @@ class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
 
   @Controller
   @RequestMapping("/route4")
-  @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.DISCOVERY_AND_POST_DRILL)
+  @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_POST_DRILL)
   private static class TestControllerDiscoveryAndPostDrill {
     @GetMapping
     String get() {
@@ -416,7 +416,7 @@ class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
 
   @Controller
   @RequestMapping("/route5")
-  @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.NONE)
+  @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.NONE)
   private static class TestControllerNone {
     @GetMapping
     String get() {
@@ -426,7 +426,7 @@ class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
 
   @Controller
   @RequestMapping("/route6")
-  @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.DISCOVERY_AND_PROSPECT)
+  @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_PROSPECT)
   private static class TestControllerDiscoveryAndProspect {
     @GetMapping
     String get() {
@@ -436,7 +436,7 @@ class SubmissionTypeInterceptorRuleTest extends AbstractInterceptorRuleTest {
 
   @Controller
   @RequestMapping("/route7")
-  @HasSubmissionType(allowedSubmissionTypes = AllowedSubmissionTypes.POST_DRILL_DRY_HOLE)
+  @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.POST_DRILL_DRY_HOLE)
   private static class TestControllerDryHole {
     @GetMapping
     String get() {

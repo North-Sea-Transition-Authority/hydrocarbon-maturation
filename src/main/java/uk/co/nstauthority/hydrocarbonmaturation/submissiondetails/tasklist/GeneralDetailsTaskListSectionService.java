@@ -65,11 +65,13 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
   private List<TaskListItem> getTaskListItemsBySubmissionType(SubmissionDetail submissionDetail) {
     var listOfItems = new ArrayList<TaskListItem>();
 
-    listOfItems.add(
-        new TaskListItem("Resource details",
-            TaskListLabel.notStartedOrComplete(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)),
-            ReverseRouter.route(on(ResourceDetailsController.class).getResourceDetails(submissionDetail.getId())))
-    );
+    if (!submissionDetail.isFieldSubmission()) {
+      listOfItems.add(
+          new TaskListItem("Resource details",
+              TaskListLabel.notStartedOrComplete(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)),
+              ReverseRouter.route(on(ResourceDetailsController.class).getResourceDetails(submissionDetail.getId())))
+      );
+    }
 
     listOfItems.add(
         new TaskListItem("General details",

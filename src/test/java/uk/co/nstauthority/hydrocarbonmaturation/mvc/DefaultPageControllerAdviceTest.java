@@ -90,7 +90,7 @@ class DefaultPageControllerAdviceTest {
     assertThat((ServiceConfigurationProperties) modelMap.get("serviceBranding")).hasNoNullFieldsOrProperties();
     assertThat((TechnicalSupportConfigurationProperties) modelMap.get("technicalSupport")).hasNoNullFieldsOrProperties();
     Map<String, Object> commonPropertiesMap = new HashMap<>();
-    commonPropertiesMap.put("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+    commonPropertiesMap.put("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)));
     commonPropertiesMap.put("submitPrimaryButtonText", "Save and complete");
     commonPropertiesMap.put("feedbackPageUrl",
         ReverseRouter.route(on(FeedbackController.class).getFeedback(null)));

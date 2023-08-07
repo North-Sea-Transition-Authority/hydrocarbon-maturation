@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -22,27 +22,23 @@ public class WorkAreaController {
 
   private final WorkAreaItemService workAreaItemService;
   private final PermissionService permissionService;
-  private final UserDetailService userDetailService;
 
   public static final String WORK_AREA_TITLE = "Work area";
 
   @Autowired
   public WorkAreaController(WorkAreaItemService workAreaItemService,
-                            PermissionService permissionService,
-                            UserDetailService userDetailService) {
+                            PermissionService permissionService) {
     this.workAreaItemService = workAreaItemService;
     this.permissionService = permissionService;
-    this.userDetailService = userDetailService;
   }
 
   @GetMapping
-  public ModelAndView getWorkArea() {
-    var user = userDetailService.getUserDetail();
+  public ModelAndView getWorkArea(ServiceUserDetail user) {
     return new ModelAndView("remi/workarea/workArea")
         .addObject("startSubmissionUrl",
             ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType()))
         .addObject("pageTitle", WORK_AREA_TITLE)
-        .addObject("workAreaItems", workAreaItemService.getWorkAreaItems())
+        .addObject("workAreaItems", workAreaItemService.getWorkAreaItems(user))
         .addObject("canCreateSubmissions",
             permissionService.hasPermission(user, Set.of(
                 RolePermission.EXPLORATION,

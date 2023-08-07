@@ -36,9 +36,9 @@ class WorkAreaControllerTest extends AbstractControllerTest {
   @SecurityTest
   void getWorkArea_assertHttpOk() throws Exception {
     List<WorkAreaItem> workAreaItems = List.of();
-    when(workAreaItemService.getWorkAreaItems()).thenReturn(workAreaItems);
+    when(workAreaItemService.getWorkAreaItems(USER)).thenReturn(workAreaItems);
 
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/workarea/workArea"))
@@ -50,7 +50,7 @@ class WorkAreaControllerTest extends AbstractControllerTest {
   @Test
   void getWorkArea_whenHasPermission_assertCanCreateSubmissionsTrue() throws Exception {
     List<WorkAreaItem> workAreaItems = List.of();
-    when(workAreaItemService.getWorkAreaItems()).thenReturn(workAreaItems);
+    when(workAreaItemService.getWorkAreaItems(USER)).thenReturn(workAreaItems);
     when(permissionService.hasPermission(USER, Set.of(
             RolePermission.EXPLORATION,
             RolePermission.INDUSTRY_SUBMIT,
@@ -59,7 +59,7 @@ class WorkAreaControllerTest extends AbstractControllerTest {
             RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
 
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/workarea/workArea"))
@@ -69,7 +69,7 @@ class WorkAreaControllerTest extends AbstractControllerTest {
   @Test
   void getWorkArea_whenDoesNotHavePermission_assertCanCreateSubmissionsFalse() throws Exception {
     List<WorkAreaItem> workAreaItems = List.of();
-    when(workAreaItemService.getWorkAreaItems()).thenReturn(workAreaItems);
+    when(workAreaItemService.getWorkAreaItems(USER)).thenReturn(workAreaItems);
     when(permissionService.hasPermission(USER, Set.of(
         RolePermission.EXPLORATION,
         RolePermission.INDUSTRY_SUBMIT,
@@ -78,7 +78,7 @@ class WorkAreaControllerTest extends AbstractControllerTest {
         RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(false);
 
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/workarea/workArea"))

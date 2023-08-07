@@ -183,7 +183,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE)
     );
   }
@@ -239,7 +239,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE)
     );
   }
@@ -297,7 +297,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE)
     );
   }

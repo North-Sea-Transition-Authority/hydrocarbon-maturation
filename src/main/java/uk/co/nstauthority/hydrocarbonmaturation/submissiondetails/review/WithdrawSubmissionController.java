@@ -92,7 +92,7 @@ public class WithdrawSubmissionController {
         () -> {
           withdrawSubmissionService.withdrawSubmissionOrThrow(submissionDetail, form);
           withdrawSubmissionNotificationBanner(submissionDetail, redirectAttributes);
-          return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea());
+          return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
         });
   }
 

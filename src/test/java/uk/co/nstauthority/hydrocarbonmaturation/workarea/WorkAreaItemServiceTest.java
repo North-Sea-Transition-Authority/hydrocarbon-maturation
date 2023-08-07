@@ -18,7 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
-import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
@@ -57,6 +58,7 @@ class WorkAreaItemServiceTest {
   private final Integer LICENCE_ID_1 = 1;
   private final Integer LICENCE_ID_2 = 2;
   private final Integer ORGANISATION_ID = 5;
+  private final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @BeforeEach
   void setUp() {
@@ -75,16 +77,16 @@ class WorkAreaItemServiceTest {
 
   @Test
   void getWorkAreaItems_twoItemsReturned_whenOrganisationAndLicencesNotFound_oneWithQuadBlocks() {
-    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
-    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(queryResults);
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(anyInt()))
         .thenReturn("Not provided");
     when(submissionDetailDisplayService.getLicencesForDisplay(List.of(LICENCE_ID_1, LICENCE_ID_2)))
         .thenReturn(List.of());
 
-    var result = workAreaItemService.getWorkAreaItems();
+    var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result)
         .extracting(WorkAreaItem::type,
@@ -125,9 +127,9 @@ class WorkAreaItemServiceTest {
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationAndLicencesFound() {
 
-    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
-    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResultWithEverythingFilledIn));
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("organisation (1)");
@@ -136,7 +138,7 @@ class WorkAreaItemServiceTest {
     when(submissionDetailDisplayService.getLicencesForDisplay(List.of(LICENCE_ID_1, LICENCE_ID_2)))
         .thenReturn(List.of(licence1.getName(), licence2.getName()));
 
-    var result = workAreaItemService.getWorkAreaItems();
+    var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result).hasSize(1);
 
@@ -170,15 +172,15 @@ class WorkAreaItemServiceTest {
         .withResourceName(providedName)
         .build();
 
-    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
-    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(submissionWorkAreaQueryResult));
 
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(null))
         .thenReturn("Not provided");
 
-    var result = workAreaItemService.getWorkAreaItems();
+    var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result).hasSize(1);
 
@@ -206,14 +208,14 @@ class WorkAreaItemServiceTest {
 
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationWithoutNameFound() {
-    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
-    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResultWithEverythingFilledIn));
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("Not provided");
 
-    var result = workAreaItemService.getWorkAreaItems();
+    var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result)
         .extracting(WorkAreaItem::type,
@@ -239,14 +241,14 @@ class WorkAreaItemServiceTest {
 
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationWithoutNameAndNumberFound() {
-    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
-    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems()).thenReturn(List.of(
+    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER)).thenReturn(List.of(
         queryResultWithEverythingFilledIn));
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("Not provided");
 
-    var result = workAreaItemService.getWorkAreaItems();
+    var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result)
         .extracting(WorkAreaItem::type,
@@ -276,15 +278,15 @@ class WorkAreaItemServiceTest {
         .builder()
         .withOrganisationResponsibleId(ORGANISATION_ID)
         .build();
-    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
-    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResultOnlyOrganisationName));
     var organisationName = "organisation name";
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(ORGANISATION_ID))
         .thenReturn(organisationName);
 
-    var result = workAreaItemService.getWorkAreaItems();
+    var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result.get(0).modelProperties().getProperties())
         .containsExactly(
@@ -301,14 +303,14 @@ class WorkAreaItemServiceTest {
         .builder()
         .withLicencesTheResourceIsOn(List.of())
         .build();
-    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
-    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResultEmptyLicences));
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("Not provided");
 
-    var result = workAreaItemService.getWorkAreaItems();
+    var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result.get(0).modelProperties().getProperties())
         .containsExactly(
@@ -324,16 +326,16 @@ class WorkAreaItemServiceTest {
         .builder()
         .withStatus(SubmissionDetailStatus.SUBMITTED.name())
         .build();
-    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
-    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResultInSubmitted));
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(any()))
         .thenReturn("Not provided");
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     when(submissionDetailService.getSubmissionDetailForIdOrError(queryResultInSubmitted.getSubmissionDetailId()))
         .thenReturn(submissionDetail);
-    var result = workAreaItemService.getWorkAreaItems();
+    var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result)
         .extracting(WorkAreaItem::type,
@@ -364,9 +366,9 @@ class WorkAreaItemServiceTest {
         .builder()
         .withStatus(status.name())
         .build();
-    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
-    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems())
+    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResult));
 
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
@@ -374,7 +376,7 @@ class WorkAreaItemServiceTest {
       when(submissionDetailService.getSubmissionDetailForIdOrError(queryResult.getSubmissionDetailId()))
           .thenReturn(submissionDetail);
     }
-    var result = workAreaItemService.getWorkAreaItems();
+    var result = workAreaItemService.getWorkAreaItems(USER);
 
     if (status == SubmissionDetailStatus.DRAFT) {
       assertThat(result.get(0).actionUrl())

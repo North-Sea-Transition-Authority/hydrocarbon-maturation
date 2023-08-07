@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
@@ -23,7 +22,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -35,50 +33,48 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class GeneralDetailsController {
 
   private final GeneralDetailsFormService generalDetailsFormService;
-  private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
-  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  private final GeneralDetailsFormValidator generalDetailsFormValidator;
+  private final OnshoreOffshoreService onshoreOffshoreService;
 
   public static final String PAGE_NAME = "General details";
 
   @Autowired
   public GeneralDetailsController(GeneralDetailsFormService generalDetailsFormService,
-                                  ControllerHelperService controllerHelperService,
                                   SubmissionDetailService submissionDetailService,
                                   GeneralDetailsPersistenceService generalDetailsPersistenceService,
-                                  ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
+                                  GeneralDetailsFormValidator generalDetailsFormValidator,
+                                  OnshoreOffshoreService onshoreOffshoreService) {
     this.generalDetailsFormService = generalDetailsFormService;
-    this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
-    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+    this.generalDetailsFormValidator = generalDetailsFormValidator;
+    this.onshoreOffshoreService = onshoreOffshoreService;
   }
 
   @GetMapping
   public ModelAndView getGeneralDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                         @ModelAttribute("form") GeneralDetailsForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
-    return getGeneralDetailsModelAndView(generalDetailsFormService.getGeneralDetailsForm(submissionDetail), submissionDetail,
-        resourceDetail.getOnshoreOffshore());
+    var onshoreOffshore = onshoreOffshoreService.getOnshoreOffshore(submissionDetail);
+    return getGeneralDetailsModelAndView(
+        generalDetailsFormService.getGeneralDetailsForm(submissionDetail), submissionDetail, onshoreOffshore);
   }
 
   @PostMapping
   public ModelAndView saveGeneralDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                         @ModelAttribute("form") GeneralDetailsForm form, BindingResult bindingResult,
+                                         @ModelAttribute("form") GeneralDetailsForm form,
+                                         BindingResult bindingResult,
                                          ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
-    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getGeneralDetailsModelAndView(form, submissionDetail, resourceDetail.getOnshoreOffshore()),
-        () -> {
-          generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, resourceDetail.getOnshoreOffshore());
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
-        }
-    );
+    var onshoreOffshore = onshoreOffshoreService.getOnshoreOffshore(submissionDetail);
+    if (!generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
+      return getGeneralDetailsModelAndView(form, submissionDetail, onshoreOffshore);
+    } else {
+      generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, onshoreOffshore);
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+    }
   }
 
   private ModelAndView getGeneralDetailsModelAndView(GeneralDetailsForm form, SubmissionDetail submissionDetail,
@@ -120,8 +116,8 @@ public class GeneralDetailsController {
   }
 
   private String getQuadrantBlocksApiEndpoint(SubmissionDetail submissionDetail) {
-    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
-    return resourceDetail.getOnshoreOffshore() == OnshoreOffshore.ONSHORE
+    var onshoreOffshore = onshoreOffshoreService.getOnshoreOffshore(submissionDetail);
+    return onshoreOffshore == OnshoreOffshore.ONSHORE
         ? SearchSelectorService.route(on(ReferenceBlockRestController.class).searchOnshoreQuadrantBlocks(null))
         : SearchSelectorService.route(on(ReferenceBlockRestController.class).searchOffshoreQuadrantBlocks(null));
   }

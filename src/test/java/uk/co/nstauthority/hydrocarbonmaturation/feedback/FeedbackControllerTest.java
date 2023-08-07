@@ -59,7 +59,7 @@ class FeedbackControllerTest extends AbstractControllerTest {
             entry("actionUrl", ReverseRouter.route(on(FeedbackController.class)
                     .submitFeedback(null, null, null))),
             entry("serviceRatings", DisplayableEnumOptionUtil.getDisplayableOptions(ServiceFeedbackRating.class)),
-            entry("cancelUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()))
+            entry("cancelUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
         );
   }
 
@@ -72,7 +72,7 @@ class FeedbackControllerTest extends AbstractControllerTest {
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea())));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null))));
 
     verify(remiFeedbackService, times(1)).saveFeedback(any(FeedbackForm.class), eq(USER));
   }

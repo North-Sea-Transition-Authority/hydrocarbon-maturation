@@ -177,7 +177,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap).containsAllEntriesOf(modelMapExpected);
     assertThat(modelMap.get("form").getClass()).isEqualTo(TrapPropertiesForm.class);
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
     );
   }
@@ -222,7 +222,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap).containsAllEntriesOf(modelMapExpected);
     assertThat(modelMap.get("form").getClass()).isEqualTo(TrapPropertiesForm.class);
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
     );
   }

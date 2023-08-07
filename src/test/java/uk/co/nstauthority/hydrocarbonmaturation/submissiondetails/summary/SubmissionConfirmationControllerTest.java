@@ -99,7 +99,7 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
     assertThat(modelMap).contains(
             entry("assetName", prospectName),
             entry("typeOfUpdate", submissionDetail.getSubmissionType().getDisplayName()),
-            entry("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea())),
+            entry("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null))),
             entry("hasBeenAutoApproved", false)
         );
   }
@@ -119,7 +119,7 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
     assertThat(modelMap).contains(
         entry("assetName", prospectName),
         entry("typeOfUpdate", submissionDetail.getSubmissionType().getDisplayName()),
-        entry("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea())),
+        entry("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null))),
         entry("hasBeenAutoApproved", true)
     );
   }

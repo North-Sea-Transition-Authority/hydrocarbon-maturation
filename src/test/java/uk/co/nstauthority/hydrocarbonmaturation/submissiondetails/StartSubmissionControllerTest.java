@@ -130,6 +130,6 @@ class StartSubmissionControllerTest extends AbstractSubmissionControllerTest {
     assertEquals(resourceTypes, model.get("resourceTypes"));
     assertEquals(ResourceTypeSelectForm.class, model.get("form").getClass());
     assertEquals(ReverseRouter.route(on(StartSubmissionController.class).startSubmission(null, null)), model.get("actionUrl"));
-    assertEquals(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), model.get("backLinkUrl"));
+    assertEquals(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), model.get("backLinkUrl"));
   }
 }

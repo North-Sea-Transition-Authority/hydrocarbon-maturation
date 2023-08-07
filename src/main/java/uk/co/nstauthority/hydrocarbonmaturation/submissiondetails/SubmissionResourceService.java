@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesPersistenceService;
@@ -16,12 +17,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 public class SubmissionResourceService {
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
+  private final FieldPersistenceService fieldPersistenceService;
 
   @Autowired
   public SubmissionResourceService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                   TrapPropertiesPersistenceService trapPropertiesPersistenceService) {
+                                   TrapPropertiesPersistenceService trapPropertiesPersistenceService,
+                                   FieldPersistenceService fieldPersistenceService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
+    this.fieldPersistenceService = fieldPersistenceService;
   }
 
   public List<Resource> getResourcesBySubmissionTypeAndResourceName(ResourceType resourceType, String name) {
@@ -35,8 +39,13 @@ public class SubmissionResourceService {
   }
 
   public Optional<String> getResourceName(SubmissionDetail submissionDetail) {
-    return resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail)
-        .map(ResourceDetail::getResourceName);
+    if (submissionDetail.isFieldSubmission()) {
+      return Optional.of(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource())
+          .getCorrectedLegalFieldName());
+    } else {
+      return resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail)
+          .map(ResourceDetail::getResourceName);
+    }
   }
 
   public String getResourceNameOrDefault(SubmissionDetail submissionDetail) {

@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -27,18 +25,11 @@ class SubmissionWorkAreaServiceFactoryTest {
   @Mock
   private OperatorSubmissionWorkAreaQueryService operatorSubmissionWorkAreaQueryService;
   @Mock
-  private UserDetailService userDetailService;
-  @Mock
   private RegulatorTeamService regulatorTeamService;
   @Mock
   private AreaTeamService areaTeamService;
   @InjectMocks
   private SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory;
-
-  @BeforeEach
-  void setUp() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
-  }
 
   @ParameterizedTest
   @CsvSource(value = { "true, true",
@@ -51,7 +42,7 @@ class SubmissionWorkAreaServiceFactoryTest {
       when(areaTeamService.isAreaUser(USER)).thenReturn(isAreaUser);
     }
 
-    assertThat(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    assertThat(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .isEqualTo(responsibleTeamSubmissionWorkAreaQueryService);
   }
 
@@ -60,7 +51,7 @@ class SubmissionWorkAreaServiceFactoryTest {
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
     when(areaTeamService.isAreaUser(USER)).thenReturn(false);
 
-    assertThat(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy())
+    assertThat(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .isEqualTo(operatorSubmissionWorkAreaQueryService);
   }
 }

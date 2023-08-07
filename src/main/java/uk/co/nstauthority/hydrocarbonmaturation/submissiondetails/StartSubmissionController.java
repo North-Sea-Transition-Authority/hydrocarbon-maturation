@@ -66,6 +66,6 @@ public class StartSubmissionController {
         .addObject("resourceTypes", submissionCreateService.getResourceTypeOptionsForUser())
         .addObject("form", resourceTypeSelectForm)
         .addObject("actionUrl", ReverseRouter.route(on(StartSubmissionController.class).startSubmission(null, null)))
-        .addObject("backLinkUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+        .addObject("backLinkUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)));
   }
 }

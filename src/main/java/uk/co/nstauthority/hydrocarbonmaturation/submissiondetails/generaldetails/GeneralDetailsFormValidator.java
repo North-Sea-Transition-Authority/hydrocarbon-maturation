@@ -7,86 +7,54 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.Errors;
-import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValidator {
+class GeneralDetailsFormValidator implements SubmissionValidator {
 
   private static final String LICENCE_SELECT = "licenceSelect";
-
   private final LicenceQueryService licenceQueryService;
+  private final OnshoreOffshoreService onshoreOffshoreService;
+
   private SubmissionType submissionType;
-  private boolean isLicencePresent;
   private boolean isRelinquishment;
-  private GeneralDetail latestApprovedGeneralDetail;
-  private boolean missingLicenceErrorPresent;
-  private boolean isOffshore;
+  private OnshoreOffshore onshoreOffshore;
 
   @Autowired
-  GeneralDetailsFormValidator(LicenceQueryService licenceQueryService) {
+  GeneralDetailsFormValidator(LicenceQueryService licenceQueryService,
+                              OnshoreOffshoreService onshoreOffshoreService) {
     this.licenceQueryService = licenceQueryService;
+    this.onshoreOffshoreService = onshoreOffshoreService;
   }
 
   @Override
-  public boolean supports(Class<?> clazz) {
-    return GeneralDetailsForm.class.equals(clazz);
-  }
-
-  @Override
-  public void validate(Object target, Errors errors) {
-    throw new ActionNotAllowedException("Must provide GeneralDetailsFormValidatorHints");
-  }
-
-  @Override
-  public void validate(Object target, Errors errors, Object... validationHints) {
-    var validatorHints = (GeneralDetailsFormValidatorHints) SubmissionFormValidationUtils
-        .extractValidatorHints(validationHints);
-    var validationType = validatorHints.getValidationType();
-    var submissionDetail = validatorHints.getSubmissionDetail();
+  public boolean isValid(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail, ValidationType validationType) {
+    var generalDetailsForm = (GeneralDetailsForm) form;
     submissionType = submissionDetail.getSubmissionType();
     isRelinquishment = submissionDetail.isRelinquishment();
-    isLicencePresent = validatorHints.getLicencePresent() == LicensePresent.LICENSE_PRESENT;
-    isOffshore = validatorHints.getOffshore() == OnshoreOffshore.OFFSHORE;
-    var form = (GeneralDetailsForm) target;
-
-    latestApprovedGeneralDetail = validatorHints.getLatestApprovedGeneralDetail();
-    missingLicenceErrorPresent = false;
-    validateAlways(form, errors);
+    onshoreOffshore = onshoreOffshoreService.getOnshoreOffshore(submissionDetail);
 
     if (validationType.equals(ValidationType.PARTIAL)) {
-      validatePartial(form, errors);
+      validatePartial(generalDetailsForm, errors);
     }
 
     if (validationType.equals(ValidationType.FULL)) {
-      validateFull(form, errors);
+      validateFull(generalDetailsForm, errors);
     }
+
+    return !errors.hasErrors();
 
   }
 
-  private void validateAlways(GeneralDetailsForm form, Errors errors) {
-    if (latestApprovedGeneralDetail != null
-        && !isRelinquishment
-        && isLicencePresent
-        && CollectionUtils.isEmpty(form.getLicences())) {
-      errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
-          "You cannot remove all licences from a resource that has " +
-              "a licence on an earlier approved submission");
-      missingLicenceErrorPresent = true;
-    }
-  }
-
-  @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
     GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
 
@@ -101,17 +69,14 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
     }
   }
 
-  @Override
   public void validateFull(SubmissionForm form, Errors errors) {
     var generalDetailsForm = (GeneralDetailsForm) form;
 
-    if (!isRelinquishment && !missingLicenceErrorPresent) {
-      if (CollectionUtils.isEmpty(generalDetailsForm.getLicences())) {
-        errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
-            "You must select at least one licence");
-      } else {
-        validateExtantLicences(generalDetailsForm, errors);
-      }
+    if (CollectionUtils.isEmpty(generalDetailsForm.getLicences()) && !isRelinquishment) {
+      errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
+          "You must select at least one licence");
+    } else {
+      validateExtantLicences(generalDetailsForm, errors);
     }
 
     validateResourceLocated(errors);
@@ -170,7 +135,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   }
 
   private void fullValidationPercentageLocated(GeneralDetailsForm form, Errors errors) {
-    if (isOffshore) {
+    if (onshoreOffshore == OnshoreOffshore.OFFSHORE) {
       if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
         configurePercentageLocated(form.getPercentageLocatedInUkcs(), "percentageLocatedInUkcs", errors)
             .validate();
@@ -184,7 +149,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   }
 
   private void partialValidationPercentageLocated(GeneralDetailsForm form, Errors errors) {
-    if (isOffshore) {
+    if (onshoreOffshore == OnshoreOffshore.OFFSHORE) {
       if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
         configurePercentageLocated(form.getPercentageLocatedInUkcs(), "percentageLocatedInUkcs", errors)
             .isOptional().validate();
@@ -198,7 +163,7 @@ class GeneralDetailsFormValidator implements SmartValidator, SubmissionFormValid
   }
 
   private void validateResourceLocated(Errors errors) {
-    if (isOffshore) {
+    if (onshoreOffshore == OnshoreOffshore.OFFSHORE) {
       ValidationUtils.rejectIfEmpty(errors, "resourceLocatedInUkcs", "resourceLocatedInUkcs.required",
           "Select whether the resource is wholly located within the UKCS");
     } else {

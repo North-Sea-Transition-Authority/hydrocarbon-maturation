@@ -85,7 +85,7 @@ public class ErrorService {
   }
 
   private void addCommonUrls(ModelAndView modelAndView) {
-    modelAndView.addObject("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea()));
+    modelAndView.addObject("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)));
     modelAndView.addObject("accessibilityStatementUrl",
         ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement()));
     modelAndView.addObject("feedbackPageUrl", ReverseRouter.route(on(FeedbackController.class)

@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,8 +28,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
@@ -56,6 +54,12 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
   @MockBean
   private GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
+  @MockBean
+  private GeneralDetailsFormValidator generalDetailsFormValidator;
+
+  @MockBean
+  private OnshoreOffshoreService onshoreOffshoreService;
+
   private UUID submissionDetailId;
 
   @BeforeEach
@@ -65,9 +69,6 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getGeneralDetails_whenResponsibleOrganisation_assertStatusOk() throws Exception {
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(new GeneralDetailsForm());
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
@@ -112,12 +113,9 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGeneralDetailsPage_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
-    when(generalDetailsFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(generalDetailsFormValidator.isValid(any(), any(), any(), any())).thenReturn(true);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
@@ -127,22 +125,16 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any());
     verify(generalDetailsPersistenceService, times(1))
-        .saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail), eq(resourceDetail.getOnshoreOffshore()));
+        .saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail), eq(OnshoreOffshore.OFFSHORE));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
-  void saveGeneralDetailsPage_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
+  void saveGeneralDetailsPage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-
-    var bindingResult = new BeanPropertyBindingResult(GeneralDetailsForm.class, "form");
-    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(generalDetailsFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(generalDetailsFormValidator.isValid(any(), any(), any(), any())).thenReturn(false);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GeneralDetailsController.class).saveGeneralDetails(submissionDetailId, null, null, null)))
@@ -151,16 +143,13 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(generalDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any());
-    verify(generalDetailsPersistenceService, never()).saveGeneralDetails(any(), any(), any());
+    verifyNoInteractions(generalDetailsPersistenceService);
   }
 
   @Test
   void getGeneralDetailsModelAndView_offshoreProspectSubmission_assertModelProperties() throws Exception {
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
 
@@ -200,7 +189,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
     );
   }
@@ -208,14 +197,12 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
   @Test
   void getGeneralDetailsModelAndView_onshoreDiscoverySubmission_assertModelProperties() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
     var discovery = new Resource();
     discovery.setType(ResourceType.DISCOVERY);
     var submission = new Submission();
     submission.setResource(discovery);
     submissionDetail.setSubmission(submission);
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
-    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
@@ -258,7 +245,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea()), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
             TaskListController.PAGE_NAME)
     );

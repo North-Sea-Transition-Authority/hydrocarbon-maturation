@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -29,9 +30,9 @@ class WorkAreaItemService {
     this.submissionDetailService = submissionDetailService;
   }
 
-  List<WorkAreaItem> getWorkAreaItems() {
-    return submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy()
-        .getWorkAreaSubmissionItems()
+  List<WorkAreaItem> getWorkAreaItems(ServiceUserDetail user) {
+    return submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(user)
+        .getWorkAreaSubmissionItems(user)
         .stream()
         .map(this::getWorkAreaItem)
         .toList();

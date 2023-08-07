@@ -2,8 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,11 +18,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
@@ -32,15 +28,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsFormServiceTest {
@@ -88,126 +81,6 @@ class GeneralDetailsFormServiceTest {
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(submissionDetailId);
-  }
-
-  @Test
-  void validate_whenUpdate_whenNoLicence_whenOffshore_verifyMethodCall() {
-    var form = new GeneralDetailsForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var validationType = ValidationType.FULL;
-    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
-    var captor = ArgumentCaptor.forClass(
-        GeneralDetailsFormValidatorHints.class);
-    var latestGeneralDetail = new GeneralDetail();
-    var mockLatestSubmission = mock(SubmissionDetail.class);
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(any()))
-        .thenReturn(Optional.of(mockLatestSubmission));
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(mockLatestSubmission))
-        .thenReturn(Optional.of(latestGeneralDetail));
-    when(licencePersistenceService.getLicencesByGeneralDetail(latestGeneralDetail))
-        .thenReturn(List.of());
-    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail))
-        .thenReturn(resourceDetail);
-    generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
-    verify(generalDetailsFormValidator, times(1)).validate(eq(form), eq(bindingResult),
-        captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(
-            GeneralDetailsFormValidatorHints::getValidationType,
-            GeneralDetailsFormValidatorHints::getSubmissionDetail,
-            GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
-            GeneralDetailsFormValidatorHints::getLicencePresent,
-            GeneralDetailsFormValidatorHints::getOffshore)
-        .containsExactly(validationType, submissionDetail, latestGeneralDetail, LicensePresent.LICENSE_PRESENT, OnshoreOffshore.OFFSHORE);
-  }
-
-  @Test
-  void validate_whenCreate_whenOnshore_verifyMethodCall() {
-    var form = new GeneralDetailsForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var validationType = ValidationType.FULL;
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
-    var captor = ArgumentCaptor.forClass(
-        GeneralDetailsFormValidatorHints.class);
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
-    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail))
-        .thenReturn(resourceDetail);
-    generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
-    verify(generalDetailsFormValidator, times(1)).validate(eq(form), eq(bindingResult),
-        captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(
-            GeneralDetailsFormValidatorHints::getValidationType,
-            GeneralDetailsFormValidatorHints::getSubmissionDetail,
-            GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
-            GeneralDetailsFormValidatorHints::getLicencePresent,
-            GeneralDetailsFormValidatorHints::getOffshore)
-        .containsExactly(validationType, submissionDetail, null, LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.ONSHORE);
-  }
-
-  @Test
-  void validate_whenUpdate_whenLicences_whenOffshore_assertHints() {
-    var form = new GeneralDetailsForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var validationType = ValidationType.FULL;
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    var captor = ArgumentCaptor.forClass(
-        GeneralDetailsFormValidatorHints.class);
-    var latestGeneralDetail = new GeneralDetail();
-    var mockLatestSubmission = mock(SubmissionDetail.class);
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(any()))
-        .thenReturn(Optional.of(mockLatestSubmission));
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(mockLatestSubmission))
-        .thenReturn(Optional.of(latestGeneralDetail));
-    when(licencePersistenceService.getLicencesByGeneralDetail(latestGeneralDetail))
-        .thenReturn(List.of(mock(Licence.class)));
-    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail))
-        .thenReturn(resourceDetail);
-    generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
-    verify(generalDetailsFormValidator, times(1)).validate(eq(form), eq(bindingResult),
-        captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(
-            GeneralDetailsFormValidatorHints::getValidationType,
-            GeneralDetailsFormValidatorHints::getSubmissionDetail,
-            GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
-            GeneralDetailsFormValidatorHints::getLicencePresent,
-            GeneralDetailsFormValidatorHints::getOffshore)
-        .containsExactly(validationType, submissionDetail, latestGeneralDetail, LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.OFFSHORE);
-  }
-
-  @Test
-  void validate_whenFieldSubmission_whenOffshore_assertHints() {
-    var form = new GeneralDetailsForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var validationType = ValidationType.FULL;
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
-    var captor = ArgumentCaptor.forClass(
-        GeneralDetailsFormValidatorHints.class);
-    var field = new Field();
-    field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
-        .thenReturn(field);
-    generalDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
-    verify(generalDetailsFormValidator, times(1)).validate(eq(form), eq(bindingResult),
-        captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(
-            GeneralDetailsFormValidatorHints::getValidationType,
-            GeneralDetailsFormValidatorHints::getSubmissionDetail,
-            GeneralDetailsFormValidatorHints::getLatestApprovedGeneralDetail,
-            GeneralDetailsFormValidatorHints::getLicencePresent,
-            GeneralDetailsFormValidatorHints::getOffshore)
-        .containsExactly(validationType, submissionDetail, null, LicensePresent.LICENSE_NOT_PRESENT, OnshoreOffshore.OFFSHORE);
   }
 
   @Test

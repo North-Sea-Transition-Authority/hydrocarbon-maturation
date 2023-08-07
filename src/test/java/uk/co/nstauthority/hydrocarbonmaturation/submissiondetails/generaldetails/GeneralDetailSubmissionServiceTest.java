@@ -23,6 +23,9 @@ class GeneralDetailSubmissionServiceTest {
   @Mock
   private GeneralDetailsFormService generalDetailsFormService;
 
+  @Mock
+  private GeneralDetailsFormValidator generalDetailsFormValidator;
+
   @InjectMocks
   private GeneralDetailSubmissionService generalDetailSubmissionService;
 
@@ -34,8 +37,8 @@ class GeneralDetailSubmissionServiceTest {
 
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
 
-    when(generalDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
-        .thenReturn(emptyBindingResult);
+    when(generalDetailsFormValidator.isValid(eq(form), any(BindingResult.class), any(), eq(ValidationType.FULL)))
+        .thenReturn(true);
 
     assertTrue(generalDetailSubmissionService.isSectionSubmittable(submissionDetail));
 
@@ -50,8 +53,8 @@ class GeneralDetailSubmissionServiceTest {
 
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
 
-    when(generalDetailsFormService.validate(eq(form), any(BindingResult.class), eq(ValidationType.FULL), any()))
-        .thenReturn(bindingResultWithError);
+    when(generalDetailsFormValidator.isValid(eq(form), any(BindingResult.class), any(), eq(ValidationType.FULL)))
+        .thenReturn(false);
 
     assertFalse(generalDetailSubmissionService.isSectionSubmittable(submissionDetail));
   }

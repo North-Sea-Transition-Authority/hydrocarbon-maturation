@@ -18,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -43,6 +44,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indus
 @IntegrationTest
 class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
 
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder()
+      .withWuaId(2000L)
+      .build();
+
   @Autowired
   private DSLContext dslContext;
 
@@ -59,7 +64,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenOneFullSubmittedSubmission_asIndustryInResponsibleOrganisation_assertAllValues() {
     var responsibleOrganisationIdForSubmission = 46;
     var userOrgUnits = List.of(responsibleOrganisationIdForSubmission);
-    setUpIndustryTest(userOrgUnits);
+    setUpIndustryTest(userOrgUnits, USER);
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -116,7 +121,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(licence2);
     entityManager.flush();
 
-    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
 
     assertThat(results.get(0))
         .extracting(
@@ -157,7 +162,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenTwoSubmissions_whenInResponsibleOrganisationOnLatestApprovedOnResource_assertReturn() {
     var responsibleOrganisationIdForApprovedSubmission = 46;
     var userOrgUnits = List.of(responsibleOrganisationIdForApprovedSubmission);
-    setUpIndustryTest(userOrgUnits);
+    setUpIndustryTest(userOrgUnits, USER);
     var submissionWithWrongResponsibleOrg = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionWithWrongResponsibleOrg.setId(null);
     submissionWithWrongResponsibleOrg.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -194,7 +199,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(resourceDetail);
     entityManager.flush();
 
-    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
 
     assertThat(results)
         .extracting(SubmissionWorkAreaQueryResult::getSubmissionDetailId)
@@ -205,7 +210,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenTwoSubmissions_whenOneHasUnresolvedUpdateAndOneResolved_assertUpdateRequested() {
     var responsibleOrganisationId = 46;
     var userOrgUnits = List.of(responsibleOrganisationId);
-    setUpIndustryTest(userOrgUnits);
+    setUpIndustryTest(userOrgUnits, USER);
     var submissionDetailWithResolvedUpdate = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetailWithResolvedUpdate.setId(null);
     submissionDetailWithResolvedUpdate.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -264,7 +269,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(resourceDetail2);
     entityManager.flush();
 
-    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
 
     assertThat(results)
         .extracting(
@@ -286,7 +291,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenOneSubmittedSubmission_asIndustryWhenNotInResponsibleOrganisation_assertAllValues() {
     var responsibleOrganisationIdForSubmission = 46;
     var userOrgUnits = List.of(1,2,3,4);
-    setUpIndustryTest(userOrgUnits);
+    setUpIndustryTest(userOrgUnits, USER);
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -314,7 +319,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(resourceDetail);
     entityManager.flush();
 
-    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
 
     assertThat(results).isEmpty();
   }
@@ -323,7 +328,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenOneHasUpdateInProgressAndOneHasSubmittedUpdate_assertCorrectSubmissionsReturned() {
     var responsibleOrganisationId = 46;
     var userOrgUnits = List.of(responsibleOrganisationId);
-    setUpIndustryTest(userOrgUnits);
+    setUpIndustryTest(userOrgUnits, USER);
 
     var resource = createResource(Instant.now(), entityManager);
     var submissionWithTwoSubmitted = SubmissionIntegrationTestUtils.createSubmission(resource, entityManager);
@@ -343,7 +348,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
         submissionWithDraftUpdate, Instant.parse("2007-12-03T10:15:30.00Z"),
         responsibleOrganisationId, 2, SubmissionDetailStatus.DRAFT);
 
-    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
 
     assertThat(results)
         .extracting(
@@ -362,7 +367,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     }
     var responsibleOrganisationId = 46;
     var userOrgUnits = List.of(responsibleOrganisationId);
-    setUpIndustryTest(userOrgUnits);
+    setUpIndustryTest(userOrgUnits, USER);
 
     var resource = createResource(Instant.now(), entityManager);
     var submissionWithTwoSubmitted =
@@ -374,7 +379,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
         submissionWithTwoSubmitted, Instant.parse("2007-12-03T10:15:15.00Z"),
         responsibleOrganisationId, 2, SubmissionDetailStatus.SUBMITTED);
 
-    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems();
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
     if (BooleanUtils.isTrue(withdrawn)) {
       assertThat(results).isEmpty();
     } else {
@@ -447,12 +452,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.flush();
   }
 
-  private void setUpIndustryTest(List<Integer> userResponsibleOrganisationUnitIds) {
-    // Setup user
-    var user = ServiceUserDetailTestUtil.Builder()
-        .withWuaId(2000L)
-        .build();
-
+  private void setUpIndustryTest(List<Integer> userResponsibleOrganisationUnitIds, ServiceUserDetail user) {
     // Ensure user is treated as currently logged in
     SamlAuthenticationUtil.Builder()
         .withUser(user)
