@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
@@ -101,6 +102,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
         || submissionType == SubmissionType.CREATE_DISCOVERY
         || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT;
     return isInitialResourceSubmission
-        && permissionService.hasPermission(userDetailService.getUserDetail(), Set.of(RolePermission.EXPLORATION));
+        && permissionService.hasPermission(userDetailService.getUserDetail(), Set.of(RolePermission.EXPLORATION))
+        && BooleanUtils.isNotTrue(submissionDetail.isCorrection());
   }
 }

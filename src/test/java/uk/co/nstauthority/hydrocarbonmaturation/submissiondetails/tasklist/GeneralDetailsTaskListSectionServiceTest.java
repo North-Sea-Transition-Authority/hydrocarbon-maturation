@@ -181,6 +181,42 @@ class GeneralDetailsTaskListSectionServiceTest {
       "CREATE_DISCOVERY",
       "CREATE_DISCOVERY_FROM_PROSPECT"},
       mode = EnumSource.Mode.INCLUDE)
+  void getSection_whenCorrection_dontShowRelatedResources(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    submissionDetail.setCorrection(true);
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+
+    var section = taskListSectionOptional.get();
+
+    assertThat(section)
+        .extracting(
+            TaskListSection::items,
+            TaskListSection::displayName,
+            TaskListSection::displayOrder)
+        .containsExactly(List.of(
+                new TaskListItem("Resource details",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ResourceDetailsController.class)
+                        .getResourceDetails(submissionDetail.getId()))),
+                new TaskListItem("General details",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(GeneralDetailsController.class)
+                        .getGeneralDetails(submissionDetail.getId(), null)))
+            ),
+            "General details",
+            10
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {
+      "CREATE_PROSPECT",
+      "CREATE_DISCOVERY",
+      "CREATE_DISCOVERY_FROM_PROSPECT"},
+      mode = EnumSource.Mode.INCLUDE)
   void getSection_SubmissionTypeIsCreateProspectAndUserDoesNotHaveCorrectRole_ShowRelatedProspects(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
@@ -272,6 +308,33 @@ class GeneralDetailsTaskListSectionServiceTest {
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+
+    assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_PROSPECT"}, mode = EnumSource.Mode.INCLUDE)
+  void isSectionSubmittable_whenCorrection_submittable(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    submissionDetail.setCorrection(true);
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+
+    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_PROSPECT"}, mode = EnumSource.Mode.INCLUDE)
+  void isSectionSubmittable_whenCorrection_notSubmittable(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    submissionDetail.setCorrection(true);
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+
+    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
