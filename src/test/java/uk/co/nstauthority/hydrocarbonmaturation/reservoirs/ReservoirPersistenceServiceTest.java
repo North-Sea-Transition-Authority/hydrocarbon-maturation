@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.reservoirs;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,5 +36,19 @@ class ReservoirPersistenceServiceTest {
     reservoirPersistenceService.createReservoir(RESERVOIR_NAME_1);
     verify(reservoirRepository, times(1)).save(reservoirArgumentCaptor.capture());
     assertEquals(RESERVOIR_NAME_1, reservoirArgumentCaptor.getValue().getName());
+  }
+
+  @Test
+  void saveReservoir() {
+    var reservoir = new Reservoir();
+    reservoirPersistenceService.saveReservoir(reservoir, RESERVOIR_NAME_1);
+    verify(reservoirRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    assertThat(reservoirArgumentCaptor.getValue())
+        .extracting(
+            Reservoir::getId,
+            Reservoir::getName)
+        .containsExactly(
+            reservoir.getId(),
+            RESERVOIR_NAME_1);
   }
 }

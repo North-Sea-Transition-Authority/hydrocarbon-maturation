@@ -32,6 +32,16 @@ public enum SecuritySubmissionTypes {
       SubmissionType.CREATE_DISCOVERY,
       SubmissionType.UPDATE_DISCOVERY,
       SubmissionType.RELINQUISHMENT_DISCOVERY),
+  DISCOVERY_AND_FIELD(
+      SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
+      SubmissionType.CREATE_DISCOVERY,
+      SubmissionType.UPDATE_DISCOVERY,
+      SubmissionType.RELINQUISHMENT_DISCOVERY,
+      SubmissionType.CREATE_CSR,
+      SubmissionType.CREATE_FDP,
+      SubmissionType.CREATE_COP,
+      SubmissionType.CREATE_FDPA
+  ),
   FIELD_SUBMISSIONS(
       SubmissionType.CREATE_COP,
       SubmissionType.CREATE_CSR,

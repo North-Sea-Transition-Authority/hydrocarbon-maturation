@@ -21,4 +21,10 @@ public class ReservoirPersistenceService {
     reservoirRepository.save(reservoir);
     return reservoir;
   }
+
+  @Transactional
+  public void saveReservoir(Reservoir reservoir, String name) {
+    reservoir.setName(name);
+    reservoirRepository.save(reservoir);
+  }
 }

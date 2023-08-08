@@ -15,6 +15,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
@@ -34,6 +37,9 @@ class ReservoirTaskListServiceTest {
   @Mock
   private PermeabilitySubmissionService permeabilitySubmissionService;
 
+  @Mock
+  private GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService;
+
   @InjectMocks
   private ReservoirTaskListService reservoirTaskListService;
 
@@ -52,6 +58,7 @@ class ReservoirTaskListServiceTest {
         submissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2));
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(any())).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(any())).thenReturn(true);
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
@@ -62,6 +69,13 @@ class ReservoirTaskListServiceTest {
         tuple(
             RESERVOIR_NAME_1,
             List.of(
+                new TaskListItem(
+                    "Discovery reservoir",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                        reservoirSubmissionDetail1.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail1.getId()))
+                ),
                 new TaskListItem(
                     "Permeability",
                     TaskListLabel.COMPLETE,
@@ -74,12 +88,92 @@ class ReservoirTaskListServiceTest {
         tuple(
             RESERVOIR_NAME_2,
             List.of(
+
+                new TaskListItem(
+                    "Discovery reservoir",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                        reservoirSubmissionDetail2.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail2.getId()))
+                ),
                 new TaskListItem(
                     "Permeability",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
                         reservoirSubmissionDetail2.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail2.getId()))
+                )
+            )
+        )
+    );
+  }
+
+  @Test
+  void getAllReservoirTaskLists_fieldSubmission() {
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+    var reservoir = new Reservoir();
+    reservoir.setName(RESERVOIR_NAME_1);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        reservoir,
+        fieldSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(fieldSubmissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(any())).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(any())).thenReturn(true);
+    var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(fieldSubmissionDetail);
+
+    assertThat(reservoirTaskListItems).extracting(
+        ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::taskListItems
+    ).containsExactly(
+        tuple(
+            RESERVOIR_NAME_1,
+            List.of(
+                new TaskListItem(
+                    "Field reservoir",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Permeability",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                )
+            )
+        )
+    );
+  }
+
+  @Test
+  void getAllReservoirTaskLists_onlyReservoirInformation() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    var reservoir = new Reservoir();
+    reservoir.setName(RESERVOIR_NAME_1);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        reservoir,
+        submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(any())).thenReturn(false);
+    var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
+
+    assertThat(reservoirTaskListItems).extracting(
+        ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::taskListItems
+    ).containsExactly(
+        tuple(
+            RESERVOIR_NAME_1,
+            List.of(
+                new TaskListItem(
+                    "Discovery reservoir",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
                 )
             )
         )

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -20,13 +22,16 @@ public class ReservoirTaskListService {
 
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final PermeabilitySubmissionService permeabilitySubmissionService;
+  private final GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService;
 
   @Autowired
   public ReservoirTaskListService(
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-      PermeabilitySubmissionService permeabilitySubmissionService) {
+      PermeabilitySubmissionService permeabilitySubmissionService,
+      GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService) {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
+    this.generalReservoirInformationSubmissionService = generalReservoirInformationSubmissionService;
   }
 
   public List<ReservoirTaskListItem> getAllReservoirTaskLists(SubmissionDetail submissionDetail) {
@@ -45,13 +50,28 @@ public class ReservoirTaskListService {
 
   private List<TaskListItem> getTaskList(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var items = new ArrayList<TaskListItem>();
+
+    var generalReservoirInformationCompleted =
+        generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
     items.add(
-        new TaskListItem("Permeability",
-            TaskListLabel.notStartedOrComplete(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-            ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+        new TaskListItem("%s reservoir".formatted(
+            reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission() ? "Discovery" : "Field"),
+            TaskListLabel.notStartedOrComplete(generalReservoirInformationCompleted),
+            ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
                 reservoirSubmissionDetail.getSubmissionDetail().getId(),
                 reservoirSubmissionDetail.getId())))
     );
+
+    if (generalReservoirInformationCompleted) {
+      items.add(
+          new TaskListItem("Permeability",
+              TaskListLabel.notStartedOrComplete(
+                  permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+              ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                  reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                  reservoirSubmissionDetail.getId())))
+      );
+    }
     return items;
   }
 }

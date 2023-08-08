@@ -3,6 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubm
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 public class ReservoirSubmissionDetailsTestUtils {
 
@@ -11,11 +13,15 @@ public class ReservoirSubmissionDetailsTestUtils {
   }
 
   public static ReservoirSubmissionDetail createReservoirSubmissionDetail() {
-    return createReservoirSubmissionDetail(new Reservoir(), new SubmissionDetail());
+    var reservoir = new Reservoir();
+    reservoir.setName("reservoir name");
+    return createReservoirSubmissionDetail(reservoir, SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY));
   }
 
   public static ReservoirSubmissionDetail createReservoirSubmissionDetail(SubmissionDetail submissionDetail) {
-    return createReservoirSubmissionDetail(new Reservoir(), submissionDetail);
+    var reservoir = new Reservoir();
+    reservoir.setName("reservoir name");
+    return createReservoirSubmissionDetail(reservoir, submissionDetail);
   }
 
   public static ReservoirSubmissionDetail createReservoirSubmissionDetail(Reservoir reservoir, SubmissionDetail submissionDetail) {
