@@ -388,4 +388,44 @@ class WorkAreaItemServiceTest {
               .showReviewPage(submissionDetail.getSubmission().getResource().getId())));
     }
   }
+
+  @Test
+  void getWorkAreaItems_whenCorrection() {
+    var workAreaItem = SubmissionWorkAreaQueryResultTestUtil.builder()
+        .withCorrection(true)
+        .build();
+    var queryResults = List.of(workAreaItem);
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
+        .thenReturn(operatorSubmissionWorkAreaQueryService);
+    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
+        .thenReturn(queryResults);
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(anyInt()))
+        .thenReturn("Not provided");
+    when(submissionDetailDisplayService.getLicencesForDisplay(List.of(LICENCE_ID_1, LICENCE_ID_2)))
+        .thenReturn(List.of());
+
+    var result = workAreaItemService.getWorkAreaItems(USER);
+
+    assertThat(result)
+        .extracting(WorkAreaItem::type,
+            WorkAreaItem::headingText,
+            WorkAreaItem::captionText,
+            WorkAreaItem::actionUrl)
+        .containsExactly(
+            tuple(
+                WorkAreaItemType.SUBMISSION,
+                "resource name (25/5)",
+                "Prospect create - correction",
+                ReverseRouter.route(on(TaskListController.class)
+                    .getTaskList(workAreaItem.getSubmissionDetailId()))
+            )
+        );
+
+    assertThat(result.get(0).modelProperties().getProperties())
+        .containsExactly(
+            entry("organisationResponsible", "Not provided"),
+            entry("licences", List.of()),
+            entry("submissionStatus", "Draft"),
+            entry("updateRequested", false));
+  }
 }

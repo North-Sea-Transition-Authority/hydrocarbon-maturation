@@ -24,6 +24,7 @@ class SubmissionWorkAreaQueryResultTestUtil {
     private Integer organisationResponsibleId = 10;
     private List<Integer> licencesTheResourceIsOn = List.of(1,2);
     private Boolean updateRequested = false;
+    private Boolean isCorrection = false;
 
     private Builder() {
     }
@@ -68,12 +69,17 @@ class SubmissionWorkAreaQueryResultTestUtil {
       return this;
     }
 
+    public Builder withCorrection(boolean isCorrection) {
+      this.isCorrection = isCorrection;
+      return this;
+    }
+
     public SubmissionWorkAreaQueryResult build() {
 
       return new SubmissionWorkAreaQueryResult(submissionDetailId, submissionType, status,
           resourceName, centreOfInterestQuadBlock, organisationResponsibleId,
-          licencesTheResourceIsOn, updateRequested
-      );
+          licencesTheResourceIsOn, updateRequested,
+          isCorrection);
     }
   }
 

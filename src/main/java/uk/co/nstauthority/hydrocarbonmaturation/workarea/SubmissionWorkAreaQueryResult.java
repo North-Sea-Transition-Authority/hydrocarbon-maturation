@@ -15,6 +15,7 @@ class SubmissionWorkAreaQueryResult {
   private final List<Integer> licencesTheResourceIsOn;
   private final SubmissionDetailStatus status;
   private final boolean updateRequested;
+  private final boolean isCorrection;
 
   SubmissionWorkAreaQueryResult(UUID submissionDetailId,
                                 String submissionType,
@@ -23,7 +24,8 @@ class SubmissionWorkAreaQueryResult {
                                 String centreOfInterestQuadBlock,
                                 Integer organisationResponsibleId,
                                 List<Integer> licencesTheResourceIsOn,
-                                boolean updateRequested) {
+                                boolean updateRequested,
+                                boolean isCorrection) {
     this.submissionDetailId = submissionDetailId;
     this.submissionType = SubmissionType.valueOf(submissionType);
     this.resourceName = resourceName;
@@ -32,6 +34,7 @@ class SubmissionWorkAreaQueryResult {
     this.licencesTheResourceIsOn = licencesTheResourceIsOn;
     this.status = SubmissionDetailStatus.valueOf(status);
     this.updateRequested = updateRequested;
+    this.isCorrection = isCorrection;
   }
 
   UUID getSubmissionDetailId() {
@@ -64,5 +67,9 @@ class SubmissionWorkAreaQueryResult {
 
   public boolean isUpdateRequested() {
     return updateRequested;
+  }
+
+  public boolean isCorrection() {
+    return isCorrection;
   }
 }

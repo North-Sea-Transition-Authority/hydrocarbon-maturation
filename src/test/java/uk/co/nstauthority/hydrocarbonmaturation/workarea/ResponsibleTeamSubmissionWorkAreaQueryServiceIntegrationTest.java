@@ -473,7 +473,8 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
-            SubmissionWorkAreaQueryResult::isUpdateRequested)
+            SubmissionWorkAreaQueryResult::isUpdateRequested,
+            SubmissionWorkAreaQueryResult::isCorrection)
         .containsExactly(
             submissionDetail.getId(),
             "25/12",
@@ -481,7 +482,100 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             "The resource name",
             SubmissionType.CREATE_PROSPECT,
             SubmissionDetailStatus.DRAFT,
+            false,
             false
+        );
+
+    assertThat(results.get(0)
+        .getLicencesTheResourceIsOn())
+        .containsExactlyInAnyOrder(
+            licenceId1, licenceId2);
+  }
+
+  @Test
+  void getSubmissions_whenCorrection_assertAllValues() {
+    Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);
+    setUpUserTest(userRoles, TeamType.REGULATOR, USER);
+
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.setId(null);
+    submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+    submissionDetail.setCorrection(true);
+    submissionDetail.setVersionNumber(2);
+    var resource = createResource(ResourceType.PROSPECT);
+    var responsibleTeam = new RegulatorManagedInformation();
+    responsibleTeam.setResource(resource);
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    var createdTimestamp = Instant.now();
+    submissionDetail.setCreatedTimestamp(createdTimestamp);
+
+    entityManager.persist(responsibleTeam);
+    entityManager.flush();
+    submissionDetail.getSubmission().setResource(resource);
+    var submission = createSubmissionForIntegrationTest(resource, entityManager);
+    submissionDetail.setSubmission(submission);
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
+
+    var generalDetails = new GeneralDetail();
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setSubmissionDetail(submissionDetail);
+    resourceDetail.setResourceName("The resource name");
+    generalDetails.setSubmissionDetail(submissionDetail);
+    resourceDetail.setOrganisationId(46);
+    entityManager.persist(generalDetails);
+    entityManager.flush();
+    entityManager.persist(resourceDetail);
+    entityManager.flush();
+
+    var quadBlocks = new QuadrantAndBlock();
+    quadBlocks.setGeneralDetail(generalDetails);
+    quadBlocks.setQuadrantBlockReference("25/12");
+    entityManager.persist(quadBlocks);
+    entityManager.flush();
+
+    var trapProperty = new TrapProperty();
+    trapProperty.setSubmissionDetail(submissionDetail);
+    trapProperty.setCentreOfInterestQuadrantBlock("25/12");
+    entityManager.persist(trapProperty);
+    entityManager.flush();
+
+    var licence = new Licence();
+    var licenceId1 = 953;
+    licence.setLicenceId(licenceId1);
+    licence.setLicenceReference("AL10");
+    licence.setGeneralDetail(generalDetails);
+    var licence2 = new Licence();
+    var licenceId2 = 951;
+    licence2.setLicenceId(licenceId2);
+    licence2.setLicenceReference("AL6");
+    licence2.setGeneralDetail(generalDetails);
+    entityManager.persist(licence);
+    entityManager.flush();
+    entityManager.persist(licence2);
+    entityManager.flush();
+
+    var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
+
+    assertThat(results.get(0))
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
+            SubmissionWorkAreaQueryResult::getCentreOfInterestQuadBlock,
+            SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
+            SubmissionWorkAreaQueryResult::getResourceName,
+            SubmissionWorkAreaQueryResult::getSubmissionType,
+            SubmissionWorkAreaQueryResult::getStatus,
+            SubmissionWorkAreaQueryResult::isUpdateRequested,
+            SubmissionWorkAreaQueryResult::isCorrection)
+        .containsExactly(
+            submissionDetail.getId(),
+            "25/12",
+            46,
+            "The resource name",
+            SubmissionType.CREATE_PROSPECT,
+            SubmissionDetailStatus.DRAFT,
+            false,
+            true
         );
 
     assertThat(results.get(0)
@@ -556,7 +650,8 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
-            SubmissionWorkAreaQueryResult::isUpdateRequested)
+            SubmissionWorkAreaQueryResult::isUpdateRequested,
+            SubmissionWorkAreaQueryResult::isCorrection)
         .containsExactly(
             submissionDetail.getId(),
             null,
@@ -564,6 +659,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             fieldName,
             SubmissionType.CREATE_CSR,
             SubmissionDetailStatus.DRAFT,
+            false,
             false
         );
 

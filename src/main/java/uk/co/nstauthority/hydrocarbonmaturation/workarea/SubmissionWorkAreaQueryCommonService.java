@@ -50,7 +50,9 @@ class SubmissionWorkAreaQueryCommonService {
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
             //true if update has been requested and not resolved
             field(SUBMISSION_UPDATE.SUBMISSION_ID.eq(SUBMISSION_DETAILS.SUBMISSION_ID)
-                .and(SUBMISSION_UPDATE.RESOLVED.isFalse())))
+                .and(SUBMISSION_UPDATE.RESOLVED.isFalse())),
+            SUBMISSION_DETAILS.CORRECTION
+        )
         .from(SUBMISSIONS
                 .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
                 // Joins the relevant submission detail to the submission.
@@ -61,7 +63,7 @@ class SubmissionWorkAreaQueryCommonService {
                                 // Gets the latest submission detail for the submission or the initial draft
                                 // submission detail if there are no submitted submission details.
                                 .and((SD_2.STATUS.in(SubmissionDetailStatus.DRAFT.name(), SubmissionDetailStatus.SUBMITTED.name())
-                                    .and(SD_2.VERSION_NUMBER.eq(1)))
+                                    .and((SD_2.VERSION_NUMBER.eq(1)).or(SD_2.CORRECTION.eq(true))))
                                     .or(SD_2.STATUS.notIn(
                                         SubmissionDetailStatus.DRAFT.name(),
                                         SubmissionDetailStatus.DELETED.name())))))
@@ -91,7 +93,8 @@ class SubmissionWorkAreaQueryCommonService {
             FIELDS.CORRECTED_LEGAL_FIELD_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             RESOURCE_DETAILS.ORGANISATION_ID,
-            SUBMISSION_UPDATE.ID)
+            SUBMISSION_UPDATE.ID,
+            SUBMISSION_DETAILS.CORRECTION)
         .orderBy(
             SUBMISSION_UPDATE.RESOLVED.desc().nullsLast(),
             SUBMISSION_UPDATE.REQUESTED_TIMESTAMP.desc().nullsLast(),

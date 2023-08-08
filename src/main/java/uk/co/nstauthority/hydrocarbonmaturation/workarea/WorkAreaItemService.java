@@ -42,7 +42,9 @@ class WorkAreaItemService {
     return new WorkAreaItem(
         WorkAreaItemType.SUBMISSION,
         getHeadingText(submissionWorkAreaQueryResult),
-        submissionWorkAreaQueryResult.getSubmissionType().getTypeName(),
+        String.format("%s%s",
+            submissionWorkAreaQueryResult.getSubmissionType().getTypeName(),
+            submissionWorkAreaQueryResult.isCorrection() ? " - correction" : ""),
         getActionUrl(submissionWorkAreaQueryResult),
         getWorkAreaItemModelProperties(submissionWorkAreaQueryResult));
   }
