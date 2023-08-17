@@ -124,13 +124,13 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
             entry("deleteUrl",
                 ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(SUBMISSION_DETAIL_ID, null))),
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID))),
-            entry("isDraftUpdate", false)
+            entry("deleteButtonText", "Delete")
         )
         .containsKeys("pageName");
   }
 
   @Test
-  void showDeleteConfirmationPage_whenIsDraftUpdate_assertIsDraftUpdate() throws Exception {
+  void showDeleteConfirmationPage_whenIsDraftUpdate_assertDeleteButtonText() throws Exception {
     submissionDetail.setVersionNumber(2);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
@@ -144,7 +144,25 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(modelMap)
         .contains(
-            entry("isDraftUpdate", true));
+            entry("deleteButtonText", "Delete draft update"));
+  }
+
+  @Test
+  void showDeleteConfirmationPage_whenIsCorrection_assertDeleteButtonText() throws Exception {
+    submissionDetail.setCorrection(true);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
+    mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(get(
+            ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
+                SUBMISSION_DETAIL_ID)))
+            .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("deleteButtonText", "Delete draft correction"));
   }
 
   @Test
@@ -201,6 +219,34 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .containsExactly(
             "%s draft update deleted".formatted(TYPE_NAME),
             "%s draft update for %s has been deleted".formatted(TYPE_NAME, RESOURCE_NAME));
+  }
+
+  @Test
+  void deleteSubmission_whenCorrection_assertRedirection() throws Exception {
+    submissionDetail.setCorrection(true);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail))
+        .thenReturn(RESOURCE_NAME);
+    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+        .thenReturn(TYPE_NAME);
+
+    var flashMap = mockMvc.perform(
+            post(ReverseRouter.route(on(DeleteSubmissionController.class)
+                .deleteSubmission(SUBMISSION_DETAIL_ID, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null))))
+        .andReturn().getFlashMap();
+
+    verify(submissionDetailPersistenceService, times(1)).deleteSubmission(submissionDetail);
+
+    assertThat((NotificationBanner) flashMap.get("flash"))
+        .extracting(
+            NotificationBanner::getTitle,
+            NotificationBanner::getContent)
+        .containsExactly(
+            "%s draft correction deleted".formatted(TYPE_NAME),
+            "%s draft correction for %s has been deleted".formatted(TYPE_NAME, RESOURCE_NAME));
   }
 
   private void mockCreatePostDrillDryWellSubmissionSummaryModelAndView() {

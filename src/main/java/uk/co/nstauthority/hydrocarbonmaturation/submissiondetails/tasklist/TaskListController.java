@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,11 +47,19 @@ public class TaskListController {
   public ModelAndView getTaskList(@PathVariable("submissionDetailId") UUID submissionId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionId);
     var sections = taskListService.getAllSections(submissionDetail);
-
+    String deleteLinkText;
+    if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {
+      deleteLinkText = "Delete correction";
+    } else if (submissionDetail.isUpdateSubmission()) {
+      deleteLinkText = "Delete submission update";
+    } else {
+      deleteLinkText = "Delete submission";
+    }
     var modelAndView = new ModelAndView("remi/submissiondetails/tasklist/taskList")
         .addObject("taskListSections", sections)
         .addObject("submissionTypeName", submissionDetailService.getSubmissionTypeName(submissionDetail))
         .addObject("resourceName", submissionResourceService.getResourceNameOrDefault(submissionDetail))
+        .addObject("deleteLinkText", deleteLinkText)
         .addObject("deleteSubmissionUrl",
             ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(submissionId)));
 

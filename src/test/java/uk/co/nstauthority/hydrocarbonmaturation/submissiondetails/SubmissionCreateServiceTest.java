@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Sets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -148,28 +149,6 @@ class SubmissionCreateServiceTest {
   }
 
   @Test
-  void createInitialProspect_notProspect_notAllowedCreateReservoir() {
-    var resource = new Resource();
-    var submission = new Submission();
-    var submissionDetail = mock(SubmissionDetail.class);
-    when(submissionDetail.isProspectSubmission()).thenReturn(false);
-    when(resourceService.createResource(ResourceType.PROSPECT)).thenReturn(resource);
-    when(submissionPersistenceService.createSubmission(resource))
-        .thenReturn(submission);
-    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_PROSPECT))
-        .thenReturn(submissionDetail);
-
-    assertThatThrownBy(() -> submissionCreateService.createInitialProspect(RESOURCE_DETAILS_FORM))
-        .isInstanceOf(ActionNotAllowedException.class)
-        .hasMessage("Cannot create a reservoir submission detail for a non prospect submission");
-
-    verify(regulatorManagedInformationPersistenceService, times(1))
-        .saveResponsibleTeamAndGeoByResource(resource, ResponsibleTeamType.EXPLORATION);
-    verify(submissionPersistenceService, times(1)).createSubmission(resource);
-    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
-  }
-
-  @Test
   void createUpdateProspect_successful_verifyUpdateGeneralDetails() {
     var form = new UpdateProspectForm();
     form.setProspectSelectedOption(UUID.randomUUID().toString());
@@ -189,8 +168,8 @@ class SubmissionCreateServiceTest {
         .thenReturn(Optional.of(newGeneralDetail));
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
 
     submissionCreateService.createUpdateProspect(form);
 
@@ -292,8 +271,8 @@ class SubmissionCreateServiceTest {
         .thenReturn(submissionDetailNew);
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
 
     submissionCreateService.createPostDrillDryHoleSubmission(form);
 
@@ -362,8 +341,8 @@ class SubmissionCreateServiceTest {
         .thenReturn(submissionDetailNew);
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
 
     submissionCreateService.createUpdateDiscovery(form);
 
@@ -416,8 +395,8 @@ class SubmissionCreateServiceTest {
         .thenReturn(newSubmissionDetail);
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
 
     submissionCreateService.createProspectRelinquishment(prospectRelinquishmentForm);
 
@@ -449,8 +428,8 @@ class SubmissionCreateServiceTest {
         .thenReturn(newSubmissionDetail);
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
 
     submissionCreateService.createDiscoveryRelinquishment(discoveryRelinquishmentForm);
 
@@ -473,8 +452,8 @@ class SubmissionCreateServiceTest {
         .thenReturn(updateSubmissionDetail);
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(oldSubmissionDetail))
-        .thenReturn(reservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
 
     assertThat(submissionCreateService.createUpdateSubmissionDetail(oldSubmissionDetail))
         .isEqualTo(updateSubmissionDetail);

@@ -7,7 +7,7 @@
 <#-- @ftlvariable name="deleteUrl" type="String" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="submissionType" type="String" -->
-<#-- @ftlvariable name="isDraftUpdate" type="boolean" -->
+<#-- @ftlvariable name="deleteButtonText" type="String" -->
 
 <@defaultPage
   htmlTitle=pageName
@@ -20,13 +20,6 @@
   <@submissionSummary.submissionSummary
     submissionType=submissionType
     />
-  <#assign deleteButtonText>
-    <#if isDraftUpdate>
-      Delete draft update
-    <#else>
-      Delete
-    </#if>
-  </#assign>
 
   <@fdsForm.htmlForm actionUrl=springUrl(deleteUrl)>
     <@fdsAction.submitButtons

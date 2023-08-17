@@ -1,9 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import java.time.Clock;
+import java.time.Instant;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
@@ -39,8 +41,7 @@ public class SubmissionDetailPersistenceService {
     this.areaTeamService = areaTeamService;
   }
 
-  public SubmissionDetail createInitialSubmissionDetail(Submission submission,
-                                                 SubmissionType submissionType) {
+  public SubmissionDetail createInitialSubmissionDetail(Submission submission, SubmissionType submissionType) {
     var submissionDetail = new SubmissionDetail();
     var user = userDetailService.getUserDetail();
     submissionDetail.setCreatedByWuaId(user.wuaId().intValue());
@@ -58,17 +59,31 @@ public class SubmissionDetailPersistenceService {
     return submissionDetail;
   }
 
-  SubmissionDetail createUpdateSubmissionDetail(SubmissionDetail parentSubmissionDetail) {
+  SubmissionDetail createUpdateSubmissionDetail(SubmissionDetail previousSubmissionDetail) {
+    var submissionDetail = createBaseSubmissionDetailFromPrevious(previousSubmissionDetail);
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+    submissionDetailRepository.save(submissionDetail);
+    return submissionDetail;
+  }
+
+  SubmissionDetail createCorrectionSubmissionDetail(SubmissionDetail previousSubmissionDetail, ServiceUserDetail user) {
+    var submissionDetail = createBaseSubmissionDetailFromPrevious(previousSubmissionDetail);
+    submissionDetail.setCorrection(true);
+    submissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
+    submissionDetail.setCorrectionTimestamp(Instant.now());
+    submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
+    submissionDetailRepository.save(submissionDetail);
+    return submissionDetail;
+  }
+
+  private SubmissionDetail createBaseSubmissionDetailFromPrevious(SubmissionDetail previousSubmissionDetail) {
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setCreatedByWuaId(userDetailService.getUserWuaId());
     submissionDetail.setCreatedTimestamp(clock.instant());
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
-    submissionDetail.setSubmissionType(parentSubmissionDetail.getSubmissionType());
-    submissionDetail.setSubmission(parentSubmissionDetail.getSubmission());
-    submissionDetail.setVersionNumber(parentSubmissionDetail.getVersionNumber() + 1);
-    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
-
-    submissionDetailRepository.save(submissionDetail);
+    submissionDetail.setSubmissionType(previousSubmissionDetail.getSubmissionType());
+    submissionDetail.setSubmission(previousSubmissionDetail.getSubmission());
+    submissionDetail.setVersionNumber(previousSubmissionDetail.getVersionNumber() + 1);
     return submissionDetail;
   }
 

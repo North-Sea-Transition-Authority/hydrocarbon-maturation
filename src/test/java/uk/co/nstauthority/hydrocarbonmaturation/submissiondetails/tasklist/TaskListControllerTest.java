@@ -102,7 +102,8 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
             entry("resourceName", prospectName),
             entry("deleteSubmissionUrl", ReverseRouter.route(on(DeleteSubmissionController.class)
                 .showDeleteConfirmationPage(submissionDetailId))),
-            entry("isSubmissionUpdate", false)
+            entry("isSubmissionUpdate", false),
+            entry("deleteLinkText", "Delete submission")
         )
         .doesNotContainKey("submissionUpdateReason");
 
@@ -154,7 +155,8 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap)
         .contains(
             entry("submissionUpdateReason", SUBMISSION_UPDATE_REASON),
-            entry("isSubmissionUpdate", true)
+            entry("isSubmissionUpdate", true),
+            entry("deleteLinkText", "Delete submission update")
         );
   }
 
@@ -167,8 +169,6 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
 
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
-    var submissionUpdate = new SubmissionUpdate();
-    submissionUpdate.setReason(SUBMISSION_UPDATE_REASON);
     when(submissionUpdateService.getLatestUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(Optional.empty());
 
@@ -184,8 +184,37 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(modelMap)
         .contains(
-            entry("isSubmissionUpdate", false)
+            entry("isSubmissionUpdate", false),
+            entry("deleteLinkText", "Delete submission update")
         )
         .doesNotContainKey("submissionUpdateReason");
+  }
+
+  @Test
+  void getTaskList_whenCorrect_assertDeleteLinkText() throws Exception {
+    submissionDetail.setCorrection(true);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
+        .thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionTypeName(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
+
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+
+    when(submissionUpdateService.getLatestUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
+        .thenReturn(Optional.empty());
+
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(TaskListController.class)
+                        .getTaskList(submissionDetailId)))
+                        .with(user(USER)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("remi/submissiondetails/tasklist/taskList"))
+                .andReturn().getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("deleteLinkText", "Delete correction")
+        );
   }
 }

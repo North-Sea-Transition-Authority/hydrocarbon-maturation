@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
@@ -26,7 +27,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
@@ -98,8 +98,11 @@ public class SubmissionCreateService {
 
     resourceDetailsPersistenceService.createInitialResourceDetail(form, submissionDetail);
 
-    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
-    createReservoirSubmissionDetailForProspect(submissionDetail, resourceDetail);
+    // create single reservoir for prospect to fit the reservoir model for all resources
+    // other resource types have screens to create reservoirs
+    var resourceName = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail).getResourceName();
+    var reservoir = reservoirPersistenceService.createReservoir(resourceName);
+    saveReservoirSubmissionDetails(reservoir, submissionDetail);
 
     return submissionDetail;
   }
@@ -114,10 +117,9 @@ public class SubmissionCreateService {
     var newSubmissionDetail =
         submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.PROSPECT_UPDATE);
 
-    createReservoirSubmissionDetail(newSubmissionDetail, oldSubmissionDetail);
+    createReservoirSubmissionDetailsWithTypeChecks(newSubmissionDetail, oldSubmissionDetail);
 
-    submissionDetailDuplicationService
-        .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
+    submissionDetailDuplicationService.duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
 
     var newGeneralDetail = generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(newSubmissionDetail)
         .orElse(new GeneralDetail());
@@ -137,7 +139,7 @@ public class SubmissionCreateService {
     var newSubmissionDetail =
         submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.POST_DRILL_DRY_HOLE);
 
-    createReservoirSubmissionDetail(newSubmissionDetail, oldSubmissionDetail);
+    createReservoirSubmissionDetailsWithTypeChecks(newSubmissionDetail, oldSubmissionDetail);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -192,7 +194,7 @@ public class SubmissionCreateService {
     var newSubmissionDetail =
         submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.UPDATE_DISCOVERY);
 
-    createReservoirSubmissionDetail(newSubmissionDetail, oldSubmissionDetail);
+    createReservoirSubmissionDetailsWithTypeChecks(newSubmissionDetail, oldSubmissionDetail);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -219,7 +221,7 @@ public class SubmissionCreateService {
     var newSubmissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(submission, relinquishmentType);
 
-    createReservoirSubmissionDetail(newSubmissionDetail, oldSubmissionDetail);
+    createReservoirSubmissionDetailsWithTypeChecks(newSubmissionDetail, oldSubmissionDetail);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -230,16 +232,28 @@ public class SubmissionCreateService {
   }
 
   @Transactional
-  public SubmissionDetail createUpdateSubmissionDetail(SubmissionDetail parentSubmissionDetail) {
-    var updateSubmissionDetail = submissionDetailPersistenceService
-        .createUpdateSubmissionDetail(parentSubmissionDetail);
+  public SubmissionDetail createUpdateSubmissionDetail(SubmissionDetail previousSubmissionDetail) {
+    var updateSubmissionDetail = submissionDetailPersistenceService.createUpdateSubmissionDetail(previousSubmissionDetail);
 
-    createReservoirSubmissionDetail(updateSubmissionDetail, parentSubmissionDetail);
+    createReservoirSubmissionDetailsWithTypeChecks(updateSubmissionDetail, previousSubmissionDetail);
 
-    submissionDetailDuplicationService
-        .duplicateSubmissionDetailSections(parentSubmissionDetail, updateSubmissionDetail);
+    submissionDetailDuplicationService.duplicateSubmissionDetailSections(previousSubmissionDetail, updateSubmissionDetail);
 
     return updateSubmissionDetail;
+  }
+
+  @Transactional
+  public SubmissionDetail createCorrectionSubmissionDetail(SubmissionDetail previousSubmissionDetail, ServiceUserDetail user) {
+    var correctionSubmissionDetail = submissionDetailPersistenceService.createCorrectionSubmissionDetail(
+        previousSubmissionDetail,
+        user
+    );
+
+    createReservoirSubmissionDetails(correctionSubmissionDetail, previousSubmissionDetail);
+
+    submissionDetailDuplicationService.duplicateSubmissionDetailSections(previousSubmissionDetail, correctionSubmissionDetail);
+
+    return correctionSubmissionDetail;
   }
 
   @Transactional
@@ -297,29 +311,26 @@ public class SubmissionCreateService {
     return resourceTypeOptions;
   }
 
-  private void createReservoirSubmissionDetailForProspect(SubmissionDetail submissionDetail, ResourceDetail resourceDetail) {
-    if (!submissionDetail.isProspectSubmission()) {
-      throw new ActionNotAllowedException("Cannot create a reservoir submission detail for a non prospect submission");
-    }
-
-    var resourceName = resourceDetail.getResourceName();
-    var reservoir = reservoirPersistenceService.createReservoir(resourceName);
-    createReservoirSubmissionDetail(reservoir, submissionDetail);
-  }
-
-  private void createReservoirSubmissionDetail(SubmissionDetail newSubmissionDetail,
-                                               SubmissionDetail oldSubmissionDetail) {
+  private void createReservoirSubmissionDetailsWithTypeChecks(SubmissionDetail newSubmissionDetail,
+                                                              SubmissionDetail oldSubmissionDetail) {
     if (newSubmissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY || newSubmissionDetail.isFieldSubmission()) {
       throw new ActionNotAllowedException(
           "Cannot create a reservoir submission detail for a create discovery or field submission");
     }
 
-    var oldReservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(oldSubmissionDetail);
-    createReservoirSubmissionDetail(oldReservoirSubmissionDetail.getReservoir(), newSubmissionDetail);
+    createReservoirSubmissionDetails(newSubmissionDetail, oldSubmissionDetail);
   }
 
-  private void createReservoirSubmissionDetail(Reservoir reservoir, SubmissionDetail submissionDetail) {
+  private void createReservoirSubmissionDetails(SubmissionDetail newSubmissionDetail,
+                                                SubmissionDetail oldSubmissionDetail) {
+    reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail)
+        .forEach(reservoirSubmissionDetail -> saveReservoirSubmissionDetails(
+            reservoirSubmissionDetail.getReservoir(),
+            newSubmissionDetail)
+        );
+  }
+
+  private void saveReservoirSubmissionDetails(Reservoir reservoir, SubmissionDetail submissionDetail) {
     reservoirSubmissionDetailPersistenceService.saveReservoirSubmissionDetail(reservoir, submissionDetail);
   }
 }

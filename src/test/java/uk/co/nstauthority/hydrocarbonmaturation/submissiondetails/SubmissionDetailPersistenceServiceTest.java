@@ -247,4 +247,45 @@ class SubmissionDetailPersistenceServiceTest {
     assertThat(updateSubmissionDetail.getVersionNumber())
         .isEqualTo(parentVersion+1);
   }
+
+  @Test
+  void createCorrectionSubmissionDetail_assertCorrectionProperties() {
+    var parentSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var submission = SubmissionTestUtils.createSubmission(mock(Resource.class));
+    parentSubmissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    parentSubmissionDetail.setVersionNumber(1);
+    parentSubmissionDetail.setCreatedByWuaId(1);
+    parentSubmissionDetail.setSubmittedTimestamp(INSTANT);
+    parentSubmissionDetail.setSubmission(submission);
+
+    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
+
+    var correctionSubmissionDetail = submissionDetailPersistenceService.createCorrectionSubmissionDetail(
+        parentSubmissionDetail,
+        USER);
+
+    assertThat(correctionSubmissionDetail)
+        .extracting(
+            SubmissionDetail::getSubmission,
+            SubmissionDetail::getSubmissionType,
+            SubmissionDetail::getStatus,
+            SubmissionDetail::getVersionNumber,
+            SubmissionDetail::getCreatedTimestamp,
+            SubmissionDetail::getCreatedByWuaId,
+            SubmissionDetail::getSubmitterType,
+            SubmissionDetail::isCorrection,
+            SubmissionDetail::getCorrectionByWuaId)
+        .containsExactly(
+            submission,
+            parentSubmissionDetail.getSubmissionType(),
+            SubmissionDetailStatus.DRAFT,
+            parentSubmissionDetail.getVersionNumber() + 1,
+            INSTANT,
+            USER.wuaId().intValue(),
+            SubmitterType.REGULATOR,
+            true,
+            USER.wuaId().intValue()
+        );
+    verify(submissionDetailRepository, times(1)).save(correctionSubmissionDetail);
+  }
 }

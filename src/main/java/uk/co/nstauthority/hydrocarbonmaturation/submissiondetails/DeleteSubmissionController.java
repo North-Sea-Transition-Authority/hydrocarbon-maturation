@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,18 +55,26 @@ public class DeleteSubmissionController {
         "remi/submissiondetails/deleteConfirmation"
     );
 
+    String deleteButtonText;
+    if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {
+      deleteButtonText = "Delete draft correction";
+    } else if (submissionDetail.isUpdateSubmission()) {
+      deleteButtonText = "Delete draft update";
+    } else {
+      deleteButtonText = "Delete";
+    }
     modelAndView
         .addObject("pageName", pageName)
         .addObject("resourceName", submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .addObject("submissionType", submissionDetail.getSubmissionType())
-        .addObject("isDraftUpdate", submissionDetail.isUpdateSubmission())
+        .addObject("deleteButtonText", deleteButtonText)
         .addObject("deleteUrl",
             ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(submissionDetailId, null)))
         .addObject("cancelUrl",
             ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)));
 
     TaskListBreadcrumbUtil
-        .addTaskListAndWorkAreaToModelAndView(modelAndView, pageName, submissionDetail);
+        .addTaskListAndWorkAreaToModelAndView(modelAndView, "Delete", submissionDetail);
 
     return modelAndView;
   }
@@ -74,24 +83,28 @@ public class DeleteSubmissionController {
   public ModelAndView deleteSubmission(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                        RedirectAttributes redirectAttributes) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var isDraftUpdate = submissionDetail.isUpdateSubmission();
     submissionDetailPersistenceService.deleteSubmission(submissionDetail);
 
     NotificationBannerUtil.applyNotificationBanner(
-        redirectAttributes, getNotificationBanner(submissionDetail, isDraftUpdate));
+        redirectAttributes, getNotificationBanner(submissionDetail));
 
     return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
   }
 
   private String getPageName(SubmissionDetail submissionDetail) {
-    return "Are you sure you want to delete this %s?"
-        .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail).toLowerCase());
+    return "Are you sure you want to delete this %s%s?".formatted(
+        submissionDetailService.getSubmissionTypeName(submissionDetail).toLowerCase(),
+        BooleanUtils.isTrue(submissionDetail.isCorrection()) ? " correction" : ""
+    );
   }
 
-  private NotificationBanner getNotificationBanner(SubmissionDetail submissionDetail, boolean isDraftUpdate) {
+  private NotificationBanner getNotificationBanner(SubmissionDetail submissionDetail) {
     var bannerContent = "";
     var bannerTitle = "";
-    if (isDraftUpdate) {
+    if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {
+      bannerContent = "%s draft correction for %s has been deleted";
+      bannerTitle = "%s draft correction deleted";
+    } else if (submissionDetail.isUpdateSubmission()) {
       bannerContent = "%s draft update for %s has been deleted";
       bannerTitle = "%s draft update deleted";
     } else {

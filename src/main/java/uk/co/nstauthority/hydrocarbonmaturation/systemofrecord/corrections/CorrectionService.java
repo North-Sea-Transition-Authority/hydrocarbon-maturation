@@ -25,7 +25,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
@@ -39,7 +38,6 @@ public class CorrectionService {
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionPersistenceService submissionPersistenceService;
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
-  private final SubmissionDetailDuplicationService submissionDetailDuplicationService;
 
   @Autowired
   public CorrectionService(RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
@@ -47,15 +45,13 @@ public class CorrectionService {
                            SubmissionCreateService submissionCreateService,
                            SubmissionDetailService submissionDetailService,
                            SubmissionPersistenceService submissionPersistenceService,
-                           SubmissionDetailPersistenceService submissionDetailPersistenceService,
-                           SubmissionDetailDuplicationService submissionDetailDuplicationService) {
+                           SubmissionDetailPersistenceService submissionDetailPersistenceService) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.responsibleTeamService = responsibleTeamService;
     this.submissionCreateService = submissionCreateService;
     this.submissionDetailService = submissionDetailService;
     this.submissionPersistenceService = submissionPersistenceService;
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
-    this.submissionDetailDuplicationService = submissionDetailDuplicationService;
   }
 
 
@@ -91,7 +87,7 @@ public class CorrectionService {
           form.getMissingUpdateMonth(),
           form.getMissingUpdateYear(),
           user);
-      case SUBMISSION_CORRECTION -> createCorrectionAndRedirect(
+      case SUBMISSION_CORRECTION -> createSubmissionCorrectionAndRedirect(
           UUID.fromString(form.getSubmissionIdForCorrectingInformation()),
           user);
       case APPROVAL_DATE_CHANGE -> updateApprovedDateAndRedirect(
@@ -115,14 +111,16 @@ public class CorrectionService {
   }
 
   @Transactional
-  public ModelAndView createCorrectionAndRedirect(UUID submissionDetailId, ServiceUserDetail serviceUserDetail) {
+  public ModelAndView createSubmissionCorrectionAndRedirect(UUID submissionDetailId, ServiceUserDetail user) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var correctionSubmissionDetail = submissionCreateService.createUpdateSubmissionDetail(previousSubmissionDetail);
-    correctionSubmissionDetail.setSubmittedByWuaId(serviceUserDetail.wuaId().intValue());
+    var correctionSubmissionDetail = submissionCreateService.createCorrectionSubmissionDetail(
+        previousSubmissionDetail, user
+    );
+    correctionSubmissionDetail.setSubmittedByWuaId(user.wuaId().intValue());
     correctionSubmissionDetail.setSubmittedTimestamp(previousSubmissionDetail.getSubmittedTimestamp());
-    correctionSubmissionDetail.setApprovedByWuaId(serviceUserDetail.wuaId().intValue());
+    correctionSubmissionDetail.setApprovedByWuaId(user.wuaId().intValue());
     correctionSubmissionDetail.setApprovedTimestamp(previousSubmissionDetail.getApprovedTimestamp());
-    setCorrectionDetails(correctionSubmissionDetail, serviceUserDetail);
+    setCorrectionDetails(correctionSubmissionDetail, user);
     submissionDetailPersistenceService.saveSubmissionDetail(correctionSubmissionDetail);
     return getCorrectionRedirectForType(CorrectionType.SUBMISSION_CORRECTION, correctionSubmissionDetail);
   }
@@ -132,15 +130,16 @@ public class CorrectionService {
                                                     String day,
                                                     String month,
                                                     String year,
-                                                    ServiceUserDetail serviceUserDetail) {
+                                                    ServiceUserDetail user) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var correctionSubmissionDetail = submissionCreateService.createUpdateSubmissionDetail(previousSubmissionDetail);
+    var correctionSubmissionDetail = submissionCreateService.createCorrectionSubmissionDetail(
+        previousSubmissionDetail,
+        user
+    );
 
     correctionSubmissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
 
-    setApprovalDateAndUser(correctionSubmissionDetail, day, month, year, serviceUserDetail);
-
-    setCorrectionDetails(correctionSubmissionDetail, serviceUserDetail);
+    setApprovalDateAndUser(correctionSubmissionDetail, day, month, year, user);
 
     submissionDetailPersistenceService.saveSubmissionDetail(correctionSubmissionDetail);
 
@@ -152,26 +151,28 @@ public class CorrectionService {
                                                      String day,
                                                      String month,
                                                      String year,
-                                                     ServiceUserDetail serviceUserDetail) {
+                                                     ServiceUserDetail user) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var resource = previousSubmissionDetail.getSubmission().getResource();
     var submission = submissionPersistenceService.createSubmission(resource);
-    SubmissionDetail newSubmissionDetail;
+    SubmissionType submissionType;
     if (previousSubmissionDetail.isProspectSubmission()) {
-      newSubmissionDetail =
-          submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.PROSPECT_UPDATE);
+      submissionType = SubmissionType.PROSPECT_UPDATE;
     } else if (previousSubmissionDetail.isDiscoverySubmission()) {
-      newSubmissionDetail =
-          submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.UPDATE_DISCOVERY);
+      submissionType = SubmissionType.UPDATE_DISCOVERY;
     } else {
       throw new ActionNotAllowedException("Corrections can only be done for prospects and discoveries");
     }
 
-    submissionDetailDuplicationService.duplicateSubmissionDetailSections(previousSubmissionDetail, newSubmissionDetail);
+    var newSubmissionDetail = submissionCreateService.createCorrectionSubmissionDetail(
+        previousSubmissionDetail,
+        user
+    );
+    newSubmissionDetail.setSubmission(submission);
+    newSubmissionDetail.setSubmissionType(submissionType);
+    newSubmissionDetail.setVersionNumber(SubmissionDetailService.FIRST_VERSION);
 
-    setApprovalDateAndUser(newSubmissionDetail, day, month, year, serviceUserDetail);
-
-    setCorrectionDetails(newSubmissionDetail, serviceUserDetail);
+    setApprovalDateAndUser(newSubmissionDetail, day, month, year, user);
 
     submissionDetailPersistenceService.saveSubmissionDetail(newSubmissionDetail);
 

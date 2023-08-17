@@ -18,13 +18,6 @@
   <#if isSubmissionUpdate>
     <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
   </#if>
-  <#assign deleteLinkText>
-    <#if isSubmissionUpdate>
-      Delete submission update
-    <#else>
-      Delete submission
-    </#if>
-  </#assign>
 
   <@fdsAction.link
     linkText="${deleteLinkText}"
