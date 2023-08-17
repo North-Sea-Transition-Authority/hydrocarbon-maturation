@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,8 +17,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
@@ -40,11 +46,17 @@ class ReservoirTaskListServiceTest {
   @Mock
   private GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService;
 
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
+
+  @Mock
+  private OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService;
+
   @InjectMocks
   private ReservoirTaskListService reservoirTaskListService;
 
   @Test
-  void getAllReservoirTaskLists() {
+  void getAllReservoirTaskLists_commonItems() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var reservoir1 = new Reservoir();
     reservoir1.setName(RESERVOIR_NAME_1);
@@ -88,7 +100,6 @@ class ReservoirTaskListServiceTest {
         tuple(
             RESERVOIR_NAME_2,
             List.of(
-
                 new TaskListItem(
                     "Discovery reservoir",
                     TaskListLabel.COMPLETE,
@@ -172,6 +183,58 @@ class ReservoirTaskListServiceTest {
                     "Discovery reservoir",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                )
+            )
+        )
+    );
+  }
+
+  @Test
+  void getAllReservoirTaskLists_oilItems() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    var reservoir = new Reservoir();
+    reservoir.setName(RESERVOIR_NAME_1);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        reservoir,
+        submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(any())).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(any())).thenReturn(true);
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
+
+    assertThat(reservoirTaskListItems).extracting(
+        ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::taskListItems
+    ).containsExactly(
+        tuple(
+            RESERVOIR_NAME_1,
+            List.of(
+                new TaskListItem(
+                    "Discovery reservoir",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Permeability",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Oil case volumetric parameters",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(OilCaseVolumetricsController.class).getOilCaseVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 )

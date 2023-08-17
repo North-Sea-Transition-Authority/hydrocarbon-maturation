@@ -116,4 +116,10 @@ public class ProbabilityDistributionPersistenceService {
     probabilityDistributionRepository
         .deleteByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail, probabilityDistributionFieldInstance);
   }
+
+  public void deleteProbabilityDistributions(List<ProbabilityDistributionFieldInstance> instances,
+                                             ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    probabilityDistributionRepository
+        .deleteByReservoirSubmissionDetailAndInstanceIn(reservoirSubmissionDetail, instances);
+  }
 }

@@ -2,37 +2,19 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolume
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class OilCaseVolumetricsFormService implements SubmissionFormService {
+public class OilCaseVolumetricsFormService {
 
-  private final OilCaseVolumetricsFormValidator oilCaseVolumetricsFormValidator;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
 
   @Autowired
-  public OilCaseVolumetricsFormService(
-      OilCaseVolumetricsFormValidator oilCaseVolumetricsFormValidator,
-      ProbabilityDistributionFormService probabilityDistributionFormService) {
-    this.oilCaseVolumetricsFormValidator = oilCaseVolumetricsFormValidator;
+  public OilCaseVolumetricsFormService(ProbabilityDistributionFormService probabilityDistributionFormService) {
     this.probabilityDistributionFormService = probabilityDistributionFormService;
-  }
-
-  @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
-    oilCaseVolumetricsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
-    return bindingResult;
   }
 
   OilCaseVolumetricsForm getOilCaseVolumetricsForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {

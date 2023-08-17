@@ -19,7 +19,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsController;
@@ -61,9 +60,6 @@ class VolumetricsTaskListSectionServiceTest {
 
   @Mock
   private MixedCaseVolumetricsSubmissionService mixedCaseVolumetricsSubmissionService;
-
-  @Mock
-  private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
 
   @Mock
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
@@ -109,7 +105,7 @@ class VolumetricsTaskListSectionServiceTest {
     assertThat(section)
         .extracting(TaskListSection::items)
         .isEqualTo(List.of(
-            new TaskListItem("Oil case volumetrics parameters",
+            new TaskListItem("Oil case volumetric parameters",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(OilCaseVolumetricsController.class)
                     .getOilCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
@@ -118,7 +114,7 @@ class VolumetricsTaskListSectionServiceTest {
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(OilCaseOutputsController.class)
                     .getOilCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
-            new TaskListItem("Gas case volumetrics parameters",
+            new TaskListItem("Gas case volumetric parameters",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(GasCaseVolumetricsController.class)
                     .getGasCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
@@ -127,7 +123,7 @@ class VolumetricsTaskListSectionServiceTest {
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(GasCaseOutputsController.class)
                     .getGasCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
-            new TaskListItem("Mixed case volumetrics parameters",
+            new TaskListItem("Mixed case volumetric parameters",
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(MixedCaseVolumetricsController.class)
                     .getMixedCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail .getId()))),

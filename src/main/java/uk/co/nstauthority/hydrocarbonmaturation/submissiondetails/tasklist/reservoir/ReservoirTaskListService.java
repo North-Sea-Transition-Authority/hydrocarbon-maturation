@@ -8,8 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -23,15 +28,21 @@ public class ReservoirTaskListService {
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final PermeabilitySubmissionService permeabilitySubmissionService;
   private final GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService;
+  private final GeneralReservoirInformationService generalReservoirInformationService;
+  private final OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService;
 
   @Autowired
   public ReservoirTaskListService(
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
       PermeabilitySubmissionService permeabilitySubmissionService,
-      GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService) {
+      GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService,
+      GeneralReservoirInformationService generalReservoirInformationService,
+      OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService) {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
     this.generalReservoirInformationSubmissionService = generalReservoirInformationSubmissionService;
+    this.generalReservoirInformationService = generalReservoirInformationService;
+    this.oilCaseVolumetricsSubmissionService = oilCaseVolumetricsSubmissionService;
   }
 
   public List<ReservoirTaskListItem> getAllReservoirTaskLists(SubmissionDetail submissionDetail) {
@@ -71,6 +82,21 @@ public class ReservoirTaskListService {
                   reservoirSubmissionDetail.getSubmissionDetail().getId(),
                   reservoirSubmissionDetail.getId())))
       );
+
+      var hydrocarbonsDiscovered = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
+          .map(ReservoirHydrocarbons::getHydrocarbonsDiscovered)
+          .orElse(null);
+
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
+        items.add(
+            new TaskListItem("Oil case volumetric parameters",
+                TaskListLabel.notStartedOrComplete(
+                    oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(OilCaseVolumetricsController.class).getOilCaseVolumetrics(
+                    reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                    reservoirSubmissionDetail.getId())))
+        );
+      }
     }
     return items;
   }

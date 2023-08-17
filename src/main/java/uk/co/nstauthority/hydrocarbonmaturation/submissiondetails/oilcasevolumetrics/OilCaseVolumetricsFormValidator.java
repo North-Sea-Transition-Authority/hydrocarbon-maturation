@@ -3,19 +3,30 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolume
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class OilCaseVolumetricsFormValidator extends PartialFullFormValidator {
+public class OilCaseVolumetricsFormValidator implements SubmissionValidator {
 
   @Override
-  public boolean supports(Class<?> clazz) {
-    return OilCaseVolumetricsForm.class.equals(clazz);
+  public boolean isValid(SubmissionForm submissionForm,
+                         Errors errors,
+                         SubmissionDetail submissionDetail,
+                         ValidationType validationType) {
+    switch (validationType) {
+      case FULL -> validateFull(submissionForm, errors);
+      case PARTIAL -> validatePartial(submissionForm, errors);
+      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
+    }
+
+    return !errors.hasErrors();
   }
 
-  @Override
   public void validatePartial(SubmissionForm form, Errors errors) {
     var oilCaseVolumetricsForm = (OilCaseVolumetricsForm) form;
 
@@ -52,7 +63,6 @@ public class OilCaseVolumetricsFormValidator extends PartialFullFormValidator {
     );
   }
 
-  @Override
   public void validateFull(SubmissionForm form, Errors errors) {
     var oilCaseVolumetricsForm = (OilCaseVolumetricsForm) form;
 

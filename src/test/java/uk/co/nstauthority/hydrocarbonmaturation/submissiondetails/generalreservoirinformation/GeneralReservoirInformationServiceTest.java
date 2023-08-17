@@ -5,6 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +14,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -26,6 +29,9 @@ class GeneralReservoirInformationServiceTest {
 
   @Mock
   private ReservoirPersistenceService reservoirPersistenceService;
+
+  @Mock
+  private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Captor
   private ArgumentCaptor<ReservoirHydrocarbons> reservoirHydrocarbonsArgumentCaptor;
@@ -41,7 +47,7 @@ class GeneralReservoirInformationServiceTest {
     form.setReservoirName("Reservoir Name");
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
 
-    var reservoirHydrocarbons =  new ReservoirHydrocarbons();
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
     when(reservoirHydrocarbonsRepository.findReservoirHydrocarbonsByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
 
@@ -84,6 +90,53 @@ class GeneralReservoirInformationServiceTest {
             reservoirSubmissionDetail,
             form.getHydrocarbonsDiscovered()
         );
+  }
+
+  @Test
+  void saveGeneralReservoirInformation_formGasOnly() {
+    var form = new GeneralReservoirInformationForm();
+    form.setReservoirName("Reservoir Name");
+    form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    when(reservoirHydrocarbonsRepository.findReservoirHydrocarbonsByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
+    generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY,
+            ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
+        ),
+        reservoirSubmissionDetail
+    );
+  }
+
+  @Test
+  void saveGeneralReservoirInformation_formOilOnly() {
+    var form = new GeneralReservoirInformationForm();
+    form.setReservoirName("Reservoir Name");
+    form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
+    when(reservoirHydrocarbonsRepository.findReservoirHydrocarbonsByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
+    generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY,
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+            ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
+            ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+            ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR
+        ),
+        reservoirSubmissionDetail
+    );
   }
 
   @Test
