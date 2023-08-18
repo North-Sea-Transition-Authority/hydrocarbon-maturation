@@ -3,8 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -13,10 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
@@ -31,15 +27,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Form
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesFormServiceTest {
 
   private static ReservoirPropertiesFormService reservoirPropertiesFormService;
-
-  @Mock
-  private static ReservoirPropertiesFormValidator reservoirPropertiesFormValidator;
 
   @Mock
   private static ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
@@ -58,34 +50,11 @@ class ReservoirPropertiesFormServiceTest {
 
   @BeforeEach
   void setUp() {
-    reservoirPropertiesFormService = new ReservoirPropertiesFormService(reservoirPropertiesFormValidator,
-        reservoirPropertiesPersistenceService, probabilityDistributionFormService,
-        discoveryWellDetailsPersistenceService, hydrocarbonCasePersistenceService);
+    reservoirPropertiesFormService = new ReservoirPropertiesFormService(reservoirPropertiesPersistenceService,
+        probabilityDistributionFormService, discoveryWellDetailsPersistenceService, hydrocarbonCasePersistenceService);
 
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
-  }
-
-  @Test
-  void validate_verifyMethodCall() {
-    var form = new ReservoirPropertiesForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var captor = ArgumentCaptor.forClass(ReservoirPropertiesValidatorHints.class);
-    reservoirPropertiesFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
-    verify(reservoirPropertiesFormValidator, times(1))
-        .validate(eq(form), eq(bindingResult), captor.capture());
-
-    assertThat(captor.getValue())
-        .hasOnlyFields("hydrocarbonsDiscovered")
-        .extracting(
-            ReservoirPropertiesValidatorHints::getValidationType,
-            ReservoirPropertiesValidatorHints::getSubmissionDetail,
-            ReservoirPropertiesValidatorHints::getHydrocarbonsDiscovered)
-        .containsExactly(
-            ValidationType.FULL,
-            submissionDetail,
-            null
-        );
   }
 
   @Test

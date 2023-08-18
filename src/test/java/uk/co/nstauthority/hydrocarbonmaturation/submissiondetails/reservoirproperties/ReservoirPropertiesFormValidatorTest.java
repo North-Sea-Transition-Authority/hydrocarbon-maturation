@@ -3,14 +3,17 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -24,35 +27,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesFormValidatorTest {
 
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
+
+  @InjectMocks
   private ReservoirPropertiesFormValidator reservoirPropertiesFormValidator;
 
   private SubmissionDetail submissionDetail;
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setup() {
-    reservoirPropertiesFormValidator = new ReservoirPropertiesFormValidator();
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
   }
-
-  @Test
-  void supports_whenSourceAndSealFormClass_thenTrue() {
-    var supportedClass = ReservoirPropertiesForm.class;
-    assertTrue(reservoirPropertiesFormValidator.supports(supportedClass));
-  }
-
-  @Test
-  void supports_whenNonSupportedClass_thenFalse() {
-    var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(reservoirPropertiesFormValidator.supports(nonSupportedClass));
-  }
-
 
   @Test
   void validate_fullValidation_whenValidForm_thenNoValidationErrors() {
@@ -207,9 +205,12 @@ class ReservoirPropertiesFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
 
-    reservoirPropertiesFormValidator.validate(form, bindingResult,
-        new ReservoirPropertiesValidatorHints(
-            ValidationType.FULL, submissionDetail, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -261,9 +262,12 @@ class ReservoirPropertiesFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
 
-    reservoirPropertiesFormValidator.validate(form, bindingResult,
-        new ReservoirPropertiesValidatorHints(
-            ValidationType.PARTIAL, submissionDetail, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -312,9 +316,12 @@ class ReservoirPropertiesFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
 
-    reservoirPropertiesFormValidator.validate(form, bindingResult,
-        new ReservoirPropertiesValidatorHints(
-            validationType, submissionDetail, HydrocarbonsDiscovered.GAS_ONLY));
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -352,10 +359,13 @@ class ReservoirPropertiesFormValidatorTest {
     var form = getFormWithInvalidDistributions(ProbabilityDistributionType.NORMAL);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    reservoirPropertiesFormValidator.validate(form, bindingResult,
-        new ReservoirPropertiesValidatorHints(
-            validationType, submissionDetail, HydrocarbonsDiscovered.OIL_ONLY));
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -393,9 +403,7 @@ class ReservoirPropertiesFormValidatorTest {
     var form = getFormWithInvalidDistributions(ProbabilityDistributionType.NORMAL);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
-    reservoirPropertiesFormValidator.validate(form, bindingResult,
-        new ReservoirPropertiesValidatorHints(
-            validationType, submissionDetail, null));
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -433,14 +441,14 @@ class ReservoirPropertiesFormValidatorTest {
     assertFalse(bindingResult.hasErrors());
   }
 
-  private BindingResult validateReservoirProperties(
-      ReservoirPropertiesForm form, ValidationType validationType, SubmissionType submissionType) {
+  private BindingResult validateReservoirProperties(ReservoirPropertiesForm form, ValidationType validationType, SubmissionType submissionType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(submissionType);
-    reservoirPropertiesFormValidator.validate(
-        form, bindingResult,
-        new ReservoirPropertiesValidatorHints(
-            validationType, submissionDetail, HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
     return bindingResult;
   }
 

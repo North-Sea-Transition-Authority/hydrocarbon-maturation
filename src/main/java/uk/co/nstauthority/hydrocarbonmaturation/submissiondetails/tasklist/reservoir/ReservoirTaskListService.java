@@ -19,6 +19,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListItem;
@@ -32,17 +34,20 @@ public class ReservoirTaskListService {
   private final GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService;
   private final GeneralReservoirInformationService generalReservoirInformationService;
   private final OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService;
+  private final ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
 
   @Autowired
   public ReservoirTaskListService(
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
       PermeabilitySubmissionService permeabilitySubmissionService,
       GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService,
+      ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService,
       GeneralReservoirInformationService generalReservoirInformationService,
       OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService) {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
     this.generalReservoirInformationSubmissionService = generalReservoirInformationSubmissionService;
+    this.reservoirPropertiesSubmissionService = reservoirPropertiesSubmissionService;
     this.generalReservoirInformationService = generalReservoirInformationService;
     this.oilCaseVolumetricsSubmissionService = oilCaseVolumetricsSubmissionService;
   }
@@ -63,7 +68,9 @@ public class ReservoirTaskListService {
 
   private List<TaskListItem> getTaskList(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var items = new ArrayList<TaskListItem>();
-    var resourceType = reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+
     var generalReservoirInformationCompleted =
         generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
     items.add(
@@ -71,7 +78,7 @@ public class ReservoirTaskListService {
             reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission() ? "Discovery" : "Field"),
             TaskListLabel.notStartedOrComplete(generalReservoirInformationCompleted),
             ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
-                reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                submissionDetail.getId(),
                 reservoirSubmissionDetail.getId())))
     );
 
@@ -81,9 +88,20 @@ public class ReservoirTaskListService {
               TaskListLabel.notStartedOrComplete(
                   permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
-                  reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                  submissionDetail.getId(),
                   reservoirSubmissionDetail.getId())))
       );
+
+      if (submissionDetail.isDiscoverySubmission()) {
+        items.add(
+            new TaskListItem("Reservoir properties",
+                TaskListLabel.notStartedOrComplete(
+                    reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
+                    submissionDetail.getId(),
+                    reservoirSubmissionDetail.getId())))
+        );
+      }
 
       var hydrocarbonsDiscovered = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
           .map(ReservoirHydrocarbons::getHydrocarbonsDiscovered)
@@ -97,7 +115,7 @@ public class ReservoirTaskListService {
                 TaskListLabel.notStartedOrComplete(
                     oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
                 ReverseRouter.route(on(OilCaseVolumetricsController.class).getOilCaseVolumetrics(
-                    reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                    submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
         );
       }
@@ -110,7 +128,7 @@ public class ReservoirTaskListService {
                 TaskListLabel.notStartedOrComplete(
                     oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
                 ReverseRouter.route(on(FieldOilVolumetricsController.class).getOilVolumetrics(
-                    reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                    submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
         );
       }

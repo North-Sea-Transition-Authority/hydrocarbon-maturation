@@ -31,8 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -56,6 +54,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncas
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -87,8 +86,10 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @MockBean
   private AgeSeriesSearchService ageSeriesSearchService;
 
+  @MockBean
+  private ReservoirPropertiesFormValidator reservoirPropertiesFormValidator;
+
   private ReservoirPropertiesForm form;
-  private BindingResult bindingResult;
 
   private UUID submissionDetailId;
   private ReservoirSubmissionDetail reservoirSubmissionDetail;
@@ -97,7 +98,6 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @BeforeEach
   void setup() {
     form = new ReservoirPropertiesForm();
-    bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetailId = submissionDetail.getId();
 
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
@@ -174,12 +174,11 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveReservoirProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
-    when(reservoirPropertiesFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(reservoirSubmissionDetail), eq(validationType))).thenReturn(true);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ReservoirPropertiesController.class)
-            .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, null)))
+            .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -188,27 +187,48 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     verify(reservoirPropertiesPersistenceService, times(1))
         .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(reservoirSubmissionDetail));
-    verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(validationType), eq(submissionDetail));
+  }
+
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveReservoirProperties_whenValidForm_assertSaveAndRedirection_discovery(ValidationType validationType) throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
+
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId))
+        .thenReturn(discoveryReservoirSubmissionDetail);
+    when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(discoveryReservoirSubmissionDetail), eq(validationType))).thenReturn(true);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .saveReservoirProperties(submissionDetailId, discoveryReservoirSubmissionDetailId, form, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
+            .getReservoirTaskList(submissionDetailId, null))));
+
+    verify(reservoirPropertiesPersistenceService, times(1))
+        .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(discoveryReservoirSubmissionDetail));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveReservoirProperties_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
-    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(reservoirPropertiesFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(reservoirSubmissionDetail), eq(validationType))).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(ReservoirPropertiesController.class)
-                .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
+                .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, null, ValidationType.PARTIAL)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(validationType), eq(submissionDetail));
     verify(reservoirPropertiesPersistenceService, never())
         .saveReservoirProperty(any(), any());
   }
@@ -217,8 +237,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_PROSPECT", "PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"})
   void saveReservoirProperties_whenInvalidForm_andProspectSubmission_assertModelProperties(SubmissionType submissionType) throws Exception {
     submissionDetail.setSubmissionType(submissionType);
-    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(reservoirPropertiesFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(reservoirSubmissionDetail), eq(ValidationType.FULL))).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
     when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
@@ -227,7 +246,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = mockMvc.perform(
         post(ReverseRouter.route(on(ReservoirPropertiesController.class)
-            .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
+            .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, null, ValidationType.PARTIAL)))
             .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
             .with(user(USER))
             .with(csrf()))
@@ -236,8 +255,6 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .getModelAndView()
         .getModelMap();
 
-    verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(ValidationType.FULL), eq(submissionDetail));
     verify(reservoirPropertiesPersistenceService, never())
         .saveReservoirProperty(any(), any());
 
@@ -298,8 +315,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
 
-    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(reservoirPropertiesFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(reservoirSubmissionDetail), eq(ValidationType.FULL))).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetail.getId())).thenReturn(discoverySubmissionDetail);
     Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
     when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
@@ -308,7 +324,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = mockMvc.perform(
             post(ReverseRouter.route(on(ReservoirPropertiesController.class)
-                .saveReservoirProperties(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
+                .saveReservoirProperties(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId, form, null, ValidationType.PARTIAL)))
                 .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
                 .with(user(USER))
                 .with(csrf()))
@@ -317,8 +333,6 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .getModelAndView()
         .getModelMap();
 
-    verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(ValidationType.FULL), eq(discoverySubmissionDetail));
     verify(reservoirPropertiesPersistenceService, never())
         .saveReservoirProperty(any(), any());
 
@@ -370,8 +384,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE"})
   void saveReservoirProperties_whenInvalidForm_andDryWellSubmission_assertModelProperties(SubmissionType submissionType) throws Exception {
     submissionDetail.setSubmissionType(submissionType);
-    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(reservoirPropertiesFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(reservoirSubmissionDetail), eq(ValidationType.FULL))).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
     when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
@@ -380,7 +393,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = mockMvc.perform(
             post(ReverseRouter.route(on(ReservoirPropertiesController.class)
-                .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, ValidationType.PARTIAL)))
+                .saveReservoirProperties(submissionDetailId, reservoirSubmissionDetailId, form, null, ValidationType.PARTIAL)))
                 .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
                 .with(user(USER))
                 .with(csrf()))
@@ -389,8 +402,6 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .getModelAndView()
         .getModelMap();
 
-    verify(reservoirPropertiesFormService, times(1))
-        .validate(any(), any(), eq(ValidationType.FULL), eq(submissionDetail));
     verify(reservoirPropertiesPersistenceService, never())
         .saveReservoirProperty(any(), any());
 
@@ -874,8 +885,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());
 
-    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(reservoirPropertiesFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    when(reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL)).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     var modelMap = mockMvc.perform(

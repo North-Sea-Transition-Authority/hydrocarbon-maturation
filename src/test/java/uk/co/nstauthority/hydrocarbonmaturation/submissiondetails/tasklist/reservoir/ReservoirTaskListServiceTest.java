@@ -29,6 +29,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListItem;
@@ -55,6 +57,9 @@ class ReservoirTaskListServiceTest {
   @Mock
   private OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService;
 
+  @Mock
+  private ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
+
   @InjectMocks
   private ReservoirTaskListService reservoirTaskListService;
 
@@ -75,6 +80,7 @@ class ReservoirTaskListServiceTest {
         .thenReturn(List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2));
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(any())).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(any())).thenReturn(true);
+    when(reservoirPropertiesSubmissionService.isSectionSubmittable(any())).thenReturn(false);
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
     assertThat(reservoirTaskListItems).extracting(
@@ -97,7 +103,13 @@ class ReservoirTaskListServiceTest {
                     ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
                         reservoirSubmissionDetail1.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail1.getId()))
-                )
+                ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
+                        reservoirSubmissionDetail1.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail1.getId()))
+              )
             )
         ),
         tuple(
@@ -116,7 +128,13 @@ class ReservoirTaskListServiceTest {
                     ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
                         reservoirSubmissionDetail2.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail2.getId()))
-                )
+                ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
+                        reservoirSubmissionDetail2.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail2.getId()))
+              )
             )
         )
     );
@@ -232,6 +250,12 @@ class ReservoirTaskListServiceTest {
                     "Permeability",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),

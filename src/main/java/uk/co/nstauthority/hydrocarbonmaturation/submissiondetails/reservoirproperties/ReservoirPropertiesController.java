@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -34,6 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncas
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -48,7 +48,6 @@ public class ReservoirPropertiesController {
   private static final String OIL_CASE = "oilCase";
   public static final String PAGE_NAME = "Reservoir properties";
 
-  private final ControllerHelperService controllerHelperService;
   private final ReservoirPropertiesFormService reservoirPropertiesFormService;
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
@@ -59,10 +58,10 @@ public class ReservoirPropertiesController {
   private final ReservoirSubUnitSearchService reservoirSubUnitSearchService;
   private final AgeSeriesSearchService ageSeriesSearchService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final ReservoirPropertiesFormValidator reservoirPropertiesFormValidator;
 
   @Autowired
-  public ReservoirPropertiesController(ControllerHelperService controllerHelperService,
-                                       ReservoirPropertiesFormService reservoirPropertiesFormService,
+  public ReservoirPropertiesController(ReservoirPropertiesFormService reservoirPropertiesFormService,
                                        ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
                                        SubmissionDetailService submissionDetailService,
                                        ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
@@ -71,8 +70,8 @@ public class ReservoirPropertiesController {
                                        FormationSearchService formationSearchService,
                                        ReservoirSubUnitSearchService reservoirSubUnitSearchService,
                                        AgeSeriesSearchService ageSeriesSearchService,
-                                       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
-    this.controllerHelperService = controllerHelperService;
+                                       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+                                       ReservoirPropertiesFormValidator reservoirPropertiesFormValidator) {
     this.reservoirPropertiesFormService = reservoirPropertiesFormService;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.submissionDetailService = submissionDetailService;
@@ -83,6 +82,7 @@ public class ReservoirPropertiesController {
     this.reservoirSubUnitSearchService = reservoirSubUnitSearchService;
     this.ageSeriesSearchService = ageSeriesSearchService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.reservoirPropertiesFormValidator = reservoirPropertiesFormValidator;
   }
 
   @GetMapping
@@ -104,16 +104,17 @@ public class ReservoirPropertiesController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
-    bindingResult = reservoirPropertiesFormService.validate(form, bindingResult,
-        validationType, submissionDetail);
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getReservoirPropertiesWithErrors(bindingResult, form, submissionDetail),
-        () -> {
-          reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
-        }
-    );
+    if (!reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType)) {
+      return getReservoirPropertiesWithErrors(bindingResult, form, submissionDetail);
+    } else {
+      reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
+      if (submissionDetail.isProspectSubmission()) {
+        return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      } else {
+        return ReverseRouter.redirect(on(ReservoirTaskListController.class)
+            .getReservoirTaskList(submissionDetailId, null));
+      }
+    }
   }
 
   private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {

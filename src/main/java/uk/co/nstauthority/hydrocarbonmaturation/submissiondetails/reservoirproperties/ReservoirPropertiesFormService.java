@@ -2,93 +2,33 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class ReservoirPropertiesFormService implements SubmissionFormService {
+class ReservoirPropertiesFormService {
 
-  private final ReservoirPropertiesFormValidator reservoirPropertiesFormValidator;
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   @Autowired
-  public ReservoirPropertiesFormService(ReservoirPropertiesFormValidator reservoirPropertiesFormValidator,
-                                        ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
+  public ReservoirPropertiesFormService(ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
                                         ProbabilityDistributionFormService probabilityDistributionFormService,
                                         DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
                                         HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService) {
-    this.reservoirPropertiesFormValidator = reservoirPropertiesFormValidator;
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.probabilityDistributionFormService = probabilityDistributionFormService;
     this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
-  }
-
-  @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
-    if (submissionDetail.isDiscoverySubmission()) {
-      discoveryWellDetailsPersistenceService
-          .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
-          .ifPresentOrElse(
-              discoveryWellDetail ->
-                  reservoirPropertiesFormValidator.validate(form, bindingResult,
-                      new ReservoirPropertiesValidatorHints(
-                          validationType,
-                          submissionDetail,
-                          discoveryWellDetail.getHydrocarbonsDiscovered())),
-              () ->
-                  reservoirPropertiesFormValidator.validate(form, bindingResult,
-                      new ReservoirPropertiesValidatorHints(validationType, submissionDetail, null)));
-      return bindingResult;
-    } else if (submissionDetail.isProspectSubmission()) {
-      hydrocarbonCasePersistenceService
-          .getHydrocarbonCaseDetail(submissionDetail)
-          .ifPresentOrElse(
-              hydrocarbonCaseDetail -> {
-                var mixedCase = hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail);
-                if (mixedCase) {
-                  reservoirPropertiesFormValidator.validate(form, bindingResult,
-                      new ReservoirPropertiesValidatorHints(
-                          validationType,
-                          submissionDetail,
-                          HydrocarbonsDiscovered.MIXED_OIL_AND_GAS));
-                } else {
-                  reservoirPropertiesFormValidator.validate(form, bindingResult,
-                      new ReservoirPropertiesValidatorHints(
-                          validationType,
-                          submissionDetail,
-                          null));
-                }
-              },
-              () ->
-                  reservoirPropertiesFormValidator.validate(form, bindingResult,
-                      new ReservoirPropertiesValidatorHints(
-                          validationType,
-                          submissionDetail,
-                          null))
-          );
-      return bindingResult;
-    }
-    reservoirPropertiesFormValidator.validate(
-        form, bindingResult, new ReservoirPropertiesValidatorHints(validationType, submissionDetail, null));
-    return bindingResult;
   }
 
   ReservoirPropertiesForm getReservoirPropertiesForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {

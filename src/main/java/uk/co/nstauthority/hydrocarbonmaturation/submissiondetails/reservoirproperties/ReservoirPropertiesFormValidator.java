@@ -1,8 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -10,45 +10,46 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ReservoirSubmissionValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionFormValidator {
+class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
 
-  private SubmissionType submissionType;
-  private HydrocarbonsDiscovered hydrocarbonsDiscovered;
+  private final GeneralReservoirInformationService generalReservoirInformationService;
 
-  @Override
-  public boolean supports(Class<?> clazz) {
-    return clazz.equals(ReservoirPropertiesForm.class);
+  @Autowired
+  public ReservoirPropertiesFormValidator(GeneralReservoirInformationService generalReservoirInformationService) {
+    this.generalReservoirInformationService = generalReservoirInformationService;
   }
 
   @Override
-  public void validate(Object target, Errors errors) {
-    throw new ActionNotAllowedException("Incorrect parameters provided for validation");
-  }
+  public boolean isValid(SubmissionForm form,
+                         Errors errors,
+                         ReservoirSubmissionDetail reservoirSubmissionDetail,
+                         ValidationType validationType) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
-  @Override
-  public void validate(Object target, Errors errors, Object... validationHints) {
-    var validatorHints = SubmissionFormValidationUtils
-        .extractValidatorHints(validationHints);
-    submissionType = validatorHints.getSubmissionDetail().getSubmissionType();
-    var validationType = validatorHints.getValidationType();
-    hydrocarbonsDiscovered = extractHydrocarbonsDiscoveredFromHints(validatorHints);
-
-    var form = (ReservoirPropertiesForm) target;
+    var hydrocarbonsDiscovered = generalReservoirInformationService
+        .getReservoirHydrocarbons(reservoirSubmissionDetail).orElse(new ReservoirHydrocarbons())
+        .getHydrocarbonsDiscovered();
 
     switch (validationType) {
-      case FULL -> validateFull(form, errors);
-      case PARTIAL -> validatePartial(form, errors);
+      case FULL -> validateFull(form, errors, submissionDetail.getSubmissionType(), hydrocarbonsDiscovered);
+      case PARTIAL -> validatePartial(form, errors, submissionDetail.getSubmissionType(), hydrocarbonsDiscovered);
       default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
     }
+
+    return !errors.hasErrors();
   }
 
-  @Override
-  public void validatePartial(SubmissionForm form, Errors errors) {
+  private void validatePartial(SubmissionForm form,
+                              Errors errors,
+                              SubmissionType submissionType,
+                              HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     var reservoirForm = ((ReservoirPropertiesForm) form);
 
     var averageNetPayThicknessFormField = "averageNetPayThickness";
@@ -124,8 +125,10 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
     }
   }
 
-  @Override
-  public void validateFull(SubmissionForm form, Errors errors) {
+  private void validateFull(SubmissionForm form,
+                           Errors errors,
+                           SubmissionType submissionType,
+                           HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     ReservoirPropertiesForm reservoirPropertiesForm = (ReservoirPropertiesForm) form;
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "formationName", "formationName.required", "Enter a formation name");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors,
@@ -252,11 +255,6 @@ class ReservoirPropertiesFormValidator implements SmartValidator, SubmissionForm
         || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
       validateFullyDepthToFields(errors, reservoirForm, hydrocarbonsDiscovered);
     }
-  }
-
-  private HydrocarbonsDiscovered extractHydrocarbonsDiscoveredFromHints(
-      SubmissionFormValidatorHints submissionFormValidatorHints) {
-    return ((ReservoirPropertiesValidatorHints) submissionFormValidatorHints).getHydrocarbonsDiscovered();
   }
 
   private void validatePartiallyDepthToFields(Errors errors,
