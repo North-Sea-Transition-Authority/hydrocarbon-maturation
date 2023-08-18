@@ -21,9 +21,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 class OilCaseVolumetricsFormServiceTest {
 
   @Mock
-  private OilCaseVolumetricsFormValidator formValidator;
-
-  @Mock
   private ProbabilityDistributionFormService probabilityDistributionFormService;
 
   @InjectMocks

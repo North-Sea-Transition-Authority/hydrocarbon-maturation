@@ -3,7 +3,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolume
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -19,15 +21,15 @@ public class OilCaseVolumetricsFormValidator implements SubmissionValidator {
                          SubmissionDetail submissionDetail,
                          ValidationType validationType) {
     switch (validationType) {
-      case FULL -> validateFull(submissionForm, errors);
-      case PARTIAL -> validatePartial(submissionForm, errors);
+      case FULL -> validateFull(submissionForm, errors, submissionDetail);
+      case PARTIAL -> validatePartial(submissionForm, errors, submissionDetail);
       default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
     }
 
     return !errors.hasErrors();
   }
 
-  public void validatePartial(SubmissionForm form, Errors errors) {
+  public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var oilCaseVolumetricsForm = (OilCaseVolumetricsForm) form;
 
     var oilFormationVolumeFactor = oilCaseVolumetricsForm.getOilFormationVolumeFactor();
@@ -39,12 +41,22 @@ public class OilCaseVolumetricsFormValidator implements SubmissionValidator {
     );
 
     var oilHydrocarbonSaturation = oilCaseVolumetricsForm.getOilHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validatePartialPercentage(
-        oilHydrocarbonSaturation,
-        errors,
-        "oilHydrocarbonSaturation",
-        "Oil hydrocarbon saturation distribution used"
-    );
+    if (submissionDetail.getSubmission().getResource().getType() == ResourceType.FIELD) {
+      ProbabilityDistributionValidationUtil.validateCustomPartialPercentage(
+          oilHydrocarbonSaturation,
+          errors,
+          "oilHydrocarbonSaturation",
+          "Oil hydrocarbon saturation distribution used",
+          ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validatePartialPercentage(
+          oilHydrocarbonSaturation,
+          errors,
+          "oilHydrocarbonSaturation",
+          "Oil hydrocarbon saturation distribution used"
+      );
+    }
 
     var associatedGasOilRatioLifeOfField = oilCaseVolumetricsForm.getAssociatedGasOilRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validatePartial(
@@ -63,7 +75,7 @@ public class OilCaseVolumetricsFormValidator implements SubmissionValidator {
     );
   }
 
-  public void validateFull(SubmissionForm form, Errors errors) {
+  public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var oilCaseVolumetricsForm = (OilCaseVolumetricsForm) form;
 
     ValidationUtils.rejectIfEmpty(errors, "oilFormationVolumeFactor.probabilityDistributionType",
@@ -83,12 +95,22 @@ public class OilCaseVolumetricsFormValidator implements SubmissionValidator {
         "Select oil hydrocarbon saturation distribution used");
 
     var oilHydrocarbonSaturation = oilCaseVolumetricsForm.getOilHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validateFullPercentage(
-        oilHydrocarbonSaturation,
-        errors,
-        "oilHydrocarbonSaturation",
-        "Oil hydrocarbon saturation distribution used"
-    );
+    if (submissionDetail.getSubmission().getResource().getType() == ResourceType.FIELD) {
+      ProbabilityDistributionValidationUtil.validateCustomFullPercentage(
+          oilHydrocarbonSaturation,
+          errors,
+          "oilHydrocarbonSaturation",
+          "Oil hydrocarbon saturation distribution used",
+          ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validateFullPercentage(
+          oilHydrocarbonSaturation,
+          errors,
+          "oilHydrocarbonSaturation",
+          "Oil hydrocarbon saturation distribution used"
+      );
+    }
 
     ValidationUtils.rejectIfEmpty(errors, "associatedGasOilRatioLifeOfField.probabilityDistributionType",
         "associatedGasOilRatioLifeOfField.probabilityDistributionType.required",

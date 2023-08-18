@@ -168,7 +168,7 @@ class OilCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
   }
 
   @Test
-  void getGasCaseVolumetricsModelAndView_whenProspect_assertModelProperties() throws Exception {
+  void getOilCaseVolumetricsModelAndView_whenProspect_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(
         form);
@@ -207,7 +207,7 @@ class OilCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
   }
 
   @Test
-  void getGasCaseVolumetricsModelAndView_whenDiscovery_assertModelProperties() throws Exception {
+  void getOilCaseVolumetricsModelAndView_whenDiscovery_assertModelProperties() throws Exception {
     var discoverySubmissionDetailId = UUID.randomUUID();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);

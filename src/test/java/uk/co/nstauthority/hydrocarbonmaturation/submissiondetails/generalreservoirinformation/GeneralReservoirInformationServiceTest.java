@@ -195,7 +195,11 @@ class GeneralReservoirInformationServiceTest {
             ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY,
             ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
             ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY,
-            ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
+            ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_FIELD,
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_FIELD,
+            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_FIELD,
+            ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD_CONSTANT
         ),
         reservoirSubmissionDetail
     );

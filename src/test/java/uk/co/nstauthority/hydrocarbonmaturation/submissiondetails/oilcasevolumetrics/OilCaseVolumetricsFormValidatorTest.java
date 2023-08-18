@@ -88,6 +88,40 @@ class OilCaseVolumetricsFormValidatorTest {
         );
   }
 
+  @Test
+  void validate_whenField_whenEmptyExceedanceForm_thenValidationErrors() {
+    var form = new OilCaseVolumetricsForm();
+    var constantDistributionForm =
+        ProbabilityDistributionTestUtil.getFormWithExceedance(
+            ProbabilityDistributionType.CONSTANT,
+            new ProbabilityOfExceedanceForm());
+    var customDistributionForm =
+        ProbabilityDistributionTestUtil.getFormWithExceedance(
+            ProbabilityDistributionType.CUSTOM,
+            new ProbabilityOfExceedanceForm());
+    form.setAssociatedGasOilRatioLifeOfField(constantDistributionForm);
+    form.setOilRecoveryFactor(constantDistributionForm);
+    form.setOilFormationVolumeFactor(constantDistributionForm);
+    form.setOilHydrocarbonSaturation(customDistributionForm);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    oilCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("oilFormationVolumeFactor." + ProbabilityDistributionType.CONSTANT.getPath() + ".error",
+                Set.of("oilFormationVolumeFactor." + ProbabilityDistributionType.CONSTANT.getPath() + ".error.error")),
+            entry("oilHydrocarbonSaturation." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilHydrocarbonSaturation." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("associatedGasOilRatioLifeOfField." + ProbabilityDistributionType.CONSTANT.getPath() + ".error",
+                Set.of("associatedGasOilRatioLifeOfField." + ProbabilityDistributionType.CONSTANT.getPath() + ".error.error")),
+            entry("oilRecoveryFactor." + ProbabilityDistributionType.CONSTANT.getPath() + ".error",
+                Set.of("oilRecoveryFactor." + ProbabilityDistributionType.CONSTANT.getPath() + ".error.error"))
+        );
+  }
+
   @ParameterizedTest
   @EnumSource(
       value = ProbabilityDistributionType.class,
@@ -110,6 +144,39 @@ class OilCaseVolumetricsFormValidatorTest {
                 Set.of("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilRecoveryFactor." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilRecoveryFactor." + probabilityDistributionType.getPath() + ".error.error"))
+        );
+  }
+
+  @Test
+  void validate_whenField_whenInvalidExceedanceForm_thenValidationErrors() {
+    var form = new OilCaseVolumetricsForm();
+    var constantDistributionForm =
+        ProbabilityDistributionTestUtil.getFormWithExceedance(
+            ProbabilityDistributionType.CONSTANT,
+            ProbabilityDistributionTestUtil.getInvalidProbabilityOfExceedanceForm());
+    var customDistributionForm =
+        ProbabilityDistributionTestUtil.getFormWithExceedance(
+            ProbabilityDistributionType.CUSTOM,
+            ProbabilityDistributionTestUtil.getInvalidProbabilityOfExceedanceForm());
+    form.setAssociatedGasOilRatioLifeOfField(constantDistributionForm);
+    form.setOilRecoveryFactor(constantDistributionForm);
+    form.setOilFormationVolumeFactor(constantDistributionForm);
+    form.setOilHydrocarbonSaturation(customDistributionForm);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    oilCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .contains(
+            entry("oilFormationVolumeFactor." + ProbabilityDistributionType.CONSTANT.getPath() + ".error",
+                Set.of("oilFormationVolumeFactor." + ProbabilityDistributionType.CONSTANT.getPath() + ".error.error")),
+            entry("oilHydrocarbonSaturation." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilHydrocarbonSaturation." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("associatedGasOilRatioLifeOfField." + ProbabilityDistributionType.CONSTANT.getPath() + ".error",
+                Set.of("associatedGasOilRatioLifeOfField." + ProbabilityDistributionType.CONSTANT.getPath() + ".error.error")),
+            entry("oilRecoveryFactor." + ProbabilityDistributionType.CONSTANT.getPath() + ".error",
+                Set.of("oilRecoveryFactor." + ProbabilityDistributionType.CONSTANT.getPath() + ".error.error"))
         );
   }
 

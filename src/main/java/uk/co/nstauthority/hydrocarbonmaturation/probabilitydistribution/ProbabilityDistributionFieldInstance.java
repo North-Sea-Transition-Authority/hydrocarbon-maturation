@@ -12,6 +12,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.P
 import java.util.List;
 
 public enum ProbabilityDistributionFieldInstance {
+
   // Trap properties
   DEPTH_TO_CREST_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
@@ -179,6 +180,11 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT,
       "Oil recovery factor"
   ),
+  OIL_RECOVERY_FACTOR_FIELD(
+      List.of(CONSTANT),
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Oil recovery factor"
+  ),
   OIL_FORMATION_VOLUME_FACTOR_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.RB_STB,
@@ -186,6 +192,11 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   OIL_FORMATION_VOLUME_FACTOR_DISCOVERY(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.RB_STB,
+      "Oil formation volume factor (Bo)"
+  ),
+  OIL_FORMATION_VOLUME_FACTOR_FIELD(
+      List.of(CONSTANT),
       ProbabilityOfExceedanceUnits.RB_STB,
       "Oil formation volume factor (Bo)"
   ),
@@ -199,8 +210,18 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT,
       "Oil hydrocarbon saturation"
   ),
+  OIL_HYDROCARBON_SATURATION_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Oil hydrocarbon saturation"
+  ),
   ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
+      ProbabilityOfExceedanceUnits.SCF_STB,
+      "Associated gas-oil ratio life of field"
+  ),
+  ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD_CONSTANT(
+      List.of(CONSTANT),
       ProbabilityOfExceedanceUnits.SCF_STB,
       "Associated gas-oil ratio life of field"
   ),

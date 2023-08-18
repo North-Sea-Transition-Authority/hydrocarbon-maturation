@@ -185,6 +185,20 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(true);
   }
 
+  protected void setUpWhenUserIsResponsibleTeam_forField_passSecurity(ServiceUserDetail user, SubmissionDetail submissionDetail) {
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
+        .thenReturn(regulatorTeamMembershipInterceptorRule);
+    var regulatorManagedInformation = new RegulatorManagedInformation();
+    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+    regulatorManagedInformation.setResource(submissionDetail.getSubmission().getResource());
+
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+        submissionDetail.getSubmission().getResource()))
+        .thenReturn(regulatorManagedInformation);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(true);
+  }
+
   protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(ServiceUserDetail user) {
     when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);

@@ -46,7 +46,7 @@ public class OilCaseVolumetricsController {
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final OilCaseVolumetricsFormValidator oilCaseVolumetricsFormValidator;
 
-  public static final String PAGE_NAME = "Oil case volumetrics parameters";
+  public static final String PAGE_NAME = "Oil case volumetric parameters";
 
   @Autowired
   public OilCaseVolumetricsController(SubmissionDetailService submissionDetailService,
@@ -155,7 +155,7 @@ public class OilCaseVolumetricsController {
         .addObject("formationVolumeFactorError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
-                "formationVolumeFactor",
+                "oilFormationVolumeFactor",
                 form.getOilFormationVolumeFactor()))
         .addObject("oilRecoveryFactorError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(

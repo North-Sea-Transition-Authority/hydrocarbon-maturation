@@ -63,6 +63,16 @@ public class ProbabilityDistributionValidationUtil {
         null);
   }
 
+  public static void validateCustomPartialPercentage(ProbabilityDistributionForm probabilityDistributionForm,
+                                                     Errors errors,
+                                                     String formField,
+                                                     String label,
+                                                     ProbabilityDistributionFieldInstance instance) {
+    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT,
+        ValidationType.PARTIAL,
+        instance);
+  }
+
   public static void validateFull(ProbabilityDistributionForm probabilityDistributionForm,
                                   Errors errors,
                                   String formField,
@@ -77,6 +87,16 @@ public class ProbabilityDistributionValidationUtil {
     validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT,
         ValidationType.FULL,
         null);
+  }
+
+  public static void validateCustomFullPercentage(ProbabilityDistributionForm probabilityDistributionForm,
+                                                  Errors errors,
+                                                  String formField,
+                                                  String label,
+                                                  ProbabilityDistributionFieldInstance instance) {
+    validate(probabilityDistributionForm, errors, formField, label, ProbabilityOfExceedanceUnits.PERCENT,
+        ValidationType.FULL,
+        instance);
   }
 
   public static void validateCustomFull(ProbabilityDistributionForm probabilityDistributionForm,
