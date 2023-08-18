@@ -29,6 +29,7 @@ class ReservoirPropertiesPersistenceServiceTest {
 
   @Mock
   private ReservoirPropertiesRepository reservoirPropertiesRepository;
+
   @Mock
   private static ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
@@ -421,7 +422,7 @@ class ReservoirPropertiesPersistenceServiceTest {
   @Test
   void saveReservoirProperties_whenGivenAForm_ageStageEnumProvided_verifyCreatedEntity() {
     var form = new ReservoirPropertiesForm();
-    form.setAgeStageOrSeries(AgeSeries.MIDDLE_JURASSIC.name());
+    form.setAgeStageOrSeries(AgeSeries.MIDDLE_JURASSIC);
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
     reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
@@ -437,29 +438,6 @@ class ReservoirPropertiesPersistenceServiceTest {
         .containsExactly(
             AgeSeries.MIDDLE_JURASSIC,
             null
-        );
-  }
-
-  @Test
-  void saveReservoirProperties_whenGivenAForm_manualAgeStageProvided_verifyCreatedEntity() {
-    var form = new ReservoirPropertiesForm();
-    var ageStage = "age stage";
-    form.setAgeStageOrSeries(SearchSelectorService.getValueWithManualEntryPrefix(ageStage));
-    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
-
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
-
-    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
-    var savedReservoirProperty = reservoirArgumentCaptor.getValue();
-
-    assertThat(savedReservoirProperty)
-        .extracting(
-            ReservoirProperty::getAgeStage,
-            ReservoirProperty::getAgeStageManual
-        )
-        .containsExactly(
-            null,
-            ageStage
         );
   }
 

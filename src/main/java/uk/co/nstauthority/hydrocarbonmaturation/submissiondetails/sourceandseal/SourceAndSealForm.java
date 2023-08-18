@@ -1,17 +1,18 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal;
 
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
 class SourceAndSealForm implements SubmissionForm {
 
   private String sourceFormationName;
-  private String sourceAgeStage;
+  private AgeSeries sourceAgeStage;
   private GroupName sourceGroupName;
   private SourceLithology sourceLithology;
   private String sourceLithologyOther;
   private String topSealFormationName;
-  private String topSealAgeStage;
+  private AgeSeries topSealAgeStage;
   private GroupName topSealGroupName;
   private TopSealLithology topSealLithology;
   private String topSealLithologyOther;
@@ -24,12 +25,12 @@ class SourceAndSealForm implements SubmissionForm {
     this.sourceFormationName = sourceFormationName;
   }
 
-  public String getSourceAgeStage() {
+  public AgeSeries getSourceAgeStage() {
     return sourceAgeStage;
   }
 
   public void setSourceAgeStage(
-      String sourceAgeStage) {
+      AgeSeries sourceAgeStage) {
     this.sourceAgeStage = sourceAgeStage;
   }
 
@@ -66,12 +67,12 @@ class SourceAndSealForm implements SubmissionForm {
     this.topSealFormationName = topSealFormationName;
   }
 
-  public String getTopSealAgeStage() {
+  public AgeSeries getTopSealAgeStage() {
     return topSealAgeStage;
   }
 
   public void setTopSealAgeStage(
-      String topSealAgeStage) {
+      AgeSeries topSealAgeStage) {
     this.topSealAgeStage = topSealAgeStage;
   }
 

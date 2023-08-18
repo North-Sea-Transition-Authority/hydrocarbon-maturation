@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -37,25 +36,26 @@ public class SourceAndSealController {
 
   private final SourceAndSealFormService sourceAndSealFormService;
   private final FormationSearchService formationSearchService;
-  private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final SourceAndSealPersistenceService sourceAndSealPersistenceService;
   private final AgeSeriesSearchService ageSeriesSearchService;
+  private final SourceAndSealFormValidator sourceAndSealFormValidator;
 
   public static final String PAGE_NAME = "Source and seal";
 
   @Autowired
   public SourceAndSealController(SourceAndSealFormService sourceAndSealFormService,
-                                 FormationSearchService formationSearchService, ControllerHelperService controllerHelperService,
+                                 FormationSearchService formationSearchService,
                                  SubmissionDetailService submissionDetailService,
                                  SourceAndSealPersistenceService sourceAndSealPersistenceService,
-                                 AgeSeriesSearchService ageSeriesSearchService) {
+                                 AgeSeriesSearchService ageSeriesSearchService,
+                                 SourceAndSealFormValidator sourceAndSealFormValidator) {
     this.sourceAndSealFormService = sourceAndSealFormService;
     this.formationSearchService = formationSearchService;
-    this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.sourceAndSealPersistenceService = sourceAndSealPersistenceService;
     this.ageSeriesSearchService = ageSeriesSearchService;
+    this.sourceAndSealFormValidator = sourceAndSealFormValidator;
   }
 
   @GetMapping
@@ -66,19 +66,17 @@ public class SourceAndSealController {
 
   @PostMapping
   public ModelAndView saveSourceAndSealDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                               @ModelAttribute("form") SourceAndSealForm form, BindingResult bindingResult,
+                                               @ModelAttribute("form") SourceAndSealForm form,
+                                               BindingResult bindingResult,
                                                ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = sourceAndSealFormService.validate(form, bindingResult, validationType, submissionDetail);
 
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getSourceAndSealModelAndView(form, submissionDetail),
-        () -> {
-          sourceAndSealPersistenceService.saveSourceAndSealDetails(form, submissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
-        }
-    );
+    if (!sourceAndSealFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
+      return getSourceAndSealModelAndView(form, submissionDetail);
+    } else {
+      sourceAndSealPersistenceService.saveSourceAndSealDetails(form, submissionDetail);
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+    }
   }
 
   private ModelAndView getSourceAndSealModelAndView(SourceAndSealForm form, SubmissionDetail submissionDetail) {
@@ -91,7 +89,7 @@ public class SourceAndSealController {
         .addObject("preSelectedSourceFormation", formationSearchService.getPreSelectedFormation(form.getSourceFormationName()))
         .addObject("preSelectedTopSealFormation", formationSearchService.getPreSelectedFormation(form.getTopSealFormationName()))
         .addObject("ageSeriesRestEndpoint",
-            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesListWithManualEntry(null))
+            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesList(null))
         )
         .addObject("preSelectedSourceAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getSourceAgeStage()))
         .addObject("preSelectedTopSealAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getTopSealAgeStage()))

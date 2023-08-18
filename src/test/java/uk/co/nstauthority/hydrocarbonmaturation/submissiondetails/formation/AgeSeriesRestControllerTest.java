@@ -28,9 +28,9 @@ public class AgeSeriesRestControllerTest extends AbstractControllerTest {
   private SearchSelectorService searchSelectorService;
 
   @SecurityTest
-  void getAgeSeriesListWithManualEntry() throws Exception {
+  void getAgeSeriesList() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(AgeSeriesRestController.class)
-            .getAgeSeriesListWithManualEntry(null)))
+            .getAgeSeriesList(null)))
             .param("term", SEARCH_TERM)
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))

@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 
 @Service
@@ -68,18 +67,8 @@ class SourceAndSealPersistenceService {
   }
 
   private void setSourceAgeStage(SourceAndSealForm form, SourceAndSeal sourceAndSeal) {
-    if (!Objects.isNull(form.getSourceAgeStage())) {
-      if (SearchSelectorService.isManualEntry(form.getSourceAgeStage())) {
-        sourceAndSeal.setSourceAgeStageManual(SearchSelectorService.removePrefix(form.getSourceAgeStage()));
-        sourceAndSeal.setSourceAgeStage(null);
-      } else {
-        sourceAndSeal.setSourceAgeStage(EnumUtils.getEnumValue(AgeSeries.class, form.getSourceAgeStage()));
-        sourceAndSeal.setSourceAgeStageManual(null);
-      }
-    } else {
-      sourceAndSeal.setSourceFormationName(null);
-      sourceAndSeal.setSourceAgeStageManual(null);
-    }
+    sourceAndSeal.setSourceAgeStage(form.getSourceAgeStage());
+    sourceAndSeal.setSourceAgeStageManual(null);
   }
 
   private void setTopSealFormationName(SourceAndSealForm form, SourceAndSeal sourceAndSeal) {
@@ -98,17 +87,7 @@ class SourceAndSealPersistenceService {
   }
 
   private void setTopSealAgeStage(SourceAndSealForm form, SourceAndSeal sourceAndSeal) {
-    if (!Objects.isNull(form.getTopSealAgeStage())) {
-      if (SearchSelectorService.isManualEntry(form.getTopSealAgeStage())) {
-        sourceAndSeal.setTopSealAgeStageManual(SearchSelectorService.removePrefix(form.getTopSealAgeStage()));
-        sourceAndSeal.setTopSealAgeStage(null);
-      } else {
-        sourceAndSeal.setTopSealAgeStage(EnumUtils.getEnumValue(AgeSeries.class, form.getTopSealAgeStage()));
-        sourceAndSeal.setTopSealAgeStageManual(null);
-      }
-    } else {
-      sourceAndSeal.setTopSealAgeStage(null);
-      sourceAndSeal.setTopSealAgeStageManual(null);
-    }
+    sourceAndSeal.setTopSealAgeStage(form.getTopSealAgeStage());
+    sourceAndSeal.setTopSealAgeStageManual(null);
   }
 }

@@ -12,8 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -23,6 +21,9 @@ class SourceAndSealSubmissionServiceTest {
   @Mock
   private SourceAndSealFormService sourceAndSealFormService;
 
+  @Mock
+  private SourceAndSealFormValidator sourceAndSealFormValidator;
+
   @InjectMocks
   private SourceAndSealSubmissionService sourceAndSealSubmissionService;
 
@@ -30,13 +31,11 @@ class SourceAndSealSubmissionServiceTest {
   void isSectionSubmittable_whenSubmittable_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var form = new SourceAndSealForm();
-    var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
     when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(form);
 
-    when(sourceAndSealFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(emptyBindingResult);
+    when(sourceAndSealFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(true);
 
     assertTrue(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail));
 
@@ -46,14 +45,11 @@ class SourceAndSealSubmissionServiceTest {
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var form = new SourceAndSealForm();
-    var bindingResultWithError = ReverseRouter.emptyBindingResult();
-    bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
     when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(form);
 
-    when(sourceAndSealFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(bindingResultWithError);
+    when(sourceAndSealFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(false);
 
     assertFalse(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail));
   }

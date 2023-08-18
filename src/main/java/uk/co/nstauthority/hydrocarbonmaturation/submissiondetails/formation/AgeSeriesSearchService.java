@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @Service
@@ -25,21 +24,14 @@ public class AgeSeriesSearchService {
         .toList();
   }
 
-  public Map<String, String> getPreSelectedAgeSeries(String ageSeries) {
+  public Map<String, String> getPreSelectedAgeSeries(AgeSeries ageSeries) {
     if (ageSeries != null) {
-      if (SearchSelectorService.isManualEntry(ageSeries)) {
-        return searchSelectorService.buildPrePopulatedSelections(
-            Collections.singletonList(ageSeries),
-            Map.of(ageSeries, ageSeries)
-        );
-      } else {
-        return searchSelectorService.buildPrePopulatedSelections(
-            Collections.singletonList(ageSeries),
-            Map.of(
-                EnumUtils.getEnumValue(AgeSeries.class, ageSeries).name(),
-                EnumUtils.getEnumValue(AgeSeries.class, ageSeries).getDisplayName()
-            ));
-      }
+      return searchSelectorService.buildPrePopulatedSelections(
+          Collections.singletonList(ageSeries.name()),
+          Map.of(
+              ageSeries.name(),
+              ageSeries.getDisplayName()
+          ));
     }
     return Map.of();
   }

@@ -24,8 +24,8 @@ public class AgeSeriesRestController {
   }
 
   @GetMapping("/age-series")
-  public RestSearchResult getAgeSeriesListWithManualEntry(@RequestParam(value = "term") String searchTerm) {
-    return searchSelectorService.getSearchResultsWithManualEntry(
+  public RestSearchResult getAgeSeriesList(@RequestParam(value = "term") String searchTerm) {
+    return searchSelectorService.search(
         searchTerm,
         ageSeriesSearchService::getAgeSeriesSearchableResults);
   }

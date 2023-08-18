@@ -485,7 +485,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         )
         .containsEntry("preSelectedSubUnit", preSelectedSubUnit)
         .containsEntry("ageSeriesRestEndpoint",
-            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesListWithManualEntry(null))
+            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesList(null))
         )
         .containsEntry("preSelectedAgeStage", preSelectedAgeStage)
         .containsEntry("groupNames", GroupName.getGroupNames())
@@ -571,7 +571,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         )
         .containsEntry("preSelectedSubUnit", preSelectedSubUnit)
         .containsEntry("ageSeriesRestEndpoint",
-            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesListWithManualEntry(null))
+            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesList(null))
         )
         .containsEntry("preSelectedAgeStage", preSelectedAgeStage)
         .containsEntry("groupNames", GroupName.getGroupNames())
@@ -812,7 +812,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         )
         .containsEntry("preSelectedSubUnit", preSelectedSubUnit)
         .containsEntry("ageSeriesRestEndpoint",
-            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesListWithManualEntry(null))
+            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesList(null))
         )
         .containsEntry("preSelectedAgeStage", preSelectedAgeStage)
         .containsEntry("groupNames", GroupName.getGroupNames())

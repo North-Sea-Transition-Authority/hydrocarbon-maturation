@@ -28,7 +28,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -59,6 +58,9 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private AgeSeriesSearchService ageSeriesSearchService;
+
+  @MockBean
+  private SourceAndSealFormValidator sourceAndSealFormValidator;
 
   private SourceAndSealForm form;
   private BindingResult bindingResult;
@@ -118,7 +120,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveSourceAndSealDetails_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(sourceAndSealFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(sourceAndSealFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -135,8 +137,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveSourceAndSealDetails_fullValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
-    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(sourceAndSealFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(sourceAndSealFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -151,8 +152,8 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getSourceAndSealModelAndView_assertModelProperties() throws Exception {
-    form.setSourceAgeStage(AgeSeries.PLIOCENE.name());
-    form.setTopSealAgeStage(AgeSeries.UPPER_MIOCENE.name());
+    form.setSourceAgeStage(AgeSeries.PLIOCENE);
+    form.setTopSealAgeStage(AgeSeries.UPPER_MIOCENE);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(sourceAndSealFormService.getSourceAndSealForm(submissionDetail)).thenReturn(form);
     Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
@@ -190,7 +191,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
         .containsEntry("preSelectedSourceFormation", preSelectedFormation)
         .containsEntry("preSelectedTopSealFormation", preSelectedFormation)
         .containsEntry("ageSeriesRestEndpoint",
-            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesListWithManualEntry(null))
+            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesList(null))
         )
         .containsEntry("preSelectedSourceAgeStage", preSelectedSourceAgeStage)
         .containsEntry("preSelectedTopSealAgeStage", preSelectedTopSealAgeStage)

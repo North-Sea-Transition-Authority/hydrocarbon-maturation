@@ -130,7 +130,7 @@ public class ReservoirPropertiesController {
         )
         .addObject("preSelectedSubUnit", reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit()))
         .addObject("ageSeriesRestEndpoint",
-            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesListWithManualEntry(null))
+            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesList(null))
         )
         .addObject("preSelectedAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries()))
         .addObject("discoverySubmission", submissionDetail.isDiscoverySubmission())

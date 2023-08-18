@@ -3,13 +3,14 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
 class ReservoirPropertiesForm implements SubmissionForm {
 
   private String formationName;
   private String subUnit;
-  private String ageStageOrSeries;
+  private AgeSeries ageStageOrSeries;
   private GroupName groupName;
   private ReservoirLithology lithology;
   private String lithologyOther;
@@ -42,12 +43,12 @@ class ReservoirPropertiesForm implements SubmissionForm {
     this.subUnit = subUnit;
   }
 
-  public String getAgeStageOrSeries() {
+  public AgeSeries getAgeStageOrSeries() {
     return ageStageOrSeries;
   }
 
   public void setAgeStageOrSeries(
-      String ageStageOrSeries) {
+      AgeSeries ageStageOrSeries) {
     this.ageStageOrSeries = ageStageOrSeries;
   }
 

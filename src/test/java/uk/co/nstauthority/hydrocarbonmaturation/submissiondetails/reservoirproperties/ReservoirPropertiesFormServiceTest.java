@@ -173,7 +173,7 @@ class ReservoirPropertiesFormServiceTest {
             form -> form.getAverageNetPayThickness().getNormal().getComments()
         )
         .containsExactly(
-            reservoirProperty.getAgeStage().name(),
+            reservoirProperty.getAgeStage(),
             reservoirProperty.getGroupName(),
             reservoirProperty.getLithology(),
             reservoirProperty.getLithologyOther(),
@@ -302,16 +302,13 @@ class ReservoirPropertiesFormServiceTest {
   }
 
   @Test
-  void reservoirPropertiesEntityToForm_existingEntity_withManualFormation_thenPopulatedForm() {
+  void reservoirPropertiesEntityToForm_existingEntity_withManualFormation_thenNotPopulatedForm() {
     var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setFormationName(null);
     reservoirProperty.setFormationNameManual("manual formation name");
     when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
-    assertThat(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail)
-            .getFormationName()
-    ).isEqualTo(
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getFormationName()).isEqualTo(
         SearchSelectorService.getValueWithManualEntryPrefix(
             reservoirProperty.getFormationNameManual()
         )
@@ -375,27 +372,19 @@ class ReservoirPropertiesFormServiceTest {
     reservoirProperty.setAgeStageManual(null);
     when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
-    assertThat(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail)
-            .getAgeStageOrSeries()
-    ).isEqualTo(AgeSeries.LOWER_CARBONIFEROUS.name());
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getAgeStageOrSeries())
+        .isEqualTo(AgeSeries.LOWER_CARBONIFEROUS);
   }
 
   @Test
-  void reservoirPropertiesEntityToForm_existingEntity_withManualAgeStage_thenPopulatedForm() {
+  void reservoirPropertiesEntityToForm_existingEntity_withManualAgeStage_thenNotPopulatedForm() {
     var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     reservoirProperty.setAgeStage(null);
     reservoirProperty.setAgeStageManual("manual age stage");
     when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
-    assertThat(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail)
-            .getAgeStageOrSeries()
-    ).isEqualTo(
-        SearchSelectorService.getValueWithManualEntryPrefix(
-            reservoirProperty.getAgeStageManual()
-        )
-    );
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getAgeStageOrSeries())
+        .isNull();
   }
 
   @Test

@@ -52,16 +52,9 @@ class AgeSeriesSearchServiceTest {
   }
 
   @Test
-  void getPreSelectedAgeSeries_withManualFormation() {
-    var manualFormation = SearchSelectorService.getValueWithManualEntryPrefix("manual ageSeries");
-    assertThat(ageSeriesSearchService.getPreSelectedAgeSeries(manualFormation))
-        .containsEntry(manualFormation, "manual ageSeries");
-  }
-
-  @Test
-  void getPreSelectedAgeSeries_withEnum() {
+  void getPreSelectedAgeSeries() {
     var ageSeries = AgeSeries.LOWER_DEVONIAN;
-    assertThat(ageSeriesSearchService.getPreSelectedAgeSeries(ageSeries.name()))
+    assertThat(ageSeriesSearchService.getPreSelectedAgeSeries(ageSeries))
         .containsEntry(ageSeries.name(), ageSeries.getDisplayName());
   }
 }

@@ -3,24 +3,26 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class SourceAndSealFormValidator extends PartialFullFormValidator {
+class SourceAndSealFormValidator implements SubmissionValidator {
+
 
   @Override
-  public boolean supports(Class<?> clazz) {
-    return SourceAndSealForm.class.equals(clazz);
-  }
+  public boolean isValid(SubmissionForm form,
+                         Errors errors,
+                         SubmissionDetail submissionDetail,
+                         ValidationType validationType) {
 
-  @Override
-  public void validatePartial(SubmissionForm form, Errors errors) {
     //no fields require partial validation
-  }
+    if (validationType == ValidationType.PARTIAL) {
+      return true;
+    }
 
-  @Override
-  public void validateFull(SubmissionForm form, Errors errors) {
     SourceAndSealForm sourceAndSealForm = (SourceAndSealForm) form;
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sourceFormationName", "sourceFormationName.required",
         "Enter a source formation name");
@@ -55,5 +57,7 @@ class SourceAndSealFormValidator extends PartialFullFormValidator {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "topSealLithologyOther", "topSealLithologyOther.required",
           "Enter other top seal lithology");
     }
+
+    return !errors.hasErrors();
   }
 }
