@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -45,6 +46,12 @@ public class GeneralReservoirInformationFormValidator implements ReservoirSubmis
     }
 
     if (validationType == ValidationType.FULL) {
+      if (submissionDetail.isFieldSubmission()
+          && (CollectionUtils.isEmpty(generalReservoirInformationForm.getAssociatedDiscoveryReservoirs()))) {
+        errors.rejectValue("associatedDiscoveryReservoirSelect", "associatedDiscoveryReservoirSelect.notEmpty",
+            "You must select at least one associated discovery reservoir");
+      }
+
       ValidationUtils.rejectIfEmpty(errors, "hydrocarbonsDiscovered",
           "hydrocarbonsDiscovered.required", "Select the hydrocarbons discovered");
     }

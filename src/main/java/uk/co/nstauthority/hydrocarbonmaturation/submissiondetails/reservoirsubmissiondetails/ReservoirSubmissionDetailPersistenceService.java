@@ -1,9 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +52,6 @@ public class ReservoirSubmissionDetailPersistenceService {
 
   @Transactional
   public void saveReservoirSubmissionDetail(Reservoir reservoir, SubmissionDetail submissionDetail) {
-    // TODO: Add tests
-
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
     reservoirSubmissionDetail.setReservoir(reservoir);
     reservoirSubmissionDetail.setSubmissionDetail(submissionDetail);
@@ -72,5 +72,20 @@ public class ReservoirSubmissionDetailPersistenceService {
     return getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail).stream().findFirst()
         .orElseThrow(() -> new RemiEntityNotFoundException(
             "Could not find reservoir submission detail for submission detail %s".formatted(submissionDetail.getId())));
+  }
+
+  public List<ReservoirSubmissionDetail> getReservoirSubmissionDetails(Reservoir reservoir) {
+    return reservoirSubmissionDetailRepository.findAllByReservoir(reservoir);
+  }
+
+  public List<ReservoirSubmissionDetail> getReservoirSubmissionDetailsForReservoirIds(Set<String> reservoirIds) {
+    var reservoirs =  reservoirIds
+        .stream()
+        .map(reservoirId -> reservoirPersistenceService.getReservoirOrThrow(UUID.fromString(reservoirId)));
+
+    return reservoirs
+        .map(this::getReservoirSubmissionDetails)
+        .flatMap(Collection::stream)
+        .toList();
   }
 }

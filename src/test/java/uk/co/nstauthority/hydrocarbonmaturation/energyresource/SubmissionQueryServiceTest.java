@@ -59,7 +59,7 @@ class SubmissionQueryServiceTest {
   @Mock
   private ResourceGroupService resourceGroupService;
 
-  private Resource resourceWithoutLatestApproved = new Resource();
+  private final Resource resourceWithoutLatestApproved = new Resource();
 
   @Nested
   class GetLatestDiscoveriesByNameForSubmissionType {

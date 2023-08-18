@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Repository
@@ -12,4 +13,6 @@ interface ReservoirSubmissionDetailRepository extends CrudRepository<ReservoirSu
   List<ReservoirSubmissionDetail> findBySubmissionDetailOrderByReservoir_Name(SubmissionDetail submissionDetail);
 
   boolean existsBySubmissionDetail(SubmissionDetail submissionDetail);
+
+  List<ReservoirSubmissionDetail> findAllByReservoir(Reservoir reservoir);
 }

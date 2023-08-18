@@ -18,9 +18,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,8 +32,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -99,10 +104,9 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
   }
 
   @Test
-  void getGeneralReservoirInformationPage_assertModelProperties() throws Exception {
+  void getGeneralReservoirInformationPage_assertModelProperties_discovery() throws Exception {
     when(generalReservoirInformationService.getGeneralReservoirInformationForm(reservoirSubmissionDetail))
         .thenReturn(new GeneralReservoirInformationForm());
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
@@ -115,7 +119,59 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
 
     assertThat(modelMap)
         .contains(
+            entry("pageTitle", "Discovery reservoir"),
+            entry("isFieldSubmission", false),
             entry("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
+        )
+        .doesNotContainKeys("alreadyAddedAssociatedDiscoveryReservoirs", "discoveryReservoirsApiEndpoint", "resourceNames");
+
+    assertEquals(GeneralReservoirInformationForm.class, modelMap.get("form").getClass());
+
+    @SuppressWarnings(value="unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class)
+            .getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
+    );
+  }
+
+  @Test
+  void getGeneralReservoirInformationPage_assertModelProperties_field() throws Exception {
+    var form = new GeneralReservoirInformationForm();
+    when(generalReservoirInformationService.getGeneralReservoirInformationForm(reservoirSubmissionDetail))
+        .thenReturn(form);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+
+    var preselectedAssociatedDiscoveryReservoirs = List.of(new ReservoirView(UUID.randomUUID(), "Reservoir name"));
+    when(generalReservoirInformationService.getPreselectedAssociatedDiscoveryReservoirs(form.getAssociatedDiscoveryReservoirs()))
+        .thenReturn(preselectedAssociatedDiscoveryReservoirs);
+    var resourceNames = List.of("Resource name");
+    when(generalReservoirInformationService.getDiscoveryResourceNamesForFieldResourceLinkFromSubmissionDetail(submissionDetail))
+        .thenReturn(resourceNames);
+
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(GeneralReservoirInformationController.class)
+                        .getGeneralReservoirInformationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("pageTitle", "Field reservoir"),
+            entry("isFieldSubmission", true),
+            entry("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class)),
+            entry("alreadyAddedAssociatedDiscoveryReservoirs", preselectedAssociatedDiscoveryReservoirs),
+            entry("discoveryReservoirsApiEndpoint",
+                SearchSelectorService.route(on(ResourceRestController.class)
+                    .searchDiscoveryReservoirs(null, submissionDetail.getId().toString()))),
+            entry("resourceNames", resourceNames)
         );
 
     assertEquals(GeneralReservoirInformationForm.class, modelMap.get("form").getClass());

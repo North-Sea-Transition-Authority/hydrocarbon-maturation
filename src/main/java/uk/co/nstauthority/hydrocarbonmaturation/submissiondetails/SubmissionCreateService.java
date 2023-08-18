@@ -258,34 +258,50 @@ public class SubmissionCreateService {
 
   @Transactional
   public SubmissionDetail createCsrFieldSubmissionDetail(Resource resource) {
-    var submission = submissionPersistenceService.createSubmission(resource);
+    var newSubmission = submissionPersistenceService.createSubmission(resource);
 
-    return submissionDetailPersistenceService
-        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_CSR);
+    var newSubmissionDetail = submissionDetailPersistenceService
+        .createInitialSubmissionDetail(newSubmission, SubmissionType.CREATE_CSR);
+
+    createReservoirDetailsAndDuplicate(resource, newSubmissionDetail);
+
+    return newSubmissionDetail;
   }
 
   @Transactional
   public SubmissionDetail createFdpFieldSubmissionDetail(Resource resource) {
     var submission = submissionPersistenceService.createSubmission(resource);
 
-    return submissionDetailPersistenceService
+    var newSubmissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDP);
+
+    createReservoirDetailsAndDuplicate(resource, newSubmissionDetail);
+
+    return newSubmissionDetail;
   }
 
   @Transactional
   public SubmissionDetail createFdpaFieldSubmissionDetail(Resource resource) {
     var submission = submissionPersistenceService.createSubmission(resource);
 
-    return submissionDetailPersistenceService
+    var newSubmissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDPA);
+
+    createReservoirDetailsAndDuplicate(resource, newSubmissionDetail);
+
+    return newSubmissionDetail;
   }
 
   @Transactional
   public SubmissionDetail createCoPFieldSubmissionDetail(Resource resource) {
     var submission = submissionPersistenceService.createSubmission(resource);
 
-    return submissionDetailPersistenceService
+    var newSubmissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_COP);
+
+    createReservoirDetailsAndDuplicate(resource, newSubmissionDetail);
+
+    return newSubmissionDetail;
   }
 
   public Map<String, String> getResourceTypeOptionsForUser() {
@@ -332,5 +348,17 @@ public class SubmissionCreateService {
 
   private void saveReservoirSubmissionDetails(Reservoir reservoir, SubmissionDetail submissionDetail) {
     reservoirSubmissionDetailPersistenceService.saveReservoirSubmissionDetail(reservoir, submissionDetail);
+  }
+
+  private void createReservoirDetailsAndDuplicate(Resource resource, SubmissionDetail newSubmissionDetail) {
+    var optionalOldSubmissionDetail = submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource);
+    if (optionalOldSubmissionDetail.isPresent()) {
+      var oldSubmissionDetail = optionalOldSubmissionDetail.get();
+
+      createReservoirSubmissionDetailsWithTypeChecks(newSubmissionDetail, oldSubmissionDetail);
+
+      submissionDetailDuplicationService
+          .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
+    }
   }
 }

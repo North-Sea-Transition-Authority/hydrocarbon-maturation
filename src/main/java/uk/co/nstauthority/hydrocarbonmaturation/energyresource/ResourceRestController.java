@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServic
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @RestController
@@ -21,14 +22,17 @@ public class ResourceRestController {
   private final SearchSelectorService searchSelectorService;
   private final SubmissionQueryService submissionQueryService;
   private final FieldQueryService fieldQueryService;
+  private final ReservoirQueryService reservoirQueryService;
 
   @Autowired
   public ResourceRestController(SearchSelectorService searchSelectorService,
                                 SubmissionQueryService submissionQueryService,
-                                FieldQueryService fieldQueryService) {
+                                FieldQueryService fieldQueryService,
+                                ReservoirQueryService reservoirQueryService) {
     this.searchSelectorService = searchSelectorService;
     this.submissionQueryService = submissionQueryService;
     this.fieldQueryService = fieldQueryService;
+    this.reservoirQueryService = reservoirQueryService;
   }
 
   @GetMapping("/prospects/{submissionType}")
@@ -80,6 +84,15 @@ public class ResourceRestController {
             searchTerm,
             submissionType,
             user)
+    );
+  }
+
+  @GetMapping("field/{submissionDetailId}/discovery-reservoirs")
+  public RestSearchResult searchDiscoveryReservoirs(@RequestParam("term") String searchTerm,
+                                                    @PathVariable String submissionDetailId) {
+    return searchSelectorService.search(
+        searchTerm,
+        reservoirQueryService.getReservoirByNameForSubmissionDetail(searchTerm, submissionDetailId)
     );
   }
 }

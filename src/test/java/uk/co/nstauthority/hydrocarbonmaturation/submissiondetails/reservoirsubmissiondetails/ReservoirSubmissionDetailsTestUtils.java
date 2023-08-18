@@ -13,14 +13,17 @@ public class ReservoirSubmissionDetailsTestUtils {
   }
 
   public static ReservoirSubmissionDetail createReservoirSubmissionDetail() {
-    var reservoir = new Reservoir();
-    reservoir.setName("reservoir name");
+    return createReservoirSubmissionDetail(SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY));
+  }
+
+  public static ReservoirSubmissionDetail createReservoirSubmissionDetail(Reservoir reservoir) {
     return createReservoirSubmissionDetail(reservoir, SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY));
   }
 
   public static ReservoirSubmissionDetail createReservoirSubmissionDetail(SubmissionDetail submissionDetail) {
     var reservoir = new Reservoir();
-    reservoir.setName("reservoir name");
+    reservoir.setId(UUID.randomUUID());
+    reservoir.setName("reservoir name: %s".formatted(reservoir.getId()));
     return createReservoirSubmissionDetail(reservoir, submissionDetail);
   }
 

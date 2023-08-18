@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchIte
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ContextConfiguration(classes = ResourceRestController.class)
@@ -36,6 +37,9 @@ class ResourceRestControllerTest extends AbstractControllerTest {
 
   @MockBean
   private FieldQueryService fieldQueryService;
+
+  @MockBean
+  private ReservoirQueryService reservoirQueryService;
 
   @BeforeEach
   void setUp() {
@@ -87,6 +91,16 @@ class ResourceRestControllerTest extends AbstractControllerTest {
   void searchFields() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class)
             .searchFields(null, SubmissionType.CREATE_CSR, null)))
+            .param("term", "searchTerm")
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+
+  @SecurityTest
+  void searchDiscoveryReservoirs() throws Exception {
+    mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class)
+            .searchDiscoveryReservoirs(null, "submissionDetailId")))
             .param("term", "searchTerm")
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))

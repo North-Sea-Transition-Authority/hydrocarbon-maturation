@@ -15,7 +15,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
@@ -79,10 +81,27 @@ public class GeneralReservoirInformationController {
 
   private ModelAndView getGeneralReservoirInformationModelAndView(GeneralReservoirInformationForm form,
                                                                   ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    var isFieldSubmission = submissionDetail.isFieldSubmission();
     var modelAndView = new ModelAndView("remi/submissiondetails/generalreservoirinformation/generalReservoirInformation")
         .addObject("form", form)
+        .addObject("pageTitle",
+            "%s reservoir".formatted(isFieldSubmission ? "Field" : "Discovery"))
+        .addObject("isFieldSubmission", submissionDetail.isFieldSubmission())
         .addObject("hydrocarbonsDiscovered",
             DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class));
+
+    if (isFieldSubmission) {
+      modelAndView
+          .addObject("alreadyAddedAssociatedDiscoveryReservoirs", generalReservoirInformationService
+              .getPreselectedAssociatedDiscoveryReservoirs(form.getAssociatedDiscoveryReservoirs()))
+          .addObject("discoveryReservoirsApiEndpoint",
+              SearchSelectorService.route(on(ResourceRestController.class)
+                  .searchDiscoveryReservoirs(null, submissionDetail.getId().toString())))
+          .addObject("resourceNames",
+              generalReservoirInformationService
+                  .getDiscoveryResourceNamesForFieldResourceLinkFromSubmissionDetail(submissionDetail));
+    }
 
     return TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(
         modelAndView, PAGE_NAME, reservoirSubmissionDetail

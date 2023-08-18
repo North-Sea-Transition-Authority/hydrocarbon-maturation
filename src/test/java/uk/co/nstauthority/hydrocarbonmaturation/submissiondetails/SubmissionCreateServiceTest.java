@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -38,7 +37,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
@@ -181,61 +179,6 @@ class SubmissionCreateServiceTest {
     verify(reservoirSubmissionDetailPersistenceService, times(1))
         .saveReservoirSubmissionDetail(reservoir, submissionDetailNew);
   }
-
-  @Test
-  void createUpdateProspect_createDiscoverySubmission_notAllowedCreateReservoir() {
-    var form = new UpdateProspectForm();
-    form.setProspectSelectedOption(UUID.randomUUID().toString());
-    var submission = new Submission();
-
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    submissionDetailNew.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    when(submissionPersistenceService.createSubmission(submissionDetail.getSubmission().getResource()))
-        .thenReturn(submission);
-    when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(form.getProspectSelectedOption())))
-        .thenReturn(submissionDetail);
-    when(submissionDetailPersistenceService.createInitialSubmissionDetail(
-        submission,
-        SubmissionType.PROSPECT_UPDATE)).thenReturn(submissionDetailNew);
-
-    assertThatThrownBy(() -> submissionCreateService.createUpdateProspect(form))
-        .isInstanceOf(ActionNotAllowedException.class)
-        .hasMessage("Cannot create a reservoir submission detail for a create discovery or field submission");
-
-    verifyNoInteractions(submissionDetailDuplicationService);
-    verifyNoInteractions(generalDetailsPersistenceService);
-    verify(submissionPersistenceService).createSubmission(submissionDetail.getSubmission().getResource());
-    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
-  }
-
-  @Test
-  void createUpdateProspect_fieldSubmission_notAllowedCreateReservoir() {
-    var form = new UpdateProspectForm();
-    form.setProspectSelectedOption(UUID.randomUUID().toString());
-    var submission = new Submission();
-
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var submissionDetailNew = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    submissionDetailNew.setSubmissionType(SubmissionType.CREATE_FIELD);
-    when(submissionPersistenceService.createSubmission(submissionDetail.getSubmission().getResource()))
-        .thenReturn(submission);
-    when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(form.getProspectSelectedOption())))
-        .thenReturn(submissionDetail);
-    when(submissionDetailPersistenceService.createInitialSubmissionDetail(
-        submission,
-        SubmissionType.PROSPECT_UPDATE)).thenReturn(submissionDetailNew);
-
-    assertThatThrownBy(() -> submissionCreateService.createUpdateProspect(form))
-        .isInstanceOf(ActionNotAllowedException.class)
-        .hasMessage("Cannot create a reservoir submission detail for a create discovery or field submission");
-
-    verifyNoInteractions(submissionDetailDuplicationService);
-    verifyNoInteractions(generalDetailsPersistenceService);
-    verify(submissionPersistenceService).createSubmission(submissionDetail.getSubmission().getResource());
-    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
-  }
-
   @Test
   void createUpdateProspect_failure_assertThrown() {
     var form = new UpdateProspectForm();
@@ -487,13 +430,46 @@ class SubmissionCreateServiceTest {
   }
 
   @Test
-  void createCsrFieldSubmission() {
+  void createCsrFieldSubmission_oldSubmissionDetail() {
     var resource = new Resource();
     var submission = new Submission();
-    var submissionDetail = new SubmissionDetail();
+    var newSubmissionDetail = new SubmissionDetail();
     when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
     when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_CSR))
-        .thenReturn(submissionDetail);
+        .thenReturn(newSubmissionDetail);
+
+    var oldSubmissionDetail = new SubmissionDetail();
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(oldSubmissionDetail));
+    var firstReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    var secondReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+        .thenReturn(List.of(firstReservoirSubmissionDetail, secondReservoirSubmissionDetail));
+
+    submissionCreateService.createCsrFieldSubmissionDetail(resource);
+
+    verify(submissionPersistenceService, times(1)).createSubmission(resource);
+    verify(submissionDetailPersistenceService, times(1))
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_CSR);
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(firstReservoirSubmissionDetail.getReservoir(), newSubmissionDetail);
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(secondReservoirSubmissionDetail.getReservoir(), newSubmissionDetail);
+    verify(submissionDetailDuplicationService, times(1))
+        .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
+  }
+
+  @Test
+  void createCsrFieldSubmission_noOldSubmissionDetail() {
+    var resource = new Resource();
+    var submission = new Submission();
+    var newSubmissionDetail = new SubmissionDetail();
+    when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_CSR))
+        .thenReturn(newSubmissionDetail);
+
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.empty());
 
     submissionCreateService.createCsrFieldSubmissionDetail(resource);
 
@@ -501,16 +477,50 @@ class SubmissionCreateServiceTest {
     verify(submissionDetailPersistenceService, times(1))
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_CSR);
     verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
+    verifyNoInteractions(submissionDetailDuplicationService);
   }
 
   @Test
-  void createFdpFieldSubmission() {
+  void createFdpFieldSubmission_oldSubmissionDetail() {
     var resource = new Resource();
     var submission = new Submission();
-    var submissionDetail = new SubmissionDetail();
+    var newSubmissionDetail = new SubmissionDetail();
     when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
     when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDP))
-        .thenReturn(submissionDetail);
+        .thenReturn(newSubmissionDetail);
+
+    var oldSubmissionDetail = new SubmissionDetail();
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(oldSubmissionDetail));
+    var firstReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    var secondReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+        .thenReturn(List.of(firstReservoirSubmissionDetail, secondReservoirSubmissionDetail));
+
+    submissionCreateService.createFdpFieldSubmissionDetail(resource);
+
+    verify(submissionPersistenceService, times(1)).createSubmission(resource);
+    verify(submissionDetailPersistenceService, times(1))
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDP);
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(firstReservoirSubmissionDetail.getReservoir(), newSubmissionDetail);
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(secondReservoirSubmissionDetail.getReservoir(), newSubmissionDetail);
+    verify(submissionDetailDuplicationService, times(1))
+        .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
+  }
+
+  @Test
+  void createFdpFieldSubmission_noOldSubmissionDetail() {
+    var resource = new Resource();
+    var submission = new Submission();
+    var newSubmissionDetail = new SubmissionDetail();
+    when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDP))
+        .thenReturn(newSubmissionDetail);
+
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.empty());
 
     submissionCreateService.createFdpFieldSubmissionDetail(resource);
 
@@ -518,30 +528,109 @@ class SubmissionCreateServiceTest {
     verify(submissionDetailPersistenceService, times(1))
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDP);
     verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
+    verifyNoInteractions(submissionDetailDuplicationService);
   }
 
   @Test
-  void createFdpaFieldSubmission() {
+  void createFdpaFieldSubmission_oldSubmissionDetail() {
     var resource = new Resource();
     var submission = new Submission();
+    var newSubmissionDetail = new SubmissionDetail();
     when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDPA))
+        .thenReturn(newSubmissionDetail);
+
+    var oldSubmissionDetail = new SubmissionDetail();
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(oldSubmissionDetail));
+    var firstReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    var secondReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+        .thenReturn(List.of(firstReservoirSubmissionDetail, secondReservoirSubmissionDetail));
+
     submissionCreateService.createFdpaFieldSubmissionDetail(resource);
 
     verify(submissionPersistenceService, times(1)).createSubmission(resource);
     verify(submissionDetailPersistenceService, times(1))
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDPA);
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(firstReservoirSubmissionDetail.getReservoir(), newSubmissionDetail);
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(secondReservoirSubmissionDetail.getReservoir(), newSubmissionDetail);
+    verify(submissionDetailDuplicationService, times(1))
+        .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
   }
 
   @Test
-  void createCoPFieldSubmission() {
+  void createFdpaFieldSubmission_noOldSubmissionDetail() {
     var resource = new Resource();
     var submission = new Submission();
+    var newSubmissionDetail = new SubmissionDetail();
     when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDPA))
+        .thenReturn(newSubmissionDetail);
+
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.empty());
+
+    submissionCreateService.createFdpaFieldSubmissionDetail(resource);
+
+    verify(submissionPersistenceService, times(1)).createSubmission(resource);
+    verify(submissionDetailPersistenceService, times(1))
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_FDPA);
+    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
+    verifyNoInteractions(submissionDetailDuplicationService);
+  }
+
+  @Test
+  void createCopFieldSubmission_oldSubmissionDetail() {
+    var resource = new Resource();
+    var submission = new Submission();
+    var newSubmissionDetail = new SubmissionDetail();
+    when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_COP))
+        .thenReturn(newSubmissionDetail);
+
+    var oldSubmissionDetail = new SubmissionDetail();
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(oldSubmissionDetail));
+    var firstReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    var secondReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+        .thenReturn(List.of(firstReservoirSubmissionDetail, secondReservoirSubmissionDetail));
+
     submissionCreateService.createCoPFieldSubmissionDetail(resource);
 
     verify(submissionPersistenceService, times(1)).createSubmission(resource);
     verify(submissionDetailPersistenceService, times(1))
         .createInitialSubmissionDetail(submission, SubmissionType.CREATE_COP);
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(firstReservoirSubmissionDetail.getReservoir(), newSubmissionDetail);
+    verify(reservoirSubmissionDetailPersistenceService, times(1))
+        .saveReservoirSubmissionDetail(secondReservoirSubmissionDetail.getReservoir(), newSubmissionDetail);
+    verify(submissionDetailDuplicationService, times(1))
+        .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
+  }
+
+  @Test
+  void createCopFieldSubmission_noOldSubmissionDetail() {
+    var resource = new Resource();
+    var submission = new Submission();
+    var newSubmissionDetail = new SubmissionDetail();
+    when(submissionPersistenceService.createSubmission(resource)).thenReturn(submission);
+    when(submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.CREATE_COP))
+        .thenReturn(newSubmissionDetail);
+
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.empty());
+
+    submissionCreateService.createCoPFieldSubmissionDetail(resource);
+
+    verify(submissionPersistenceService, times(1)).createSubmission(resource);
+    verify(submissionDetailPersistenceService, times(1))
+        .createInitialSubmissionDetail(submission, SubmissionType.CREATE_COP);
+    verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
+    verifyNoInteractions(submissionDetailDuplicationService);
   }
 
   private static Stream<Arguments> calculateGetResourceTypeOptionsForUserConditionArguments() {

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
@@ -32,15 +34,32 @@ class GeneralReservoirInformationFormValidatorTest {
   @InjectMocks
   private GeneralReservoirInformationFormValidator generalReservoirInformationFormValidator;
 
-  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
+
+  @BeforeEach
+  void setUp() {
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+  }
 
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void isValid_validForm_valid(ValidationType validationType) {
-    var form = getValidFullForm();
+    var form = getValidForm_nonField();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
+
+    assertTrue(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType));
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void isValid_validForm_field_valid(ValidationType validationType) {
+    var form = getValidForm_field();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
 
     assertTrue(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType));
   }
@@ -69,7 +88,7 @@ class GeneralReservoirInformationFormValidatorTest {
     var duplicatedReservoirNameReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     duplicatedReservoirNameReservoirSubmissionDetail.getReservoir().setName("duplicate reservoir name");
 
-    var form = getValidFullForm();
+    var form = getValidForm_nonField();
     form.setReservoirName("duplicate reservoir name");
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
@@ -86,8 +105,46 @@ class GeneralReservoirInformationFormValidatorTest {
   }
 
   @Test
+  void isValid_noAssociatedDiscoveryReservoirs_partial_validForm_valid() {
+    var form = getInvalidFormNoAssociatedDiscoveryReservoirs();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+
+    assertTrue(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.PARTIAL));
+  }
+
+  @Test
+  void isValid_noAssociatedDiscoveryReservoirs_full_nonField_validForm_valid() {
+    var form = getInvalidFormNoAssociatedDiscoveryReservoirs();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+
+    assertTrue(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL));
+  }
+
+  @Test
+  void isValid_noAssociatedDiscoveryReservoirs_field_invalidForm_invalid() {
+    var form = getInvalidFormNoAssociatedDiscoveryReservoirs();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
+
+    assertFalse(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL));
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(errors)
+        .containsExactly(
+            entry("associatedDiscoveryReservoirSelect", Set.of("associatedDiscoveryReservoirSelect.notEmpty"))
+        );
+  }
+
+  @Test
   void isValid_noHydrocarbonsDiscovered_partial_validForm_valid() {
-    var form = getValidFullForm();
+    var form = getInvalidFormNoReservoirHydrocarbons();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
@@ -113,7 +170,7 @@ class GeneralReservoirInformationFormValidatorTest {
   }
 
   @Test
-  void isValid_empty_invalidForm_invalid() {
+  void isValid_empty_invalidForm_nonField_invalid() {
     var form = getInvalidEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
@@ -130,9 +187,37 @@ class GeneralReservoirInformationFormValidatorTest {
         );
   }
 
-  private GeneralReservoirInformationForm getValidFullForm() {
+  @Test
+  void isValid_empty_invalidForm_field_invalid() {
+    var form = getInvalidEmptyForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
+
+    assertFalse(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL));
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(errors)
+        .containsExactly(
+            entry("reservoirName", Set.of("reservoirName.required")),
+            entry("associatedDiscoveryReservoirSelect", Set.of("associatedDiscoveryReservoirSelect.notEmpty")),
+            entry("hydrocarbonsDiscovered", Set.of("hydrocarbonsDiscovered.required"))
+        );
+  }
+
+  private GeneralReservoirInformationForm getValidForm_nonField() {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
+    form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    return form;
+  }
+
+  private GeneralReservoirInformationForm getValidForm_field() {
+    var form = new GeneralReservoirInformationForm();
+    form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
+    form.setAssociatedDiscoveryReservoirs(Set.of("associatedDiscoveryId"));
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
     return form;
   }
@@ -140,6 +225,15 @@ class GeneralReservoirInformationFormValidatorTest {
   private GeneralReservoirInformationForm getInvalidFormNoReservoirName() {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName("");
+    form.setAssociatedDiscoveryReservoirs(Set.of("associatedDiscoveryId"));
+    form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    return form;
+  }
+
+  private GeneralReservoirInformationForm getInvalidFormNoAssociatedDiscoveryReservoirs() {
+    var form = new GeneralReservoirInformationForm();
+    form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
+    form.setAssociatedDiscoveryReservoirs(Set.of());
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
     return form;
   }
@@ -147,12 +241,14 @@ class GeneralReservoirInformationFormValidatorTest {
   private GeneralReservoirInformationForm getInvalidFormNoReservoirHydrocarbons() {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
+    form.setAssociatedDiscoveryReservoirs(Set.of("associatedDiscoveryId"));
     return form;
   }
 
   private GeneralReservoirInformationForm getInvalidEmptyForm() {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName("");
+    form.setAssociatedDiscoveryReservoirs(Set.of());
     return form;
   }
 }

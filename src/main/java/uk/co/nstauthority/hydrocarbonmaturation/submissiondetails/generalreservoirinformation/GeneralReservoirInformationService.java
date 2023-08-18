@@ -1,34 +1,90 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @Service
 public class GeneralReservoirInformationService {
-  private final ReservoirHydrocarbonsRepository reservoirHydrocarbonsRepository;
+
   private final ReservoirPersistenceService reservoirPersistenceService;
+  private final ReservoirLinkService reservoirLinkService;
+  private final ReservoirHydrocarbonsRepository reservoirHydrocarbonsRepository;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final FieldPersistenceService fieldPersistenceService;
+  private final ResourceLinkService resourceLinkService;
+  private final SubmissionDetailService submissionDetailService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
-  public GeneralReservoirInformationService(ReservoirHydrocarbonsRepository reservoirHydrocarbonsRepository,
-                                            ReservoirPersistenceService reservoirPersistenceService,
+  @Autowired
+  public GeneralReservoirInformationService(ReservoirPersistenceService reservoirPersistenceService,
+                                            ReservoirLinkService reservoirLinkService,
+                                            ReservoirHydrocarbonsRepository reservoirHydrocarbonsRepository,
+                                            ReservoirSubmissionDetailPersistenceService
+                                                  reservoirSubmissionDetailPersistenceService,
+                                            FieldPersistenceService fieldPersistenceService,
+                                            ResourceLinkService resourceLinkService,
+                                            SubmissionDetailService submissionDetailService,
+                                            ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                             ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
-    this.reservoirHydrocarbonsRepository = reservoirHydrocarbonsRepository;
     this.reservoirPersistenceService = reservoirPersistenceService;
+    this.reservoirLinkService = reservoirLinkService;
+    this.reservoirHydrocarbonsRepository = reservoirHydrocarbonsRepository;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.fieldPersistenceService = fieldPersistenceService;
+    this.resourceLinkService = resourceLinkService;
+    this.submissionDetailService = submissionDetailService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
   }
 
   @Transactional
   public void saveGeneralReservoirInformation(GeneralReservoirInformationForm form,
                                               ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var reservoir = reservoirSubmissionDetail.getReservoir();
-    reservoirPersistenceService.saveReservoir(reservoir, form.getReservoirName());
+    var fieldReservoir = reservoirSubmissionDetail.getReservoir();
+    reservoirPersistenceService.saveReservoir(fieldReservoir, form.getReservoirName());
+
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    if (submissionDetail.isFieldSubmission()) {
+      var currentReservoirLinks = reservoirLinkService
+          .getReservoirLinksByReservoirSubmissionDetail(reservoirSubmissionDetail);
+      reservoirLinkService.deleteReservoirLinks(currentReservoirLinks);
+
+      var discoveryReservoirs = reservoirPersistenceService.getReservoirs(
+          form.getAssociatedDiscoveryReservoirs()
+              .stream()
+              .map(UUID::fromString)
+              .toList()
+      );
+
+      var reservoirLinks = reservoirLinkService
+          .constructReservoirLinks(reservoirSubmissionDetail, discoveryReservoirs);
+      reservoirLinkService.saveReservoirLinks(reservoirLinks);
+    }
 
     var reservoirHydrocarbons = getReservoirHydrocarbons(reservoirSubmissionDetail)
         .orElse(new ReservoirHydrocarbons());
@@ -47,6 +103,14 @@ public class GeneralReservoirInformationService {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
 
+    if (reservoirSubmissionDetail.getSubmissionDetail().isFieldSubmission()) {
+      form.setAssociatedDiscoveryReservoirs(
+          reservoirLinkService.getReservoirLinksByReservoirSubmissionDetail(reservoirSubmissionDetail)
+              .stream()
+              .map(reservoirLink -> reservoirLink.getLinkedReservoir().getId().toString())
+              .collect(Collectors.toSet()));
+    }
+
     // Set the forms' hydrocarbons discovered to be: the saved reservoir hydrocarbons' hydrocarbons discovered or null
     HydrocarbonsDiscovered hydrocarbonsDiscovered = reservoirHydrocarbonsRepository
         .findReservoirHydrocarbonsByReservoirSubmissionDetail(reservoirSubmissionDetail)
@@ -57,9 +121,39 @@ public class GeneralReservoirInformationService {
     return form;
   }
 
+  public List<ReservoirView> getPreselectedAssociatedDiscoveryReservoirs(
+      Set<String> preSelectedAssociatedDiscoveryReservoirsIds) {
+    if (ObjectUtils.isEmpty(preSelectedAssociatedDiscoveryReservoirsIds)) {
+      return Collections.emptyList();
+    }
+
+    return reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailsForReservoirIds(preSelectedAssociatedDiscoveryReservoirsIds)
+        .stream()
+        .map(reservoirLinkService::getReservoirViewFromReservoirSubmissionDetail)
+        .distinct()
+        .sorted(Comparator.comparing(ReservoirView::getName))
+        .toList();
+  }
+
   public Optional<ReservoirHydrocarbons> getReservoirHydrocarbons(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     return reservoirHydrocarbonsRepository
         .findReservoirHydrocarbonsByReservoirSubmissionDetail(reservoirSubmissionDetail);
+  }
+
+  public List<String> getDiscoveryResourceNamesForFieldResourceLinkFromSubmissionDetail(SubmissionDetail submissionDetail) {
+    var field = fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource());
+
+    var latestSubmissionDetails = resourceLinkService.getResourceLinksByField(field.getResource())
+        .stream()
+        .map(ResourceLink::getDiscoveryResource)
+        .map(submissionDetailService::getLatestApprovedDiscoverySubmissionDetailForResource)
+        .flatMap(Optional::stream);
+
+    return latestSubmissionDetails
+        .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)
+        .map(ResourceDetail::getResourceName)
+        .toList();
   }
 
   private void cleanHydrocarbonsDiscovered(ReservoirSubmissionDetail reservoirSubmissionDetail,
