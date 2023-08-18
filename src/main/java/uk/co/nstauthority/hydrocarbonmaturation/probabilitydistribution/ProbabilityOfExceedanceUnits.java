@@ -12,7 +12,8 @@ public enum ProbabilityOfExceedanceUnits {
   SCF_STB("scf/stb"),
   MMSTB("mmstb"),
   MMBOE("mmboe"),
-  BCF("bcf")
+  BCF("bcf"),
+  MD("mD")
   ;
 
   private final String unitDisplay;

@@ -21,7 +21,8 @@
         <@permeability.permeabilityValuesForm
           form=form
           methodUsed=methodUsed
-          source=source/>
+          source=source
+          isFieldSubmission=false/>
       </@fdsRadio.radioYes>
       <@fdsRadio.radioNo path="form.hasPermeability"/>
     </@fdsRadio.radioGroup>

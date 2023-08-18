@@ -192,6 +192,7 @@ public class ProbabilityDistributionTemplateService {
     var typePath = probabilityDistributionForm.getProbabilityDistributionType().getPath();
     var errorPath = formName + "." + typePath + ".error";
     var errorField = bindingResult.getFieldError(errorPath);
+    var errorId = formName.replace(".", "-") + "-" + typePath;
 
     if (Objects.isNull(errorField)) {
       return ProbabilityDistributionTypeError.emptyError();
@@ -202,7 +203,7 @@ public class ProbabilityDistributionTemplateService {
         hasError,
         "form." + errorPath,
         probabilityDistributionForm.getProbabilityDistributionType(),
-        formName + "-" + typePath
+        errorId
     );
   }
 

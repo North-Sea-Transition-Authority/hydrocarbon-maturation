@@ -18,6 +18,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleT
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -30,7 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @RequestMapping("/submission-details/{submissionDetailId}/" +
     "reservoir-submission-details/{reservoirSubmissionDetailId}/permeability")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
-@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_POST_DRILL)
+@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.PROSPECT_TYPES, mode = HasSubmissionType.Mode.EXCLUDE)
 @IsFromResponsibleTeam
 public class PermeabilityController {
 
@@ -39,6 +42,7 @@ public class PermeabilityController {
   private final PermeabilityPersistenceService permeabilityPersistenceService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final PermeabilityFormValidator permeabilityFormValidator;
+  private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
   public static final String PAGE_NAME = "Permeability";
 
@@ -47,12 +51,14 @@ public class PermeabilityController {
                                 PermeabilityFormService permeabilityFormService,
                                 PermeabilityPersistenceService permeabilityPersistenceService,
                                 ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-                                PermeabilityFormValidator permeabilityFormValidator) {
+                                PermeabilityFormValidator permeabilityFormValidator,
+                                ProbabilityDistributionTemplateService probabilityDistributionTemplateService) {
     this.submissionDetailService = submissionDetailService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.permeabilityFormValidator = permeabilityFormValidator;
     this.permeabilityFormService = permeabilityFormService;
     this.permeabilityPersistenceService = permeabilityPersistenceService;
+    this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
   }
 
   @GetMapping
@@ -75,7 +81,7 @@ public class PermeabilityController {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     if (!permeabilityFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
-      return getPermeabilityModelAndView(form, reservoirSubmissionDetail);
+      return getPermeabilityModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       permeabilityPersistenceService.savePermeabilityDetail(form, reservoirSubmissionDetail);
       return ReverseRouter.redirect(on(ReservoirTaskListController.class)
@@ -88,7 +94,9 @@ public class PermeabilityController {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     if (submissionDetail.isDiscoverySubmission()) {
       viewName = "remi/submissiondetails/permeability/permeabilityDiscovery";
-    } else {
+    } else if (submissionDetail.isFieldSubmission()) {
+      viewName = "remi/submissiondetails/permeability/permeabilityField";
+    }  else {
       viewName = "remi/submissiondetails/permeability/permeabilityDryWell";
     }
 
@@ -97,8 +105,52 @@ public class PermeabilityController {
         .addObject("methodUsed", DisplayableEnumOptionUtil.getDisplayableOptions(AverageMethod.class))
         .addObject("source", DisplayableEnumOptionUtil.getDisplayableOptions(PermeabilitySource.class));
 
+    if (submissionDetail.isFieldSubmission()) {
+      modelAndView
+          .addObject("isFieldSubmission", submissionDetail.isFieldSubmission())
+          .addObject("permeabilityError", ProbabilityDistributionTypeError.emptyError())
+          .addObject("permeabilityTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY))
+          .addObject("horizontalPermeabilityError", ProbabilityDistributionTypeError.emptyError())
+          .addObject("horizontalPermeabilityTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY))
+          .addObject("verticalPermeabilityError", ProbabilityDistributionTypeError.emptyError())
+          .addObject("verticalPermeabilityTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY));
+    }
+
     return TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(
         modelAndView, PAGE_NAME, reservoirSubmissionDetail
     );
+  }
+
+  private ModelAndView getPermeabilityModelAndViewWithErrors(BindingResult bindingResult,
+                                                             PermeabilityForm form,
+                                                             ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var modelAndView = getPermeabilityModelAndView(form, reservoirSubmissionDetail);
+
+    if (reservoirSubmissionDetail.getSubmissionDetail().isFieldSubmission()) {
+      return modelAndView
+          .addObject("form", form)
+          .addObject("permeabilityError",
+              probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                  bindingResult,
+                  "permeabilityValuesForm.permeability",
+                  form.getPermeabilityValuesForm().getPermeability()))
+          .addObject("horizontalPermeabilityError",
+              probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                  bindingResult,
+                  "permeabilityValuesForm.horizontalPermeability",
+                  form.getPermeabilityValuesForm().getHorizontalPermeability()))
+          .addObject("verticalPermeabilityError",
+              probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                  bindingResult,
+                  "permeabilityValuesForm.verticalPermeability",
+                  form.getPermeabilityValuesForm().getVerticalPermeability()));
+    }
+    return modelAndView;
   }
 }

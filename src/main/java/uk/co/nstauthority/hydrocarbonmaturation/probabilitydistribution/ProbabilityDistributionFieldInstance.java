@@ -421,6 +421,23 @@ public enum ProbabilityDistributionFieldInstance {
       DiscoveryOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
+  ),
+
+  // Field Permeability
+  FIELD_PERMEABILITY(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.MD,
+      "Permeability"
+  ),
+  FIELD_HORIZONTAL_PERMEABILITY(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.MD,
+      "Horizontal permeability"
+  ),
+  FIELD_VERTICAL_PERMEABILITY(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.MD,
+      "Vertical permeability"
   )
   ;
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;

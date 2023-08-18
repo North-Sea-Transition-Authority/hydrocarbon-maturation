@@ -16,7 +16,8 @@
     <@permeability.permeabilityValuesForm
       form=form
       methodUsed=methodUsed
-      source=source/>
+      source=source
+      isFieldSubmission=false/>
     <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>
 </@defaultPage>

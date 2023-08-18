@@ -5,6 +5,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
@@ -12,10 +14,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 class PermeabilityPersistenceService {
 
   private final PermeabilityDetailRepository permeabilityDetailRepository;
+  private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Autowired
-  PermeabilityPersistenceService(PermeabilityDetailRepository permeabilityDetailRepository) {
+  PermeabilityPersistenceService(PermeabilityDetailRepository permeabilityDetailRepository,
+                                 ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
     this.permeabilityDetailRepository = permeabilityDetailRepository;
+    this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
   }
 
   @Transactional
@@ -28,10 +33,10 @@ class PermeabilityPersistenceService {
     if (submissionDetail.getSubmissionType() == SubmissionType.POST_DRILL_DRY_HOLE) {
       permeabilityDetail.setHasPermeability(form.getHasPermeability());
       if (BooleanUtils.isTrue(form.getHasPermeability())) {
-        setPermeabilityDetails(permeabilityDetail, form.getPermeabilityValuesForm());
+        setPermeabilityDetails(permeabilityDetail, form.getPermeabilityValuesForm(), reservoirSubmissionDetail);
       }
     } else {
-      setPermeabilityDetails(permeabilityDetail, form.getPermeabilityValuesForm());
+      setPermeabilityDetails(permeabilityDetail, form.getPermeabilityValuesForm(), reservoirSubmissionDetail);
     }
 
     permeabilityDetailRepository.save(permeabilityDetail);
@@ -41,7 +46,8 @@ class PermeabilityPersistenceService {
     return permeabilityDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
-  private void setPermeabilityDetails(PermeabilityDetail permeabilityDetail, PermeabilityValuesForm permeabilityValuesForm) {
+  private void setPermeabilityDetails(PermeabilityDetail permeabilityDetail, PermeabilityValuesForm permeabilityValuesForm,
+                                      ReservoirSubmissionDetail reservoirSubmissionDetail) {
     permeabilityDetail.setPermeabilityAverage(
         permeabilityValuesForm.getPermeabilityAverage().createBigDecimalOrNull());
     permeabilityDetail.setPermeabilityComments(permeabilityValuesForm.getPermeabilityComments());
@@ -53,6 +59,30 @@ class PermeabilityPersistenceService {
 
     if (permeabilityValuesForm.getPermeabilitySource() == PermeabilitySource.OTHER) {
       permeabilityDetail.setSourceOther(permeabilityValuesForm.getOtherPermeabilitySource());
+    }
+
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    if (submissionDetail.isFieldSubmission()) {
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+          ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY,
+          permeabilityValuesForm.getPermeability(),
+          submissionDetail,
+          reservoirSubmissionDetail
+      );
+
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+          ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
+          permeabilityValuesForm.getHorizontalPermeability(),
+          submissionDetail,
+          reservoirSubmissionDetail
+      );
+
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+          ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY,
+          permeabilityValuesForm.getVerticalPermeability(),
+          submissionDetail,
+          reservoirSubmissionDetail
+      );
     }
   }
 }

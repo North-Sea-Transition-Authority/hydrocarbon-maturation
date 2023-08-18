@@ -24,6 +24,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -32,6 +33,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -54,6 +58,8 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   @MockBean
   private PermeabilityFormValidator permeabilityFormValidator;
 
+  @Autowired
+  private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
   private UUID submissionDetailId;
   private ReservoirSubmissionDetail reservoirSubmissionDetail;
@@ -116,7 +122,6 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   void savePermeabilityDetails_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
-    var bindingResult = new BeanPropertyBindingResult(PermeabilityForm.class, "form");
     when(permeabilityFormValidator.isValid(any(), any(), any(), any())).thenReturn(true);
 
     mockMvc.perform(
@@ -155,9 +160,30 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
         .savePermeabilityDetail(any(), any());
   }
 
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void savePermeabilityDetails_whenInvalidForm_fieldSubmission_assertStatusOk(ValidationType validationType) throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
+        .thenReturn(submissionDetail);
+
+    var bindingResult = new BeanPropertyBindingResult(PermeabilityForm.class, "form");
+    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
+    when(permeabilityFormValidator.isValid(any(), any(), any(), any())).thenReturn(false);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(PermeabilityController.class)
+                .savePermeabilityDetails(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isOk());
+  }
+
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY_FROM_PROSPECT"})
-  void getPermeabilityPageModelAndView_assertModelProperties() throws Exception {
+  void getPermeabilityPageModelAndView_assertModelProperties(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     var form = new PermeabilityForm();
@@ -177,6 +203,55 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
         .contains(
             entry("methodUsed", DisplayableEnumOptionUtil.getDisplayableOptions(AverageMethod.class)),
             entry("source", DisplayableEnumOptionUtil.getDisplayableOptions(PermeabilitySource.class))
+        );
+
+    assertEquals(PermeabilityForm.class, modelMap.get("form").getClass());
+
+    @SuppressWarnings(value="unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class)
+            .getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+    );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void getPermeabilityPageModelAndView_field_assertModelProperties(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
+        .thenReturn(submissionDetail);
+    var form = new PermeabilityForm();
+
+    when(permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail)).thenReturn(form);
+
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(PermeabilityController.class)
+                        .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("methodUsed", DisplayableEnumOptionUtil.getDisplayableOptions(AverageMethod.class)),
+            entry("source", DisplayableEnumOptionUtil.getDisplayableOptions(PermeabilitySource.class)),
+            entry("isFieldSubmission", submissionDetail.isFieldSubmission()),
+            entry("permeabilityError", ProbabilityDistributionTypeError.emptyError()),
+            entry("permeabilityTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY)),
+            entry("horizontalPermeabilityError", ProbabilityDistributionTypeError.emptyError()),
+            entry("horizontalPermeabilityTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY)),
+            entry("verticalPermeabilityError", ProbabilityDistributionTypeError.emptyError()),
+            entry("verticalPermeabilityTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY))
         );
 
     assertEquals(PermeabilityForm.class, modelMap.get("form").getClass());

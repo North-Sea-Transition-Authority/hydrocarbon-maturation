@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -81,6 +83,35 @@ class PermeabilityFormValidator implements SubmissionValidator {
           .setMinValue(BigDecimal.ZERO)
           .validate();
     }
+
+    if (submissionType == SubmissionType.CREATE_CSR
+        || submissionType == SubmissionType.CREATE_FDP
+        || submissionType == SubmissionType.CREATE_FDPA
+        || submissionType == SubmissionType.CREATE_COP) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          permeabilityForm.getPermeabilityValuesForm().getPermeability(),
+          errors,
+          "permeabilityValuesForm.permeability",
+          "Permeability",
+          ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY
+      );
+
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          permeabilityForm.getPermeabilityValuesForm().getHorizontalPermeability(),
+          errors,
+          "permeabilityValuesForm.horizontalPermeability",
+          "Horizontal permeability",
+          ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY
+      );
+
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          permeabilityForm.getPermeabilityValuesForm().getVerticalPermeability(),
+          errors,
+          "permeabilityValuesForm.verticalPermeability",
+          "Vertical permeability",
+          ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
+      );
+    }
   }
 
   public void validateFull(SubmissionForm form, Errors errors) {
@@ -155,5 +186,34 @@ class PermeabilityFormValidator implements SubmissionValidator {
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)
         .validate();
+
+    if (submissionType == SubmissionType.CREATE_CSR
+        || submissionType == SubmissionType.CREATE_FDP
+        || submissionType == SubmissionType.CREATE_FDPA
+        || submissionType == SubmissionType.CREATE_COP) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          permeabilityForm.getPermeabilityValuesForm().getPermeability(),
+          errors,
+          "permeabilityValuesForm.permeability",
+          "Permeability",
+          ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY
+      );
+
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          permeabilityForm.getPermeabilityValuesForm().getHorizontalPermeability(),
+          errors,
+          "permeabilityValuesForm.horizontalPermeability",
+          "Horizontal permeability",
+          ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY
+      );
+
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          permeabilityForm.getPermeabilityValuesForm().getVerticalPermeability(),
+          errors,
+          "permeabilityValuesForm.verticalPermeability",
+          "Vertical permeability",
+          ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
+      );
+    }
   }
 }

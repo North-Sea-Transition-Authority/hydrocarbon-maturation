@@ -128,4 +128,35 @@ class ProbabilityDistributionTemplateServiceTest {
             formName + "-" + typePath
         );
   }
+
+  @Test
+  void getProbabilityDistributionTypeError_HasError_EmptyError_noPeriodInFormNameErrorId() {
+    var bindingResult = Mockito.mock(BindingResult.class);
+    var formName = "testForm.testValuesForm";
+    var formattedFormName = "testForm-testValuesForm";
+    var probabilityDistributionType = ProbabilityDistributionType.NORMAL;
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(probabilityDistributionType);
+    var typePath = probabilityDistributionForm.getProbabilityDistributionType().getPath();
+    var fieldError = Mockito.mock(FieldError.class);
+    var errorPath = formName + "." + typePath + ".error";
+    when(bindingResult.getFieldError(errorPath)).thenReturn(fieldError);
+
+    var probabilityDistributionTypeError = probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+        bindingResult, formName, probabilityDistributionForm);
+
+    assertThat(probabilityDistributionTypeError)
+        .extracting(
+            ProbabilityDistributionTypeError::hasError,
+            ProbabilityDistributionTypeError::fullErrorPath,
+            ProbabilityDistributionTypeError::probabilityDistributionType,
+            ProbabilityDistributionTypeError::errorId
+        )
+        .containsExactly(
+            true,
+            "form." + errorPath,
+            probabilityDistributionType,
+            formattedFormName + "-" + typePath
+        );
+  }
 }

@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -12,6 +13,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -22,6 +25,9 @@ class PermeabilityPersistenceServiceTest {
 
   @Mock
   private PermeabilityDetailRepository permeabilityDetailRepository;
+
+  @Mock
+  private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @InjectMocks
   private PermeabilityPersistenceService permeabilityPersistenceService;
@@ -59,6 +65,71 @@ class PermeabilityPersistenceServiceTest {
             permeabilityDryWellForm.getHasPermeability(),
             form.getOtherPermeabilitySource(),
             reservoirSubmissionDetail,
+            form.getAverageMethodUsed(),
+            form.getPermeabilitySource(),
+            form.getPermeabilityComments(),
+            form.getPermeabilityAverage().createBigDecimalOrNull(),
+            form.getPermeabilityMax().createBigDecimalOrNull(),
+            form.getPermeabilityMin().createBigDecimalOrNull(),
+            form.getKvKhAverage().createBigDecimalOrNull()
+        );
+
+    verifyNoInteractions(probabilityDistributionPersistenceService);
+  }
+
+
+  @Test
+  void savePermeabilityDetail_field_verifyMethodCall() {
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
+
+    when(permeabilityDetailRepository.findByReservoirSubmissionDetail(fieldReservoirSubmissionDetail))
+        .thenReturn(Optional.empty());
+    var form = PermeabilityFormValidatorTest.getValidFormWithPermeabilityAndProbabilityDistributions().getPermeabilityValuesForm();
+    var permeabilityDryWellForm = new PermeabilityForm();
+    permeabilityDryWellForm.setPermeabilityValuesForm(form);
+    permeabilityDryWellForm.setHasPermeability(true);
+
+    var captor = ArgumentCaptor.forClass(PermeabilityDetail.class);
+    permeabilityPersistenceService.savePermeabilityDetail(permeabilityDryWellForm, fieldReservoirSubmissionDetail);
+    verify(permeabilityDetailRepository, times(1)).save(captor.capture());
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY,
+            form.getPermeability(),
+            fieldSubmissionDetail,
+            fieldReservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
+            form.getHorizontalPermeability(),
+            fieldSubmissionDetail,
+            fieldReservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY,
+            form.getVerticalPermeability(),
+            fieldSubmissionDetail,
+            fieldReservoirSubmissionDetail);
+
+    var savedPermeabilityDetail = captor.getValue();
+    assertThat(savedPermeabilityDetail)
+        .extracting(
+            PermeabilityDetail::getSourceOther,
+            PermeabilityDetail::getReservoirSubmissionDetail,
+            PermeabilityDetail::getAverageMethodUsed,
+            PermeabilityDetail::getPermeabilitySource,
+            PermeabilityDetail::getPermeabilityComments,
+            PermeabilityDetail::getPermeabilityAverage,
+            PermeabilityDetail::getPermeabilityMax,
+            PermeabilityDetail::getPermeabilityMin,
+            PermeabilityDetail::getKvKhAverage)
+        .containsExactly(
+            form.getOtherPermeabilitySource(),
+            fieldReservoirSubmissionDetail,
             form.getAverageMethodUsed(),
             form.getPermeabilitySource(),
             form.getPermeabilityComments(),

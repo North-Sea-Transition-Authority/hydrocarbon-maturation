@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability;
 
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 public class PermeabilityValuesForm implements SubmissionForm {
@@ -13,6 +14,9 @@ public class PermeabilityValuesForm implements SubmissionForm {
   private String otherPermeabilitySource;
   private String permeabilityComments;
   private DecimalInput kvKhAverage = new DecimalInput();
+  private ProbabilityDistributionForm permeability = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm horizontalPermeability = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm verticalPermeability = new ProbabilityDistributionForm();
 
   public DecimalInput getPermeabilityMin() {
     return permeabilityMin;
@@ -78,5 +82,32 @@ public class PermeabilityValuesForm implements SubmissionForm {
 
   public void setOtherPermeabilitySource(String otherPermeabilitySource) {
     this.otherPermeabilitySource = otherPermeabilitySource;
+  }
+
+  public ProbabilityDistributionForm getPermeability() {
+    return permeability;
+  }
+
+  public void setPermeability(
+      ProbabilityDistributionForm permeability) {
+    this.permeability = permeability;
+  }
+
+  public ProbabilityDistributionForm getHorizontalPermeability() {
+    return horizontalPermeability;
+  }
+
+  public void setHorizontalPermeability(
+      ProbabilityDistributionForm horizontalPermeability) {
+    this.horizontalPermeability = horizontalPermeability;
+  }
+
+  public ProbabilityDistributionForm getVerticalPermeability() {
+    return verticalPermeability;
+  }
+
+  public void setVerticalPermeability(
+      ProbabilityDistributionForm verticalPermeability) {
+    this.verticalPermeability = verticalPermeability;
   }
 }
