@@ -39,14 +39,8 @@ public class ErrorService {
   public ModelAndView addErrorAttributesToModel(
       ModelAndView modelAndView,
       Throwable throwable,
-      String submissionDetailId,
-      String resourceId) {
-    if (submissionDetailId != null) {
-      LOGGER.info("Error found for submission detail id: {}", submissionDetailId);
-    }
-    if (resourceId != null) {
-      LOGGER.info("Error found for resource id: {}", resourceId);
-    }
+      String url) {
+    LOGGER.info("Error found for URL: {}", url);
     if (throwable != null) {
       addStackTraceToModel(modelAndView, throwable);
       addErrorReference(modelAndView, throwable);

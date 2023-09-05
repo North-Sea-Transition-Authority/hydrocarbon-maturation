@@ -65,8 +65,7 @@ class ErrorServiceTest {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         new NullPointerException(),
-        null,
-        null
+        "test"
     ).getModelMap();
 
     assertThat(resultingModelMap).containsOnlyKeys(
@@ -91,8 +90,7 @@ class ErrorServiceTest {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         null,
-        null,
-        null
+        "test"
     ).getModelMap();
 
     assertThat(resultingModelMap).containsOnlyKeys(
