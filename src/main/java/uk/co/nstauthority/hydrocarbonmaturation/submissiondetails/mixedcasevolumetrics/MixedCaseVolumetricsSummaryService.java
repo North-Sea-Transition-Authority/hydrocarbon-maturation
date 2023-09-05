@@ -26,21 +26,29 @@ public class MixedCaseVolumetricsSummaryService {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var resourceType = submissionDetail.getSubmission().getResource().getType();
 
+    // Oil section
     if (resourceType == ResourceType.PROSPECT) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT);
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT);
-      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT);
-      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT);
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT);
     } else if (resourceType == ResourceType.DISCOVERY) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY);
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY);
-      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY);
-      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY);
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY);
     }
 
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD);
+
+    // Gas section
+    if (resourceType == ResourceType.PROSPECT) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT);
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT);
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY);
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY);
+    }
+
+
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD);
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR);
 
