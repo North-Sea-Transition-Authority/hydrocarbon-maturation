@@ -71,8 +71,6 @@ class GasCaseVolumetricsFormValidatorTest {
         .containsExactly(
             entry("gasHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("gasHydrocarbonSaturation.probabilityDistributionType.required")),
-            entry("gasExpansionFactor.probabilityDistributionType",
-                Set.of("gasExpansionFactor.probabilityDistributionType.required")),
             entry("condensateGasRatioLifeOfField.probabilityDistributionType",
                 Set.of("condensateGasRatioLifeOfField.probabilityDistributionType.required")),
             entry("gasRecoveryFactor.probabilityDistributionType",
@@ -102,8 +100,6 @@ class GasCaseVolumetricsFormValidatorTest {
                 Set.of("gasHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error.error")),
             entry("condensateGasRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
                 Set.of("condensateGasRatioLifeOfField." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error",
-                Set.of("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error",
                 Set.of("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
@@ -130,8 +126,6 @@ class GasCaseVolumetricsFormValidatorTest {
                 Set.of("gasHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error.error")),
             entry("condensateGasRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
                 Set.of("condensateGasRatioLifeOfField." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error",
-                Set.of("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error",
                 Set.of("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
@@ -150,7 +144,6 @@ class GasCaseVolumetricsFormValidatorTest {
     form.setCondensateGasRatioLifeOfField(probabilityDistributionForm);
     form.setGasRecoveryFactor(probabilityDistributionForm);
     form.setGasHydrocarbonSaturation(probabilityDistributionForm);
-    form.setGasExpansionFactor(probabilityDistributionForm);
     form.setGasFormationVolumeFactor(probabilityDistributionForm);
 
     return form;
@@ -164,7 +157,6 @@ class GasCaseVolumetricsFormValidatorTest {
             probabilityDistributionType,
             new ProbabilityOfExceedanceForm());
 
-    form.setGasExpansionFactor(probabilityDistributionForm);
     form.setGasRecoveryFactor(probabilityDistributionForm);
     form.setGasHydrocarbonSaturation(probabilityDistributionForm);
     form.setCondensateGasRatioLifeOfField(probabilityDistributionForm);
@@ -179,7 +171,6 @@ class GasCaseVolumetricsFormValidatorTest {
     form.setGasRecoveryFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setGasHydrocarbonSaturation(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setCondensateGasRatioLifeOfField(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
-    form.setGasExpansionFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setGasFormationVolumeFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
 
     return form;

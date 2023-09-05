@@ -201,14 +201,11 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
                 ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT)),
             entry("condensateGasRatioLifeOfFieldTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD)),
-            entry("gasExpansionFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR)),
             entry("gasRecoveryFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR)),
             entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
             entry("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError())
         );
   }
@@ -253,14 +250,11 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
                 ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY)),
             entry("condensateGasRatioLifeOfFieldTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD)),
-            entry("gasExpansionFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR)),
             entry("gasRecoveryFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR)),
             entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
             entry("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError())
         );
   }

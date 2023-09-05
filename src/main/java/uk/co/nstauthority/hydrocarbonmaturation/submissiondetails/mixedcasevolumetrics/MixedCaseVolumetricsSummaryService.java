@@ -27,29 +27,21 @@ public class MixedCaseVolumetricsSummaryService {
     var resourceType = submissionDetail.getSubmission().getResource().getType();
 
     if (resourceType == ResourceType.PROSPECT) {
-      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT);
-
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT);
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT);
-
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT);
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT);
-
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT);
     } else if (resourceType == ResourceType.DISCOVERY) {
-      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY);
-
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY);
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY);
-
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY);
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY);
-
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY);
     }
 
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD);
-
-    listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR);
-
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD);
-
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR);
 
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();

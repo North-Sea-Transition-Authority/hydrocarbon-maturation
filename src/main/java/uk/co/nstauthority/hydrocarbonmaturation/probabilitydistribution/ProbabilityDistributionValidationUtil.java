@@ -524,7 +524,7 @@ public class ProbabilityDistributionValidationUtil {
       ArrayList<DecimalInput> inputs
   ) {
     for (int i = 0; i < inputs.size() - 1; i++) {
-      if (inputs.get(i).createBigDecimalOrNull().compareTo(inputs.get(i + 1).createBigDecimalOrNull()) > 0) {
+      if (inputs.get(i).createBigDecimalOrNull().compareTo(inputs.get(i + 1).createBigDecimalOrNull()) >= 0) {
         return false;
       }
     }

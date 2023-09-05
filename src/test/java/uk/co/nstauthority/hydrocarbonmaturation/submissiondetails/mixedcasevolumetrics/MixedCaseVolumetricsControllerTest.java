@@ -194,21 +194,21 @@ class MixedCaseVolumetricsControllerTest extends AbstractSubmissionControllerTes
     assertThat(modelMap)
         .contains(
             entry("form", form),
-            entry("formationVolumeFactorTemplate",
+            entry("oilFormationVolumeFactorTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT)),
+                    ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT)),
             entry("oilHydrocarbonSaturationTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT)),
+            entry("gasFormationVolumeFactorTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT)),
             entry("gasHydrocarbonSaturationTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT)),
             entry("associatedGasOilRatioLifeOfFieldTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD)),
-            entry("gasExpansionFactorTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR)),
             entry("condensateGasRatioLifeOfFieldTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD)),
@@ -218,11 +218,11 @@ class MixedCaseVolumetricsControllerTest extends AbstractSubmissionControllerTes
             entry("gasRecoveryFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR)),
-            entry("formationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
+            entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedGasOilRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilRecoveryFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError())
@@ -261,21 +261,21 @@ class MixedCaseVolumetricsControllerTest extends AbstractSubmissionControllerTes
     assertThat(modelMap)
         .contains(
             entry("form", form),
-            entry("formationVolumeFactorTemplate",
+            entry("oilFormationVolumeFactorTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY)),
+                    ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY)),
             entry("oilHydrocarbonSaturationTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY)),
+            entry("gasFormationVolumeFactorTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY)),
             entry("gasHydrocarbonSaturationTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY)),
             entry("associatedGasOilRatioLifeOfFieldTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD)),
-            entry("gasExpansionFactorTemplate",
-                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR)),
             entry("condensateGasRatioLifeOfFieldTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD)),
@@ -285,11 +285,11 @@ class MixedCaseVolumetricsControllerTest extends AbstractSubmissionControllerTes
             entry("gasRecoveryFactorTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR)),
-            entry("formationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
+            entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedGasOilRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilRecoveryFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError())

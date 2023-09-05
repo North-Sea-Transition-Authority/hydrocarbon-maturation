@@ -70,18 +70,18 @@ class MixedCaseVolumetricsFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("formationVolumeFactor.probabilityDistributionType",
-                Set.of("formationVolumeFactor.probabilityDistributionType.required")),
+            entry("oilFormationVolumeFactor.probabilityDistributionType",
+                Set.of("oilFormationVolumeFactor.probabilityDistributionType.required")),
             entry("oilHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("oilHydrocarbonSaturation.probabilityDistributionType.required")),
             entry("associatedGasOilRatioLifeOfField.probabilityDistributionType",
                 Set.of("associatedGasOilRatioLifeOfField.probabilityDistributionType.required")),
             entry("oilRecoveryFactor.probabilityDistributionType",
                 Set.of("oilRecoveryFactor.probabilityDistributionType.required")),
+            entry("gasFormationVolumeFactor.probabilityDistributionType",
+                Set.of("gasFormationVolumeFactor.probabilityDistributionType.required")),
             entry("gasHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("gasHydrocarbonSaturation.probabilityDistributionType.required")),
-            entry("gasExpansionFactor.probabilityDistributionType",
-                Set.of("gasExpansionFactor.probabilityDistributionType.required")),
             entry("condensateGasRatioLifeOfField.probabilityDistributionType",
                 Set.of("condensateGasRatioLifeOfField.probabilityDistributionType.required")),
             entry("gasRecoveryFactor.probabilityDistributionType",
@@ -105,14 +105,14 @@ class MixedCaseVolumetricsFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
-            entry("formationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
-                Set.of("formationVolumeFactor." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("oilFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
+                Set.of("oilFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("gasFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
+                Set.of("gasFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error",
                 Set.of("gasHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error",
-                Set.of("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("condensateGasRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
                 Set.of("condensateGasRatioLifeOfField." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilRecoveryFactor." + probabilityDistributionType.getPath() + ".error",
@@ -139,16 +139,16 @@ class MixedCaseVolumetricsFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .contains(
-            entry("formationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
-                Set.of("formationVolumeFactor." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("oilFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
+                Set.of("oilFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("gasFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error",
+                Set.of("gasFormationVolumeFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error",
                 Set.of("gasHydrocarbonSaturation." + probabilityDistributionType.getPath() + ".error.error")),
             entry("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
                 Set.of("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error",
-                Set.of("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("condensateGasRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
                 Set.of("condensateGasRatioLifeOfField." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilRecoveryFactor." + probabilityDistributionType.getPath() + ".error",
@@ -169,11 +169,11 @@ class MixedCaseVolumetricsFormValidatorTest {
     form.setGasHydrocarbonSaturation(probabilityDistributionForm);
     form.setOilRecoveryFactor(probabilityDistributionForm);
     form.setCondensateGasRatioLifeOfField(probabilityDistributionForm);
-    form.setGasExpansionFactor(probabilityDistributionForm);
     form.setAssociatedGasOilRatioLifeOfField(probabilityDistributionForm);
     form.setGasRecoveryFactor(probabilityDistributionForm);
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
-    form.setFormationVolumeFactor(probabilityDistributionForm);
+    form.setOilFormationVolumeFactor(probabilityDistributionForm);
+    form.setGasFormationVolumeFactor(probabilityDistributionForm);
     return form;
   }
 
@@ -187,11 +187,11 @@ class MixedCaseVolumetricsFormValidatorTest {
     form.setGasHydrocarbonSaturation(probabilityDistributionForm);
     form.setOilRecoveryFactor(probabilityDistributionForm);
     form.setCondensateGasRatioLifeOfField(probabilityDistributionForm);
-    form.setGasExpansionFactor(probabilityDistributionForm);
     form.setAssociatedGasOilRatioLifeOfField(probabilityDistributionForm);
     form.setGasRecoveryFactor(probabilityDistributionForm);
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
-    form.setFormationVolumeFactor(probabilityDistributionForm);
+    form.setOilFormationVolumeFactor(probabilityDistributionForm);
+    form.setGasFormationVolumeFactor(probabilityDistributionForm);
     return form;
   }
 
@@ -203,11 +203,11 @@ class MixedCaseVolumetricsFormValidatorTest {
     form.setGasHydrocarbonSaturation(probabilityDistributionForm);
     form.setOilRecoveryFactor(probabilityDistributionForm);
     form.setCondensateGasRatioLifeOfField(probabilityDistributionForm);
-    form.setGasExpansionFactor(probabilityDistributionForm);
     form.setAssociatedGasOilRatioLifeOfField(probabilityDistributionForm);
     form.setGasRecoveryFactor(probabilityDistributionForm);
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
-    form.setFormationVolumeFactor(probabilityDistributionForm);
+    form.setOilFormationVolumeFactor(probabilityDistributionForm);
+    form.setGasFormationVolumeFactor(probabilityDistributionForm);
     return form;
   }
 }

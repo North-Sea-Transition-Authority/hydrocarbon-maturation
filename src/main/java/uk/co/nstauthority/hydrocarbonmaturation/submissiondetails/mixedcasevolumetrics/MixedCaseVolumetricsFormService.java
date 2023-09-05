@@ -44,9 +44,14 @@ class MixedCaseVolumetricsFormService implements SubmissionFormService {
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
-      form.setFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+      form.setOilFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT
+          ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT
+      ));
+
+      form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT
       ));
 
       form.setOilRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
@@ -64,9 +69,14 @@ class MixedCaseVolumetricsFormService implements SubmissionFormService {
           ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT
       ));
     } else if (resourceType == ResourceType.DISCOVERY) {
-      form.setFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+      form.setOilFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY
+          ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY
+      ));
+
+      form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY
       ));
 
       form.setOilRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
@@ -98,11 +108,6 @@ class MixedCaseVolumetricsFormService implements SubmissionFormService {
     form.setAssociatedGasOilRatioLifeOfField(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
-    ));
-
-    form.setGasExpansionFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        reservoirSubmissionDetail,
-        ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR
     ));
 
     return form;

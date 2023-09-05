@@ -67,15 +67,13 @@ class MixedCaseVolumetricsFormServiceTest {
         .extracting(
             form -> form.getOilRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
-            form -> form.getGasExpansionFactor().getProbabilityDistributionType(),
             form -> form.getGasHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getCondensateGasRatioLifeOfField().getProbabilityDistributionType(),
             form -> form.getAssociatedGasOilRatioLifeOfField().getProbabilityDistributionType(),
             form -> form.getOilHydrocarbonSaturation().getProbabilityDistributionType(),
-            form -> form.getFormationVolumeFactor().getProbabilityDistributionType()
+            form -> form.getOilFormationVolumeFactor().getProbabilityDistributionType()
         )
         .containsExactly(
-            null,
             null,
             null,
             null,
@@ -94,7 +92,7 @@ class MixedCaseVolumetricsFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         eq(reservoirSubmissionDetail), any())).thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT))
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT))
@@ -114,9 +112,6 @@ class MixedCaseVolumetricsFormServiceTest {
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getConstant().getConstant(),
             form -> form.getGasRecoveryFactor().getConstant().getComments(),
-            form -> form.getGasExpansionFactor().getProbabilityDistributionType(),
-            form -> form.getGasRecoveryFactor().getConstant().getConstant(),
-            form -> form.getOilRecoveryFactor().getConstant().getComments(),
             form -> form.getGasHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getGasHydrocarbonSaturation().getConstant().getConstant(),
             form -> form.getGasHydrocarbonSaturation().getConstant().getComments(),
@@ -129,13 +124,10 @@ class MixedCaseVolumetricsFormServiceTest {
             form -> form.getOilHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getOilHydrocarbonSaturation().getConstant().getConstant(),
             form -> form.getOilHydrocarbonSaturation().getConstant().getComments(),
-            form -> form.getFormationVolumeFactor().getProbabilityDistributionType(),
-            form -> form.getFormationVolumeFactor().getConstant().getConstant(),
-            form -> form.getFormationVolumeFactor().getConstant().getComments())
+            form -> form.getOilFormationVolumeFactor().getProbabilityDistributionType(),
+            form -> form.getOilFormationVolumeFactor().getConstant().getConstant(),
+            form -> form.getOilFormationVolumeFactor().getConstant().getComments())
         .containsExactly(
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getConstant().getConstant(),
-            probabilityDistributionForm.getConstant().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getConstant().getConstant(),
             probabilityDistributionForm.getConstant().getComments(),
@@ -171,7 +163,7 @@ class MixedCaseVolumetricsFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         eq(discoveryReservoirSubmissionDetail), any())).thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY))
@@ -191,9 +183,6 @@ class MixedCaseVolumetricsFormServiceTest {
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getConstant().getConstant(),
             form -> form.getGasRecoveryFactor().getConstant().getComments(),
-            form -> form.getGasExpansionFactor().getProbabilityDistributionType(),
-            form -> form.getGasRecoveryFactor().getConstant().getConstant(),
-            form -> form.getOilRecoveryFactor().getConstant().getComments(),
             form -> form.getGasHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getGasHydrocarbonSaturation().getConstant().getConstant(),
             form -> form.getGasHydrocarbonSaturation().getConstant().getComments(),
@@ -206,13 +195,10 @@ class MixedCaseVolumetricsFormServiceTest {
             form -> form.getOilHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getOilHydrocarbonSaturation().getConstant().getConstant(),
             form -> form.getOilHydrocarbonSaturation().getConstant().getComments(),
-            form -> form.getFormationVolumeFactor().getProbabilityDistributionType(),
-            form -> form.getFormationVolumeFactor().getConstant().getConstant(),
-            form -> form.getFormationVolumeFactor().getConstant().getComments())
+            form -> form.getOilFormationVolumeFactor().getProbabilityDistributionType(),
+            form -> form.getOilFormationVolumeFactor().getConstant().getConstant(),
+            form -> form.getOilFormationVolumeFactor().getConstant().getComments())
         .containsExactly(
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getConstant().getConstant(),
-            probabilityDistributionForm.getConstant().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getConstant().getConstant(),
             probabilityDistributionForm.getConstant().getComments(),

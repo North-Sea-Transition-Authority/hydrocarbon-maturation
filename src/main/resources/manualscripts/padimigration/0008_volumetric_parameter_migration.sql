@@ -919,7 +919,46 @@ BEGIN
                 volumetric_parameters.sd_id,
                 padi_distribution_type,
                 padi_other_distribution_type,
-                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'MIXED_FORMATION_VOLUME_FACTOR_PROSPECT' ELSE 'MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY' END,
+                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT' ELSE 'MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY' END,
+                NULL, -- does min exist in PaDI
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p90) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mode) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p50) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mean) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p10) END,
+                CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p01) END,
+                NULL, -- does max exist in PaDI
+                CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.fvf_mean) END,
+                NULL -- does most likely exist in PaDI
+            );
+
+            padi_distribution_type := NULL;
+            padi_other_distribution_type := NULL;
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                other_distribution_type,
+                instance,
+                min_value,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                max_value,
+                constant_value,
+                most_likely_value
+            ) VALUES (
+                gen_random_uuid(),
+                volumetric_parameters.sd_id,
+                padi_distribution_type,
+                padi_other_distribution_type,
+                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT' ELSE 'MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY' END,
                 NULL, -- does min exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p90) END,

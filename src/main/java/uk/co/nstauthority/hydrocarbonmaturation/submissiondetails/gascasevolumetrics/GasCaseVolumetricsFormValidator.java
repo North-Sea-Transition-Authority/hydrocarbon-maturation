@@ -27,13 +27,6 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "Gas hydrocarbon saturation distribution used"
     );
 
-    var gasExpansionFactor = gasCaseVolumetricsForm.getGasExpansionFactor();
-    ProbabilityDistributionValidationUtil.validatePartial(
-        gasExpansionFactor,
-        errors,
-        "gasExpansionFactor",
-        "Gas expansion factor distribution used");
-
     var condensateGasRatioLifeOfField = gasCaseVolumetricsForm.getCondensateGasRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validatePartial(
         condensateGasRatioLifeOfField,
@@ -73,17 +66,6 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
         "gasHydrocarbonSaturation",
         "Gas hydrocarbon saturation distribution used"
     );
-
-    ValidationUtils.rejectIfEmpty(errors, "gasExpansionFactor.probabilityDistributionType",
-        "gasExpansionFactor.probabilityDistributionType.required",
-        "Select gas expansion factor distribution used");
-
-    var gasExpansionFactor = gasCaseVolumetricsForm.getGasExpansionFactor();
-    ProbabilityDistributionValidationUtil.validateFull(
-        gasExpansionFactor,
-        errors,
-        "gasExpansionFactor",
-        "Gas expansion factor distribution used");
 
     ValidationUtils.rejectIfEmpty(errors, "condensateGasRatioLifeOfField.probabilityDistributionType",
         "condensateGasRatioLifeOfField.probabilityDistributionType.required",

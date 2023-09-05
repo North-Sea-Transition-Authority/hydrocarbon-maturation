@@ -37,7 +37,6 @@ class GasCaseVolumetricsPersistenceServiceTest {
     var form = new GasCaseVolumetricsForm();
     form.setGasFormationVolumeFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setGasHydrocarbonSaturation(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
-    form.setGasExpansionFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setCondensateGasRatioLifeOfField(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setGasRecoveryFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
 
@@ -47,13 +46,6 @@ class GasCaseVolumetricsPersistenceServiceTest {
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
             form.getGasFormationVolumeFactor(),
-            submissionDetail,
-            reservoirSubmissionDetail);
-
-    verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
-            form.getGasExpansionFactor(),
             submissionDetail,
             reservoirSubmissionDetail);
 
@@ -87,7 +79,6 @@ class GasCaseVolumetricsPersistenceServiceTest {
     var form = new GasCaseVolumetricsForm();
     form.setGasFormationVolumeFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setGasHydrocarbonSaturation(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
-    form.setGasExpansionFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setCondensateGasRatioLifeOfField(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setGasRecoveryFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
 
@@ -97,13 +88,6 @@ class GasCaseVolumetricsPersistenceServiceTest {
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
             form.getGasFormationVolumeFactor(),
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail);
-
-    verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
-            form.getGasExpansionFactor(),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail);
 

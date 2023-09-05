@@ -176,7 +176,6 @@ public class GeneralReservoirInformationService {
       probabilityDistributionPersistenceService.deleteProbabilityDistributions(
           List.of(
               ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY,
-              ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
               ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
               ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
               ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR
@@ -184,5 +183,12 @@ public class GeneralReservoirInformationService {
           reservoirSubmissionDetail
       );
     }
+
+    // delete gas expansion factor as this is migration only data that should be removed on saving a new version of the submission
+    probabilityDistributionPersistenceService.deleteProbabilityDistributions(
+        List.of(ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR),
+        reservoirSubmissionDetail
+    );
+
   }
 }

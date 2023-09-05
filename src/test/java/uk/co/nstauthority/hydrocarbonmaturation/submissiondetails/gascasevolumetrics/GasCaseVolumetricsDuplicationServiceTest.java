@@ -127,7 +127,6 @@ class GasCaseVolumetricsDuplicationServiceTest {
               Set.of(
                   ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
                   ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
-                  ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
                   ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
                   ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR
               )));
@@ -137,7 +136,6 @@ class GasCaseVolumetricsDuplicationServiceTest {
               Set.of(
                   ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY,
                   ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
-                  ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
                   ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
                   ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR
               )));

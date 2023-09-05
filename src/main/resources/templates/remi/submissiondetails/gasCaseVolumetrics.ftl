@@ -9,8 +9,6 @@
 <#-- @ftlvariable name="gasFormationVolumeFactorError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 <#-- @ftlvariable name="gasHydrocarbonSaturationTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
 <#-- @ftlvariable name="gasHydrocarbonSaturationError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
-<#-- @ftlvariable name="gasExpansionFactorTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
-<#-- @ftlvariable name="gasExpansionFactorError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 <#-- @ftlvariable name="condensateGasRatioLifeOfFieldTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
 <#-- @ftlvariable name="condensateGasRatioLifeOfFieldError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 <#-- @ftlvariable name="gasRecoveryFactorTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
@@ -35,12 +33,6 @@
       labelText="Gas hydrocarbon saturation distribution used"
       template=gasHydrocarbonSaturationTemplate
       error=gasHydrocarbonSaturationError/>
-
-    <@probabilityDistribution.probabilityDistributionTemplate
-      probabilityDistributionPath="form.gasExpansionFactor"
-      labelText="Gas expansion factor distribution used"
-      template=gasExpansionFactorTemplate
-      error=gasExpansionFactorError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.condensateGasRatioLifeOfField"

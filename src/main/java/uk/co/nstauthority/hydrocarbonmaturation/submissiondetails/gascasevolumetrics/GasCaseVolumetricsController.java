@@ -99,16 +99,12 @@ public class GasCaseVolumetricsController {
         .addObject("condensateGasRatioLifeOfFieldTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD))
-        .addObject("gasExpansionFactorTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR))
         .addObject("gasRecoveryFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR))
         .addObject("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError())
         .addObject("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
@@ -155,11 +151,6 @@ public class GasCaseVolumetricsController {
                 bindingResult,
                 "condensateGasRatioLifeOfField",
                 form.getCondensateGasRatioLifeOfField()))
-        .addObject("gasExpansionFactorError",
-            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult,
-                "gasExpansionFactor",
-                form.getGasExpansionFactor()))
         .addObject("gasRecoveryFactorError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,

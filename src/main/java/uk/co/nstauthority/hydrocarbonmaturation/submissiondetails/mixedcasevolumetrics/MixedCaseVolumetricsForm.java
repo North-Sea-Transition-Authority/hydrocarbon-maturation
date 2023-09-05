@@ -5,22 +5,31 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 
 class MixedCaseVolumetricsForm implements SubmissionForm {
 
-  private ProbabilityDistributionForm formationVolumeFactor = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm oilFormationVolumeFactor = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm gasFormationVolumeFactor = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm oilHydrocarbonSaturation = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm gasHydrocarbonSaturation = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm associatedGasOilRatioLifeOfField = new ProbabilityDistributionForm();
-  private ProbabilityDistributionForm gasExpansionFactor = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm condensateGasRatioLifeOfField = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm oilRecoveryFactor = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm gasRecoveryFactor = new ProbabilityDistributionForm();
 
-  public ProbabilityDistributionForm getFormationVolumeFactor() {
-    return formationVolumeFactor;
+  public ProbabilityDistributionForm getOilFormationVolumeFactor() {
+    return oilFormationVolumeFactor;
   }
 
-  public void setFormationVolumeFactor(
-      ProbabilityDistributionForm formationVolumeFactor) {
-    this.formationVolumeFactor = formationVolumeFactor;
+  public void setOilFormationVolumeFactor(
+      ProbabilityDistributionForm oilFormationVolumeFactor) {
+    this.oilFormationVolumeFactor = oilFormationVolumeFactor;
+  }
+
+  public ProbabilityDistributionForm getGasFormationVolumeFactor() {
+    return gasFormationVolumeFactor;
+  }
+
+  public void setGasFormationVolumeFactor(
+      ProbabilityDistributionForm gasFormationVolumeFactor) {
+    this.gasFormationVolumeFactor = gasFormationVolumeFactor;
   }
 
   public ProbabilityDistributionForm getOilHydrocarbonSaturation() {
@@ -48,15 +57,6 @@ class MixedCaseVolumetricsForm implements SubmissionForm {
   public void setAssociatedGasOilRatioLifeOfField(
       ProbabilityDistributionForm associatedGasOilRatioLifeOfField) {
     this.associatedGasOilRatioLifeOfField = associatedGasOilRatioLifeOfField;
-  }
-
-  public ProbabilityDistributionForm getGasExpansionFactor() {
-    return gasExpansionFactor;
-  }
-
-  public void setGasExpansionFactor(
-      ProbabilityDistributionForm gasExpansionFactor) {
-    this.gasExpansionFactor = gasExpansionFactor;
   }
 
   public ProbabilityDistributionForm getCondensateGasRatioLifeOfField() {

@@ -51,7 +51,6 @@ class GasCaseVolumetricsSummaryServiceTest {
                 emptySummary,
                 emptySummary,
                 emptySummary,
-                emptySummary,
                 emptySummary)
         );
   }
@@ -87,7 +86,6 @@ class GasCaseVolumetricsSummaryServiceTest {
             ProbabilityDistributionsFormSummaryView::probabilityDistributionSummaryViews)
         .isEqualTo(
             List.of(
-                testSummary,
                 testSummary,
                 testSummary,
                 testSummary,
@@ -128,7 +126,6 @@ class GasCaseVolumetricsSummaryServiceTest {
             ProbabilityDistributionsFormSummaryView::probabilityDistributionSummaryViews)
         .isEqualTo(
             List.of(
-                testSummary,
                 testSummary,
                 testSummary,
                 testSummary,

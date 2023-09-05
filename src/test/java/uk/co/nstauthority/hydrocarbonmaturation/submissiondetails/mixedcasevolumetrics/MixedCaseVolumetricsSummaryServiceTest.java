@@ -71,13 +71,19 @@ class MixedCaseVolumetricsSummaryServiceTest {
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
             submissionDetail,
             reservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
+            submissionDetail,
+            reservoirSubmissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
             submissionDetail,
             reservoirSubmissionDetail))
         .thenReturn(testSummary);
@@ -127,13 +133,19 @@ class MixedCaseVolumetricsSummaryServiceTest {
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY,
+            ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY,
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail))
+        .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail))
         .thenReturn(testSummary);

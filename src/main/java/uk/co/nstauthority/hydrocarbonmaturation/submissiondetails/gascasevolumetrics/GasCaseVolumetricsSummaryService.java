@@ -36,8 +36,6 @@ public class GasCaseVolumetricsSummaryService {
       listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY);
     }
 
-    listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR);
-
     listOfInstances.add(ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD);
 
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR);

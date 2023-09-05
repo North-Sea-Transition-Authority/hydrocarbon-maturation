@@ -66,11 +66,6 @@ public class GasCaseVolumetricsFormService implements SubmissionFormService {
       ));
     }
 
-    form.setGasExpansionFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        reservoirSubmissionDetail,
-        ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR
-    ));
-
     form.setGasRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR

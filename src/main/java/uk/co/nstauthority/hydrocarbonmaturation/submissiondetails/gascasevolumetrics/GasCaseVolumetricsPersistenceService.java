@@ -38,10 +38,6 @@ public class GasCaseVolumetricsPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasHydrocarbonSaturation,
         gasCaseVolumetricsForm.getGasHydrocarbonSaturation(), submissionDetail, reservoirSubmissionDetail);
 
-    var gasExpansionFactor = ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR;
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasExpansionFactor,
-        gasCaseVolumetricsForm.getGasExpansionFactor(), submissionDetail, reservoirSubmissionDetail);
-
     var gasRecoveryFactor = ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasRecoveryFactor,
         gasCaseVolumetricsForm.getGasRecoveryFactor(), submissionDetail, reservoirSubmissionDetail);

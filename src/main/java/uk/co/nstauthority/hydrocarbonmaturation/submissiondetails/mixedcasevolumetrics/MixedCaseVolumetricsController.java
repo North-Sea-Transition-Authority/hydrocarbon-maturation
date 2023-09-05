@@ -100,20 +100,17 @@ public class MixedCaseVolumetricsController {
         .addObject("associatedGasOilRatioLifeOfFieldTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
-        .addObject("gasExpansionFactorTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR))
         .addObject("condensateGasRatioLifeOfFieldTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD))
         .addObject("gasRecoveryFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR))
-        .addObject("formationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("oilFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedGasOilRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilRecoveryFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
@@ -121,12 +118,15 @@ public class MixedCaseVolumetricsController {
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       modelAndView
-          .addObject("formationVolumeFactorTemplate",
+          .addObject("oilFormationVolumeFactorTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT))
+                  ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT))
           .addObject("oilHydrocarbonSaturationTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT))
+          .addObject("gasFormationVolumeFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT))
           .addObject("gasHydrocarbonSaturationTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT))
@@ -135,12 +135,15 @@ public class MixedCaseVolumetricsController {
                   ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT));
     } else if (resourceType == ResourceType.DISCOVERY) {
       modelAndView
-          .addObject("formationVolumeFactorTemplate",
+          .addObject("oilFormationVolumeFactorTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY))
+                  ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY))
           .addObject("oilHydrocarbonSaturationTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY))
+          .addObject("gasFormationVolumeFactorTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY))
           .addObject("gasHydrocarbonSaturationTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY))
@@ -159,16 +162,21 @@ public class MixedCaseVolumetricsController {
     var modelAndView = getMixedCaseVolumetricsModelAndView(form, submissionDetail);
 
     return modelAndView
-        .addObject("formationVolumeFactorError",
+        .addObject("oilFormationVolumeFactorError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
-                "formationVolumeFactor",
-                form.getFormationVolumeFactor()))
+                "oilFormationVolumeFactor",
+                form.getOilFormationVolumeFactor()))
         .addObject("oilHydrocarbonSaturationError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
                 "oilHydrocarbonSaturation",
                 form.getOilHydrocarbonSaturation()))
+        .addObject("gasFormationVolumeFactorError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "gasFormationVolumeFactor",
+                form.getGasFormationVolumeFactor()))
         .addObject("gasHydrocarbonSaturationError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
@@ -179,11 +187,6 @@ public class MixedCaseVolumetricsController {
                 bindingResult,
                 "associatedGasOilRatioLifeOfField",
                 form.getAssociatedGasOilRatioLifeOfField()))
-        .addObject("gasExpansionFactorError",
-            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult,
-                "gasExpansionFactor",
-                form.getGasExpansionFactor()))
         .addObject("condensateGasRatioLifeOfFieldError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,

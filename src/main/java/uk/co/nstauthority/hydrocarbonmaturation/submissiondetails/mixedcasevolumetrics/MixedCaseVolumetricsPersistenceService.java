@@ -29,10 +29,6 @@ class MixedCaseVolumetricsPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(condensateGasRatioLifeOfField,
         mixedCaseVolumetricsForm.getCondensateGasRatioLifeOfField(), submissionDetail, reservoirSubmissionDetail);
 
-    var gasExpansionFactor = ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR;
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasExpansionFactor,
-        mixedCaseVolumetricsForm.getGasExpansionFactor(), submissionDetail, reservoirSubmissionDetail);
-
     var gasHydrocarbonSaturation = ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT;
     if (resourceType == ResourceType.DISCOVERY) {
       gasHydrocarbonSaturation = ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY;
@@ -44,12 +40,19 @@ class MixedCaseVolumetricsPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasRecoveryFactor,
         mixedCaseVolumetricsForm.getGasRecoveryFactor(), submissionDetail, reservoirSubmissionDetail);
 
-    var formationVolumeFactor = ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT;
+    var oilFormationVolumeFactor = ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT;
     if (resourceType == ResourceType.DISCOVERY) {
-      formationVolumeFactor = ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY;
+      oilFormationVolumeFactor = ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY;
     }
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(formationVolumeFactor,
-        mixedCaseVolumetricsForm.getFormationVolumeFactor(), submissionDetail, reservoirSubmissionDetail);
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(oilFormationVolumeFactor,
+        mixedCaseVolumetricsForm.getOilFormationVolumeFactor(), submissionDetail, reservoirSubmissionDetail);
+
+    var gasFormationVolumeFactor = ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT;
+    if (resourceType == ResourceType.DISCOVERY) {
+      gasFormationVolumeFactor = ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY;
+    }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasFormationVolumeFactor,
+        mixedCaseVolumetricsForm.getGasFormationVolumeFactor(), submissionDetail, reservoirSubmissionDetail);
 
     var oilHydrocarbonSaturation = ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT;
     if (resourceType == ResourceType.DISCOVERY) {

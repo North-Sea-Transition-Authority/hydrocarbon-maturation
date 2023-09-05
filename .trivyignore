@@ -65,3 +65,6 @@ CVE-2023-28708
 
 # Spring Security config
 CVE-2023-34034
+
+# Quartz
+CVE-2023-39017

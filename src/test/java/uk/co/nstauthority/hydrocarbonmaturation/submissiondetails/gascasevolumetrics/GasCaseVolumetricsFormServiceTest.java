@@ -72,12 +72,10 @@ class GasCaseVolumetricsFormServiceTest {
         .extracting(
             form -> form.getGasHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
-            form -> form.getGasExpansionFactor().getProbabilityDistributionType(),
             form -> form.getCondensateGasRatioLifeOfField().getProbabilityDistributionType(),
             form -> form.getGasFormationVolumeFactor().getProbabilityDistributionType()
         )
         .containsExactly(
-            null,
             null,
             null,
             null,
@@ -104,9 +102,6 @@ class GasCaseVolumetricsFormServiceTest {
             form -> form.getCondensateGasRatioLifeOfField().getProbabilityDistributionType(),
             form -> form.getCondensateGasRatioLifeOfField().getConstant().getConstant(),
             form -> form.getCondensateGasRatioLifeOfField().getConstant().getComments(),
-            form -> form.getGasExpansionFactor().getProbabilityDistributionType(),
-            form -> form.getGasExpansionFactor().getConstant().getConstant(),
-            form -> form.getGasExpansionFactor().getConstant().getComments(),
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getConstant().getConstant(),
             form -> form.getGasRecoveryFactor().getConstant().getComments(),
@@ -118,9 +113,6 @@ class GasCaseVolumetricsFormServiceTest {
             form -> form.getGasFormationVolumeFactor().getConstant().getComments()
             )
         .containsExactly(
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getConstant().getConstant(),
-            probabilityDistributionForm.getConstant().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getConstant().getConstant(),
             probabilityDistributionForm.getConstant().getComments(),
@@ -158,9 +150,6 @@ class GasCaseVolumetricsFormServiceTest {
             form -> form.getCondensateGasRatioLifeOfField().getProbabilityDistributionType(),
             form -> form.getCondensateGasRatioLifeOfField().getConstant().getConstant(),
             form -> form.getCondensateGasRatioLifeOfField().getConstant().getComments(),
-            form -> form.getGasExpansionFactor().getProbabilityDistributionType(),
-            form -> form.getGasExpansionFactor().getConstant().getConstant(),
-            form -> form.getGasExpansionFactor().getConstant().getComments(),
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getConstant().getConstant(),
             form -> form.getGasRecoveryFactor().getConstant().getComments(),
@@ -172,9 +161,6 @@ class GasCaseVolumetricsFormServiceTest {
             form -> form.getGasFormationVolumeFactor().getConstant().getComments()
         )
         .containsExactly(
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getConstant().getConstant(),
-            probabilityDistributionForm.getConstant().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getConstant().getConstant(),
             probabilityDistributionForm.getConstant().getComments(),

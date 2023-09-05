@@ -41,11 +41,10 @@ class MixedCaseVolumetricsPersistenceServiceTest {
     form.setGasHydrocarbonSaturation(probabilityDistributionForm);
     form.setOilRecoveryFactor(probabilityDistributionForm);
     form.setCondensateGasRatioLifeOfField(probabilityDistributionForm);
-    form.setGasExpansionFactor(probabilityDistributionForm);
     form.setAssociatedGasOilRatioLifeOfField(probabilityDistributionForm);
     form.setGasRecoveryFactor(probabilityDistributionForm);
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
-    form.setFormationVolumeFactor(probabilityDistributionForm);
+    form.setOilFormationVolumeFactor(probabilityDistributionForm);
 
     mixedCaseVolumetricsPersistenceService.saveMixedCaseVolumetrics(form, reservoirSubmissionDetail);
 
@@ -65,13 +64,6 @@ class MixedCaseVolumetricsPersistenceServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
-            form.getGasExpansionFactor(),
-            submissionDetail,
-            reservoirSubmissionDetail);
-
-    verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             form.getCondensateGasRatioLifeOfField(),
             submissionDetail,
@@ -86,8 +78,8 @@ class MixedCaseVolumetricsPersistenceServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_PROSPECT,
-            form.getFormationVolumeFactor(),
+            ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+            form.getOilFormationVolumeFactor(),
             submissionDetail,
             reservoirSubmissionDetail);
 
@@ -118,11 +110,10 @@ class MixedCaseVolumetricsPersistenceServiceTest {
     form.setGasHydrocarbonSaturation(probabilityDistributionForm);
     form.setOilRecoveryFactor(probabilityDistributionForm);
     form.setCondensateGasRatioLifeOfField(probabilityDistributionForm);
-    form.setGasExpansionFactor(probabilityDistributionForm);
     form.setAssociatedGasOilRatioLifeOfField(probabilityDistributionForm);
     form.setGasRecoveryFactor(probabilityDistributionForm);
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
-    form.setFormationVolumeFactor(probabilityDistributionForm);
+    form.setOilFormationVolumeFactor(probabilityDistributionForm);
 
     mixedCaseVolumetricsPersistenceService.saveMixedCaseVolumetrics(form, discoveryReservoirSubmissionDetail);
 
@@ -142,13 +133,6 @@ class MixedCaseVolumetricsPersistenceServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
-            form.getGasExpansionFactor(),
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail);
-
-    verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             form.getCondensateGasRatioLifeOfField(),
             discoverySubmissionDetail,
@@ -163,8 +147,8 @@ class MixedCaseVolumetricsPersistenceServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.MIXED_FORMATION_VOLUME_FACTOR_DISCOVERY,
-            form.getFormationVolumeFactor(),
+            ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
+            form.getOilFormationVolumeFactor(),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail);
 
