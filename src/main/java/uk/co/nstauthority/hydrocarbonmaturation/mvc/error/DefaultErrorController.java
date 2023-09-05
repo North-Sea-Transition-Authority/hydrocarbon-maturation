@@ -5,6 +5,7 @@ import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
+import java.util.Map;
 import java.util.Optional;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.Unauthenticated;
@@ -34,6 +36,7 @@ public class DefaultErrorController implements ErrorController {
    * by app code (controller methods and below) are handled in DefaultExceptionResolver.
    */
   @GetMapping("/error")
+  @SuppressWarnings("unchecked")
   public ModelAndView handleError(HttpServletRequest request) {
 
     var statusCode = Optional.ofNullable(request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE))
@@ -47,7 +50,10 @@ public class DefaultErrorController implements ErrorController {
     var servletException = request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
     var throwable = (Throwable) ObjectUtils.defaultIfNull(dispatcherException, servletException);
 
-    errorService.addErrorAttributesToModel(modelAndView, throwable);
+    var pathVariables = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+    var submissionDetailId = pathVariables.get("submissionDetailId");
+    var resourceId = pathVariables.get("resourceId");
+    errorService.addErrorAttributesToModel(modelAndView, throwable, submissionDetailId, resourceId);
 
     return modelAndView;
   }

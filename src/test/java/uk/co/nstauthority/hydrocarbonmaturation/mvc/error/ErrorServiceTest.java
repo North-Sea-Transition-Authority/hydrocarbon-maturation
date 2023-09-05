@@ -64,7 +64,9 @@ class ErrorServiceTest {
   void addErrorAttributesToModel_whenThrowableError_assertExpectedModelAttributes() {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
-        new NullPointerException()
+        new NullPointerException(),
+        null,
+        null
     ).getModelMap();
 
     assertThat(resultingModelMap).containsOnlyKeys(
@@ -88,6 +90,8 @@ class ErrorServiceTest {
   void addErrorAttributesToModel_whenNoThrowableError_assertExpectedModelAttributes() {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
+        null,
+        null,
         null
     ).getModelMap();
 
