@@ -7,6 +7,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 
 interface SubmissionSearchSelectorStrategy {
 
-  Stream<ResourceDetail> getResourceDetailsForSubmissions(Stream<SubmissionDetail> submissionDetailStream,
-                                                        SubmissionType submissionType);
+  Stream<ResourceDetail> getResourceDetailsForSubmissionsWithTeam(Stream<SubmissionDetail> submissionDetailStream,
+                                                                  SubmissionType submissionType);
 }

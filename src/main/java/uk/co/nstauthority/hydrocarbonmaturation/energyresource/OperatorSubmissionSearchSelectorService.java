@@ -34,8 +34,8 @@ class OperatorSubmissionSearchSelectorService implements SubmissionSearchSelecto
   }
 
   @Override
-  public Stream<ResourceDetail> getResourceDetailsForSubmissions(Stream<SubmissionDetail> submissionDetailStream,
-                                                                 SubmissionType submissionType) {
+  public Stream<ResourceDetail> getResourceDetailsForSubmissionsWithTeam(Stream<SubmissionDetail> submissionDetailStream,
+                                                                         SubmissionType submissionType) {
     var user = userDetailService.getUserDetail();
     var orgUnitsWhereUserSubmitter = industryTeamService
         .getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Set.of(IndustryTeamRole.SUBMITTER));

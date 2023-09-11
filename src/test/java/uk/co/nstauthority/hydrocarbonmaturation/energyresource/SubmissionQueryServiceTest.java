@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -89,7 +88,7 @@ class SubmissionQueryServiceTest {
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
-      when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+      when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
           lastestSubmissionStream.capture(), eq(submissionType)))
           .thenReturn(Stream.of(latestApprovedResourceDetail));
       when(submissionResourceService.getResourceDisplayName(latestApprovedResourceDetail))
@@ -126,7 +125,7 @@ class SubmissionQueryServiceTest {
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
-      when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+      when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
           lastestSubmissionStream.capture(), eq(submissionType)))
           .thenReturn(Stream.of());
 
@@ -167,7 +166,7 @@ class SubmissionQueryServiceTest {
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
-      when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+      when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
           lastestSubmissionStream.capture(), eq(submissionType)))
           .thenReturn(Stream.of(latestApprovedResourceDetail));
       when(submissionResourceService.getResourceDisplayName(latestApprovedResourceDetail))
@@ -204,7 +203,7 @@ class SubmissionQueryServiceTest {
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
-      when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+      when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
           lastestSubmissionStream.capture(), eq(submissionType)))
           .thenReturn(Stream.of());
 
@@ -250,7 +249,7 @@ class SubmissionQueryServiceTest {
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
-      when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+      when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
           lastestSubmissionStream.capture(), eq(submissionType)))
           .thenReturn(Stream.of(
               latestApprovedResourceDetail,
@@ -344,11 +343,10 @@ class SubmissionQueryServiceTest {
       when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resourceWithoutLatestApproved))
           .thenReturn(Optional.empty());
 
-      ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
+      ArgumentCaptor<SubmissionDetail> lastestSubmission = ArgumentCaptor.forClass(SubmissionDetail.class);
 
-      when(regulatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
-          lastestSubmissionStream.capture(), isNull()))
-          .thenReturn(Stream.of(latestApprovedResourceDetail));
+      when(resourceDetailsPersistenceService.getResourceDetailOrThrow(lastestSubmission.capture()))
+          .thenReturn(latestApprovedResourceDetail);
       when(submissionResourceService.getResourceDisplayName(latestApprovedResourceDetail))
           .thenReturn(searchTerm);
       var result = submissionQueryService
@@ -360,8 +358,8 @@ class SubmissionQueryServiceTest {
               tuple(latestApprovedResourceDetail.getId().toString(), searchTerm)
           );
 
-      assertThat(lastestSubmissionStream.getValue().toList())
-          .containsExactly(latestApprovedResourceDetail.getSubmissionDetail());
+      assertThat(lastestSubmission.getValue())
+          .isEqualTo(latestApprovedResourceDetail.getSubmissionDetail());
     }
 
     @Test
@@ -377,17 +375,10 @@ class SubmissionQueryServiceTest {
       when(resourceGroupService.isInGroupAndIsNotPreferredView(resource)).thenReturn(true);
       when(resourceGroupService.isInGroupAndIsNotPreferredView(resourceWithoutLatestApproved)).thenReturn(true);
 
-      ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
-
-      when(regulatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
-          lastestSubmissionStream.capture(), isNull()))
-          .thenReturn(Stream.empty());
-
       var result = submissionQueryService
           .getLatestNotRelinquishedAndNotInGroupOrPreferredViewDiscoveriesByName(searchTerm);
 
       assertThat(result).isEmpty();
-      assertThat(lastestSubmissionStream.getValue().toList()).isEmpty();
     }
 
     @Test
@@ -407,17 +398,10 @@ class SubmissionQueryServiceTest {
       when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resourceWithoutLatestApproved))
           .thenReturn(Optional.empty());
 
-      ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
-
-      when(regulatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
-          lastestSubmissionStream.capture(), isNull()))
-          .thenReturn(Stream.empty());
-
       var result = submissionQueryService
           .getLatestNotRelinquishedAndNotInGroupOrPreferredViewDiscoveriesByName(searchTerm);
 
       assertThat(result).isEmpty();
-      assertThat(lastestSubmissionStream.getValue().toList()).isEmpty();
     }
   }
 

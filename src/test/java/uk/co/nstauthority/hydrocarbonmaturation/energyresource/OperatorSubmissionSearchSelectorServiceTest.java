@@ -86,7 +86,7 @@ class OperatorSubmissionSearchSelectorServiceTest {
         resourceDetailWithUserOrgUnitAndNotExtantLicence.getSubmissionDetail()))
         .thenReturn(resourceDetailWithUserOrgUnitAndNotExtantLicence);
 
-    assertThat(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+    assertThat(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
         Stream.of(
             resourceDetailWithUserOrgUnitAndExtantLicence.getSubmissionDetail(),
             resourceDetailWithUserOrgUnitAndNotExtantLicence.getSubmissionDetail()),
@@ -123,7 +123,7 @@ class OperatorSubmissionSearchSelectorServiceTest {
         resourceDetailWithUserOrgUnitAndNotExtantLicence.getSubmissionDetail()))
         .thenReturn(resourceDetailWithUserOrgUnitAndNotExtantLicence);
 
-    assertThat(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+    assertThat(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
             Stream.of(
                 resourceDetailWithUserOrgUnitAndExtantLicence.getSubmissionDetail(),
                 resourceDetailWithUserOrgUnitAndNotExtantLicence.getSubmissionDetail()),
@@ -142,7 +142,7 @@ class OperatorSubmissionSearchSelectorServiceTest {
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(resourceDetailWithNullResponsibleOrg.getSubmissionDetail()))
         .thenReturn(resourceDetailWithNullResponsibleOrg);
 
-    assertThat(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissions(
+    assertThat(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
             Stream.of(
                 resourceDetailWithNullResponsibleOrg.getSubmissionDetail()),
             submissionType))

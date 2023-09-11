@@ -68,7 +68,7 @@ class RegulatorSubmissionSearchSelectorServiceTest {
 
 
     assertThat(regulatorSubmissionSearchSelectorService
-        .getResourceDetailsForSubmissions(Stream.of(submissionDetail1, submissionDetail2),
+        .getResourceDetailsForSubmissionsWithTeam(Stream.of(submissionDetail1, submissionDetail2),
             submissionType)
         .toList())
         .containsExactly(resourceDetail1, resourceDetail2);
@@ -86,7 +86,7 @@ class RegulatorSubmissionSearchSelectorServiceTest {
         .thenReturn(false);
 
     assertThat(regulatorSubmissionSearchSelectorService
-        .getResourceDetailsForSubmissions(Stream.of(submissionDetail), submissionType)
+        .getResourceDetailsForSubmissionsWithTeam(Stream.of(submissionDetail), submissionType)
         .toList())
         .isEmpty();
   }
@@ -103,7 +103,7 @@ class RegulatorSubmissionSearchSelectorServiceTest {
         .thenReturn(resourceDetail);
 
     assertThat(regulatorSubmissionSearchSelectorService
-        .getResourceDetailsForSubmissions(Stream.of(submissionDetail), submissionType)
+        .getResourceDetailsForSubmissionsWithTeam(Stream.of(submissionDetail), submissionType)
         .toList())
         .containsExactly(resourceDetail);
 

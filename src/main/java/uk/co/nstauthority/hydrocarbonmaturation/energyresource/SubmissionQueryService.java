@@ -21,7 +21,6 @@ class SubmissionQueryService {
   private final SubmissionFilterService submissionFilterService;
   private final SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory;
   private final ResourceGroupService resourceGroupService;
-  private final RegulatorSubmissionSearchSelectorService regulatorSubmissionSearchSelectorService;
 
   @Autowired
   SubmissionQueryService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
@@ -29,15 +28,13 @@ class SubmissionQueryService {
                          SubmissionResourceService submissionResourceService,
                          SubmissionFilterService submissionFilterService,
                          SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory,
-                         ResourceGroupService resourceGroupService,
-                         RegulatorSubmissionSearchSelectorService regulatorSubmissionSearchSelectorService) {
+                         ResourceGroupService resourceGroupService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.submissionFilterService = submissionFilterService;
     this.submissionSearchSelectorServiceFactory = submissionSearchSelectorServiceFactory;
     this.resourceGroupService = resourceGroupService;
-    this.regulatorSubmissionSearchSelectorService = regulatorSubmissionSearchSelectorService;
   }
 
   public List<ResourceView> getLatestDiscoveriesByNameForSubmissionType(String name,
@@ -54,7 +51,7 @@ class SubmissionQueryService {
             .filter(detail -> submissionFilterService.filterDiscoverySubmissionByOtherSubmissions(detail, submissionType));
 
     return submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy()
-        .getResourceDetailsForSubmissions(latestSubmissionsWhichCanBeSubmittedUpon, submissionType)
+        .getResourceDetailsForSubmissionsWithTeam(latestSubmissionsWhichCanBeSubmittedUpon, submissionType)
         .map(this::getResourceViewFromResourceDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();
@@ -75,7 +72,7 @@ class SubmissionQueryService {
 
     return submissionSearchSelectorServiceFactory
         .getSubmissionSearchSelectorStrategy()
-        .getResourceDetailsForSubmissions(latestSubmissionsWhichCanBeSubmittedUpon, submissionType)
+        .getResourceDetailsForSubmissionsWithTeam(latestSubmissionsWhichCanBeSubmittedUpon, submissionType)
         .map(this::getResourceViewFromResourceDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();
@@ -108,8 +105,8 @@ class SubmissionQueryService {
             .flatMap(Optional::stream)
             .filter(submissionDetail -> !submissionDetail.isDiscoveryRelinquishment());
 
-    return regulatorSubmissionSearchSelectorService
-        .getResourceDetailsForSubmissions(latestSubmissionsWhichCanBeSubmittedUpon, null)
+    return latestSubmissionsWhichCanBeSubmittedUpon
+        .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)
         .map(this::getResourceViewFromResourceDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();

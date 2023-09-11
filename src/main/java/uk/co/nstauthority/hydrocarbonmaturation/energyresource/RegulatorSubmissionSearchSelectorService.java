@@ -25,8 +25,8 @@ class RegulatorSubmissionSearchSelectorService implements SubmissionSearchSelect
   }
 
   @Override
-  public Stream<ResourceDetail> getResourceDetailsForSubmissions(Stream<SubmissionDetail> submissionDetailStream,
-                                                                 SubmissionType submissionType) {
+  public Stream<ResourceDetail> getResourceDetailsForSubmissionsWithTeam(Stream<SubmissionDetail> submissionDetailStream,
+                                                                         SubmissionType submissionType) {
     return submissionDetailStream
         .filter(this::isUserInResourceResponsibleTeam)
         .map(resourceDetailsPersistenceService::getResourceDetailOrThrow);
