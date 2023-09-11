@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -12,14 +13,19 @@ import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.OngoingStubbing;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,32 +59,34 @@ class PermeabilityDuplicationServiceTest {
 
   @Test
   void duplicateReservoirSection_PermeabilityExists_field_DoesDuplicate() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
-    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
-    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_CSR);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_CSR);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
     var permeability = mock(PermeabilityDetail.class);
-    when(permeabilityPersistenceService.getPermeabilityDetail(oldReservoirSubmissionDetail))
-        .thenReturn(Optional.of(permeability));
+    when(permeabilityPersistenceService.getPermeabilityDetail(oldReservoirSubmissionDetail)).thenReturn(Optional.of(permeability));
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
-    var applicableInstances = Set.of(
-        ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY,
-        ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
-        ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
-    );
-    when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail, applicableInstances))
+    whenGetAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail)
         .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
 
     permeabilityDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, permeability,
         PermeabilityDetail.class);
-    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution1,
-        ProbabilityDistribution.class);
-    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution2,
-        ProbabilityDistribution.class);
+
+    var argumentCaptor1 = ArgumentCaptor.forClass(ReservoirSubmissionDetail.class);
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(argumentCaptor1.capture(), eq(probabilityDistribution1),
+        eq(ProbabilityDistribution.class));
+    assertThat(argumentCaptor1.getValue().getSubmissionDetail()).isEqualTo(newSubmissionDetail);
+    var argumentCaptor2 = ArgumentCaptor.forClass(ReservoirSubmissionDetail.class);
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(argumentCaptor2.capture(), eq(probabilityDistribution2),
+        eq(ProbabilityDistribution.class));
+    assertThat(argumentCaptor2.getValue().getSubmissionDetail()).isEqualTo(newSubmissionDetail);
   }
 
   @Test
@@ -93,5 +101,16 @@ class PermeabilityDuplicationServiceTest {
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(PermeabilityDetail.class), eq(PermeabilityDetail.class));
+  }
+
+  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstances(
+      ReservoirSubmissionDetail oldReservoirSubmissionDetail) {
+    return when(
+        probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail,
+            Set.of(
+                ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY,
+                ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
+                ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
+            )));
   }
 }

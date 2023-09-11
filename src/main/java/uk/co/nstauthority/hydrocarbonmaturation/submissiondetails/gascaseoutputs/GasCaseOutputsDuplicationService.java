@@ -66,6 +66,11 @@ public class GasCaseOutputsDuplicationService implements ReservoirSectionDuplica
               reservoirDuplicationPersistenceService
                   .duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution,
                       ProbabilityDistribution.class));
+
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(
+          newReservoirSubmissionDetail, applicableInstances).forEach(
+            probabilityDistribution -> probabilityDistribution.setSubmissionDetail(newSubmissionDetail)
+      );
     }
   }
 }

@@ -50,7 +50,6 @@ class FieldOilVolumetricsDuplicationService implements ReservoirSectionDuplicati
                   probabilityDistribution,
                   ProbabilityDistribution.class));
 
-      //set new submission detail against the new probability items
       probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(
           newReservoirSubmissionDetail, applicableInstances).forEach(probabilityDistribution ->
               probabilityDistribution.setSubmissionDetail(newSubmissionDetail)

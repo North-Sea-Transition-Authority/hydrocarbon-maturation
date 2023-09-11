@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -18,6 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -62,10 +64,14 @@ class OilCaseVolumetricsDuplicationServiceTest {
 
     oilCaseVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution1,
-        ProbabilityDistribution.class);
-    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution2,
-        ProbabilityDistribution.class);
+    var argumentCaptor1 = ArgumentCaptor.forClass(ReservoirSubmissionDetail.class);
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(argumentCaptor1.capture(), eq(probabilityDistribution1),
+        eq(ProbabilityDistribution.class));
+    assertThat(argumentCaptor1.getValue().getSubmissionDetail()).isEqualTo(newSubmissionDetail);
+    var argumentCaptor2 = ArgumentCaptor.forClass(ReservoirSubmissionDetail.class);
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(argumentCaptor2.capture(), eq(probabilityDistribution2),
+        eq(ProbabilityDistribution.class));
+    assertThat(argumentCaptor2.getValue().getSubmissionDetail()).isEqualTo(newSubmissionDetail);
   }
 
   @ParameterizedTest

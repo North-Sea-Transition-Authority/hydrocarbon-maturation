@@ -74,6 +74,11 @@ class MixedCaseOutputsDuplicationService implements ReservoirSectionDuplicationS
               reservoirDuplicationPersistenceService
                   .duplicateChildAndReplaceParent(newReservoirSubmissionDetail, probabilityDistribution,
                       ProbabilityDistribution.class));
+
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(
+          newReservoirSubmissionDetail, applicableInstances).forEach(
+            probabilityDistribution -> probabilityDistribution.setSubmissionDetail(newSubmissionDetail)
+      );
     }
   }
 }

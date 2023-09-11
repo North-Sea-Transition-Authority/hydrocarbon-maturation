@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Component
@@ -33,22 +34,23 @@ public class SubmissionTypeInterceptorRule implements SubmissionInterceptorSecur
     var submissionTypes = hasSubmissionType.submissionTypes();
     var mode = hasSubmissionType.mode();
 
-    if (mode == HasSubmissionType.Mode.INCLUDE
-        && Arrays.stream(submissionTypes.getSubmissionTypesAllowed())
-          .anyMatch(submissionType -> submissionType == submissionDetail.getSubmissionType())) {
-      return SecurityRuleResult.continueAsNormal();
-    } else if (mode == HasSubmissionType.Mode.EXCLUDE
-        && Arrays.stream(submissionTypes.getSubmissionTypesAllowed())
-          .noneMatch(submissionType -> submissionType == submissionDetail.getSubmissionType())) {
+    var actualSubmissionTypes = Arrays.stream(submissionTypes)
+        .map(SecuritySubmissionTypes::getSubmissionTypesAllowed).toList()
+        .stream()
+        .flatMap(Arrays::stream).toList();
+
+    if ((mode == HasSubmissionType.Mode.INCLUDE && actualSubmissionTypes.contains(submissionDetail.getSubmissionType()))
+        ||
+        (mode == HasSubmissionType.Mode.EXCLUDE && !actualSubmissionTypes.contains(submissionDetail.getSubmissionType()))) {
       return SecurityRuleResult.continueAsNormal();
     }
 
     var submissionDetailId = submissionDetail.getId();
 
-    LOGGER.warn("User {} attempted to access submission {} form page unavailable for the current submission type {} ",
+    LOGGER.warn("User {} attempted to access submission {} form page unavailable for the current submission type: {} ",
         userDetails.wuaId(),
         submissionDetailId,
-        submissionDetail.getSubmissionType().getDisplayName());
+        submissionDetail.getSubmissionType().getTypeName());
 
     return SecurityRuleResult.checkFailedWithStatus(HttpStatus.FORBIDDEN);
   }

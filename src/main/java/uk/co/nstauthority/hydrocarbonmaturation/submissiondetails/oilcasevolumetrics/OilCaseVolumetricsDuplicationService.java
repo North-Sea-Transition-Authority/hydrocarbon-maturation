@@ -58,6 +58,11 @@ class OilCaseVolumetricsDuplicationService implements ReservoirSectionDuplicatio
               reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newReservoirSubmissionDetail,
                   probabilityDistribution,
                   ProbabilityDistribution.class));
+
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(
+          newReservoirSubmissionDetail, applicableInstances).forEach(
+            probabilityDistribution -> probabilityDistribution.setSubmissionDetail(newSubmissionDetail)
+      );
     }
   }
 }

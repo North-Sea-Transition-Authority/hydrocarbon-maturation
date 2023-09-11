@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Security
 public @interface HasSubmissionType {
-  SecuritySubmissionTypes submissionTypes();
+  SecuritySubmissionTypes[] submissionTypes();
   Mode mode() default Mode.INCLUDE;
 
   enum Mode {

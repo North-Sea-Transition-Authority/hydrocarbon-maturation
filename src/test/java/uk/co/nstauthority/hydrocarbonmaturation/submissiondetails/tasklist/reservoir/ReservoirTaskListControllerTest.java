@@ -74,6 +74,18 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void getTaskList_whenNotResponsibleOrganisationOrTeam_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ReservoirTaskListController.class)
+                .getReservoirTaskList(submissionDetail.getId(), null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getTaskList_whenProspect_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleTeam_passSecurity();
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirTaskListController.class)

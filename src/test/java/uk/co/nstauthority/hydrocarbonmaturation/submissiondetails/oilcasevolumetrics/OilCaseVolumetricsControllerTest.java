@@ -134,7 +134,7 @@ class OilCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
-  void saveOilCaseVolumetrics_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+  void saveOilCaseVolumetrics_whenValidForm_assertRedirection_whenProspect(ValidationType validationType) throws Exception {
     when(oilCaseVolumetricsFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
@@ -144,6 +144,25 @@ class OilCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+
+    verify(oilCaseVolumetricsPersistenceService, times(1)).saveOilCaseVolumetrics(any(OilCaseVolumetricsForm.class), eq(reservoirSubmissionDetail));
+  }
+
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveOilCaseVolumetrics_whenValidForm_assertRedirection_whenDiscovery(ValidationType validationType) throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    when(oilCaseVolumetricsFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(true);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(OilCaseVolumetricsController.class)
+                .saveOilCaseVolumetrics(submissionDetailId, reservoirSubmissionDetailId, null, null, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(user(USER))
+                .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null))));
 

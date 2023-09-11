@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
@@ -17,6 +19,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/reservoir-task-list")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
+@HasSubmissionType(
+    mode = HasSubmissionType.Mode.EXCLUDE,
+    submissionTypes = {SecuritySubmissionTypes.PROSPECT_TYPES, SecuritySubmissionTypes.POST_DRILL_DRY_HOLE}
+)
 @IsFromResponsibleTeam
 public class ReservoirTaskListController {
 

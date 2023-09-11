@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -86,7 +87,11 @@ public class OilCaseVolumetricsController {
       return getOilVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       oilCaseVolumetricsPersistenceService.saveOilCaseVolumetrics(form, reservoirSubmissionDetail);
-      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, user));
+      if (submissionDetail.isProspectSubmission()) {
+        return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      } else {
+        return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, user));
+      }
     }
   }
 

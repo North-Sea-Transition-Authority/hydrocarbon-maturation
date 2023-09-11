@@ -65,6 +65,11 @@ class MixedCaseVolumetricsDuplicationService implements ReservoirSectionDuplicat
               reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newReservoirSubmissionDetail,
                   probabilityDistribution,
                   ProbabilityDistribution.class));
+
+      probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(
+          newReservoirSubmissionDetail, applicableInstances).forEach(
+              probabilityDistribution -> probabilityDistribution.setSubmissionDetail(newSubmissionDetail)
+      );
     }
   }
 }
