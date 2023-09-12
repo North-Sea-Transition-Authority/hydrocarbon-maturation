@@ -106,17 +106,20 @@ public class ProbabilityDistributionPersistenceService {
     return probabilityDistributionRepository.findByReservoirSubmissionDetailAndInstanceIn(reservoirSubmissionDetail, instances);
   }
 
+  @Transactional
   public void deleteProbabilityDistribution(ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
                                             SubmissionDetail submissionDetail) {
     probabilityDistributionRepository.deleteBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance);
   }
 
+  @Transactional
   public void deleteProbabilityDistribution(ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
                                             ReservoirSubmissionDetail reservoirSubmissionDetail) {
     probabilityDistributionRepository
         .deleteByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail, probabilityDistributionFieldInstance);
   }
 
+  @Transactional
   public void deleteProbabilityDistributions(List<ProbabilityDistributionFieldInstance> instances,
                                              ReservoirSubmissionDetail reservoirSubmissionDetail) {
     probabilityDistributionRepository

@@ -1,18 +1,42 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase;
 
+import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 
 @Service
 public class HydrocarbonCasePersistenceService {
   private final HydrocarbonCaseRepository hydrocarbonCaseRepository;
+  private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
+  private final GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
+  private final MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService;
 
   @Autowired
-  public HydrocarbonCasePersistenceService(HydrocarbonCaseRepository hydrocarbonCaseRepository) {
+  public HydrocarbonCasePersistenceService(
+      HydrocarbonCaseRepository hydrocarbonCaseRepository,
+      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
+      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+      OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService,
+      GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService,
+      MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService) {
     this.hydrocarbonCaseRepository = hydrocarbonCaseRepository;
+    this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.oilCaseOutputsPersistenceService = oilCaseOutputsPersistenceService;
+    this.gasCaseOutputsPersistenceService = gasCaseOutputsPersistenceService;
+    this.mixedCaseOutputsPersistenceService = mixedCaseOutputsPersistenceService;
   }
 
   @Transactional
@@ -48,6 +72,7 @@ public class HydrocarbonCasePersistenceService {
     }
 
     hydrocarbonCaseRepository.save(hydrocarbonCase);
+    cleanHydrocarbonCase(form, submissionDetail);
   }
 
   public Optional<HydrocarbonCaseDetail> getHydrocarbonCaseDetail(SubmissionDetail submissionDetail) {
@@ -65,5 +90,68 @@ public class HydrocarbonCasePersistenceService {
 
   public boolean isMixedOilAndGasPresent(HydrocarbonCaseDetail hydrocarbonCaseDetail) {
     return hydrocarbonCaseDetail.getOilAndGas() != null && hydrocarbonCaseDetail.getOilAndGas();
+  }
+
+  private void cleanHydrocarbonCase(HydrocarbonCaseForm form, SubmissionDetail submissionDetail) {
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail);
+    if (BooleanUtils.isNotTrue(form.getGasOnlyCaseType())) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistributions(
+          List.of(
+              ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
+              ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+              ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+              ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
+              ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
+              ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT,
+              ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+              ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
+              ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+          ),
+          reservoirSubmissionDetail
+      );
+      gasCaseOutputsPersistenceService.deleteGasCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
+    }
+
+    if (BooleanUtils.isNotTrue(form.getOilOnlyCaseType())) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistributions(
+          List.of(
+              ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
+              ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+              ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT,
+              ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+              ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT,
+              ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT,
+              ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+              ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+          ),
+          reservoirSubmissionDetail
+      );
+      oilCaseOutputsPersistenceService.deleteOilCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
+    }
+
+    if (BooleanUtils.isNotTrue(form.getOilAndGasCaseType())) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistributions(
+          List.of(
+              ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+              ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
+              ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+              ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
+              ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
+              ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+          ),
+          reservoirSubmissionDetail
+      );
+      mixedCaseOutputsPersistenceService.deleteMixedCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
+    }
   }
 }

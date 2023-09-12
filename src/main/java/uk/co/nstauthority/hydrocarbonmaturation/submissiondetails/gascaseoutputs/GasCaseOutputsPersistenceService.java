@@ -9,7 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class GasCaseOutputsPersistenceService {
+public class GasCaseOutputsPersistenceService {
 
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final GasCaseOutputsRepository gasCaseOutputsRepository;
@@ -95,5 +95,10 @@ class GasCaseOutputsPersistenceService {
 
   public Optional<GasCaseOutput> getGasCaseOutput(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     return gasCaseOutputsRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);
+  }
+
+  @Transactional
+  public void deleteGasCaseOutputForReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    gasCaseOutputsRepository.deleteByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 }

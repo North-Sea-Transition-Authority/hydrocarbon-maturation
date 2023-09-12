@@ -104,4 +104,9 @@ public class OilCaseOutputsPersistenceService {
   public Optional<OilCaseOutput> getOilCaseOutput(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     return oilCaseOutputsRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
+
+  @Transactional
+  public void deleteOilCaseOutputForReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    oilCaseOutputsRepository.deleteByReservoirSubmissionDetail(reservoirSubmissionDetail);
+  }
 }

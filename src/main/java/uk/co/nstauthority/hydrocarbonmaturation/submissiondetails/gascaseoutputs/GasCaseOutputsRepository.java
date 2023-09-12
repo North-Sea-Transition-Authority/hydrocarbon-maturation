@@ -10,4 +10,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 interface GasCaseOutputsRepository extends CrudRepository<GasCaseOutput, UUID> {
 
   Optional<GasCaseOutput> findByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
+
+  void deleteByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
 }

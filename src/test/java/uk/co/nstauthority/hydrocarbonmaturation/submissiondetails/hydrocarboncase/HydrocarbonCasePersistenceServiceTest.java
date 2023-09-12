@@ -3,10 +3,14 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarbonca
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,22 +19,51 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
 class HydrocarbonCasePersistenceServiceTest {
 
   @Mock
-  private static HydrocarbonCaseRepository hydrocarbonCaseRepository;
-  private static HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+  private HydrocarbonCaseRepository hydrocarbonCaseRepository;
 
-  private static SubmissionDetail submissionDetail;
+  @Mock
+  private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+
+  @Mock
+  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
+  @Mock
+  private OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
+
+  @Mock
+  private GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
+
+  @Mock
+  private MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService;
+
+  private HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+
+  private SubmissionDetail submissionDetail;
 
   private HydrocarbonCaseDetail hydrocarbonCase;
 
   @BeforeEach
   void setup() {
-    hydrocarbonCasePersistenceService = new HydrocarbonCasePersistenceService(hydrocarbonCaseRepository);
+    hydrocarbonCasePersistenceService = new HydrocarbonCasePersistenceService(
+        hydrocarbonCaseRepository,
+        probabilityDistributionPersistenceService,
+        reservoirSubmissionDetailPersistenceService,
+        oilCaseOutputsPersistenceService,
+        gasCaseOutputsPersistenceService,
+        mixedCaseOutputsPersistenceService);
 
     UUID submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
@@ -169,5 +202,164 @@ class HydrocarbonCasePersistenceServiceTest {
   @Test
   void isOilOnlyPresent_whenNoGas_isFalse() {
     assertFalse(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase));
+  }
+
+  @Test
+  void hydrocarbonsNotPresent_assertCleanUp() {
+    var form = new HydrocarbonCaseForm();
+    var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
+    hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+            ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+            ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
+            ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+        ),
+        reservoirSubmissionDetail
+    );
+
+    verify(gasCaseOutputsPersistenceService, times(1))
+        .deleteGasCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+        ),
+        reservoirSubmissionDetail
+    );
+
+    verify(oilCaseOutputsPersistenceService, times(1))
+        .deleteOilCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
+            ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
+            ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+        ),
+        reservoirSubmissionDetail
+    );
+
+    verify(mixedCaseOutputsPersistenceService, times(1))
+        .deleteMixedCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
+  }
+
+  @Test
+  void gasCasePresent_noGasCleanUp() {
+    var form = new HydrocarbonCaseForm();
+    form.setGasOnlyCaseType(true);
+    form.setGasOnlyProbability(new DecimalInput("100"));
+    var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
+    hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, never()).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+            ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+            ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
+            ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+        ),
+        reservoirSubmissionDetail
+    );
+
+    verifyNoInteractions(gasCaseOutputsPersistenceService);
+  }
+
+  @Test
+  void oilCasePresent_noOilCleanUp() {
+    var form = new HydrocarbonCaseForm();
+    form.setOilOnlyCaseType(true);
+    form.setOilOnlyProbability(new DecimalInput("100"));
+    var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
+    hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, never()).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+        ),
+        reservoirSubmissionDetail
+    );
+
+    verifyNoInteractions(oilCaseOutputsPersistenceService);
+  }
+
+  @Test
+  void mixedCasePresent_noGasCleanUp() {
+    var form = new HydrocarbonCaseForm();
+    form.setOilAndGasCaseType(true);
+    form.setOilAndGasProbability(new DecimalInput("100"));
+    var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
+    hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
+
+    verify(probabilityDistributionPersistenceService, never()).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
+            ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
+            ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
+            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+        ),
+        reservoirSubmissionDetail
+    );
+
+    verifyNoInteractions(mixedCaseOutputsPersistenceService);
   }
 }

@@ -11,7 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class MixedCaseOutputsPersistenceService {
+public class MixedCaseOutputsPersistenceService {
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final MixedCaseOutputsRepository mixedCaseOutputsRepository;
 
@@ -143,5 +143,10 @@ class MixedCaseOutputsPersistenceService {
   private boolean hasAssociatedGasRecoverableResources(MixedCaseOutputsForm form) {
     return form.getHasAssociatedGasRecoverableResources() != null
         && form.getHasAssociatedGasRecoverableResources();
+  }
+
+  @Transactional
+  public void deleteMixedCaseOutputForReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    mixedCaseOutputsRepository.deleteByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 }

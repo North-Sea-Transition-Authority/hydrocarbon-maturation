@@ -10,4 +10,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 interface MixedCaseOutputsRepository extends CrudRepository<MixedCaseOutput, UUID> {
 
   Optional<MixedCaseOutput> findByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
+
+  void deleteByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
 }
