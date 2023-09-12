@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,7 +57,15 @@ class ResourceGroupSummaryServiceTest {
     when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
         .thenReturn(List.of(resourceGroupLink));
     var expectedNameOnResource = "resource 1";
-    mockLatestApprovedSubmission(resource, expectedNameOnResource);
+    mockLatestApprovedSubmission(
+        resource,
+        expectedNameOnResource,
+        List.of(
+            SubmissionType.PROSPECT_UPDATE,
+            SubmissionType.CREATE_PROSPECT,
+            SubmissionType.RELINQUISHMENT_PROSPECT
+        )
+    );
     var summaryView = resourceGroupSummaryService
         .getResourceGroupLinkSummaryFromResource(resource);
 
@@ -102,8 +111,26 @@ class ResourceGroupSummaryServiceTest {
     resourceGroupLink2.setResourceGroupId(resourceGroupLink.getId());
     when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
         .thenReturn(List.of(resourceGroupLink, resourceGroupLink2));
-    mockLatestApprovedSubmission(resource, RESOURCE_NAME);
-    mockLatestApprovedSubmission(resource2, OTHER_RESOURCE_NAME);
+    mockLatestApprovedSubmission(
+        resource,
+        RESOURCE_NAME,
+        List.of(
+          SubmissionType.CREATE_DISCOVERY,
+          SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
+          SubmissionType.UPDATE_DISCOVERY,
+          SubmissionType.RELINQUISHMENT_DISCOVERY
+        )
+    );
+    mockLatestApprovedSubmission(
+        resource2,
+        OTHER_RESOURCE_NAME,
+        List.of(
+            SubmissionType.CREATE_DISCOVERY,
+            SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
+            SubmissionType.UPDATE_DISCOVERY,
+            SubmissionType.RELINQUISHMENT_DISCOVERY
+        )
+    );
 
     var summaryView = resourceGroupSummaryService
         .getResourceGroupLinkSummaryFromResource(resource);
@@ -175,7 +202,16 @@ class ResourceGroupSummaryServiceTest {
     when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
         .thenReturn(List.of(resourceGroupLink, resourceGroupLink2));
 
-    mockLatestApprovedSubmission(resource2, OTHER_RESOURCE_NAME);
+    mockLatestApprovedSubmission(
+        resource2,
+        OTHER_RESOURCE_NAME,
+        List.of(
+            SubmissionType.CREATE_DISCOVERY,
+            SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
+            SubmissionType.UPDATE_DISCOVERY,
+            SubmissionType.RELINQUISHMENT_DISCOVERY
+        )
+    );
 
     var summaryView = resourceGroupSummaryService
         .getResourceGroupMembersSummaryWithoutCurrentResource(resource);
@@ -203,15 +239,12 @@ class ResourceGroupSummaryServiceTest {
     assertThat(summaryView).isEmpty();
   }
 
-  private void mockLatestApprovedSubmission(Resource resource, String expectedResourceName) {
+  private void mockLatestApprovedSubmission(Resource resource,
+                                            String expectedResourceName,
+                                            List<SubmissionType> submissionTypes) {
     var mockSubmissionDetail = mock(SubmissionDetail.class);
-    if (resource.getType() == ResourceType.PROSPECT) {
-      when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(resource))
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(resource, submissionTypes))
           .thenReturn(Optional.of(mockSubmissionDetail));
-    } else {
-      when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
-          .thenReturn(Optional.of(mockSubmissionDetail));
-    }
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(mockSubmissionDetail))
         .thenReturn(expectedResourceName);
   }

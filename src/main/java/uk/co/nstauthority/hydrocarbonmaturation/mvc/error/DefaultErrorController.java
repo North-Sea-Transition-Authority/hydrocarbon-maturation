@@ -46,7 +46,7 @@ public class DefaultErrorController implements ErrorController {
     var dispatcherException = request.getAttribute(DispatcherServlet.EXCEPTION_ATTRIBUTE);
     var servletException = request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
     var throwable = (Throwable) ObjectUtils.defaultIfNull(dispatcherException, servletException);
-    var url = request.getRequestURL().toString();
+    var url = (String) request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
     errorService.addErrorAttributesToModel(modelAndView, throwable, url);
 
     return modelAndView;

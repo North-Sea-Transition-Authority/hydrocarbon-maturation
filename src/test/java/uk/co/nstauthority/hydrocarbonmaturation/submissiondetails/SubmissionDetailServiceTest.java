@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,7 +25,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
 
@@ -34,8 +32,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenc
 class SubmissionDetailServiceTest {
   @Mock
   private SubmissionDetailRepository submissionDetailRepository;
-  @Mock
-  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
   @Mock
   private SubmissionPersistenceService submissionPersistenceService;
   @InjectMocks
@@ -61,7 +57,7 @@ class SubmissionDetailServiceTest {
             SubmissionType.UPDATE_DISCOVERY),
         SubmissionDetailStatus.APPROVED))
         .thenReturn(Optional.of(submissionDetail));
-    when(submissionPersistenceService.getSubmissionsByResource(any()))
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(submissionList);
 
     assertThat(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
@@ -72,7 +68,7 @@ class SubmissionDetailServiceTest {
   void getLatestApprovedProspectSubmissionForResource_assertSubmissionDetailFound() {
     var resource = new Resource();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
-    when(submissionPersistenceService.getSubmissionsByResource(any()))
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(submissionList);
     when(submissionDetailRepository
         .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(submissionList,
@@ -89,7 +85,7 @@ class SubmissionDetailServiceTest {
   void getApprovedOrSubmittedSubmissionDetailByResource() {
     var resource = new Resource();
     var submissionDetail = new SubmissionDetail();
-    when(submissionPersistenceService.getSubmissionsByResource(any()))
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(submissionList);
     when(submissionDetailRepository.findFirstBySubmissionInAndStatusInOrderByVersionNumberDesc(
         submissionList,
@@ -102,7 +98,7 @@ class SubmissionDetailServiceTest {
 
   @Test
   void isLatestSubmissionForResourceRelinquishment_whenReturnedSubmissionDetail_assertTrue() {
-    when(submissionPersistenceService.getSubmissionsByResource(any()))
+    when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
     when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
         submissionList,
@@ -116,7 +112,7 @@ class SubmissionDetailServiceTest {
 
   @Test
   void isLatestSubmissionForResourceRelinquishment_whenNotReturnedSubmissionDetail_assertFalse() {
-    when(submissionPersistenceService.getSubmissionsByResource(any()))
+    when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
     when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
         submissionList,
@@ -130,7 +126,7 @@ class SubmissionDetailServiceTest {
 
   @Test
   void getLatestApprovedSubmissionDetailForResource_assertEmpty() {
-    when(submissionPersistenceService.getSubmissionsByResource(any()))
+    when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
     when(submissionDetailRepository.findFirstBySubmissionInAndStatusOrderByApprovedTimestampDesc(
         submissionList,
@@ -144,7 +140,7 @@ class SubmissionDetailServiceTest {
 
   @Test
   void getLatestApprovedSubmissionDetailForResource_assertReturn() {
-    when(submissionPersistenceService.getSubmissionsByResource(any()))
+    when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
     when(submissionDetailRepository.findFirstBySubmissionInAndStatusOrderByApprovedTimestampDesc(
         submissionList,
@@ -153,6 +149,38 @@ class SubmissionDetailServiceTest {
 
     assertThat(submissionDetailService.getLatestApprovedSubmissionDetailForResource(
         submissionDetail.getSubmission().getResource()))
+        .contains(submissionDetail);
+  }
+
+  @Test
+  void getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes_assertEmpty() {
+    var submissionTypes = List.of(SubmissionType.CREATE_DISCOVERY, SubmissionType.RELINQUISHMENT_DISCOVERY);
+    when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
+        .thenReturn(submissionList);
+    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+        submissionList,
+        submissionTypes,
+        SubmissionDetailStatus.APPROVED
+    )).thenReturn(Optional.empty());
+
+    assertThat(submissionDetailService.getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(
+        submissionDetail.getSubmission().getResource(), submissionTypes))
+        .isNotPresent();
+  }
+
+  @Test
+  void getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes_assertReturn() {
+    var submissionTypes = List.of(SubmissionType.CREATE_DISCOVERY, SubmissionType.RELINQUISHMENT_DISCOVERY);
+    when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
+        .thenReturn(submissionList);
+    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+        submissionList,
+        submissionTypes,
+        SubmissionDetailStatus.APPROVED
+    )).thenReturn(Optional.of(submissionDetail));
+
+    assertThat(submissionDetailService.getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(
+        submissionDetail.getSubmission().getResource(), submissionTypes))
         .contains(submissionDetail);
   }
 
