@@ -23,13 +23,13 @@
     <@fdsTextInput.textInput
       path="form.topDepth.decimalInputValue"
       labelText="Top depth"
-      suffix="ft tvdss"
+      suffix="m tvdss"
       inputClass="govuk-input--width-5"
       nestingPath="form.topDepth"/>
     <@fdsTextInput.textInput
       path="form.bottomDepth.decimalInputValue"
       labelText="Bottom depth"
-      suffix="ft tvdss"
+      suffix="m tvdss"
       inputClass="govuk-input--width-5"
       nestingPath="form.bottomDepth"/>
     <@fdsTextInput.textInput

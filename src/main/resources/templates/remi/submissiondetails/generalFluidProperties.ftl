@@ -17,7 +17,7 @@
     <@fdsTextInput.textInput
       path="form.datumDepth.decimalInputValue"
       labelText="Datum depth"
-      suffix="ft tvdss"
+      suffix="m tvdss"
       inputClass="govuk-input--width-5"
       nestingPath="form.datumDepth"/>
 
@@ -25,7 +25,7 @@
       path="form.temperatureAtDatumDepth.decimalInputValue"
       labelText="Temperature at datum depth"
       inputClass="govuk-input--width-5"
-      suffix="°F"
+      suffix="°C"
       nestingPath="form.temperatureAtDatumDepth"/>
 
     <@fdsTextInput.textInput

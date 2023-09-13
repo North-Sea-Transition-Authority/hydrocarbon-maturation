@@ -16,22 +16,22 @@ public enum ProbabilityDistributionFieldInstance {
   // Trap properties
   DEPTH_TO_CREST_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to crest"
   ),
   DEPTH_TO_CREST_DISCOVERY(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to crest"
   ),
   DEPTH_TO_SPILL_POINT_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to spill point"
   ),
   DEPTH_TO_SPILL_POINT_DISCOVERY(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to spill point"
   ),
   PRODUCTIVE_AREA_PROSPECT(
@@ -113,22 +113,22 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   DEPTH_TO_HYDROCARBON_CONTACT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to hydrocarbon contact"
   ),
   DEPTH_TO_OIL_WATER_CONTACT(
       MinimumMostLikelyMaxBehaviour.class,
-      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to oil water contact"
   ),
   DEPTH_TO_GAS_WATER_CONTACT(
       MinimumMostLikelyMaxBehaviour.class,
-      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to gas water contact"
   ),
   DEPTH_TO_GAS_OIL_CONTACT(
       MinimumMostLikelyMaxBehaviour.class,
-      ProbabilityOfExceedanceUnits.FT_TVDSS,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to gas-oil contact"
   ),
 

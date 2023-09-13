@@ -125,7 +125,7 @@ class GasFluidPropertySummaryServiceTest {
             "10 cP",
             "1 ppm",
             "10 %",
-            "1 °F",
+            "1 °C",
             "advise of gases"
         );
   }

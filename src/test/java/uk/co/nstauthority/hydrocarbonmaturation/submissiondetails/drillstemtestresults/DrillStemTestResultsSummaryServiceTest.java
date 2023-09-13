@@ -96,8 +96,8 @@ class DrillStemTestResultsSummaryServiceTest {
         .containsExactly(
             "1a",
             "formation",
-            "1 ft tvdss",
-            "10 ft tvdss",
+            "1 m tvdss",
+            "10 m tvdss",
             "1 psia",
             "2 psia",
             "10 hours",
@@ -147,8 +147,8 @@ class DrillStemTestResultsSummaryServiceTest {
         .containsExactly(
             "1a",
             "formation",
-            "1 ft tvdss",
-            "10 ft tvdss",
+            "1 m tvdss",
+            "10 m tvdss",
             "1 psia",
             "2 psia",
             "10 hours",

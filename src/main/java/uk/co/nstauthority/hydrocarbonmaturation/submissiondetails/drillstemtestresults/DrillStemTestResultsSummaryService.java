@@ -49,14 +49,14 @@ public class DrillStemTestResultsSummaryService {
       DrillStemTestResult drillStemTestResult, DrillStemTestResultSummaryMode summaryMode, Integer resultCounter) {
     final String hours = "hours";
     final String psia = "psia";
-    final String ftTvdss = "ft tvdss";
+    final String mTvdss = "m tvdss";
     final String bpd = "bpd";
     final String mmscfpd = "mmscfpd";
     return new DrillStemTestResultSummaryView(
         StringUtils.defaultIfBlank(drillStemTestResult.getTestNumber(), resultCounter.toString()),
         StringUtils.defaultIfBlank(drillStemTestResult.getFormationName(), ""),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getTopDepth(), ftTvdss),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBottomDepth(), ftTvdss),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getTopDepth(), mTvdss),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBottomDepth(), mTvdss),
         NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBhfp(), psia),
         NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getWhfp(), psia),
         NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getFlowDuration(), hours),

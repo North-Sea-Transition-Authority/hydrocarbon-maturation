@@ -23,8 +23,8 @@ public class GeneralFluidPropertySummaryService {
 
   private GeneralFluidPropertySummaryView createSummaryViewFromGeneralFluidProperty(GeneralFluidProperty generalFluidProperty) {
     return new GeneralFluidPropertySummaryView(
-        NumberUtil.getNumberStringWithUnitsOrEmpty(generalFluidProperty.getDatumDepth(), "ft tvdss"),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(generalFluidProperty.getTemperatureAtDatumDepth(),  "°F"),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(generalFluidProperty.getDatumDepth(), "m tvdss"),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(generalFluidProperty.getTemperatureAtDatumDepth(),  "°C"),
         NumberUtil.getNumberStringWithUnitsOrEmpty(generalFluidProperty.getPressureAtDatumDepth(), "psia"),
         NumberUtil.getNumberStringWithUnitsOrEmpty(generalFluidProperty.getSaturationPressureAtDatumDepth(), "psia"),
         NumberUtil.getNumberStringWithUnitsOrEmpty(generalFluidProperty.getWaterSalinity(), "ppm"));

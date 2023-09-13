@@ -35,7 +35,7 @@ public class GasFluidPropertySummaryService {
         NumberUtil.getNumberStringWithUnitsOrEmpty(gasFluidProperty.getCondensateViscosity(), "cP"),
         NumberUtil.getNumberStringWithUnitsOrEmpty(gasFluidProperty.getCondensateSulphur(), "ppm"),
         NumberUtil.getNumberStringWithUnitsOrEmpty(gasFluidProperty.getCondensateWax(), "%"),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(gasFluidProperty.getCondensateOtherInclWax(), "°F"),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(gasFluidProperty.getCondensateOtherInclWax(), "°C"),
         ObjectUtils.defaultIfNull(gasFluidProperty.getAdviseOtherGasesConcentration(), ""));
   }
 }

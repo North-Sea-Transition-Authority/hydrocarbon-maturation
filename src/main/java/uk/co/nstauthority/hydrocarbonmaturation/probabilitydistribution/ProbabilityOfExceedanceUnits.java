@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 public enum ProbabilityOfExceedanceUnits {
-  FT_TVDSS("ft tvdss"),
+  M_TVDSS("m tvdss"),
   M_TVT("m tvt"),
   MILLION_M3("million m3"),
   PERCENT("%"),

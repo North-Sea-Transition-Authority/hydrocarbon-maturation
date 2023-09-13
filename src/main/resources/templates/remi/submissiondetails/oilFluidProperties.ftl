@@ -45,7 +45,7 @@
       path="form.oilOtherWaxAppearanceTemperature.decimalInputValue"
       labelText="Oil other incl wax appearance temperature"
       inputClass="govuk-input--width-5"
-      suffix="°F"
+      suffix="°C"
       nestingPath="form.oilOtherWaxAppearanceTemperature"
       optionalLabel=true/>
 

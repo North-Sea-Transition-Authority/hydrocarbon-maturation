@@ -70,7 +70,7 @@
           nestingPath="form.condensateOtherInclWax"
           labelText="Condensate other incl wax appearance temperature "
           inputClass="govuk-input--width-5"
-          suffix="°F"/>
+          suffix="°C"/>
       </@fdsRadio.radioYes>
       <@fdsRadio.radioNo path="form.condensatePresent"/>
     </@fdsRadio.radioGroup>

@@ -27,6 +27,6 @@ public class OilFluidPropertySummaryService {
         NumberUtil.getNumberStringWithUnitsOrEmpty(oilFluidProperty.getOilViscosity(),  "cP"),
         NumberUtil.getNumberStringWithUnitsOrEmpty(oilFluidProperty.getOilSulphur(),  "ppm"),
         NumberUtil.getNumberStringWithUnitsOrEmpty(oilFluidProperty.getOilWax(), "%"),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(oilFluidProperty.getOilOtherWaxAppearanceTemperature(), "°F"));
+        NumberUtil.getNumberStringWithUnitsOrEmpty(oilFluidProperty.getOilOtherWaxAppearanceTemperature(), "°C"));
   }
 }

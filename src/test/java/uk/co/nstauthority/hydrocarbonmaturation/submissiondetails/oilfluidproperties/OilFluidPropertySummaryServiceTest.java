@@ -92,7 +92,7 @@ class OilFluidPropertySummaryServiceTest {
             "10 cP",
             "4 ppm",
             "1 %",
-            "3 °F"
+            "3 °C"
         );
   }
 }

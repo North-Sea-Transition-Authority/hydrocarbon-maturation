@@ -19,7 +19,7 @@ class ProbabilityDistributionValidationUtilTest {
     var typePath = ProbabilityDistributionType.NORMAL.getPath();
     var inputPath = ProbabilityOfExceedanceType.MIN.getPath();
     var input = DecimalInput.createDecimalInput(1);
-    var units = ProbabilityOfExceedanceUnits.FT_TVDSS;
+    var units = ProbabilityOfExceedanceUnits.M_TVDSS;
     var validationType = ValidationType.FULL;
     var errors = new BeanPropertyBindingResult(form, "form");
 
@@ -53,7 +53,7 @@ class ProbabilityDistributionValidationUtilTest {
     var typePath = ProbabilityDistributionType.NORMAL.getPath();
     var inputPath = ProbabilityOfExceedanceType.MIN.getPath();
     var input = DecimalInput.createDecimalInput(1);
-    var units = ProbabilityOfExceedanceUnits.FT_TVDSS;
+    var units = ProbabilityOfExceedanceUnits.M_TVDSS;
     var validationType = ValidationType.FULL;
     var errors = new BeanPropertyBindingResult(form, "form");
 
@@ -81,7 +81,7 @@ class ProbabilityDistributionValidationUtilTest {
     var typePath = ProbabilityDistributionType.NORMAL.getPath();
     var inputPath = ProbabilityOfExceedanceType.MIN.getPath();
     var input = DecimalInput.createDecimalInput(1);
-    var units = ProbabilityOfExceedanceUnits.FT_TVDSS;
+    var units = ProbabilityOfExceedanceUnits.M_TVDSS;
     var validationType = ValidationType.PARTIAL;
     var errors = new BeanPropertyBindingResult(form, "form");
 

@@ -88,8 +88,8 @@ class GeneralFluidPropertySummaryServiceTest {
             GeneralFluidPropertySummaryView::saturationPressureAtDatumDepth,
             GeneralFluidPropertySummaryView::waterSalinity)
         .containsExactly(
-            "1 ft tvdss",
-            "2 °F",
+            "1 m tvdss",
+            "2 °C",
             "3 psia",
             "4 psia",
             "5 ppm"
