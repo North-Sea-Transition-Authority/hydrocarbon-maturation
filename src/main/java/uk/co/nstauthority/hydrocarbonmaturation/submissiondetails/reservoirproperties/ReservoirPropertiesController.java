@@ -30,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Form
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -88,11 +89,10 @@ public class ReservoirPropertiesController {
   @GetMapping
   public ModelAndView getReservoirProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                              @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getReservoirPropertiesModelAndView(
-        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail), submissionDetail);
+        reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail), reservoirSubmissionDetail);
   }
 
   @PostMapping
@@ -105,7 +105,7 @@ public class ReservoirPropertiesController {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     if (!reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType)) {
-      return getReservoirPropertiesWithErrors(bindingResult, form, submissionDetail);
+      return getReservoirPropertiesWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
       if (submissionDetail.isProspectSubmission()) {
@@ -117,7 +117,10 @@ public class ReservoirPropertiesController {
     }
   }
 
-  private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form, SubmissionDetail submissionDetail) {
+  private ModelAndView getReservoirPropertiesModelAndView(ReservoirPropertiesForm form,
+                                                          ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
     var modelAndView = new ModelAndView("remi/submissiondetails/reservoirProperties")
         .addObject("form", form)
         .addObject("groupNames", GroupName.getGroupNames())
@@ -144,7 +147,14 @@ public class ReservoirPropertiesController {
     } else if (submissionDetail.isProspectSubmission()) {
       modelAndView = addHydrocarbonCase(modelAndView, submissionDetail);
     }
-    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+
+    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    if (resourceType == ResourceType.PROSPECT) {
+      TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+    } else if (resourceType == ResourceType.DISCOVERY) {
+      TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(modelAndView, PAGE_NAME, reservoirSubmissionDetail);
+    }
+
     return modelAndView;
   }
 
@@ -288,8 +298,10 @@ public class ReservoirPropertiesController {
 
   private ModelAndView getReservoirPropertiesWithErrors(BindingResult bindingResult,
                                                         ReservoirPropertiesForm form,
-                                                        SubmissionDetail submissionDetail) {
-    var modelAndView = getReservoirPropertiesModelAndView(form, submissionDetail);
+                                                        ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
+    var modelAndView = getReservoirPropertiesModelAndView(form, reservoirSubmissionDetail);
     modelAndView
         .addObject("grossReservoirThicknessError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(

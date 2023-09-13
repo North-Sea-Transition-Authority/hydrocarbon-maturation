@@ -51,6 +51,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Form
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -311,12 +312,13 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(submissionType,
         discoverySubmissionDetailId);
     discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId))
+        .thenReturn(discoveryReservoirSubmissionDetail);
 
     when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(reservoirSubmissionDetail), eq(ValidationType.FULL))).thenReturn(false);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetail.getId())).thenReturn(discoverySubmissionDetail);
     Map<String, String> preSelectedFormation = Map.of("FORMATION", "formation");
     when(formationSearchService.getPreSelectedFormation(form.getFormationName())).thenReturn(preSelectedFormation);
     Map<String, String> preSelectedSubUnit = Map.of("SUBUNIT", "sub unit");
@@ -343,7 +345,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -568,7 +571,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -657,7 +661,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -738,7 +743,8 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
