@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldoilvolum
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -74,7 +73,7 @@ public class FieldOilVolumetricsController {
   @PostMapping
   public ModelAndView saveOilVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                          @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
-                                         @Valid @ModelAttribute("form") OilCaseVolumetricsForm form,
+                                         @ModelAttribute("form") OilCaseVolumetricsForm form,
                                          BindingResult bindingResult,
                                          ValidationType validationType,
                                          ServiceUserDetail user) {

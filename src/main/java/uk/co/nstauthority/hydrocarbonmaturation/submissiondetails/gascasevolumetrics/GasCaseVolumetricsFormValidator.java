@@ -3,6 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolume
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -24,12 +26,22 @@ public class GasCaseVolumetricsFormValidator implements SubmissionValidator {
     );
 
     var gasHydrocarbonSaturation = gasCaseVolumetricsForm.getGasHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validatePartialPercentage(
-        gasHydrocarbonSaturation,
-        errors,
-        "gasHydrocarbonSaturation",
-        "Gas hydrocarbon saturation distribution used"
-    );
+    if (submissionDetail.getSubmission().getResource().getType() == ResourceType.FIELD) {
+      ProbabilityDistributionValidationUtil.validateCustomPartialPercentage(
+          gasHydrocarbonSaturation,
+          errors,
+          "gasHydrocarbonSaturation",
+          "Gas hydrocarbon saturation distribution used",
+          ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validatePartialPercentage(
+          gasHydrocarbonSaturation,
+          errors,
+          "gasHydrocarbonSaturation",
+          "Gas hydrocarbon saturation distribution used"
+      );
+    }
 
     var condensateGasRatioLifeOfField = gasCaseVolumetricsForm.getCondensateGasRatioLifeOfField();
     ProbabilityDistributionValidationUtil.validatePartial(
@@ -68,12 +80,22 @@ public class GasCaseVolumetricsFormValidator implements SubmissionValidator {
         "Select gas hydrocarbon saturation distribution used");
 
     var gasHydrocarbonSaturation = gasCaseVolumetricsForm.getGasHydrocarbonSaturation();
-    ProbabilityDistributionValidationUtil.validateFullPercentage(
-        gasHydrocarbonSaturation,
-        errors,
-        "gasHydrocarbonSaturation",
-        "Gas hydrocarbon saturation distribution used"
-    );
+    if (submissionDetail.getSubmission().getResource().getType() == ResourceType.FIELD) {
+      ProbabilityDistributionValidationUtil.validateCustomFullPercentage(
+          gasHydrocarbonSaturation,
+          errors,
+          "gasHydrocarbonSaturation",
+          "Gas hydrocarbon saturation distribution used",
+          ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validateFullPercentage(
+          gasHydrocarbonSaturation,
+          errors,
+          "gasHydrocarbonSaturation",
+          "Gas hydrocarbon saturation distribution used"
+      );
+    }
 
     ValidationUtils.rejectIfEmpty(errors, "condensateGasRatioLifeOfField.probabilityDistributionType",
         "condensateGasRatioLifeOfField.probabilityDistributionType.required",

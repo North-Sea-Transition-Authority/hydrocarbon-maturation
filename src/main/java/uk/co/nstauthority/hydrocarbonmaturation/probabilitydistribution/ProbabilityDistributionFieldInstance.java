@@ -143,8 +143,18 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT,
       "Gas hydrocarbon saturation"
   ),
+  GAS_HYDROCARBON_SATURATION_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Gas hydrocarbon saturation"
+  ),
   GAS_EXPANSION_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.SCF_RCF,
+      "Gas expansion factor"
+  ),
+  GAS_EXPANSION_FACTOR_FIELD(
+      List.of(CONSTANT),
       ProbabilityOfExceedanceUnits.SCF_RCF,
       "Gas expansion factor"
   ),
@@ -153,8 +163,18 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.STB_MCF,
       "Condensate-gas ratio life of field"
   ),
+  CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT(
+      List.of(CONSTANT),
+      ProbabilityOfExceedanceUnits.STB_MCF,
+      "Condensate-gas ratio life of field"
+  ),
   GAS_RECOVERY_FACTOR(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Gas recovery factor"
+  ),
+  GAS_RECOVERY_FACTOR_FIELD(
+      List.of(CONSTANT),
       ProbabilityOfExceedanceUnits.PERCENT,
       "Gas recovery factor"
   ),
@@ -165,6 +185,11 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   GAS_FORMATION_VOLUME_FACTOR_DISCOVERY(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.RCF_SCF,
+      "Gas formation volume factor (Bg)"
+  ),
+  GAS_FORMATION_VOLUME_FACTOR_FIELD(
+      List.of(CONSTANT),
       ProbabilityOfExceedanceUnits.RCF_SCF,
       "Gas formation volume factor (Bg)"
   ),

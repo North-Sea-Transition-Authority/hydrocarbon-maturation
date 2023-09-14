@@ -10,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics.FieldGasVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldoilvolumetrics.FieldOilVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSubmissionService;
@@ -146,6 +147,19 @@ public class ReservoirTaskListService {
                 TaskListLabel.notStartedOrComplete(
                     gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
                 ReverseRouter.route(on(GasCaseVolumetricsController.class).getGasCaseVolumetrics(
+                    submissionDetail.getId(),
+                    reservoirSubmissionDetail.getId())))
+        );
+      }
+
+      if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+          || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS)
+          && resourceType == ResourceType.FIELD) {
+        items.add(
+            new TaskListItem("Gas volumetric parameters",
+                TaskListLabel.notStartedOrComplete(
+                    gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(FieldGasVolumetricsController.class).getGasVolumetrics(
                     submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
         );

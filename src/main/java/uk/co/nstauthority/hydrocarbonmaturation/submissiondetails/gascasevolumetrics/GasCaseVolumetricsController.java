@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolume
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -18,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -42,7 +40,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class GasCaseVolumetricsController {
 
   private final SubmissionDetailService submissionDetailService;
-  private final ControllerHelperService controllerHelperService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
   private final GasCaseVolumetricsPersistenceService gasCaseVolumetricsPersistenceService;
@@ -53,14 +50,12 @@ public class GasCaseVolumetricsController {
 
   @Autowired
   public GasCaseVolumetricsController(SubmissionDetailService submissionDetailService,
-                                      ControllerHelperService controllerHelperService,
                                       ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
                                       GasCaseVolumetricsFormService gasCaseVolumetricsFormService,
                                       GasCaseVolumetricsPersistenceService gasCaseVolumetricsPersistenceService,
                                       GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator,
                                       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.submissionDetailService = submissionDetailService;
-    this.controllerHelperService = controllerHelperService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.gasCaseVolumetricsFormService = gasCaseVolumetricsFormService;
     this.gasCaseVolumetricsPersistenceService = gasCaseVolumetricsPersistenceService;
@@ -80,7 +75,7 @@ public class GasCaseVolumetricsController {
   @PostMapping
   public ModelAndView saveGasCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                              @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
-                                             @Valid @ModelAttribute("form") GasCaseVolumetricsForm form,
+                                             @ModelAttribute("form") GasCaseVolumetricsForm form,
                                              BindingResult bindingResult,
                                              ValidationType validationType,
                                              ServiceUserDetail user) {

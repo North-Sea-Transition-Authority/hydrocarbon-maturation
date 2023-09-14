@@ -215,7 +215,6 @@ class HydrocarbonCasePersistenceServiceTest {
     verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
         List.of(
             ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
-            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
             ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
             ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
@@ -254,7 +253,6 @@ class HydrocarbonCasePersistenceServiceTest {
             ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
             ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
             ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
-            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
             ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
             ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT,
@@ -271,6 +269,14 @@ class HydrocarbonCasePersistenceServiceTest {
 
     verify(mixedCaseOutputsPersistenceService, times(1))
         .deleteMixedCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR
+        ),
+        reservoirSubmissionDetail
+    );
   }
 
   @Test
@@ -286,7 +292,6 @@ class HydrocarbonCasePersistenceServiceTest {
     verify(probabilityDistributionPersistenceService, never()).deleteProbabilityDistributions(
         List.of(
             ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
-            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
             ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
             ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
@@ -299,6 +304,14 @@ class HydrocarbonCasePersistenceServiceTest {
     );
 
     verifyNoInteractions(gasCaseOutputsPersistenceService);
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR
+        ),
+        reservoirSubmissionDetail
+    );
   }
 
   @Test
@@ -326,6 +339,14 @@ class HydrocarbonCasePersistenceServiceTest {
     );
 
     verifyNoInteractions(oilCaseOutputsPersistenceService);
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR
+        ),
+        reservoirSubmissionDetail
+    );
   }
 
   @Test
@@ -345,7 +366,6 @@ class HydrocarbonCasePersistenceServiceTest {
             ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
             ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
             ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
-            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
             ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
             ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT,
@@ -361,5 +381,13 @@ class HydrocarbonCasePersistenceServiceTest {
     );
 
     verifyNoInteractions(mixedCaseOutputsPersistenceService);
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
+        List.of(
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR
+        ),
+        reservoirSubmissionDetail
+    );
   }
 }
