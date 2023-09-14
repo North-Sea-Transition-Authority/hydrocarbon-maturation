@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
@@ -11,18 +12,29 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Service
 class SourceAndSealFormValidator implements SubmissionValidator {
 
-
   @Override
   public boolean isValid(SubmissionForm form,
                          Errors errors,
                          SubmissionDetail submissionDetail,
                          ValidationType validationType) {
-
-    //no fields require partial validation
-    if (validationType == ValidationType.PARTIAL) {
-      return true;
+    switch (validationType) {
+      case FULL -> validateFull(form, errors, submissionDetail);
+      case PARTIAL -> {
+        return true;
+      }
+      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
     }
 
+    return !errors.hasErrors();
+  }
+
+  @Override
+  public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
+    // not used here
+  }
+
+  @Override
+  public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     SourceAndSealForm sourceAndSealForm = (SourceAndSealForm) form;
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sourceFormationName", "sourceFormationName.required",
         "Enter a source formation name");
@@ -57,7 +69,5 @@ class SourceAndSealFormValidator implements SubmissionValidator {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "topSealLithologyOther", "topSealLithologyOther.required",
           "Enter other top seal lithology");
     }
-
-    return !errors.hasErrors();
   }
 }

@@ -24,6 +24,9 @@ class GasCaseVolumetricsSubmissionServiceTest {
   @Mock
   private GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
 
+  @Mock
+  private GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator;
+
   @InjectMocks
   private GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService;
 
@@ -37,9 +40,8 @@ class GasCaseVolumetricsSubmissionServiceTest {
 
     when(gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
 
-    when(gasCaseVolumetricsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(emptyBindingResult);
+    when(gasCaseVolumetricsFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(true);
 
     assertTrue(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
@@ -54,9 +56,8 @@ class GasCaseVolumetricsSubmissionServiceTest {
 
     when(gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
 
-    when(gasCaseVolumetricsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(bindingResultWithError);
+    when(gasCaseVolumetricsFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(false);
 
     assertFalse(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }

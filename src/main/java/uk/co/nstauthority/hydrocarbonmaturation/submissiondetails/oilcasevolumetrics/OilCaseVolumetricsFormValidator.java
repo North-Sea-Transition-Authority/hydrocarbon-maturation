@@ -4,31 +4,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
 public class OilCaseVolumetricsFormValidator implements SubmissionValidator {
 
   @Override
-  public boolean isValid(SubmissionForm submissionForm,
-                         Errors errors,
-                         SubmissionDetail submissionDetail,
-                         ValidationType validationType) {
-    switch (validationType) {
-      case FULL -> validateFull(submissionForm, errors, submissionDetail);
-      case PARTIAL -> validatePartial(submissionForm, errors, submissionDetail);
-      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
-    }
-
-    return !errors.hasErrors();
-  }
-
   public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var oilCaseVolumetricsForm = (OilCaseVolumetricsForm) form;
 
@@ -75,6 +60,7 @@ public class OilCaseVolumetricsFormValidator implements SubmissionValidator {
     );
   }
 
+  @Override
   public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var oilCaseVolumetricsForm = (OilCaseVolumetricsForm) form;
 

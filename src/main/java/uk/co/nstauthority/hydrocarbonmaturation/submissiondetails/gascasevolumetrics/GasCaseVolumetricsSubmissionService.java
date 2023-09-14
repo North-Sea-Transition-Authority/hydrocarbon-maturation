@@ -12,10 +12,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class GasCaseVolumetricsSubmissionService implements ReservoirSectionSubmissionService {
 
   private final GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
+  private final GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator;
 
   @Autowired
-  public GasCaseVolumetricsSubmissionService(GasCaseVolumetricsFormService gasCaseVolumetricsFormService) {
+  public GasCaseVolumetricsSubmissionService(GasCaseVolumetricsFormService gasCaseVolumetricsFormService,
+                                             GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator) {
     this.gasCaseVolumetricsFormService = gasCaseVolumetricsFormService;
+    this.gasCaseVolumetricsFormValidator = gasCaseVolumetricsFormValidator;
   }
 
   @Override
@@ -23,7 +26,6 @@ public class GasCaseVolumetricsSubmissionService implements ReservoirSectionSubm
     var form = gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-    bindingResult = gasCaseVolumetricsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
-    return !bindingResult.hasErrors();
+    return gasCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
   }
 }

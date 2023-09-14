@@ -5,7 +5,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -13,34 +12,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
 class PermeabilityFormValidator implements SubmissionValidator {
 
-  private SubmissionType submissionType;
-
   @Override
-  public boolean isValid(SubmissionForm submissionForm,
-                         Errors errors,
-                         SubmissionDetail submissionDetail,
-                         ValidationType validationType) {
-    submissionType = submissionDetail.getSubmissionType();
-
-    var form = (PermeabilityForm) submissionForm;
-
-    switch (validationType) {
-      case FULL -> validateFull(form, errors);
-      case PARTIAL -> validatePartial(form, errors);
-      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
-    }
-
-    return !errors.hasErrors();
-  }
-
-  public void validatePartial(SubmissionForm form, Errors errors) {
+  public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var permeabilityForm = (PermeabilityForm) form;
 
+    var submissionType = submissionDetail.getSubmissionType();
     if (submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
         || submissionType == SubmissionType.UPDATE_DISCOVERY
         || submissionType == SubmissionType.CREATE_PROSPECT
@@ -114,8 +94,10 @@ class PermeabilityFormValidator implements SubmissionValidator {
     }
   }
 
-  public void validateFull(SubmissionForm form, Errors errors) {
+  @Override
+  public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var permeabilityForm = (PermeabilityForm) form;
+    var submissionType = submissionDetail.getSubmissionType();
 
     if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
       ValidationUtils.rejectIfEmptyOrWhitespace(
@@ -124,14 +106,14 @@ class PermeabilityFormValidator implements SubmissionValidator {
           "hasPermeability.required",
           "Select whether you have permeability details");
       if (BooleanUtils.isTrue(permeabilityForm.getHasPermeability())) {
-        validatePermeability(permeabilityForm, errors);
+        validatePermeability(permeabilityForm, errors, submissionType);
       }
     } else {
-      validatePermeability(permeabilityForm, errors);
+      validatePermeability(permeabilityForm, errors, submissionType);
     }
   }
 
-  private void validatePermeability(PermeabilityForm permeabilityForm, Errors errors) {
+  private void validatePermeability(PermeabilityForm permeabilityForm, Errors errors, SubmissionType submissionType) {
     DecimalInputValidator.configureValidator(
             errors,
             "permeabilityValuesForm.permeabilityMin.decimalInputValue",

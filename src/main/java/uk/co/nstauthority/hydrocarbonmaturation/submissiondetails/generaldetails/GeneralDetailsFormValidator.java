@@ -44,18 +44,19 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
     onshoreOffshore = onshoreOffshoreService.getOnshoreOffshore(submissionDetail);
 
     if (validationType.equals(ValidationType.PARTIAL)) {
-      validatePartial(generalDetailsForm, errors);
+      validatePartial(generalDetailsForm, errors, submissionDetail);
     }
 
     if (validationType.equals(ValidationType.FULL)) {
-      validateFull(generalDetailsForm, errors);
+      validateFull(generalDetailsForm, errors, submissionDetail);
     }
 
     return !errors.hasErrors();
 
   }
 
-  public void validatePartial(SubmissionForm form, Errors errors) {
+  @Override
+  public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
 
     if (!isRelinquishment && !generalDetailsForm.getLicences().isEmpty()) {
@@ -69,7 +70,8 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
     }
   }
 
-  public void validateFull(SubmissionForm form, Errors errors) {
+  @Override
+  public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var generalDetailsForm = (GeneralDetailsForm) form;
 
     if (CollectionUtils.isEmpty(generalDetailsForm.getLicences()) && !isRelinquishment) {

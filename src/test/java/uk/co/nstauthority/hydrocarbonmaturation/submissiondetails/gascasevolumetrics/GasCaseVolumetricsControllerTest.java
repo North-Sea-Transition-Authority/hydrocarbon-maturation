@@ -31,6 +31,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -40,10 +41,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -53,6 +56,9 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
 
   @MockBean
   private GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
+
+  @MockBean
+  private GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator;
 
   @MockBean
   private GasCaseVolumetricsPersistenceService gasCaseVolumetricsPersistenceService;
@@ -128,7 +134,7 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(GasCaseVolumetricsController.class).saveGasCaseVolumetrics(
-                submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
+                submissionDetailId, reservoirSubmissionDetailId, null, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -137,12 +143,12 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGasCaseVolumetrics_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(gasCaseVolumetricsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(gasCaseVolumetricsFormValidator.isValid(any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(GasCaseVolumetricsController.class)
-            .saveGasCaseVolumetrics(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, null)))
+            .saveGasCaseVolumetrics(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -157,18 +163,18 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
   void saveGasCaseVolumetrics_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(gasCaseVolumetricsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(gasCaseVolumetricsFormValidator.isValid(any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GasCaseVolumetricsController.class)
-                .saveGasCaseVolumetrics(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, null)))
+                .saveGasCaseVolumetrics(submissionDetailId, reservoirSubmissionDetailId, form, bindingResult, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(gasCaseVolumetricsPersistenceService, never()).saveGasCaseVolumetrics(any(GasCaseVolumetricsForm.class), any());
+    verify(gasCaseVolumetricsPersistenceService, never()).saveGasCaseVolumetrics(any(GasCaseVolumetricsForm.class), any(ReservoirSubmissionDetail.class));
   }
 
   @Test
@@ -238,7 +244,8 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+            entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
         );
 
     assertThat(modelMap)

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -23,12 +24,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -44,6 +46,7 @@ public class GasCaseVolumetricsController {
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final GasCaseVolumetricsFormService gasCaseVolumetricsFormService;
   private final GasCaseVolumetricsPersistenceService gasCaseVolumetricsPersistenceService;
+  private final GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   public static final String PAGE_NAME = "Gas case volumetrics parameters";
@@ -54,23 +57,24 @@ public class GasCaseVolumetricsController {
                                       ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
                                       GasCaseVolumetricsFormService gasCaseVolumetricsFormService,
                                       GasCaseVolumetricsPersistenceService gasCaseVolumetricsPersistenceService,
+                                      GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator,
                                       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.controllerHelperService = controllerHelperService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.gasCaseVolumetricsFormService = gasCaseVolumetricsFormService;
     this.gasCaseVolumetricsPersistenceService = gasCaseVolumetricsPersistenceService;
+    this.gasCaseVolumetricsFormValidator = gasCaseVolumetricsFormValidator;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getGasCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                             @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getGasCaseVolumetricsModelAndView(
-        gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail), submissionDetail);
+        gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail), reservoirSubmissionDetail);
   }
 
   @PostMapping
@@ -78,22 +82,25 @@ public class GasCaseVolumetricsController {
                                              @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                              @Valid @ModelAttribute("form") GasCaseVolumetricsForm form,
                                              BindingResult bindingResult,
-                                             ValidationType validationType) {
+                                             ValidationType validationType,
+                                             ServiceUserDetail user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
-    bindingResult = gasCaseVolumetricsFormService.validate(form, bindingResult, validationType, submissionDetail);
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getGasVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetail),
-        () -> {
-          gasCaseVolumetricsPersistenceService.saveGasCaseVolumetrics(form, reservoirSubmissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
-        }
-    );
+    if (!gasCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
+      return getGasVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
+    } else {
+      gasCaseVolumetricsPersistenceService.saveGasCaseVolumetrics(form, reservoirSubmissionDetail);
+      if (submissionDetail.isProspectSubmission()) {
+        return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      } else {
+        return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, user));
+      }
+    }
   }
 
-  private ModelAndView getGasCaseVolumetricsModelAndView(GasCaseVolumetricsForm form, SubmissionDetail submissionDetail) {
+  private ModelAndView getGasCaseVolumetricsModelAndView(GasCaseVolumetricsForm form,
+                                                         ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/gasCaseVolumetrics")
         .addObject("form", form)
         .addObject("condensateGasRatioLifeOfFieldTemplate",
@@ -107,6 +114,7 @@ public class GasCaseVolumetricsController {
         .addObject("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError());
 
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       modelAndView
@@ -116,6 +124,8 @@ public class GasCaseVolumetricsController {
           .addObject("gasHydrocarbonSaturationTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT));
+
+      TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     } else if (resourceType == ResourceType.DISCOVERY) {
       modelAndView
           .addObject("gasFormationVolumeFactorTemplate",
@@ -124,16 +134,16 @@ public class GasCaseVolumetricsController {
           .addObject("gasHydrocarbonSaturationTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY));
-    }
 
-    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+      TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(modelAndView, PAGE_NAME, reservoirSubmissionDetail);
+    }
     return modelAndView;
   }
 
   private ModelAndView getGasVolumetricsModelAndViewWithErrors(BindingResult bindingResult,
                                                                GasCaseVolumetricsForm form,
-                                                               SubmissionDetail submissionDetail) {
-    var modelAndView = getGasCaseVolumetricsModelAndView(form, submissionDetail);
+                                                               ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var modelAndView = getGasCaseVolumetricsModelAndView(form, reservoirSubmissionDetail);
 
     return modelAndView
         .addObject("gasFormationVolumeFactorError",

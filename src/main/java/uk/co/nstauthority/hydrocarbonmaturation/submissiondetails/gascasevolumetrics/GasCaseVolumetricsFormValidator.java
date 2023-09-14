@@ -4,20 +4,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
 
 @Service
-public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
+public class GasCaseVolumetricsFormValidator implements SubmissionValidator {
 
   @Override
-  public boolean supports(Class<?> clazz) {
-    return GasCaseVolumetricsForm.class.equals(clazz);
-  }
-
-  @Override
-  public void validatePartial(SubmissionForm form, Errors errors) {
+  public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var gasCaseVolumetricsForm = (GasCaseVolumetricsForm) form;
+
+    var gasFormationVolumeFactor = gasCaseVolumetricsForm.getGasFormationVolumeFactor();
+    ProbabilityDistributionValidationUtil.validatePartial(
+        gasFormationVolumeFactor,
+        errors,
+        "gasFormationVolumeFactor",
+        "Gas formation volume factor (Bg)"
+    );
 
     var gasHydrocarbonSaturation = gasCaseVolumetricsForm.getGasHydrocarbonSaturation();
     ProbabilityDistributionValidationUtil.validatePartialPercentage(
@@ -41,19 +45,23 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
         errors,
         "gasRecoveryFactor",
         "Gas recovery factor distribution used");
+  }
+
+  @Override
+  public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
+    var gasCaseVolumetricsForm = (GasCaseVolumetricsForm) form;
+
+    ValidationUtils.rejectIfEmpty(errors, "gasFormationVolumeFactor.probabilityDistributionType",
+        "gasFormationVolumeFactor.probabilityDistributionType.required",
+        "Select gas formation volume factor (Bg)");
 
     var gasFormationVolumeFactor = gasCaseVolumetricsForm.getGasFormationVolumeFactor();
-    ProbabilityDistributionValidationUtil.validatePartial(
+    ProbabilityDistributionValidationUtil.validateFull(
         gasFormationVolumeFactor,
         errors,
         "gasFormationVolumeFactor",
         "Gas formation volume factor (Bg)"
     );
-  }
-
-  @Override
-  public void validateFull(SubmissionForm form, Errors errors) {
-    var gasCaseVolumetricsForm = (GasCaseVolumetricsForm) form;
 
     ValidationUtils.rejectIfEmpty(errors, "gasHydrocarbonSaturation.probabilityDistributionType",
         "gasHydrocarbonSaturation.probabilityDistributionType.required",
@@ -89,17 +97,5 @@ public class GasCaseVolumetricsFormValidator extends PartialFullFormValidator {
         errors,
         "gasRecoveryFactor",
         "Gas recovery factor distribution used");
-
-    ValidationUtils.rejectIfEmpty(errors, "gasFormationVolumeFactor.probabilityDistributionType",
-        "gasFormationVolumeFactor.probabilityDistributionType.required",
-        "Select gas formation volume factor (Bg)");
-
-    var gasFormationVolumeFactor = gasCaseVolumetricsForm.getGasFormationVolumeFactor();
-    ProbabilityDistributionValidationUtil.validateFull(
-        gasFormationVolumeFactor,
-        errors,
-        "gasFormationVolumeFactor",
-        "Gas formation volume factor (Bg)"
-    );
   }
 }

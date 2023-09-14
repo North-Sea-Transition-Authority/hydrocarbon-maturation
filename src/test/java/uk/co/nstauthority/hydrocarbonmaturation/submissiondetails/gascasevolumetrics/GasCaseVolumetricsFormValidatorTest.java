@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolume
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,9 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,25 +33,12 @@ class GasCaseVolumetricsFormValidatorTest {
     submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
   }
 
-  @Test
-  void supports_whenGasCaseVolumetricsFormClass_thenTrue() {
-    var supportedClass = GasCaseVolumetricsForm.class;
-    assertTrue(gasCaseVolumetricsFormValidator.supports(supportedClass));
-  }
-
-  @Test
-  void supports_whenNotGasCaseVolumetricsFormClass_thenFalse() {
-    var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(gasCaseVolumetricsFormValidator.supports(nonSupportedClass));
-  }
-
   @ParameterizedTest
   @EnumSource (value = ValidationType.class)
   void validate_whenValidForm_thenNoValidationErrors(ValidationType validationType) {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseVolumetricsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+    gasCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, validationType);
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -62,21 +46,20 @@ class GasCaseVolumetricsFormValidatorTest {
   void validate_whenInvalidForm_thenValidationErrors() {
     var form = new GasCaseVolumetricsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseVolumetricsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    gasCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
+            entry("gasFormationVolumeFactor.probabilityDistributionType",
+                Set.of("gasFormationVolumeFactor.probabilityDistributionType.required")),
             entry("gasHydrocarbonSaturation.probabilityDistributionType",
                 Set.of("gasHydrocarbonSaturation.probabilityDistributionType.required")),
             entry("condensateGasRatioLifeOfField.probabilityDistributionType",
                 Set.of("condensateGasRatioLifeOfField.probabilityDistributionType.required")),
             entry("gasRecoveryFactor.probabilityDistributionType",
-                Set.of("gasRecoveryFactor.probabilityDistributionType.required")),
-            entry("gasFormationVolumeFactor.probabilityDistributionType",
-                Set.of("gasFormationVolumeFactor.probabilityDistributionType.required"))
+                Set.of("gasRecoveryFactor.probabilityDistributionType.required"))
             );
   }
 
@@ -89,8 +72,7 @@ class GasCaseVolumetricsFormValidatorTest {
   void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseVolumetricsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    gasCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -116,8 +98,7 @@ class GasCaseVolumetricsFormValidatorTest {
   void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseVolumetricsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    gasCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)

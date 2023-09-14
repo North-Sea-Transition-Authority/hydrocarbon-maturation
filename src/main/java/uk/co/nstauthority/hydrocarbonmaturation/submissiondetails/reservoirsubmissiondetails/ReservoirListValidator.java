@@ -40,4 +40,14 @@ class ReservoirListValidator implements SubmissionValidator {
 
     return !errors.hasErrors();
   }
+
+  @Override
+  public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
+    // not used here
+  }
+
+  @Override
+  public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
+    // not used here
+  }
 }

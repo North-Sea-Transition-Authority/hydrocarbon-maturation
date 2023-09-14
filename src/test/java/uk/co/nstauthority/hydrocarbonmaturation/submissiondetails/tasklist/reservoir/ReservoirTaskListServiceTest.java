@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +19,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldoilvolumetrics.FieldOilVolumetricsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationSubmissionService;
@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.P
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListItem;
@@ -60,6 +61,9 @@ class ReservoirTaskListServiceTest {
   @Mock
   private ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
 
+  @Mock
+  private GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService;
+
   @InjectMocks
   private ReservoirTaskListService reservoirTaskListService;
 
@@ -78,9 +82,9 @@ class ReservoirTaskListServiceTest {
         submissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2));
-    when(generalReservoirInformationSubmissionService.isSectionSubmittable(any())).thenReturn(true);
-    when(permeabilitySubmissionService.isSectionSubmittable(any())).thenReturn(true);
-    when(reservoirPropertiesSubmissionService.isSectionSubmittable(any())).thenReturn(false);
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(any(ReservoirSubmissionDetail.class))).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(any(ReservoirSubmissionDetail.class))).thenReturn(true);
+    when(reservoirPropertiesSubmissionService.isSectionSubmittable(any(ReservoirSubmissionDetail.class))).thenReturn(false);
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
     assertThat(reservoirTaskListItems).extracting(
@@ -150,8 +154,8 @@ class ReservoirTaskListServiceTest {
         fieldSubmissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(fieldSubmissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
-    when(generalReservoirInformationSubmissionService.isSectionSubmittable(any())).thenReturn(true);
-    when(permeabilitySubmissionService.isSectionSubmittable(any())).thenReturn(true);
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(fieldSubmissionDetail);
 
     assertThat(reservoirTaskListItems).extracting(
@@ -190,7 +194,7 @@ class ReservoirTaskListServiceTest {
         submissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
-    when(generalReservoirInformationSubmissionService.isSectionSubmittable(any())).thenReturn(false);
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
     assertThat(reservoirTaskListItems).extracting(
@@ -212,9 +216,8 @@ class ReservoirTaskListServiceTest {
     );
   }
 
-  @ParameterizedTest
-  @EnumSource(value = HydrocarbonsDiscovered.class, names = {"OIL_ONLY", "MIXED_OIL_AND_GAS"})
-  void getAllReservoirTaskLists_whenDiscovery_oilItems(HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+  @Test
+  void getAllReservoirTaskLists_whenDiscovery_oilItems() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
     var reservoir = new Reservoir();
     reservoir.setName(RESERVOIR_NAME_1);
@@ -223,10 +226,10 @@ class ReservoirTaskListServiceTest {
         submissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
-    when(generalReservoirInformationSubmissionService.isSectionSubmittable(any())).thenReturn(true);
-    when(permeabilitySubmissionService.isSectionSubmittable(any())).thenReturn(true);
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
-    reservoirHydrocarbons.setHydrocarbonsDiscovered(hydrocarbonsDiscovered);
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
@@ -271,9 +274,8 @@ class ReservoirTaskListServiceTest {
     );
   }
 
-  @ParameterizedTest
-  @EnumSource(value = HydrocarbonsDiscovered.class, names = {"OIL_ONLY", "MIXED_OIL_AND_GAS"})
-  void getAllReservoirTaskLists_whenField_oilItems(HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+  @Test
+  void getAllReservoirTaskLists_whenField_oilItems() {
     var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
     var reservoir = new Reservoir();
     reservoir.setName(RESERVOIR_NAME_1);
@@ -282,10 +284,10 @@ class ReservoirTaskListServiceTest {
         submissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
-    when(generalReservoirInformationSubmissionService.isSectionSubmittable(any())).thenReturn(true);
-    when(permeabilitySubmissionService.isSectionSubmittable(any())).thenReturn(true);
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
-    reservoirHydrocarbons.setHydrocarbonsDiscovered(hydrocarbonsDiscovered);
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
@@ -304,6 +306,186 @@ class ReservoirTaskListServiceTest {
                     ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Permeability",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Oil volumetric parameters",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(FieldOilVolumetricsController.class).getOilVolumetrics(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                )
+            )
+        )
+    );
+  }
+
+  @Test
+  void getAllReservoirTaskLists_whenDiscovery_gasItems() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    var reservoir = new Reservoir();
+    reservoir.setName(RESERVOIR_NAME_1);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        reservoir,
+        submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
+
+    assertThat(reservoirTaskListItems).extracting(
+        ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::taskListItems
+    ).containsExactly(
+        tuple(
+            RESERVOIR_NAME_1,
+            List.of(
+                new TaskListItem(
+                    "Discovery reservoir",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Permeability",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Gas case volumetric parameters",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GasCaseVolumetricsController.class).getGasCaseVolumetrics(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                )
+            )
+        )
+    );
+  }
+
+  @Test
+  void getAllReservoirTaskLists_whenDiscovery_mixedItems() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    var reservoir = new Reservoir();
+    reservoir.setName(RESERVOIR_NAME_1);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        reservoir,
+        submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(
+        submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
+
+    assertThat(reservoirTaskListItems).extracting(
+        ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::taskListItems
+    ).containsExactly(
+        tuple(
+            RESERVOIR_NAME_1,
+            List.of(
+                new TaskListItem(
+                    "Discovery reservoir",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(
+                        on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                            reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                            reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Permeability",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Oil case volumetric parameters",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(OilCaseVolumetricsController.class).getOilCaseVolumetrics(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Gas case volumetric parameters",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GasCaseVolumetricsController.class).getGasCaseVolumetrics(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                )
+            )
+        )
+    );
+  }
+
+  @Test
+  void getAllReservoirTaskLists_whenField_mixedItems() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var reservoir = new Reservoir();
+    reservoir.setName(RESERVOIR_NAME_1);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        reservoir,
+        submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(
+        submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
+
+    assertThat(reservoirTaskListItems).extracting(
+        ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::taskListItems
+    ).containsExactly(
+        tuple(
+            RESERVOIR_NAME_1,
+            List.of(
+                new TaskListItem(
+                    "Field reservoir",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(
+                        on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                            reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                            reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
                     "Permeability",
