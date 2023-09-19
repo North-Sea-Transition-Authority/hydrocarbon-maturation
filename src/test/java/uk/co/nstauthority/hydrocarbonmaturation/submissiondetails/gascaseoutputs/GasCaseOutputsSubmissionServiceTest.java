@@ -24,6 +24,9 @@ class GasCaseOutputsSubmissionServiceTest {
   @Mock
   private GasCaseOutputsFormService gasCaseOutputsFormService;
 
+  @Mock
+  private GasCaseOutputsFormValidator gasCaseOutputsFormValidator;
+
   @InjectMocks
   private GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService;
 
@@ -36,9 +39,9 @@ class GasCaseOutputsSubmissionServiceTest {
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
     when(gasCaseOutputsFormService.getGasCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
-    when(gasCaseOutputsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(emptyBindingResult);
+    when(gasCaseOutputsFormValidator.isValid(
+        eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(true);
 
     assertTrue(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
@@ -52,9 +55,9 @@ class GasCaseOutputsSubmissionServiceTest {
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
     when(gasCaseOutputsFormService.getGasCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
-    when(gasCaseOutputsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(bindingResultWithError);
+    when(gasCaseOutputsFormValidator.isValid(
+        eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(false);
 
     assertFalse(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }

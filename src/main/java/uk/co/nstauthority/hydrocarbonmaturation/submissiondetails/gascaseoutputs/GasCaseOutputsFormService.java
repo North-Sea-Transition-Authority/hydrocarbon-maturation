@@ -1,38 +1,21 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs;
 
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class GasCaseOutputsFormService implements SubmissionFormService {
+class GasCaseOutputsFormService {
 
-  private final GasCaseOutputsFormValidator gasCaseOutputsFormValidator;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
   private final GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
 
-  public GasCaseOutputsFormService(GasCaseOutputsFormValidator gasCaseOutputsFormValidator,
-                                   ProbabilityDistributionFormService probabilityDistributionFormService,
+  public GasCaseOutputsFormService(ProbabilityDistributionFormService probabilityDistributionFormService,
                                    GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService) {
-    this.gasCaseOutputsFormValidator = gasCaseOutputsFormValidator;
     this.probabilityDistributionFormService = probabilityDistributionFormService;
     this.gasCaseOutputsPersistenceService = gasCaseOutputsPersistenceService;
-  }
-
-  @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
-    gasCaseOutputsFormValidator.validate(form, bindingResult,
-        new SubmissionFormValidatorHints(validationType, submissionDetail));
-    return bindingResult;
   }
 
   GasCaseOutputsForm getGasCaseOutputsForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
@@ -91,7 +74,7 @@ class GasCaseOutputsFormService implements SubmissionFormService {
 
       form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
       ));
     }
 

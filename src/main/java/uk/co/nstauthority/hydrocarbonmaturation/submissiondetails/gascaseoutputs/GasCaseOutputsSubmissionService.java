@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -11,9 +12,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class GasCaseOutputsSubmissionService implements ReservoirSectionSubmissionService {
 
   private final GasCaseOutputsFormService gasCaseOutputsFormService;
+  private final GasCaseOutputsFormValidator gasCaseOutputsFormValidator;
 
-  public GasCaseOutputsSubmissionService(GasCaseOutputsFormService gasCaseOutputsFormService) {
+  @Autowired
+  public GasCaseOutputsSubmissionService(GasCaseOutputsFormService gasCaseOutputsFormService,
+                                         GasCaseOutputsFormValidator gasCaseOutputsFormValidator) {
     this.gasCaseOutputsFormService = gasCaseOutputsFormService;
+    this.gasCaseOutputsFormValidator = gasCaseOutputsFormValidator;
   }
 
   @Override
@@ -21,7 +26,6 @@ public class GasCaseOutputsSubmissionService implements ReservoirSectionSubmissi
     var form = gasCaseOutputsFormService.getGasCaseOutputsForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-    bindingResult = gasCaseOutputsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
-    return !bindingResult.hasErrors();
+    return gasCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
   }
 }

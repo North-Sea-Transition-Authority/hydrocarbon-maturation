@@ -66,7 +66,7 @@ public class OilCaseOutputsSummaryService {
       }
 
       listOfInstances.add(
-          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
     }
 
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();

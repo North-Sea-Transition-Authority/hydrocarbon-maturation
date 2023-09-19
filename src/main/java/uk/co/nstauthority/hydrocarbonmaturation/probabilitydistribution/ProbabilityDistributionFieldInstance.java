@@ -330,7 +330,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Oil in place"
   ),
   OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Oil in place"
   ),
@@ -340,7 +340,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Oil recoverable resources"
   ),
   OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Oil recoverable resources"
   ),
@@ -350,17 +350,12 @@ public enum ProbabilityDistributionFieldInstance {
       "Associated gas recoverable resources"
   ),
   OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Associated gas recoverable resources"
   ),
   OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMBOE,
-      "Oil equivalent recoverable resources"
-  ),
-  OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   ),
@@ -372,7 +367,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Gas in place"
   ),
   GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Gas in place"
   ),
@@ -382,7 +377,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Gas recoverable resources"
   ),
   GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Gas recoverable resources"
   ),
@@ -392,17 +387,12 @@ public enum ProbabilityDistributionFieldInstance {
       "Associated condensate recoverable resources"
   ),
   GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Associated condensate recoverable resources"
   ),
   GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMBOE,
-      "Oil equivalent recoverable resources"
-  ),
-  GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   ),
@@ -414,7 +404,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Oil in place"
   ),
   MIXED_CASE_OIL_IN_PLACE_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Oil in place"
   ),
@@ -424,7 +414,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Oil recoverable resources"
   ),
   MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Oil recoverable resources"
   ),
@@ -434,7 +424,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Associated gas recoverable resources"
   ),
   MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Associated gas recoverable resources"
   ),
@@ -444,7 +434,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Gas in place"
   ),
   MIXED_CASE_GAS_IN_PLACE_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Gas in place"
   ),
@@ -454,7 +444,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Gas recoverable resources"
   ),
   MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Gas recoverable resources"
   ),
@@ -464,7 +454,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Associated condensate recoverable resources"
   ),
   MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Associated condensate recoverable resources"
   ),
@@ -474,7 +464,14 @@ public enum ProbabilityDistributionFieldInstance {
       "Oil equivalent recoverable resources"
   ),
   MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsPreDrillBehaviour.class,
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
+  ),
+
+  // Common outputs for discoveries
+  OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   ),

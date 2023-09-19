@@ -199,7 +199,11 @@ class GeneralReservoirInformationServiceTest {
             ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_FIELD,
             ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_FIELD,
             ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_FIELD,
-            ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD_CONSTANT
+            ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD_CONSTANT,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
         ),
         reservoirSubmissionDetail
     );
@@ -226,7 +230,11 @@ class GeneralReservoirInformationServiceTest {
             ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD,
             ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_FIELD,
             ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT,
-            ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD
+            ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
         ),
         reservoirSubmissionDetail
     );

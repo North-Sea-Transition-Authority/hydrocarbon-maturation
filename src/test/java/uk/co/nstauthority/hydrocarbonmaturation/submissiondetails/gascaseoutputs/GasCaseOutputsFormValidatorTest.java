@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutput
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,9 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,25 +34,12 @@ class GasCaseOutputsFormValidatorTest {
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
-  @Test
-  void supports_whenGasCaseOutputsFormClass_thenTrue() {
-    var supportedClass = GasCaseOutputsForm.class;
-    assertTrue(gasCaseOutputsFormValidator.supports(supportedClass));
-  }
-
-  @Test
-  void supports_whenNotGasCaseOutputsFormClass_thenFalse() {
-    var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(gasCaseOutputsFormValidator.supports(nonSupportedClass));
-  }
-
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
   void validate_whenValidForm_whenProspect_thenNoValidationErrors(ValidationType validationType) {
     var form = getProspectValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+    gasCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, validationType);
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -65,8 +49,7 @@ class GasCaseOutputsFormValidatorTest {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var form = getDiscoveryValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, discoverySubmissionDetail));
+    gasCaseOutputsFormValidator.isValid(form, bindingResult, discoverySubmissionDetail, validationType);
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -74,8 +57,7 @@ class GasCaseOutputsFormValidatorTest {
   void validate_whenInvalidForm_whenProspect_thenValidationErrors() {
     var form = getFormWithEmptyDistributions(ProbabilityDistributionType.CUSTOM);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    gasCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -95,8 +77,7 @@ class GasCaseOutputsFormValidatorTest {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var form = getFormWithEmptyDistributions(ProbabilityDistributionType.CUSTOM);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, discoverySubmissionDetail));
+    gasCaseOutputsFormValidator.isValid(form, bindingResult, discoverySubmissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -116,8 +97,7 @@ class GasCaseOutputsFormValidatorTest {
     var form = getProspectValidForm();
     form.setHasAssociatedCondensateRecoverableResources(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    gasCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -136,8 +116,7 @@ class GasCaseOutputsFormValidatorTest {
   void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseOutputsFormValidator.validate(form, bindingResult,
-        new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    gasCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -163,8 +142,7 @@ class GasCaseOutputsFormValidatorTest {
   void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    gasCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)

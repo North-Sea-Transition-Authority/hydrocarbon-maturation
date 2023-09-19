@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-public class DiscoveryOutputsPreDrillBehaviour extends BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
+public class DiscoveryOutputsBehaviour extends BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
 
   @Override
   public boolean isP90Available() {

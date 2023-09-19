@@ -4,33 +4,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
 
 @Service
-class GasCaseOutputsFormValidator extends PartialFullFormValidator {
+class GasCaseOutputsFormValidator implements SubmissionValidator {
 
   @Override
-  public boolean supports(Class<?> clazz) {
-    return GasCaseOutputsForm.class.equals(clazz);
-  }
-
-  @Override
-  public void validatePartial(SubmissionForm form, Errors errors) {
-    throw new ActionNotAllowedException("You must call validatePartialWithSubmissionDetail");
-  }
-
-  @Override
-  public void validateFull(SubmissionForm form, Errors errors) {
-    throw new ActionNotAllowedException("You must call validateFullWithSubmissionDetail");
-  }
-
-  @Override
-  public void validatePartialWithSubmissionDetail(SubmissionForm form, SubmissionDetail submissionDetail, Errors errors) {
+  public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var gasCaseOutputsForm = (GasCaseOutputsForm) form;
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
@@ -108,13 +92,13 @@ class GasCaseOutputsFormValidator extends PartialFullFormValidator {
           errors,
           "oilEquivalentRecoverableResources",
           "Oil equivalent recoverable resources",
-          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
       );
     }
   }
 
   @Override
-  public void validateFullWithSubmissionDetail(SubmissionForm form, SubmissionDetail submissionDetail, Errors errors) {
+  public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var gasCaseOutputsForm = (GasCaseOutputsForm) form;
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
@@ -204,7 +188,7 @@ class GasCaseOutputsFormValidator extends PartialFullFormValidator {
           errors,
           "oilEquivalentRecoverableResources",
           "Oil equivalent recoverable resources",
-          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
       );
     }
   }

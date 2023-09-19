@@ -1,20 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
@@ -23,14 +18,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class OilCaseOutputsFormServiceTest {
-
-  @Mock
-  private OilCaseOutputsFormValidator formValidator;
 
   @Mock
   private ProbabilityDistributionFormService probabilityDistributionFormService;
@@ -43,23 +33,6 @@ class OilCaseOutputsFormServiceTest {
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
-
-  @Test
-  void validate_verifyMethodCall() {
-    var form = new OilCaseOutputsForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
-
-    oilCaseOutputsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
-    verify(formValidator, times(1)).validate(eq(form), eq(bindingResult), captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(
-            SubmissionFormValidatorHints::getSubmissionDetail,
-            SubmissionFormValidatorHints::getValidationType)
-        .containsExactly(submissionDetail, ValidationType.FULL);
-  }
 
   @Test
   void getOilCaseOutputsForm_newEntity_thenEmptyForm() {
@@ -168,7 +141,7 @@ class OilCaseOutputsFormServiceTest {
         discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY))
+        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
 
     OilCaseOutput oilCaseOutput = new OilCaseOutput();

@@ -81,7 +81,7 @@ public class GasCaseOutputsPersistenceService {
         ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT;
     if (resourceType == ResourceType.DISCOVERY) {
       oilEquivalentRecoverableResources =
-          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY;
+          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY;
     }
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         oilEquivalentRecoverableResources,

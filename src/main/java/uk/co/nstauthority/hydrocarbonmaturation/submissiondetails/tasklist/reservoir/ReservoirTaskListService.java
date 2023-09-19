@@ -12,12 +12,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics.FieldGasVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldoilvolumetrics.FieldOilVolumetricsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
@@ -37,25 +41,31 @@ public class ReservoirTaskListService {
   private final GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService;
   private final GeneralReservoirInformationService generalReservoirInformationService;
   private final OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService;
+  private final OilCaseOutputsSubmissionService oilCaseOutputsSubmissionService;
   private final ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
   private final GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService;
+  private final GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService;
 
   @Autowired
   public ReservoirTaskListService(
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
       PermeabilitySubmissionService permeabilitySubmissionService,
       GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService,
+      OilCaseOutputsSubmissionService oilCaseOutputsSubmissionService,
       ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService,
       GeneralReservoirInformationService generalReservoirInformationService,
       OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService,
-      GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService) {
+      GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService,
+      GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService) {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
     this.generalReservoirInformationSubmissionService = generalReservoirInformationSubmissionService;
+    this.oilCaseOutputsSubmissionService = oilCaseOutputsSubmissionService;
     this.reservoirPropertiesSubmissionService = reservoirPropertiesSubmissionService;
     this.generalReservoirInformationService = generalReservoirInformationService;
     this.oilCaseVolumetricsSubmissionService = oilCaseVolumetricsSubmissionService;
     this.gasCaseVolumetricsSubmissionService = gasCaseVolumetricsSubmissionService;
+    this.gasCaseOutputsSubmissionService = gasCaseOutputsSubmissionService;
   }
 
   public List<ReservoirTaskListItem> getAllReservoirTaskLists(SubmissionDetail submissionDetail) {
@@ -124,6 +134,15 @@ public class ReservoirTaskListService {
                     submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
         );
+
+        items.add(
+            new TaskListItem("Oil case outputs (resources)",
+                TaskListLabel.notStartedOrComplete(
+                    oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(OilCaseOutputsController.class).getOilCaseOutputs(
+                    submissionDetail.getId(),
+                    reservoirSubmissionDetail.getId())))
+        );
       }
 
       if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
@@ -147,6 +166,15 @@ public class ReservoirTaskListService {
                 TaskListLabel.notStartedOrComplete(
                     gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
                 ReverseRouter.route(on(GasCaseVolumetricsController.class).getGasCaseVolumetrics(
+                    submissionDetail.getId(),
+                    reservoirSubmissionDetail.getId())))
+        );
+
+        items.add(
+            new TaskListItem("Gas case outputs (resources)",
+                TaskListLabel.notStartedOrComplete(
+                    gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
                     submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
         );

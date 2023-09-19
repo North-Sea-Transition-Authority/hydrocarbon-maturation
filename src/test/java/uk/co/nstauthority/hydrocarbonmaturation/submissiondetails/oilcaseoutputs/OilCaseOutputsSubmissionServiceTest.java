@@ -24,6 +24,9 @@ class OilCaseOutputsSubmissionServiceTest {
   @Mock
   private OilCaseOutputsFormService oilCaseOutputsFormService;
 
+  @Mock
+  private OilCaseOutputsFormValidator oilCaseOutputsFormValidator;
+
   @InjectMocks
   private OilCaseOutputsSubmissionService oilCaseOutputsSubmissionService;
 
@@ -36,9 +39,9 @@ class OilCaseOutputsSubmissionServiceTest {
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
     when(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
-    when(oilCaseOutputsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(emptyBindingResult);
+    when(oilCaseOutputsFormValidator.isValid(
+        eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(true);
 
     assertTrue(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
@@ -52,9 +55,9 @@ class OilCaseOutputsSubmissionServiceTest {
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
     when(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
-    when(oilCaseOutputsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(bindingResultWithError);
+    when(oilCaseOutputsFormValidator.isValid(
+        eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(false);
 
     assertFalse(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
