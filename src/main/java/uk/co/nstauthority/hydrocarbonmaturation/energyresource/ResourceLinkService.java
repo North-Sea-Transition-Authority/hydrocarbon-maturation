@@ -35,6 +35,14 @@ public class ResourceLinkService {
     return resourceLinksRepository.findAllByProspectResource(prospect);
   }
 
+  public boolean prospectIsLinkedToDiscovery(Resource resource) {
+    if (resource.getType() == ResourceType.PROSPECT) {
+      return resourceLinksRepository.existsByProspectResource(resource);
+    } else {
+      return false;
+    }
+  }
+
   public List<ResourceLink> getResourceLinksByDiscovery(Resource discovery) {
     return resourceLinksRepository.findAllByDiscoveryResource(discovery);
   }

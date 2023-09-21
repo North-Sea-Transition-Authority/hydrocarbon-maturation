@@ -21,6 +21,7 @@ class SubmissionQueryService {
   private final SubmissionFilterService submissionFilterService;
   private final SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory;
   private final ResourceGroupService resourceGroupService;
+  private final ResourceLinkService resourceLinkService;
 
   @Autowired
   SubmissionQueryService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
@@ -28,13 +29,15 @@ class SubmissionQueryService {
                          SubmissionResourceService submissionResourceService,
                          SubmissionFilterService submissionFilterService,
                          SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory,
-                         ResourceGroupService resourceGroupService) {
+                         ResourceGroupService resourceGroupService,
+                         ResourceLinkService resourceLinkService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.submissionFilterService = submissionFilterService;
     this.submissionSearchSelectorServiceFactory = submissionSearchSelectorServiceFactory;
     this.resourceGroupService = resourceGroupService;
+    this.resourceLinkService = resourceLinkService;
   }
 
   public List<ResourceView> getLatestDiscoveriesByNameForSubmissionType(String name,
@@ -81,6 +84,11 @@ class SubmissionQueryService {
   public List<ResourceView> getLatestResourceSubmissionsByName(String name) {
     // Get every resource by name
     return submissionResourceService.getResourcesByName(name).stream()
+        // remove any prospects that are linked to a discovery
+        .filter(resource ->
+            resource.getType() == ResourceType.DISCOVERY
+                || (resource.getType() == ResourceType.PROSPECT && !resourceLinkService.prospectIsLinkedToDiscovery(resource))
+        )
         // Get the latest approved submission for each resource
         .map(submissionDetailService::getLatestApprovedSubmissionDetailForResource)
         .flatMap(Optional::stream)

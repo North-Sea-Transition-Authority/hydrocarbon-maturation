@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -158,5 +160,25 @@ class ResourceLinkServiceTest {
         .isFalse();
     assertThat(resourceLinkService.isResourceLinkedOrSameResource(discovery, prospect))
         .isFalse();
+  }
+
+  @Test
+  void prospectIsLinkedToDiscovery_whenNotProspect() {
+    var discovery = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
+    assertFalse(resourceLinkService.prospectIsLinkedToDiscovery(discovery));
+  }
+
+  @Test
+  void prospectIsLinkedToDiscovery_whenProspectLinkedToDiscovery() {
+    var prospect = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    when(resourceLinksRepository.existsByProspectResource(prospect)).thenReturn(true);
+    assertTrue(resourceLinkService.prospectIsLinkedToDiscovery(prospect));
+  }
+
+  @Test
+  void prospectIsLinkedToDiscovery_whenProspectNotLinkedToDiscovery() {
+    var prospect = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    when(resourceLinksRepository.existsByProspectResource(prospect)).thenReturn(false);
+    assertFalse(resourceLinkService.prospectIsLinkedToDiscovery(prospect));
   }
 }
