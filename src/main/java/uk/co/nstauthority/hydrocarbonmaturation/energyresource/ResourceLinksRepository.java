@@ -10,6 +10,8 @@ interface ResourceLinksRepository extends CrudRepository<ResourceLink, UUID> {
 
   List<ResourceLink> findAllByProspectResource(Resource prospect);
 
+  boolean existsByProspectResource(Resource prospect);
+
   List<ResourceLink> findAllByDiscoveryResource(Resource discovery);
 
   List<ResourceLink> findAllByFieldResource(Resource field);

@@ -46,9 +46,6 @@ class SubmissionQueryServiceTest {
   @Mock
   private SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory;
 
-  @InjectMocks
-  private SubmissionQueryService submissionQueryService;
-
   @Mock
   private RegulatorSubmissionSearchSelectorService regulatorSubmissionSearchSelectorService;
 
@@ -57,6 +54,12 @@ class SubmissionQueryServiceTest {
 
   @Mock
   private ResourceGroupService resourceGroupService;
+
+  @Mock
+  private ResourceLinkService resourceLinkService;
+
+  @InjectMocks
+  private SubmissionQueryService submissionQueryService;
 
   private final Resource resourceWithoutLatestApproved = new Resource();
 
@@ -291,15 +294,13 @@ class SubmissionQueryServiceTest {
           latestApprovedDiscoveryName, ResourceType.DISCOVERY,
           SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
 
-      when(submissionResourceService.getResourcesByName(searchTerm))
-          .thenReturn(List.of(
-              latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource(),
-              latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource()));
-      when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(
-          latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource()))
+      var prospectResource = latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource();
+      var discoveryResource = latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource();
+      when(submissionResourceService.getResourcesByName(searchTerm)).thenReturn(List.of(prospectResource, discoveryResource));
+      when(resourceLinkService.prospectIsLinkedToDiscovery(prospectResource)).thenReturn(false);
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(discoveryResource))
           .thenReturn(Optional.of(latestApprovedDiscoveryResourceDetail.getSubmissionDetail()));
-      when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(
-          latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource()))
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(prospectResource))
           .thenReturn(Optional.of(latestApprovedProspectResourceDetail.getSubmissionDetail()));
       when(resourceDetailsPersistenceService.getResourceDetailOrThrow(
           latestApprovedProspectResourceDetail.getSubmissionDetail()))
@@ -319,6 +320,39 @@ class SubmissionQueryServiceTest {
           .containsExactly(
               tuple(latestApprovedDiscoveryResourceDetail.getId().toString(), latestApprovedDiscoveryName),
               tuple(latestApprovedProspectResourceDetail.getId().toString(), latestApprovedProspectName)
+          );
+    }
+
+    @Test
+    void whenTwoResources_prospectIsLinkedToDiscovery_assertOneReturned() {
+      var searchTerm = "resource";
+      var latestApprovedProspectName = "prospect resource";
+      var latestApprovedDiscoveryName = "discovery resource";
+      var latestApprovedProspectResourceDetail = createResourceDetail(
+          latestApprovedProspectName, ResourceType.PROSPECT,
+          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_PROSPECT);
+      var latestApprovedDiscoveryResourceDetail = createResourceDetail(
+          latestApprovedDiscoveryName, ResourceType.DISCOVERY,
+          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
+
+      var prospectResource = latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource();
+      var discoveryResource = latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource();
+      when(submissionResourceService.getResourcesByName(searchTerm)).thenReturn(List.of(prospectResource, discoveryResource));
+      when(resourceLinkService.prospectIsLinkedToDiscovery(prospectResource)).thenReturn(true);
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(discoveryResource))
+          .thenReturn(Optional.of(latestApprovedDiscoveryResourceDetail.getSubmissionDetail()));
+      when(resourceDetailsPersistenceService.getResourceDetailOrThrow(
+          latestApprovedDiscoveryResourceDetail.getSubmissionDetail()))
+          .thenReturn(latestApprovedDiscoveryResourceDetail);
+      when(submissionResourceService.getResourceDisplayName(latestApprovedDiscoveryResourceDetail))
+          .thenReturn(latestApprovedDiscoveryResourceDetail.getResourceName());
+
+      var result = submissionQueryService.getLatestResourceSubmissionsByName(searchTerm);
+
+      assertThat(result)
+          .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
+          .containsExactly(
+              tuple(latestApprovedDiscoveryResourceDetail.getId().toString(), latestApprovedDiscoveryName)
           );
     }
   }
