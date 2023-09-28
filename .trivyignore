@@ -62,6 +62,7 @@ CVE-2023-2976
 
 # Tomcat
 CVE-2023-28708
+CVE-2023-41080
 
 # Spring Security config
 CVE-2023-34034
