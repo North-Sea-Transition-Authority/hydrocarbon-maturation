@@ -20,6 +20,14 @@ public class ReservoirSubmissionDetailsTestUtils {
     return createReservoirSubmissionDetail(reservoir, SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY));
   }
 
+  public static ReservoirSubmissionDetail createReservoirSubmissionDetail(SubmissionType submissionType) {
+    return createReservoirSubmissionDetail(SubmissionDetailTestUtils.createSubmissionDetail(submissionType));
+  }
+
+  public static ReservoirSubmissionDetail createReservoirSubmissionDetail(SubmissionType submissionType, Reservoir reservoir) {
+    return createReservoirSubmissionDetail(reservoir, SubmissionDetailTestUtils.createSubmissionDetail(submissionType));
+  }
+
   public static ReservoirSubmissionDetail createReservoirSubmissionDetail(SubmissionDetail submissionDetail) {
     var reservoir = new Reservoir();
     reservoir.setId(UUID.randomUUID());

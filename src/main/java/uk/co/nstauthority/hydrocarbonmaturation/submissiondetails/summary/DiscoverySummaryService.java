@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
@@ -60,6 +61,7 @@ class DiscoverySummaryService {
   private final OpportunityDetailsSummaryService opportunityDetailsSummaryService;
   private final TrapPropertiesSummaryService trapPropertiesSummaryService;
   private final SourceAndSealSummaryService sourceAndSealSummaryService;
+  private final ReservoirSummaryService reservoirSummaryService;
 
   @Autowired
   DiscoverySummaryService(GasFluidPropertySummaryService gasFluidPropertySummaryService,
@@ -79,7 +81,8 @@ class DiscoverySummaryService {
                           OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService,
                           OpportunityDetailsSummaryService opportunityDetailsSummaryService,
                           TrapPropertiesSummaryService trapPropertiesSummaryService,
-                          SourceAndSealSummaryService sourceAndSealSummaryService) {
+                          SourceAndSealSummaryService sourceAndSealSummaryService,
+                          ReservoirSummaryService reservoirSummaryService) {
     this.gasFluidPropertySummaryService = gasFluidPropertySummaryService;
     this.oilFluidPropertySummaryService = oilFluidPropertySummaryService;
     this.generalFluidPropertySummaryService = generalFluidPropertySummaryService;
@@ -98,6 +101,7 @@ class DiscoverySummaryService {
     this.opportunityDetailsSummaryService = opportunityDetailsSummaryService;
     this.trapPropertiesSummaryService = trapPropertiesSummaryService;
     this.sourceAndSealSummaryService = sourceAndSealSummaryService;
+    this.reservoirSummaryService = reservoirSummaryService;
   }
 
   public DiscoveryWellDetailsSummaryView getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(
@@ -184,5 +188,9 @@ class DiscoverySummaryService {
   public OutlineForMaximumCaseSummaryView getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(
       SubmissionDetail submissionDetail) {
     return outlineForMaximumCaseSummaryService.getOutlineForMaximumCaseSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public List<ReservoirSummary> getReservoirSummariesFromSubmissionDetail(SubmissionDetail submissionDetail) {
+    return reservoirSummaryService.getReservoirSummaries(submissionDetail);
   }
 }

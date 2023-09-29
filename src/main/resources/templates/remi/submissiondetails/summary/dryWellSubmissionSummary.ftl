@@ -24,6 +24,7 @@
 <#-- @ftlvariable name="isOffshore" type="Boolean" -->
 <#-- @ftlvariable name="isRegulator" type="Boolean" -->
 <#-- @ftlvariable name="submissionUpdateReason" type="String" -->
+<#-- @ftlvariable name="resourceName" type="String" -->
 
 <#if !submittable>
   <#assign notificationBanner>
@@ -40,7 +41,8 @@
   wrapperWidth=true
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap
-  notificationBanner=notificationBanner>
+  notificationBanner=notificationBanner
+  caption=resourceName>
     <#if isSubmissionUpdate>
       <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
     </#if>

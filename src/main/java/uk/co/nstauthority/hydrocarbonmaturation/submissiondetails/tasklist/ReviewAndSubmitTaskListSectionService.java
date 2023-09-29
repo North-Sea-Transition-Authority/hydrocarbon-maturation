@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.DiscoverySubmissionSummaryController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldSubmissionSummaryController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.PostDrillDryWellSubmissionSummaryController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ProspectSubmissionSummaryController;
 
@@ -44,8 +45,9 @@ public class ReviewAndSubmitTaskListSectionService implements TaskListSectionSer
               ReverseRouter.route(on(DiscoverySubmissionSummaryController.class)
                   .showSubmissionSummary(submissionDetail.getId()))));
       case CREATE_FIELD, CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
-          // No task list items for fields
-          List.of();
+          List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
+              ReverseRouter.route(on(FieldSubmissionSummaryController.class)
+                  .showSubmissionSummary(submissionDetail.getId()))));
     };
   }
 }

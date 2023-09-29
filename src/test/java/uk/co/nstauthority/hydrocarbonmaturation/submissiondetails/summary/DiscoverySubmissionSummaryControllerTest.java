@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,6 +18,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.DiscoverySubmissionSummaryController.PAGE_NAME;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -25,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -51,6 +54,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ContextConfiguration(classes = DiscoverySubmissionSummaryController.class)
 class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControllerTest {
@@ -61,13 +66,16 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   private SubmissionSummaryModelService submissionSummaryModelService;
 
   @MockBean
-  private SubmissionSummaryFormService submissionSummaryFormService;
-
-  @MockBean
   private SubmissionReadyService submissionReadyService;
 
   @MockBean
   private SubmissionApprovalService submissionApprovalService;
+
+  @MockBean
+  private SubmissionSummaryFormValidator submissionSummaryFormValidator;
+
+  @MockBean
+  private InternalTeamService internalTeamService;
 
   private static UUID submissionDetailId;
 
@@ -88,6 +96,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
   private ResourceDetailSummaryView resourceDetailSummaryView;
   private OutlineForMaximumCaseSummaryView outlineForMaximumCaseSummaryView;
+  private List<ReservoirSummary> reservoirSummaries;
 
   @BeforeEach
   void setUp() {
@@ -96,7 +105,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     oilFluidPropertySummaryView =  OilFluidPropertySummaryView.empty();
     generalFluidPropertySummaryView = GeneralFluidPropertySummaryView.empty();
     permeabilityDetailSummaryView = PermeabilityDetailSummaryView.empty();
-    generalDetailSummaryView = GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(), "Prospect");
+    generalDetailSummaryView = GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(), "Discovery");
     drillStemTestSummaryView = DrillStemTestSummaryView.empty();
     reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(SubmissionType.CREATE_DISCOVERY,
         "", "", "", "", "", "", "", List.of(), List.of());
@@ -109,7 +118,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     discoveryWellDetailsSummaryView = DiscoveryWellDetailsSummaryView.empty();
     sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     trapPropertiesSummaryView = TrapPropertiesSummaryView.empty();
-    resourceDetailSummaryView = ResourceDetailSummaryView.empty("Prospect");
+    resourceDetailSummaryView = ResourceDetailSummaryView.empty("Discovery");
+    reservoirSummaries = Collections.emptyList();
     submissionDetail.setSubmissionType(SubmissionType.UPDATE_DISCOVERY);
   }
 
@@ -156,7 +166,12 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   @SecurityTest
   void processSubmission_assertRedirection() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
+    when(submissionSummaryFormValidator.isValid(
+        any(SubmissionSummaryForm.class),
+        any(Errors.class),
+        eq(submissionDetail),
+        eq(ValidationType.FULL))
+    ).thenReturn(true);
     mockCreateDiscoverySubmissionSummaryModelAndView();
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
@@ -174,7 +189,12 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(SubmissionSummaryForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(submissionSummaryFormService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(submissionSummaryFormValidator.isValid(
+        any(SubmissionSummaryForm.class),
+        any(Errors.class),
+        eq(submissionDetail),
+        eq(ValidationType.FULL))
+    ).thenReturn(false);
 
     mockCreateDiscoverySubmissionSummaryModelAndView();
 
@@ -233,6 +253,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
             entry("discoveryWellDetailsSummaryView", discoveryWellDetailsSummaryView),
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
+            entry("reservoirSummaries", reservoirSummaries),
             entry("resourceDetailSummaryView", resourceDetailSummaryView),
             entry("gasOnlyDiscovery", false),
             entry("oilOnlyDiscovery", false),
@@ -261,6 +282,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .addObject("discoveryWellDetailsSummaryView", discoveryWellDetailsSummaryView)
         .addObject("sourceAndSealSummaryView", sourceAndSealSummaryView)
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
+        .addObject("reservoirSummaries", reservoirSummaries)
         .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
         .addObject("gasOnlyDiscovery", false)
         .addObject("oilOnlyDiscovery", false)
@@ -272,7 +294,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     when(submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(
         submissionDetail, VIEW_NAME)
     ).thenReturn(modelAndView);
-    when(submissionSummaryFormService.isRegulatorOrAreaTeamUser()).thenReturn(false);
+    when(internalTeamService.isRegulatorOrAreaTeamUser()).thenReturn(false);
 
   }
 }

@@ -37,6 +37,8 @@
 <#-- @ftlvariable name="isOffshore" type="Boolean" -->
 <#-- @ftlvariable name="isRegulator" type="Boolean" -->
 <#-- @ftlvariable name="submissionUpdateReason" type="String" -->
+<#-- @ftlvariable name="resourceName" type="String" -->
+<#-- @ftlvariable name="reservoirSummaries" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummary>" -->
 
 <#if !submittable>
   <#assign notificationBanner>
@@ -53,7 +55,8 @@
   wrapperWidth=true
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap
-  notificationBanner=notificationBanner>
+  notificationBanner=notificationBanner
+  caption=resourceName>
   <#if isSubmissionUpdate>
     <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
   </#if>
@@ -61,9 +64,6 @@
     <@discoverySubmissionSummary.discoverySubmissionSummary
       generalDetailsSummaryView=generalDetailsSummaryView
       permeabilitySummaryView=permeabilitySummaryView!""
-      oilOnlyDiscovery=oilOnlyDiscovery
-      gasOnlyDiscovery=gasOnlyDiscovery
-      mixedDiscovery=mixedDiscovery
       oilFluidPropertiesSummaryView=oilFluidPropertiesSummaryView
       gasFluidPropertiesSummaryView=gasFluidPropertiesSummaryView
       generalFluidPropertiesSummaryView=generalFluidPropertiesSummaryView
@@ -80,7 +80,9 @@
       outlineForMaximumCaseSummaryView=outlineForMaximumCaseSummaryView
       sourceAndSealSummaryView=sourceAndSealSummaryView
       trapPropertiesSummaryView=trapPropertiesSummaryView
-      resourceDetailSummaryView=resourceDetailSummaryView/>
+      resourceDetailSummaryView=resourceDetailSummaryView
+      reservoirSummaries=reservoirSummaries
+    />
       <#if !submittable && isRegulatorOrAreaTeamUser>
         <div class="govuk-form-group <#if errorList?has_content>govuk-form-group--error</#if>">
             <@fdsCheckbox.checkbox

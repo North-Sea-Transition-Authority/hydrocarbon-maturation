@@ -88,6 +88,9 @@ class DiscoverySummaryServiceTest {
   @Mock
   private OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService;
 
+  @Mock
+  private ReservoirSummaryService reservoirSummaryService;
+
   @InjectMocks
   private DiscoverySummaryService discoverySummaryService;
 
@@ -236,5 +239,13 @@ class DiscoverySummaryServiceTest {
 
     verify(outlineForMaximumCaseSummaryService, times(1))
         .getOutlineForMaximumCaseSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getReservoirSummaryViewFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail);
+
+    verify(reservoirSummaryService, times(1))
+        .getReservoirSummaries(submissionDetail);
   }
 }

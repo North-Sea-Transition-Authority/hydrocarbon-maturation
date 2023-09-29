@@ -16,7 +16,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -24,6 +23,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/summary")
@@ -32,27 +33,27 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @IsFromResponsibleTeam
 public class ProspectSubmissionSummaryController {
   private final SubmissionDetailService submissionDetailService;
-  private final ControllerHelperService controllerHelperService;
-  private final SubmissionSummaryFormService submissionSummaryFormService;
+  private final InternalTeamService internalTeamService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionReadyService submissionReadyService;
   private final SubmissionApprovalService submissionApprovalService;
+  private final SubmissionSummaryFormValidator submissionSummaryFormValidator;
 
   public static final String PAGE_NAME = "Review your submission before submitting";
 
   @Autowired
   public ProspectSubmissionSummaryController(SubmissionDetailService submissionDetailService,
-                                             ControllerHelperService controllerHelperService,
-                                             SubmissionSummaryFormService submissionSummaryFormService,
+                                             InternalTeamService internalTeamService,
                                              SubmissionSummaryModelService submissionSummaryModelService,
                                              SubmissionReadyService submissionReadyService,
-                                             SubmissionApprovalService submissionApprovalService) {
+                                             SubmissionApprovalService submissionApprovalService,
+                                             SubmissionSummaryFormValidator submissionSummaryFormValidator) {
     this.submissionDetailService = submissionDetailService;
-    this.controllerHelperService = controllerHelperService;
-    this.submissionSummaryFormService = submissionSummaryFormService;
+    this.internalTeamService = internalTeamService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionReadyService = submissionReadyService;
     this.submissionApprovalService = submissionApprovalService;
+    this.submissionSummaryFormValidator = submissionSummaryFormValidator;
   }
 
   @GetMapping
@@ -66,16 +67,13 @@ public class ProspectSubmissionSummaryController {
                                         @ModelAttribute("form") SubmissionSummaryForm form,
                                         BindingResult bindingResult) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = submissionSummaryFormService.validate(form, bindingResult, submissionDetail);
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getSubmissionSummaryModelAndView(form, submissionDetail),
-        () -> {
-          submissionApprovalService.submitSubmission(submissionDetail);
-          return ReverseRouter.redirect(on(SubmissionConfirmationController.class)
-              .showSubmissionConfirmation(submissionDetailId));
-        }
-    );
+    if (!submissionSummaryFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL)) {
+      return getSubmissionSummaryModelAndView(form, submissionDetail);
+    } else {
+      submissionApprovalService.submitSubmission(submissionDetail);
+      return ReverseRouter.redirect(on(SubmissionConfirmationController.class)
+          .showSubmissionConfirmation(submissionDetailId));
+    }
   }
 
   private ModelAndView getSubmissionSummaryModelAndView(SubmissionSummaryForm form, SubmissionDetail submissionDetail) {
@@ -89,7 +87,7 @@ public class ProspectSubmissionSummaryController {
         .addObject("pageName", PAGE_NAME)
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())))
         .addObject("submittable", submissionReadyService.isSubmissionSubmittable(submissionDetail))
-        .addObject("isRegulatorOrAreaTeamUser", submissionSummaryFormService.isRegulatorOrAreaTeamUser());
+        .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser());
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
 

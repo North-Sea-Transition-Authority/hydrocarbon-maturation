@@ -202,8 +202,7 @@ class GeneralReservoirInformationServiceTest {
             ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD_CONSTANT,
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-            ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
         ),
         reservoirSubmissionDetail
     );
@@ -233,8 +232,7 @@ class GeneralReservoirInformationServiceTest {
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD,
             ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
             ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
-            ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
         ),
         reservoirSubmissionDetail
     );
@@ -407,5 +405,41 @@ class GeneralReservoirInformationServiceTest {
 
     assertThat(generalReservoirInformationService.getDiscoveryResourceNamesForFieldResourceLinkFromSubmissionDetail(fieldSubmissionDetail))
         .containsExactly(firstResourceDetail.getResourceName(), secondResourceDetail.getResourceName());
+  }
+
+  @Test
+  void getLinkedDiscoveryReservoirViewsForField() {
+    var reservoirLink1 = new ReservoirLink();
+    var reservoirLinkId1 = UUID.randomUUID();
+    reservoirLink1.setId(reservoirLinkId1);
+    reservoirLink1.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var reservoir1 = new Reservoir();
+    var reservoirId1 = UUID.randomUUID();
+    reservoir1.setId(reservoirId1);
+    var reservoirName1 = "Res 1";
+    reservoir1.setName(reservoirName1);
+    reservoirLink1.setLinkedReservoir(reservoir1);
+    var reservoirLink2 = new ReservoirLink();
+    var reservoirLinkId2 = UUID.randomUUID();
+    reservoirLink2.setId(reservoirLinkId2);
+    reservoirLink2.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var reservoir2 = new Reservoir();
+    var reservoirId2 = UUID.randomUUID();
+    reservoir2.setId(reservoirId2);
+    var reservoirName2 = "Res 2";
+    reservoir2.setName(reservoirName2);
+    reservoirLink2.setLinkedReservoir(reservoir2);
+    when(reservoirLinkService.getReservoirLinksByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(List.of(reservoirLink1, reservoirLink2));
+    var discoveryReservoirSubmissionDetail1 = new ReservoirSubmissionDetail();
+    var discoveryReservoirSubmissionDetail2 = new ReservoirSubmissionDetail();
+    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailsForReservoirIds(Set.of(reservoir1.getId().toString(), reservoir2.getId().toString())))
+        .thenReturn(List.of(discoveryReservoirSubmissionDetail1, discoveryReservoirSubmissionDetail2));
+    var reservoirView1 = new ReservoirView(reservoirId1, reservoirName1);
+    var reservoirView2 = new ReservoirView(reservoirId2, reservoirName2);
+    when(reservoirLinkService.getReservoirViewFromReservoirSubmissionDetail(discoveryReservoirSubmissionDetail1)).thenReturn(reservoirView1);
+    when(reservoirLinkService.getReservoirViewFromReservoirSubmissionDetail(discoveryReservoirSubmissionDetail2)).thenReturn(reservoirView2);
+    var linkedReservoirViews = generalReservoirInformationService.getLinkedDiscoveryReservoirViewsForField(reservoirSubmissionDetail);
+    assertThat(linkedReservoirViews).containsExactly(reservoirView1, reservoirView2);
   }
 }

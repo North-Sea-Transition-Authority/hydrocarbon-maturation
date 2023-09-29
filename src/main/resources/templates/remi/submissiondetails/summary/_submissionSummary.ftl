@@ -33,6 +33,7 @@
 <#-- @ftlvariable name="generalFluidPropertiesSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView" -->
 <#-- @ftlvariable name="drillStemTestSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView" -->
 <#-- @ftlvariable name="discoveryWellDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView" -->
+<#-- @ftlvariable name="reservoirSummaries" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummary>" -->
 
 <#macro submissionSummary submissionType>
     <#if submissionType == "CREATE_PROSPECT" || submissionType == "PROSPECT_UPDATE" || submissionType== "RELINQUISHMENT_PROSPECT">
@@ -73,9 +74,6 @@
       <@discoverySubmissionSummary.discoverySubmissionSummary
         generalDetailsSummaryView=generalDetailsSummaryView
         permeabilitySummaryView=permeabilitySummaryView!""
-        oilOnlyDiscovery=oilOnlyDiscovery
-        gasOnlyDiscovery=gasOnlyDiscovery
-        mixedDiscovery=mixedDiscovery
         oilFluidPropertiesSummaryView=oilFluidPropertiesSummaryView
         gasFluidPropertiesSummaryView=gasFluidPropertiesSummaryView
         generalFluidPropertiesSummaryView=generalFluidPropertiesSummaryView
@@ -92,6 +90,7 @@
         discoveryWellDetailsSummaryView=discoveryWellDetailsSummaryView
         sourceAndSealSummaryView=sourceAndSealSummaryView
         trapPropertiesSummaryView=trapPropertiesSummaryView
-        resourceDetailSummaryView=resourceDetailSummaryView/>
+        resourceDetailSummaryView=resourceDetailSummaryView
+        reservoirSummaries=reservoirSummaries/>
     </#if>
 </#macro>

@@ -19,15 +19,13 @@
 <#import '../../summarylistcards/sourceAndSealSummaryCard.ftl' as sourceAndSealSummary>
 <#import '../../summarylistcards/trapPropertiesSummaryCard.ftl' as trapPropertiesSummary>
 <#import '../../summarylistcards/resourceDetailsSummaryCard.ftl' as resourceDetailSummary>
+<#import '../../summary/_reservoirSummary.ftl' as reservoirSummary>
 
 <#-- @ftlvariable name="accordionId" type="String" -->
 
 <#macro discoverySubmissionSummary
   generalDetailsSummaryView
   permeabilitySummaryView
-  oilOnlyDiscovery
-  gasOnlyDiscovery
-  mixedDiscovery
   oilFluidPropertiesSummaryView
   gasFluidPropertiesSummaryView
   generalFluidPropertiesSummaryView
@@ -44,7 +42,8 @@
   outlineForMaximumCaseSummaryView
   sourceAndSealSummaryView
   trapPropertiesSummaryView
-  resourceDetailSummaryView>
+  resourceDetailSummaryView
+  reservoirSummaries>
   <@fdsAccordion.accordion accordionId="summaryaccordian-${accordionId}">
     <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details" openSection=true>
       <@resourceDetailSummary.resourceDetailCard resourceDetailValues=resourceDetailSummaryView/>
@@ -56,14 +55,7 @@
       <@trapPropertiesSummary.trapPropertiesSummaryCard trapPropertiesValues=trapPropertiesSummaryView/>
       <@sourceAndSealSummary.sourceAndSealCard sourceAndSealValues=sourceAndSealSummaryView/>
     </@fdsAccordion.accordionSection>
-<#-- TODO: Uncomment out when the discovery summaries have been finlaised - have a reservoir submission detial to tie to -->
-<#--    <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">-->
-<#--        <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard-->
-<#--          reservoirPropertiesValues=reservoirPropertiesSummaryView/>-->
-<#--        <@permeabilitySummary.permeabilityDetailsSummaryCard-->
-<#--          permeabilityDetailsValues=permeabilitySummaryView-->
-<#--          optionalPermeability=false/>-->
-<#--    </@fdsAccordion.accordionSection>-->
+    <@reservoirSummary.reservoirSummary reservoirSummaries/>
 <#--    <@fdsAccordion.accordionSection sectionHeading="Volumetrics" summaryText="Oil case, gas case, and mixed case volumetric parameters and outputs">-->
 <#--        <#if oilOnlyDiscovery>-->
 <#--            <@oilCaseVolumetricsSummary.oilCaseVolumetricsSummary oilCaseVolumetricsValues=oilCaseVolumetricsSummaryView/>-->
@@ -78,17 +70,17 @@
 <#--            <@mixedCaseOutputsSummary.mixedCaseOutputsSummaryCard mixedCaseOutputsValues=mixedCaseOutputsSummaryView withContingentUncertaintyCategories=true/>-->
 <#--        </#if>-->
 <#--    </@fdsAccordion.accordionSection>-->
-    <@fdsAccordion.accordionSection sectionHeading="Average hydrocarbon properties" summaryText="Oil, gas and general properties">
-        <#if oilOnlyDiscovery || mixedDiscovery>
-            <@oilFluidSummary.oilFluidPropertiesCard
-            oilFluidValues=oilFluidPropertiesSummaryView/>
-        </#if>
-        <#if gasOnlyDiscovery || mixedDiscovery>
-            <@gasFluidSummary.gasFluidPropertiesCard
-            gasFluidValues=gasFluidPropertiesSummaryView/>
-        </#if>
-        <@generalFluidSummary.generalFluidPropertiesCard
-        generalFluidValues=generalFluidPropertiesSummaryView/>
-    </@fdsAccordion.accordionSection>
+<#--    <@fdsAccordion.accordionSection sectionHeading="Average hydrocarbon properties" summaryText="Oil, gas and general properties">-->
+<#--        <#if oilOnlyDiscovery || mixedDiscovery>-->
+<#--            <@oilFluidSummary.oilFluidPropertiesCard-->
+<#--            oilFluidValues=oilFluidPropertiesSummaryView/>-->
+<#--        </#if>-->
+<#--        <#if gasOnlyDiscovery || mixedDiscovery>-->
+<#--            <@gasFluidSummary.gasFluidPropertiesCard-->
+<#--            gasFluidValues=gasFluidPropertiesSummaryView/>-->
+<#--        </#if>-->
+<#--        <@generalFluidSummary.generalFluidPropertiesCard-->
+<#--        generalFluidValues=generalFluidPropertiesSummaryView/>-->
+<#--    </@fdsAccordion.accordionSection>-->
   </@fdsAccordion.accordion>
 </#macro>

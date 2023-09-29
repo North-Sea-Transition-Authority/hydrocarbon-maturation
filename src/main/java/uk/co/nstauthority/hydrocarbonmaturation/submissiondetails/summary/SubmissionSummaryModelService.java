@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
@@ -14,26 +14,32 @@ public class SubmissionSummaryModelService {
   private final ProspectSummaryService prospectSummaryService;
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
   private final DiscoverySummaryService discoverySummaryService;
-  private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
   private final PostDrillDryWellSummaryService postDrillDryWellSummaryService;
   private final SubmissionUpdateService submissionUpdateService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final SubmissionResourceService submissionResourceService;
+  private final SubmissionSummaryService submissionSummaryService;
+  private final FieldSummaryService fieldSummaryService;
 
   @Autowired
   SubmissionSummaryModelService(ProspectSummaryService prospectSummaryService,
                                 HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
                                 DiscoverySummaryService discoverySummaryService,
-                                DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
                                 PostDrillDryWellSummaryService postDrillDryWellSummaryService,
                                 SubmissionUpdateService submissionUpdateService,
-                                ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
+                                ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+                                SubmissionResourceService submissionResourceService,
+                                SubmissionSummaryService submissionSummaryService,
+                                FieldSummaryService fieldSummaryService) {
     this.prospectSummaryService = prospectSummaryService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
     this.discoverySummaryService = discoverySummaryService;
-    this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
     this.postDrillDryWellSummaryService = postDrillDryWellSummaryService;
     this.submissionUpdateService = submissionUpdateService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.submissionResourceService = submissionResourceService;
+    this.submissionSummaryService = submissionSummaryService;
+    this.fieldSummaryService = fieldSummaryService;
   }
 
   public ModelAndView createSummaryForSubmissionTypeToModelAndView(SubmissionDetail submissionDetail, String viewName) {
@@ -45,8 +51,7 @@ public class SubmissionSummaryModelService {
       case CREATE_DISCOVERY, UPDATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT, RELINQUISHMENT_DISCOVERY ->
           createDiscoverySubmissionSummaryModelAndView(submissionDetail, viewName);
       case CREATE_FIELD, CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
-          // No summary view for fields
-          new ModelAndView(viewName);
+          createFieldSubmissionSummaryModelAndView(submissionDetail, viewName);
     };
   }
 
@@ -121,9 +126,7 @@ public class SubmissionSummaryModelService {
         .addObject("sourceAndSealSummaryView",
             prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("trapPropertiesSummaryView",
-            prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("resourceDetailSummaryView",
-            prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail));
+            prospectSummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail));
 
     addCommonAttributes(submissionDetail, modelAndView);
     return modelAndView;
@@ -132,41 +135,6 @@ public class SubmissionSummaryModelService {
   public ModelAndView createDiscoverySubmissionSummaryModelAndView(SubmissionDetail submissionDetail,
                                                                    String viewName) {
     var modelAndView = new ModelAndView(viewName);
-    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
-      var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(
-          submissionDetail);
-      modelAndView
-          .addObject("reservoirPropertiesSummaryView",
-              discoverySummaryService.getReservoirPropertySummaryViewFromReservoirSubmissionDetail(
-                  reservoirSubmissionDetail))
-          .addObject("permeabilitySummaryView",
-              discoverySummaryService.getPermeabilitySummaryViewFromReservoirSubmissionDetail(
-                  reservoirSubmissionDetail))
-          .addObject("oilCaseVolumetricsSummaryView",
-              discoverySummaryService.getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
-                  reservoirSubmissionDetail))
-          .addObject("oilCaseOutputsSummaryView",
-              discoverySummaryService.getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail(
-                  reservoirSubmissionDetail))
-          .addObject("gasCaseVolumetricsSummaryView",
-              discoverySummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
-                  reservoirSubmissionDetail))
-          .addObject("gasCaseOutputsSummaryView",
-              discoverySummaryService.getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(
-                  reservoirSubmissionDetail))
-          .addObject("mixedCaseVolumetricsSummaryView",
-              discoverySummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
-                  reservoirSubmissionDetail))
-          .addObject("mixedCaseOutputsSummaryView",
-              discoverySummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(
-                  reservoirSubmissionDetail));
-    } else if (submissionDetail.isDiscoverySubmission()) {
-      var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(
-          submissionDetail);
-      modelAndView
-          .addObject("drillStemTestSummaryView",
-              discoverySummaryService.getDrillStemTestSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail));
-    }
     modelAndView
         .addObject("gasFluidPropertiesSummaryView",
             discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
@@ -185,28 +153,21 @@ public class SubmissionSummaryModelService {
         .addObject("sourceAndSealSummaryView",
             discoverySummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("trapPropertiesSummaryView",
-            discoverySummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail));
+            discoverySummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .addObject("reservoirSummaries",
+            discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail));
 
     addCommonAttributes(submissionDetail, modelAndView);
-    return addHydrocarbonsDiscoveredToModelAndView(submissionDetail, modelAndView);
+    return modelAndView;
   }
 
-  private ModelAndView addHydrocarbonsDiscoveredToModelAndView(SubmissionDetail submissionDetail, ModelAndView modelAndView) {
-    return discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
-        .map(discoveryWellDetail -> {
-          modelAndView.addObject("gasOnlyDiscovery",
-              discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail));
-          modelAndView.addObject("oilOnlyDiscovery",
-              discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWellDetail));
-          modelAndView.addObject("mixedDiscovery",
-              discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail));
-          return modelAndView;
-        }).orElseGet(() -> {
-          modelAndView.addObject("gasOnlyDiscovery", false);
-          modelAndView.addObject("oilOnlyDiscovery", false);
-          modelAndView.addObject("mixedDiscovery", false);
-          return modelAndView;
-        });
+  public ModelAndView createFieldSubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
+    var modelAndView = new ModelAndView(viewName)
+        .addObject("summarySections", submissionSummaryService.getSummarySections(submissionDetail))
+        .addObject("reservoirSummaries",
+            fieldSummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail));
+    addCommonAttributes(submissionDetail, modelAndView);
+    return modelAndView;
   }
 
   private void addCommonAttributes(SubmissionDetail submissionDetail, ModelAndView modelAndView) {
@@ -218,8 +179,11 @@ public class SubmissionSummaryModelService {
         modelAndView
             .addObject("submissionUpdateReason", submissionUpdate.getReason()));
     modelAndView.addObject("isSubmissionUpdate", submissionUpdateOpt.isPresent());
+    modelAndView.addObject("resourceName", submissionResourceService.getResourceNameOrDefault(submissionDetail));
 
-    var resourceDetailSummaryView = prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail);
-    modelAndView.addObject("resourceDetailSummaryView", resourceDetailSummaryView);
+    if (!submissionDetail.isFieldSubmission()) {
+      var resourceDetailSummaryView = prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail);
+      modelAndView.addObject("resourceDetailSummaryView", resourceDetailSummaryView);
+    }
   }
 }

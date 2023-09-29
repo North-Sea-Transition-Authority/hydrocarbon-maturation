@@ -2,26 +2,45 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Service
-public class GeneralDetailSummaryService {
+public class GeneralDetailSummaryService implements SummarySectionService<SubmissionDetail> {
+
+  public static final String GENERAL_DETAILS = "General details";
+  public static final int GENERAL_DETAIL_SECTION_ORDER = 10;
+  public static final String LICENCES = "Licences";
+  public static final String WHOLLY_WITHIN_UKCS = "Wholly located within UKCS";
+  public static final String WHOLLY_WITHIN_ENGLAND = "Wholly located within England";
+  public static final String PERCENT_WITHIN_UKCS = "Percentage located in UKCS";
+  public static final String PERCENT_WITHIN_ENGLAND = "Percentage located in England";
+  public static final String QUADRANT_AND_BLOCKS = "Quadrant and blocks";
 
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private final LicencePersistenceService licencePersistenceService;
+  private final OnshoreOffshoreService onshoreOffshoreService;
 
   @Autowired
   public GeneralDetailSummaryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                      QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
-                                     LicencePersistenceService licencePersistenceService) {
+                                     LicencePersistenceService licencePersistenceService,
+                                     OnshoreOffshoreService onshoreOffshoreService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.licencePersistenceService = licencePersistenceService;
+    this.onshoreOffshoreService = onshoreOffshoreService;
   }
 
   public GeneralDetailSummaryView getGeneralDetailSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -116,5 +135,57 @@ public class GeneralDetailSummaryService {
     return detail.getPercentageLocatedInEngland() != null && !detail.getResourceLocatedInEngland()
         ? detail.getPercentageLocatedInEngland().toString() + "%"
         : "";
+  }
+
+  @Override
+  public Optional<SummarySection> getSummarySection(SubmissionDetail submissionDetail) {
+    if (!submissionDetail.isFieldSubmission()) {
+      return Optional.empty();
+    }
+    var summaryItems = List.of(getGeneralDetailsSummary(submissionDetail));
+    return Optional.of(new SummarySection(GENERAL_DETAIL_SECTION_ORDER, summaryItems, ""));
+  }
+
+  private SummaryItem getGeneralDetailsSummary(SubmissionDetail submissionDetail) {
+    var generalDetailOptional = generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail);
+
+    if (generalDetailOptional.isEmpty()) {
+      return SummaryItem.withCard(GENERAL_DETAILS, SummaryCard.emptySummaryCard());
+    }
+
+    var generalDetail = generalDetailOptional.get();
+
+    var licences = licencePersistenceService.getLicencesByGeneralDetail(generalDetail)
+        .stream()
+        .sorted(new LicenceReferenceComparator())
+        .map(Licence::getLicenceReference)
+        .toList();
+    var summaryDataView = SummaryDataView.newWithKeyValue(LICENCES, String.join(", ", licences));
+
+    var isOffshore = onshoreOffshoreService.getOnshoreOffshore(submissionDetail) == OnshoreOffshore.OFFSHORE;
+    if (isOffshore) {
+      summaryDataView.addKeyValue(WHOLLY_WITHIN_UKCS, generalDetail.getResourceLocatedInUkcs());
+      if (BooleanUtils.isFalse(generalDetail.getResourceLocatedInUkcs())) {
+        summaryDataView.addKeyValue(PERCENT_WITHIN_UKCS, generalDetail.getPercentageLocatedInUkcs());
+      }
+    } else {
+      summaryDataView.addKeyValue(WHOLLY_WITHIN_ENGLAND, generalDetail.getResourceLocatedInEngland());
+      if (BooleanUtils.isFalse(generalDetail.getResourceLocatedInEngland())) {
+        summaryDataView.addKeyValue(PERCENT_WITHIN_ENGLAND, generalDetail.getPercentageLocatedInEngland());
+      }
+    }
+
+    var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail)
+        .stream()
+        .sorted(new ReferenceBlockComparator())
+        .map(QuadrantAndBlock::getQuadrantBlockReference)
+        .toList();
+
+    summaryDataView.addKeyValue(QUADRANT_AND_BLOCKS, String.join(", ", quadrantAndBlocks));
+
+    var summaryCard = SummaryCard.simpleSummaryCard(
+        summaryDataView
+    );
+    return SummaryItem.withCard(GENERAL_DETAILS, summaryCard);
   }
 }

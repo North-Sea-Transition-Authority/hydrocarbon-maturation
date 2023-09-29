@@ -7,9 +7,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,11 +20,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
@@ -35,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutpu
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -44,6 +47,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionSummaryModelServiceTest {
@@ -57,13 +61,17 @@ class SubmissionSummaryModelServiceTest {
   @Mock
   private DiscoverySummaryService discoverySummaryService;
   @Mock
-  private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
-  @Mock
   private PostDrillDryWellSummaryService postDrillDryWellSummaryService;
   @Mock
   private SubmissionUpdateService submissionUpdateService;
   @Mock
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  @Mock
+  private SubmissionSummaryService submissionSummaryService;
+  @Mock
+  private FieldSummaryService fieldSummaryService;
+  @Mock
+  private SubmissionResourceService submissionResourceService;
 
   @InjectMocks
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -87,6 +95,11 @@ class SubmissionSummaryModelServiceTest {
   private OilFluidPropertySummaryView oilFluidPropertySummaryView;
   private GeneralFluidPropertySummaryView generalFluidPropertySummaryView;
   private ResourceDetailSummaryView resourceDetailSummaryView;
+  private List<SummarySection> summarySections;
+  private List<ReservoirSummary> reservoirSummaries;
+  private DrillStemTestSummaryView drillStemTestSummaryView;
+  private OutlineForMaximumCaseSummaryView outlineForMaximumCaseSummaryView;
+  private DiscoveryWellDetailsSummaryView discoveryWellDetailsSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -132,34 +145,43 @@ class SubmissionSummaryModelServiceTest {
     generalFluidPropertySummaryView = GeneralFluidPropertySummaryView.empty();
     resourceDetailSummaryView = new ResourceDetailSummaryView(
         "", "", false, "", "Offshore", "resourceType");
+    summarySections = Collections.emptyList();
+    reservoirSummaries = Collections.emptyList();
+    drillStemTestSummaryView = DrillStemTestSummaryView.empty();
+    outlineForMaximumCaseSummaryView = OutlineForMaximumCaseSummaryView.empty();
+    discoveryWellDetailsSummaryView = DiscoveryWellDetailsSummaryView.empty();
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}, mode = EnumSource.Mode.EXCLUDE)
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_FIELD"}, mode = EnumSource.Mode.EXCLUDE)
   void createSummaryForSubmissionTypeToModelAndView(SubmissionType submissionType) {
     var submissionSummaryModelServiceSpy = spy(submissionSummaryModelService);
 
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     var viewName = "view-name";
 
-    when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(resourceDetailSummaryView);
+    if (!submissionDetail.isFieldSubmission()) {
+      when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
+          .thenReturn(resourceDetailSummaryView);
+    }
 
     submissionSummaryModelServiceSpy.createSummaryForSubmissionTypeToModelAndView(submissionDetail, viewName);
 
     switch (submissionDetail.getSubmissionType()) {
-      case CREATE_PROSPECT, PROSPECT_UPDATE ->
+      case CREATE_PROSPECT, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
           verify(submissionSummaryModelServiceSpy).createProspectSubmissionSummaryModelAndView(submissionDetail, viewName);
       case POST_DRILL_DRY_HOLE ->
           verify(submissionSummaryModelServiceSpy).createPostDrillDryWellSubmissionSummaryModelAndView(submissionDetail, viewName);
-      case CREATE_DISCOVERY, UPDATE_DISCOVERY ->
+      case CREATE_DISCOVERY, UPDATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT, RELINQUISHMENT_DISCOVERY ->
           verify(submissionSummaryModelServiceSpy).createDiscoverySubmissionSummaryModelAndView(submissionDetail, viewName);
+      case CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
+        verify(submissionSummaryModelServiceSpy).createFieldSubmissionSummaryModelAndView(submissionDetail, viewName);
     }
   }
 
   @Test
   void createProspectSubmissionSummaryModelAndView() {
-    var submissionDetail = Mockito.mock(SubmissionDetail.class);
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var reservoirSubmissionDetail = Mockito.mock(ReservoirSubmissionDetail.class);
     when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
@@ -190,33 +212,44 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(trapPropertiesSummaryView);
     when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(opportunityDetailsSummaryView);
+    when(prospectSummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(outlineForMaximumCaseSummaryView);
     when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(resourceDetailSummaryView);
 
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
     var modelAndView =
         submissionSummaryModelService.createProspectSubmissionSummaryModelAndView(submissionDetail, "view-name");
 
     assertThat(modelAndView.getModelMap())
-        .contains(
+        .containsExactly(
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
+            entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView),
             entry("hydrocarbonCaseSummaryView", hydrocarbonCaseSummaryView),
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
-            entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView),
+            entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
             entry("oilCaseVolumetricsSummaryView", oilCaseVolumetricsSummaryView),
             entry("oilCaseOutputsSummaryView", oilCaseOutputsSummaryView),
             entry("gasCaseVolumetricsSummaryView", gasCaseVolumetricsSummaryView),
             entry("gasCaseOutputsSummaryView", gasCaseOutputsSummaryView),
             entry("mixedCaseVolumetricsSummaryView", mixedCaseVolumetricsSummaryView),
             entry("mixedCaseOutputsSummaryView", mixedCaseOutputsSummaryView),
-            entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
-            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView)
+            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
+            entry("outlineForMaximumCaseSummaryView", outlineForMaximumCaseSummaryView),
+            entry("gasCase", false),
+            entry("oilCase", false),
+            entry("mixedCase", false),
+            entry("accordionId", submissionDetail.getId()),
+            entry("isSubmissionUpdate", false),
+            entry("resourceName", "test"),
+            entry("resourceDetailSummaryView", resourceDetailSummaryView)
         );
   }
 
   @Test
   void createPostDrillDryWellSubmissionSummaryModelAndView() {
-    var submissionDetail = Mockito.mock(SubmissionDetail.class);
+    var submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
     var reservoirSubmissionDetail = Mockito.mock(ReservoirSubmissionDetail.class);
     when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
@@ -233,31 +266,37 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(trapPropertiesSummaryView);
     when(prospectSummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(opportunityDetailsSummaryView);
+    when(prospectSummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(outlineForMaximumCaseSummaryView);
+    when(prospectSummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(sourceAndSealSummaryView);
     when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(resourceDetailSummaryView);
 
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
     var modelAndView =
         submissionSummaryModelService.createPostDrillDryWellSubmissionSummaryModelAndView(submissionDetail, "view-name");
 
     assertThat(modelAndView.getModelMap())
-        .contains(
+        .containsExactly(
             entry("dryWellDetailsSummaryView", dryWellDetailsSummaryView),
+            entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("permeabilitySummaryView", permeabilityDetailSummaryView),
             entry("reservoirPropertiesSummaryView", reservoirPropertiesSummaryView),
-            entry("generalDetailsSummaryView", generalDetailSummaryView),
-            entry("trapPropertiesSummaryView", trapPropertiesSummaryView)
-            );
+            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
+            entry("outlineForMaximumCaseSummaryView", outlineForMaximumCaseSummaryView),
+            entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
+            entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
+            entry("accordionId", submissionDetail.getId()),
+            entry("isSubmissionUpdate", false),
+            entry("resourceName", "test"),
+            entry("resourceDetailSummaryView", resourceDetailSummaryView)
+        );
   }
 
-  @Disabled("Discovery submissions have no reservoir submission detail yet, will get undisabled once fixed")
   @Test
   void createDiscoverySubmissionSummaryModelAndView() {
-    var submissionDetail = Mockito.mock(SubmissionDetail.class);
-    var reservoirSubmissionDetail = Mockito.mock(ReservoirSubmissionDetail.class);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirSubmissionDetail);
-    when(discoverySummaryService.getPermeabilitySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(permeabilityDetailSummaryView);
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     when(discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(oilFluidPropertySummaryView);
     when(discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
@@ -266,39 +305,61 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(generalFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
-    when(discoverySummaryService.getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(oilCaseVolumetricsSummaryView);
-    when(discoverySummaryService.getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(oilCaseOutputsSummaryView);
-    when(discoverySummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(gasCaseVolumetricsSummaryView);
-    when(discoverySummaryService.getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(gasCaseOutputsSummaryView);
-    when(discoverySummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(mixedCaseVolumetricsSummaryView);
-    when(discoverySummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(mixedCaseOutputsSummaryView);
     when(discoverySummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(trapPropertiesSummaryView);
     when(discoverySummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(opportunityDetailsSummaryView);
     when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(resourceDetailSummaryView);
+    when(discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSummaries);
+    when(discoverySummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(outlineForMaximumCaseSummaryView);
+    when(discoverySummaryService.getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(discoveryWellDetailsSummaryView);
+    when(discoverySummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(sourceAndSealSummaryView);
 
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
     var modelAndView =
         submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(submissionDetail, "view-name");
 
     assertThat(modelAndView.getModelMap())
-        .contains(
+        .containsExactly(
             entry("gasFluidPropertiesSummaryView", gasFluidPropertySummaryView),
             entry("generalFluidPropertiesSummaryView", generalFluidPropertySummaryView),
             entry("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView),
-            entry("permeabilitySummaryView", permeabilityDetailSummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
+            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
+            entry("outlineForMaximumCaseSummaryView", outlineForMaximumCaseSummaryView),
+            entry("discoveryWellDetailsSummaryView", discoveryWellDetailsSummaryView),
+            entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
-            entry("gasOnlyDiscovery", false),
-            entry("oilOnlyDiscovery", false),
-            entry("mixedDiscovery", false)
+            entry("reservoirSummaries", reservoirSummaries),
+            entry("accordionId", submissionDetail.getId()),
+            entry("isSubmissionUpdate", false),
+            entry("resourceName", "test"),
+            entry("resourceDetailSummaryView", resourceDetailSummaryView)
+        );
+  }
+
+  @Test
+  void createFieldSubmissionSummaryModelAndView() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
+    when(submissionSummaryService.getSummarySections(submissionDetail)).thenReturn(summarySections);
+    when(fieldSummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail)).thenReturn(reservoirSummaries);
+
+    var modelAndView =
+        submissionSummaryModelService.createFieldSubmissionSummaryModelAndView(submissionDetail, "view-name");
+
+    assertThat(modelAndView.getModelMap())
+        .containsExactly(
+            entry("summarySections", summarySections),
+            entry("reservoirSummaries", reservoirSummaries),
+            entry("accordionId", submissionDetail.getId()),
+            entry("isSubmissionUpdate", false),
+            entry("resourceName", "test")
         );
   }
 
@@ -306,6 +367,7 @@ class SubmissionSummaryModelServiceTest {
   void checkCommonAttributes_whenSubmissionUpdatePresent_whenOffshore() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setVersionNumber(2);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
     var submissionUpdate = new SubmissionUpdate();
     submissionUpdate.setReason(SUBMISSION_UPDATE_REASON);
     when(submissionUpdateService.getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail))
@@ -328,6 +390,7 @@ class SubmissionSummaryModelServiceTest {
   void checkCommonAttributes_whenSubmissionUpdatePresent_whenOnshore() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setVersionNumber(2);
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
     var submissionUpdate = new SubmissionUpdate();
     submissionUpdate.setReason(SUBMISSION_UPDATE_REASON);
     var onshoreResourceDetailSummaryView = new ResourceDetailSummaryView(
@@ -353,6 +416,7 @@ class SubmissionSummaryModelServiceTest {
   void checkCommonAttributes_whenUpdateNotPresent_assertNotSubmissionUpdate() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
     when(submissionUpdateService.getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());
     when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))

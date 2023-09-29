@@ -1,0 +1,238 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.DiscoverySubmissionSummaryController.PAGE_NAME;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
+import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshoreService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+
+@ContextConfiguration(classes = FieldSubmissionSummaryController.class)
+class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerTest {
+
+  public static final String VIEW_NAME = "remi/submissiondetails/summary/fieldSubmissionSummary";
+
+  @MockBean
+  private SubmissionSummaryModelService submissionSummaryModelService;
+
+  @MockBean
+  private SubmissionReadyService submissionReadyService;
+
+  @MockBean
+  private SubmissionApprovalService submissionApprovalService;
+
+  @MockBean
+  private SubmissionSummaryFormValidator submissionSummaryFormValidator;
+
+  @MockBean
+  private OnshoreOffshoreService onshoreOffshoreService;
+
+  @MockBean
+  private InternalTeamService internalTeamService;
+
+  private ResourceDetailSummaryView resourceDetailSummaryView;
+  private List<SummarySection> summarySections;
+  private List<ReservoirSummary> reservoirSummaries;
+
+  private SubmissionDetail submissionDetail;
+  private UUID submissionDetailId;
+
+  @BeforeEach
+  void setUp() {
+    submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    submissionDetailId = submissionDetail.getId();
+    summarySections = Collections.emptyList();
+    resourceDetailSummaryView = ResourceDetailSummaryView.empty("Field");
+    reservoirSummaries = Collections.emptyList();
+    when(submissionDetailService.getSubmissionDetail(submissionDetailId)).thenReturn(Optional.of(submissionDetail));
+    var field = new Field();
+    field.setResponsibleOrganisationId(1);
+    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+        .thenReturn(field);
+  }
+
+  @SecurityTest
+  void showSubmissionSummary_assertStatusOk() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    mockCreateFieldSubmissionSummaryModelAndView();
+    setUpWhenUserIsResponsibleTeam_forField_passSecurity(USER, submissionDetail);
+    mockMvc.perform(
+            get(ReverseRouter.route(
+                on(FieldSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isOk())
+        .andExpect(view().name(VIEW_NAME));
+  }
+
+  @SecurityTest
+  void showSubmissionSummary_whenNotDiscovery_assertStatusForbidden() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    mockMvc.perform(
+            get(ReverseRouter.route(
+                on(FieldSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void showSubmissionSummary_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(
+                on(FieldSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().is4xxClientError());
+  }
+
+  @SecurityTest
+  void showSubmissionSummary_andUserNotInResponsibleOrganisation_assertForbidden() throws Exception {
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    mockMvc.perform(
+            get(ReverseRouter.route(
+                on(FieldSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().is4xxClientError());
+  }
+
+  @SecurityTest
+  void processSubmission_assertRedirection() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(submissionSummaryFormValidator.isValid(
+        any(SubmissionSummaryForm.class),
+        any(Errors.class),
+        eq(submissionDetail),
+        eq(ValidationType.FULL))
+    ).thenReturn(true);
+    mockCreateFieldSubmissionSummaryModelAndView();
+    setUpWhenUserIsResponsibleTeam_forField_passSecurity(USER, submissionDetail);
+    mockMvc.perform(
+            post(ReverseRouter.route(
+                on(FieldSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(
+            on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
+
+    verify(submissionApprovalService, times(1)).submitSubmission(submissionDetail);
+  }
+
+  @Test
+  void processSubmission_whenInvalidForm_assertOk() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    var bindingResult = new BeanPropertyBindingResult(SubmissionSummaryForm.class, "form");
+    bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
+    when(submissionSummaryFormValidator.isValid(
+        any(SubmissionSummaryForm.class),
+        any(Errors.class),
+        eq(submissionDetail),
+        eq(ValidationType.FULL))
+    ).thenReturn(false);
+
+    mockCreateFieldSubmissionSummaryModelAndView();
+
+    mockMvc.perform(
+            post(ReverseRouter.route(
+                on(FieldSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(submissionApprovalService, never()).submitSubmission(any());
+  }
+
+  @SecurityTest
+  void processSubmission_andStatusIsNotDraft_assertForbidden() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(
+                on(FieldSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
+    when(internalTeamService.isRegulatorOrAreaTeamUser()).thenReturn(false);
+    mockCreateFieldSubmissionSummaryModelAndView();
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(
+                on(FieldSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("pageName", PAGE_NAME),
+            entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
+            entry("submittable", true),
+            entry("isRegulatorOrAreaTeamUser", false),
+            entry("summarySections", summarySections),
+            entry("reservoirSummaries", reservoirSummaries),
+            entry("accordionId", submissionDetailId),
+            entry("isOffshore", true)
+        );
+  }
+
+  private void mockCreateFieldSubmissionSummaryModelAndView() {
+    var modelAndView = new ModelAndView(VIEW_NAME)
+        .addObject("summarySections", summarySections)
+        .addObject("reservoirSummaries", reservoirSummaries)
+        .addObject("submittable", true)
+        .addObject("isSubmissionUpdate", false)
+        .addObject("accordionId", submissionDetail.getId());
+    when(submissionSummaryModelService.createFieldSubmissionSummaryModelAndView(submissionDetail, VIEW_NAME)
+    ).thenReturn(modelAndView);
+
+  }
+
+}

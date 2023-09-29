@@ -156,6 +156,15 @@ public class GeneralReservoirInformationService {
         .toList();
   }
 
+  public List<ReservoirView> getLinkedDiscoveryReservoirViewsForField(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var linkedDiscoveryReservoirs = reservoirLinkService.getReservoirLinksByReservoirSubmissionDetail(reservoirSubmissionDetail)
+        .stream()
+        .map(reservoirLink -> reservoirLink.getLinkedReservoir().getId().toString())
+        .collect(Collectors.toSet());
+
+    return getPreselectedAssociatedDiscoveryReservoirs(linkedDiscoveryReservoirs);
+  }
+
   private void cleanHydrocarbonsDiscovered(ReservoirSubmissionDetail reservoirSubmissionDetail,
                                            HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
@@ -171,8 +180,7 @@ public class GeneralReservoirInformationService {
               ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD_CONSTANT,
               ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
               ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
-              ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-              ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+              ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
           ),
           reservoirSubmissionDetail
       );
@@ -189,8 +197,7 @@ public class GeneralReservoirInformationService {
               ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD,
               ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
               ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-              ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
-              ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+              ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
           ),
           reservoirSubmissionDetail
       );
