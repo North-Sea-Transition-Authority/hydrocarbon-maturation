@@ -1,3 +1,5 @@
+DELETE FROM drill_stem_test_results;
+
 DELETE FROM drill_stem_tests;
 
 ALTER TABLE drill_stem_tests
