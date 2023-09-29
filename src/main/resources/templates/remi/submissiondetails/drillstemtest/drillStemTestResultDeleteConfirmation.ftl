@@ -1,7 +1,7 @@
 <#include '../../layout/layout.ftl'>
 <#import '../../summarylistcards/drillstemtest/drillStemTestResultSummaryCard.ftl' as drillStemTestResultCard>
 
-<#assign pageTitle = "Are you sure you want to delete this drill stem test result?" />
+<#assign pageTitle = "Are you sure you want to delete this well test result?" />
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 

@@ -1,6 +1,6 @@
 <#include '../../layout/layout.ftl'>
 
-<#assign pageTitle = "Drill stem test result" />
+<#assign pageTitle = "Well test result" />
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 

@@ -6,7 +6,7 @@ public enum DrillStemTestSummaryOptions implements Displayable {
 
   YES_NOW("Yes, I want to add it now", 10),
   YES_LATER("Yes, but I will add it later", 20),
-  NO("No, I have added all the drill stem test results I need to", 30);
+  NO("No, I have added all the well test results I need to", 30);
 
   private final String displayName;
   private final int displayOrder;

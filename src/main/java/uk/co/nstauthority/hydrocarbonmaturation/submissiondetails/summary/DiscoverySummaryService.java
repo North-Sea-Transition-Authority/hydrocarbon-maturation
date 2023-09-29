@@ -133,12 +133,13 @@ class DiscoverySummaryService {
         .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
-  public GeneralDetailSummaryView getGeneralDetailsSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    return generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
+  public DrillStemTestSummaryView getDrillStemTestSummaryViewFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
-  public DrillStemTestSummaryView getDrillStemTestSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    return drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
+  public GeneralDetailSummaryView getGeneralDetailsSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+    return generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
   }
 
   public OilCaseOutputsSummaryView getOilCaseOutputsSummaryViewFromReservoirSubmissionDetail(

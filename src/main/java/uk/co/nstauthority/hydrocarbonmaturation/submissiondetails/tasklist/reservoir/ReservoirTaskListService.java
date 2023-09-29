@@ -10,6 +10,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics.FieldGasVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldoilvolumetrics.FieldOilVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
@@ -45,6 +47,7 @@ public class ReservoirTaskListService {
   private final ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
   private final GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService;
   private final GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService;
+  private final DrillStemTestSubmissionService drillStemTestSubmissionService;
 
   @Autowired
   public ReservoirTaskListService(
@@ -56,7 +59,8 @@ public class ReservoirTaskListService {
       GeneralReservoirInformationService generalReservoirInformationService,
       OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService,
       GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService,
-      GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService) {
+      GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService,
+      DrillStemTestSubmissionService drillStemTestSubmissionService) {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
     this.generalReservoirInformationSubmissionService = generalReservoirInformationSubmissionService;
@@ -66,12 +70,15 @@ public class ReservoirTaskListService {
     this.oilCaseVolumetricsSubmissionService = oilCaseVolumetricsSubmissionService;
     this.gasCaseVolumetricsSubmissionService = gasCaseVolumetricsSubmissionService;
     this.gasCaseOutputsSubmissionService = gasCaseOutputsSubmissionService;
+    this.drillStemTestSubmissionService = drillStemTestSubmissionService;
   }
 
   public List<ReservoirTaskListItem> getAllReservoirTaskLists(SubmissionDetail submissionDetail) {
-    var reservoirSubmissionDetails =
-        reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
+    var reservoirSubmissionDetails = reservoirSubmissionDetailPersistenceService
+            .getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
+
     var taskLists = new ArrayList<ReservoirTaskListItem>();
+
     reservoirSubmissionDetails.forEach(reservoirSubmissionDetail -> {
       var reservoirTaskListItem = new ReservoirTaskListItem(
           reservoirSubmissionDetail.getReservoir().getName(),
@@ -190,6 +197,18 @@ public class ReservoirTaskListService {
                 ReverseRouter.route(on(FieldGasVolumetricsController.class).getGasVolumetrics(
                     submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
+        );
+      }
+
+      if (submissionDetail.isDiscoverySubmission()) {
+        items.add(
+            new TaskListItem("Well test results",
+                TaskListLabel.notStartedOrComplete(
+                    drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(DrillStemTestController.class).getDrillStemTestPage(
+                    submissionDetail.getId(),
+                    reservoirSubmissionDetail.getId(),
+                    null)))
         );
       }
     }

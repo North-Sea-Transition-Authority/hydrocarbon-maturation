@@ -6,6 +6,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -25,14 +26,14 @@ class DrillStemTestFormService implements SubmissionFormService {
     this.drillStemTestInitialPersistenceService = drillStemTestInitialPersistenceService;
   }
 
-  public DrillStemTestInitialForm getDrillStemTestInitialForm(SubmissionDetail submissionDetail) {
-    return drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail)
+  public DrillStemTestInitialForm getDrillStemTestInitialForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail)
         .map(this::mapDrillStemTestEntityToInitialForm)
         .orElse(new DrillStemTestInitialForm());
   }
 
-  public DrillStemTestSummaryForm getDrillStemTestSummaryForm(SubmissionDetail submissionDetail) {
-    return drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail)
+  public DrillStemTestSummaryForm getDrillStemTestSummaryForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail)
         .map(this::mapDrillStemTestEntityToSummaryForm)
         .orElse(new DrillStemTestSummaryForm());
   }

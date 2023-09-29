@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 class DrillStemTestResultPersistenceService {
@@ -41,11 +41,11 @@ class DrillStemTestResultPersistenceService {
     drillStemTestResultRepository.save(drillStemTestResult);
   }
 
-  DrillStemTest getDrillStemTestBySubmissionDetailOrThrow(SubmissionDetail submissionDetail) {
-    return drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail)
+  DrillStemTest getDrillStemTestByReservoirSubmissionDetailOrThrow(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail)
         .orElseThrow(() ->
             new RemiEntityNotFoundException("Drill stem test had not been found for submission with ID %s"
-                .formatted(submissionDetail.getId().toString())));
+                .formatted(reservoirSubmissionDetail.getId().toString())));
   }
 
   DrillStemTestResult getDrillStemTestResultByIdOrThrow(UUID drillStemTestResultId) {
@@ -55,8 +55,9 @@ class DrillStemTestResultPersistenceService {
                 .formatted(drillStemTestResultId.toString())));
   }
 
-  public List<DrillStemTestResult> getDrillStemTestResultsBySubmissionDetail(SubmissionDetail submissionDetail) {
-    return drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail)
+  public List<DrillStemTestResult> getDrillStemTestResultsByReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail)
         .map(drillStemTestResultRepository::findAllByDrillStemTest)
         .orElseGet(List::of);
   }

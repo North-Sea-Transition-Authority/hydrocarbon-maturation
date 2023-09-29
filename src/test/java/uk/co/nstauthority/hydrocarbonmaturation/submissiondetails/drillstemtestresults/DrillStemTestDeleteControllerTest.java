@@ -55,13 +55,16 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(drillStemTestResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+        .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestResultsSummaryService.createSummaryViewFromDrillStemTestResult(drillStemTestResult, DrillStemTestResultSummaryMode.VIEW, 1))
         .thenReturn(DrillStemTestResultSummaryView.empty(1, "", ""));
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), drillStemTestResultId)))
+                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResultId)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/drillstemtest/drillStemTestResultDeleteConfirmation"));
@@ -73,6 +76,9 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
     var summaryView = DrillStemTestResultSummaryView.empty(1, "url", "url");
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+        .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultByIdOrThrow(drillStemTestResultId))
         .thenReturn(drillStemTestResult);
     when(drillStemTestResultsSummaryService.createSummaryViewFromDrillStemTestResult(drillStemTestResult, DrillStemTestResultSummaryMode.VIEW, 1))
@@ -80,7 +86,7 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
 
     var modelMap = mockMvc.perform(
             get(ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), drillStemTestResultId)))
+                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResultId)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andReturn()
@@ -90,9 +96,9 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
     assertThat(modelMap)
         .contains(
             entry("actionUrl", ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .deleteDrillStemTestResult(submissionDetail.getId(), drillStemTestResult.getId(), null))),
+                .deleteDrillStemTestResult(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResult.getId(), null))),
             entry("backToSummaryUrl", ReverseRouter.route(on(DrillStemTestSummaryController.class)
-                .getDrillStemTestSummaryPage(submissionDetail.getId()))),
+                .getDrillStemTestSummaryPage(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             entry("drillStemTestResultSummaryView", summaryView))
         .containsKey("breadcrumbsMap");
   }
@@ -106,7 +112,7 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(drillStemTestResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
-    when(drillStemTestResultPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
+    when(drillStemTestResultPersistenceService.getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail))
         .thenReturn(drillStemTest);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
         .thenReturn(List.of());
@@ -114,18 +120,18 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
 
     var expectedBannerImplementation = NotificationBanner.builder()
         .withBannerType(NotificationBannerType.SUCCESS)
-        .withContent("The drill stem test result with formation name The name has been deleted.")
-        .withTitle("Drill stem test result deleted")
+        .withContent("The well test result with formation name The name has been deleted.")
+        .withTitle("Well test result deleted")
         .build();
     mockMvc.perform(
             post(ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .deleteDrillStemTestResult(submissionDetail.getId(), drillStemTestResultId, null)))
+                .deleteDrillStemTestResult(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResultId, null)))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().is3xxRedirection())
         .andExpect(
             redirectedUrl(ReverseRouter.route(on(DrillStemTestResultController.class)
-                .getDrillStemTestResultPage(submissionDetail.getId(), null))))
+                .getDrillStemTestResultPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))))
         .andExpect(notificationBanner(expectedBannerImplementation));
 
     verify(drillStemTestResultPersistenceService).deleteDrillStemTestResult(drillStemTestResult);
@@ -137,7 +143,7 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), drillStemTestResultId)))
+                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResultId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
     verifyNoInteractions(drillStemTestResultPersistenceService);
@@ -149,7 +155,7 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .deleteDrillStemTestResult(submissionDetail.getId(), drillStemTestResultId, null)))
+                .deleteDrillStemTestResult(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResultId, null)))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().isForbidden());
@@ -165,20 +171,22 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(drillStemTestResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
-    when(drillStemTestResultPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
+    when( reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+        .thenReturn(reservoirSubmissionDetail);
+    when(drillStemTestResultPersistenceService.getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail))
         .thenReturn(drillStemTest);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
         .thenReturn(List.of(drillStemTestResult));
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .deleteDrillStemTestResult(submissionDetail.getId(), drillStemTestResultId, null)))
+                .deleteDrillStemTestResult(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResultId, null)))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().is3xxRedirection())
         .andExpect(
             redirectedUrl(ReverseRouter.route(on(DrillStemTestSummaryController.class)
-                .getDrillStemTestSummaryPage(submissionDetail.getId()))));
+                .getDrillStemTestSummaryPage(submissionDetail.getId(), reservoirSubmissionDetail.getId()))));
 
     verify(drillStemTestResultPersistenceService).deleteDrillStemTestResult(drillStemTestResult);
   }

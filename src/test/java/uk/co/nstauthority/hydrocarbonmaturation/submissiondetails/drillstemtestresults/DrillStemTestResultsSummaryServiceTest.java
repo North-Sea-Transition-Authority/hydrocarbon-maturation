@@ -16,6 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class DrillStemTestResultsSummaryServiceTest {
@@ -31,22 +33,25 @@ class DrillStemTestResultsSummaryServiceTest {
 
   private SubmissionDetail submissionDetail;
 
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
+
   private DrillStemTest drillStemTest;
 
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     drillStemTest = new DrillStemTest();
-    drillStemTest.setSubmissionDetail(submissionDetail);
+    drillStemTest.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     drillStemTest.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.NO);
   }
 
   @Test
   void getDrillStemTestSummaryViewFromSubmissionDetail_whenNotPresent_emptySummary() {
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    var result = drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
+    var result = drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(result).isEqualTo(DrillStemTestSummaryView.empty());
   }
@@ -54,26 +59,26 @@ class DrillStemTestResultsSummaryServiceTest {
 
   @Test
   void getDrillStemTestResultSummaryViewsFromSubmissionDetail_whenPresent_noStemResults_emptyList() {
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail))
         .thenReturn(drillStemTest);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
         .thenReturn(List.of());
 
-    var result = drillStemTestResultsSummaryService.getDrillStemTestResultSummaryViewsFromSubmissionDetail(submissionDetail);
+    var result = drillStemTestResultsSummaryService.getDrillStemTestResultSummaryViewsFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(result).isEqualTo(List.of());
   }
 
   @Test
   void getDrillStemTestSummaryViewFromSubmissionDetail_whenPresent_oneStemResult_filledSummary() {
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(drillStemTest));
 
     var drillStemTestResult = DrillStemTestResultFormServiceTest.getDrillStemTestResult(drillStemTest);
 
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
         .thenReturn(List.of(drillStemTestResult));
-    var result = drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
+    var result = drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(result.drillStemTestResultSummaryViews()).hasSize(1);
 
@@ -107,15 +112,15 @@ class DrillStemTestResultsSummaryServiceTest {
             "comment",
             DrillStemTestResultSummaryMode.VIEW,
             ReverseRouter.route(on(DrillStemTestResultController.class)
-                .getDrillStemTestResultPage(submissionDetail.getId(), drillStemTestResult.getId())),
+                .getDrillStemTestResultPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResult.getId())),
             ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), drillStemTestResult.getId()))
+                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResult.getId()))
         );
   }
 
   @Test
   void getDrillStemTestSummaryViewFromSubmissionDetail_whenPresent_twoStemResults_filledSummary() {
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(drillStemTest));
 
     var drillStemTestResult = DrillStemTestResultFormServiceTest.getDrillStemTestResult(drillStemTest);
@@ -124,7 +129,7 @@ class DrillStemTestResultsSummaryServiceTest {
     drillStemTestResult2.setDrillStemTest(drillStemTest);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest))
         .thenReturn(List.of(drillStemTestResult, drillStemTestResult2));
-    var result = drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
+    var result = drillStemTestResultsSummaryService.getDrillStemTestSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(result.drillStemTestResultSummaryViews()).hasSize(2);
 
@@ -158,9 +163,9 @@ class DrillStemTestResultsSummaryServiceTest {
             "comment",
             DrillStemTestResultSummaryMode.VIEW,
             ReverseRouter.route(on(DrillStemTestResultController.class)
-                .getDrillStemTestResultPage(submissionDetail.getId(), drillStemTestResult.getId())),
+                .getDrillStemTestResultPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResult.getId())),
             ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), drillStemTestResult.getId()))
+                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResult.getId()))
         );
 
     assertThat(result.drillStemTestResultSummaryViews().get(1))
@@ -193,9 +198,9 @@ class DrillStemTestResultsSummaryServiceTest {
             "",
             DrillStemTestResultSummaryMode.VIEW,
             ReverseRouter.route(on(DrillStemTestResultController.class)
-                .getDrillStemTestResultPage(submissionDetail.getId(), drillStemTestResult2.getId())),
+                .getDrillStemTestResultPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResult2.getId())),
             ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), drillStemTestResult2.getId()))
+                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResult2.getId()))
         );
   }
 }

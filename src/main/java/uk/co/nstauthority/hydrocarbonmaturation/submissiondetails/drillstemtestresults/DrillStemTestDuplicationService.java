@@ -3,33 +3,34 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtest
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class DrillStemTestDuplicationService implements SubmissionSectionDuplicationService {
+class DrillStemTestDuplicationService implements ReservoirSectionDuplicationService {
 
   private final DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
   private final DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService;
-  private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
   DrillStemTestDuplicationService(DrillStemTestResultPersistenceService drillStemTestResultPersistenceService,
                                   DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService,
-                                  SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+                                  ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.drillStemTestResultPersistenceService = drillStemTestResultPersistenceService;
     this.drillStemTestInitialPersistenceService = drillStemTestInitialPersistenceService;
-    this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
 
   @Override
   @Transactional
-  public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (newSubmissionDetail.isDiscoverySubmission()) {
-      drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(oldSubmissionDetail)
+  public void duplicateReservoirSection(ReservoirSubmissionDetail oldSubmissionDetail,
+                                        ReservoirSubmissionDetail newSubmissionDetail) {
+    if (newSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
+      drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(oldSubmissionDetail)
           .ifPresent(drillStemTest -> {
-            var newDrillStemTest = submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+            var newDrillStemTest = reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
                 newSubmissionDetail,
                 drillStemTest,
                 DrillStemTest.class
@@ -37,7 +38,7 @@ class DrillStemTestDuplicationService implements SubmissionSectionDuplicationSer
 
             drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest)
                 .forEach(drillStemTestResult ->
-                    submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                    reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
                         newDrillStemTest,
                         drillStemTestResult,
                         DrillStemTestResult.class));

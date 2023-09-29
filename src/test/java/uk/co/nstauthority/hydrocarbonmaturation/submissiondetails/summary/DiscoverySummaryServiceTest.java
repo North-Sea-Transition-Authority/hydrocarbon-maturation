@@ -160,10 +160,10 @@ class DiscoverySummaryServiceTest {
 
   @Test
   void getDrillStemTestSummaryViewFromSubmissionDetail() {
-    discoverySummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
+    discoverySummaryService.getDrillStemTestSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(drillStemTestResultsSummaryService, times(1))
-        .getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail);
+        .getDrillStemTestSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test

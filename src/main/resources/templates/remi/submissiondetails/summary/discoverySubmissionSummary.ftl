@@ -74,10 +74,10 @@
       gasCaseOutputsSummaryView=gasCaseOutputsSummaryView!""
       mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView!""
       mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView!""
-      drillStemTestSummaryView=drillStemTestSummaryView
+      drillStemTestSummaryView=drillStemTestSummaryView!""
+      discoveryWellDetailsSummaryView=discoveryWellDetailsSummaryView!""
       opportunityDetailsSummaryView=opportunityDetailsSummaryView
       outlineForMaximumCaseSummaryView=outlineForMaximumCaseSummaryView
-      discoveryWellDetailsSummaryView=discoveryWellDetailsSummaryView
       sourceAndSealSummaryView=sourceAndSealSummaryView
       trapPropertiesSummaryView=trapPropertiesSummaryView
       resourceDetailSummaryView=resourceDetailSummaryView/>

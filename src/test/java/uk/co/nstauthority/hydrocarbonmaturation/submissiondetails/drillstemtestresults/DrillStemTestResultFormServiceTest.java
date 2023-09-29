@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class DrillStemTestResultFormServiceTest {
@@ -34,9 +35,9 @@ class DrillStemTestResultFormServiceTest {
   @BeforeEach
   void setUp() {
     drillStemTest = new DrillStemTest();
-    var submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     drillStemTest.setId(UUID.randomUUID());
-    drillStemTest.setSubmissionDetail(submissionDetail);
+    drillStemTest.setReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test

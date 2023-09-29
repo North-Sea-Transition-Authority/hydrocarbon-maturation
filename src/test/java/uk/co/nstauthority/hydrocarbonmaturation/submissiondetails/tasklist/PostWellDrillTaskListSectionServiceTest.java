@@ -17,12 +17,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class PostWellDrillTaskListSectionServiceTest {
@@ -36,14 +37,19 @@ class PostWellDrillTaskListSectionServiceTest {
   @Mock
   private DiscoveryWellDetailsSubmissionService discoveryWellDetailsSubmissionService;
 
+  @Mock
+  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
   @InjectMocks
   private PostWellDrillTaskListSectionService postWellDrillTaskListSectionService;
 
   private SubmissionDetail submissionDetail;
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
   }
 
   @Test
@@ -67,31 +73,6 @@ class PostWellDrillTaskListSectionServiceTest {
   }
 
   @Test
-  void getSection_discoverySubmission() {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    var taskListSectionOptional = postWellDrillTaskListSectionService.getSection(submissionDetail);
-
-    var section = taskListSectionOptional.get();
-
-    assertThat(section)
-        .extracting(
-            TaskListSection::items,
-            TaskListSection::displayName,
-            TaskListSection::displayOrder)
-        .containsExactly(List.of(
-                new TaskListItem("Discovery well details",
-                    TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(DiscoveryWellDetailsController.class).getDiscoveryWellDetails(submissionDetail.getId(), null))),
-                new TaskListItem("Drill stem test results",
-                    TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(DrillStemTestController.class).getDrillStemTestPage(submissionDetail.getId(), null)))
-            ),
-            "Post well drill",
-            30
-        );
-  }
-
-  @Test
   void getSection_prospectSubmission() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     var taskListSectionOptional = postWellDrillTaskListSectionService.getSection(submissionDetail);
@@ -103,6 +84,9 @@ class PostWellDrillTaskListSectionServiceTest {
   @Test
   void isSectionSubmittable_prospectSubmission_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
+    when(reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     assertTrue(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -110,7 +94,11 @@ class PostWellDrillTaskListSectionServiceTest {
   @Test
   void isSectionSubmittable_postDrillSubmissionWhenSubmittable_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
-    when(dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail))
+        .thenReturn(true);
+    when(reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     assertTrue(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -119,6 +107,9 @@ class PostWellDrillTaskListSectionServiceTest {
   void isSectionSubmittable_postDrillSubmissionWhenOneSectionNotSubmittable_assertFalse() {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     when(dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     assertFalse(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -127,8 +118,13 @@ class PostWellDrillTaskListSectionServiceTest {
   @Test
   void isSectionSubmittable_discoverySubmissionWhenSubmittable_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    when(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail))
+        .thenReturn(true);
+    when(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail))
+        .thenReturn(true);
+    when(reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     assertTrue(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -136,7 +132,11 @@ class PostWellDrillTaskListSectionServiceTest {
   @Test
   void isSectionSubmittable_discoverySubmissionWhenOneSectionNotSubmittable_assertFalse() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    when(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail))
+        .thenReturn(false);
+    when(reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetail);
 
     assertFalse(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
   }

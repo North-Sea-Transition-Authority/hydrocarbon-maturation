@@ -2,7 +2,7 @@
 <#import '../../summarylistcards/drillstemtest/drillStemTestResultSummaryCard.ftl' as drillStemTestResultCard>
 
 <#macro drillStemTest drillStemTestValues>
-    <@fdsSummaryList.summaryListCard headingText="Drill stem test results" summaryListId="drillstemtestresultlist">
+    <@fdsSummaryList.summaryListCard headingText="Well test results" summaryListId="drillstemtestresultlist">
       <#list drillStemTestValues.drillStemTestResultSummaryViews() as drillStemTestResultValue>
         <@drillStemTestResultCard.drillStemTestResult drillStemTestResultValues=drillStemTestResultValue withResultNumber=false/>
       </#list>

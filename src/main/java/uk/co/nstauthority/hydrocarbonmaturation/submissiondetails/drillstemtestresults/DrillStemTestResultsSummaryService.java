@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
@@ -24,16 +24,19 @@ public class DrillStemTestResultsSummaryService {
     this.drillStemTestInitialPersistenceService = drillStemTestInitialPersistenceService;
   }
 
-  public DrillStemTestSummaryView getDrillStemTestSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
+  public DrillStemTestSummaryView getDrillStemTestSummaryViewFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
     return drillStemTestInitialPersistenceService
-        .getDrillStemTestBySubmissionDetail(submissionDetail)
-        .map(drillStemTest -> new DrillStemTestSummaryView(getDrillStemTestResultSummaryViewsFromDrillStemTest(drillStemTest)))
+        .getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail)
+        .map(drillStemTest -> new DrillStemTestSummaryView(
+            getDrillStemTestResultSummaryViewsFromDrillStemTest(drillStemTest)))
         .orElse(DrillStemTestSummaryView.empty());
   }
 
-  public List<DrillStemTestResultSummaryView> getDrillStemTestResultSummaryViewsFromSubmissionDetail(
-      SubmissionDetail submissionDetail) {
-    var drillStemTest = drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail);
+  public List<DrillStemTestResultSummaryView> getDrillStemTestResultSummaryViewsFromReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var drillStemTest = drillStemTestInitialPersistenceService
+        .getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail);
     var drillStemTestResultViews = new ArrayList<DrillStemTestResultSummaryView>();
     var drillStemTestResults =
         drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest);
@@ -47,6 +50,9 @@ public class DrillStemTestResultsSummaryService {
 
   public DrillStemTestResultSummaryView createSummaryViewFromDrillStemTestResult(
       DrillStemTestResult drillStemTestResult, DrillStemTestResultSummaryMode summaryMode, Integer resultCounter) {
+    var reservoirSubmissionDetail = drillStemTestResult.getDrillStemTest().getReservoirSubmissionDetail();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
     final String hours = "hours";
     final String psia = "psia";
     final String mTvdss = "m tvdss";
@@ -67,10 +73,14 @@ public class DrillStemTestResultsSummaryService {
         summaryMode,
         ReverseRouter.route(on(DrillStemTestResultController.class)
             .getDrillStemTestResultPage(
-                drillStemTestResult.getDrillStemTest().getSubmissionDetail().getId(), drillStemTestResult.getId())),
+               submissionDetail.getId(),
+                reservoirSubmissionDetail.getId(),
+                drillStemTestResult.getId())),
         ReverseRouter.route(on(DrillStemTestDeleteController.class)
             .getDrillStemTestResultDeleteConfirmationPage(
-                drillStemTestResult.getDrillStemTest().getSubmissionDetail().getId(), drillStemTestResult.getId()))
+                submissionDetail.getId(),
+                reservoirSubmissionDetail.getId(),
+                drillStemTestResult.getId()))
     );
   }
 

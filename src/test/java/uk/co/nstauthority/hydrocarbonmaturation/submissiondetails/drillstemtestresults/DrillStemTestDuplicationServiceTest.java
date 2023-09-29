@@ -19,7 +19,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class DrillStemTestDuplicationServiceTest {
@@ -31,7 +33,7 @@ class DrillStemTestDuplicationServiceTest {
   private DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService;
 
   @Mock
-  private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @InjectMocks
   private DrillStemTestDuplicationService drillStemTestDuplicationService;
@@ -42,46 +44,46 @@ class DrillStemTestDuplicationServiceTest {
       mode = EnumSource.Mode.INCLUDE)
   void duplicateSubmissionSection_DiscoveryUpdate_DrillStemTestResultExists_DoesDuplicate(
       SubmissionType submissionType) {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     var oldSubmissionDetail =
-        SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+        ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var newSubmissionDetail =
-        SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+        ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var oldDrillStemTest = mock(DrillStemTest.class);
     var newDrillStemTest = mock(DrillStemTest.class);
 
 
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(oldSubmissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(oldSubmissionDetail))
         .thenReturn(Optional.of(oldDrillStemTest));
 
     var drillStemTestResult = mock(DrillStemTestResult.class);
     var drillStemTestResult2 = mock(DrillStemTestResult.class);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(oldDrillStemTest))
         .thenReturn(List.of(drillStemTestResult, drillStemTestResult2));
-    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, oldDrillStemTest, DrillStemTest.class))
+    when(reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, oldDrillStemTest, DrillStemTest.class))
         .thenReturn(newDrillStemTest);
 
-    drillStemTestDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    drillStemTestDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, oldDrillStemTest,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, oldDrillStemTest,
         DrillStemTest.class);
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newDrillStemTest, drillStemTestResult,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newDrillStemTest, drillStemTestResult,
         DrillStemTestResult.class);
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newDrillStemTest, drillStemTestResult2,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newDrillStemTest, drillStemTestResult2,
         DrillStemTestResult.class);
   }
 
   @Test
   void duplicateSubmissionSection_DiscoveryUpdate_DrillStemTestDoesNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
-    var newSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    var oldSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    var newSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
 
-
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(oldSubmissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(oldSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    drillStemTestDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    drillStemTestDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(DiscoveryWellDetail.class), eq(DiscoveryWellDetail.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(any(), any(DrillStemTestResult.class), eq(DrillStemTestResult.class));
   }
 }

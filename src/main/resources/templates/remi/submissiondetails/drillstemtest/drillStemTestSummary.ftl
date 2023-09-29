@@ -1,7 +1,7 @@
 <#include '../../layout/layout.ftl'>
 <#import '../../summarylistcards/drillstemtest/drillStemTestResultSummaryCard.ftl' as drillStemTestResultCard>
 
-<#assign pageTitle = "Drill stem test results" />
+<#assign pageTitle = "Well test results" />
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 
@@ -19,7 +19,7 @@
       <@fdsRadio.radioGroup
         path="form.drillStemTestSummaryOption"
         fieldsetHeadingClass="govuk-fieldset__legend--l"
-        labelText="Do you want to add another drill stem test result?"
+        labelText="Do you want to add another well test result?"
         hiddenContent=true>
         <#assign firstItem=true/>
         <#list drillStemTestSummaryOptions as key, value>

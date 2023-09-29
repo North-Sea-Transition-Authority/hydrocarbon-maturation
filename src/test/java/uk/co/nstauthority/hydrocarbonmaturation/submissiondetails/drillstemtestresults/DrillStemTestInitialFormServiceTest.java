@@ -17,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -36,10 +38,12 @@ class DrillStemTestInitialFormServiceTest {
   private DrillStemTestFormService drillStemTestFormService;
 
   private static SubmissionDetail submissionDetail;
+  private static ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeAll
   static void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
   }
 
   @Test
@@ -82,10 +86,10 @@ class DrillStemTestInitialFormServiceTest {
 
   @Test
   void mapDrillStemTestEntityToForm_newEntity_thenEmptyForm() {
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    assertThat(drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail))
+    assertThat(drillStemTestFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail))
         .hasAllNullFieldsOrProperties();
   }
 
@@ -93,10 +97,10 @@ class DrillStemTestInitialFormServiceTest {
   void mapDrillStemTestEntityToForm_existingEntity_thenFilledForm() {
     var drillStem = new DrillStemTest();
     drillStem.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.YES_NOW);
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(drillStem));
 
-    var initialForm = drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail);
+    var initialForm = drillStemTestFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail);
 
     assertThat(initialForm)
         .hasAllNullFieldsOrProperties();
@@ -106,10 +110,10 @@ class DrillStemTestInitialFormServiceTest {
   void getDrillStemTestSummaryForm_existingEntityAndNoOption_thenFilledForm() {
     var drillStemTest = new DrillStemTest();
     drillStemTest.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.NO);
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(drillStemTest));
 
-    var result = drillStemTestFormService.getDrillStemTestSummaryForm(submissionDetail);
+    var result = drillStemTestFormService.getDrillStemTestSummaryForm(reservoirSubmissionDetail);
 
     assertThat(result.getDrillStemTestSummaryOption()).isEqualTo(DrillStemTestSummaryOptions.NO);
   }
@@ -118,20 +122,20 @@ class DrillStemTestInitialFormServiceTest {
   void getDrillStemTestSummaryForm_existingEntityAndYesOption_thenEmptyForm() {
     var drillStemTest = new DrillStemTest();
     drillStemTest.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.YES_NOW);
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(drillStemTest));
 
-    var result = drillStemTestFormService.getDrillStemTestSummaryForm(submissionDetail);
+    var result = drillStemTestFormService.getDrillStemTestSummaryForm(reservoirSubmissionDetail);
 
     assertThat(result.getDrillStemTestSummaryOption()).isEqualTo(DrillStemTestSummaryOptions.YES_NOW);
   }
 
   @Test
   void getDrillStemTestSummaryForm_missingEntity_thenEmptyForm() {
-    when(drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail))
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    var result = drillStemTestFormService.getDrillStemTestSummaryForm(submissionDetail);
+    var result = drillStemTestFormService.getDrillStemTestSummaryForm(reservoirSubmissionDetail);
 
     assertThat(result).hasAllNullFieldsOrProperties();
   }

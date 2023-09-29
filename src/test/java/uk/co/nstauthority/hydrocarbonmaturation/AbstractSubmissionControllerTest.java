@@ -40,6 +40,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
@@ -103,10 +105,12 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   @Autowired
   protected ControllerHelperService controllerHelperService;
 
-  protected static final UUID SUBMISSION_DETAIL_ID = UUID.randomUUID();
   protected static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
+  protected static final UUID SUBMISSION_DETAIL_ID = UUID.randomUUID();
   protected SubmissionDetail submissionDetail;
+
+  protected ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp(TestInfo testInfo) {
@@ -118,6 +122,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     when(submissionDetailService.getSubmissionDetailForIdOrError(UUID.fromString(submissionDetail.getId().toString())))
         .thenReturn(submissionDetail);
     submissionDetail.setId(SUBMISSION_DETAIL_ID);
+
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+
     var securityTestAnnotation = testInfo
         .getTestMethod().map(method -> method.getAnnotation(SecurityTest.class));
     if (securityTestAnnotation.isEmpty()) {

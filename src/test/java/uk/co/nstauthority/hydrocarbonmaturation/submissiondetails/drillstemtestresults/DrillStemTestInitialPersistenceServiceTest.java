@@ -18,6 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class DrillStemTestInitialPersistenceServiceTest {
@@ -28,11 +30,11 @@ class DrillStemTestInitialPersistenceServiceTest {
   @InjectMocks
   private DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService;
 
-  private static SubmissionDetail submissionDetail;
+  private static ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeAll
   static void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
   }
 
   @Test
@@ -41,7 +43,7 @@ class DrillStemTestInitialPersistenceServiceTest {
     form.setHasDrillStemTestResult(false);
 
     var drillStemTestCaptor = ArgumentCaptor.forClass(DrillStemTest.class);
-    drillStemTestInitialPersistenceService.saveInitialDrillStemTest(form, submissionDetail);
+    drillStemTestInitialPersistenceService.saveInitialDrillStemTest(form, reservoirSubmissionDetail);
 
     verify(drillStemTestRepository, times(1)).save(drillStemTestCaptor.capture());
     var savedDrillStemTest = drillStemTestCaptor.getValue();
@@ -49,10 +51,10 @@ class DrillStemTestInitialPersistenceServiceTest {
     assertThat(savedDrillStemTest)
         .extracting(
             DrillStemTest::getDrillStemTestSummaryOption,
-            DrillStemTest::getSubmissionDetail)
+            DrillStemTest::getReservoirSubmissionDetail)
         .containsExactly(
             DrillStemTestSummaryOptions.NO,
-            submissionDetail
+            reservoirSubmissionDetail
         );
   }
 
@@ -62,7 +64,7 @@ class DrillStemTestInitialPersistenceServiceTest {
     form.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.NO);
 
     var drillStemTestCaptor = ArgumentCaptor.forClass(DrillStemTest.class);
-    drillStemTestInitialPersistenceService.saveDrillStemTest(form, submissionDetail);
+    drillStemTestInitialPersistenceService.saveDrillStemTest(form, reservoirSubmissionDetail);
 
     verify(drillStemTestRepository, times(1)).save(drillStemTestCaptor.capture());
     var savedDrillStemTest = drillStemTestCaptor.getValue();
@@ -70,10 +72,10 @@ class DrillStemTestInitialPersistenceServiceTest {
     assertThat(savedDrillStemTest)
         .extracting(
             DrillStemTest::getDrillStemTestSummaryOption,
-            DrillStemTest::getSubmissionDetail)
+            DrillStemTest::getReservoirSubmissionDetail)
         .containsExactly(
             DrillStemTestSummaryOptions.NO,
-            submissionDetail
+            reservoirSubmissionDetail
         );
   }
 
@@ -82,7 +84,7 @@ class DrillStemTestInitialPersistenceServiceTest {
     var form = new DrillStemTestSummaryForm();
 
     var drillStemTestCaptor = ArgumentCaptor.forClass(DrillStemTest.class);
-    drillStemTestInitialPersistenceService.saveDrillStemTest(form, submissionDetail);
+    drillStemTestInitialPersistenceService.saveDrillStemTest(form, reservoirSubmissionDetail);
 
     verify(drillStemTestRepository, times(1)).save(drillStemTestCaptor.capture());
     var savedDrillStemTest = drillStemTestCaptor.getValue();
@@ -90,10 +92,10 @@ class DrillStemTestInitialPersistenceServiceTest {
     assertThat(savedDrillStemTest)
         .extracting(
             DrillStemTest::getDrillStemTestSummaryOption,
-            DrillStemTest::getSubmissionDetail)
+            DrillStemTest::getReservoirSubmissionDetail)
         .containsExactly(
             null,
-            submissionDetail
+            reservoirSubmissionDetail
         );
   }
 
@@ -102,7 +104,7 @@ class DrillStemTestInitialPersistenceServiceTest {
     var form = new DrillStemTestInitialForm();
 
     var drillStemTestCaptor = ArgumentCaptor.forClass(DrillStemTest.class);
-    drillStemTestInitialPersistenceService.saveInitialDrillStemTest(form, submissionDetail);
+    drillStemTestInitialPersistenceService.saveInitialDrillStemTest(form, reservoirSubmissionDetail);
 
     verify(drillStemTestRepository, times(1)).save(drillStemTestCaptor.capture());
     var savedDrillStemTest = drillStemTestCaptor.getValue();
@@ -110,26 +112,26 @@ class DrillStemTestInitialPersistenceServiceTest {
     assertThat(savedDrillStemTest)
         .extracting(
             DrillStemTest::getDrillStemTestSummaryOption,
-            DrillStemTest::getSubmissionDetail)
+            DrillStemTest::getReservoirSubmissionDetail)
         .containsExactly(
             null,
-            submissionDetail
+            reservoirSubmissionDetail
         );
   }
 
   @Test
   void getDrillStemTestBySubmissionDetail_verifyMethodCall() {
-    drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail);
+    drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail);
 
-    verify(drillStemTestRepository, times(1)).findBySubmissionDetail(submissionDetail);
+    verify(drillStemTestRepository, times(1)).findByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test
   void getDrillStemTestBySubmissionDetail_verifyEmpty_WhenNoDrillStemTest() {
-    when(drillStemTestRepository.findBySubmissionDetail(submissionDetail))
+    when(drillStemTestRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    var result = drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail);
+    var result = drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(result).isNotPresent();
   }
@@ -137,10 +139,10 @@ class DrillStemTestInitialPersistenceServiceTest {
   @Test
   void getDrillStemTestBySubmissionDetail_verifyReturned_WhenDrillStemTest() {
     var drillStemTest = mock(DrillStemTest.class);
-    when(drillStemTestRepository.findBySubmissionDetail(submissionDetail))
+    when(drillStemTestRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(drillStemTest));
 
-    var result = drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetail(submissionDetail);
+    var result = drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     assertThat(result).isEqualTo(Optional.of(drillStemTest));
   }
@@ -148,23 +150,23 @@ class DrillStemTestInitialPersistenceServiceTest {
   @Test
   void getDrillStemTestBySubmissionDetailOrThrow_verifyReturned() {
     var drillStemTest = mock(DrillStemTest.class);
-    when(drillStemTestRepository.findBySubmissionDetail(submissionDetail))
+    when(drillStemTestRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(drillStemTest));
 
-    var result = drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail);
+    var result = drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail);
 
     assertThat(result).isEqualTo(drillStemTest);
   }
 
   @Test
   void getDrillStemTestBySubmissionDetailOrThrow_verifyThrown() {
-    when(drillStemTestRepository.findBySubmissionDetail(submissionDetail))
+    when(drillStemTestRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
     assertThatThrownBy(()->
-        drillStemTestInitialPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail))
+        drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail))
         .isExactlyInstanceOf(RemiEntityNotFoundException.class)
         .hasMessage("Drill stem test not found for submission with id %s"
-            .formatted(submissionDetail.getId().toString()));
+            .formatted(reservoirSubmissionDetail.getId().toString()));
   }
 }

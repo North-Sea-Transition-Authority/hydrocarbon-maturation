@@ -11,6 +11,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTest;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResult;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryOptions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsIntegrationTestUtils;
@@ -51,6 +54,28 @@ class ReservoirDuplicationPersistenceServiceTest {
         );
   }
 
+  @Test
+  void detachChildAndReplaceParent_DrillStemTestChild() {
+    var reservoirSubmissionDetail = createReservoirSubmissionDetail();
+    var oldDrillStem = new DrillStemTest();
+    oldDrillStem.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+    oldDrillStem.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.NO);
+    entityManager.persist(oldDrillStem);
+    entityManager.flush();
+    var drillStemTestResult = createDrillStemTestResult(oldDrillStem);
+    var newDrillStem = new DrillStemTest();
+    newDrillStem.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+
+    assertThat(drillStemTestResult.getDrillStemTest().getId()).isEqualTo(oldDrillStem.getId());
+
+    var newDrillStemTestResult = reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newDrillStem,
+        drillStemTestResult, DrillStemTestResult.class);
+
+    assertThat(newDrillStemTestResult.getId()).isNotEqualTo(drillStemTestResult.getId());
+    assertThat(newDrillStemTestResult.getDrillStemTest().getId()).isEqualTo(newDrillStem.getId());
+    assertThat(newDrillStemTestResult.getFormationName()).isEqualTo(drillStemTestResult.getFormationName());
+  }
+
   private OilCaseOutput createOilCaseOutput(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var oilCaseOutput = new OilCaseOutput();
     oilCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
@@ -69,5 +94,14 @@ class ReservoirDuplicationPersistenceServiceTest {
         submission, SubmissionType.CREATE_PROSPECT, entityManager);
     return ReservoirSubmissionDetailsIntegrationTestUtils
         .createReservoirSubmissionDetail(submissionDetail, entityManager);
+  }
+
+  private DrillStemTestResult createDrillStemTestResult(DrillStemTest drillStemTest) {
+    var drillStemTestResult = new DrillStemTestResult();
+    drillStemTestResult.setDrillStemTest(drillStemTest);
+    drillStemTestResult.setFormationName("goodName");
+    entityManager.persist(drillStemTestResult);
+    entityManager.flush();
+    return drillStemTestResult;
   }
 }

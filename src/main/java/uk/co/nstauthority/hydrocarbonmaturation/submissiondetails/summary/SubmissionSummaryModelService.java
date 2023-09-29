@@ -160,6 +160,12 @@ public class SubmissionSummaryModelService {
           .addObject("mixedCaseOutputsSummaryView",
               discoverySummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(
                   reservoirSubmissionDetail));
+    } else if (submissionDetail.isDiscoverySubmission()) {
+      var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(
+          submissionDetail);
+      modelAndView
+          .addObject("drillStemTestSummaryView",
+              discoverySummaryService.getDrillStemTestSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail));
     }
     modelAndView
         .addObject("gasFluidPropertiesSummaryView",
@@ -170,8 +176,6 @@ public class SubmissionSummaryModelService {
             discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("generalDetailsSummaryView",
             discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("drillStemTestSummaryView",
-            discoverySummaryService.getDrillStemTestSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",
             discoverySummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("outlineForMaximumCaseSummaryView",

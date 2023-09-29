@@ -20,13 +20,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/drill-stem-test/{drillStemTestResultId}")
+@RequestMapping("/submission-details/{submissionDetailId}/" +
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/well-test/{drillStemTestResultId}")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
 @IsFromResponsibleTeam
@@ -34,88 +35,99 @@ class DrillStemTestDeleteController {
 
   private final DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
   private final DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
-  private final SubmissionDetailService submissionDetailService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   public static final String PAGE_NAME = "Delete confirmation";
 
   @Autowired
   DrillStemTestDeleteController(DrillStemTestResultPersistenceService drillStemTestResultPersistenceService,
                                 DrillStemTestResultsSummaryService drillStemTestResultsSummaryService,
-                                SubmissionDetailService submissionDetailService) {
+                                ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.drillStemTestResultPersistenceService = drillStemTestResultPersistenceService;
     this.drillStemTestResultsSummaryService = drillStemTestResultsSummaryService;
-    this.submissionDetailService = submissionDetailService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @GetMapping("/delete-confirmation")
   public ModelAndView getDrillStemTestResultDeleteConfirmationPage(
       @PathVariable("submissionDetailId") UUID submissionDetailId,
+      @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
       @PathVariable("drillStemTestResultId") UUID drillStemTestResultId) {
     var drillStemTestResult =
         drillStemTestResultPersistenceService.getDrillStemTestResultByIdOrThrow(drillStemTestResultId);
-    return getDrillStemTestResultDeleteConfirmationModelAndView(submissionDetailId, drillStemTestResult);
+    return getDrillStemTestResultDeleteConfirmationModelAndView(reservoirSubmissionDetailId, drillStemTestResult);
   }
 
-  @PostMapping("/delete-drill-stem-test-result")
+  @PostMapping("/delete-well-test-result")
   public ModelAndView deleteDrillStemTestResult(
       @PathVariable("submissionDetailId") UUID submissionDetailId,
+      @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
       @PathVariable("drillStemTestResultId") UUID drillStemTestResultId,
       RedirectAttributes redirectAttributes) {
     var drillStemTestResult = drillStemTestResultPersistenceService
         .getDrillStemTestResultByIdOrThrow(drillStemTestResultId);
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     addRedirectNotification(drillStemTestResult.getFormationName(), redirectAttributes);
 
     drillStemTestResultPersistenceService.deleteDrillStemTestResult(drillStemTestResult);
 
-    var drillStemTest = drillStemTestResultPersistenceService.getDrillStemTestBySubmissionDetailOrThrow(submissionDetail);
-    var drillStemTestResults = drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest);
+    var drillStemTest = drillStemTestResultPersistenceService
+        .getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail);
+    var drillStemTestResults = drillStemTestResultPersistenceService
+        .getDrillStemTestResultsByDrillStemTest(drillStemTest);
+
     if (drillStemTestResults.isEmpty()) {
-      return ReverseRouter.redirect(on(DrillStemTestController.class).getDrillStemTestPage(submissionDetailId, null));
+      return ReverseRouter.redirect(on(DrillStemTestController.class)
+          .getDrillStemTestPage(submissionDetailId, reservoirSubmissionDetailId, null));
     } else {
       return ReverseRouter.redirect(
-          on(DrillStemTestSummaryController.class).getDrillStemTestSummaryPage(submissionDetailId));
+          on(DrillStemTestSummaryController.class)
+              .getDrillStemTestSummaryPage(submissionDetailId, reservoirSubmissionDetailId));
     }
   }
 
-  private ModelAndView getDrillStemTestResultDeleteConfirmationModelAndView(UUID submissionDetailId,
+  private ModelAndView getDrillStemTestResultDeleteConfirmationModelAndView(UUID reservoirSubmissionDetailId,
                                                                             DrillStemTestResult drillStemTestResult) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
     var modelAndView = new ModelAndView("remi/submissiondetails/drillstemtest/drillStemTestResultDeleteConfirmation")
         .addObject("backToSummaryUrl", ReverseRouter.route(on(DrillStemTestSummaryController.class)
-            .getDrillStemTestSummaryPage(submissionDetailId)))
+            .getDrillStemTestSummaryPage(submissionDetail.getId(), reservoirSubmissionDetailId)))
         .addObject("actionUrl", ReverseRouter.route(on(DrillStemTestDeleteController.class)
-            .deleteDrillStemTestResult(submissionDetailId, drillStemTestResult.getId(), null)))
+            .deleteDrillStemTestResult(submissionDetail.getId(), reservoirSubmissionDetailId, drillStemTestResult.getId(), null)))
         .addObject("drillStemTestResultSummaryView",
             drillStemTestResultsSummaryService.createSummaryViewFromDrillStemTestResult(
                 drillStemTestResult, DrillStemTestResultSummaryMode.VIEW, 1));
 
-    var breadCrumbs = getBreadcrumbs(submissionDetail);
+    var breadCrumbs = getBreadcrumbs(reservoirSubmissionDetail);
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadCrumbs);
     return modelAndView;
   }
 
-  private Breadcrumbs getBreadcrumbs(SubmissionDetail submissionDetail) {
+  private Breadcrumbs getBreadcrumbs(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     return Breadcrumbs.builder(PAGE_NAME)
         .addWorkAreaBreadcrumb()
         .addBreadcrumb(new BreadcrumbItem(
             TaskListController.PAGE_NAME,
-            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))))
+            ReverseRouter.route(on(TaskListController.class).getTaskList(reservoirSubmissionDetail.getId()))))
         .addBreadcrumb(new BreadcrumbItem(
             DrillStemTestController.PAGE_NAME,
             ReverseRouter.route(on(DrillStemTestController.class)
-                .getDrillStemTestPage(submissionDetail.getId(), null))))
+                .getDrillStemTestPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))))
         .build();
   }
 
   private void addRedirectNotification(String formationName, RedirectAttributes redirectAttributes) {
     if (formationName == null) {
-      NotificationBannerUtil.addSuccessNotification(redirectAttributes, "Drill stem test result deleted",
-          "The drill stem test result has been deleted.");
+      NotificationBannerUtil.addSuccessNotification(redirectAttributes, "Well test result deleted",
+          "The well test result has been deleted.");
     } else {
-      NotificationBannerUtil.addSuccessNotification(redirectAttributes, "Drill stem test result deleted",
-          "The drill stem test result with formation name %s has been deleted.".formatted(
+      NotificationBannerUtil.addSuccessNotification(redirectAttributes, "Well test result deleted",
+          "The well test result with formation name %s has been deleted.".formatted(
               formationName));
     }
   }

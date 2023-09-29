@@ -39,9 +39,9 @@
   mixedCaseVolumetricsSummaryView
   mixedCaseOutputsSummaryView
   drillStemTestSummaryView
+  discoveryWellDetailsSummaryView
   opportunityDetailsSummaryView
   outlineForMaximumCaseSummaryView
-  discoveryWellDetailsSummaryView
   sourceAndSealSummaryView
   trapPropertiesSummaryView
   resourceDetailSummaryView>
@@ -55,12 +55,6 @@
       <@opportunityDetailsSummary.opportunityDetailsSummaryCard opportunityDetailsValues=opportunityDetailsSummaryView mapName="Map of discovery"/>
       <@trapPropertiesSummary.trapPropertiesSummaryCard trapPropertiesValues=trapPropertiesSummaryView/>
       <@sourceAndSealSummary.sourceAndSealCard sourceAndSealValues=sourceAndSealSummaryView/>
-    </@fdsAccordion.accordionSection>
-    <@fdsAccordion.accordionSection sectionHeading="Post well drill" summaryText="Discovery well details, drill stem test results">
-      <@discoveryWellDetailSummary.discoveryWellDetailCard discoveryWellValues=discoveryWellDetailsSummaryView/>
-        <#if drillStemTestSummaryView.drillStemTestResultSummaryViews()?has_content>
-            <@drillStemTestSummary.drillStemTest drillStemTestValues=drillStemTestSummaryView/>
-        </#if>
     </@fdsAccordion.accordionSection>
 <#-- TODO: Uncomment out when the discovery summaries have been finlaised - have a reservoir submission detial to tie to -->
 <#--    <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">-->

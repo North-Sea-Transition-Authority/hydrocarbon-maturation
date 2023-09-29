@@ -11,12 +11,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSubmissionDetailChildEntity;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Entity
 @Table(name = "drill_stem_tests")
-public class DrillStemTest implements SubmissionDetailChildEntity {
+public class DrillStemTest implements ReservoirSubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -24,8 +24,8 @@ public class DrillStemTest implements SubmissionDetailChildEntity {
   private UUID id;
 
   @ManyToOne
-  @JoinColumn(name = "submission_detail_id")
-  private SubmissionDetail submissionDetail;
+  @JoinColumn(name = "reservoir_submission_detail_id")
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "has_drill_stem_test")
@@ -40,13 +40,13 @@ public class DrillStemTest implements SubmissionDetailChildEntity {
     this.id = id;
   }
 
-  public SubmissionDetail getSubmissionDetail() {
-    return submissionDetail;
+  public ReservoirSubmissionDetail getReservoirSubmissionDetail() {
+    return reservoirSubmissionDetail;
   }
 
   @Override
-  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
-    this.submissionDetail = submissionDetail;
+  public void setReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    this.reservoirSubmissionDetail = reservoirSubmissionDetail;
   }
 
   public DrillStemTestSummaryOptions getDrillStemTestSummaryOption() {

@@ -17,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,73 +38,81 @@ class DrillStemTestSubmissionServiceTest {
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+
     var form = new DrillStemTestInitialForm();
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
-    when(dryWellDetailsFormService.getDrillStemTestInitialForm(submissionDetail))
+    when(dryWellDetailsFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(dryWellDetailsFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
 
-    assertTrue(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 
   @Test
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
     var submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+
     var form = new DrillStemTestInitialForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult.addError(new ObjectError("", ""));
 
-    when(dryWellDetailsFormService.getDrillStemTestInitialForm(submissionDetail))
+    when(dryWellDetailsFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(dryWellDetailsFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResult);
 
-    assertFalse(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 
   @Test
   void isSectionSubmittable_verifyErrorInDrillStemTestResult() {
     var submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+
     var form = new DrillStemTestInitialForm();
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
     var drillStemTestResults = List.of(new DrillStemTestResult());
 
-    when(dryWellDetailsFormService.getDrillStemTestInitialForm(submissionDetail))
+    when(dryWellDetailsFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(dryWellDetailsFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
-    when(drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail))
+    when(drillStemTestResultPersistenceService.getDrillStemTestResultsByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(drillStemTestResults);
     when(drillStemTestResultFormService.validateDrillStemTestResults(
         drillStemTestResults))
         .thenReturn(true);
 
-    assertFalse(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 
   @Test
   void isSectionSubmittable_verifyDrillStemTestResultsValidated() {
     var submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+
     var form = new DrillStemTestInitialForm();
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
     var drillStemTestResults = List.of(new DrillStemTestResult());
 
-    when(dryWellDetailsFormService.getDrillStemTestInitialForm(submissionDetail))
+    when(dryWellDetailsFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(dryWellDetailsFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(emptyBindingResult);
-    when(drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail))
+    when(drillStemTestResultPersistenceService.getDrillStemTestResultsByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(drillStemTestResults);
     when(drillStemTestResultFormService.validateDrillStemTestResults(
         drillStemTestResults))
         .thenReturn(false);
 
-    assertTrue(drillStemTestSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

@@ -19,15 +19,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleT
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/drill-stem-test")
+@RequestMapping("/submission-details/{submissionDetailId}/reservoir-submission-details/{reservoirSubmissionDetailId}/well-test")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
 @IsFromResponsibleTeam
@@ -35,68 +35,78 @@ public class DrillStemTestController {
 
   private final DrillStemTestFormService drillStemTestFormService;
   private final ControllerHelperService controllerHelperService;
-  private final SubmissionDetailService submissionDetailService;
   private final DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService;
   private final DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
-  public static final String PAGE_NAME = "Drill stem test results";
+  public static final String PAGE_NAME = "Well test results";
 
   @Autowired
   public DrillStemTestController(DrillStemTestFormService drillStemTestFormService,
                                  ControllerHelperService controllerHelperService,
-                                 SubmissionDetailService submissionDetailService,
                                  DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService,
-                                 DrillStemTestResultPersistenceService drillStemTestResultPersistenceService) {
+                                 DrillStemTestResultPersistenceService drillStemTestResultPersistenceService,
+                                 ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.drillStemTestFormService = drillStemTestFormService;
     this.controllerHelperService = controllerHelperService;
-    this.submissionDetailService = submissionDetailService;
     this.drillStemTestInitialPersistenceService = drillStemTestInitialPersistenceService;
     this.drillStemTestResultPersistenceService = drillStemTestResultPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @GetMapping
   public ModelAndView getDrillStemTestPage(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                           @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                            @ModelAttribute("form") DrillStemTestInitialForm form) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
-    if (drillStemTestResultPersistenceService.getDrillStemTestResultsBySubmissionDetail(submissionDetail).isEmpty()) {
+    if (drillStemTestResultPersistenceService.getDrillStemTestResultsByReservoirSubmissionDetail(
+        reservoirSubmissionDetail).isEmpty()) {
       return getDrillStemTestModelAndView(
-          drillStemTestFormService.getDrillStemTestInitialForm(submissionDetail), submissionDetail);
+          drillStemTestFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail), reservoirSubmissionDetail);
     } else {
       return ReverseRouter.redirect(on(DrillStemTestSummaryController.class)
-          .getDrillStemTestSummaryPage(submissionDetailId));
+          .getDrillStemTestSummaryPage(submissionDetailId, reservoirSubmissionDetailId));
     }
   }
 
   @PostMapping
   public ModelAndView saveDrillStemTestDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                               @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                                @ModelAttribute("form") DrillStemTestInitialForm form,
                                                BindingResult bindingResult) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
     bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getDrillStemTestModelAndView(form, submissionDetail),
+        getDrillStemTestModelAndView(form, reservoirSubmissionDetail),
         () -> {
-          drillStemTestInitialPersistenceService.saveInitialDrillStemTest(form, submissionDetail);
+          drillStemTestInitialPersistenceService.saveInitialDrillStemTest(form, reservoirSubmissionDetail);
           if (BooleanUtils.isTrue(form.getHasDrillStemTestResult())) {
             return ReverseRouter.redirect(on(DrillStemTestResultController.class)
-                .getCreateNewDrillStemTestResultPage(submissionDetailId));
+                .getCreateNewDrillStemTestResultPage(submissionDetailId, reservoirSubmissionDetailId));
           }
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+          return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null));
         }
     );
   }
 
-  private ModelAndView getDrillStemTestModelAndView(DrillStemTestInitialForm form, SubmissionDetail submissionDetail) {
+  private ModelAndView getDrillStemTestModelAndView(DrillStemTestInitialForm form,
+                                                    ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
     var modelAndView =  new ModelAndView("remi/submissiondetails/drillstemtest/drillStemTestInitial")
         .addObject("form", form)
         .addObject("actionUrl",
             ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetail.getId(), null, null)));
+                .saveDrillStemTestDetails(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null, null)));
 
-    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
-        modelAndView, PAGE_NAME, submissionDetail);
+    TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(
+        modelAndView, PAGE_NAME, reservoirSubmissionDetail);
     return modelAndView;
   }
 }

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 class DrillStemTestInitialPersistenceService {
@@ -19,10 +19,11 @@ class DrillStemTestInitialPersistenceService {
   }
 
   @Transactional
-  public DrillStemTest saveInitialDrillStemTest(DrillStemTestInitialForm form, SubmissionDetail submissionDetail) {
-    var drillStemTest = getDrillStemTestBySubmissionDetail(submissionDetail)
+  public DrillStemTest saveInitialDrillStemTest(DrillStemTestInitialForm form,
+                                                ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var drillStemTest = getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail)
         .orElse(new DrillStemTest());
-    drillStemTest.setSubmissionDetail(submissionDetail);
+    drillStemTest.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     if (BooleanUtils.isFalse(form.getHasDrillStemTestResult())) {
       //saves only the 'no' option
       drillStemTest.setDrillStemTestSummaryOption(DrillStemTestSummaryOptions.NO);
@@ -34,10 +35,11 @@ class DrillStemTestInitialPersistenceService {
   }
 
   @Transactional
-  public DrillStemTest saveDrillStemTest(DrillStemTestSummaryForm form, SubmissionDetail submissionDetail) {
-    var drillStemTest = getDrillStemTestBySubmissionDetail(submissionDetail)
+  public DrillStemTest saveDrillStemTest(DrillStemTestSummaryForm form,
+                                         ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var drillStemTest = getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail)
         .orElse(new DrillStemTest());
-    drillStemTest.setSubmissionDetail(submissionDetail);
+    drillStemTest.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     if (form.getDrillStemTestSummaryOption() == DrillStemTestSummaryOptions.NO) {
       //saves only the 'no' option
       drillStemTest.setDrillStemTestSummaryOption(form.getDrillStemTestSummaryOption());
@@ -48,13 +50,14 @@ class DrillStemTestInitialPersistenceService {
     return drillStemTest;
   }
 
-  Optional<DrillStemTest> getDrillStemTestBySubmissionDetail(SubmissionDetail submissionDetail) {
-    return drillStemTestRepository.findBySubmissionDetail(submissionDetail);
+  Optional<DrillStemTest> getDrillStemTestByReservoirSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return drillStemTestRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
-  DrillStemTest getDrillStemTestBySubmissionDetailOrThrow(SubmissionDetail submissionDetail) {
-    return getDrillStemTestBySubmissionDetail(submissionDetail)
+  DrillStemTest getDrillStemTestByReservoirSubmissionDetailOrThrow(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail)
         .orElseThrow(() -> new RemiEntityNotFoundException("Drill stem test not found for submission with id %s"
-            .formatted(submissionDetail.getId().toString())));
+            .formatted(reservoirSubmissionDetail.getId().toString())));
   }
 }
