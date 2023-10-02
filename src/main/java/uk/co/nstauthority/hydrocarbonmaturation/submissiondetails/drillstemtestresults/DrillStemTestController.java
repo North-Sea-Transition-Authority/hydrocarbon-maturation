@@ -29,7 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/reservoir-submission-details/{reservoirSubmissionDetailId}/well-test")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
-@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
+@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_FIELD)
 @IsFromResponsibleTeam
 public class DrillStemTestController {
 
@@ -98,7 +98,6 @@ public class DrillStemTestController {
   private ModelAndView getDrillStemTestModelAndView(DrillStemTestInitialForm form,
                                                     ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-
     var modelAndView =  new ModelAndView("remi/submissiondetails/drillstemtest/drillStemTestInitial")
         .addObject("form", form)
         .addObject("actionUrl",

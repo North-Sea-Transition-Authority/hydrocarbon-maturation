@@ -200,7 +200,7 @@ public class ReservoirTaskListService {
         );
       }
 
-      if (submissionDetail.isDiscoverySubmission()) {
+      if (submissionDetail.isDiscoverySubmission() || submissionDetail.isFieldSubmission()) {
         items.add(
             new TaskListItem("Well test results",
                 TaskListLabel.notStartedOrComplete(

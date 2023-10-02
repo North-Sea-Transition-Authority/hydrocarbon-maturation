@@ -31,7 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @RequestMapping("/submission-details/{submissionDetailId}/" +
     "reservoir-submission-details/{reservoirSubmissionDetailId}/well-test/results")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
-@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
+@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_FIELD)
 @IsFromResponsibleTeam
 public class DrillStemTestSummaryController {
 
@@ -67,7 +67,7 @@ public class DrillStemTestSummaryController {
                                                   @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
-    
+
     var drillStemTest = drillStemTestInitialPersistenceService
         .getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail);
     var drillStemTestResults = drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest);
@@ -109,7 +109,6 @@ public class DrillStemTestSummaryController {
   private ModelAndView getDrillStemTestSummaryModelAndView(DrillStemTestSummaryForm form,
                                                            ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-
     var modelAndView =  new ModelAndView("remi/submissiondetails/drillstemtest/drillStemTestSummary")
         .addObject("form", form)
         .addObject("actionUrl",

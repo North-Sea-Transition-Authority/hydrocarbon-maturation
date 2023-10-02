@@ -29,7 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/reservoir-submission-details/{reservoirSubmissionDetailId}/well-test")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
-@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
+@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_FIELD)
 @IsFromResponsibleTeam
 public class DrillStemTestResultController {
 
@@ -57,7 +57,6 @@ public class DrillStemTestResultController {
                                                  @PathVariable("drillStemTestResultId") UUID drillStemTestResultId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
-
     var drillStemTestResult = drillStemTestResultPersistenceService
         .getDrillStemTestResultByIdOrThrow(drillStemTestResultId);
     return getDrillStemTestResultModelAndView(
@@ -118,9 +117,9 @@ public class DrillStemTestResultController {
       @ModelAttribute("form") DrillStemTestResultForm form,
       BindingResult bindingResult) {
 
+
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
-
     var drillStemTestResult = drillStemTestResultPersistenceService
         .getDrillStemTestResultByIdOrThrow(drillStemTestResultId);
     var drillStemTestResults = drillStemTestResultPersistenceService

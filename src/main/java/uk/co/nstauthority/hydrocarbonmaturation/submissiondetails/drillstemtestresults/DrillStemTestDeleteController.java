@@ -29,7 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @RequestMapping("/submission-details/{submissionDetailId}/" +
     "reservoir-submission-details/{reservoirSubmissionDetailId}/well-test/{drillStemTestResultId}")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
-@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
+@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_FIELD)
 @IsFromResponsibleTeam
 class DrillStemTestDeleteController {
 
@@ -76,7 +76,6 @@ class DrillStemTestDeleteController {
         .getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail);
     var drillStemTestResults = drillStemTestResultPersistenceService
         .getDrillStemTestResultsByDrillStemTest(drillStemTest);
-
     if (drillStemTestResults.isEmpty()) {
       return ReverseRouter.redirect(on(DrillStemTestController.class)
           .getDrillStemTestPage(submissionDetailId, reservoirSubmissionDetailId, null));
@@ -92,7 +91,6 @@ class DrillStemTestDeleteController {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-
     var modelAndView = new ModelAndView("remi/submissiondetails/drillstemtest/drillStemTestResultDeleteConfirmation")
         .addObject("backToSummaryUrl", ReverseRouter.route(on(DrillStemTestSummaryController.class)
             .getDrillStemTestSummaryPage(submissionDetail.getId(), reservoirSubmissionDetailId)))
