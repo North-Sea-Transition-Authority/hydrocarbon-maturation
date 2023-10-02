@@ -74,7 +74,6 @@
       gasCaseOutputsSummaryView=gasCaseOutputsSummaryView!""
       mixedCaseVolumetricsSummaryView=mixedCaseVolumetricsSummaryView!""
       mixedCaseOutputsSummaryView=mixedCaseOutputsSummaryView!""
-      drillStemTestSummaryView=drillStemTestSummaryView!""
       discoveryWellDetailsSummaryView=discoveryWellDetailsSummaryView!""
       opportunityDetailsSummaryView=opportunityDetailsSummaryView
       outlineForMaximumCaseSummaryView=outlineForMaximumCaseSummaryView

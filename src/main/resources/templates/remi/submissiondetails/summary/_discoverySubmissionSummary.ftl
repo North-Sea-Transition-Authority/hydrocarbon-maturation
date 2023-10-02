@@ -36,7 +36,6 @@
   gasCaseOutputsSummaryView
   mixedCaseVolumetricsSummaryView
   mixedCaseOutputsSummaryView
-  drillStemTestSummaryView
   discoveryWellDetailsSummaryView
   opportunityDetailsSummaryView
   outlineForMaximumCaseSummaryView
