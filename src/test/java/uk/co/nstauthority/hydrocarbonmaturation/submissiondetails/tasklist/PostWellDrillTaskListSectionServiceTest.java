@@ -7,9 +7,12 @@ import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsController;
@@ -79,6 +83,43 @@ class PostWellDrillTaskListSectionServiceTest {
 
     assertThat(taskListSectionOptional)
         .isNotPresent();
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      mode = EnumSource.Mode.INCLUDE,
+      names = {"CREATE_DISCOVERY_FROM_PROSPECT", "CREATE_DISCOVERY", "UPDATE_DISCOVERY"}
+  )
+  void getSection_discoverySubmission() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    var taskListSectionOptional = postWellDrillTaskListSectionService.getSection(submissionDetail);
+
+    var taskListSection = taskListSectionOptional.get();
+
+    assertThat(taskListSection)
+        .extracting(
+            TaskListSection::displayName,
+            TaskListSection::displayOrder
+        ).containsExactly(
+            "Post well drill",
+            30
+        );
+
+    assertThat(taskListSection.items())
+        .extracting(
+            TaskListItem::displayName,
+            TaskListItem::label,
+            TaskListItem::actionUrl)
+        .containsExactly(
+            Tuple.tuple(
+                "Discovery well details",
+                TaskListLabel.NOT_COMPLETE,
+                ReverseRouter.route(on(DiscoveryWellDetailsController.class)
+                    .getDiscoveryWellDetails(submissionDetail.getId(), null))
+                )
+        );
+
   }
 
   @Test

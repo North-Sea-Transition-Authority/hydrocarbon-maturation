@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsController;
@@ -44,6 +45,16 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
                   dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)),
               ReverseRouter.route(
                   on(DryWellDetailsController.class).getDryWellDetails(submissionDetail.getId(), null)))
+      );
+    }
+
+    if (submissionDetail.isDiscoverySubmission()) {
+      items.add(
+          new TaskListItem("Discovery well details",
+              TaskListLabel.notStartedOrComplete(
+                  discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)),
+              ReverseRouter.route(on(DiscoveryWellDetailsController.class)
+                  .getDiscoveryWellDetails(submissionDetail.getId(), null)))
       );
     }
 
