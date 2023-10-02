@@ -50,7 +50,6 @@ class DiscoveryWellDetailsFormService implements SubmissionFormService {
     var form = new DiscoveryWellDetailsForm();
     form.setWellDetailsForm(wellDetailsFormService.drillDetailToForm(discoveryWellDetail));
     form.setDryHoleCost(DecimalInput.createDecimalInput(discoveryWellDetail.getTotalWellCost()));
-    form.setHydrocarbonsDiscovered(discoveryWellDetail.getHydrocarbonsDiscovered());
     form.setDiscoveryStatus(discoveryWellDetail.getDiscoveryStatus());
     form.setChanceOfCommercialityComments(discoveryWellDetail.getChanceOfCommercialityComments());
     form.setSuccessRelatedCosts(DecimalInput.createDecimalInput(discoveryWellDetail.getSuccessRelatedCosts()));

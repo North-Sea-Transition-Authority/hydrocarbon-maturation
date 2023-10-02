@@ -6,8 +6,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -17,18 +17,18 @@ class ReservoirPropertiesFormService {
 
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
-  private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+  private final GeneralReservoirInformationService generalReservoirInformationService;
 
   @Autowired
   public ReservoirPropertiesFormService(ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
                                         ProbabilityDistributionFormService probabilityDistributionFormService,
-                                        DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
-                                        HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService) {
+                                        HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
+                                        GeneralReservoirInformationService generalReservoirInformationService) {
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.probabilityDistributionFormService = probabilityDistributionFormService;
-    this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
+    this.generalReservoirInformationService = generalReservoirInformationService;
   }
 
   ReservoirPropertiesForm getReservoirPropertiesForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
@@ -57,7 +57,7 @@ class ReservoirPropertiesFormService {
       ));
       form.setDepthToHydrocarbonContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT
+          ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT_PROSPECT
       ));
     }
 
@@ -74,38 +74,107 @@ class ReservoirPropertiesFormService {
     }
 
     if (submissionDetail.isDiscoverySubmission()) {
+      var hydrocarbonType =  generalReservoirInformationService
+          .getReservoirHydrocarbons(reservoirSubmissionDetail)
+          .orElse(new ReservoirHydrocarbons());
+
       form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY
       ));
 
-      var discoveryWellDetail = discoveryWellDetailsPersistenceService
-          .getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
-          .orElse(new DiscoveryWellDetail());
-
-      if (discoveryWellDetailsPersistenceService.isDiscoveryOilOnly(discoveryWellDetail)
-          || discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail)) {
+      if (generalReservoirInformationService.isOilOnly(hydrocarbonType)
+          || generalReservoirInformationService.isMixed(hydrocarbonType)) {
         form.setDepthToOilWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
             reservoirSubmissionDetail,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
+            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY
         ));
         form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
             reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY
         ));
       }
-      if (discoveryWellDetailsPersistenceService.isDiscoveryGasOnly(discoveryWellDetail)
-          || discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail)) {
+      if (generalReservoirInformationService.isGasOnly(hydrocarbonType)
+          || generalReservoirInformationService.isMixed(hydrocarbonType)) {
         form.setDepthToGasWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
             reservoirSubmissionDetail,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY
         ));
       }
-      if (discoveryWellDetailsPersistenceService.isDiscoveryMixed(discoveryWellDetail)) {
+      if (generalReservoirInformationService.isMixed(hydrocarbonType)) {
         form.setDepthToGasOilContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
             reservoirSubmissionDetail,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY
         ));
+      }
+    } else if (submissionDetail.isFieldSubmission()) {
+      var hydrocarbonType = generalReservoirInformationService
+          .getReservoirHydrocarbons(reservoirSubmissionDetail)
+          .orElse(new ReservoirHydrocarbons());
+
+      form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD
+      ));
+      form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD
+      ));
+
+      if (submissionDetail.isCessationOfProductionSubmission()) {
+        if (generalReservoirInformationService.isOilOnly(hydrocarbonType)
+            || generalReservoirInformationService.isMixed(hydrocarbonType)) {
+          form.setOriginalDepthToOilWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              reservoirSubmissionDetail,
+              ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD
+          ));
+          form.setDepthToMovedOilWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              reservoirSubmissionDetail,
+              ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD
+          ));
+        }
+        if (generalReservoirInformationService.isGasOnly(hydrocarbonType)
+            || generalReservoirInformationService.isMixed(hydrocarbonType)) {
+          form.setOriginalDepthToGasWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              reservoirSubmissionDetail,
+              ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD
+          ));
+          form.setDepthToMovedGasWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              reservoirSubmissionDetail,
+              ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD
+          ));
+        }
+        if (generalReservoirInformationService.isMixed(hydrocarbonType)) {
+          form.setOriginalDepthToGasOilContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              reservoirSubmissionDetail,
+              ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD
+          ));
+          form.setDepthToMovedGasOilContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              reservoirSubmissionDetail,
+              ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD
+          ));
+        }
+      } else {
+        if (generalReservoirInformationService.isOilOnly(hydrocarbonType)
+            || generalReservoirInformationService.isMixed(hydrocarbonType)) {
+          form.setDepthToOilWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              reservoirSubmissionDetail,
+              ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD
+          ));
+        }
+        if (generalReservoirInformationService.isGasOnly(hydrocarbonType)
+            || generalReservoirInformationService.isMixed(hydrocarbonType)) {
+          form.setDepthToGasWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              reservoirSubmissionDetail,
+              ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_FIELD
+          ));
+        }
+        if (generalReservoirInformationService.isMixed(hydrocarbonType)) {
+          form.setDepthToGasOilContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              reservoirSubmissionDetail,
+              ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD
+          ));
+        }
       }
     }
 
@@ -148,6 +217,25 @@ class ReservoirPropertiesFormService {
           reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY
       ));
+    } else if (resourceType == ResourceType.FIELD) {
+      form.setGrossReservoirThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD
+      ));
+
+      form.setGrossRockVolume(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD
+      ));
+
+      form.setNetPorosity(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.NET_POROSITY_FIELD
+      ));
+      form.setNetToGross(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD
+      ));
     }
 
     var hydrocarbonCaseDetail = hydrocarbonCasePersistenceService
@@ -164,6 +252,11 @@ class ReservoirPropertiesFormService {
         form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
             reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY
+        ));
+      } else if (resourceType == ResourceType.FIELD) {
+        form.setPercentOfGrvOilBearing(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+            reservoirSubmissionDetail,
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD
         ));
       }
     }

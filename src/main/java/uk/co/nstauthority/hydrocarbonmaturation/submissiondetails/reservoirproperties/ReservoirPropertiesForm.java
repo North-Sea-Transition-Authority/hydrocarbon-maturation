@@ -24,6 +24,12 @@ class ReservoirPropertiesForm implements SubmissionForm {
   private ProbabilityDistributionForm depthToOilWaterContact = createCustomProbabilityDistributionForm();
   private ProbabilityDistributionForm depthToGasWaterContact = createCustomProbabilityDistributionForm();
   private ProbabilityDistributionForm depthToGasOilContact = createCustomProbabilityDistributionForm();
+  private ProbabilityDistributionForm originalDepthToOilWaterContact = createCustomProbabilityDistributionForm();
+  private ProbabilityDistributionForm originalDepthToGasWaterContact = createCustomProbabilityDistributionForm();
+  private ProbabilityDistributionForm originalDepthToGasOilContact = createCustomProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToMovedOilWaterContact = createCustomProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToMovedGasWaterContact = createCustomProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToMovedGasOilContact = createCustomProbabilityDistributionForm();
   private String reservoirFacies;
   private String reservoirConnectivity;
 
@@ -182,6 +188,66 @@ class ReservoirPropertiesForm implements SubmissionForm {
   public void setDepthToGasOilContact(
       ProbabilityDistributionForm depthToGasOilContact) {
     this.depthToGasOilContact = depthToGasOilContact;
+  }
+
+  public ProbabilityDistributionForm getOriginalDepthToOilWaterContact() {
+    return originalDepthToOilWaterContact;
+  }
+
+  public ReservoirPropertiesForm setOriginalDepthToOilWaterContact(
+      ProbabilityDistributionForm originalDepthToOilWaterContact) {
+    this.originalDepthToOilWaterContact = originalDepthToOilWaterContact;
+    return this;
+  }
+
+  public ProbabilityDistributionForm getOriginalDepthToGasWaterContact() {
+    return originalDepthToGasWaterContact;
+  }
+
+  public ReservoirPropertiesForm setOriginalDepthToGasWaterContact(
+      ProbabilityDistributionForm originalDepthToGasWaterContact) {
+    this.originalDepthToGasWaterContact = originalDepthToGasWaterContact;
+    return this;
+  }
+
+  public ProbabilityDistributionForm getOriginalDepthToGasOilContact() {
+    return originalDepthToGasOilContact;
+  }
+
+  public ReservoirPropertiesForm setOriginalDepthToGasOilContact(
+      ProbabilityDistributionForm originalDepthToGasOilContact) {
+    this.originalDepthToGasOilContact = originalDepthToGasOilContact;
+    return this;
+  }
+
+  public ProbabilityDistributionForm getDepthToMovedOilWaterContact() {
+    return depthToMovedOilWaterContact;
+  }
+
+  public ReservoirPropertiesForm setDepthToMovedOilWaterContact(
+      ProbabilityDistributionForm depthToMovedOilWaterContact) {
+    this.depthToMovedOilWaterContact = depthToMovedOilWaterContact;
+    return this;
+  }
+
+  public ProbabilityDistributionForm getDepthToMovedGasWaterContact() {
+    return depthToMovedGasWaterContact;
+  }
+
+  public ReservoirPropertiesForm setDepthToMovedGasWaterContact(
+      ProbabilityDistributionForm depthToMovedGasWaterContact) {
+    this.depthToMovedGasWaterContact = depthToMovedGasWaterContact;
+    return this;
+  }
+
+  public ProbabilityDistributionForm getDepthToMovedGasOilContact() {
+    return depthToMovedGasOilContact;
+  }
+
+  public ReservoirPropertiesForm setDepthToMovedGasOilContact(
+      ProbabilityDistributionForm depthToMovedGasOilContact) {
+    this.depthToMovedGasOilContact = depthToMovedGasOilContact;
+    return this;
   }
 
   private ProbabilityDistributionForm createCustomProbabilityDistributionForm() {

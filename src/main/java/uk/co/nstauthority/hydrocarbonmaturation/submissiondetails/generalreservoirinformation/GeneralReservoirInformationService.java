@@ -165,6 +165,18 @@ public class GeneralReservoirInformationService {
     return getPreselectedAssociatedDiscoveryReservoirs(linkedDiscoveryReservoirs);
   }
 
+  public boolean isGasOnly(ReservoirHydrocarbons reservoirHydrocarbons) {
+    return reservoirHydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.GAS_ONLY;
+  }
+
+  public boolean isOilOnly(ReservoirHydrocarbons reservoirHydrocarbons) {
+    return reservoirHydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.OIL_ONLY;
+  }
+
+  public boolean isMixed(ReservoirHydrocarbons reservoirHydrocarbons) {
+    return reservoirHydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS;
+  }
+
   private void cleanHydrocarbonsDiscovered(ReservoirSubmissionDetail reservoirSubmissionDetail,
                                            HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {

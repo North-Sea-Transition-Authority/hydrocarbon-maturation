@@ -1,0 +1,2 @@
+ALTER TABLE discovery_well_details
+DROP COLUMN hydrocarbons_discovered;

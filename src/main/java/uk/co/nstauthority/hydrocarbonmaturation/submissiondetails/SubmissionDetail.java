@@ -187,6 +187,22 @@ public class SubmissionDetail {
     return SubmissionDetailUtil.isFieldSubmission(submissionType);
   }
 
+  public boolean isConceptSelectReportSubmission() {
+    return submissionType.equals(SubmissionType.CREATE_CSR);
+  }
+
+  public boolean isFieldDevelopmentPlanSubmission() {
+    return submissionType.equals(SubmissionType.CREATE_FDP);
+  }
+
+  public boolean isFieldDevelopmentPlanAddendumSubmission() {
+    return submissionType.equals(SubmissionType.CREATE_FDPA);
+  }
+
+  public boolean isCessationOfProductionSubmission() {
+    return submissionType.equals(SubmissionType.CREATE_COP);
+  }
+
   public boolean isApprovedOrSubmittedSubmission() {
     return status == SubmissionDetailStatus.SUBMITTED
         || status == SubmissionDetailStatus.APPROVED;
@@ -234,6 +250,10 @@ public class SubmissionDetail {
 
   public boolean isFirstSubmission() {
     return SubmissionDetailUtil.isFirstSubmission(submissionType);
+  }
+
+  public boolean isSubmissionType(SubmissionType submissionType) {
+    return submissionType.equals(this.submissionType);
   }
 
   public boolean hasSameSubmissionType(SubmissionDetail otherSubmissionDetail) {

@@ -115,7 +115,7 @@ public class ReservoirTaskListService {
                   reservoirSubmissionDetail.getId())))
       );
 
-      if (submissionDetail.isDiscoverySubmission()) {
+      if (submissionDetail.isDiscoverySubmission() || submissionDetail.isFieldSubmission()) {
         items.add(
             new TaskListItem("Reservoir properties",
                 TaskListLabel.notStartedOrComplete(

@@ -14,7 +14,6 @@ public record DiscoveryWellDetailsSummaryView(
     String totalDepthFormationComments,
     String dataAcquisitionProgramme,
     String geophysicalUpdate,
-    String hydrocarbonsDiscovered,
     String discoveryStatus,
     String commentsRegardingCommerciality,
     String totalWellCost,
@@ -22,7 +21,7 @@ public record DiscoveryWellDetailsSummaryView(
 
   public static DiscoveryWellDetailsSummaryView empty() {
     return new DiscoveryWellDetailsSummaryView(
-        "", "", "", "",
+        "", "", "",
         "", "", "", "",
         "", "", "", "",
         "", "", "", "",

@@ -95,21 +95,28 @@
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionPath="form.averageNetPayThickness"
         labelText="Average net pay thickness distribution used"
+        template=averageNetPayThicknessOptionalTemplate
+        error=averageNetPayThicknessOptionalError/>
+    <#elseif discoverySubmission
+    || dryHoleSubmission
+    || conceptSelectReportSubmission
+    || fieldDevelopmentPlanSubmission
+    || fieldDevelopmentPlanAddendumSubmission
+    || cessationOfProductionSubmission>
+      <@probabilityDistribution.probabilityDistributionTemplate
+        probabilityDistributionPath="form.averageNetPayThickness"
+        labelText="Average net pay thickness distribution used"
         template=averageNetPayThicknessTemplate
         error=averageNetPayThicknessError/>
-    <#elseif dryHoleSubmission>
-      <@probabilityDistribution.probabilityDistributionTemplate
+    </#if>
+    <#if dryHoleSubmission>
+        <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionPath="form.averageNetPayThickness"
         labelText="Average net reservoir thickness distribution used"
         template=averageNetReservoirThicknessTemplate
         error=averageNetReservoirThicknessError/>
-    <#elseif discoverySubmission>
-      <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionPath="form.averageNetPayThickness"
-        labelText="Average net pay thickness distribution used"
-        template=averageNetPayThicknessOptionalTemplate
-        error=averageNetPayThicknessOptionalError/>
     </#if>
+
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.grossReservoirThickness"
       labelText="Gross reservoir thickness distribution used"
@@ -149,7 +156,10 @@
         template=depthToHydrocarbonContactTemplate
         error=depthToHydrocarbonContactError/>
     </#if>
-    <#if discoverySubmission>
+    <#if discoverySubmission
+    || conceptSelectReportSubmission
+    || fieldDevelopmentPlanSubmission
+    || fieldDevelopmentPlanAddendumSubmission>
       <#if oilCase || mixedCase>
         <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.depthToOilWaterContact"
@@ -171,6 +181,48 @@
           template=depthToGasOilContactTemplate
           error=depthToGasOilContactError/>
       </#if>
+    </#if>
+
+    <#if cessationOfProductionSubmission>
+        <#if oilCase || mixedCase>
+            <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.originalDepthToOilWaterContact"
+            labelText="Original depth to oil water contact"
+            template=originalDepthToOilWaterContactTemplate
+            error=originalDepthToOilWaterContactError/>
+
+            <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.depthToMovedOilWaterContact"
+            labelText="Depth to moved oil water contact"
+            template=depthToMovedOilWaterContactTemplate
+            error=depthToMovedOilWaterContactError/>
+        </#if>
+        <#if gasCase || mixedCase>
+            <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.originalDepthToGasWaterContact"
+            labelText="Original depth to gas water contact"
+            template=originalDepthToGasWaterContactTemplate
+            error=originalDepthToGasWaterContactError/>
+
+            <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.depthToMovedGasWaterContact"
+            labelText="Depth to moved gas water contact"
+            template=depthToMovedGasWaterContactTemplate
+            error=depthToMovedGasWaterContactError/>
+        </#if>
+        <#if mixedCase>
+            <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.originalDepthToGasOilContact"
+            labelText="Original depth to gas oil contact"
+            template=originalDepthToGasOilContactTemplate
+            error=originalDepthToGasOilContactError/>
+
+            <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.depthToMovedGasOilContact"
+            labelText="Depth to moved gas oil contact"
+            template=depthToMovedGasOilContactTemplate
+            error=depthToMovedGasOilContactError/>
+        </#if>
     </#if>
     <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>

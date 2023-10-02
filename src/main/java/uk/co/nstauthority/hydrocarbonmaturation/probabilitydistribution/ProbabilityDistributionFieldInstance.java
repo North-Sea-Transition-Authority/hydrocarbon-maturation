@@ -56,6 +56,11 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.M_TVT,
       "Average net pay thickness"
   ),
+  AVERAGE_NET_PAY_THICKNESS_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVT,
+      "Average net pay thickness"
+  ),
   AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL(
       List.of(CONSTANT),
       ProbabilityOfExceedanceUnits.M_TVT,
@@ -71,6 +76,11 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.M_TVT,
       "Gross reservoir thickness"
   ),
+  GROSS_RESERVOIR_THICKNESS_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVT,
+      "Gross reservoir thickness"
+  ),
   GROSS_ROCK_VOLUME_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.MILLION_M3,
@@ -78,6 +88,11 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   GROSS_ROCK_VOLUME_DISCOVERY(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.MILLION_M3,
+      "Gross rock volume (GRV)"
+  ),
+  GROSS_ROCK_VOLUME_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.MILLION_M3,
       "Gross rock volume (GRV)"
   ),
@@ -91,6 +106,11 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT,
       "% of GRV which is oil bearing"
   ),
+  PERCENT_OF_GRV_OIL_BEARING_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "% of GRV which is oil bearing"
+  ),
   NET_TO_GROSS_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.PERCENT,
@@ -98,6 +118,11 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   NET_TO_GROSS_DISCOVERY(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Net to gross"
+  ),
+  NET_TO_GROSS_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.PERCENT,
       "Net to gross"
   ),
@@ -111,25 +136,108 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.PERCENT,
       "Net porosity"
   ),
-  DEPTH_TO_HYDROCARBON_CONTACT(
+  NET_POROSITY_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.PERCENT,
+      "Net porosity"
+  ),
+  DEPTH_TO_HYDROCARBON_CONTACT_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to hydrocarbon contact"
   ),
-  DEPTH_TO_OIL_WATER_CONTACT(
+
+  // Fluid contacts
+  DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to oil water contact"
   ),
-  DEPTH_TO_GAS_WATER_CONTACT(
+  DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to gas water contact"
   ),
-  DEPTH_TO_GAS_OIL_CONTACT(
+  DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to gas-oil contact"
+  ),
+  ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Original depth to oil water contact"
+  ),
+  ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Original depth to gas water contact"
+  ),
+  ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Original depth to gas-oil contact"
+  ),
+  DEPTH_TO_MOVED_OIL_WATER_CONTACT_DISCOVERY(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to moved oil water contact"
+  ),
+  DEPTH_TO_MOVED_GAS_WATER_CONTACT_DISCOVERY(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to moved gas water contact"
+  ),
+  DEPTH_TO_MOVED_GAS_OIL_CONTACT_DISCOVERY(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to moved gas-oil contact"
+  ),
+
+  DEPTH_TO_OIL_WATER_CONTACT_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to oil water contact"
+  ),
+  DEPTH_TO_GAS_WATER_CONTACT_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to gas water contact"
+  ),
+  DEPTH_TO_GAS_OIL_CONTACT_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to gas-oil contact"
+  ),
+  ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Original depth to oil water contact"
+  ),
+  ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Original depth to gas water contact"
+  ),
+  ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Original depth to gas-oil contact"
+  ),
+  DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to moved oil water contact"
+  ),
+  DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to moved gas water contact"
+  ),
+  DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD(
+      MinimumMostLikelyMaxBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to moved gas-oil contact"
   ),
 
   // Gas case volumetrics
@@ -491,8 +599,7 @@ public enum ProbabilityDistributionFieldInstance {
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.MD,
       "Vertical permeability"
-  )
-  ;
+  );
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
   private final List<ProbabilityDistributionType> presetTypes;
 

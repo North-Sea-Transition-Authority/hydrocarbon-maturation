@@ -125,7 +125,6 @@ class DiscoveryWellDetailsFormServiceTest {
             theForm -> theForm.getWellDetailsForm().getTotalDepthFormationComments(),
             DiscoveryWellDetailsForm::getChanceOfCommercialityComments,
             DiscoveryWellDetailsForm::getDiscoveryStatus,
-            DiscoveryWellDetailsForm::getHydrocarbonsDiscovered,
             theForm -> theForm.getDryHoleCost().asBigDecimal(),
             theForm -> theForm.getSuccessRelatedCosts().asBigDecimal())
         .containsExactly(
@@ -144,7 +143,6 @@ class DiscoveryWellDetailsFormServiceTest {
             discoveryWellDetail.getTotalDepthFormationComments(),
             discoveryWellDetail.getChanceOfCommercialityComments(),
             discoveryWellDetail.getDiscoveryStatus(),
-            discoveryWellDetail.getHydrocarbonsDiscovered(),
             Optional.of(discoveryWellDetail.getTotalWellCost()),
             Optional.of(discoveryWellDetail.getSuccessRelatedCosts())
         );
@@ -171,7 +169,6 @@ class DiscoveryWellDetailsFormServiceTest {
     discoveryWellDetail.setTotalWellCost(BigDecimal.ONE);
     discoveryWellDetail.setChanceOfCommercialityComments("comments");
     discoveryWellDetail.setDiscoveryStatus(DiscoveryStatus.TECHNICAL_DISCOVERY);
-    discoveryWellDetail.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
     return discoveryWellDetail;
   }
 }

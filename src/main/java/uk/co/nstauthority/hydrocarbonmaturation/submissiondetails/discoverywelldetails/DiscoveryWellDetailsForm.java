@@ -7,20 +7,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.W
 class DiscoveryWellDetailsForm implements SubmissionForm {
 
   private WellDetailsForm wellDetailsForm = new WellDetailsForm();
-  private HydrocarbonsDiscovered hydrocarbonsDiscovered;
   private DiscoveryStatus discoveryStatus;
   private String chanceOfCommercialityComments;
   private DecimalInput dryHoleCost = new DecimalInput();
   private DecimalInput successRelatedCosts = new DecimalInput();
-
-  public HydrocarbonsDiscovered getHydrocarbonsDiscovered() {
-    return hydrocarbonsDiscovered;
-  }
-
-  public void setHydrocarbonsDiscovered(
-      HydrocarbonsDiscovered hydrocarbonsDiscovered) {
-    this.hydrocarbonsDiscovered = hydrocarbonsDiscovered;
-  }
 
   public DiscoveryStatus getDiscoveryStatus() {
     return discoveryStatus;

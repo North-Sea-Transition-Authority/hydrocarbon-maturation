@@ -198,7 +198,30 @@ class ReservoirPropertiesDuplicationServiceTest {
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
     whenGetAllProbabilityDistributionsForInstancesForDiscoveryUpdate(oldReservoirSubmissionDetail)
-          .thenReturn(List.of());
+        .thenReturn(List.of());
+
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {
+      "CREATE_FDP",
+      "CREATE_FDPA",
+      "CREATE_CSR",
+      "CREATE_COP"})
+  void duplicateReservoirSection_ProbabilityDistributionsDoNotExist_Field_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    whenGetAllProbabilityDistributionsForInstancesForFieldUpdate(oldReservoirSubmissionDetail)
+        .thenReturn(List.of());
 
     reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
@@ -276,6 +299,30 @@ class ReservoirPropertiesDuplicationServiceTest {
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {
+      "CREATE_FDP",
+      "CREATE_FDPA",
+      "CREATE_CSR",
+      "CREATE_COP"})
+  void duplicateReservoirSection_field_update_Duplicates(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    var probabilityDistribution = new ProbabilityDistribution();
+    whenGetAllProbabilityDistributionsForInstancesForFieldUpdate(oldReservoirSubmissionDetail)
+        .thenReturn(List.of(probabilityDistribution));
+
+    reservoirPropertiesDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+
+    verify(reservoirDuplicationPersistenceService, times(1))
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
   @Test
   void duplicateReservoirSection_averageNetPayExistsNotCalculated_Discovery_notDuplicates() {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_DISCOVERY);
@@ -305,7 +352,28 @@ class ReservoirPropertiesDuplicationServiceTest {
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT,
         ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT
+        ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT_PROSPECT
+    )));
+  }
+
+  private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstancesForFieldUpdate(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(reservoirSubmissionDetail, Set.of(
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD,
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_FIELD,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_FIELD,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD,
+        ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD,
+        ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD,
+        ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD
     )));
   }
 
@@ -317,9 +385,9 @@ class ReservoirPropertiesDuplicationServiceTest {
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY,
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY,
         ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY
     )));
   }
 
@@ -342,7 +410,7 @@ class ReservoirPropertiesDuplicationServiceTest {
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
         ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT,
         ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY
         )));
   }
 }

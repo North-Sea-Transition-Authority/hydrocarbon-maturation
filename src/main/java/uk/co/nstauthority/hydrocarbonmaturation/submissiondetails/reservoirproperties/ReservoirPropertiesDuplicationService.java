@@ -10,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -38,7 +39,8 @@ class ReservoirPropertiesDuplicationService implements ReservoirSectionDuplicati
 
     reservoirPropertiesPersistenceService.getReservoirProperty(oldReservoirSubmissionDetail)
         .ifPresent(reservoirProperty ->
-            reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newReservoirSubmissionDetail, reservoirProperty,
+            reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(newReservoirSubmissionDetail,
+                reservoirProperty,
                 ReservoirProperty.class)
         );
 
@@ -56,12 +58,12 @@ class ReservoirPropertiesDuplicationService implements ReservoirSectionDuplicati
       if (newSubmissionDetail.isProspectSubmission()) {
         applicableInstances.addAll(List.of(
             ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT));
-      } else if (newSubmissionDetail.isDryWellSubmission()
-          && oldSubmissionDetail.hasSameSubmissionType(newSubmissionDetail)) {
+            ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT_PROSPECT));
+      } else if (newSubmissionDetail.isSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE)
+          && newSubmissionDetail.hasSameSubmissionType(oldSubmissionDetail)) {
         applicableInstances.addAll(List.of(
             ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT));
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY));
       }
     }
 
@@ -73,9 +75,27 @@ class ReservoirPropertiesDuplicationService implements ReservoirSectionDuplicati
           ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY,
           ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY,
           ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY,
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
-          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT));
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY));
+    } else if (resourceType == ResourceType.FIELD) {
+      applicableInstances.addAll(List.of(
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD,
+          ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD,
+          ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD,
+          ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD,
+          ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD,
+          ProbabilityDistributionFieldInstance.NET_POROSITY_FIELD,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_FIELD,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD,
+          ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD,
+          ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD,
+          ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD,
+          ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD
+      ));
     }
 
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {

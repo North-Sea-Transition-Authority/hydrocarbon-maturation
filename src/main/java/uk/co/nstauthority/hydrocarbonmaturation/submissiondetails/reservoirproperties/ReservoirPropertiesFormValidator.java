@@ -7,6 +7,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
@@ -47,13 +48,21 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
   }
 
   private void validatePartial(SubmissionForm form,
-                              Errors errors,
-                              SubmissionType submissionType,
-                              HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+                               Errors errors,
+                               SubmissionType submissionType,
+                               HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     var reservoirForm = ((ReservoirPropertiesForm) form);
 
     var averageNetPayThicknessFormField = "averageNetPayThickness";
-    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getAverageNetPayThickness(),
+          errors,
+          averageNetPayThicknessFormField,
+          "Average net pay thickness distribution used",
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD
+      );
+    } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
       ProbabilityDistributionValidationUtil.validatePartial(
           reservoirForm.getAverageNetPayThickness(),
           errors,
@@ -69,43 +78,93 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
       );
     }
 
-    ProbabilityDistributionValidationUtil.validatePartial(
-        reservoirForm.getGrossReservoirThickness(),
-        errors,
-        "grossReservoirThickness",
-        "Gross reservoir thickness distribution used"
-    );
-
-    ProbabilityDistributionValidationUtil.validatePartial(
-        reservoirForm.getGrossRockVolume(),
-        errors,
-        "grossRockVolume",
-        "Gross rock volume (GRV) distribution used"
-    );
-
-    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
-        || submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
-      ProbabilityDistributionValidationUtil.validatePartialPercentage(
-          reservoirForm.getPercentOfGrvOilBearing(),
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getGrossReservoirThickness(),
           errors,
-          "percentOfGrvOilBearing",
-          "Percentage of GRV which is oil bearing distribution used"
+          "grossReservoirThickness",
+          "Gross reservoir thickness distribution used",
+          ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validatePartial(
+          reservoirForm.getGrossReservoirThickness(),
+          errors,
+          "grossReservoirThickness",
+          "Gross reservoir thickness distribution used"
       );
     }
 
-    ProbabilityDistributionValidationUtil.validatePartialPercentage(
-        reservoirForm.getNetToGross(),
-        errors,
-        "netToGross",
-        "Net to gross distribution used"
-    );
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getGrossRockVolume(),
+          errors,
+          "grossRockVolume",
+          "Gross rock volume (GRV) distribution used",
+          ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validatePartial(
+          reservoirForm.getGrossRockVolume(),
+          errors,
+          "grossRockVolume",
+          "Gross rock volume (GRV) distribution used"
+      );
+    }
 
-    ProbabilityDistributionValidationUtil.validatePartialPercentage(
-        reservoirForm.getNetPorosity(),
-        errors,
-        "netPorosity",
-        "Net porosity distribution used"
-    );
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
+        || submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+      if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+        ProbabilityDistributionValidationUtil.validateCustomPartialPercentage(
+            reservoirForm.getPercentOfGrvOilBearing(),
+            errors,
+            "percentOfGrvOilBearing",
+            "Percentage of GRV which is oil bearing distribution used",
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD
+        );
+      } else {
+        ProbabilityDistributionValidationUtil.validatePartialPercentage(
+            reservoirForm.getPercentOfGrvOilBearing(),
+            errors,
+            "percentOfGrvOilBearing",
+            "Percentage of GRV which is oil bearing distribution used"
+        );
+      }
+    }
+
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateCustomPartialPercentage(
+          reservoirForm.getNetToGross(),
+          errors,
+          "netToGross",
+          "Net to gross distribution used",
+          ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validatePartialPercentage(
+          reservoirForm.getNetToGross(),
+          errors,
+          "netToGross",
+          "Net to gross distribution used"
+      );
+    }
+
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateCustomPartialPercentage(
+          reservoirForm.getNetToGross(),
+          errors,
+          "netPorosity",
+          "Net porosity distribution used",
+          ProbabilityDistributionFieldInstance.NET_POROSITY_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validatePartialPercentage(
+          reservoirForm.getNetPorosity(),
+          errors,
+          "netPorosity",
+          "Net porosity distribution used"
+      );
+    }
 
     if (submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.PROSPECT_UPDATE
@@ -118,19 +177,25 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
       );
     }
 
-    if (submissionType == SubmissionType.CREATE_DISCOVERY
-        || submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
-      validatePartiallyDepthToFields(errors, reservoirForm, hydrocarbonsDiscovered);
+    if (SubmissionDetailUtil.isDiscoverySubmission(submissionType)) {
+      validatePartiallyDiscoveryDepthTo(errors, reservoirForm, hydrocarbonsDiscovered);
+    } else if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      if (submissionType == SubmissionType.CREATE_COP) {
+        validatePartiallyFieldOriginalDepth(errors, reservoirForm, hydrocarbonsDiscovered);
+        validatePartiallyFieldDepthToMoved(errors, reservoirForm, hydrocarbonsDiscovered);
+      } else {
+        validatePartiallyFieldDepthTo(errors, reservoirForm, hydrocarbonsDiscovered);
+      }
     }
   }
 
   private void validateFull(SubmissionForm form,
-                           Errors errors,
-                           SubmissionType submissionType,
-                           HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+                            Errors errors,
+                            SubmissionType submissionType,
+                            HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     ReservoirPropertiesForm reservoirPropertiesForm = (ReservoirPropertiesForm) form;
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "formationName", "formationName.required", "Enter a formation name");
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "formationName", "formationName.required",
+        "Enter a formation name");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors,
         "ageStageOrSeries",
         "ageStageOrSeries.required",
@@ -138,13 +203,11 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groupName", "groupName.required", "Enter a group name");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithology", "lithology.required", "Enter a lithology");
     if (reservoirPropertiesForm.getLithology() == ReservoirLithology.OTHER) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithologyOther", "lithologyOther.required", "Enter an other lithology");
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithologyOther", "lithologyOther.required",
+          "Enter an other lithology");
     }
 
-    if (submissionType == SubmissionType.CREATE_DISCOVERY
-        || submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
-        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
+    if (SubmissionDetailUtil.isDiscoverySubmission(submissionType)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirFacies",
           "reservoirFacies.required", "Enter the reservoir facies");
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirConnectivity",
@@ -158,7 +221,21 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
       ValidationUtils.rejectIfEmpty(errors, "averageNetPayThickness.probabilityDistributionType",
           "averageNetPayThickness.probabilityDistributionType.required",
           "Select the average net reservoir thickness distribution used");
+    } else {
+      ValidationUtils.rejectIfEmpty(errors, "averageNetPayThickness.probabilityDistributionType",
+          "averageNetPayThickness.probabilityDistributionType.required",
+          "Select the average net pay thickness distribution used");
+    }
 
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getAverageNetPayThickness(),
+          errors,
+          averageNetPayThicknessFormField,
+          "Average net pay thickness distribution used",
+          ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD
+      );
+    } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
       ProbabilityDistributionValidationUtil.validateFull(
           reservoirForm.getAverageNetPayThickness(),
           errors,
@@ -166,10 +243,6 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           "Average net reservoir thickness distribution used"
       );
     } else {
-      ValidationUtils.rejectIfEmpty(errors, "averageNetPayThickness.probabilityDistributionType",
-          "averageNetPayThickness.probabilityDistributionType.required",
-          "Select the average net reservoir thickness distribution used");
-
       ProbabilityDistributionValidationUtil.validateFull(
           reservoirForm.getAverageNetPayThickness(),
           errors,
@@ -182,23 +255,43 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
         "grossReservoirThickness.probabilityDistributionType.required",
         "Select the gross reservoir thickness distribution used");
 
-    ProbabilityDistributionValidationUtil.validateFull(
-        reservoirForm.getGrossReservoirThickness(),
-        errors,
-        "grossReservoirThickness",
-        "Gross reservoir thickness distribution used"
-    );
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getGrossReservoirThickness(),
+          errors,
+          "grossReservoirThickness",
+          "Gross reservoir thickness distribution used",
+          ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validateFull(
+          reservoirForm.getGrossReservoirThickness(),
+          errors,
+          "grossReservoirThickness",
+          "Gross reservoir thickness distribution used"
+      );
+    }
 
     ValidationUtils.rejectIfEmpty(errors, "grossRockVolume.probabilityDistributionType",
         "grossRockVolume.probabilityDistributionType.required",
         "Select the gross rock volume distribution used");
 
-    ProbabilityDistributionValidationUtil.validateFull(
-        reservoirForm.getGrossRockVolume(),
-        errors,
-        "grossRockVolume",
-        "Gross rock volume (GRV) distribution used"
-    );
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getGrossRockVolume(),
+          errors,
+          "grossRockVolume",
+          "Gross rock volume (GRV) distribution used",
+          ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validateFull(
+          reservoirForm.getGrossRockVolume(),
+          errors,
+          "grossRockVolume",
+          "Gross rock volume (GRV) distribution used"
+      );
+    }
 
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
         || submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
@@ -206,35 +299,65 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           "percentOfGrvOilBearing.probabilityDistributionType.required",
           "Select the percentage of GRV which is oil bearing distribution used");
 
-      ProbabilityDistributionValidationUtil.validateFullPercentage(
-          reservoirForm.getPercentOfGrvOilBearing(),
-          errors,
-          "percentOfGrvOilBearing",
-          "Percentage of GRV which is oil bearing distribution used"
-      );
+      if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+        ProbabilityDistributionValidationUtil.validateCustomFullPercentage(
+            reservoirForm.getPercentOfGrvOilBearing(),
+            errors,
+            "percentOfGrvOilBearing",
+            "Percentage of GRV which is oil bearing distribution used",
+            ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD
+        );
+      } else {
+        ProbabilityDistributionValidationUtil.validateFullPercentage(
+            reservoirForm.getPercentOfGrvOilBearing(),
+            errors,
+            "percentOfGrvOilBearing",
+            "Percentage of GRV which is oil bearing distribution used"
+        );
+      }
     }
 
     ValidationUtils.rejectIfEmpty(errors, "netToGross.probabilityDistributionType",
         "netToGross.probabilityDistributionType.required",
         "Select net-to-gross distribution used");
 
-    ProbabilityDistributionValidationUtil.validateFullPercentage(
-        reservoirForm.getNetToGross(),
-        errors,
-        "netToGross",
-        "Net to gross distribution used"
-    );
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateCustomFullPercentage(
+          reservoirForm.getNetToGross(),
+          errors,
+          "netToGross",
+          "Net to gross distribution used",
+          ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validateFullPercentage(
+          reservoirForm.getNetToGross(),
+          errors,
+          "netToGross",
+          "Net to gross distribution used"
+      );
+    }
 
     ValidationUtils.rejectIfEmpty(errors, "netPorosity.probabilityDistributionType",
         "netPorosity.probabilityDistributionType.required",
         "Select the net porosity distribution used");
 
-    ProbabilityDistributionValidationUtil.validateFullPercentage(
-        reservoirForm.getNetPorosity(),
-        errors,
-        "netPorosity",
-        "Net porosity distribution used"
-    );
+    if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateCustomFullPercentage(
+          reservoirForm.getNetToGross(),
+          errors,
+          "netPorosity",
+          "Net porosity distribution used",
+          ProbabilityDistributionFieldInstance.NET_POROSITY_FIELD
+      );
+    } else {
+      ProbabilityDistributionValidationUtil.validateFullPercentage(
+          reservoirForm.getNetPorosity(),
+          errors,
+          "netPorosity",
+          "Net porosity distribution used"
+      );
+    }
 
     if (submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.PROSPECT_UPDATE
@@ -249,79 +372,290 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           "depthToHydrocarbonContact",
           "Depth to hydrocarbon contact distribution used"
       );
-    } else if (submissionType == SubmissionType.CREATE_DISCOVERY
-        || submissionType == SubmissionType.UPDATE_DISCOVERY
-        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT
-        || submissionType == SubmissionType.RELINQUISHMENT_DISCOVERY) {
-      validateFullyDepthToFields(errors, reservoirForm, hydrocarbonsDiscovered);
+    }
+
+    if (SubmissionDetailUtil.isDiscoverySubmission(submissionType)) {
+      validateFullyDiscoveryDepthTo(errors, reservoirForm, hydrocarbonsDiscovered);
+    } else if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      if (submissionType == SubmissionType.CREATE_COP) {
+        validateFullyFieldOriginalDepth(errors, reservoirForm, hydrocarbonsDiscovered);
+        validateFullyFieldDepthToMoved(errors, reservoirForm, hydrocarbonsDiscovered);
+      } else {
+        validateFullyFieldDepthTo(errors, reservoirForm, hydrocarbonsDiscovered);
+      }
     }
   }
 
-  private void validatePartiallyDepthToFields(Errors errors,
+  private void validatePartiallyFieldDepthTo(Errors errors,
+                                             ReservoirPropertiesForm reservoirForm,
+                                             HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getDepthToOilWaterContact(),
+          errors,
+          "depthToOilWaterContact",
+          "Depth to oil water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getDepthToGasWaterContact(),
+          errors,
+          "depthToGasWaterContact",
+          "Depth to gas water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_FIELD
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getDepthToGasOilContact(),
+          errors,
+          "depthToGasOilContact",
+          "Depth to gas oil contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD
+      );
+    }
+  }
+
+  private void validatePartiallyDiscoveryDepthTo(Errors errors,
+                                                 ReservoirPropertiesForm reservoirForm,
+                                                 HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getDepthToOilWaterContact(),
+          errors,
+          "depthToOilWaterContact",
+          "Depth to oil water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getDepthToGasWaterContact(),
+          errors,
+          "depthToGasWaterContact",
+          "Depth to gas water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getDepthToGasOilContact(),
+          errors,
+          "depthToGasOilContact",
+          "Depth to gas oil contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY
+      );
+    }
+  }
+
+  private void validateFullyFieldDepthTo(Errors errors,
+                                         ReservoirPropertiesForm reservoirForm,
+                                         HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getDepthToOilWaterContact(),
+          errors,
+          "depthToOilWaterContact",
+          "Depth to oil water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getDepthToGasWaterContact(),
+          errors,
+          "depthToGasWaterContact",
+          "Depth to gas water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_FIELD
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getDepthToGasOilContact(),
+          errors,
+          "depthToGasOilContact",
+          "Depth to gas oil contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD
+      );
+    }
+  }
+
+  private void validateFullyDiscoveryDepthTo(Errors errors,
+                                             ReservoirPropertiesForm reservoirForm,
+                                             HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getDepthToOilWaterContact(),
+          errors,
+          "depthToOilWaterContact",
+          "Depth to oil water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getDepthToGasWaterContact(),
+          errors,
+          "depthToGasWaterContact",
+          "Depth to gas water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getDepthToGasOilContact(),
+          errors,
+          "depthToGasOilContact",
+          "Depth to gas oil contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY
+      );
+    }
+  }
+
+  private void validateFullyFieldOriginalDepth(Errors errors,
+                                               ReservoirPropertiesForm reservoirForm,
+                                               HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getOriginalDepthToOilWaterContact(),
+          errors,
+          "originalDepthToOilWaterContact",
+          "Original depth to oil water contact",
+          ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getOriginalDepthToGasWaterContact(),
+          errors,
+          "originalDepthToGasWaterContact",
+          "Original depth to gas water contact",
+          ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getOriginalDepthToGasOilContact(),
+          errors,
+          "originalDepthToGasOilContact",
+          "Original depth to gas oil contact",
+          ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD
+      );
+    }
+  }
+
+  private void validatePartiallyFieldOriginalDepth(Errors errors,
+                                                   ReservoirPropertiesForm reservoirForm,
+                                                   HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getOriginalDepthToOilWaterContact(),
+          errors,
+          "originalDepthToOilWaterContact",
+          "Original depth to oil water contact",
+          ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getOriginalDepthToGasWaterContact(),
+          errors,
+          "originalDepthToGasWaterContact",
+          "Original depth to gas water contact",
+          ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD
+      );
+    }
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getOriginalDepthToGasOilContact(),
+          errors,
+          "originalDepthToGasOilContact",
+          "Original depth to gas oil contact",
+          ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD
+      );
+    }
+  }
+
+  private void validateFullyFieldDepthToMoved(Errors errors,
                                               ReservoirPropertiesForm reservoirForm,
                                               HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
         || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
-      ProbabilityDistributionValidationUtil.validateCustomPartial(
-          reservoirForm.getDepthToOilWaterContact(),
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getDepthToMovedOilWaterContact(),
           errors,
-          "depthToOilWaterContact",
-          "Depth to oil water contact",
-          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
+          "depthToMovedOilWaterContact",
+          "Depth to moved oil water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD
       );
     }
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
         || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
-      ProbabilityDistributionValidationUtil.validateCustomPartial(
-          reservoirForm.getDepthToGasWaterContact(),
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getDepthToMovedGasWaterContact(),
           errors,
-          "depthToGasWaterContact",
-          "Depth to gas water contact",
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT
+          "depthToMovedGasWaterContact",
+          "Depth to moved gas water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD
       );
     }
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
-      ProbabilityDistributionValidationUtil.validateCustomPartial(
-          reservoirForm.getDepthToGasOilContact(),
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          reservoirForm.getDepthToMovedGasOilContact(),
           errors,
-          "depthToGasOilContact",
-          "Depth to gas oil contact",
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT
+          "depthToMovedGasOilContact",
+          "Depth to moved gas oil contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD
       );
     }
   }
 
-  private void validateFullyDepthToFields(Errors errors,
-                                          ReservoirPropertiesForm reservoirForm,
-                                          HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+  private void validatePartiallyFieldDepthToMoved(Errors errors,
+                                                  ReservoirPropertiesForm reservoirForm,
+                                                  HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
         || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
-      ProbabilityDistributionValidationUtil.validateCustomFull(
-          reservoirForm.getDepthToOilWaterContact(),
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getDepthToMovedOilWaterContact(),
           errors,
-          "depthToOilWaterContact",
-          "Depth to oil water contact",
-          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT
+          "depthToMovedOilWaterContact",
+          "Depth to moved oil water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD
       );
     }
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
         || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
-      ProbabilityDistributionValidationUtil.validateCustomFull(
-          reservoirForm.getDepthToGasWaterContact(),
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getDepthToMovedGasWaterContact(),
           errors,
-          "depthToGasWaterContact",
-          "Depth to gas water contact",
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT
+          "depthToMovedGasWaterContact",
+          "Depth to moved gas water contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD
       );
     }
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
-      ProbabilityDistributionValidationUtil.validateCustomFull(
-          reservoirForm.getDepthToGasOilContact(),
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          reservoirForm.getDepthToMovedGasOilContact(),
           errors,
-          "depthToGasOilContact",
-          "Depth to gas oil contact",
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT
+          "depthToMovedGasOilContact",
+          "Depth to moved gas oil contact",
+          ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD
       );
     }
   }
 }
+

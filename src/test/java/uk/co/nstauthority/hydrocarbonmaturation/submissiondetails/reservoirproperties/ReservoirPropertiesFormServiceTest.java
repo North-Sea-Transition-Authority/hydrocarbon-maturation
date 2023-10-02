@@ -20,10 +20,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -37,13 +37,13 @@ class ReservoirPropertiesFormServiceTest {
   private static ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
 
   @Mock
-  private static DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
-
-  @Mock
   private static ProbabilityDistributionFormService probabilityDistributionFormService;
 
   @Mock
   private static HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+
+  @Mock
+  private static GeneralReservoirInformationService generalReservoirInformationService;
 
   private static SubmissionDetail submissionDetail;
   private static ReservoirSubmissionDetail reservoirSubmissionDetail;
@@ -51,7 +51,8 @@ class ReservoirPropertiesFormServiceTest {
   @BeforeEach
   void setUp() {
     reservoirPropertiesFormService = new ReservoirPropertiesFormService(reservoirPropertiesPersistenceService,
-        probabilityDistributionFormService, discoveryWellDetailsPersistenceService, hydrocarbonCasePersistenceService);
+        probabilityDistributionFormService, hydrocarbonCasePersistenceService,
+        generalReservoirInformationService);
 
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
@@ -185,11 +186,10 @@ class ReservoirPropertiesFormServiceTest {
     discoverySubmissionDetail.setSubmissionType(submissionType);
     when(reservoirPropertiesPersistenceService.getReservoirProperty(discoveryReservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
-    var discoveryWellDetail = new DiscoveryWellDetail();
-
-    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(discoverySubmissionDetail))
-        .thenReturn(Optional.of(discoveryWellDetail));
-    when(discoveryWellDetailsPersistenceService.isDiscoveryMixed(any()))
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    when(generalReservoirInformationService.getReservoirHydrocarbons(discoveryReservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isMixed(reservoirHydrocarbons))
         .thenReturn(true);
 
     var probabilityDistributionForm =
@@ -199,16 +199,16 @@ class ReservoirPropertiesFormServiceTest {
         ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT))
+        ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT))
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
-            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT))
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(discoveryReservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY))
@@ -231,6 +231,171 @@ class ReservoirPropertiesFormServiceTest {
             ReservoirPropertiesForm::getAverageNetPayThickness
         )
         .containsExactly(
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"})
+  void reservoirPropertiesEntityToForm_whenFieldNotCop_thenVerifyDiscoveryDistributionEntityToForm(
+      SubmissionType submissionType) {
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(submissionType);
+    var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
+    var reservoirProperty = getReservoirProperty(fieldReservoirSubmissionDetail);
+    fieldSubmissionDetail.setSubmissionType(submissionType);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(fieldReservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    when(generalReservoirInformationService.getReservoirHydrocarbons(fieldReservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isMixed(reservoirHydrocarbons))
+        .thenReturn(true);
+
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD))
+        .thenReturn(probabilityDistributionForm);
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD))
+        .thenReturn(probabilityDistributionForm);
+
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(fieldReservoirSubmissionDetail))
+        .extracting(
+            ReservoirPropertiesForm::getDepthToOilWaterContact,
+            ReservoirPropertiesForm::getDepthToGasOilContact,
+            ReservoirPropertiesForm::getDepthToGasWaterContact,
+            ReservoirPropertiesForm::getAverageNetPayThickness,
+            ReservoirPropertiesForm::getNetPorosity,
+            ReservoirPropertiesForm::getNetToGross,
+            ReservoirPropertiesForm::getPercentOfGrvOilBearing,
+            ReservoirPropertiesForm::getGrossRockVolume,
+            ReservoirPropertiesForm::getGrossReservoirThickness,
+            ReservoirPropertiesForm::getAverageNetPayThickness
+        )
+        .containsExactly(
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm
+        );
+  }
+
+  @Test
+  void reservoirPropertiesEntityToForm_whenFieldCop_thenVerifyDiscoveryDistributionEntityToForm() {
+    var submissionType = SubmissionType.CREATE_COP;
+
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(submissionType);
+    var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
+    var reservoirProperty = getReservoirProperty(fieldReservoirSubmissionDetail);
+    fieldSubmissionDetail.setSubmissionType(submissionType);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(fieldReservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
+
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    when(generalReservoirInformationService.getReservoirHydrocarbons(fieldReservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isMixed(reservoirHydrocarbons))
+        .thenReturn(true);
+
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD))
+        .thenReturn(probabilityDistributionForm);
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD))
+        .thenReturn(probabilityDistributionForm);
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD))
+        .thenReturn(probabilityDistributionForm);
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(fieldReservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD))
+        .thenReturn(probabilityDistributionForm);
+
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(fieldReservoirSubmissionDetail))
+        .extracting(
+            ReservoirPropertiesForm::getOriginalDepthToOilWaterContact,
+            ReservoirPropertiesForm::getOriginalDepthToGasWaterContact,
+            ReservoirPropertiesForm::getOriginalDepthToGasOilContact,
+            ReservoirPropertiesForm::getDepthToMovedGasOilContact,
+            ReservoirPropertiesForm::getDepthToMovedGasWaterContact,
+            ReservoirPropertiesForm::getDepthToMovedOilWaterContact,
+            ReservoirPropertiesForm::getNetPorosity,
+            ReservoirPropertiesForm::getNetToGross,
+            ReservoirPropertiesForm::getPercentOfGrvOilBearing,
+            ReservoirPropertiesForm::getGrossRockVolume,
+            ReservoirPropertiesForm::getGrossReservoirThickness,
+            ReservoirPropertiesForm::getAverageNetPayThickness
+        )
+        .containsExactly(
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
+            probabilityDistributionForm,
             probabilityDistributionForm,
             probabilityDistributionForm,
             probabilityDistributionForm,

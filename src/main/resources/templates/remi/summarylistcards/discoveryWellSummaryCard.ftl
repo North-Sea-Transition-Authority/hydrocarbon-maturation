@@ -34,9 +34,6 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Geophysical update commentary">
       <p class="govuk-body govuk-body__preserve-whitespace">${discoveryWellValues.geophysicalUpdate()}</p>
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Hydrocarbons discovered">
-      ${discoveryWellValues.hydrocarbonsDiscovered()}
-    </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Discovery status">
       ${discoveryWellValues.discoveryStatus()}
     </@fdsSummaryList.summaryListRowNoAction>

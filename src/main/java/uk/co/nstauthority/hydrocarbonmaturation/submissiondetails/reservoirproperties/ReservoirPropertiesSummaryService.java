@@ -11,9 +11,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
@@ -22,19 +22,19 @@ public class ReservoirPropertiesSummaryService {
 
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
-  private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
+  private final GeneralReservoirInformationService generalReservoirInformationService;
 
   @Autowired
   public ReservoirPropertiesSummaryService(
       ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService,
       ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
-      DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
-      HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService) {
+      HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
+      GeneralReservoirInformationService generalReservoirInformationService) {
     this.reservoirPropertiesPersistenceService = reservoirPropertiesPersistenceService;
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
-    this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
+    this.generalReservoirInformationService = generalReservoirInformationService;
   }
 
   public ReservoirPropertiesSummaryView getReservoirPropertiesSummaryFromReservoirSubmissionDetail(
@@ -161,8 +161,8 @@ public class ReservoirPropertiesSummaryService {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     if (submissionDetail.isDiscoverySubmission()) {
-      discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail)
-          .map(DiscoveryWellDetail::getHydrocarbonsDiscovered)
+      generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
+          .map(ReservoirHydrocarbons::getHydrocarbonsDiscovered)
           .ifPresent(hydrocarbonsDiscovered -> {
             if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
                 || hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
@@ -207,19 +207,19 @@ public class ReservoirPropertiesSummaryService {
   }
 
   private void addDepthToHydrocarbonContact(List<ProbabilityDistributionFieldInstance> listOfInstances) {
-    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT_PROSPECT);
   }
 
   private void addDepthToOilWaterContact(List<ProbabilityDistributionFieldInstance> listOfInstances) {
-    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY);
   }
 
   private void addDepthToGasWaterContact(List<ProbabilityDistributionFieldInstance> listOfInstances) {
-    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY);
   }
 
   private void addDepthToGasOilContact(List<ProbabilityDistributionFieldInstance> listOfInstances) {
-    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY);
   }
 
   private void addPercentOfGrvOilBearing(SubmissionDetail submissionDetail,

@@ -83,9 +83,6 @@ class DiscoveryWellDetailsFormValidator extends PartialFullFormValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "wellDetailsForm.dataAcquisitionProgramme",
         "wellDetailsForm.dataAcquisitionProgramme.required", "Enter the data acquisition programme");
 
-    ValidationUtils.rejectIfEmpty(errors, "hydrocarbonsDiscovered",
-        "hydrocarbonsDiscovered.required", "Enter the hydrocarbons discovered");
-
     ValidationUtils.rejectIfEmpty(errors, "discoveryStatus",
         "discoveryStatus.required", "Enter the discovery status");
 

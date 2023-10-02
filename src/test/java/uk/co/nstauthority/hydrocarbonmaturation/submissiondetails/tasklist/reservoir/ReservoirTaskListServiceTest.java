@@ -214,6 +214,12 @@ class ReservoirTaskListServiceTest {
                     ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
                 )
             )
         )
@@ -369,6 +375,12 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
                 new TaskListItem(
                     "Oil volumetric parameters",
                     TaskListLabel.COMPLETE,
@@ -495,6 +507,12 @@ class ReservoirTaskListServiceTest {
                     "Permeability",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
@@ -645,6 +663,12 @@ class ReservoirTaskListServiceTest {
                     "Permeability",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),

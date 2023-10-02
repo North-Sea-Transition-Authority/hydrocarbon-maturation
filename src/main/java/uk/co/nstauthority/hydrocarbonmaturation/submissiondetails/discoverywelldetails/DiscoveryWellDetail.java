@@ -13,9 +13,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Subm
 public class DiscoveryWellDetail extends DrillDetail implements SubmissionDetailChildEntity {
 
   @Enumerated(EnumType.STRING)
-  private HydrocarbonsDiscovered hydrocarbonsDiscovered;
-
-  @Enumerated(EnumType.STRING)
   private DiscoveryStatus discoveryStatus;
 
   private String chanceOfCommercialityComments;
@@ -23,15 +20,6 @@ public class DiscoveryWellDetail extends DrillDetail implements SubmissionDetail
   private BigDecimal totalWellCost;
 
   private BigDecimal successRelatedCosts;
-
-  public HydrocarbonsDiscovered getHydrocarbonsDiscovered() {
-    return hydrocarbonsDiscovered;
-  }
-
-  public void setHydrocarbonsDiscovered(
-      HydrocarbonsDiscovered hydrocarbonsDiscovered) {
-    this.hydrocarbonsDiscovered = hydrocarbonsDiscovered;
-  }
 
   public DiscoveryStatus getDiscoveryStatus() {
     return discoveryStatus;

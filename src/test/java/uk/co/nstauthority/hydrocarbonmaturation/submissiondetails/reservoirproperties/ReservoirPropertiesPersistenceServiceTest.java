@@ -65,7 +65,7 @@ class ReservoirPropertiesPersistenceServiceTest {
         submissionDetail,
         reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
-        ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT,
+        ProbabilityDistributionFieldInstance.DEPTH_TO_HYDROCARBON_CONTACT_PROSPECT,
         form.getDepthToHydrocarbonContact(),
         submissionDetail,
         reservoirSubmissionDetail);
@@ -149,28 +149,28 @@ class ReservoirPropertiesPersistenceServiceTest {
         discoverySubmissionDetail,
         discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
-        .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
+        .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY,
             discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
-        .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
+        .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY,
             discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
-        .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
+        .deleteProbabilityDistribution(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY,
             discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
+        .saveProbabilityDistributionWhenNotNull(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY,
             form.getDepthToGasWaterContact(),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY,
             form.getDepthToOilWaterContact(),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY,
             form.getDepthToGasOilContact(),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail);

@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 
+import java.rmi.server.UID;
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
@@ -74,6 +75,10 @@ public class SubmissionDetailTestUtils {
     var resource = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
     var submissionDetailId = UUID.randomUUID();
 
+    return createSubmissionDetail(submissionType, submissionDetailId, resource);
+  }
+  public static SubmissionDetail createFieldSubmissionDetail(SubmissionType submissionType, UUID submissionDetailId) {
+    var resource = ResourceTestUtils.buildResource(ResourceType.FIELD);
     return createSubmissionDetail(submissionType, submissionDetailId, resource);
   }
 

@@ -54,7 +54,6 @@ class DiscoveryWellDetailsSummaryServiceTest {
             DiscoveryWellDetailsSummaryView::totalDepthFormationComments,
             DiscoveryWellDetailsSummaryView::dataAcquisitionProgramme,
             DiscoveryWellDetailsSummaryView::geophysicalUpdate,
-            DiscoveryWellDetailsSummaryView::hydrocarbonsDiscovered,
             DiscoveryWellDetailsSummaryView::discoveryStatus,
             DiscoveryWellDetailsSummaryView::commentsRegardingCommerciality,
             DiscoveryWellDetailsSummaryView::totalWellCost,
@@ -79,7 +78,6 @@ class DiscoveryWellDetailsSummaryServiceTest {
     discoveryWellDetail.setTotalDepthFormationComments("depthC");
     discoveryWellDetail.setDataAcquisitionProgramme("data");
     discoveryWellDetail.setGeophysicalUpdateCommentary("geophysical");
-    discoveryWellDetail.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
     discoveryWellDetail.setDiscoveryStatus(DiscoveryStatus.TECHNICAL_DISCOVERY);
     discoveryWellDetail.setChanceOfCommercialityComments("comments commerciality");
     discoveryWellDetail.setTotalWellCost(BigDecimal.ZERO);
@@ -105,7 +103,6 @@ class DiscoveryWellDetailsSummaryServiceTest {
             DiscoveryWellDetailsSummaryView::totalDepthFormationComments,
             DiscoveryWellDetailsSummaryView::dataAcquisitionProgramme,
             DiscoveryWellDetailsSummaryView::geophysicalUpdate,
-            DiscoveryWellDetailsSummaryView::hydrocarbonsDiscovered,
             DiscoveryWellDetailsSummaryView::discoveryStatus,
             DiscoveryWellDetailsSummaryView::commentsRegardingCommerciality,
             DiscoveryWellDetailsSummaryView::totalWellCost,
@@ -124,7 +121,6 @@ class DiscoveryWellDetailsSummaryServiceTest {
             "depthC",
             "data",
             "geophysical",
-            HydrocarbonsDiscovered.GAS_ONLY.getDisplayName(),
             DiscoveryStatus.TECHNICAL_DISCOVERY.getDisplayName(),
             "comments commerciality",
             "£" + BigDecimal.ZERO + " million",

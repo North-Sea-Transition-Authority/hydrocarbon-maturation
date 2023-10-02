@@ -130,6 +130,7 @@ public class ProbabilityDistributionTestUtil {
     probabilityOfExceedanceForm.setP1(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setMax(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setConstant(new DecimalInput("abc"));
+    probabilityOfExceedanceForm.setMostLikely(new DecimalInput("abc"));
     return probabilityOfExceedanceForm;
   }
 

@@ -24,13 +24,6 @@
       wellEndpoint=wellEndpoint
       formPath="form.wellDetailsForm"/>
     <h2 class="govuk-heading-l">Discovery details</h2>
-    <@fdsRadio.radioGroup path="form.hydrocarbonsDiscovered" labelText="Hydrocarbons discovered">
-      <#assign firstItem=true/>
-      <#list hydrocarbonsDiscovered as key, value>
-        <@fdsRadio.radioItem path="form.hydrocarbonsDiscovered" itemMap={key : value} isFirstItem=firstItem/>
-        <#assign firstItem=false/>
-      </#list>
-    </@fdsRadio.radioGroup>
     <@fdsRadio.radioGroup path="form.discoveryStatus" labelText="Discovery status">
       <#assign firstItem=true/>
       <#list discoveryStatus as key, value>

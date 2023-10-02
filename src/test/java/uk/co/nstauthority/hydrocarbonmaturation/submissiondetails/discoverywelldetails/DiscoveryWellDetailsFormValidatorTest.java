@@ -92,7 +92,6 @@ class DiscoveryWellDetailsFormValidatorTest {
             entry("wellDetailsForm.reservoirDatum", Set.of("wellDetailsForm.reservoirDatum.required")),
             entry("wellDetailsForm.totalDepthFormation", Set.of("wellDetailsForm.totalDepthFormation.required")),
             entry("wellDetailsForm.dataAcquisitionProgramme", Set.of("wellDetailsForm.dataAcquisitionProgramme.required")),
-            entry("hydrocarbonsDiscovered", Set.of("hydrocarbonsDiscovered.required")),
             entry("discoveryStatus", Set.of("discoveryStatus.required")),
             entry("dryHoleCost.decimalInputValue", Set.of("dryHoleCost.decimalInputValue.required")),
             entry("successRelatedCosts.decimalInputValue", Set.of("successRelatedCosts.decimalInputValue.required"))
@@ -188,7 +187,6 @@ class DiscoveryWellDetailsFormValidatorTest {
     var form = new DiscoveryWellDetailsForm();
     form.getWellDetailsForm().setWell("dryWellName");
     form.setChanceOfCommercialityComments("dryHoleComments");
-    form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
     form.getWellDetailsForm().setReservoirDatum(ReservoirDatum.ED50);
     form.setDiscoveryStatus(DiscoveryStatus.TECHNICAL_DISCOVERY);
     form.getWellDetailsForm().getCoordinateInputForm().setLatitudeCoordinates(

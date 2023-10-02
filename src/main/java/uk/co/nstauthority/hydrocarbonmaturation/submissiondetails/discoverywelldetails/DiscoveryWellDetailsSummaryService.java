@@ -43,7 +43,6 @@ public class DiscoveryWellDetailsSummaryService {
         ObjectUtils.defaultIfNull(discoveryWellDetail.getTotalDepthFormationComments(), ""),
         ObjectUtils.defaultIfNull(discoveryWellDetail.getDataAcquisitionProgramme(), ""),
         ObjectUtils.defaultIfNull(discoveryWellDetail.getGeophysicalUpdateCommentary(), ""),
-        DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(discoveryWellDetail.getHydrocarbonsDiscovered()),
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(discoveryWellDetail.getDiscoveryStatus()),
         ObjectUtils.defaultIfNull(discoveryWellDetail.getChanceOfCommercialityComments(), ""),
         NumberUtil.getNumberStringWithUnitsOrEmpty(discoveryWellDetail.getTotalWellCost(), "£", "million"),

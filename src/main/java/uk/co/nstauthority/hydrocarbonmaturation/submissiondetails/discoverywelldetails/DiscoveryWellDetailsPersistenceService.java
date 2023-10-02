@@ -8,24 +8,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
 public class DiscoveryWellDetailsPersistenceService {
 
   private final DiscoveryWellDetailsRepository discoveryWellDetailsRepository;
-  private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final WellQueryService wellQueryService;
 
   @Autowired
   public DiscoveryWellDetailsPersistenceService(
       DiscoveryWellDetailsRepository discoveryWellDetailsRepository,
-      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
       WellQueryService wellQueryService) {
     this.discoveryWellDetailsRepository = discoveryWellDetailsRepository;
-    this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.wellQueryService = wellQueryService;
   }
 
@@ -70,63 +65,10 @@ public class DiscoveryWellDetailsPersistenceService {
     discoveryWellDetails.setTotalWellCost(form.getDryHoleCost().createBigDecimalOrNull());
     discoveryWellDetails.setTotalDepthFormationComments(form.getWellDetailsForm().getTotalDepthFormationComments());
 
-    if (discoveryWellDetails.getHydrocarbonsDiscovered() != form.getHydrocarbonsDiscovered()) {
-      cleanHydrocarbonsDiscovered(submissionDetail, form.getHydrocarbonsDiscovered());
-    }
-    discoveryWellDetails.setHydrocarbonsDiscovered(form.getHydrocarbonsDiscovered());
-
     discoveryWellDetailsRepository.save(discoveryWellDetails);
   }
 
   public Optional<DiscoveryWellDetail> getDiscoveryWellDetailBySubmissionDetail(SubmissionDetail submissionDetail) {
     return discoveryWellDetailsRepository.findBySubmissionDetail(submissionDetail);
-  }
-
-  public boolean isDiscoveryGasOnly(DiscoveryWellDetail discoveryWellDetail) {
-    return discoveryWellDetail.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.GAS_ONLY;
-  }
-
-  public boolean isDiscoveryOilOnly(DiscoveryWellDetail discoveryWellDetail) {
-    return discoveryWellDetail.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.OIL_ONLY;
-  }
-
-  public boolean isDiscoveryMixed(DiscoveryWellDetail discoveryWellDetail) {
-    return discoveryWellDetail.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS;
-  }
-
-  private void cleanHydrocarbonsDiscovered(SubmissionDetail submissionDetail,
-                                           HydrocarbonsDiscovered hydrocarbonsDiscovered) {
-    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
-      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
-          submissionDetail
-      );
-      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
-          submissionDetail
-      );
-    } else if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
-      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
-          submissionDetail
-      );
-      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
-          submissionDetail
-      );
-    } else if (hydrocarbonsDiscovered == null) {
-      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT,
-          submissionDetail
-      );
-      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT,
-          submissionDetail
-      );
-      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
-          ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT,
-          submissionDetail
-      );
-    }
   }
 }
