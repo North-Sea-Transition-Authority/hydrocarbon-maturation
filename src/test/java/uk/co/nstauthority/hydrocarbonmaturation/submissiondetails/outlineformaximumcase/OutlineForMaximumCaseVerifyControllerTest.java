@@ -35,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -89,7 +90,18 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
 
   @SecurityTest
   void getOutlineForMaximumCasePage_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getOutlineForMaximumCasePage_andSubmissionIsField_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
     mockMvc.perform(
             get(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId)))
                 .with(user(USER)))

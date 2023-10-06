@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -28,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/outline-for-maximum-case/upload")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
+@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_PROSPECT)
 @IsFromResponsibleTeam
 public class OutlineForMaximumCaseUploadController {
 
