@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
@@ -19,16 +21,24 @@ public class DiscoveryMixedCaseOutputsSummaryService implements SummarySectionSe
   public static final String OIL_AND_GAS_CASE_OUTPUTS = "Oil and gas case outputs (resources)";
   public static final int OIL_AND_GAS_CASE_OUTPUTS_DISPLAY_ORDER = 60;
 
+  private final GeneralReservoirInformationService generalReservoirInformationService;
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
   @Autowired
   public DiscoveryMixedCaseOutputsSummaryService(
+      GeneralReservoirInformationService generalReservoirInformationService,
       ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
+    this.generalReservoirInformationService = generalReservoirInformationService;
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
   }
 
   @Override
   public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var hydrocarbonsDiscovered = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail);
+    if (hydrocarbonsDiscovered.isEmpty()
+        || hydrocarbonsDiscovered.get().getHydrocarbonsDiscovered() != HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      return Optional.empty();
+    }
     var summaryItems = List.of(getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail));
     return Optional.of(new SummarySection(OIL_AND_GAS_CASE_OUTPUTS_DISPLAY_ORDER, summaryItems, ""));
   }
